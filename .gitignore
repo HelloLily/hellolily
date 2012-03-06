@@ -1,0 +1,6 @@
+*.db
+*.pyc
+.project
+.pydevproject
+lily/media/
+lily/site_settings.py

@@ -91,6 +91,10 @@ INSTALLED_APPS = (
     
     # Our own
     'lily.accounts',
+    'lily.activities',
+    'lily.contacts',
+    'lily.users',
+    'lily.utils',
 )
 
 LOGGING = {

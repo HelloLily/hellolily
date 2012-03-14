@@ -1,4 +1,5 @@
 import os
+from django.core.urlresolvers import reverse_lazy
 
 DEBUG = TEMPLATE_DEBUG = False
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -24,15 +25,20 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static_collected')
 STATIC_URL = '/static/'
 
 #LOGIN STUFF
-#LOGIN_URL = 'bla'
-#LOGIN_REDIRECT_URL = 'bla'
-#etc.
+LOGIN_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = '/admin/'
+LOGOUT_URL = reverse_lazy('logout')
+AUTHENTICATION_BACKENDS = (
+    'lily.users.auth_backends.UserModelBackend',
+)
+CUSTOM_USER_MODEL = 'users.UserModel'
 
 STATICFILES_DIRS = (
+    os.path.join(PROJECT_ROOT, 'static'),
     # Optional: see https://docs.djangoproject.com/en/1.3/ref/contrib/staticfiles/#prefixes-optional
 )
 
@@ -75,6 +81,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request",
 )
 
 INSTALLED_APPS = (

@@ -1,3 +1,299 @@
-{% load i18n  %}
+{% load static %}
 
-{% trans 'hallo' %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<!-- Apple iOS and Android stuff (do not remove) -->
+<meta name="apple-mobile-web-app-capable" content="no" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
+
+<!-- Required Stylesheets -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/text.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/fonts/ptsans/stylesheet.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/fluid.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/icons/16x16.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/icons/24x24.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/icons/32x32.css' %}" media="screen" />
+
+<!-- Plugin Stylesheets -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" /> 
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/jgrowl/jquery.jgrowl.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/chosen/chosen.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/tipsy/tipsy.css' %}" media="screen" />
+
+<!-- Theme Stylesheet -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/core.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/panels.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/table.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/gallery.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/button.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/report.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/form.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/misc.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/plugins.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/responsive.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/themer.css' %}" media="screen" />
+
+{% block styles %}{% endblock %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/mws.theme.css' %}" media="screen" />
+
+<!-- JavaScript -->
+<script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/mws.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'plugins/jgrowl/jquery.jgrowl-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/tipsy/jquery.tipsy-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
+
+{% block scripts %}{% endblock %}
+
+<title>{% block title %}{% endblock %} Hello Lily </title>
+
+</head>
+
+<body>
+    {% block body %}
+    <!-- Header -->
+    <div id="mws-header" class="clearfix">
+    
+        <!-- Logo Container -->
+        <div id="mws-logo-container">
+        
+            <!-- Logo Wrapper, images put within this wrapper will always be vertically centered -->
+            <div id="mws-logo-wrap">
+                <img src="{% static 'images/mws-logo.png' %}" alt="mws admin" />
+            </div>
+        </div>
+        
+        <!-- User Tools (notifications, logout, profile, change password) -->
+        <div id="mws-user-tools" class="clearfix">
+        
+            <!-- Notifications -->
+            <div id="mws-user-notif" class="mws-dropdown-menu">
+                <a href="#" class="mws-i-24 i-alert-2 mws-dropdown-trigger">Notifications</a>
+                
+                <!-- Unread notification count -->
+                <span class="mws-dropdown-notif">45</span>
+                
+                <!-- Notifications dropdown -->
+                <div class="mws-dropdown-box">
+                    <div class="mws-dropdown-content">
+                        <ul class="mws-notifications">
+                            <li class="read">
+                                <a href="#">
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet consectetur adipiscing elit, et al commore
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="read">
+                                <a href="#">
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="unread">
+                                <a href="#">
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="unread">
+                                <a href="#">
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="mws-dropdown-viewall">
+                            <a href="#">View All Notifications</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div id="mws-user-message" class="mws-dropdown-menu">
+                <a href="#" class="mws-i-24 i-message mws-dropdown-trigger">Messages</a>
+                
+                <!-- Unred messages count -->
+                <span class="mws-dropdown-notif">35</span>
+                
+                <!-- Messages dropdown -->
+                <div class="mws-dropdown-box">
+                    <div class="mws-dropdown-content">
+                        <ul class="mws-messages">
+                            <li class="read">
+                                <a href="#">
+                                    <span class="sender">John Doe</span>
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet consectetur adipiscing elit, et al commore
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="read">
+                                <a href="#">
+                                    <span class="sender">John Doe</span>
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="unread">
+                                <a href="#">
+                                    <span class="sender">John Doe</span>
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="unread">
+                                <a href="#">
+                                    <span class="sender">John Doe</span>
+                                    <span class="message">
+                                        Lorem ipsum dolor sit amet
+                                    </span>
+                                    <span class="time">
+                                        January 21, 2012
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="mws-dropdown-viewall">
+                            <a href="#">View All Messages</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Information and functions section -->
+            <div id="mws-user-info" class="mws-inset">
+            
+                <!-- User Photo -->
+                <div id="mws-user-photo">
+                    <img src="{% static 'images/core/unknown.png' %}" alt="User Photo" />
+                </div>
+                
+                <!-- Username and Functions -->
+                <div id="mws-user-functions">
+                    <div id="mws-username">
+                        Hello, John Doe
+                    </div>
+                    <ul>
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Change Password</a></li>
+                        <li><a href="index.html">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Start Main Wrapper -->
+    <div id="mws-wrapper">
+    
+        <!-- Necessary markup, do not remove -->
+        <div id="mws-sidebar-stitch"></div>
+        <div id="mws-sidebar-bg"></div>
+        
+        <!-- Sidebar Wrapper -->
+        <div id="mws-sidebar">
+        
+            <!-- Searchbox -->
+            <div id="mws-searchbox" class="mws-inset">
+                <form action="typography.html">
+                    <input type="text" class="mws-search-input" />
+                    <input type="submit" class="mws-search-submit" />
+                </form>
+            </div>
+            
+            <!-- Main Navigation -->
+            {% block navigation %}
+            <div id="mws-navigation">
+                <ul>
+                    <li class="active"><a href="dashboard.html" class="mws-i-24 i-home">Dashboard</a></li>
+                    <li><a href="charts.html" class="mws-i-24 i-chart">Charts</a></li>
+                    <li><a href="calendar.html" class="mws-i-24 i-day-calendar">Calendar</a></li>
+                    <li><a href="files.html" class="mws-i-24 i-file-cabinet">File Manager</a></li>
+                    <li><a href="table.html" class="mws-i-24 i-table-1">Table</a></li>
+                    <li>
+                        <a href="#" class="mws-i-24 i-list">Forms</a>
+                        <ul>
+                            <li><a href="form_layouts.html">Layouts</a></li>
+                            <li><a href="form_elements.html">Elements</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="widgets.html" class="mws-i-24 i-cog">Widgets</a></li>
+                    <li><a href="typography.html" class="mws-i-24 i-text-styling">Typography</a></li>
+                    <li><a href="grids.html" class="mws-i-24 i-blocks-images">Grids &amp; Panels</a></li>
+                    <li><a href="gallery.html" class="mws-i-24 i-polaroids">Gallery</a></li>
+                    <li><a href="error.html" class="mws-i-24 i-alert-2">Error Page</a></li>
+                    <li>
+                        <a href="icons.html" class="mws-i-24 i-pacman">
+                            Icons <span class="mws-nav-tooltip">2000+</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endblock %}
+        </div>
+                
+        <!-- Main Container -->
+        <div id="mws-container" class="clearfix">
+        
+            <!-- Inner Container -->
+            <div class="container">
+            
+                <!-- Statistics Button Container -->
+                {% block statistics %} {% endblock %}
+                
+                <!-- Panels -->
+                {% block content %}{% endblock %}
+                
+            </div>
+                       
+            <!-- Footer -->
+            <div id="mws-footer">
+                Copyright Your Website 2012. All Rights Reserved.
+            </div>
+            
+        </div>
+        
+    </div>
+
+    {% endblock %}
+</body>
+</html>

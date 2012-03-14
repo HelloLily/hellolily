@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Login' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'users/css/login.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'users/js/login.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+    <div id="mws-login-wrapper">
+        <div id="mws-login">
+            <h1>{% trans 'Log in' %}</h1>
+            <div class="mws-login-lock"><img src="{% static 'css/icons/24/locked-2.png' %}" alt="" /></div>
+            <div id="mws-login-form"> 
+                <form class="mws-form" autocomplete="off" action="" method="post">
+                    {% if request.REQUEST.logged_out == 'true' or request.REQUEST.password_reset == 'true' or request.REQUEST.inactive == 'true' %}
+                        <div class="mws-form-row">
+                            <div class="mws-form-row mws-inset">
+                                {% if request.REQUEST.logged_out == 'true' %}
+                                    {% trans 'You have succesfully logged out.' %}
+                                {% elif request.REQUEST.password_reset == 'true' %}
+                                    {% trans 'Your password has been changed.' %}
+                                {% elif request.REQUEST.inactive == 'true' %}
+                                    {% trans 'Your account appears to be inactive, if you have questions please refer to your account manager.' %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="mws-form-row">
+                            <div class="mws-form-message error no_list_style_type">
+                                <span class="field_error">{{ form.non_field_errors }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mws-form-row">
+                        <div class="mws-form-item large">
+                            {{ form.username }}
+                        </div>
+                        <div class="mws-form-item large">
+                            {{ form.password }}
+                        </div>
+                    </div>
+                    <div class="mws-form-row mws-inset">
+                        <ul class="mws-form-list inline">
+                            <li>{{ form.remember_me }} {{ form.remember_me.label_tag }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mws-form-row">
+                        <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <a href="{% url password_reset %}" class="float-right" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
+    </div>
+{% endblock %}

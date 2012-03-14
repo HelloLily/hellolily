@@ -38,7 +38,7 @@ class ContactModel(CommonModel):
     description = models.TextField(verbose_name=_('description'), blank=True)
 
     def __unicode__(self):
-        return ' '.join([self.contact.first_name, self.contact.preposition, self.contact.last_name])
+        return ' '.join([self.first_name, self.preposition, self.last_name])
 
     class Meta:
         verbose_name = _('contact')

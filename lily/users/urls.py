@@ -3,7 +3,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm
 
-from lily.users.views import DashboardView, LoginView, RegistrationView, RegistrationSuccessView
+from lily.users.views import DashboardView, LoginView, RegistrationView, RegistrationSuccessView, \
+                             ActivationView, ActivationResendView
 from lily.users.forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 urlpatterns = patterns('',
@@ -12,20 +13,19 @@ urlpatterns = patterns('',
     url(r'^registration/success/$', RegistrationSuccessView.as_view(), name='registration_success'),
     
     # Activation
-    #url(r'^activation/$', RegistrationSuccessView.as_view(), name='registration_success'),
-    #url(r'^activation/success/$', RegistrationSuccessView.as_view(), name='registration_success'),
-    #url(r'^activation/resend/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', ActivationView.as_view(), name='activation'),
+    url(r'^activation/resend/$', ActivationResendView.as_view(), name='activation_resend'),
     
     # Login
     url(r'^login/$', LoginView.as_view(), name='login'),
     
-    # 
+    # Dashboard and other user specific views, which require a logged in user
     url(r'^$', login_required(DashboardView.as_view()), name='dashboard'),
 )
 
 # Views from django.contrib.auth.views
 urlpatterns += patterns('django.contrib.auth.views',
-    url(r'^logout/$', 'logout', {'next_page': '/login/?logged_out=true'}, name='logout'),
+    url(r'^logout/$', 'logout_then_login', name='logout'),
     
     url(r'^password_reset/$', 'password_reset', {
         'template_name': 'users/password_reset.html',
@@ -39,6 +39,9 @@ urlpatterns += patterns('django.contrib.auth.views',
     url(r'^reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', 'password_reset_confirm', {
         'template_name': 'users/password_reset_confirm.html',
         'set_password_form': CustomSetPasswordForm,
-        'post_reset_redirect': '/login/?password_reset=true'
     }, name='password_reset_confirm'),
+    
+    url(r'^reset/complete/$', 'password_reset_complete', {
+        'template_name': 'users/password_reset_complete.html',
+    }, name='password_reset_complete'),
 )

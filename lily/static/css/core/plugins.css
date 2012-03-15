@@ -1,0 +1,165 @@
+
+/* ----------------------------------------- elFinder
+----------------------------------------------------- */
+
+.el-finder
+{
+	min-width:0 !important;
+	
+	/* CSS 3 */
+	
+	-webkit-border-radius:0 !important;
+	-moz-border-radius:0 !important;
+	border-radius:0 !important;
+}
+
+.el-finder-dialog {
+	font-size:100%;
+}
+.el-finder-dialog .ui-dialog-titlebar { 
+	padding:12px !important;
+}
+.el-finder-dialog .ui-dialog-buttonpane {
+	padding:5px !important;
+	font-size:100% !important;
+}
+
+.el-finder-dialog .ui-dialog-content
+{
+	font-size:0.9em !important;
+}
+
+.el-finder-dialog .ui-tabs { 
+	font-size:100%;
+}
+
+.el-finder-dialog .ui-tabs div {
+	padding:1em 2.2em !important;
+}
+.el-finder-dialog .ui-tabs-nav li a {
+	padding:4px 1em 13px 1em !important;
+	line-height:19px !important;
+}
+
+/* ------------------------------------- End elFinder
+----------------------------------------------------- */
+
+
+
+
+/* -------------------------------------------- elRTE
+----------------------------------------------------- */
+
+.ui-widget
+{
+	font-size:1em !important;
+}
+
+.ui-widget .el-dialogform
+{
+	padding:1em 1.4em !important;
+	height:auto !important;
+}
+
+.ui-widget .el-dialogform .ui-tabs .ui-tabs-panel
+{
+	-webkit-box-shadow:none !important;
+	-moz-box-shadow:none !important;
+	-o-box-shadow:none !important;
+	-khtml-box-shadow:none !important;
+	box-shadow:none !important;
+}
+
+.ui-dialog .ui-dialog-buttonpane button
+{
+	padding:6px 9px !important;
+	margin:.5em .4em .5em 0 !important;
+}
+
+.ui-dialog .ui-dialog-title
+{
+	font-size:14px !important;
+}
+
+.ui-dialog .ui-dialog-content.el-dialog-form
+{
+	font-size:0.9em !important;
+}
+
+.ui-dialog .ui-dialog-titlebar
+{
+	padding:12px !important;
+}
+
+.ui-tabs .ui-tabs-nav li a
+{
+	padding: 4px 1em 13px 1em !important;
+}
+
+.elrte-image-preview
+{
+	font-size:1em !important;
+	width: auto !important;
+}
+
+.el-rte-smiley
+{
+	cursor:pointer;
+}
+
+/* ---------------------------------------- End elRTE
+----------------------------------------------------- */
+
+
+
+
+/* -------------------------------------------- jCrop
+----------------------------------------------------- */
+
+.jcrop-holder img {
+	max-width:none;
+}
+
+/* ---------------------------------------- End jCrop
+----------------------------------------------------- */
+
+
+
+
+/* ------------------------------------------- jGrowl
+----------------------------------------------------- */
+
+div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
+{
+	opacity:1 !important;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important; 
+	
+	background-image:url(../../images/core/mws-dark-bg.png);
+	border:1px solid #666666;
+	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
+}
+
+/* --------------------------------------- End jGrowl
+----------------------------------------------------- */
+
+
+
+
+/* ------------------------------------ Full Calendar
+----------------------------------------------------- */
+	
+.fc-event-skin
+{
+	border-color: #000000 !important;
+	background-image:url(../../images/core/mws-dark-bg.png);
+}
+
+.fc-state-highlight
+{
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+}
+
+/* -------------------------------- End Full Calendar
+----------------------------------------------------- */

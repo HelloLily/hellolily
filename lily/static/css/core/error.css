@@ -1,0 +1,34 @@
+div#mws-error-container
+{
+	margin:auto;
+	max-width:652px;
+}
+
+div#mws-error-code
+{
+	width:100%;
+	margin:auto;
+	padding:32px 0 63px 0;
+	max-width:652px;
+	background:url(../../images/core/mws-error-bg.png) no-repeat left top;
+	background-size:auto 100%;
+}
+
+div#mws-error-code h1
+{
+	color:#f0f0f0;
+	font-size:40px;
+	text-align:center;
+	margin:auto;
+}
+
+div#mws-error-code h1 span
+{
+	font-size:72px;
+}
+
+div#mws-error-container p
+{
+	text-align:center;
+	background-color:#f0f0f0;
+}

@@ -1,0 +1,573 @@
+
+/* Media Queries */
+
+/*
+	320 - 599 (iPhone, Android)
+	600 - 1024 (iPad Portrait, Galaxy Tab Portrait, iPad Landscape, Galaxy Tab Landscape)
+	> 1024 (Desktops)
+*/
+
+
+/* Screens >= 600px AND <= 1024px */
+
+@media only screen and (min-width: 600px) and (max-width : 1024px) {
+
+	/* Core styles ------------------ 
+	---------------------------------*/
+	
+	div#mws-sidebar
+	{
+		width:100px;
+	}
+	
+	div#mws-container
+	{
+		margin-left:106px;
+	}
+	
+	div#mws-sidebar-stitch
+	{
+		left:89px;
+	}
+	
+	div#mws-sidebar-bg
+	{
+		width:100px;
+	}
+	
+	div#mws-searchbox
+	{
+		margin:0 10px 10px 6px;
+		padding:3px;
+	}
+	
+	div#mws-searchbox .mws-search-input
+	{
+		width:45px;
+		padding:1px;
+		font-size:82.5%;
+	}
+	
+	div#mws-searchbox .mws-search-submit
+	{
+		margin-left:58px;
+		width:20px;
+		height:20px;
+	}
+
+	div#mws-navigation ul li a, 
+	div#mws-navigation ul li span
+	{
+		text-align:center;
+	}
+	
+	div#mws-navigation ul li a.mws-i-24, 
+	div#mws-navigation ul li span.mws-i-24, 
+	div#mws-navigation ul li a.mws-ic, 
+	div#mws-navigation ul li span.mws-ic
+	{
+		padding:0;
+		padding-top:40px;
+		padding-bottom:6px;
+		background-position:center 8px;
+	}
+	
+	div#mws-navigation ul li ul li a, 
+	div#mws-navigation ul li ul li span
+	{
+		padding:4px 0;
+		text-align:center;
+	}
+	
+	div#mws-navigation ul li span.mws-nav-tooltip
+	{
+		font-size:11px;
+		position:absolute;
+		line-height:16px;
+		margin:0; right:auto;
+		left:60%; top:-4px;
+		background:#c00;
+		z-index:99999;
+		height:16px; min-width:12px;
+		padding:0 2px;
+		color:#ffffff !important;
+		
+		-webkit-box-shadow:none;
+		-moz-box-shadow:none;
+		-o-box-shadow:none;
+		-khtml-box-shadow:none;
+		box-shadow:none;				
+	}
+	
+	div#mws-footer
+	{
+		left:106px;
+	}
+}
+
+/* Screens <= 768px */
+
+@media only screen and (max-width: 768px) {
+	/* Form styles ------------------ 
+	---------------------------------*/
+	
+	.mws-form .mws-form-inline label, 
+	.mws-form .mws-form-inline .mws-form-item
+	{
+		display:block;
+		width:100%;
+		margin:0;
+		float:none;
+	}
+	
+	.mws-form .mws-form-inline label
+	{
+		padding-top:0;
+	}
+	
+	.mws-form .mws-form-inline ul.mws-form-list
+	{
+		float:none;
+		width:auto;
+		display:block;
+	}
+	
+	.mws-form ul.mws-form-list.inline li
+	{
+		float:none;
+		margin-right:0;
+	}
+	
+	/* Report styles ---------------- 
+	---------------------------------*/
+	
+	.mws-report
+	{
+		min-width:140px;
+		height:60px;
+		font-size:82.5%;
+	}
+	
+	.mws-report .mws-report-content .mws-report-value
+	{
+		font-size:21px;
+	}
+		
+	.mws-report .mws-report-content .mws-report-title
+	{
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		display:block;
+	}
+}
+
+/* Screens <= 599px */
+
+@media only screen and (max-width : 599px) {
+
+	/* Core styles ------------------ 
+	---------------------------------*/
+	
+	div#mws-logo-container
+	{
+		float:none;
+		display:block;
+		width:auto;
+		height:40px;
+		background:url(../../images/core/mws-dark-bg.png) repeat;
+	}
+	
+	div#mws-logo-container #mws-logo-wrap
+	{
+		width:100px;
+		height:40px;
+	}
+	
+	div#mws-logo-container #mws-logo-wrap img
+	{
+		max-width:100px;
+		max-height:40px;
+	}
+	
+	div#mws-sidebar
+	{
+		float:none;
+		width:100%;
+		padding-top:102px;
+		
+		/* CSS 3 */
+		
+		-moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.25);
+		-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.25);
+		-o-box-shadow:0 1px 4px rgba(0, 0, 0, 0.25);
+		-khtml-box-shadow:0 1px 4px rgba(0, 0, 0, 0.25);
+		box-shadow:0 1px 4px rgba(0, 0, 0, 0.25);
+	}
+	
+	div#mws-header
+	{
+		height:auto;
+		border-top:4px solid;
+		border-bottom:0;
+		background-position:left 40px;
+	}
+	
+	div#mws-header #mws-user-tools
+	{
+		margin:auto;
+		padding:6px 0;
+	}
+	
+	div#mws-header #mws-user-info, 
+	div#mws-header #mws-user-tools
+	{
+		float:none;
+		width:auto;
+	}
+	
+	div#mws-header #mws-user-info
+	{
+		margin-left:90px;
+	}
+	
+	div#mws-user-tools .mws-dropdown-menu
+	{
+		margin:4px 6px 0 6px;
+	}
+	
+	div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box
+	{
+		left:0;
+		
+		/* CSS 3 */
+		
+		-webkit-border-radius:0 6px 6px 6px;
+		-khtml-border-radius:0 6px 6px 6px;
+		-moz-border-radius:0 6px 6px 6px;
+		-o-border-radius:0 6px 6px 6px;
+		border-radius:0 6px 6px 6px;
+	}
+	
+	div#mws-container
+	{
+		font-size:0.9em !important;
+	}
+	
+	div#mws-container .container
+	{
+		float:left;
+		margin:0 2%;
+		width:96%;
+		padding-bottom:0;
+	}
+	
+	
+	div#mws-sidebar-bg
+	{
+		width:100%;
+		height:100%;
+		z-index:-100;
+	}
+	
+	div#mws-sidebar-stitch
+	{
+		display:none;
+	}
+	
+	div#mws-container
+	{
+		margin-left:0px;
+		padding-top:16px;
+	}
+	
+	div#mws-footer
+	{
+		left:auto;
+		right:auto;
+		bottom:auto;
+		clear:both;
+		position:inherit;
+		width:92%;
+	}
+	
+	/* Searchbox styles ------------- 
+	---------------------------------*/
+	
+	div#mws-searchbox
+	{
+		margin-left:48px;
+		margin-right:6px;
+		margin-bottom:-32px;
+		z-index:10;
+		position:relative;
+	}
+	
+	div#mws-searchbox form
+	{
+		display:block;
+	}
+	
+	div#mws-searchbox .mws-search-input
+	{
+		float:none;
+		display:block;
+		width:100%;
+		margin:2px;
+		padding-right:32px;
+		
+		/* CSS 3 Magic to make the input fill the available area */
+		
+		box-sizing: border-box; /* css3 rec */
+        -moz-box-sizing: border-box; /* ff2 */
+        -ms-box-sizing: border-box; /* ie8 */
+        -webkit-box-sizing: border-box; /* safari3 */
+        -khtml-box-sizing: border-box; /* konqueror */
+	}
+	
+	div#mws-searchbox .mws-search-submit
+	{
+		float:right;
+		margin-top:-25px;
+	}
+	
+	/* Navigation styles ------------ 
+	---------------------------------*/
+	
+	div#mws-navigation
+	{
+		cursor:pointer;
+		padding:38px 0 0 0;
+		width:100%;
+		
+		background:url(../icons/24/bended-arrow-down.png) no-repeat 12px 4px;
+	}
+	
+	div#mws-navigation.toggled
+	{
+		padding-bottom:8px;
+		background-image:url(../icons/24/bended-arrow-up.png)
+	}	
+	
+	div#mws-navigation.toggled ul
+	{
+		display:block;
+	}
+	
+	div#mws-navigation ul
+	{
+		display:none;
+		cursor:auto;
+		width:100%;
+	}
+
+	div#mws-navigation ul li a.mws-i-24, 
+	div#mws-navigation ul li span.mws-i-24, 
+	div#mws-navigation ul li a.mws-ic, 
+	div#mws-navigation ul li span.mws-ic
+	{
+		padding-left:40px;
+		background-position:8px center;
+	}
+	
+	div#mws-navigation ul li a.mws-ic, 
+	div#mws-navigation ul li span.mws-ic
+	{
+		background-position:4px center;
+	}
+	
+	div#mws-navigation ul li a, 
+	div#mws-navigation ul li span
+	{
+		padding:8px 48px 8px 40px;
+		text-align:left;
+	}
+
+	/* Panel Styles ----------------- 
+	---------------------------------*/
+	
+	.mws-panel
+	{
+		margin-bottom:16px;
+	}
+	
+	.mws-panel .mws-panel-content
+	{
+		padding:12px;
+	}
+	
+	/* Table Styles ----------------- 
+	---------------------------------*/
+	
+	table.mws-table
+	{
+		table-layout:fixed;
+	}
+	
+	.mws-table thead tr th
+	{
+		padding:10px 2px;
+		overflow:hidden;
+		text-overflow:ellipsis;
+		white-space:nowrap;
+	}
+	
+	.mws-table tbody td, 
+	.mws-table tfoot td
+	{
+		padding:8px;
+	}
+
+	div.dataTables_wrapper .dataTables_length, 
+	div.dataTables_wrapper .dataTables_filter
+	{
+		display:block;
+		float:none;
+		width:auto;
+		background-color:#cccccc;
+		text-align:left;
+	}
+	
+	div.dataTables_wrapper .dataTables_paginate
+	{
+		margin:10px 8px;
+	}
+	
+	/* Summary List styles ---------- 
+	---------------------------------*/
+	
+	ul.mws-summary li
+	{
+		font-size:12px;
+		padding:0;
+	}
+	
+	ul.mws-summary li span
+	{
+		font-size:24px;
+	}
+	
+	/* Toolbar styles --------------- 
+	---------------------------------*/
+	
+	div.mws-panel-toolbar ul li a, 
+	div.mws-panel-toolbar ul li span
+	{
+		text-indent:-9999px;
+		padding-right:8px;
+		background-position:center center;
+	}
+	
+	/* Form styles ------------------ 
+	---------------------------------*/
+	
+	.mws-form .mws-form-row
+	{
+		padding:4px 8px;
+	}
+	
+	.mws-form .mws-button-row
+	{
+		padding:6px 8px;
+	}
+	
+	.mws-form-message
+	{
+		padding-top:10px;
+		padding-bottom:10px;
+		background-position:12px 7px;
+	}
+	
+	.mws-form-col-1-8, .mws-form-col-2-8, 
+	.mws-form-col-3-8, .mws-form-col-4-8, 
+	.mws-form-col-5-8, .mws-form-col-6-8, 	
+	.mws-form-col-7-8, .mws-form-col-8-8
+	{
+		padding:4px 1px;
+	}
+	
+	.mws-form-cols
+	{
+		padding:0 8px;
+	}
+	
+	
+	/* Login Form styles ------------ 
+	---------------------------------*/	
+	
+	div#mws-login .mws-form .mws-form-row
+	{
+		padding:12px 0;
+	}
+	
+	/* Report styles ---------------- 
+	---------------------------------*/
+	
+	.mws-report-container
+	{
+		margin-bottom:16px;
+	}
+	
+	/* Wizard styles ---------------- 
+	---------------------------------*/	
+
+	.mws-wizard ul li
+	{
+		width:0;
+		padding-right:65px;
+	}
+	
+	.mws-wizard ul li:first-child
+	{
+		padding-left:12px;
+	}
+	
+	.mws-wizard ul li:last-child
+	{
+		padding-right:52px;
+	}	
+	
+	.mws-wizard ul li a, 
+	.mws-wizard ul li span
+	{
+		text-indent:-9999px;
+	}
+	
+	/* Plupload Themer -------------- 
+	---------------------------------*/
+	
+	.plupload_header_text
+	{
+		overflow:hidden;
+		text-overflow:ellipsis;
+		white-space:nowrap;
+	}
+	
+	/* Error Page -------------------
+	---------------------------------*/
+	
+	div#mws-error-container
+	{
+		background:none !important;
+	}
+	
+	div#mws-error-code
+	{
+		padding:0;
+		background:none !important;
+	}
+	
+	div#mws-error-code h1
+	{
+		color:#323232 !important;
+		margin-bottom:0 !important;
+	}
+	
+	/* Hide Themer ------------------ 
+	---------------------------------*/
+	
+	div#mws-themer
+	{
+		display:none;
+	}
+}

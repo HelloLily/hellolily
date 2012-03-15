@@ -1,0 +1,86 @@
+.customfile-input { position: absolute; height: 100px; cursor: pointer; background: transparent; border: 0; opacity: 0; -moz-opacity: 0; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0); z-index: 999999;  }
+
+.customfile
+{
+	border:1px solid #c5c5c5;
+	padding:6px 7px;
+	color:#323232;
+	margin:0;
+	background-color:#ffffff;
+	outline:none;
+	overflow:hidden;
+	position:relative;
+	
+	/* CSS 3 */
+	
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	-o-border-radius:4px;
+	-khtml-border-radius:4px;
+	border-radius:4px;
+	
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-khtml-box-sizing: border-box;
+	
+	-moz-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+	-o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);	
+	-webkit-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+	-khtml-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+	box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+}
+
+.customfile-disabled { opacity: .5; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50); cursor: default;  }
+
+.customfile-feedback { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.customfile-feedback-populated { }
+
+
+.customfile-button
+{
+	outline:none;
+	float:right;
+	padding:6px 9px;
+	margin:-7px -8px -7px 2px;
+	cursor:pointer;
+	z-index:9999;
+	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
+	
+	background-color:#e0e0e0;
+	color:#666666;
+	border:1px solid #ababab;
+	
+	/* CSS 3 */
+	
+	-webkit-border-radius:0 3px 3px 0;
+	-moz-border-radius:0 3px 3px 0;
+	-o-border-radius:0 3px 3px 0;
+	-khtml-border-radius:0 3px 3px 0;
+	border-radius:0 3px 3px 0;
+	
+	-webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	-moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	-o-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	-khtml-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e8e5e5), color-stop(100%, #e0e0e0));
+	background-image: -webkit-linear-gradient(#e8e5e5,#e0e0e0);
+	background-image: -moz-linear-gradient(#e8e5e5,#e0e0e0);
+	background-image: -o-linear-gradient(#e8e5e5,#e0e0e0);
+	background-image: linear-gradient(#e8e5e5,#e0e0e0);
+}
+
+
+.customfile:not(.customfile-disabled):active .customfile-button
+{
+	/* CSS 3 */
+	
+	-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+	-moz-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+	-o-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+	-khtml-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+	box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+}

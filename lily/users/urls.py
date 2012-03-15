@@ -7,9 +7,19 @@ from lily.users.views import DashboardView, LoginView, RegistrationView, Registr
 from lily.users.forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 urlpatterns = patterns('',
+    # Registration
     url(r'^registration/$', RegistrationView.as_view(), name='registration'),
-    url(r'^registration_success/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    url(r'^registration/success/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    
+    # Activation
+    #url(r'^activation/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    #url(r'^activation/success/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    #url(r'^activation/resend/$', RegistrationSuccessView.as_view(), name='registration_success'),
+    
+    # Login
     url(r'^login/$', LoginView.as_view(), name='login'),
+    
+    # 
     url(r'^$', login_required(DashboardView.as_view()), name='dashboard'),
 )
 

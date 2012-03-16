@@ -1,5 +1,8 @@
+# Django imports
+from django.conf import settings
 from django.contrib.auth.views import login
 from django.contrib.auth import authenticate, login as user_login
+from django.contrib.sites.models import Site
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib import messages
 from django.views.generic import View, TemplateView, FormView
@@ -8,10 +11,14 @@ from django.shortcuts import redirect
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
 
+# 3rd party imports
+from templated_email import send_templated_mail
+
+# Lily imports
 from lily.utils.models import EmailAddressModel
 from lily.contacts.models import ContactModel
 from lily.users.models import UserModel
-from lily.users.forms import CustomAuthenticationForm, RegistrationForm
+from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm
 
 class RegistrationView(FormView):
     template_name = 'users/registration.html'
@@ -45,12 +52,32 @@ class RegistrationView(FormView):
         user.is_active = False
         
         user.save()
-                
-        # Generate activation link
-        # uidb36 = int_to_base36(uid)
         
+        try:
+            current_site = Site.objects.get_current()
+        except Site.DoesNotExist:
+            current_site = ''
+        
+        # Generate uidb36 and token for the activation link
+        uidb36 = int_to_base36(user.pk)
+        tgen = PasswordResetTokenGenerator()
+        token = tgen.make_token(user)
+        
+        send_templated_mail(
+            template_name='activation',
+            from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
+            recipient_list=[form.cleaned_data['email']],
+            context={
+                'current_site': current_site,
+                'protocol': self.request.is_secure() and 'https' or 'http',
+                'full_name': " ".join([user.contact.first_name, user.contact.preposition, user.contact.last_name]),
+                'user': user,
+                'uidb36': uidb36,
+                'token': token,
+            }
+        )
+                
 # TODO: support for Clients        user.client = form.cleaned_data['company']
-# TODO: Activate user through activation links in emails 
         
         return self.get_success_url()
     
@@ -68,11 +95,19 @@ class ActivationView(TemplateView):
     """
     This view checks whether the activation link is valid and acts accordingly.
     """
+    
     # Template is only shown when something went wrong
     template_name = 'users/activation_failed.html'
     tgen = PasswordResetTokenGenerator()
     
     def get(self, request, *args, **kwargs):
+        """
+        Check whether the activation link is valid, for this both the user id and the token should
+        be valid. Messages are shown when user belonging to the user id is already active
+        and when the account is succesfully activated. In all other cases the activation failed
+        template is shown.
+        Finally if the user is succesfully activated, log user in and redirect to their dashboard.
+        """
         try:
             self.uid = base36_to_int(kwargs['uidb36'])
             self.user = UserModel.objects.get(id=self.uid)
@@ -105,8 +140,57 @@ class ActivationView(TemplateView):
         # redirect to dashboard
         return redirect(reverse_lazy('dashboard'))
     
-class ActivationResendView(TemplateView):
+class ActivationResendView(FormView):
+    """
+    This view is used by an user to request a new activation e-mail.
+    """
     template_name = 'users/activation_resend.html'
+    form_class = ResendActivationForm
+    
+    def form_valid(self, form):
+        """
+        If ResendActivationForm passed the validation, generate new token and send an e-mail.
+        """
+        self.TGen = PasswordResetTokenGenerator()
+        self.users = UserModel.objects.filter(
+                                contact__email_addresses__email_address__iexact=form.cleaned_data['email'], 
+                                contact__email_addresses__is_primary=True
+                            )
+        
+        for user in self.users:
+            # Get the current site or empty string
+            try:
+                self.current_site = Site.objects.get_current()
+            except Site.DoesNotExist:
+                self.current_site = ''
+            
+            # Generate uidb36 and token for the activation link
+            self.uidb36 = int_to_base36(user.pk)
+            self.token = self.TGen.make_token(user)
+            
+            # mail to the user
+            send_templated_mail(
+                template_name='activation',
+                from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
+                recipient_list=[form.cleaned_data['email']],
+                context={
+                    'current_site': self.current_site,
+                    'protocol': self.request.is_secure() and 'https' or 'http',
+                    'full_name': " ".join([user.contact.first_name, user.contact.preposition, user.contact.last_name]),
+                    'user': user,
+                    'uidb36': uidb36,
+                    'token': token,
+                }
+            )
+        
+        # redirect to success url
+        return self.get_success_url()
+    
+    def get_success_url(self):
+        """
+        Redirect to the success url.
+        """        
+        return redirect(reverse_lazy('registration_success'))
 
 class LoginView(View):
     """

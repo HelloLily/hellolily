@@ -57,6 +57,36 @@ class CustomSetPasswordForm(SetPasswordForm):
         'placeholder': _('New password confirmation')
     }))
 
+class ResendActivationForm(forms.Form):
+    email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
+        'class': 'mws-reset-email mws-textinput required',
+        'placeholder': _('E-mail address')
+    }))
+    
+    error_messages = {
+        'unknown': _("That e-mail address doesn't have an associated "
+                     "user account. Are you sure you've registered?"),
+        'active': _("You cannot request a new activation e-mail for an "
+                    "account that is already active."),
+    }
+    
+    def clean_email(self):
+        """
+        Validates that an active user exists with the given email address.
+        """
+        email = self.cleaned_data["email"]
+        self.users_cache = UserModel.objects.filter(
+                                contact__email_addresses__email_address__iexact=email, 
+                                contact__email_addresses__is_primary=True
+                            )
+        if not len(self.users_cache):
+            raise forms.ValidationError(self.error_messages['unknown'])
+        else:
+            for user in self.users_cache:       
+                if user.is_active:
+                    raise forms.ValidationError(self.error_messages['active'])
+        return email
+
 class RegistrationForm(forms.Form):
     username = forms.CharField(label=_('Username'), min_length=4, max_length=30,
         widget=forms.TextInput(attrs={

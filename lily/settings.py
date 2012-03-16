@@ -96,8 +96,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     
     # 3rd party
+    'templated_email',
     
-    # Our own
+    # Lily
     'lily.accounts',
     'lily.activities',
     'lily.contacts',
@@ -129,6 +130,7 @@ LOGGING = {
     }
 }
 
+# Cache settings
 #CACHES = {
 #    'default': {
 #        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -136,6 +138,11 @@ LOGGING = {
 #    }
 #}
 
+# Settings for templated e-mail app
+TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
+TEMPLATED_EMAIL_DJANGO_SUBJECTS = {
+    'welcome':'Welcome to my website',
+}
 try:
     from site_settings import *
 except:

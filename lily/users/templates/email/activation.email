@@ -1,0 +1,35 @@
+{% block subject %}Welcome to {{ current_site.name }}{% endblock %}
+
+{% block plain %}
+Hi {{ full_name }},
+
+You just signed up for {{ current_site.name }}, using:
+
+    Username:   {{ user.username }}
+    Join date:  {{ user.date_joined }}
+
+Please use the following link to activate your account: <br />
+{{ protocol }}://{{ current_site.domain }}{% url activation uidb36=uidb36 token=token %}
+
+Thanks, you rock!
+{% endblock %}
+
+{% block html %}
+<p>Hi {{ full_name }},</p>
+
+<p>You just signed up for {{ current_site.name }}, using:</p>
+
+<table>
+    <tr><th>Username</th> <td>{{ user.username }}</td></tr>
+    <tr><th>Join date</th> <td>{{ user.date_joined }}</td></tr>
+</table>
+
+<p>
+    Please use the following link to activate your account: <br />
+    <a href="{{ protocol }}://{{ current_site.domain }}{% url activation uidb36=uidb36 token=token %}">
+        test
+    </a>
+</p>
+
+<p>Thanks, you rock!</p>
+{% endblock %}

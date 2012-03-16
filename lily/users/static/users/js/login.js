@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    // form validator
 	$.validator.addMethod("placeholder", function(value, element) {
 	  return value != $(element).attr("placeholder");
 	}, $.validator.messages.required);
@@ -17,12 +18,30 @@ $(document).ready(function() {
 		}
 	});
 	
+	// form placeholder
 	if($.fn.placeholder) {
 		$('[placeholder]').placeholder();
 	}
 	
+	// auto focus on username
 	username_el = document.getElementById('username');
 	if(username_el) {
 	    username_el.focus();
 	}
+	
+	// replace default radio and/or check elements
+    $('input:radio').screwDefaultButtons({
+        checked:    'url(/static/plugins/screwdefaultbuttons/images/radio_checked.png)',
+        unchecked:  'url(/static/plugins/screwdefaultbuttons/images/radio_unchecked.png)',
+        width:      16,
+        height:     16
+    });
+        
+    $('input:checkbox').screwDefaultButtons({
+        checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',
+        unchecked:  'url(/static/plugins/screwdefaultbuttons/images/checkbox_unchecked.png)',
+        width:      16,
+        height:     16
+    });
+	
 });

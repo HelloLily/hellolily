@@ -1,6 +1,10 @@
 from django.contrib.auth.models import User, UserManager
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.contrib.auth.signals import user_logged_out
+from django.dispatch import receiver
+from django.contrib import messages
+
 from lily.contacts.models import ContactModel
 from lily.utils.models import EmailAddressModel
 
@@ -37,3 +41,13 @@ class UserModel(User):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+
+
+## ------------------------------------------------------------------------------------------------
+## Signal listeners
+## ------------------------------------------------------------------------------------------------
+
+@receiver(user_logged_out)
+def logged_out_callback(sender, **kwargs):
+    request = kwargs['request']
+    messages.info(request, _('You have succesfully logged out.'))

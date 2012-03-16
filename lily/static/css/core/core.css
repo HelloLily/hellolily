@@ -100,6 +100,7 @@ div#mws-user-tools #mws-user-info
 	display:block;
 	height:32px;
 	padding:4px;
+    background-image: none; /* new */
 }
 
 div#mws-user-tools #mws-user-info #mws-user-photo
@@ -148,7 +149,7 @@ div#mws-user-tools #mws-user-info #mws-user-functions ul li
 div#mws-user-tools #mws-user-info #mws-user-functions ul li a
 {
 	text-decoration:none;
-	color:#ffffff;
+	color:#50b3df; /* prev. #ffffff; */
 }
 
 div#mws-user-tools #mws-user-info #mws-user-functions ul li a:hover

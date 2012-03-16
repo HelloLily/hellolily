@@ -1,0 +1,13 @@
+.styledRadio {
+	float: left;
+	clear:	both;
+	margin-bottom: 10px;
+	margin-right: 6px;
+}
+	
+.styledCheckbox {
+	float: left;
+	clear: both;
+	margin-bottom: 10px;
+    margin-right: 6px;
+}

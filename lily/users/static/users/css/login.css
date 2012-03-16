@@ -1,3 +1,5 @@
+/* TODO: remove unused CSS */
+
 body
 {
 	color:#323232;
@@ -55,6 +57,11 @@ div#mws-login
 	box-shadow:0 2px 3px rgba(0, 0, 0, 0.25);
 }
 
+div#mws-login #login-logo /* new */
+{
+    position: absolute; left: 228px; top: -125px; /* new */
+}
+
 div#mws-login h1
 {
 	color:#ffffff;
@@ -65,8 +72,21 @@ div#mws-login h1
 	/* prev. background:url(../../images/core/mws-login-stitch.png) repeat-x left bottom; */
 }
 
-div#mws-login .mws-panel {
-    margin-bottom:0;
+div#mws-login .mws-panel /* new */
+{
+    margin-bottom:0; /* new */
+}
+
+div#mws-login #mws-login-form /* new */
+{
+    padding: 12px 16px; /* new */
+}
+
+div#mws-login .login-messages /* new */
+{
+    background-color:#50b3df; /* new */
+    color:#ffffff; /* new */
+    padding:4px !important; /* new */
 }
 
 div#mws-login .mws-login-lock
@@ -141,6 +161,11 @@ div#mws-login input.mws-login-username.error,
 div#mws-login input.mws-login-password.error
 {
 	border-color:#f3797f;
+}
+
+div#mws-login #remember-me /* new */
+{
+    padding:4px; /* new */
 }
 
 div#mws-login input.mws-login-button

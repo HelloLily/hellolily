@@ -5,11 +5,13 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'users/css/login.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'users/js/login.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 {% endblock %}
 
 {% block body %}
@@ -19,22 +21,19 @@
                 <div class="mws-panel-header">
                     <span class="mws-i-24 i-locked-2">HelloLily</span>
                 </div>
-                <div style="padding: 12px 16px;">
+                <img src="{% static 'images/logo-hellolily-login.png' %}" id="login-logo"/>
                     <div id="mws-login-form"> 
                         <form class="mws-form" autocomplete="off" action="" method="post">
-                            {% if request.REQUEST.logged_out == 'true' or request.REQUEST.password_reset == 'true' or request.REQUEST.inactive == 'true' %}
+                            {% if messages %}
                                 <div class="mws-form-row">
-                                    <div class="mws-form-row" style="padding: 4px !important; background-color: #50B3DF; color: white;">
-                                        {% if request.REQUEST.logged_out == 'true' %}
-                                            {% trans 'You have succesfully logged out.' %}
-                                        {% elif request.REQUEST.password_reset == 'true' %}
-                                            {% trans 'Your password has been changed.' %}
-                                        {% elif request.REQUEST.inactive == 'true' %}
-                                            {% trans 'Your account appears to be inactive, if you have questions please refer to your account manager.' %}
-                                        {% endif %}
+                                    <div class="mws-form-row login-messages">
+                                    {% for message in messages %}
+                                        {{ message|safe }}
+                                    {% endfor %}
                                     </div>
                                 </div>
                             {% endif %}
+                    
                             {% csrf_token %}
                             
                             {% if form.non_field_errors %}
@@ -53,19 +52,15 @@
                                     {{ form.password }}
                                 </div>
                             </div>
-                            <div class="mws-form-row" style="padding: 4px !important;">
+                            <div class="mws-form-row" id="remember-me">
                                     {{ form.remember_me }} {{ form.remember_me.label_tag }}
                             </div>
                             
-                             <!-- <div class="mws-button-row">
-                                <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue" />
-                            </div> -->
                            <div class="mws-form-row">
                                 <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button" />
                             </div>
                         </form>
                     </div>
-                </div>
             </div>
         </div>
         <a href="{% url password_reset %}" class="float-right" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>

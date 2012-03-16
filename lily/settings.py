@@ -30,11 +30,12 @@ STATIC_URL = '/static/'
 
 #LOGIN STUFF
 LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = '/admin/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
 AUTHENTICATION_BACKENDS = (
     'lily.users.auth_backends.UserModelBackend',
 )
+PASSWORD_RESET_TIMEOUT_DAYS = 7 # Also used as timeout for activation link
 CUSTOM_USER_MODEL = 'users.UserModel'
 
 STATICFILES_DIRS = (

@@ -12,7 +12,7 @@
 	height:25px;
 	position:relative;
 	padding:12px 12px 10px 12px;
-	border-bottom:2px solid #35353a;
+	/* prev. border-bottom:2px solid #35353a; */
 	font-size:14px;
 	
 	/* CSS 3 */
@@ -93,7 +93,7 @@
 
 .mws-panel .mws-panel-body
 {
-	background-color:#f8f8f8;
+	background-color:white; /* prev. #f8f8f8; */
 	margin:0 2px;
 	border:1px solid #bcbcbc;
 	border-top:0;

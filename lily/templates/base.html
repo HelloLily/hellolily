@@ -54,7 +54,19 @@
 <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
 
-{% block scripts %}{% endblock %}
+<script type="text/javascript">
+    // TODO: see to it this code will be removed at some point 
+    $(document).ready(function() {
+       $('#mws-navigation ul li').click(function() {
+           $active = $('#mws-navigation ul > li.active');
+           $active.removeClass('active');
+           $(this).addClass('active');
+       }) 
+    });
+</script>
+
+{% block scripts %}
+{% endblock %}
 
 <title>{% block title %}{% endblock %} Hello Lily </title>
 
@@ -70,7 +82,8 @@
         
             <!-- Logo Wrapper, images put within this wrapper will always be vertically centered -->
             <div id="mws-logo-wrap">
-                <img src="{% static 'images/mws-logo.png' %}" alt="mws admin" />
+<!--                 <img src="{% static 'images/mws-logo.png' %}" alt="mws admin" /> -->
+                <img src="{% static 'images/logo-hellolily-200.png' %}" alt="HelloLily" />
             </div>
         </div>
         
@@ -78,14 +91,14 @@
         <div id="mws-user-tools" class="clearfix">
         
             <!-- Notifications -->
-            <div id="mws-user-notif" class="mws-dropdown-menu">
-                <a href="#" class="mws-i-24 i-alert-2 mws-dropdown-trigger">Notifications</a>
+            <!-- <div id="mws-user-notif" class="mws-dropdown-menu">
+                <a href="#" class="mws-i-24 i-alert-2 mws-dropdown-trigger">Notifications</a> -->
                 
                 <!-- Unread notification count -->
-                <span class="mws-dropdown-notif">45</span>
+<!--                 <span class="mws-dropdown-notif">45</span> -->
                 
                 <!-- Notifications dropdown -->
-                <div class="mws-dropdown-box">
+                <!-- <div class="mws-dropdown-box">
                     <div class="mws-dropdown-content">
                         <ul class="mws-notifications">
                             <li class="read">
@@ -134,17 +147,17 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             
             <!-- Messages -->
-            <div id="mws-user-message" class="mws-dropdown-menu">
-                <a href="#" class="mws-i-24 i-message mws-dropdown-trigger">Messages</a>
+<!--             <div id="mws-user-message" class="mws-dropdown-menu"> -->
+<!--                 <a href="#" class="mws-i-24 i-message mws-dropdown-trigger">Messages</a> -->
                 
                 <!-- Unred messages count -->
-                <span class="mws-dropdown-notif">35</span>
+<!--                 <span class="mws-dropdown-notif">35</span> -->
                 
                 <!-- Messages dropdown -->
-                <div class="mws-dropdown-box">
+                <!-- <div class="mws-dropdown-box">
                     <div class="mws-dropdown-content">
                         <ul class="mws-messages">
                             <li class="read">
@@ -197,7 +210,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             
             <!-- User Information and functions section -->
             <div id="mws-user-info" class="mws-inset">
@@ -244,28 +257,27 @@
             {% block navigation %}
             <div id="mws-navigation">
                 <ul>
-                    <li class="active"><a href="dashboard.html" class="mws-i-24 i-home">Dashboard</a></li>
-                    <li><a href="charts.html" class="mws-i-24 i-chart">Charts</a></li>
-                    <li><a href="calendar.html" class="mws-i-24 i-day-calendar">Calendar</a></li>
-                    <li><a href="files.html" class="mws-i-24 i-file-cabinet">File Manager</a></li>
-                    <li><a href="table.html" class="mws-i-24 i-table-1">Table</a></li>
-                    <li>
-                        <a href="#" class="mws-i-24 i-list">Forms</a>
+                    <li><a href="#dashboard" class="mws-i-24 i-home-1">Dashboard</a></li>
+                    <li class="active">
+                        <a href="#updates" class="mws-i-24 i-power">Updates</a>
+                        <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #fff">13</span>
+                    </li>
+                    <li class="mws-dropdown-menu">
+                        <a href="#messaging" class="mws-i-24 i-message mws-dropdown-trigger">Messages
+                            <!-- Unread messages count -->
+                            <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #ccc; margin-right: 0px">13</span>
+                        </a>
+                        
                         <ul>
-                            <li><a href="form_layouts.html">Layouts</a></li>
-                            <li><a href="form_elements.html">Elements</a></li>
+                            <li><a href="#messaging-email" class="mws-i-24 i-mail">E-mail</a></li>
+                            <li><a href="#messaging-facebook" class="mws-i-24 i-facebook">Facebook</a></li>
+                            <li><a href="#messaging-twitter" class="mws-i-24 i-twitter">Twitter</a></li>
                         </ul>
                     </li>
-                    <li><a href="widgets.html" class="mws-i-24 i-cog">Widgets</a></li>
-                    <li><a href="typography.html" class="mws-i-24 i-text-styling">Typography</a></li>
-                    <li><a href="grids.html" class="mws-i-24 i-blocks-images">Grids &amp; Panels</a></li>
-                    <li><a href="gallery.html" class="mws-i-24 i-polaroids">Gallery</a></li>
-                    <li><a href="error.html" class="mws-i-24 i-alert-2">Error Page</a></li>
-                    <li>
-                        <a href="icons.html" class="mws-i-24 i-pacman">
-                            Icons <span class="mws-nav-tooltip">2000+</span>
-                        </a>
-                    </li>
+                    <li><a href="#contacts" class="mws-i-24 i-group-2">Contacts</a></li>
+                    <li><a href="#accounts" class="mws-i-24 i-suitcase-1">Accounts</a></li>
+                    <li><a href="#deals" class="mws-i-24 i-folder">Deals</a></li>
+                    <li><a href="#contacts" class="mws-i-24">Cases</a></li>
                 </ul>
             </div>
             {% endblock %}
@@ -278,7 +290,7 @@
             <div class="container">
             
                 <!-- Statistics Button Container -->
-                {% block statistics %} {% endblock %}
+                {% block statistics %}{% endblock %}
                 
                 <!-- Panels -->
                 {% block content %}{% endblock %}

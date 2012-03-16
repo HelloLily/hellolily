@@ -19,7 +19,7 @@
 	padding:16px 24px;
 	border-top:1px solid #bcbcbc;
 	text-align:right;
-	background:url(../../images/core/mws-inset.png);
+	background:#f8f8f8; /* prev. url(../../images/core/mws-inset.png); */
 }
 
 .mws-form .mws-form-item

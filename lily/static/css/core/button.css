@@ -92,15 +92,22 @@
 
 .mws-button.blue
 {
-	background-color:#4386bc;
+	background-color:#50B3DF; /* prev. #4386bc; */
 	color:#ffffff;
 	border:1px solid #416b8b;
-	
-	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #5d9ed2), color-stop(100%, #4386bc));
-	background-image: -webkit-linear-gradient(#5d9ed2,#4386bc);
-	background-image: -moz-linear-gradient(#5d9ed2,#4386bc);
-	background-image: -o-linear-gradient(#5d9ed2,#4386bc);
-	background-image: linear-gradient(#5d9ed2,#4386bc);
+
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #50B3DF), color-stop(100%, #09aadc));*/
+    background-image: -webkit-linear-gradient(#50B3DF,#09aadc);
+    background-image: -moz-linear-gradient(#50B3DF,#09aadc);
+    background-image: -o-linear-gradient(#50B3DF,#09aadc);
+    background-image: linear-gradient(#50B3DF,#09aadc);
+
+    /* prev. */
+/*  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #5d9ed2), color-stop(100%, #4386bc));*/
+/*  background-image: -webkit-linear-gradient(#5d9ed2,#4386bc);*/
+/*  background-image: -moz-linear-gradient(#5d9ed2,#4386bc);*/
+/*  background-image: -o-linear-gradient(#5d9ed2,#4386bc);*/
+/*  background-image: linear-gradient(#5d9ed2,#4386bc);*/
 }
 
 .mws-button.red

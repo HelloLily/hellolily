@@ -25,17 +25,6 @@ div#mws-user-tools .mws-dropdown-menu.toggled a.mws-dropdown-trigger
 	background-color:#50b3df; /* prev. #35353a; */
 }
 
-div#mws-login,  /* new */
-div#mws-login .mws-login-lock /* new */
-{
-    background-color:white; /* new */
-}
-
-div#mws-login-form .mws-form-row.mws-inset /* new */ 
-{
-    background-color: #50b3df; /* new */
-}
-
 div#mws-header
 {
 	background-color:white; /* prev. transparent; */

@@ -6,11 +6,11 @@ body
 	font:13px/1.5 'PTSansRegular', Arial, Helvetica, sans-serif;
 }
 
-.mws-inset
+/* prev. .mws-inset
 {
 	background-image:url(../../images/core/mws-inset.png);
 	
-	/* CSS 3 */
+	/* CSS 3 *//*
 	
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
@@ -23,7 +23,7 @@ body
 	-o-box-shadow:0 1px 0 rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.5);
 	-khtml-box-shadow:0 1px 0 rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.5);
 	box-shadow:0 1px 0 rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.5);
-}
+} */
 
 div#mws-login-wrapper
 {
@@ -37,6 +37,7 @@ div#mws-login-wrapper
 div#mws-login
 {
 	/* prev. background:url(../../images/core/mws-dark-bg.png); */
+    background-color:white; /* new */
 	position:relative;
 	/* prev. padding:12px 16px; */
 	
@@ -62,34 +63,40 @@ div#mws-login #login-logo /* new */
     position: absolute; left: 228px; top: -125px; /* new */
 }
 
-div#mws-login h1
+/* prev. div#mws-login h1
 {
 	color:#ffffff;
 	padding:0 8px 8px 8px;
 	font-size:18px;
 	margin:0;
 	position:relative;
-	/* prev. background:url(../../images/core/mws-login-stitch.png) repeat-x left bottom; */
-}
+	background:url(../../images/core/mws-login-stitch.png) repeat-x left bottom;
+} */
 
 div#mws-login .mws-panel /* new */
 {
     margin-bottom:0; /* new */
 }
 
-div#mws-login #mws-login-form /* new */
-{
-    padding: 12px 16px; /* new */
-}
-
-div#mws-login .login-messages /* new */
+div#mws-login .mws-login-messages /* new */
 {
     background-color:#50b3df; /* new */
     color:#ffffff; /* new */
     padding:4px !important; /* new */
 }
 
-div#mws-login .mws-login-lock
+div#mws-login .mws-form-message.error /* new */
+{
+    background-image:none; /* new */
+    border:none; /* new */
+}
+
+div#mws-login .mws-form-message /* new */
+{
+    padding:4px; /* new */
+}
+
+/* prev. div#mws-login .mws-login-lock
 {
 	background:url(../../images/core/mws-login-circle.png) no-repeat center center;
 	position:absolute;
@@ -97,26 +104,20 @@ div#mws-login .mws-login-lock
 	right:-10px;
 	top:-10px;
 	
-	/* CSS 3 */
+	/* CSS 3 *//*
 	
 	-webkit-border-radius:20px;
 	-khtml-border-radius:20px;
 	-o-border-radius:20px;
 	-moz-border-radius:20px;
 	border-radius:20px;	
-}
+} */
 
-div#mws-login form
+div#mws-login .mws-form
 {
     /* prev. background:url(../../images/core/mws-login-stitch.png) repeat-x left bottom; */
 	position:relative;
-}
-
-div#mws-login .mws-form-row.mws-inset
-{
-	padding:4px !important;
-	font-size:0.9em;
-	color:#ffffff;
+    padding: 12px 16px; /* new */
 }
 
 div#mws-login .mws-form-row
@@ -125,12 +126,24 @@ div#mws-login .mws-form-row
 	padding-right:0;
 }
 
+div#mws-login .mws-form-item.large /* new */
+{
+    margin-bottom:5px; /* new */
+}
+
+/* prev. div#mws-login .mws-form-row.mws-inset
+{
+    padding:4px !important;
+    font-size:0.9em;
+    color:#ffffff;
+    background-color: #50b3df;
+} */
+
 div#mws-login input.mws-login-username
 {
 	background-image:url(../../css/icons/16/user.png) !important;
 	background-repeat:no-repeat;
 	background-position:8px center;
-	margin-bottom: 5px;
 }
 
 div#mws-login input.mws-login-password

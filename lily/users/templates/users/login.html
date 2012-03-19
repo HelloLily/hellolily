@@ -22,45 +22,43 @@
                     <span class="mws-i-24 i-locked-2">HelloLily</span>
                 </div>
                 <img src="{% static 'images/logo-hellolily-login.png' %}" id="login-logo"/>
-                    <div id="mws-login-form"> 
-                        <form class="mws-form" autocomplete="off" action="" method="post">
-                            {% if messages %}
-                                <div class="mws-form-row">
-                                    <div class="mws-form-row login-messages">
-                                    {% for message in messages %}
-                                        {{ message|safe }}
-                                    {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
+                <form class="mws-form" autocomplete="off" action="" method="post">
+                    {% if messages %}
+                        <div class="mws-form-row">
+                            <div class="mws-form-row mws-login-messages">
+                            {% for message in messages %}
+                                {{ message|safe }}
+                            {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+            
+                    {% csrf_token %}
                     
-                            {% csrf_token %}
-                            
-                            {% if form.non_field_errors %}
-                                <div class="mws-form-row">
-                                    <div class="mws-form-message error no_list_style_type">
-                                        <span class="field_error">{{ form.non_field_errors }}</span>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="mws-form-row">
-                                <div class="mws-form-item large">
-                                    {{ form.username }}
-                                </div>
-                                <div class="mws-form-item large">
-                                    {{ form.password }}
-                                </div>
+                    {% if form.non_field_errors %}
+                        <div class="mws-form-row">
+                            <div class="mws-form-message error no_list_style_type">
+                                <span class="field_error">{{ form.non_field_errors }}</span>
                             </div>
-                            <div class="mws-form-row" id="remember-me">
-                                    {{ form.remember_me }} {{ form.remember_me.label_tag }}
-                            </div>
-                            
-                           <div class="mws-form-row">
-                                <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button" />
-                            </div>
-                        </form>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mws-form-row">
+                        <div class="mws-form-item large">
+                            {{ form.username }}
+                        </div>
+                        <div class="mws-form-item large">
+                            {{ form.password }}
+                        </div>
                     </div>
+                    <div class="mws-form-row" id="remember-me">
+                            {{ form.remember_me }} {{ form.remember_me.label_tag }}
+                    </div>
+                    
+                   <div class="mws-form-row">
+                        <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button" />
+                    </div>
+                </form>
             </div>
         </div>
         <a href="{% url password_reset %}" class="float-right" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>

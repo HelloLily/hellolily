@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.utils.translation import ugettext as _
 
 from lily.utils.models import EmailAddressModel

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-19 13:17+0100\n"
+"POT-Creation-Date: 2012-03-19 14:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,79 +17,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: .\forms.py:18 .\forms.py:106 .\forms.py:109
+#: .\forms.py:19 .\forms.py:107 .\forms.py:110
 msgid "Username"
 msgstr "Gebruikersnaam"
 
-#: .\forms.py:22 .\forms.py:118 .\forms.py:121
+#: .\forms.py:23 .\forms.py:119 .\forms.py:122
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: .\forms.py:24
+#: .\forms.py:25
 msgid "Remember me on this device"
 msgstr "Onthoud mij op dit apparaat"
 
-#: .\forms.py:31 .\forms.py:73 .\forms.py:112 .\forms.py:115
+#: .\forms.py:32 .\forms.py:74 .\forms.py:113 .\forms.py:116
 msgid "E-mail"
 msgstr "E-mail"
 
-#: .\forms.py:33 .\forms.py:75
+#: .\forms.py:34 .\forms.py:76
 msgid "E-mail address"
 msgstr "E-mailadres"
 
-#: .\forms.py:36
+#: .\forms.py:37
 msgid "You cannot request a password reset for an account that is inactive."
 msgstr "Je kan geen wachtwoordreset aanvragen voor een inactief account."
 
-#: .\forms.py:63 .\forms.py:65
+#: .\forms.py:64 .\forms.py:66
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
-#: .\forms.py:67 .\forms.py:69
+#: .\forms.py:68 .\forms.py:70
 msgid "New password confirmation"
 msgstr "Bevestiging nieuw wachtwoord"
 
-#: .\forms.py:79
+#: .\forms.py:80
 msgid ""
 "That e-mail address doesn't have an associated user account. Are you sure "
 "you've registered?"
-msgstr "Dit e-mailadres heeft geen gekoppeld gebruikersaccount. Weet je zeker dat je bent geregistreerd?"
+msgstr ""
+"Dit e-mailadres heeft geen gekoppeld gebruikersaccount. Weet je zeker dat je "
+"bent geregistreerd?"
 
-#: .\forms.py:81
+#: .\forms.py:82
 msgid ""
 "You cannot request a new activation e-mail for an account that is already "
 "active."
-msgstr "Je kan geen nieuwe activatie e-mail aanvragen voor een account dat al actief is."
+msgstr ""
+"Je kan geen nieuwe activatie e-mail aanvragen voor een account dat al actief "
+"is."
 
-#: .\forms.py:124 .\forms.py:127
+#: .\forms.py:125 .\forms.py:128
 msgid "Password confirmation"
 msgstr "Bevestiging wachtwoord"
 
-#: .\forms.py:130 .\forms.py:133
+#: .\forms.py:131 .\forms.py:134
 msgid "First name"
 msgstr "Voornaam"
 
-#: .\forms.py:136 .\forms.py:139
+#: .\forms.py:137 .\forms.py:140
 msgid "Preposition"
 msgstr "Tussenvoegsel"
 
-#: .\forms.py:142 .\forms.py:145
+#: .\forms.py:143 .\forms.py:146
 msgid "Last name"
 msgstr "Achternaam"
 
-#: .\forms.py:148 .\forms.py:151
+#: .\forms.py:149 .\forms.py:152
 msgid "Company"
 msgstr "Bedrijf"
 
-#: .\forms.py:165
+#: .\forms.py:166
 msgid "The two password fields didn't match."
 msgstr "De twee wachtoorden komen niet met elkaar overeen."
 
-#: .\forms.py:170
+#: .\forms.py:171
 msgid "Username already exists."
 msgstr "Gebruikersnaam bestaat al."
 
-#: .\forms.py:177 .\forms.py:181
+#: .\forms.py:178 .\forms.py:182
 msgid "E-mail address already in use."
 msgstr "E-mailadres wordt al gebruikt."
 
@@ -111,20 +115,21 @@ msgstr "Je bent succesvol uitgelogd."
 
 #: .\views.py:129
 msgid ""
-"Your account was already activated. You can log in "
-"here and start browsing."
+"Your account was already activated. You can log in here and start browsing."
 msgstr "Je account is al geactiveerd, log hier in zodat je kan beginnen."
 
 #: .\views.py:134
 msgid ""
-"Your account is now activated. You have been logged "
-"in and can start browsing."
-msgstr "Je account is geactiveerd. Je bent nu ingelogd zodat je direct aan de slag kan."
+"Your account is now activated. You have been logged in and can start "
+"browsing."
+msgstr ""
+"Je account is geactiveerd. Je bent nu ingelogd zodat je direct aan de slag "
+"kan."
 
 #: .\templates\users\activation_failed.html.py:4
 #: .\templates\users\activation_resend.html.py:4
 #: .\templates\users\password_reset.html.py:4
-#: .\templates\users\password_reset.html.py:18
+#: .\templates\users\password_reset.html.py:20
 #: .\templates\users\password_reset_complete.html.py:4
 #: .\templates\users\password_reset_confirm.html.py:4
 #: .\templates\users\password_reset_done.html.py:4
@@ -140,86 +145,106 @@ msgid ""
 "Something went wrong during the activation. Either the link is invalid, the "
 "activation time has expired or we're having some technical difficulties. "
 "Please apply for a new activation link or contact your account manager."
-msgstr "Er is iets misgegaan bij het activeren. De link klopt niet, de activatieperiode is verstreken"
-" of we hebben last van technische problemen. Vraag een nieuwe activatielink aan of neem"
-" contact op met je accountmanager."
+msgstr ""
+"Er is iets misgegaan bij het activeren. De link klopt niet, de "
+"activatieperiode is verstreken of we hebben last van technische problemen. "
+"Vraag een nieuwe activatielink aan of neem contact op met je accountmanager."
 
 #: .\templates\users\activation_failed.html.py:29
-#: .\templates\users\activation_resend.html.py:18
-#: .\templates\users\activation_resend.html.py:41
-#: .\templates\users\login.html.py:68
+#: .\templates\users\activation_resend.html.py:20
+#: .\templates\users\activation_resend.html.py:43
+#: .\templates\users\login.html.py:66
 msgid "Resend activation e-mail"
 msgstr "Activatie e-mail opnieuw verzenden"
 
-#: .\templates\users\activation_resend.html.py:24
+#: .\templates\users\activation_resend.html.py:26
 msgid ""
 "Didn't receive your activation e-mail? Enter your e-mail address below, and "
 "we'll e-mail it again, free of charge!"
-msgstr "Heb je de activatie e-mail niet gehad? Vul dan hieronder je e-mailadres in en wij sturen"
-" hem nog een keer, helemaal gratis!"
+msgstr ""
+"Heb je de activatie e-mail niet gehad? Vul dan hieronder je e-mailadres in "
+"en wij sturen hem nog een keer, helemaal gratis!"
 
-#: .\templates\users\activation_resend.html.py:46
-#: .\templates\users\password_reset_complete.html.py:29
+#: .\templates\users\activation_resend.html.py:49
+#: .\templates\users\password_reset_complete.html.py:27
 msgid "Go to log in"
 msgstr "Ga naar log in"
 
-#: .\templates\users\login.html.py:4 .\templates\users\login.html.py:60
+#: .\templates\users\login.html.py:4 .\templates\users\login.html.py:59
 msgid "Log in"
 msgstr "Log in"
 
-#: .\templates\users\login.html.py:66
+#: .\templates\users\login.html.py:64
 msgid "Forgot your password?"
 msgstr "Wachtwoord vergeten?"
 
-#: .\templates\users\password_reset.html.py:24
+#: .\templates\users\password_reset.html.py:25
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr "Wachtwoord vergeten? Vul dan hieronder je e-mailadres in en we sturen je direct instructies"
-" om een nieuwe in te stellen."
+msgstr ""
+"Wachtwoord vergeten? Vul dan hieronder je e-mailadres in en we sturen je "
+"direct instructies om een nieuwe in te stellen."
 
-#: .\templates\users\password_reset.html.py:41
+#: .\templates\users\password_reset.html.py:45
 msgid "Reset my password"
 msgstr "Reset mijn wachtwoord"
 
-#: .\templates\users\password_reset.html.py:46
-#: .\templates\users\password_reset_done.html.py:29
+#: .\templates\users\password_reset.html.py:50
+#: .\templates\users\password_reset_done.html.py:26
 msgid "Back to log in"
 msgstr "Terug naar inloggen"
 
-#: .\templates\users\password_reset_complete.html.py:18
+#: .\templates\users\password_reset_complete.html.py:15
 msgid "Password reset complete"
 msgstr "Wachtwoordreset compleet"
 
-#: .\templates\users\password_reset_complete.html.py:24
+#: .\templates\users\password_reset_complete.html.py:21
 msgid "Your password has been set.  You may go ahead and log in now."
 msgstr "Je wachtwoord is ingesteld. Je kunt nu inloggen."
 
-#: .\templates\users\password_reset_confirm.html.py:19
+#: .\templates\users\password_reset_confirm.html.py:21
 msgid "Enter new password"
 msgstr "Vul een nieuw wachtwoord in"
 
-#: .\templates\users\password_reset_confirm.html.py:25
+#: .\templates\users\password_reset_confirm.html.py:27
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
-msgstr "Vul je wachtwoord twee keer in zodat wij kunnen controleren dat je geen typefouten"
-" hebt gemaakt."
+msgstr ""
+"Vul je wachtwoord twee keer in zodat wij kunnen controleren dat je geen "
+"typefouten hebt gemaakt."
 
-#: .\templates\users\password_reset_confirm.html.py:51
+#: .\templates\users\password_reset_confirm.html.py:57
 msgid "Change my password"
 msgstr "Wachtwoord wijzigen"
 
-#: .\templates\users\password_reset_done.html.py:18
+#: .\templates\users\password_reset_confirm.html.py:63
+#, fuzzy
+msgid "Password reset unsuccessful"
+msgstr "Wachtwoordreset geslaagd"
+
+#: .\templates\users\password_reset_confirm.html.py:69
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used. Please request a new password reset."
+msgstr ""
+
+#: .\templates\users\password_reset_confirm.html.py:75
+msgid "Try again"
+msgstr ""
+
+#: .\templates\users\password_reset_done.html.py:15
 msgid "Password reset successful"
 msgstr "Wachtwoordreset geslaagd"
 
-#: .\templates\users\password_reset_done.html.py:24
+#: .\templates\users\password_reset_done.html.py:20
 msgid ""
 "We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr "Er is een e-mail met instructies voor het resetten van je wachtwoord verzonden naar "
-"het e-mailadres dat je hebt ingevuld."
+msgstr ""
+"Er is een e-mail met instructies voor het resetten van je wachtwoord "
+"verzonden naar het e-mailadres dat je hebt ingevuld."
 
 #: .\templates\users\registration.html.py:4
 msgid "Registration"

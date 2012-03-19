@@ -1,4 +1,4 @@
-{% load static %}
+{% load i18n static %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -89,7 +89,7 @@
         
         <!-- User Tools (notifications, logout, profile, change password) -->
         <div id="mws-user-tools" class="clearfix">
-        
+            
             <!-- Notifications -->
             <!-- <div id="mws-user-notif" class="mws-dropdown-menu">
                 <a href="#" class="mws-i-24 i-alert-2 mws-dropdown-trigger">Notifications</a> -->
@@ -213,8 +213,7 @@
             </div> -->
             
             <!-- User Information and functions section -->
-            <div id="mws-user-info" class="mws-inset">
-            
+            <div id="mws-user-info" class="mws-inset">            
                 <!-- User Photo -->
                 <div id="mws-user-photo">
                     <img src="{% static 'images/core/unknown.png' %}" alt="User Photo" />
@@ -223,12 +222,12 @@
                 <!-- Username and Functions -->
                 <div id="mws-user-functions">
                     <div id="mws-username">
-                        Hello, John Doe
+                        Hello, {{ user }}
                     </div>
                     <ul>
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Change Password</a></li>
-                        <li><a href="index.html">Logout</a></li>
+                        <li><a href="#">{% trans 'Profile' %}</a></li>
+                        <li><a href="#">{% trans 'Change password' %}</a></li>
+                        <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
                     </ul>
                 </div>
             </div>

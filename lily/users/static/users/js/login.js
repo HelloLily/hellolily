@@ -23,13 +23,10 @@ $(document).ready(function() {
 		$('[placeholder]').placeholder();
 	}
 	
-	// auto focus on username
-	username_el = document.getElementById('username');
-	if(username_el) {
-	    username_el.focus();
-	}
-	
-	// replace default radio and/or check elements
+    // set focus on username
+	set_focus('id_username');
+    
+    // replace default radio and/or check elements
     $('input:radio').screwDefaultButtons({
         checked:    'url(/static/plugins/screwdefaultbuttons/images/radio_checked.png)',
         unchecked:  'url(/static/plugins/screwdefaultbuttons/images/radio_unchecked.png)',
@@ -43,5 +40,4 @@ $(document).ready(function() {
         width:      16,
         height:     16
     });
-	
 });

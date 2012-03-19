@@ -21,6 +21,9 @@ from lily.users.models import UserModel
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm
 
 class RegistrationView(FormView):
+    """
+    This view shows and handles the registration form, when valid register a new user.
+    """
     template_name = 'users/registration.html'
     form_class = RegistrationForm
     
@@ -50,9 +53,10 @@ class RegistrationView(FormView):
         user.username = form.cleaned_data['username']
         user.set_password(form.cleaned_data['password'])
         user.is_active = False
-        
         user.save()
         
+        
+        # Get the current site
         try:
             current_site = Site.objects.get_current()
         except Site.DoesNotExist:
@@ -63,6 +67,7 @@ class RegistrationView(FormView):
         tgen = PasswordResetTokenGenerator()
         token = tgen.make_token(user)
         
+        # Send an activation mail
         send_templated_mail(
             template_name='activation',
             from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
@@ -89,6 +94,9 @@ class RegistrationView(FormView):
         return redirect(reverse_lazy('registration_success'))
 
 class RegistrationSuccessView(TemplateView):
+    """
+    Show a success page after regstration.
+    """
     template_name = 'users/registration_success.html'
 
 class ActivationView(TemplateView):
@@ -118,13 +126,13 @@ class ActivationView(TemplateView):
         
         if self.user.is_active:
             # redirect the user to login, since active == True and thus the link has already been used
-            messages.info(request, _('Your account was already activated. You can log in here \
-                                        and start browsing.'))
+            messages.info(request, _('Your account was already activated. You can log in here' \
+                                     ' and start browsing.'))
             return redirect(reverse_lazy('login'))
         elif self.tgen.check_token(self.user, self.token):
             # message that user is activated
-            messages.success(request, _('Your account is now activated. You have been logged in \
-                                        and can start browsing.'))
+            messages.success(request, _('Your account is now activated. You have been logged in' \
+                                        ' and can start browsing.'))
         else:
             # show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
@@ -211,7 +219,10 @@ class LoginView(View):
                 request.session.set_expiry(None)
         return login(request, template_name='users/login.html', authentication_form=CustomAuthenticationForm, *args, **kwargs)
 
-class DashboardView(TemplateView):    
+class DashboardView(TemplateView):
+    """
+    This view shows the dashboard of the logged in user.
+    """
     template_name = 'base.html'
     
     def dispatch(self, request, *args, **kwargs):

@@ -9,6 +9,10 @@ from lily.users.models import UserModel
 from lily.utils.functions import autostrip   
 
 class CustomAuthenticationForm(AuthenticationForm):
+    """
+    This form is a subclass from the default AuthenticationForm.
+    We just add classes to the fields here, validation is done in the parent form.
+    """
     username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
         'class': 'mws-login-username mws-textinput required',
         'placeholder': _('Username')
@@ -20,6 +24,10 @@ class CustomAuthenticationForm(AuthenticationForm):
     remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
 
 class CustomPasswordResetForm(PasswordResetForm):
+    """
+    This form is a subclass from the default PasswordResetForm.
+    Css classes are added and UserModel is used for validation instead of User.
+    """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-reset-email mws-textinput required',
         'placeholder': _('E-mail address')
@@ -48,6 +56,10 @@ class CustomPasswordResetForm(PasswordResetForm):
         return email
 
 class CustomSetPasswordForm(SetPasswordForm):
+    """
+    This form is a subclass from the default SetPasswordForm.
+    Css classes are added and UserModel is used for validation instead of User.
+    """
     new_password1 = forms.CharField(label=_('New password'), widget=forms.PasswordInput(attrs={
         'class': 'mws-reset-password mws-textinput required',
         'placeholder': _('New password')
@@ -88,6 +100,9 @@ class ResendActivationForm(forms.Form):
         return email
 
 class RegistrationForm(forms.Form):
+    """
+    This is the registration form, which is used to register a new user.
+    """
     username = forms.CharField(label=_('Username'), min_length=4, max_length=30,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-username mws-textinput required',
@@ -138,6 +153,9 @@ class RegistrationForm(forms.Form):
     ))
     
     def clean(self):
+        """
+        Form validation: passwords should match and email should be unique.
+        """
         cleaned_data = super(RegistrationForm, self).clean()
         
         password = cleaned_data.get('password')
@@ -156,11 +174,11 @@ class RegistrationForm(forms.Form):
         if cleaned_data.get('email'): 
             try:
                 EmailAddressModel.objects.get(email_address=cleaned_data.get('email'))            
-                self._errors['email'] = self.error_class([_('Email address already in use.')])
+                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
             except EmailAddressModel.DoesNotExist:
                 pass
             except EmailAddressModel.MultipleObjectsReturned: 
-                self._errors['email'] = self.error_class([_('Email address already in use.')])
+                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
         
         return cleaned_data
 

@@ -90,7 +90,7 @@ div#mws-login .mws-panel /* new */
     border-radius:20px; 
 } */
 
-div#mws-login form
+div#mws-login .mws-form
 {
     /* prev. background:url(../../images/core/mws-login-stitch.png) repeat-x left bottom; */
     position:relative;
@@ -110,11 +110,14 @@ div#mws-login .mws-form-row
     color:#ffffff;
 } */
 
+div#mws-login .mws-message-container /* new */
+{
+    padding: 0; /* new */
+}
+
 div#mws-login .mws-activate-message /* new */
 {
-    background-color: #50B3DF; /* new */
-    color: #FFFFFF; /* new */
-    padding: 4px !important; /* new */
+    padding: 10px 3px 15px; /* new */
 }
 
 div#mws-login input.mws-reset-email
@@ -159,9 +162,16 @@ div#mws-login input.mws-reset-email.error
     border-color:#f3797f;
 }
 
-div#mws-login input.mws-reset-button
+div#mws-login .mws-login-button /* new */
 {
     width:269px;
-    border:1px solid #284609;
+    /* prev. border:1px solid #284609; */
+    margin:0 0 5px; /* new */
+}
+
+div#mws-login .mws-reset-button
+{
+    width:269px;
+    /* prev. border:1px solid #284609; */
     margin: 0;
 }

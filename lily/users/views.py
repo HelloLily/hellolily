@@ -121,27 +121,22 @@ class ActivationView(TemplateView):
             self.user = UserModel.objects.get(id=self.uid)
             self.token = kwargs['token']
         except (ValueError, UserModel.DoesNotExist):
-            # show template as per normal TemplateView behaviour
+            # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
         
-        if self.user.is_active:
-            # redirect the user to login, since active == True and thus the link has already been used
-            messages.info(request, _('Your account was already activated. You can log in here' \
-                                     ' and start browsing.'))
-            return redirect(reverse_lazy('login'))
-        elif self.tgen.check_token(self.user, self.token):
-            # message that user is activated
+        if self.tgen.check_token(self.user, self.token):
+            # Message that user is activated
             messages.success(request, _('Your account is now activated. You have been logged in' \
                                         ' and can start browsing.'))
         else:
-            # show template as per normal TemplateView behaviour
+            # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
         
         # Set is_active to True and save the user
         self.user.is_active = True
         self.user.save()
         
-        # log the user in
+        # Log the user in
         self.user = authenticate(username=self.user.username, no_pass=True)
         user_login(request, self.user)
         
@@ -176,7 +171,7 @@ class ActivationResendView(FormView):
             self.uidb36 = int_to_base36(user.pk)
             self.token = self.TGen.make_token(user)
             
-            # mail to the user
+            # E-mail to the user
             send_templated_mail(
                 template_name='activation',
                 from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
@@ -186,19 +181,19 @@ class ActivationResendView(FormView):
                     'protocol': self.request.is_secure() and 'https' or 'http',
                     'full_name': " ".join([user.contact.first_name, user.contact.preposition, user.contact.last_name]),
                     'user': user,
-                    'uidb36': uidb36,
-                    'token': token,
+                    'uidb36': self.uidb36,
+                    'token': self.token,
                 }
             )
         
-        # redirect to success url
+        # Redirect to success url
         return self.get_success_url()
     
     def get_success_url(self):
         """
         Redirect to the success url.
         """        
-        return redirect(reverse_lazy('registration_success'))
+        return redirect(reverse_lazy('login'))
 
 class LoginView(View):
     """

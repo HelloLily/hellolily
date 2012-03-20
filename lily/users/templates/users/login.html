@@ -25,8 +25,8 @@
                 <img src="{% static 'images/logo-hellolily-login.png' %}" id="login-logo"/>
                 <form class="mws-form" autocomplete="off" action="" method="post">
                     {% if messages %}
-                        <div class="mws-form-row">
-                            <div class="mws-form-row mws-login-messages">
+                        <div class="mws-form-row mws-message-container">
+                            <div class="mws-form-row mws-login-message">
                             {% for message in messages %}
                                 {{ message|safe }}
                             {% endfor %}

@@ -78,11 +78,14 @@ div#mws-login .mws-panel /* new */
     margin-bottom:0; /* new */
 }
 
-div#mws-login .mws-login-messages /* new */
+div#mws-login .mws-message-container /* new */
 {
-    background-color:#50b3df; /* new */
-    color:#ffffff; /* new */
-    padding:4px !important; /* new */
+    padding: 0; /* new */
+}
+
+div#mws-login .mws-login-message /* new */
+{
+    padding: 10px 3px 15px; /* new */
 }
 
 div#mws-login .mws-form-message.error /* new */

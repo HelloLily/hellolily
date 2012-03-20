@@ -37,8 +37,19 @@ class ContactModel(CommonModel):
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
 
+    def full_name(self):
+        """
+        Return full name of this contact without unnecessary white space.
+        """
+        
+        if self.preposition:
+            return ' '.join([self.first_name, self.preposition, self.last_name])
+        
+        return ' '.join([self.first_name, self.last_name])
+            
+
     def __unicode__(self):
-        return ' '.join([self.first_name, self.preposition, self.last_name])
+        return self.full_name()
 
     class Meta:
         verbose_name = _('contact')

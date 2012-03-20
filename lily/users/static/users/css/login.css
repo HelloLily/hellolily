@@ -187,6 +187,6 @@ div#mws-login #remember-me /* new */
 div#mws-login input.mws-login-button
 {
 	width:269px;
-	border:1px solid #284609;
+    /* prev. border:1px solid #284609; */
 	margin: 0;
 }

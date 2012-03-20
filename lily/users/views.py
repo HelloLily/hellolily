@@ -54,8 +54,7 @@ class RegistrationView(FormView):
         user.set_password(form.cleaned_data['password'])
         user.is_active = False
         user.save()
-        
-        
+    
         # Get the current site
         try:
             current_site = Site.objects.get_current()
@@ -66,8 +65,9 @@ class RegistrationView(FormView):
         uidb36 = int_to_base36(user.pk)
         tgen = PasswordResetTokenGenerator()
         token = tgen.make_token(user)
-        
+    
         # Send an activation mail
+        # TODO: only create/save contact when e-mail sent succesfully
         send_templated_mail(
             template_name='activation',
             from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
@@ -75,7 +75,6 @@ class RegistrationView(FormView):
             context={
                 'current_site': current_site,
                 'protocol': self.request.is_secure() and 'https' or 'http',
-                'full_name': " ".join([user.contact.first_name, user.contact.preposition, user.contact.last_name]),
                 'user': user,
                 'uidb36': uidb36,
                 'token': token,

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n static %}
 
-{% block title %}{% trans 'Password reset' %} - {% endblock %}
+{% block title %}{% trans 'Resend activation e-mail' %} - {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'users/css/activation.css' %}" media="screen" />
@@ -10,7 +10,7 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'users/js/users.js' %}"></script>
-<script type="text/javascript" src="{% static 'users/js/reset.js' %}"></script>
+<script type="text/javascript" src="{% static 'users/js/activation.js' %}"></script>
 {% endblock %}
 
 {% block body %}

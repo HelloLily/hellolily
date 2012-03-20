@@ -1,35 +1,20 @@
-{% block subject %}Welcome to {{ current_site.name }}{% endblock %}
+{% load i18n %}
+
+{% block subject %}{% trans 'Welcome to' %} {{ current_site.name }}{% endblock %}
 
 {% block plain %}
+{% url activation uidb36=uidb36 token=token as url %}
+{% blocktrans with current_site.name as site_name and user.contact.full_name as full_name and user.username as username and user.date_joined as date_joined and protocol as protocol and current_site.domain as domain and url as url %}
 Hi {{ full_name }},
 
-You just signed up for {{ current_site.name }}, using:
+You just signed up for {{ site_name }}, using:
 
-    Username:   {{ user.username }}
-    Join date:  {{ user.date_joined }}
+    Username:   {{ username }}
+    Join date:  {{ date_joined }}
 
-Please use the following link to activate your account: <br />
-{{ protocol }}://{{ current_site.domain }}{% url activation uidb36=uidb36 token=token %}
+Please click the following link to activate your account or copy/paste the link to the address bar in your browser:
+{{ protocol }}://{{ domain }}{{ url }}
 
 Thanks, you rock!
-{% endblock %}
-
-{% block html %}
-<p>Hi {{ full_name }},</p>
-
-<p>You just signed up for {{ current_site.name }}, using:</p>
-
-<table>
-    <tr><th>Username</th> <td>{{ user.username }}</td></tr>
-    <tr><th>Join date</th> <td>{{ user.date_joined }}</td></tr>
-</table>
-
-<p>
-    Please use the following link to activate your account: <br />
-    <a href="{{ protocol }}://{{ current_site.domain }}{% url activation uidb36=uidb36 token=token %}">
-        test
-    </a>
-</p>
-
-<p>Thanks, you rock!</p>
+{% endblocktrans %}
 {% endblock %}

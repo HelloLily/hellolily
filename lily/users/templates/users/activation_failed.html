@@ -1,15 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n static %}
 
-{% block title %}{% trans 'Activation failed' %} - {% endblock %}
+{% block title %}{% trans 'Account activation failed' %} - {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'users/css/activation.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
-<script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'users/js/reset.js' %}"></script>
 {% endblock %}
 
 {% block body %}
@@ -30,7 +25,7 @@
                         
                         <a href="{% url login %}" class="mws-link-button">
                             <button type="button" class="mws-button blue mws-login-button">
-                                {% trans 'Login' %}
+                                {% trans 'Log in' %}
                             </button>
                         </a>                        
                         <a href="{% url activation_resend %}" class="mws-link-button">

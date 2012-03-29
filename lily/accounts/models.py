@@ -47,14 +47,14 @@ class AccountModel(CommonModel):
         ('10001', u'10001+'),
     )
     
-    customer_id = models.CharField(max_length=32, verbose_name=_('customer id'))
+    customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
     name = models.CharField(max_length=255, verbose_name=_('company name'))
-    website = models.URLField(verbose_name=_('company\'s website'))
+    website = models.URLField(verbose_name=_('company\'s website'), blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
                               blank=True)
     company_size = models.CharField(max_length=15, choices=COMPANY_SIZE_CHOICES,
                                     verbose_name=_('company size'), blank=True)    
-    type = models.ManyToManyField(TagModel, verbose_name=_('list of tags'))
+    tags = models.ManyToManyField(TagModel, verbose_name=_('list of tags'))
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     

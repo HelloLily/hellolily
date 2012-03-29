@@ -1,11 +1,9 @@
-from django.conf.urls import patterns, include, url
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm
-
-from lily.users.views import DashboardView, LoginView, RegistrationView, RegistrationSuccessView, \
-                             ActivationView, ActivationResendView
+from django.conf.urls import patterns, url
 from lily.users.forms import CustomPasswordResetForm, CustomSetPasswordForm
+from lily.users.views import DashboardView, LoginView, RegistrationView, RegistrationSuccessView, \
+    ActivationView, ActivationResendView, SendInvitationView, AcceptInvitationView, \
+    AcceptInvitationSuccessView
+
 
 urlpatterns = patterns('',
     # Registration
@@ -19,8 +17,13 @@ urlpatterns = patterns('',
     # Login
     url(r'^login/$', LoginView.as_view(), name='login'),
     
+    # Invitations
+    url(r'^invitation/send/$', SendInvitationView.as_view(), name='invitation_send'),
+    url(r'^invitation/accept/(?P<account_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
+    url(r'^invitation/success/', AcceptInvitationSuccessView.as_view(), name='invitation_success'),
+    
     # Dashboard and other user specific views, which require a logged in user
-    url(r'^$', login_required(DashboardView.as_view()), name='dashboard'),
+    url(r'^$', DashboardView.as_view(), name='dashboard'),
 )
 
 # Views from django.contrib.auth.views

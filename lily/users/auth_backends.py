@@ -7,7 +7,7 @@ class UserModelBackend(ModelBackend):
     def authenticate(self, username=None, password=None, no_pass=False):
         try:
             user = self.user_class.objects.get(username=username)
-            if user.check_password(password) or no_pass:
+            if (user.is_active) and (user.check_password(password) or no_pass):
                 return user
         except self.user_class.DoesNotExist:
             return None

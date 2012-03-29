@@ -36,6 +36,7 @@ AUTHENTICATION_BACKENDS = (
     'lily.users.auth_backends.UserModelBackend',
 )
 PASSWORD_RESET_TIMEOUT_DAYS = 7 # Also used as timeout for activation link
+USER_INVITATION_TIMEOUT_DAYS = 7
 CUSTOM_USER_MODEL = 'users.UserModel'
 
 STATICFILES_DIRS = (

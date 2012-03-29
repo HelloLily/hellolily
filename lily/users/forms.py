@@ -1,13 +1,13 @@
 from django import forms
-from django.forms import ModelForm
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
+from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
-
-from lily.utils.models import EmailAddressModel
 from lily.users.models import UserModel
+from lily.utils.functions import autostrip
+from lily.utils.models import EmailAddressModel
 
-from lily.utils.functions import autostrip   
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     """
@@ -184,3 +184,109 @@ class RegistrationForm(forms.Form):
         return cleaned_data
 
 RegistrationForm = autostrip(RegistrationForm)
+
+class UserRegistrationForm(RegistrationForm):
+    email = forms.EmailField(label=_('E-mail'), max_length=255, 
+        widget=forms.TextInput(attrs={
+            'class': 'mws-register-email mws-textinput required disabled',
+            'placeholder': _('E-mail'),
+            'readonly': 'readonly'
+        }
+    ))
+    company = forms.CharField(label=_('Company'), max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-register-company mws-textinput required disabled',
+            'placeholder': _('Company'),
+            'readonly': 'readonly'
+        }
+    ))
+    
+    def clean(self):
+        initial_email = self.initial['email']
+        initial_company = self.initial['company']
+        
+        cleaned_data = super(UserRegistrationForm, self).clean()
+        
+        if cleaned_data.get('email') and cleaned_data.get('email') != initial_email:
+            self._errors['email'] = self.error_class([_('You can\'t change the e-mail address of the invitation.')])
+        
+        if cleaned_data.get('company') and cleaned_data.get('company') != initial_company:
+            self._errors['company'] = self.error_class([_('You can\'t change the company name of the invitation.')])
+        
+        return cleaned_data
+    
+class InvitationForm(forms.Form):
+    """
+    This is the invitation form, it is used to invite new users to join an account
+    """
+    name = forms.CharField(label=_('Name'), max_length=255, 
+        widget=forms.TextInput(attrs={
+            'class': 'mws-register-name mws-textinput required',
+            'placeholder': _('Name')
+        }
+    ))
+    email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-register-email mws-textinput required',
+            'placeholder': _('E-mail')
+        }
+    ))
+    
+    def clean(self):
+        cleaned_data = super(InvitationForm, self).clean()
+        email = cleaned_data.get('email')
+        
+        if email:
+            try:
+                UserModel.objects.get(contact__email_addresses__email_address__iexact=email)
+                self._errors['email'] = self.error_class([_('This e-mail address is already linked to a user.')])
+            except UserModel.DoesNotExist:
+                pass
+            
+        return cleaned_data
+
+## ------------------------------------------------------------------------------------------------
+## Formsets
+## ------------------------------------------------------------------------------------------------
+
+class RequiredFirstFormFormset(BaseFormSet):
+    """
+    This formset requires that the first form that is submitted is filled in.
+    """
+    def __init__(self, *args, **kwargs):
+        super(RequiredFirstFormFormset, self).__init__(*args, **kwargs)
+        
+        try:
+            self.forms[0].empty_permitted = False
+        except IndexError:
+            print "index error bij de init van required first form formset"
+    
+    def clean(self):
+        if self.total_form_count() < 1:
+            raise forms.ValidationError(_("We need some data before we can proceed. Fill out at least one form."))
+
+class RequiredFormset(BaseFormSet):
+    """
+    This formset requires all the forms that are submitted are filled in.
+    """
+    # TODO: check the extra parameter to statisfy that all initial forms are filled in.
+    def __init__(self, *args, **kwargs):
+        super(RequiredFormset, self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False
+            
+class InvitationFormset(RequiredFirstFormFormset):
+    def clean(self):
+        """Checks that no two email addresses are the same."""
+        super(InvitationFormset, self).clean()
+        
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+        emails = []
+        for i in range(0, self.total_form_count()):
+            form = self.forms[i]
+            email = form.cleaned_data.get('email')
+            if email and email in emails:
+                raise forms.ValidationError(_("You can't invite someone more than once (e-mail addresses must be unique)."))
+            emails.append(email)

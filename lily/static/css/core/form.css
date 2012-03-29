@@ -139,6 +139,14 @@
 	background:#f0f0f0;
 }
 
+.mws-form select.disabled, 
+.mws-form textarea.disabled, 
+.mws-form .mws-textinput.disabled
+{
+    background:#f0f0f0;
+    color: #868686;
+}
+
 .mws-form select.error, 
 .mws-form textarea.error, 
 .mws-form .mws-textinput.error
@@ -633,4 +641,11 @@ div.mws-dualbox button:active
 	-o-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
 	-khtml-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
 	box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+a.add-row
+{
+    margin: 5px 0 22px 162px;
+    display: block;
+    color: #4682B4;
 }

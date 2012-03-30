@@ -53,6 +53,9 @@
 <script type="text/javascript" src="{% static 'plugins/tipsy/jquery.tipsy-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/lilyformset/lily.formset.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryform/jquery.form.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/send_form.js' %}"></script>
 
 <script type="text/javascript">
     // TODO: see to it this code will be removed at some point 
@@ -61,7 +64,42 @@
            $active = $('#mws-navigation ul > li.active');
            $active.removeClass('active');
            $(this).addClass('active');
-       }) 
+       });
+       
+       $("#loadingDialog").dialog({
+            autoOpen: false, 
+            title: "{% trans 'Please wait...' %}", 
+            modal: true, 
+            width: "320",
+            closeOnEscape: false,
+            resizable: false,
+            open: function(event, ui) { $(this).parent().children().children('.ui-dialog-titlebar-close').hide(); }
+        });
+        
+        $("#successDialog").dialog({
+            autoOpen: false, 
+            title: "{% trans 'Success' %}", 
+            modal: true, 
+            width: "320", 
+            buttons: [{
+                text: "{% trans 'Close' %}", 
+                click: function() {
+                    $( this ).dialog( "close" );
+                }}]
+        });
+        
+        $("#errorDialog").dialog({
+            autoOpen: false, 
+            title: "{% trans 'Success' %}", 
+            modal: true, 
+            width: "320", 
+            buttons: [{
+                text: "{% trans 'Close' %}", 
+                click: function() {
+                    $( this ).dialog( "close" );
+                }}]
+        });
+       
     });
 </script>
 
@@ -287,24 +325,33 @@
         
             <!-- Inner Container -->
             <div class="container">
-            
+                
                 <!-- Statistics Button Container -->
                 {% block statistics %}{% endblock %}
                 
                 <!-- Panels -->
                 {% block content %}{% endblock %}
-                
             </div>
                        
             <!-- Footer -->
             <div id="mws-footer">
                 Copyright Your Website 2012. All Rights Reserved.
             </div>
-            
         </div>
-        
     </div>
-
     {% endblock %}
+    
+    <div id="loadingDialog"></div>
+    <div id="successDialog">
+        <div class="mws-dialog-inner">
+            <p id="successDialogMessage"></p>
+        </div>
+    </div>
+    <div id="errorDialog">
+        <div class="mws-dialog-inner">
+            <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
+        </div>
+    </div>
+    
 </body>
 </html>

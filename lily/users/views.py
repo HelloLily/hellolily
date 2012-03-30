@@ -1,24 +1,39 @@
+# Python imports
+from datetime import date, timedelta
+from hashlib import sha256
+
 # Django imports
 from django.conf import settings
-from django.contrib.auth.views import login
-from django.contrib.auth import authenticate, login as user_login
-from django.contrib.sites.models import Site
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib import messages
-from django.views.generic import View, TemplateView, FormView
+from django.contrib.auth import authenticate, login as user_login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.views import login
+from django.contrib.auth.models import Group
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.utils import simplejson
+from django.utils.decorators import method_decorator
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.views.generic import View, TemplateView, FormView
 
 # 3rd party imports
+from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 # Lily imports
-from lily.utils.models import EmailAddressModel
+from lily.accounts.models import AccountModel
 from lily.contacts.models import ContactModel
+from lily.users.decorators import group_required
+from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
+    InvitationForm, InvitationFormset, UserRegistrationForm
 from lily.users.models import UserModel
-from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm
+from lily.utils.models import EmailAddressModel
 
 class RegistrationView(FormView):
     """
@@ -45,15 +60,22 @@ class RegistrationView(FormView):
             is_primary=True
         )
         
+        # Create account
+        account = AccountModel.objects.create(name=form.cleaned_data.get('company'))
+        
         contact.email_addresses.add(email)
         
         # Create and save user
         user = UserModel()
         user.contact = contact
+        user.account = account
         user.username = form.cleaned_data['username']
         user.set_password(form.cleaned_data['password'])
         user.is_active = False
         user.save()
+        
+        group = Group.objects.get_or_create(name='account_admin')
+        user.groups.add(group[0])
     
         # Get the current site
         try:
@@ -70,7 +92,7 @@ class RegistrationView(FormView):
         # TODO: only create/save contact when e-mail sent succesfully
         send_templated_mail(
             template_name='activation',
-            from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[form.cleaned_data['email']],
             context={
                 'current_site': current_site,
@@ -159,13 +181,13 @@ class ActivationResendView(FormView):
                                 contact__email_addresses__is_primary=True
                             )
         
+        # Get the current site or empty string
+        try:
+            self.current_site = Site.objects.get_current()
+        except Site.DoesNotExist:
+            self.current_site = ''
+        
         for user in self.users:
-            # Get the current site or empty string
-            try:
-                self.current_site = Site.objects.get_current()
-            except Site.DoesNotExist:
-                self.current_site = ''
-            
             # Generate uidb36 and token for the activation link
             self.uidb36 = int_to_base36(user.pk)
             self.token = self.TGen.make_token(user)
@@ -173,7 +195,7 @@ class ActivationResendView(FormView):
             # E-mail to the user
             send_templated_mail(
                 template_name='activation',
-                from_email=settings.DEFAULT_FROM_EMAIL or 'no-reply@hellolily.com',
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[form.cleaned_data['email']],
                 context={
                     'current_site': self.current_site,
@@ -213,11 +235,255 @@ class LoginView(View):
                 request.session.set_expiry(None)
         return login(request, template_name='users/login.html', authentication_form=CustomAuthenticationForm, *args, **kwargs)
 
+class SendInvitationView(FormSetView):
+    """
+    This view is used to invite new people to the site. It works with a formset to allow easy
+    adding of multiple invitations. It also checks wheter the call is done via ajax or via a normal
+    form, to use ajax append ?xhr to the url.
+    """
+    template_name = "users/invitation_send.html"
+    form_template_name = 'users/invitation_send_form.html'
+    form_class = InvitationForm
+    formset_class = InvitationFormset
+    extra = 1
+    
+    @method_decorator(group_required('account_admin'))
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Determine wheter the form is posted via ajax or not, this function is also decorated
+        to prevent people with insufficient permissions to invite new people.
+        """
+        self.ajax_call = request.GET.__contains__('xhr')
+        return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
+    
+    def formset_valid(self, formset):
+        """
+        This function is called when the formset is deemed valid.
+        An email is sent to all email fields which are filled in.
+        If the request is done via ajax give json back with a success message, otherwise
+        redirect to the success url.
+        """
+        self.protocol = self.request.is_secure() and 'https' or 'http'
+        self.account = self.request.user.account
+        self.b36accountpk = int_to_base36(self.account.pk)
+        self.date = date.today().strftime('%d%m%Y')
+        
+        # Get the current site or empty string
+        try:
+            self.current_site = Site.objects.get_current()
+        except Site.DoesNotExist:
+            self.current_site = ''
+        
+        for form in formset:
+            name = form.cleaned_data.get('name')
+            email = form.cleaned_data.get('email')
+            if email: # check that the email is not empty
+                self.hash = sha256('%s-%s-%s-%s' % (self.account.name, email, self.date, settings.SECRET_KEY)).hexdigest()
+                self.invite_link = '%s://%s%s' % (self.protocol, self.current_site, reverse_lazy('invitation_accept', kwargs={
+                    'account_name': self.account.name,
+                    'email': email,
+                    'date': self.date,
+                    'aidb36': self.b36accountpk,
+                    'hash': self.hash,
+                }))
+                
+                # E-mail to the user
+                send_templated_mail(
+                    template_name='invitation',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[form.cleaned_data['email']],
+                    context={
+                        'current_site': self.current_site,
+                        'full_name': self.request.user.contact.full_name(),
+                        'name': name,
+                        'invite_link': self.invite_link,
+                        'company_name': self.account.name,
+                    }
+                )
+        
+        if self.ajax_call:
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'html': _('The invitations were sent successfully'),
+            }))
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def formset_invalid(self, formset):
+        """
+        This function is called when the formset didn't pass validation.
+        If the request is done via ajax, send back a json object with the error set to true and 
+        the form rendered into a string.
+        """
+        if self.ajax_call:
+            context = RequestContext(self.request, self.get_context_data(formset=formset))
+            return HttpResponse(simplejson.dumps({
+                'error': True,
+                'html': render_to_string(self.form_template_name, context)
+            }), mimetype='application/javascript')
+        return self.render_to_response(self.get_context_data(formset=formset))
+    
+    def get_success_url(self):
+        """
+        return the success url and set a succes message.
+        """
+        messages.success(self.request, _('The invitations were sent successfully.'))
+        return reverse_lazy('dashboard')
+
+class AcceptInvitationView(FormView):
+    """
+    This is the view that handles the invatation link and registers the new user if everything
+    goes according to plan, otherwise redirect the user to a failure template.
+    """
+    template_name = "users/invitation_accept.html"
+    template_failure = "users/invitation_failed.html"
+    form_class = UserRegistrationForm
+    valid_link = False
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Set the variables needed and call super.
+        This method tries to call dispatch to the right method.
+        """
+        self.account_name = kwargs.get('account_name')
+        self.email = kwargs.get('email')
+        self.datestring = kwargs.get('date')
+        self.aidb36 = kwargs.get('aidb36')
+        self.hash = kwargs.get('hash')
+        
+        return super(AcceptInvitationView, self).dispatch(request, *args, **kwargs)
+    
+    def get_template_names(self):
+        """
+        This method checks if the link is deemed valid, serves appropriate templates.
+        """
+        if not self.valid_link:
+            return [self.template_failure]
+        return super(AcceptInvitationView, self).get_template_names()
+    
+    def get(self, request, *args, **kwargs):
+        """
+        This function is called on normal page load. The function link_is_valid is called to 
+        determine wheter the link is valid. If so load all the necesary data for the form etc.
+        otherwise render the failure template (which get_template_names will return since link is 
+        invalid.
+        """
+        if self.link_is_valid():
+            self.initial = {
+                'email': self.email,
+                'company': self.account_name,
+            }
+            return super(AcceptInvitationView, self).get(request, *args, **kwargs)
+        
+        self.object = None
+        return self.render_to_response(self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        """
+        This function is called on a form submit. The function link_is_valid is called to 
+        determine wheter the link is valid. If so load all the necesary data for the form etc.
+        otherwise render the failure template (which get_template_names will return since link is 
+        invalid.
+        """
+        if self.link_is_valid():
+            self.initial = {
+                'email': self.email,
+                'company': self.account_name,
+            }
+            return super(AcceptInvitationView, self).post(request, *args, **kwargs)
+        
+        self.object = None
+        return self.render_to_response(self.get_context_data())
+    
+    def link_is_valid(self):
+        """
+        This functions performs all checks to verify the url is correct.
+        It returns the boolean value but also sets a class variable with this boolean.
+        """
+        # Default value is false, only set to true if all checks have passed
+        self.valid_link = False
+            
+        if UserModel.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
+            return self.valid_link
+        
+        try:
+            # Check if it's a valid pk and try to retrieve the corresponding account
+            self.account = AccountModel.objects.get(pk=base36_to_int(self.aidb36))
+        except ValueError, AccountModel.DoesNotExist:
+            return self.valid_link
+        else:
+            if not self.account.name == self.account_name:
+                # The account name from url should be same as in database
+                return self.valid_link
+            elif not self.hash == sha256('%s-%s-%s-%s' % (self.account.name, self.email, self.datestring, settings.SECRET_KEY)).hexdigest():
+                # hash should be correct
+                return self.valid_link
+        
+        if not len(self.datestring) == 8:
+            # Date should always be a string with a length of 8 characters
+            return self.valid_link
+        else:
+            today = date.today()        
+            try:
+                # Check if it is a valid date
+                dateobj = date(int(self.datestring[4:8]), int(self.datestring[2:4]), int(self.datestring[:2]))
+            except ValueError:
+                return self.valid_link
+            else:
+                if (today < dateobj) or ((today - timedelta(days=settings.USER_INVITATION_TIMEOUT_DAYS)) > dateobj):
+                    # Check if the link is not too old and not in the future
+                    return self.valid_link
+        
+        self.valid_link = True
+        return self.valid_link
+    
+    def form_valid(self, form):
+        """
+        This function is called when the form is deemed valid. The new user is created and the
+        get_success_url method is called.
+        """
+        try:
+            contact = ContactModel.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
+        except ContactModel.DoesNotExist:
+            contact = ContactModel.objects.create(
+                first_name=form.cleaned_data['first_name'],
+                preposition=form.cleaned_data['preposition'],
+                last_name=form.cleaned_data['last_name']
+            )
+            email = EmailAddressModel.objects.create(
+                email_address=form.cleaned_data['email'],
+                is_primary=True
+            )
+            contact.email_addresses.add(email)
+        
+        
+        # Create and save user
+        user = UserModel()
+        user.contact = contact
+        user.account = self.account
+        user.username = form.cleaned_data['username']
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        
+        return self.get_success_url()
+    
+    def get_success_url(self):
+        """
+        Redirect to the success page.
+        """
+        return redirect(reverse_lazy('invitation_success'))
+
+class AcceptInvitationSuccessView(TemplateView):
+    """
+    This view shows the success page after accepting an invation
+    """
+    template_name = 'users/invitation_success.html'
+
 class DashboardView(TemplateView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'base.html'
     
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(DashboardView, self).dispatch(request, *args, **kwargs)

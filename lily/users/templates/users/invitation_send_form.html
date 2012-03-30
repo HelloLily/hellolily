@@ -1,0 +1,62 @@
+{% load i18n %}
+
+{% csrf_token %}
+{{ formset.management_form }}
+{% if formset.non_form_errors %}
+    <div class="mws-form-message error no_list_style_type">
+        <span class="field_error">{{ formset.non_form_errors }}</span>
+    </div>
+{% endif %}
+
+
+{% for form in formset.forms %}
+    <div class="{% if formset_class %}{{ formset_class }}{% else %}mws-form-formset{% endif %}">
+        {% if form.non_field_errors %}
+        <div class="mws-form-row">
+            <div class="mws-form-message error no_list_style_type">
+                <span class="field_error">{{ form.non_field_errors }}</span>
+            </div>
+        </div>
+        {% endif %}
+        <div class="mws-form-inline">
+            <div class="mws-form-row">
+                {{ form.name.label_tag }}
+                <div class="mws-form-item large">
+                    <div class="mws-form-cols clearfix">
+                        <div class="mws-form-col-3-8 alpha">
+                            <div class="mws-form-item"> 
+                                {% if form.name.errors %}
+                                    <span class="field_error">{{ form.name }}</span>
+                                    <div class="mws-error no_list_style_type">
+                                          {{ form.name.errors }}
+                                    </div>
+                                {% else %}
+                                       {{ form.name }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mws-form-col-3-8 alpha">
+                            <div class="mws-form-item"> 
+                                {% if form.email.errors %}
+                                    <span class="field_error">{{ form.email }}</span>
+                                    <div class="mws-error no_list_style_type">
+                                        {{ form.email.errors }}
+                                    </div>
+                                {% else %}
+                                    {{ form.email }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mws-form-col-2-8 alpha">
+                            <div class="mws-form-item">
+                                <button type="button" class="mws-button delete-row small red mws-reset-button">
+                                    {% trans 'Delete' %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

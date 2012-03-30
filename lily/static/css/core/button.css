@@ -71,8 +71,7 @@
 	background-position:8px center;
 }
 
-.mws-button.green, 
-.ui-button
+.mws-button.green
 {
 	background-color:#96c742;
 	color:#ffffff;
@@ -90,7 +89,8 @@
 	color:#ffffff !important;
 }
 
-.mws-button.blue
+.mws-button.blue, 
+.ui-button
 {
 	background-color:#50B3DF; /* prev. #4386bc; */
 	color:#ffffff;
@@ -168,7 +168,7 @@
 {
 	background-color:#e0e0e0;
 	color:#aaaaaa;
-	cursor:auto;
+	cursor:default;
 	text-shadow:none;
 	border:1px solid #a0a0a0;
 	

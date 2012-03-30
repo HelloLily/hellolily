@@ -2,9 +2,12 @@ from django.contrib import messages
 from django.contrib.auth.models import User, UserManager
 from django.contrib.auth.signals import user_logged_out
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
+
+from lily.accounts.models import AccountModel
+
 from lily.contacts.models import ContactModel
 from lily.utils.models import EmailAddressModel
 
@@ -20,6 +23,7 @@ class UserModel(User):
     objects = UserManager()
     avatar = models.ImageField(upload_to=USER_UPLOAD_TO, verbose_name=_('avatar'), blank=True)
     contact = models.ForeignKey(ContactModel)
+    account = models.ForeignKey(AccountModel)
     
     def __unicode__(self):
         return unicode(self.contact)
@@ -39,6 +43,9 @@ class UserModel(User):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+        permissions = (
+            ("send_invitation", _("Can send invitations to invite new users")),
+        )
 
 
 ## ------------------------------------------------------------------------------------------------

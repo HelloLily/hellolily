@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Invitation accept failed' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'users/css/invitation.css' %}" media="screen" />
+{% endblock %}
+
+{% block content %}
+    <div id="mws-login-wrapper">
+        <div id="mws-login">
+            <div class="mws-panel">
+                <div class="mws-panel-header">
+                    <span class="mws-i-24 i-refresh-4">{% trans 'Invitation accept failed' %}</span>
+                </div>
+                <div id="mws-login-form">
+                    <div class="mws-form">
+                        <div class="mws-form-row mws-message-container" >
+                            <div class="mws-form-row mws-invitation-message">
+                                {% trans "The invitation could not be accepted." %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               </div>
+        </div>
+    </div>
+{% endblock %}

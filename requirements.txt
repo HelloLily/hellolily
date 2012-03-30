@@ -2,3 +2,4 @@ Django>=1.4
 PIL>=1.1.7
 django-extensions>=0.8
 django-templated-email>=0.4.1
+django-extra-views>=0.2.4

@@ -143,6 +143,14 @@
 	background:#f0f0f0;
 }
 
+.mws-form select.disabled, 
+.mws-form textarea.disabled, 
+.mws-form .mws-textinput.disabled
+{
+    background:#f0f0f0;
+    color: #868686;
+}
+
 .mws-form select.error, 
 .mws-form textarea.error, 
 .mws-form .mws-textinput.error
@@ -671,4 +679,11 @@ div.mws-dualbox button:active
 
 .mws-form .float-left {
     margin-right: 12px;
+}
+
+a.add-row
+{
+    margin: 5px 0 22px 162px;
+    display: block;
+    color: #4682B4;
 }

@@ -58,8 +58,8 @@ class AccountModel(CommonModel):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
                               blank=True)
     company_size = models.CharField(max_length=15, choices=COMPANY_SIZE_CHOICES,
-                                    verbose_name=_('company size'), blank=True)    
-    type = models.ManyToManyField(TagModel, verbose_name=_('tags'), blank=True)
+                                    verbose_name=_('company size'), blank=True)  
+    tags = models.ManyToManyField(TagModel, verbose_name=_('tags'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     

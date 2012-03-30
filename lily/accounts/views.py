@@ -78,18 +78,32 @@ class AddAccountView(CreateView):
                 primary = form_kwargs.get('data').get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
-                formset.save()
-                account_instance.email_addresses.add(formset.instance)
+                
+                # Only save e-mail address if something else than primary/status was filled in
+                if formset.instance.email_address:
+                    formset.save()
+                    account_instance.email_addresses.add(formset.instance)
             
             # Handle addresses
             for formset in self.addresses_formset:
-                formset.save()
-                account_instance.addresses.add(formset.instance)
+                import pdb
+                pdb.set_trace()
+                # Only save address if something else than complement and/or type is filled in
+                if any([formset.instance.street,
+                        formset.instance.street_number,
+                        formset.instance.postal_code,
+                        formset.instance.city,
+                        formset.instance.state_province,
+                        formset.instance.country]):
+                    formset.save()
+                    account_instance.addresses.add(formset.instance)
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
-                formset.save()
-                account_instance.phone_numbers.add(formset.instance)
+                # Only save address if something was filled other than type
+                if formset.instance.raw_input:
+                    formset.save()
+                    account_instance.phone_numbers.add(formset.instance)
         
         # Add relation to Facebook
         if cleaned_data.get('facebook'):
@@ -132,7 +146,5 @@ class AddAccountView(CreateView):
         Get the url to redirect to after this form has succesfully been submitted. This url
         can change depending on which button in the form was pressed.
         """
-        import pdb
-        pdb.set_trace()
         # TODO: Return url based on pressed submit button
         return redirect(reverse('account_add'))

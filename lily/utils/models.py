@@ -110,7 +110,7 @@ class AddressModel(models.Model):
     )
     
     street = models.CharField(max_length=255, verbose_name=_('street'), blank=True)
-    street_number = models.SmallIntegerField(verbose_name=_('street number'), blank=True)
+    street_number = models.SmallIntegerField(verbose_name=_('street number'), blank=True, null=True)
     complement = models.CharField(max_length=10, verbose_name=_('complement'), blank=True)
     postal_code = models.CharField(max_length=10, verbose_name=_('postal code'), blank=True)
     city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
@@ -120,7 +120,7 @@ class AddressModel(models.Model):
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
-        return u'%s %s' % (self.postal_code, self.streetnumber)
+        return u'%s %s' % (self.postal_code, self.street_number)
 
     class Meta:
         verbose_name = _('address')

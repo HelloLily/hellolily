@@ -90,7 +90,7 @@ class AddAccountForm(forms.models.ModelForm):
             'placeholder': _('Facebook profile link')
     }))
     
-    type = MultipleInputAndChoiceField(queryset=TagModel.objects.all(), required=False,
+    tags = MultipleInputAndChoiceField(queryset=TagModel.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
             'class': 'input-and-choice-select',
     }))
@@ -107,7 +107,7 @@ class AddAccountForm(forms.models.ModelForm):
         # used tags. Something like self.request.user.account__tags.all()
         #
         # Limit queryset to tags used by user's account
-#        self.fields['type'].queryset = self.request.user.account__type.all()
+#        self.fields['tags'].queryset = self.request.user.account__tags.all()
     
     def save(self, commit=True):
         """
@@ -121,17 +121,17 @@ class AddAccountForm(forms.models.ModelForm):
         if commit:
             instance.save()
             
-        tags = self.cleaned_data['type']
+        tags = self.cleaned_data['tags']
         for tag in tags:
             # Create relationship with TagModel
             tag_instance, created = TagModel.objects.get_or_create(tag=tag)
-            instance.type.add(tag_instance)
+            instance.tags.add(tag_instance)
         
         return instance
     
     class Meta:
         model = AccountModel
-        fields = ('name', 'type', 'twitter', 'facebook', 'linkedin', 'website', 'description')
+        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
                 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -207,23 +207,17 @@ class AddressBaseForm(forms.ModelForm):
         }
     ))
     
-    country = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Country'),
-        }
-    ))
-    
     class Meta:
         model = AddressModel
-        fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'state_province', 'type')
+        fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
         widgets = {
             'street_number': forms.TextInput(attrs={
                 'class': 'mws-textinput',
                 'placeholder': _('Street number'),
             }),
             'complement': forms.TextInput(attrs={
-                'class': 'mws-textinput'
+                'class': 'mws-textinput',
+                'placeholder': _('Complement'),
             }),
             'street': forms.TextInput(attrs={
                 'class': 'mws-textinput',

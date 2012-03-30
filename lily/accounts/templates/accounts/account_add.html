@@ -377,11 +377,11 @@
                     <hr />
                     
                     <div class="mws-form-row">
-                        {{ form.type.label_tag }}
+                        {{ form.tags.label_tag }}
                         <div class="mws-form-cols clearfix">
                             <div class="mws-form-col-row">
                                 <div class="float-left">
-                                    {% if form.type.errors %}
+                                    {% if form.tags.errors %}
                                         <span class="field_error">
                                             <div class="input-and-choice">
                                                 <div>
@@ -389,13 +389,13 @@
                                                     <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
                                                 </div>
                                                 <div>
-                                                    {{ form.type }}                                           
+                                                    {{ form.tags }}                                           
                                                     <ul class="input-and-choice-list clearfix search-field"></ul>
                                                 </div>
                                             </div>
                                         </span>
                                         <div class="mws-error no_list_style_type">
-                                              {{ form.type.errors }}
+                                              {{ form.tags.errors }}
                                         </div>
                                     {% else %}
                                         <div class="input-and-choice">
@@ -404,7 +404,7 @@
                                                 <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
                                             </div>
                                             <div>
-                                                {{ form.type }}                                           
+                                                {{ form.tags }}                                           
                                                 <ul class="input-and-choice-list clearfix search-field"></ul>
                                             </div>
                                         </div>

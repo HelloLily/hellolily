@@ -20,18 +20,18 @@
         {% endif %}
         <div class="mws-form-inline">
             <div class="mws-form-row">
-                {{ form.name.label_tag }}
+                {{ form.first_name.label_tag }}
                 <div class="mws-form-item large">
                     <div class="mws-form-cols clearfix">
                         <div class="mws-form-col-3-8 alpha">
                             <div class="mws-form-item"> 
-                                {% if form.name.errors %}
-                                    <span class="field_error">{{ form.name }}</span>
+                                {% if form.first_name.errors %}
+                                    <span class="field_error">{{ form.first_name }}</span>
                                     <div class="mws-error no_list_style_type">
-                                          {{ form.name.errors }}
+                                          {{ form.first_name.errors }}
                                     </div>
                                 {% else %}
-                                       {{ form.name }}
+                                       {{ form.first_name }}
                                 {% endif %}
                             </div>
                         </div>

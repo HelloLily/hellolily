@@ -4,12 +4,14 @@
 {% block title %}{% trans 'Registration' %} - {% endblock %}
 
 {% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquerypasswordstrength.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'users/css/registration.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% static 'users/js/users.js' %}"></script>
 <script type="text/javascript" src="{% static 'users/js/registration.js' %}"></script>
+{{ form.media }}
 {% endblock %}
 
 {% block navigation %}{% endblock %}
@@ -135,6 +137,34 @@
                                         {% else %}
                                                {{ form.password }}
                                         {% endif %}
+                                        
+                                        <div class="password-checker">
+                                            <div class="password-background">
+                                                <span id="password-strength" class="password_strength">
+                                                    &nbsp;
+                                                </span>
+                                            </div>
+                                            <div id="password-text" class="password-text">
+                                                asdf
+                                            </div>
+                                        </div>
+                                        <script type="text/javascript" language="javascript">
+                                           $(document).ready(function() {
+                                               $('#id_password').password_strength({
+                                                   'minLength':6,
+                                                   'container':'#password-strength',
+                                                   'textContainer':'#password-text',
+                                                   'texts' : {
+                                                       1 : '{% trans "Too weak" %}',
+                                                       2 : '{% trans "Weak password" %}',
+                                                       3 : '{% trans "Normal strength" %}',
+                                                       4 : '{% trans "Strong password" %}',
+                                                       5 : '{% trans "Very strong password" %}'
+                                                   }});
+                                               $('#id_password').keyup();
+                                           });
+                                        </script>
+                                        
                                     </div>
                                 </div>
                                 <div class="mws-form-col-4-8">
@@ -155,7 +185,7 @@
                 </div> 
                 
                 <div class="mws-button-row">
-                    <input type="submit" value="{% trans 'Register' %}" class="mws-button blue" />
+                    <input type="submit" value="{% trans 'Accept' %}" class="mws-button blue" />
                 </div>
             </form>
         </div>

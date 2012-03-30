@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
-from django.core.urlresolvers import reverse_lazy
 
 urlpatterns = patterns('',
     url(r'^accounts/', include('lily.accounts.urls')),
     url(r'^', include('lily.users.urls')),
+    url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog', name='jsi18n'),
 )
 
 if settings.DEBUG:

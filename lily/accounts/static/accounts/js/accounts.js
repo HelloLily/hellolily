@@ -45,4 +45,41 @@ $(document).ready(function() {
             other_type_input.hide();
         }
     });
+    
+    // show add-form-dialog
+    $('#open-account-dialog-btn').click(function(event) {
+        $('#account-form-dialog').dialog('open');
+        event.preventDefault();
+    });    
+    
+    // add jquery dialog for adding an account
+    $('#account-form-dialog').dialog({
+        autoOpen: false,
+        title: gettext('New account'),
+        modal: true,
+        width: 640,
+        buttons: [
+            { 
+                text: gettext('Cancel'),
+                click: function() {
+                    $(this).dialog('close');
+                }
+            },
+            {
+                text: gettext('Add & edit'),
+                click: function() {
+                    sendForm( $(this) );
+                }
+            },
+            {
+                text: gettext('Add'),
+                click: function() {
+                    sendForm( $(this) );
+                }
+            },
+        ],
+        close: function() {
+            clearForm( $(this).find('form') );
+        }
+    });
 });

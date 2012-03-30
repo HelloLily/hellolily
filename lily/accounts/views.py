@@ -1,38 +1,71 @@
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
+from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.template.context import RequestContext
+from django.template.loader import render_to_string
+from django.utils import simplejson
 from django.views.generic import CreateView
 from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
     EmailAddressBaseFormSet, AddressBaseForm, AddressBaseFormSet, PhoneNumberBaseForm, \
     PhoneNumberBaseFormSet
-from lily.accounts.models import TagModel
 from lily.utils.models import SocialMediaModel
+from django.utils.translation import ugettext as _
 
 
-class AddAccountMinimalView(CreateView):
+class AddAccountXHRView(CreateView):
     """
     View to add an account with only the minimum of fields included in the template.
     """
     
-    template_name = 'accounts/account_minimal_add.html'
+    template_name = 'accounts/account_add_xhr.html'
+    form_template_name = 'accounts/account_add_xhr_form.html'
     form_class = AddAccountMinimalForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to check if the form is posted via ajax.
+        """
+        self.is_ajax = request.is_ajax()
+        
+        return super(AddAccountXHRView, self).dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
         """
         Add e-mail to newly created account.
         """
         
-        url = super(AddAccountMinimalView,self).form_valid(form)
+        url = super(AddAccountXHRView,self).form_valid(form)
         
         form_kwargs = self.get_form_kwargs()
         account_instance = form_kwargs.get('instance')
-        account_instance.email = form.cleaned_data('email')
+        account_instance.email = form.cleaned_data.get('email')
         account_instance.save() 
+        
+        if self.is_ajax:
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'html': _('Account %s has been saved.') % account_instance.name
+            }))
         
         return url
     
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to return a different response to ajax requests.
+        """
+        
+        if self.is_ajax:
+            context = RequestContext(self.request, self.get_context_data(form=form))
+            return HttpResponse(simplejson.dumps({
+                 'error': True,
+                 'html': render_to_string(self.form_template_name, context_instance=context)
+            }), mimetype='application/javascript')
+        
+        return super(AddAccountXHRView, self).form_invalid(form)
+    
     def get_success_url(self):
-        return redirect(reverse('account_add_minimal'))
+        return redirect(reverse('account_add_xhr'))
 
 
 class AddAccountView(CreateView):

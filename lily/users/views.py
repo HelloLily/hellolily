@@ -276,12 +276,13 @@ class SendInvitationView(FormSetView):
             self.current_site = ''
         
         for form in formset:
-            name = form.cleaned_data.get('name')
+            first_name = form.cleaned_data.get('first_name')
             email = form.cleaned_data.get('email')
             if email: # check that the email is not empty
                 self.hash = sha256('%s-%s-%s-%s' % (self.account.name, email, self.date, settings.SECRET_KEY)).hexdigest()
                 self.invite_link = '%s://%s%s' % (self.protocol, self.current_site, reverse_lazy('invitation_accept', kwargs={
                     'account_name': self.account.name,
+                    'first_name': first_name,
                     'email': email,
                     'date': self.date,
                     'aidb36': self.b36accountpk,
@@ -296,7 +297,7 @@ class SendInvitationView(FormSetView):
                     context={
                         'current_site': self.current_site,
                         'full_name': self.request.user.contact.full_name(),
-                        'name': name,
+                        'name': first_name,
                         'invite_link': self.invite_link,
                         'company_name': self.account.name,
                     }
@@ -346,6 +347,7 @@ class AcceptInvitationView(FormView):
         This method tries to call dispatch to the right method.
         """
         self.account_name = kwargs.get('account_name')
+        self.first_name = kwargs.get('first_name')
         self.email = kwargs.get('email')
         self.datestring = kwargs.get('date')
         self.aidb36 = kwargs.get('aidb36')
@@ -370,6 +372,7 @@ class AcceptInvitationView(FormView):
         """
         if self.link_is_valid():
             self.initial = {
+                'first_name': self.first_name,
                 'email': self.email,
                 'company': self.account_name,
             }
@@ -387,6 +390,7 @@ class AcceptInvitationView(FormView):
         """
         if self.link_is_valid():
             self.initial = {
+                'first_name': self.first_name,
                 'email': self.email,
                 'company': self.account_name,
             }

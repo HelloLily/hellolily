@@ -3,10 +3,11 @@ from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, Set
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
+
 from lily.users.models import UserModel
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddressModel
-
+from lily.utils.widgets import JqueryPasswordInput
 
 
 class CustomAuthenticationForm(AuthenticationForm):
@@ -117,7 +118,7 @@ class RegistrationForm(forms.Form):
         }
     ))
     password = forms.CharField(label=_('Password'), min_length=6, 
-        widget=forms.PasswordInput(attrs={
+        widget=JqueryPasswordInput(attrs={
             'class': 'mws-register-password mws-textinput required',
             'placeholder': _('Password')
         }
@@ -219,10 +220,10 @@ class InvitationForm(forms.Form):
     """
     This is the invitation form, it is used to invite new users to join an account
     """
-    name = forms.CharField(label=_('Name'), max_length=255, 
+    first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
             'class': 'mws-register-name mws-textinput required',
-            'placeholder': _('Name')
+            'placeholder': _('First name')
         }
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,

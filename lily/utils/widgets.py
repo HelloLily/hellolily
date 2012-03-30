@@ -1,7 +1,5 @@
 from django import forms
 from django.utils.encoding import force_unicode
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
 
 class JqueryPasswordInput(forms.PasswordInput):
     class Media:
@@ -20,31 +18,4 @@ class JqueryPasswordInput(forms.PasswordInput):
         else:
             final_attrs.update({'class': 'jquery-password'})
                 
-        output = super(JqueryPasswordInput, self).render(name, value, final_attrs)
-        password_checker = u'''
-            <div class="password-checker">
-               <div class="password-background"><span id="%(strength)s"
-            class="password_strength">&nbsp;</span></div>
-               <div id="%(text)s" class="password-text">&nbsp;</div>
-            </div>
-            <script type="text/javascript" language="javascript">
-               $(document).ready(function() {
-                   $('#id_%(name)s').password_strength({
-                       'minLength':6,
-                       'container':'#%(strength)s',
-                       'textContainer':'#%(text)s',
-                       'texts' : {
-                           1 : '%(too_weak)s',
-                           2 : '%(weak_password)s',
-                           3 : '%(normal_strength)s',
-                           4 : '%(strong_password)s',
-                           5 : '%(ultimate_password)s'
-                       }});
-                   $('#id_%(name)s').keyup();
-               });
-            </script>''' % {'name': name, 'strength': name+'-strength', 'text': name+'-text',
-               'too_weak': _('Too weak'), 'weak_password': _('Weak password'),
-               'normal_strength': _('Normal strength'), 'strong_password': _('Strong password'),
-               'ultimate_password': _('Very good password')}
-#        return mark_safe(u'%s%s' % (output, password_checker))
-        return mark_safe(u'%s' % (output))
+        return super(JqueryPasswordInput, self).render(name, value, final_attrs)

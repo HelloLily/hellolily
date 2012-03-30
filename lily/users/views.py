@@ -54,6 +54,8 @@ class RegistrationView(FormView):
             last_name=form.cleaned_data['last_name']
         )
         
+        print form.cleaned_data['email']
+        
         # Add email address
         email = EmailAddressModel.objects.create(
             email_address=form.cleaned_data['email'],

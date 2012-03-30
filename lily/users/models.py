@@ -61,15 +61,16 @@ def post_save_usermodel_handler(sender, **kwargs):
     instance = kwargs['instance']
     if instance.__dict__.has_key('email'):
         new_email_address = instance.__dict__['email'];
-        try:
-            # Overwrite existing primary e-mail address
-            email = instance.contact.email_addresses.get(is_primary=True)
-            email.email_address = new_email_address
-            email.save()
-        except EmailAddressModel.DoesNotExist:
-            # Add new e-mail address as primary
-            email = EmailAddressModel.objects.create(email_address=new_email_address, is_primary=True)
-            instance.contact.email_addresses.add(email)
+        if new_email_address:
+            try:
+                # Overwrite existing primary e-mail address
+                email = instance.contact.email_addresses.get(is_primary=True)
+                email.email_address = new_email_address
+                email.save()
+            except EmailAddressModel.DoesNotExist:
+                # Add new e-mail address as primary
+                email = EmailAddressModel.objects.create(email_address=new_email_address, is_primary=True)
+                instance.contact.email_addresses.add(email)
 
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):

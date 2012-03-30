@@ -44,6 +44,7 @@
           The commented div below is how it work when not displayed in a dialog.
           This is commented out because of bug mentioned above and desired behaviour is in dialog.
 
+      -->
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-plus">{% trans 'User invitation form' %}</span>
@@ -58,9 +59,8 @@
             </form>
         </div>
     </div>
--->
 
-    <div class="mws-panel grid_4">
+    <!-- <div class="mws-panel grid_4">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-alert">jQuery-UI Dialog</span>
         </div>
@@ -75,12 +75,12 @@
                 </div>
             </div>
         </div>      
-    </div>
+    </div> -->
     
     <div class="formset-custom-template" style="display:none;">
         <div class="mws-form-inline">
             <div class="mws-form-row">
-                <label for="form-{{ formset.forms|length|add:"-1" }}-id_form-0-name">{% trans 'Name' %}</label>
+                <label for="form-{{ formset.forms|length|add:"-1" }}-id_form-0-name">{% trans 'First name' %}</label>
                 <div class="mws-form-item large">
                     <div class="mws-form-cols clearfix">
                         <div class="mws-form-col-3-8 alpha">

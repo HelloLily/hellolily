@@ -1,0 +1,214 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-03-30 10:14+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: .\models.py:12
+msgid "deleted"
+msgstr ""
+
+#: .\models.py:29
+msgid "Work"
+msgstr "Werk"
+
+#: .\models.py:30
+msgid "Mobile"
+msgstr "Mobiel"
+
+#: .\models.py:31
+msgid "Home"
+msgstr "Thuis"
+
+#: .\models.py:32
+msgid "Fax (home)"
+msgstr "Fax (thuis)"
+
+#: .\models.py:33
+msgid "Fax (work)"
+msgstr "Fax (werk)"
+
+#: .\models.py:34
+msgid "Data"
+msgstr ""
+
+#: .\models.py:35
+msgid "Pager"
+msgstr ""
+
+#: .\models.py:36 .\models.py:80 .\models.py:109
+msgid "Other"
+msgstr "Anders"
+
+#: .\models.py:41 .\models.py:138
+msgid "Inactive"
+msgstr "Inactief"
+
+#: .\models.py:42 .\models.py:139
+msgid "Active"
+msgstr "Actief"
+
+#: .\models.py:45 .\models.py:63
+msgid "phone number"
+msgstr "telefoonnummer"
+
+#: .\models.py:48 .\models.py:120
+msgid "type"
+msgstr ""
+
+#: .\models.py:51 .\models.py:145
+msgid "status"
+msgstr ""
+
+#: .\models.py:64
+msgid "phone numbers"
+msgstr "telefoonnummers"
+
+#: .\models.py:74
+msgid "Facebook"
+msgstr ""
+
+#: .\models.py:75
+msgid "Twitter"
+msgstr ""
+
+#: .\models.py:76
+msgid "LinkedIn"
+msgstr ""
+
+#: .\models.py:77
+msgid "Google+"
+msgstr ""
+
+#: .\models.py:78
+msgid "Qzone"
+msgstr ""
+
+#: .\models.py:79
+msgid "Orkut"
+msgstr ""
+
+#: .\models.py:83
+msgid "name"
+msgstr "naam"
+
+#: .\models.py:85
+msgid "username"
+msgstr "gebruikersnaam"
+
+#: .\models.py:86
+msgid "profile link"
+msgstr "profiel link"
+
+#: .\models.py:92 .\models.py:93
+msgid "social media"
+msgstr ""
+
+#: .\models.py:104
+msgid "Visiting address"
+msgstr "Bezoekadres"
+
+#: .\models.py:105
+msgid "Billing address"
+msgstr "Factuuradres"
+
+#: .\models.py:106
+msgid "Mailing address"
+msgstr "Postadres"
+
+#: .\models.py:107
+msgid "Shipping address"
+msgstr "Bezorgadres"
+
+#: .\models.py:108
+msgid "Home address"
+msgstr "Thuisadres"
+
+#: .\models.py:112
+msgid "street"
+msgstr "straat"
+
+#: .\models.py:113
+msgid "street number"
+msgstr "huisnummer"
+
+#: .\models.py:114
+msgid "complement"
+msgstr "toevoeging"
+
+#: .\models.py:115
+msgid "postal code"
+msgstr "postcode"
+
+#: .\models.py:116
+msgid "city"
+msgstr "stad"
+
+#: .\models.py:117
+msgid "state/province"
+msgstr "staat/provincie"
+
+#: .\models.py:119
+msgid "country"
+msgstr "land"
+
+#: .\models.py:126
+msgid "address"
+msgstr "adres"
+
+#: .\models.py:127
+msgid "addresses"
+msgstr "adressen"
+
+#: .\models.py:142 .\models.py:151
+msgid "email address"
+msgstr "e-mailadres"
+
+#: .\models.py:143
+msgid "primary e-mail"
+msgstr "primaire e-mail"
+
+#: .\models.py:152
+msgid "e-mail addresses"
+msgstr "e-mailadressen"
+
+#: .\models.py:160 .\models.py:166
+msgid "note"
+msgstr "notitie"
+
+#: .\models.py:167
+msgid "notes"
+msgstr "notities"
+
+#: .\models.py:176
+msgid "list of phone numbers"
+msgstr ""
+
+#: .\models.py:177
+msgid "list of social media"
+msgstr ""
+
+#: .\models.py:178
+msgid "list of addresses"
+msgstr ""
+
+#: .\models.py:180
+msgid "list of e-mail addresses"
+msgstr ""
+
+#: .\models.py:181
+msgid "list of notes"
+msgstr ""

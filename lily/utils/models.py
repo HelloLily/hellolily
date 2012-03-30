@@ -44,14 +44,21 @@ class PhoneNumberModel(models.Model):
     
     raw_input = models.CharField(max_length=40, verbose_name=_('phone number'))
     number = models.CharField(max_length=40)
-    type = models.CharField(max_length=15,choices=PHONE_TYPE_CHOICES, verbose_name=_('type'))
+    type = models.CharField(max_length=15, choices=PHONE_TYPE_CHOICES, default='work', 
+                            verbose_name=_('type'))
     other_type = models.CharField(max_length=15, blank=True, null=True) # used in combination with type='other'
     status = models.IntegerField(max_length=10, choices=PHONE_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
     
     def __unicode__(self):
         return self.number
-
+    
+    def save(self):
+        # Save raw input
+        self.number = filter(type(self.raw_input).isdigit, self.raw_input)
+        
+        super(PhoneNumberModel, self).save()
+    
     class Meta:
         verbose_name = _('phone number')
         verbose_name_plural = _('phone numbers')
@@ -75,7 +82,7 @@ class SocialMediaModel(models.Model):
     
     name = models.CharField(max_length=30,choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
     other_name = models.CharField(max_length=30, blank=True, null=True) # used in combination with name='other'
-    username = models.CharField(max_length=100, verbose_name=_('username'))
+    username = models.CharField(max_length=100, blank=True, verbose_name=_('username'))
     profile_url = models.URLField(verbose_name=_('profile link'))
 
     def __unicode__(self):
@@ -102,14 +109,14 @@ class AddressModel(models.Model):
         ('other', _('Other')),
     )
     
-    street = models.CharField(max_length=255, verbose_name=_('street'))
-    street_number = models.SmallIntegerField(verbose_name=_('street number'))
-    complement = models.CharField(max_length=10, verbose_name=_('complement'))
-    postal_code = models.CharField(max_length=10, verbose_name=_('postal code'))
-    city = models.CharField(max_length=100, verbose_name=_('city'))
+    street = models.CharField(max_length=255, verbose_name=_('street'), blank=True)
+    street_number = models.SmallIntegerField(verbose_name=_('street number'), blank=True)
+    complement = models.CharField(max_length=10, verbose_name=_('complement'), blank=True)
+    postal_code = models.CharField(max_length=10, verbose_name=_('postal code'), blank=True)
+    city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
     state_province = models.CharField(max_length=50, verbose_name=_('state/province'), blank=True)
-    # TODO: check possibilites for setting a default based on account/user preferences for country
-    country = models.CharField(max_length=200, verbose_name=_('country'))
+    # TODO: maybe try setting a default based on account/user preferences for country
+    country = models.CharField(max_length=200, verbose_name=_('country'), blank=True)
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
@@ -132,8 +139,8 @@ class EmailAddressModel(models.Model):
         (ACTIVE_STATUS, _('Active')),
     )
     
-    email_address = models.EmailField(max_length=255, verbose_name=_('email address'))
-    is_primary = models.BooleanField(default=False, verbose_name=_('primary email'))
+    email_address = models.EmailField(max_length=255, verbose_name=_('e-mail address'))
+    is_primary = models.BooleanField(default=False, verbose_name=_('primary e-mail'))
     status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
     
@@ -141,8 +148,8 @@ class EmailAddressModel(models.Model):
         return self.email_address
 
     class Meta:
-        verbose_name = _('email address')
-        verbose_name_plural = _('email addresses')
+        verbose_name = _('e-mail address')
+        verbose_name_plural = _('e-mail addresses')
 
 
 class NoteModel(models.Model):
@@ -170,7 +177,7 @@ class CommonModel(DeletedModel):
     social_media = models.ManyToManyField(SocialMediaModel, verbose_name=_('list of social media'))
     addresses = models.ManyToManyField(AddressModel, verbose_name=_('list of addresses'))
     email_addresses = models.ManyToManyField(EmailAddressModel,
-                                             verbose_name=_('list of email addresses'))
+                                             verbose_name=_('list of e-mail addresses'))
     notes = models.ManyToManyField(NoteModel, verbose_name=_('list of notes'))
     
     class Meta:

@@ -139,7 +139,7 @@ class ActivationView(TemplateView):
         self.user = authenticate(username=self.user.username, no_pass=True)
         user_login(request, self.user)
         
-        # redirect to dashboard
+        # Redirect to dashboard
         return redirect(reverse_lazy('dashboard'))
     
 class ActivationResendView(FormView):

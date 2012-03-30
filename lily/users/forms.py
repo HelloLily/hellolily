@@ -87,7 +87,7 @@ class ResendActivationForm(forms.Form):
         """
         Validates that an active user exists with the given email address.
         """
-        email = self.cleaned_data["email"]
+        email = self.cleaned_data['email']
         self.users_cache = UserModel.objects.filter(
                                 contact__email_addresses__email_address__iexact=email, 
                                 contact__email_addresses__is_primary=True
@@ -172,14 +172,14 @@ class RegistrationForm(forms.Form):
             except UserModel.DoesNotExist:
                 pass
         
-        if cleaned_data.get('email'): 
+        if cleaned_data.get('email'):
             try:
-                EmailAddressModel.objects.get(email_address=cleaned_data.get('email'))            
+                UserModel.objects.filter(
+                    contact__email_addresses__email_address__iexact=cleaned_data.get('email')
+                )      
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-            except EmailAddressModel.DoesNotExist:
+            except UserModel.DoesNotExist:
                 pass
-            except EmailAddressModel.MultipleObjectsReturned: 
-                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
         
         return cleaned_data
 

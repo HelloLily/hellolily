@@ -238,7 +238,7 @@ class LoginView(View):
 class SendInvitationView(FormSetView):
     """
     This view is used to invite new people to the site. It works with a formset to allow easy
-    adding of multiple invitations. It also checks wheter the call is done via ajax or via a normal
+    adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
     form, to use ajax append ?xhr to the url.
     """
     template_name = "users/invitation_send.html"
@@ -253,7 +253,8 @@ class SendInvitationView(FormSetView):
         Determine wheter the form is posted via ajax or not, this function is also decorated
         to prevent people with insufficient permissions to invite new people.
         """
-        self.ajax_call = request.GET.__contains__('xhr')
+        self.ajax_call = 'xhr' in request.GET
+        
         return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
     
     def formset_valid(self, formset):

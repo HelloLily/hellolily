@@ -102,6 +102,7 @@ INSTALLED_APPS = (
     'templated_email',
     
     # Lily
+    'lily',
     'lily.accounts',
     'lily.activities',
     'lily.contacts',

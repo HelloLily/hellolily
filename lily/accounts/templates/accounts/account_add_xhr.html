@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load i18n static %} 
+
+{% block title %}{% trans 'Add account popup demo' %}{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <input type="button" id="open-account-dialog-btn" class="mws-button green" value="{% trans 'Add account' %}" />
+    
+    <div id="account-form-dialog">
+        <form class="mws-form" action="?xhr" method="post">
+            {% include 'accounts/account_add_xhr_form.html' %}
+        </form>
+    </div>
+{% endblock %}

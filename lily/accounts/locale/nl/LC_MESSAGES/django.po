@@ -1,0 +1,185 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-03-30 10:11+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: .\forms.py:17 .\forms.py:139
+msgid "Company name"
+msgstr "Bedrijfsnaam"
+
+#: .\forms.py:20
+msgid "E-mail"
+msgstr "E-mail"
+
+#: .\forms.py:22 .\forms.py:160
+msgid "E-mail address"
+msgstr "E-mailadres"
+
+#: .\forms.py:39
+msgid "Name already in use."
+msgstr "Naam wordt al gebruikt."
+
+#: .\forms.py:46 .\forms.py:50
+msgid "E-mail address already in use."
+msgstr "E-mailadres wordt al gebruikt."
+
+#: .\forms.py:55
+msgid "Website already in use."
+msgstr "Website wordt al gebruikt."
+
+#: .\forms.py:75
+msgid "Twitter"
+msgstr ""
+
+#: .\forms.py:78
+msgid "Twitter username"
+msgstr "Twiter gebruikersnaam"
+
+#: .\forms.py:81
+msgid "LinkedIn"
+msgstr ""
+
+#: .\forms.py:84
+msgid "LinkedIn username"
+msgstr "LinkedIn gebruikersnaam"
+
+#: .\forms.py:87
+msgid "Facebook"
+msgstr ""
+
+#: .\forms.py:90
+msgid "Facebook profile link"
+msgstr "Facebook profiel link"
+
+#: .\forms.py:187
+msgid "Phone number"
+msgstr "Telefoonnummer"
+
+#: .\forms.py:213 .\forms.py:246
+msgid "Country"
+msgstr "Land"
+
+#: .\forms.py:223
+msgid "Street number"
+msgstr "Huisnummer"
+
+#: .\forms.py:230
+msgid "Street"
+msgstr "Straat"
+
+#: .\forms.py:234
+msgid "Postal code"
+msgstr "Postcode"
+
+#: .\forms.py:238
+msgid "City"
+msgstr "Stad"
+
+#: .\forms.py:242
+msgid "State/province"
+msgstr "Staat/provincie"
+
+#: .\models.py:16 .\models.py:22
+msgid "tag"
+msgstr ""
+
+#: .\models.py:23 .\models.py:62
+msgid "tags"
+msgstr ""
+
+#: .\models.py:40
+msgid "bankrupt"
+msgstr "failliet"
+
+#: .\models.py:41
+msgid "previous customer"
+msgstr "klant geweest"
+
+#: .\models.py:55
+msgid "customer id"
+msgstr ""
+
+#: .\models.py:56
+msgid "company name"
+msgstr "bedrijfsnaam"
+
+#: .\models.py:57
+msgid "company's website"
+msgstr "bedrijfs website"
+
+#: .\models.py:58
+msgid "status"
+msgstr ""
+
+#: .\models.py:61
+msgid "company size"
+msgstr "bedrijfsgrootte"
+
+#: .\models.py:63
+msgid "logo"
+msgstr ""
+
+#: .\models.py:64
+msgid "description"
+msgstr "omschrijving"
+
+#: .\models.py:70
+msgid "account"
+msgstr "bedrijf"
+
+#: .\models.py:71
+msgid "accounts"
+msgstr "bedrijven"
+
+#: .\templates\accounts\account_add.html.py:4
+#: .\templates\accounts\account_add.html.py:22
+#: .\templates\accounts\account_minimal_add.html.py:4
+#: .\templates\accounts\account_minimal_add.html.py:9
+msgid "Add account"
+msgstr "Voeg bedrijf toe"
+
+#: .\templates\accounts\account_add.html.py:66
+msgid "E-mail addresses"
+msgstr "E-mailaddressen"
+
+#: .\templates\accounts\account_add.html.py:91
+#: .\templates\accounts\account_add.html.py:96
+msgid "primary"
+msgstr "primair"
+
+#: .\templates\accounts\account_add.html.py:130
+msgid "Phone numbers"
+msgstr "Telefoonnummers"
+
+#: .\templates\accounts\account_add.html.py:188
+msgid "Addresses"
+msgstr "Addressen"
+
+#: .\templates\accounts\account_add.html.py:436
+#: .\templates\accounts\account_minimal_add.html.py:69
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: .\templates\accounts\account_add.html.py:437
+#: .\templates\accounts\account_minimal_add.html.py:70
+msgid "Add & edit"
+msgstr "Toevoegen & bewerken"
+
+#: .\templates\accounts\account_add.html.py:438
+#: .\templates\accounts\account_minimal_add.html.py:71
+msgid "Add"
+msgstr "Toevoegen"

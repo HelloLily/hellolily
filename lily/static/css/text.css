@@ -115,6 +115,14 @@ figure {
     float: right;
 }
 
+.inline {
+    display: inline-block;
+}
+
+.inline.float-left {
+    float: left !important;
+}
+
 /* `Lists
 ----------------------------------------------------------------------------------------------------*/
 .no_list_style_type,
@@ -131,4 +139,15 @@ figure {
 .no_list_padding li {
     padding-left: 0;
     margin-left: 0;
+}
+
+/* `Borders
+----------------------------------------------------------------------------------------------------*/
+.no-bottom-radius {
+  -webkit-border-bottom-left-radius : 0px !important;
+  -webkit-border-bottom-right-radius: 0px !important;
+  -moz-border-radius-bottomleft     : 0px !important;
+  -moz-border-radius-bottomright    : 0px !important;
+  border-bottom-left-radius         : 0px !important;
+  border-bottom-right-radius        : 0px !important;
 }

@@ -1,0 +1,91 @@
+.input-and-choice-select,
+.input-and-choice-list {
+    display: none;
+}
+
+.input-and-choice .search-field {
+  white-space: nowrap;
+  margin: 5px 0 0;
+  padding: 0;
+  border: 1px solid #c5c5c5;
+  border-radius: 5px;
+}
+
+.input-and-choice .search-choice {
+  float: left;
+  list-style: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius   : 3px;
+  border-radius        : 3px;
+  -moz-background-clip   : padding;
+  -webkit-background-clip: padding-box;
+  background-clip        : padding-box;
+  background-color: #e4e4e4;
+  background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(0.48, #e8e8e8), color-stop(0.5, #f0f0f0), color-stop(0.8, #f4f4f4));
+  background-image: -webkit-linear-gradient(center bottom, #eeeeee 0%, #e8e8e8 48%, #f0f0f0 50%, #f4f4f4 80%);
+  background-image: -moz-linear-gradient(center bottom, #eeeeee 0%, #e8e8e8 48%, #f0f0f0 50%, #f4f4f4 80%);
+  background-image: -o-linear-gradient(top, #eeeeee 0%, #e8e8e8 48%, #f0f0f0 50%, #f4f4f4 80%);
+  background-image: -ms-linear-gradient(top, #eeeeee 0%, #e8e8e8 48%, #f0f0f0 50%, #f4f4f4 80%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#f4f4f4',GradientType=0 );
+  background-image: linear-gradient(top, #eeeeee 0%, #e8e8e8 48%, #f0f0f0 50%, #f4f4f4 80%);
+  -webkit-box-shadow: 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);
+  -moz-box-shadow   : 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);
+  box-shadow        : 0 0 2px #ffffff inset, 0 1px 0 rgba(0,0,0,0.05);
+  color: #333;
+  border: 1px solid #aaaaaa;
+  line-height: 13px;
+  padding: 3px 20px 3px 5px;
+  margin: 3px 0 3px 5px;
+  position: relative;
+}
+
+.input-and-choice .search-choice span {
+  cursor: default;
+}
+
+.input-and-choice .search-choice .search-choice-close {
+  display: block;
+  position: absolute;
+  right: 3px;
+  top: 4px;
+  width: 12px;
+  height: 13px;
+  font-size: 1px;
+  background: url(chosen-sprite.png) right top no-repeat;
+}
+
+.input-and-choice .search-choice .search-choice-close:hover {
+  background-position: right -11px;
+}
+
+/* Custom JUI Autocomplete CSS */
+.ui-autocomplete {
+    background-color: #fff;
+    color: #000;
+    
+    -webkit-border-radius: 0px;
+    -moz-border-radius   : 0px;
+    border-radius        : 0px;
+    -webkit-border-bottom-left-radius : 4px;
+    -webkit-border-bottom-right-radius: 4px;
+    -moz-border-radius-bottomleft     : 4px;
+    -moz-border-radius-bottomright    : 4px;
+    border-bottom-left-radius         : 4px;
+    border-bottom-right-radius        : 4px;
+}
+
+.ui-autocomplete .ui-menu-item {
+    background-image: none;
+    border: none;   
+}
+.ui-autocomplete .ui-menu-item .ui-state-hover {
+    background-color: #50B3DF;
+    color: #ffffff;
+    font-weight: normal;
+
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #50B3DF), color-stop(100%, #09aadc));*/
+    background-image: -webkit-linear-gradient(#50B3DF,#09aadc);
+    background-image: -moz-linear-gradient(#50B3DF,#09aadc);
+    background-image: -o-linear-gradient(#50B3DF,#09aadc);
+    background-image: linear-gradient(#50B3DF,#09aadc);
+}

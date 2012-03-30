@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load i18n static %} 
+
+{% block title %}{% trans 'Add account' %}{% endblock %}
+
+{% block content %}
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-header">
+            <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
+        </div>
+        <div class="mws-panel-body">
+            <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="mws-form-row">
+                        <div class="mws-form-message error no_list_style_type">
+                            <span class="field_error">{{ form.non_field_errors }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        {{ form.name.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.name.errors %}
+                                <span class="field_error">{{ form.name }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.name.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        {{ form.email.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.email.errors %}
+                                <span class="field_error">{{ form.email }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.email.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.email }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        {{ form.website.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.website.errors %}
+                                <span class="field_error">{{ form.website }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.website.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.website }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mws-button-row">
+                    <input type="button" value="{% trans 'Cancel' %}" class="mws-button blue" />
+                    <input type="submit" value="{% trans 'Add & edit' %}" class="mws-button blue" />
+                    <input type="submit" value="{% trans 'Add' %}" class="mws-button blue" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

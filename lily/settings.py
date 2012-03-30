@@ -1,11 +1,13 @@
-import os
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse_lazy
+import os
+import site_settings
 
 DEBUG = TEMPLATE_DEBUG = False
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 TIME_ZONE = 'Europe/Amsterdam'
-LANGUAGE_CODE = 'NL-nl'
+LANGUAGE_CODE = 'En-en' # 'NL-nl'
 
 SITE_ID = 1
 
@@ -141,10 +143,11 @@ LOGGING = {
 
 # Settings for templated e-mail app
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
-TEMPLATED_EMAIL_DJANGO_SUBJECTS = {
-    'welcome':'Welcome to my website',
-}
+
 try:
     from site_settings import *
 except:
     pass
+
+if not hasattr(site_settings, 'DEFAULT_FROM_EMAIL'):
+    raise ImproperlyConfigured('Missing DEFAULT_FROM_EMAIL in site_settings')

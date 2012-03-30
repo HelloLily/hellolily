@@ -1,0 +1,25 @@
+.mws-form .email_is_primary label {
+    color: #aaa;
+    font-weight: normal;
+    cursor: auto;
+}
+
+.mws-form .email_is_primary label.checked,
+.mws-form .email_is_primary label.state-hover {
+    color: #50B3DF;
+    font-weight: bold;
+}
+
+.mws-form .email_is_primary label.state-hover span {
+    cursor: pointer;
+}
+
+.mws-form .email_is_primary input {
+    display: none;
+}
+
+.mws-form .formset-delete .mws-i-24 {
+    display: block; 
+    width: 24px; 
+    height: 24px;
+}

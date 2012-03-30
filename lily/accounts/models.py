@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
-from lily.utils.models import CommonModel
+from lily.utils.models import CommonModel, EmailAddressModel
 
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
@@ -13,6 +15,9 @@ class TagModel(models.Model):
     
     tag = models.CharField(max_length=50, verbose_name=_('tag'))
 
+    def __unicode__(self):
+        return self.tag
+    
     class Meta:
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
@@ -53,8 +58,8 @@ class AccountModel(CommonModel):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
                               blank=True)
     company_size = models.CharField(max_length=15, choices=COMPANY_SIZE_CHOICES,
-                                    verbose_name=_('company size'), blank=True)    
-    tags = models.ManyToManyField(TagModel, verbose_name=_('list of tags'))
+                                    verbose_name=_('company size'), blank=True)  
+    tags = models.ManyToManyField(TagModel, verbose_name=_('tags'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     
@@ -66,3 +71,25 @@ class AccountModel(CommonModel):
         verbose_name_plural = _('accounts')
 
 
+## ------------------------------------------------------------------------------------------------
+## Signal listeners
+## ------------------------------------------------------------------------------------------------
+
+@receiver(pre_save, sender=AccountModel)
+def post_save_usermodel_handler(sender, **kwargs):
+    """
+    If an e-mail attribute was set on an instance of UserModel, add a primary e-mail address or 
+    overwrite the existing one.
+    """
+    instance = kwargs['instance']
+    if instance.__dict__.has_key('email'):
+        new_email_address = instance.__dict__['email'];
+        try:
+            # Overwrite existing primary e-mail address
+            email = instance.email_addresses.get(is_primary=True)
+            email.email_address = new_email_address
+            email.save()
+        except EmailAddressModel.DoesNotExist:
+            # Add new e-mail address as primary
+            email = EmailAddressModel.objects.create(email_address=new_email_address, is_primary=True)
+            instance.email_addresses.add(email)

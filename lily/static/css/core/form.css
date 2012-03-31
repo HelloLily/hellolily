@@ -163,7 +163,7 @@
 .mws-form textarea:focus /* new */
 {
     border-color:#50b3df; /* new */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* new */
+    box-shadow:0 0 5px rgba(0, 0, 0, 0.3); /* new */
 }
 
 /* Form Columns */

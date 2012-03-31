@@ -174,7 +174,7 @@ class RegistrationForm(forms.Form):
                 pass
         
         if cleaned_data.get('email'):
-            if UserModel.objects.get(
+            if UserModel.objects.filter(
                 contact__email_addresses__email_address__iexact=cleaned_data.get('email')
             ).exists():
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])

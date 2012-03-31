@@ -82,4 +82,14 @@ $(document).ready(function() {
             clearForm( $(this).find('form') );
         }
     });
+    
+    // enable formsets
+    $('.mws-formset').each(function(index, formset) {
+    	prefix = $(element).attr('id');
+    	$(formset).formset( {
+            prefix: prefix,
+            addText: gettext('Add another'),
+            preventEmptyFormset: true
+    	});
+    });
 });

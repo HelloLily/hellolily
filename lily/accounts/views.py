@@ -86,8 +86,8 @@ class AddAccountView(CreateView):
         """
         Overloading super().dispatch to pass POST data to all custom formsets.
         """
-        self.email_addresses_formset = self.EmailAddressFormSet(request.POST or None, prefix='addresses')
-        self.addresses_formset = self.AddressFormSet(request.POST or None, prefix='email_addresses')
+        self.email_addresses_formset = self.EmailAddressFormSet(request.POST or None, prefix='email_addresses')
+        self.addresses_formset = self.AddressFormSet(request.POST or None, prefix='addresses')
         self.phone_numbers_formset = self.PhoneNumberFormSet(request.POST or None, prefix='phone_numbers')
 
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)

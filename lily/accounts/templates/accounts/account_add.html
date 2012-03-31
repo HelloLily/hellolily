@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
@@ -23,11 +24,7 @@
         </div>
         <div class="mws-panel-body">
             <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %} 
-                
-                {{ email_addresses_formset.management_form }}
-                {{ addresses_formset.management_form }}
-                {{ phone_numbers_formset.management_form }}
-                
+				                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
                         <div class="mws-form-message error no_list_style_type">
@@ -62,50 +59,47 @@
                     {% endcomment %}
                     <div class="mws-form-row">
                         <label>{% trans 'E-mail addresses' %}</label>
-                        <div class="mws-form-item large">
+	                    {% for form in email_addresses_formset.forms %}
+	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
-                                    {% for form in email_addresses_formset.forms %}
-                                        <div class="mws-form-col-row email_address mws-form-item">
-                                            {% if form.email_address.errors %}
-                                                <span class="field_error float-left">{{ form.email_address }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.email_address.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.email_address }}
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row email_address mws-form-item">
+                                        {% if form.email_address.errors %}
+                                            <span class="field_error float-left">{{ form.email_address }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.email_address.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.email_address }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left center">
-                                    {% for form in email_addresses_formset.forms %}
-                                        <div class="email_is_primary mws-form-col-row mws-form-item">
-                                            {% if forloop.first %}
-                                                <label class="checked">
-                                                    <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" checked="checked" />
-                                                    <span>{% trans 'primary' %}</span>
-                                                </label>
-                                            {% else %}
-                                                <label>
-                                                    <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" />
-                                                    <span>{% trans 'primary' %}</span>
-                                                </label>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="email_is_primary mws-form-col-row mws-form-item">
+                                        {% if forloop.first %}
+                                            <label class="checked">
+                                                <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" checked="checked" />
+                                                <span>{% trans 'primary' %}</span>
+                                            </label>
+                                        {% else %}
+                                            <label>
+                                                <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" />
+                                                <span>{% trans 'primary' %}</span>
+                                            </label>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in email_addresses_formset.forms %}
-                                        <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-email" /></a>
-                                        </div>
-                                    {% endfor %}
+                                    <div class="formset-delete mws-form-col-row mws-form-item">
+                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-email" /></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
+                        {{ email_addresses_formset.management_form }}
                     </div>
 
                     <div class="mws-form-row">
@@ -126,56 +120,51 @@
 
                     <div class="mws-form-row">
                         <label>{% trans 'Phone numbers' %}</label>
-                        <div class="mws-form-item large">
+	                    {% for form in phone_numbers_formset.forms %}
+	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
-                                    {% for form in phone_numbers_formset.forms %}
-                                        <div class="mws-form-col-row phone_number mws-form-item">
-                                            {% if form.raw_input.errors %}
-                                                <span class="field_error float-left">{{ form.raw_input }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.raw_input.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.raw_input }}
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row phone_number mws-form-item">
+                                        {% if form.raw_input.errors %}
+                                            <span class="field_error float-left">{{ form.raw_input }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.raw_input.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.raw_input }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in phone_numbers_formset.forms %}
-                                        <div class="mws-form-col-row phone_number mws-form-item">
-                                            {% if form.type.errors %}
-                                                <span class="field_error float-left">{{ form.type }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.type.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.type }}
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row phone_number mws-form-item">
+                                        {% if form.type.errors %}
+                                            <span class="field_error float-left">{{ form.type }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.type.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.type }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in phone_numbers_formset.forms %}
-                                        <div class="mws-form-col-row phone_number mws-form-item">
-                                            {{ form.other_type }}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row phone_number mws-form-item">
+                                        {{ form.other_type }}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in phone_numbers_formset.forms %}
-                                        <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-phone_number" /></a>
-                                        </div>
-                                    {% endfor %}
+                                    <div class="formset-delete mws-form-col-row mws-form-item">
+                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-phone_number" /></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
+		                {{ phone_numbers_formset.management_form }}
                     </div>
                     
                     {% comment %}
@@ -183,118 +172,114 @@
                     {% endcomment %}
                     <div class="mws-form-row">
                         <label>{% trans 'Addresses' %}</label>
-                        <div class="mws-form-item large">
+                        
+	                    {% for form in addresses_formset.forms %}
+	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
-                                    {% for form in addresses_formset.forms %}
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {% if form.postal_code.errors %}
-                                                <span class="field_error float-left">{{ form.postal_code }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.postal_code.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.postal_code }}
-                                            {% endif %}
-                                        </div>
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {% if form.city.errors %}
-                                                <span class="field_error float-left">{{ form.city }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.city.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.city }}
-                                            {% endif %}
-                                        </div>
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {% if form.state_province.errors %}
-                                                <span class="field_error float-left">{{ form.state_province }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.state_province.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.state_province }}
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {% if form.postal_code.errors %}
+                                            <span class="field_error float-left">{{ form.postal_code }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.postal_code.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.postal_code }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {% if form.city.errors %}
+                                            <span class="field_error float-left">{{ form.city }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.city.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.city }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {% if form.state_province.errors %}
+                                            <span class="field_error float-left">{{ form.state_province }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.state_province.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.state_province }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in addresses_formset.forms %}
-                                        <div class="clearfix">
-                                        <div class="mws-form-col-row address mws-form-item float-left">
-                                            {% if form.street_number.errors %}
-                                                <span class="field_error float-left">{{ form.street_number }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.street_number.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.street_number }}
-                                            {% endif %}
-                                        </div>
-                                        <div class="mws-form-col-row address mws-form-item float-left clearfix">
-                                            {% if form.complement.errors %}
-                                                <span class="field_error float-left">{{ form.complement }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.complement.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.complement }}
-                                            {% endif %}
-                                        </div>
-                                        </div>
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {% if form.street.errors %}
-                                                <span class="field_error float-left">{{ form.street }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.street.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.street }}
-                                            {% endif %}
-                                        </div>
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {% if form.country.errors %}
-                                                <span class="field_error float-left">{{ form.country }}</span>
-                                                <span class="mws-error inline plain float-left">
-                                                    {% for error in form.country.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </span>
-                                            {% else %}
-                                                {{ form.country }}
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="clearfix">
+                                    <div class="mws-form-col-row address mws-form-item float-left">
+                                        {% if form.street_number.errors %}
+                                            <span class="field_error float-left">{{ form.street_number }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.street_number.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.street_number }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="mws-form-col-row address mws-form-item float-left clearfix">
+                                        {% if form.complement.errors %}
+                                            <span class="field_error float-left">{{ form.complement }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.complement.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.complement }}
+                                        {% endif %}
+                                    </div>
+                                    </div>
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {% if form.street.errors %}
+                                            <span class="field_error float-left">{{ form.street }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.street.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.street }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {% if form.country.errors %}
+                                            <span class="field_error float-left">{{ form.country }}</span>
+                                            <span class="mws-error inline plain float-left">
+                                                {% for error in form.country.errors %}
+                                                    <strong>{{ error }}</strong>
+                                                {% endfor %}
+                                            </span>
+                                        {% else %}
+                                            {{ form.country }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in addresses_formset.forms %}
-                                        <div class="mws-form-col-row address mws-form-item">
-                                            {{ form.type }}
-                                        </div>
-                                    {% endfor %}
+                                    <div class="mws-form-col-row address mws-form-item">
+                                        {{ form.type }}
+                                    </div>
                                 </div>
                                 <div class="float-left">
-                                    {% for form in addresses_formset.forms %}
-                                        <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-address" /></a>
-                                        </div>
-                                    {% endfor %}
+                                    <div class="formset-delete mws-form-col-row mws-form-item">
+                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-address" /></a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+	                    {% endfor %}
+		                {{ addresses_formset.management_form }}
                     </div>
                 
                     <hr />
@@ -413,7 +398,7 @@
                             </div>
                         </div>
                     </div>
-    
+                    
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
                         <div class="mws-form-item large">                            

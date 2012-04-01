@@ -173,7 +173,7 @@ class PhoneNumberBaseForm(forms.ModelForm):
     
     type = forms.ChoiceField(choices=PhoneNumberModel.PHONE_TYPE_CHOICES, initial='work', 
         widget=forms.Select(attrs={
-            'class': 'chzn-select other'
+            'class': 'other'
         }
     ))
     
@@ -202,10 +202,8 @@ class AddressBaseForm(forms.ModelForm):
     """
     
     type = forms.ChoiceField(choices=AddressModel.ADDRESS_TYPE_CHOICES, initial='mailing',
-        widget=forms.Select(attrs={
-            'class': 'chzn-select'
-        }
-    ))
+        widget=forms.Select()
+    )
     
     class Meta:
         model = AddressModel

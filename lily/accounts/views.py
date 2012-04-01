@@ -119,8 +119,6 @@ class AddAccountView(CreateView):
             
             # Handle addresses
             for formset in self.addresses_formset:
-                import pdb
-                pdb.set_trace()
                 # Only save address if something else than complement and/or type is filled in
                 if any([formset.instance.street,
                         formset.instance.street_number,

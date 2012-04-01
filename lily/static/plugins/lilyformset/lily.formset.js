@@ -22,11 +22,12 @@
             },
 
             updateElementIndex = function(elem, prefix, ndx) {
-                var idRegex = new RegExp('(' + prefix + '-\\d+-)|(^)'),
-                    replacement = prefix + '-' + ndx + '-';
-                if (elem.attr("for")) elem.attr("for", elem.attr("for").replace(idRegex, replacement));
+                var idRegex = new RegExp('(' + prefix + '-\\d+)'),
+                    replacement = prefix + '-' + ndx;
+                if (elem.attr('for')) elem.attr('for', elem.attr('for').replace(idRegex, replacement));
                 if (elem.attr('id')) elem.attr('id', elem.attr('id').replace(idRegex, replacement));
-                if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
+                if (elem.attr('name') && idRegex.test(elem.attr('name'))) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
+                if (elem.attr('value') && idRegex.test(elem.attr('value'))) elem.attr('value', elem.attr('value').replace(idRegex, replacement));
             },
 
             hasChildElements = function(row) {
@@ -72,7 +73,7 @@
                         $('#id_' + options.prefix + '-TOTAL_FORMS').val(forms.length);
                         for (var i=0, formCount=forms.length; i<formCount; i++) {
                             applyExtraClasses(forms.eq(i), i);
-                            forms.eq(i).find('input,select,textarea,label').each(function() {
+                            forms.eq(i).find('input,select,textarea,label,div').each(function() {
                                 updateElementIndex($(this), options.prefix, i);
                             });
                         }

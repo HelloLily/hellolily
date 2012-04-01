@@ -58,12 +58,12 @@
                     an error on form submit
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label>{% trans 'E-mail addresses' %}</label>
+                        <label for="id_email_addresses-0-email_address">{% trans 'E-mail addresses' %}</label>
 	                    {% for form in email_addresses_formset.forms %}
 	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
-                                    <div class="mws-form-col-row email_address mws-form-item">
+                                    <div class="mws-form-col-row mws-form-item email_address">
                                         {% if form.email_address.errors %}
                                             <span class="field_error float-left">{{ form.email_address }}</span>
                                             <span class="mws-error inline plain float-left">
@@ -77,23 +77,16 @@
                                     </div>
                                 </div>
                                 <div class="float-left center">
-                                    <div class="email_is_primary mws-form-col-row mws-form-item">
-                                        {% if forloop.first %}
-                                            <label class="checked">
-                                                <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" checked="checked" />
-                                                <span>{% trans 'primary' %}</span>
-                                            </label>
-                                        {% else %}
-                                            <label>
-                                                <input class="hidden" type="radio" value="form-{{ forloop.counter0 }}" name="primary-email" />
-                                                <span>{% trans 'primary' %}</span>
-                                            </label>
-                                        {% endif %}
+                                    <div class="mws-form-col-row mws-form-item email_address email_is_primary">
+                                        <label>
+                                            <input class="hidden" type="radio" value="{{ form.prefix }}" name="primary-email" />
+                                            <span>{% trans 'primary' %}</span>
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="float-left">
-                                    <div class="formset-delete mws-form-col-row mws-form-item">
-                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-email" /></a>
+                                    <div class="mws-form-col-row mws-form-item formset-delete email_address">
+                                        <a href="javascript:" class="mws-i-24 i-cross delete-row" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -119,7 +112,7 @@
                     <hr />
 
                     <div class="mws-form-row">
-                        <label>{% trans 'Phone numbers' %}</label>
+                        <label for="id_phone_numbers-0-raw_input">{% trans 'Phone numbers' %}</label>
 	                    {% for form in phone_numbers_formset.forms %}
 	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
@@ -158,7 +151,7 @@
                                 </div>
                                 <div class="float-left">
                                     <div class="formset-delete mws-form-col-row mws-form-item">
-                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-phone_number" /></a>
+                                        <a href="javascript:" class="mws-i-24 i-cross delete-row" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -171,8 +164,7 @@
                     TODO: find a proper solution to fix tabindex order
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label>{% trans 'Addresses' %}</label>
-                        
+                        <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
 	                    {% for form in addresses_formset.forms %}
 	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
@@ -273,7 +265,7 @@
                                 </div>
                                 <div class="float-left">
                                     <div class="formset-delete mws-form-col-row mws-form-item">
-                                        <a href="javascript:" class="mws-i-24 i-cross" id="id_form-{{ forloop.counter0 }}-address" /></a>
+                                        <a href="javascript:" class="mws-i-24 i-cross  delete-row" id="id_form-{{ forloop.counter0 }}-address" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -370,7 +362,7 @@
                                         <span class="field_error">
                                             <div class="input-and-choice">
                                                 <div>
-                                                    <input type="text" id="id_type" class="mws-textinput input-and-choice-input" />            
+                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
                                                     <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
                                                 </div>
                                                 <div>
@@ -385,7 +377,7 @@
                                     {% else %}
                                         <div class="input-and-choice">
                                             <div>
-                                                <input type="text" id="id_type" class="mws-textinput input-and-choice-input" />            
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
                                                 <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
                                             </div>
                                             <div>

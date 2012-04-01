@@ -5,7 +5,7 @@ $(document).ready(function() {
     // TODO: set focus on first element a form error was detected
     
     // manually add hover classes when hovering over a label element
-    $('.email_is_primary label').live({
+    $('.email_is_primary label span').live({
         mouseenter: function() {
             $(this).addClass('state-hover');
         },
@@ -16,19 +16,18 @@ $(document).ready(function() {
     
     // change selected primary e-mailadres
     $('.email_is_primary label span').live('click', function() {
-        siblings = $(this).parent().parent().siblings().find('label.checked');
-        $(siblings).removeClass('checked');
-        $(this).parent().addClass('checked');
+    	// find elements
+    	formset = $(this).parentsUntil('.mws-form-row', '.mws-formset');
+        input_siblings = $(formset).siblings().find('.email_is_primary label input');
         
-        // TODO: decide whether to use this or not
-        // Remove delete button for primary e-mail addresses
-        // $(siblings).each(function(index, element) {
-            // button = $(element).parent().parent().next('div').find('#' + $(element).find('input').val());
-            // button.show();
-        // });
-        // button = $(this).parent().parent().next('div').find('#' + $(this).find('input').val());
-        // button.hide();
+        // uncheck others
+        $(input_siblings).siblings('span').removeClass('checked');
+        
+        // check this one
+        $(this).addClass('checked');
     })
+    
+    // TODO: select first e-mail as primary when deleting primary
     
     // show or hide an input field for the user to input an option manually when the 'other'-option
     // has been selected in a select element.
@@ -41,6 +40,7 @@ $(document).ready(function() {
         other_type_input = $('#' + form_prefix + '-' + form_index + '-other_' + select_fieldname);
         if( $(this).val() == 'other' ) {
             other_type_input.show();
+            other_type_input.focus();
         } else {
             other_type_input.hide();
         }
@@ -85,11 +85,15 @@ $(document).ready(function() {
     
     // enable formsets
     $('.mws-formset').each(function(index, formset) {
-    	prefix = $(element).attr('id');
+        form_index = $(this).attr('id').replace(/[^\d.]/g, '');
+        form_prefix = $(this).attr('id').substr(0, $(this).attr('id').indexOf(form_index) - 1);
     	$(formset).formset( {
-            prefix: prefix,
+            prefix: form_prefix,
             addText: gettext('Add another'),
             preventEmptyFormset: true
     	});
     });
+    
+    // update e-mail formset to select first as primary
+    $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
 });

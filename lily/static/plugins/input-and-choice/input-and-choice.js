@@ -24,6 +24,11 @@
             }
             $(list).width($(input).outerWidth() + 5 + $(button).outerWidth());
             
+            // show pre-selected options
+            $(select).find('option:selected').each(function() {
+                add_selection(input, select, list, $(this).val(), true);
+            });
+            
             // detect autocomplete suggestions
             update_autocomplete_suggestions(input, select);    
             
@@ -31,7 +36,9 @@
             $(button).click(function(event) {
                 value = $(input).val();
                 if( value.length ) {
-                    add_selection(input, select, list, value);
+                    add_selection(input, select, list, $.trim(value));
+                    // detect autocomplete suggestions
+                    update_autocomplete_suggestions(input, select);  
                         
                     // clear text input
                     $(input).val('');
@@ -51,7 +58,7 @@
             $(list).find('.search-choice-close').live('click', function(event) {
                 search_choice = $(event.target).parent();
                 remove_selection(select, list, search_choice.text(), search_choice);
-            });
+            }); 
         }
         
         /**
@@ -59,6 +66,8 @@
          * element. Already selected options won't show in the suggestions.
          */
         function update_autocomplete_suggestions(input, select) {
+            console.log('update_autocomplete_suggestions');
+            
             var suggestions = [];
             
             // add all option elements that are not selected
@@ -81,7 +90,10 @@
                 minLength: 0,
                 source: suggestions,
                 select: function(e, ui) {
-                    add_selection(input, select, list, ui.item.value);
+                    add_selection(input, select, list, $.trim(ui.item.value));
+                    // detect autocomplete suggestions
+                    update_autocomplete_suggestions(input, select);  
+                    
                     $(this).autocomplete('search', $(this).val());
 
                     // prevent selected value as the new value for $(input)
@@ -98,6 +110,46 @@
             }).focus(function() {
                 $(this).autocomplete('search', $(this).val());
             });
+        }
+        
+        /**
+         * Select an existing option or add the option if it doesn't.
+         */
+        function add_selection(input, select, list, value, page_load) {
+            option = undefined;
+            $(select).find('option').each(function() {
+               if( $(this).val().toLowerCase() == value.toLowerCase() ) {
+                   // give back the actual element instead of the wrapped jquery object
+                   option = $(this)[0];
+               } 
+            });
+            
+            if( option == undefined ) {
+                // create a new option if none exist with 'value' as value
+                $(select).append('<option selected="selected" value="' + value + '" >' + value + '</option>');
+            } else {
+                // don't add if option is already selected except on page load
+                if( option.selected && !page_load ) {
+                    return;
+                }
+                
+                // mark existing option as selecting
+                $(option).attr('selected', 'selected');
+            }
+            
+            // add selected option visibly
+            var item = $('<li>').addClass('search-choice');
+            var value = $('<span>').appendTo(item).text(value);  
+            var close = $('<a>').addClass('search-choice-close')
+                .attr({href: 'javascript:void(0)'})
+                .appendTo(item);  
+            item.appendTo(list);
+            
+            // hide options-wrapping element if there are no selected options
+            selected = $(list).find('li');
+            if( selected.length > 0 ) {
+                $(list).show();
+            }
         }
         
         /**
@@ -118,59 +170,6 @@
             selected = $(list).find('.search-choice');
             if( selected.length == 0 ) {
                 $(list).hide();
-            }
-            
-            // update auto suggestions
-            update_autocomplete_suggestions(input, select);
-        }
-        
-        /**
-         * Select an existing option or add the input if it doesn't.
-         */
-        function add_selection(input, select, list, value) {
-            value = $.trim(value);
-            
-            option = $('select option[value="' + value + '"]')[0];
-            if( option == undefined ) {
-                // create a new option if none exist with 'value' as value
-                $(select).append('<option selected="selected" value="' + value + '" >' + value + '</option>');
-            } else {
-                // don't add if option is already selected
-                if( option.selected ) {
-                    return;
-                }
-                
-                // mark existing option as selecting
-                $(option).attr('selected', 'selected');
-            }
-            
-            var item = $('<li>').addClass('search-choice');
-            var value = $('<span>').appendTo(item).text(value);  
-            var close = $('<a>').addClass('search-choice-close')
-                .attr({href: 'javascript:void(0)'})
-                .appendTo(item);  
-            item.appendTo(list);
-            
-            selected = $(list).find('li');
-            if( selected.length > 0 ) {
-                $(list).show();
-            }
-            
-            // update auto suggestions
-            update_autocomplete_suggestions(input, select);
-        }
-        
-        /**
-         * Add a suggestion for autocomplete.
-         */
-        function add_suggestion(input, select, value) {
-            option = $(select).find('option[value="' + value + '"]')[0];
-            if( option == undefined ) {
-                value = $.trim(value);
-                text = $.trim(text);
-                
-                // add suggestion
-                $(select).append('<option selected="selected" value="' + value + '">' + text + '</option>');
             }
             
             // update auto suggestions

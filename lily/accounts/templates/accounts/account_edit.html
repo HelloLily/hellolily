@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n static %} 
 
-{% block title %}{% trans 'Add account' %} - {% endblock %}
+{% block title %}{% trans 'Edit account' %} - {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
@@ -20,11 +20,11 @@
 {% block content %} 
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
+            <span class="mws-i-24 i-fountain-pen">{% trans 'Edit account' %}</span>
         </div>
         <div class="mws-panel-body">
             <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %} 
-				                
+                                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
                         <div class="mws-form-message error no_list_style_type">
@@ -59,8 +59,8 @@
                     {% endcomment %}
                     <div class="mws-form-row">
                         <label for="id_email_addresses-0-email_address">{% trans 'E-mail addresses' %}</label>
-	                    {% for form in email_addresses_formset.forms %}
-	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
+                        {% for form in email_addresses_formset.forms %}
+                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
                                     <div class="mws-form-col-row mws-form-item email_address">
@@ -113,8 +113,8 @@
 
                     <div class="mws-form-row">
                         <label for="id_phone_numbers-0-raw_input">{% trans 'Phone numbers' %}</label>
-	                    {% for form in phone_numbers_formset.forms %}
-	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
+                        {% for form in phone_numbers_formset.forms %}
+                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
                                     <div class="mws-form-col-row phone_number mws-form-item">
@@ -157,7 +157,7 @@
                             </div>
                         </div>
                         {% endfor %}
-		                {{ phone_numbers_formset.management_form }}
+                        {{ phone_numbers_formset.management_form }}
                     </div>
                     
                     {% comment %}
@@ -165,8 +165,8 @@
                     {% endcomment %}
                     <div class="mws-form-row">
                         <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
-	                    {% for form in addresses_formset.forms %}
-	                    <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
+                        {% for form in addresses_formset.forms %}
+                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
                             <div class="mws-form-cols clearfix">
                                 <div class="float-left">
                                     <div class="mws-form-col-row address mws-form-item">
@@ -270,8 +270,8 @@
                                 </div>
                             </div>
                         </div>
-	                    {% endfor %}
-		                {{ addresses_formset.management_form }}
+                        {% endfor %}
+                        {{ addresses_formset.management_form }}
                     </div>
                 
                     <hr />

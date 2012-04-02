@@ -62,7 +62,7 @@ class AddAccountMinimalForm(forms.models.ModelForm):
         model = AccountModel
         fields = ('name', 'email', 'website')
 
-AddAccountForm = autostrip(AddAccountMinimalForm)
+AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
 
 
 class AddAccountForm(forms.models.ModelForm):
@@ -102,12 +102,10 @@ class AddAccountForm(forms.models.ModelForm):
         super(AddAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
-        
-        # TODO filter available tags by Account of the current user to support autocomplete for earlier
-        # used tags. Something like self.request.user.account__tags.all()
-        #
-        # Limit queryset to tags used by user's account
-#        self.fields['tags'].queryset = self.request.user.account__tags.all()
+    
+        # TODO: Limit queryset to tags used by accounts created by users from user's account or
+        # tags used by accounts linked to the user's client
+#        self.fields['tags'].queryset = user.account.tags.all()
     
     def save(self, commit=True):
         """
@@ -144,6 +142,86 @@ class AddAccountForm(forms.models.ModelForm):
         }
 
 AddAccountForm = autostrip(AddAccountForm)
+
+
+class EditAccountForm(forms.models.ModelForm):
+    """
+    Form for adding an account which includes all fields available.
+    
+    TODO: status field
+    """
+    
+    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('Twitter username')
+    }))
+    
+    linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('LinkedIn username')
+    }))
+    
+    facebook = forms.URLField(label=_('Facebook'), required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('Facebook profile link')
+    }))
+    
+    tags = MultipleInputAndChoiceField(queryset=TagModel.objects.all(), required=False,
+        widget=InputAndSelectMultiple(attrs={
+            'class': 'input-and-choice-select',
+    }))
+
+    def __init__(self, user=None, data=None, files=None, auto_id='id_%s', prefix=None,
+                 initial=None, error_class=ErrorList, label_suffix=':',
+                 empty_permitted=False, instance=None):
+        
+        super(EditAccountForm, self).__init__(data, files, auto_id, prefix,
+                 initial, error_class, label_suffix,
+                 empty_permitted, instance)
+        
+    
+        # TODO: Limit queryset to tags used by accounts created by users from user's account or
+        # tags used by accounts linked to the user's client
+#        self.fields['tags'].queryset = user.account.tags.all()
+    
+    def save(self, commit=True):
+        """
+        Overloading super().save(commit=True) to create save tags and create the relationships with
+        this account instance. Needs to be done here because the TagModels are expected to exist
+        before self.instance is saved.
+        """ 
+        
+        instance = super(EditAccountForm, self).save(commit=False)
+        
+        if commit:
+            instance.save()
+            
+        tags = self.cleaned_data['tags']
+        for tag in tags:
+            # Create relationship with TagModel
+            tag_instance, created = TagModel.objects.get_or_create(tag=tag)
+            instance.tags.add(tag_instance)
+        
+        return instance
+    
+    class Meta:
+        model = AccountModel
+        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
+                
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'mws-textinput required',
+                'placeholder': _('Company name'),
+            }),
+            'website': forms.TextInput(attrs={
+                'class': 'mws-textinput required',
+            }),
+        }
+
+EditAccountForm = autostrip(EditAccountForm)
 
 
 class EmailAddressBaseForm(forms.ModelForm):
@@ -238,6 +316,7 @@ class AddressBaseForm(forms.ModelForm):
                 'placeholder': _('Country'),
             }),
         }
+
 
 class AddressBaseFormSet(forms.formsets.BaseFormSet):
     form = AddressBaseForm

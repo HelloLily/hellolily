@@ -66,8 +66,6 @@
          * element. Already selected options won't show in the suggestions.
          */
         function update_autocomplete_suggestions(input, select) {
-            console.log('update_autocomplete_suggestions');
-            
             var suggestions = [];
             
             // add all option elements that are not selected
@@ -145,9 +143,8 @@
                 .appendTo(item);  
             item.appendTo(list);
             
-            // hide options-wrapping element if there are no selected options
-            selected = $(list).find('li');
-            if( selected.length > 0 ) {
+            // show options-wrapping element if it was hidden
+            if( !$(list).is(':visible') ) {
                 $(list).show();
             }
         }
@@ -167,6 +164,7 @@
                 $(search_choice).remove();
             }
             
+            // hide options-wrapping element if there are no selected options
             selected = $(list).find('.search-choice');
             if( selected.length == 0 ) {
                 $(list).hide();

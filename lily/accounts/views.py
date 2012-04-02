@@ -7,10 +7,10 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
-from django.views.generic.edit import UpdateView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
-    EmailAddressBaseFormSet, AddressBaseForm, AddressBaseFormSet, PhoneNumberBaseForm, \
-    PhoneNumberBaseFormSet, EditAccountForm
+from django.views.generic.edit import UpdateView, DeleteView
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, \
+    EmailAddressBaseForm, EmailAddressBaseFormSet, AddressBaseForm, \
+    AddressBaseFormSet, PhoneNumberBaseForm, PhoneNumberBaseFormSet, EditAccountForm
 from lily.accounts.models import AccountModel
 from lily.utils.models import SocialMediaModel
 
@@ -209,7 +209,7 @@ class EditAccountView(UpdateView):
     multiple instances of many-to-many relations with custom formsets.
     """
     
-    template_name = 'accounts/account_add.html'
+    template_name = 'accounts/account_edit.html'
     form_class = EditAccountForm
     model = AccountModel
     
@@ -325,12 +325,31 @@ class EditAccountView(UpdateView):
         })
         return kwargs
     
-#    def get_object(self, queryset=None):
-#        obj = AccountModel.objects.get(pk=self.kwargs['pk'])
-#        return obj
+    def get_object(self, queryset=None):
+        obj = AccountModel.objects.get(pk=self.kwargs['pk'])
+        return obj
     
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('account_add'))
+        return redirect(reverse('account_edit'))
+
+
+class DeleteAccountView(DeleteView):
+    """
+    Delete an instance and all instances of m2m relationships.
+    """
+    
+    model = AccountModel
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to remove the instance if posted via ajax.
+        """
+        
+        if request.is_ajax():
+            self.remove()
+        
+        return super(DeleteAccountView, self).dispatch(request, *args, **kwargs)
+    

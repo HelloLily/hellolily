@@ -199,7 +199,7 @@ class EditAccountForm(forms.models.ModelForm):
         if commit:
             instance.save()
             
-        tags = self.cleaned_data['tags']
+        tags = self.cleaned_data.get('tags')
         for tag in tags:
             # Create relationship with TagModel
             tag_instance, created = TagModel.objects.get_or_create(tag=tag)
@@ -234,7 +234,7 @@ class EmailAddressBaseForm(forms.ModelForm):
         exclude = ('status')
         widgets = {
             'email_address': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput',
                 'placeholder': _('E-mail address'),
             }),
         }
@@ -255,17 +255,24 @@ class PhoneNumberBaseForm(forms.ModelForm):
         }
     ))
     
+    # Make raw_input not required to prevent the form from demanding input when only type
+    # has been changed.
+    raw_input = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'mws-textinput',
+        'placeholder': _('Phone number'),
+    }));
+
     class Meta:
         model = PhoneNumberModel
         fields = ('raw_input', 'type', 'other_type')
         exclude = ('status')
         widgets = {
             'raw_input': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput',
                 'placeholder': _('Phone number'),
             }),
             'other_type': forms.TextInput(attrs={
-                'class': 'mws-textinput required other hidden',
+                'class': 'mws-textinput other hidden',
             }),
         }
 
@@ -320,3 +327,4 @@ class AddressBaseForm(forms.ModelForm):
 
 class AddressBaseFormSet(forms.formsets.BaseFormSet):
     form = AddressBaseForm
+

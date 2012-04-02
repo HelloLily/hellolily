@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block content %}
-    <input type="button" id="open-account-dialog-btn" class="mws-button green" value="{% trans 'Add account' %}" />
+    <input type="button" id="add-account-dialog-btn" class="mws-button green" value="{% trans 'Add account' %}" />
     
-    <div id="account-form-dialog">
+    <div id="add-account-form-dialog">
         <form class="mws-form" action="?xhr" method="post">
             {% include 'accounts/account_add_xhr_form.html' %}
         </form>

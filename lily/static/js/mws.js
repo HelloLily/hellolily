@@ -99,18 +99,4 @@ $(document).ready(function() {
 	if($.fn.placeholder) {
 		$('[placeholder]').placeholder();
 	}
-	
-	/* Set state-focus class on searchbox */
-	$('#mws-searchbox input').focus(function() {
-		$('#mws-searchbox').addClass('state-focus');
-	});
-	$('#mws-searchbox input').blur(function() {
-		$('#mws-searchbox').removeClass('state-focus');
-	});
-	$('#mws-searchbox').click(function(event) {
-		if( $(event.target).get(0) == $(this).find('form').get(0) ||
-			$(event.target).get(0) == $(this).get(0) ) {
-			$('.mws-search-input').focus();
-		}
-	});
 });

@@ -70,9 +70,9 @@ div#mws-header
 div#mws-logo-container
 {
 	width:180px;
-	height:58px;
+	height:53px; /* prev. 58px; */
 	float:left;
-	padding:0 10px;
+	padding:5px 0 0; /* prev. 10px 0; */
 }
 
 div#mws-logo-container #mws-logo-wrap
@@ -95,11 +95,11 @@ div#mws-logo-container #mws-logo-wrap img
 div#mws-search-container /* new */
 {
 	padding:9px 0;
-	margin-left:200px; /* new */
+	margin-left:233px; /* new */
 	margin-right:300px; /* new */
 }
 
-div#mws-searchbox
+form#mws-searchbox
 {
 	height:40px;
 	border:1px solid #c5c5c5; /* new */
@@ -118,45 +118,38 @@ div#mws-searchbox
 	border-radius:4px; /* new */
 }
 
-div#mws-searchbox.state-focus /* new */
-{ 
-    border-color:#50b3df; /* new */
-    box-shadow:0 0 5px rgba(0, 0, 0, 0.3); /* new */
+form#mws-searchbox
+{   
+    padding:0; /* new */
+    position:relative; /* new */
+    clear:none; /* new */
+    border:none; /* new */
 }
 
-div#mws-searchbox .mws-search-input
+form#mws-searchbox .mws-search-input
 {
 	background:none;
-	padding:0 1px 1px; /* prev. 3px; */ 
+	padding:6px 38px 6px 7px; /* prev. 3px; */ 
 	/* prev. width:135px; */
-	height:24px;
-	
-	border:none; 
-	outline:none;
+	height:40px;
 	color:#323232; /* prev. color:#ffffff; */
-	/* TODO: find a more elegant manner to deal with this */
-	margin-left:-28px; /* new */
-	text-indent:28px; /* new */
 	width:100%; /* new */
 }
 
-div#mws-searchbox form
-{	
-	/* TODO: find a more elegant manner to deal with this */
-	overflow:hidden; /* new */
-}
-
-div#mws-searchbox .mws-search-submit
+form#mws-searchbox .mws-search-submit
 {
 	text-indent:-9999px;
 	text-transform:capitalize;
 	width:24px; height:24px;
 	/* prev. display:block; */
 	/* prev. margin-left:144px; */
-	float:right; /* new */
+	position:absolute; /* new */
+	top:50%; /* new */ 
+	right:7px; /* new */
+	margin-top:-12px; /* new */
 	border:none;
 	cursor:pointer;
-	background:url(../../images/core/mws-search-icon.png) no-repeat center center;
+	background:#50b3df url(../../images/core/mws-search-icon.png) no-repeat center center;
 	
 	/* CSS 3 */
 	
@@ -452,7 +445,7 @@ div#mws-sidebar
 {
 	width:198px;
 	margin-right:2px;
-	padding-top:72px;
+	padding-top:100px; /* prev. 72px; */
 	float:left;
 	z-index:1;
 	position:relative;
@@ -483,6 +476,13 @@ div#mws-sidebar-bg
 
 /* Navigation */
 
+div#mws-navigation > ul /* new */
+{
+    background: white; /* new */
+    border: 1px solid #7d7d7d; /* new */
+    border-width:1px 0 1px 1px;
+}
+
 div#mws-navigation ul, 
 div#mws-navigation ul li
 {
@@ -492,15 +492,15 @@ div#mws-navigation ul li
 
 div#mws-navigation ul
 {
-	padding-top:1px;
-	background:url(../../images/core/mws-nav-ruler.png) repeat-x left top;
+	/* prev. padding-top:1px; */
+	/* prev. background:url(../../images/core/mws-nav-ruler.png) repeat-x left top; */
 }
 
 div#mws-navigation ul li
 {
 	position:relative;
 	padding-bottom:2px;
-	background:url(../../images/core/mws-nav-ruler.png) repeat-x left bottom;
+	/* prev. background:url(../../images/core/mws-nav-ruler.png) repeat-x left bottom; */
 }
 
 
@@ -562,12 +562,10 @@ div#mws-navigation ul li ul
 
 div#mws-navigation ul li.active /* new */
 {
-    border:1px solid #7F7F7F; /* new */
-    border-width:0 0 1px; /* new */
     background:#50b3df !important; /* new */
 }
 
-div#mws-navigation ul li.active a /* new */
+div#mws-navigation ul li.active > a /* new */
 {
     color:#ffffff; /* new */
 }
@@ -616,13 +614,13 @@ div#mws-container
 {
 	margin-left:200px;
 	padding-top:100px;
-	/* prev. background-color:#f0f0f0; */
+	background:url(/static/images/core/mws-sidebar-stitch-right.png) repeat-y right; /* prev. background-color:#f0f0f0; */
 }
 
 div#mws-container .container
 {
 	float:left;
-	margin:0 4%;
+	margin:0 29px; /* prev. margin:0 4%; */
 	padding-bottom:52px;
 }
 

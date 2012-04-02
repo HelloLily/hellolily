@@ -101,7 +101,8 @@
 
 .mws-form select, 
 .mws-form textarea, 
-.mws-form .mws-textinput
+.mws-form .mws-textinput,
+.mws-form .mws-search-input
 {
 	border:1px solid #c5c5c5;
 	padding:6px 7px;

@@ -123,7 +123,7 @@
 	        
 	            <!-- Logo Wrapper, images put within this wrapper will always be vertically centered -->
 	            <div id="mws-logo-wrap">
-	                <img src="{% static 'images/logo-hellolily-200.png' %}" alt="HelloLily" />
+	                <img src="{% static 'images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
 	            </div>
 	        </div>
 	        
@@ -276,12 +276,10 @@
 	        <!-- Searchbox Container -->
 	        <div id="mws-search-container" class="clearfix">
 		        <!-- Searchbox -->
-		        <div id="mws-searchbox">
-		            <form action="">
-		                <input type="submit" class="mws-search-submit" />
-		                <input type="text" name="keywords" class="mws-search-input" autocomplete="off" />
-		            </form>
-		        </div>
+	            <form id="mws-searchbox" class="mws-form" action="">
+                    <input type="text" name="keywords" class="mws-search-input" autocomplete="off" />
+	                <input type="submit" class="mws-search-submit" />
+	            </form>
 		    </div>
 		</div>
     </div>
@@ -291,7 +289,7 @@
     
         <!-- Necessary markup, do not remove -->
         <div id="mws-sidebar-stitch"></div>
-        <div id="mws-sidebar-bg"></div>
+        <!-- <div id="mws-sidebar-bg"></div> -->
         
         <!-- Sidebar Wrapper -->
         <div id="mws-sidebar">

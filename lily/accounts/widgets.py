@@ -19,7 +19,7 @@ class InputAndSelectMultiple(SelectMultiple):
     
     def value_from_datadict(self, data, files, name):
         """
-        Overloading super().value_from_datadict() to temporarily save options that have been 
+        Overloading super().value_from_datadict to temporarily save options that have been 
         submitted but don't in the database yet. This list of options will be used in self.render()
         to expand on the list of options that exist in the database.
         """
@@ -37,7 +37,7 @@ class InputAndSelectMultiple(SelectMultiple):
     
     def render(self, name, value, attrs=None, choices=()):
         """
-        Overloading super().render() to inject options extracted from the POST data to the choices 
+        Overloading super().render to inject options extracted from the POST data to the choices 
         list so these options are rendered when the form is invalid.
         """
         # Expand choices with options that haven't seen the light in the database yet
@@ -58,7 +58,7 @@ class InputAndSelectMultiple(SelectMultiple):
     
     def render_option(self, selected_choices, option_value, option_label):
         """
-        Overloading super().render_option() to print option_label twice (as text and value) and
+        Overloading super().render_option to print option_label twice (as text and value) and
         to use option_label to check if an option has been selected.
         """
         option_value = force_unicode(option_value)

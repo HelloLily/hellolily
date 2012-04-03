@@ -91,16 +91,10 @@ class AddAccountView(CreateView):
     
     def get_form_kwargs(self):
         """
-        Overloading super().get_form_kwargs() to add the user object to the keyword arguments for 
+        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
         instanciating the form.
         """
-        kwargs = {'initial': self.get_initial()}
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-            
+        kwargs = super(EditAccountView, self).get_form_kwargs()
         kwargs.update({
             'user': self.request.user
         })
@@ -189,6 +183,7 @@ class AddAccountView(CreateView):
         """
         Overloading super().get_context_data to add formsets for template.
         """
+        kwargs = super(AddAccountView, self).get_context_data(kwargs)
         kwargs.update({
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
@@ -220,16 +215,10 @@ class EditAccountView(UpdateView):
     
     def get_form_kwargs(self):
         """
-        Overloading super().get_form_kwargs() to add the user object to the keyword arguments for 
+        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
         instanciating the form.
         """
-        kwargs = {'initial': self.get_initial()}
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-            
+        kwargs = super(EditAccountView, self).get_form_kwargs()
         kwargs.update({
             'user': self.request.user
         })
@@ -318,16 +307,13 @@ class EditAccountView(UpdateView):
         """
         Overloading super().get_context_data to add formsets for template.
         """
+        kwargs = super(AddAccountView, self).get_context_data(kwargs)
         kwargs.update({
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
             'phone_numbers_formset': self.phone_numbers_formset,
         })
         return kwargs
-    
-    def get_object(self, queryset=None):
-        obj = AccountModel.objects.get(pk=self.kwargs['pk'])
-        return obj
     
     def get_success_url(self):
         """

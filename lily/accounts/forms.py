@@ -109,7 +109,7 @@ class AddAccountForm(forms.models.ModelForm):
     
     def save(self, commit=True):
         """
-        Overloading super().save(commit=True) to create save tags and create the relationships with
+        Overloading super().save to create save tags and create the relationships with
         this account instance. Needs to be done here because the TagModels are expected to exist
         before self.instance is saved.
         """ 
@@ -189,7 +189,7 @@ class EditAccountForm(forms.models.ModelForm):
     
     def save(self, commit=True):
         """
-        Overloading super().save(commit=True) to create save tags and create the relationships with
+        Overloading super().save to create save tags and create the relationships with
         this account instance. Needs to be done here because the TagModels are expected to exist
         before self.instance is saved.
         """ 

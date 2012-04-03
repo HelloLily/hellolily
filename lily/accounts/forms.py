@@ -24,7 +24,7 @@ class AddAccountMinimalForm(forms.models.ModelForm):
     
     website = forms.URLField(max_length=30, initial='http://', required=False,
         widget=forms.TextInput(attrs={
-            'class': 'mws-textinput required',
+            'class': 'mws-textinput',
     }))
     
     def clean(self):
@@ -151,6 +151,11 @@ class EditAccountForm(forms.models.ModelForm):
     TODO: status field
     """
     
+    website = forms.URLField(max_length=30, initial='http://', required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+    }))
+    
     twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
@@ -215,10 +220,7 @@ class EditAccountForm(forms.models.ModelForm):
             'name': forms.TextInput(attrs={
                 'class': 'mws-textinput required',
                 'placeholder': _('Company name'),
-            }),
-            'website': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
-            }),
+            })
         }
 
 EditAccountForm = autostrip(EditAccountForm)
@@ -238,10 +240,6 @@ class EmailAddressBaseForm(forms.ModelForm):
                 'placeholder': _('E-mail address'),
             }),
         }
-
-
-#class EmailAddressBaseFormSet(forms.formsets.BaseFormSet):
-#    form = EmailAddressBaseForm
 
 
 class PhoneNumberBaseForm(forms.ModelForm):
@@ -277,16 +275,12 @@ class PhoneNumberBaseForm(forms.ModelForm):
         }
 
 
-#class PhoneNumberBaseFormSet(forms.formsets.BaseFormSet):
-#    form = PhoneNumberBaseForm
-
-
 class AddressBaseForm(forms.ModelForm):
     """
     Form for adding an address which includes all fields available.
     """
     
-    type = forms.ChoiceField(choices=AddressModel.ADDRESS_TYPE_CHOICES, initial='mailing',
+    type = forms.ChoiceField(choices=AddressModel.ADDRESS_TYPE_CHOICES, initial='visiting',
         widget=forms.Select()
     )
     
@@ -323,8 +317,3 @@ class AddressBaseForm(forms.ModelForm):
                 'placeholder': _('Country'),
             }),
         }
-
-
-#class AddressBaseFormSet(forms.formsets.BaseFormSet):
-#    form = AddressBaseForm
-

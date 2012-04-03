@@ -14,6 +14,8 @@ class InputAndSelectMultiple(SelectMultiple):
     def __init__(self, attrs=None, preselected=(), choices=()):
         super(InputAndSelectMultiple, self).__init__(attrs, choices)
         
+        # TODO: handle preselected choices
+        
         # an array for choices that don't exist in the database yet
         self.new_choices = []
     

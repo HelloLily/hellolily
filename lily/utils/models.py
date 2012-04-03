@@ -103,7 +103,6 @@ class AddressModel(models.Model):
     ADDRESS_TYPE_CHOICES = (
         ('visiting', _('Visiting address')),
         ('billing', _('Billing address')),
-        ('mailing', _('Mailing address')),
         ('shipping', _('Shipping address')),
         ('home', _('Home address')),
         ('other', _('Other')),

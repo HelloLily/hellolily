@@ -23,14 +23,6 @@ class AddAccountXHRView(CreateView):
     form_template_name = 'accounts/account_add_xhr_form.html'
     form_class = AddAccountMinimalForm
     
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overloading super().dispatch to check if the form is posted via ajax.
-        """
-        self.is_ajax = request.is_ajax()
-        
-        return super(AddAccountXHRView, self).dispatch(request, *args, **kwargs)
-    
     def form_valid(self, form):
         """
         Add e-mail to newly created account.
@@ -41,9 +33,9 @@ class AddAccountXHRView(CreateView):
         form_kwargs = self.get_form_kwargs()
         account_instance = form_kwargs.get('instance')
         account_instance.email = form.cleaned_data.get('email')
-        account_instance.save() 
-        
-        if self.is_ajax:
+        account_instance.save()
+
+        if self.request.is_ajax:
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('Account %s has been saved.') % account_instance.name
@@ -84,9 +76,9 @@ class AddAccountView(CreateView):
     form_class = AddAccountForm
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
+    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
+    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
     
     def get_form_kwargs(self):
         """
@@ -210,9 +202,9 @@ class EditAccountView(UpdateView):
     model = AccountModel
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
+    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
+    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form_kwargs(self):
         """
@@ -253,9 +245,18 @@ class EditAccountView(UpdateView):
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
+                # Check if existing instance has been marked for deletion
+                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+                    account_instance.email_addresses.remove(formset.instance)
+                    formset.instance.delete()
+                    continue
+                
+                # Check for e-mail address selected as primary
                 primary = form_kwargs.get('data').get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
+                else:
+                    formset.instance.is_primary = False
                 
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
@@ -264,6 +265,12 @@ class EditAccountView(UpdateView):
             
             # Handle addresses
             for formset in self.addresses_formset:
+                # Check if existing instance has been marked for deletion
+                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+                    account_instance.addresses.remove(formset.instance)
+                    formset.instance.delete()
+                    continue
+                
                 # Only save address if something else than complement and/or type is filled in
                 if any([formset.instance.street,
                         formset.instance.street_number,
@@ -276,6 +283,12 @@ class EditAccountView(UpdateView):
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
+                # Check if existing instance has been marked for deletion
+                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+                    account_instance.phone_numbers.remove(formset.instance)
+                    formset.instance.delete()
+                    continue
+                
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()

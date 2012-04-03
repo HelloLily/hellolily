@@ -21,11 +21,11 @@
 
     <input type="button" id="delete-account-dialog-btn" class="mws-button red" value="{% trans 'Delete account' %}" /> <br /><br />
 
-	<div id="delete-account-form-dialog">
+	<div id="delete-account-form-dialog" class="hidden">
         <form class="mws-form" action="{% url account_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
         	<div class="mws-form-inline">
         		<div class="mws-form-row">
-        			{% blocktrans with form.instance.name as account %}Are you sure you want to delete the account for {{ account }}{% endblocktrans %}
+        			{% blocktrans with form.instance.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
         		</div>
         	</div>
         </form>
@@ -47,7 +47,7 @@
                 {% endif %}
                 
                 {% comment %}
-                TODO: Add image upload field for company logo or suggest images from social media
+                TODO: Suggest images from social media
                 {% endcomment %}
                 <div class="mws-form-inline">
                     <div class="mws-form-row">
@@ -70,15 +70,18 @@
                     an error on form submit
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label for="id_email_addresses-0-email_address ">{% trans 'E-mail addresses' %}</label>
+                        <label for="id_{{ email_addresses_formset.prefix }}-0-email_address">{% trans 'E-mail addresses' %}</label>
                         {% for form in email_addresses_formset.forms %}
-                        	{% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-	                        {% if forloop.last %}
-	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
-	                        {% else %}
-	                        <div class="mws-form-item large mws-formset email_addresses">
-	                        {% endif %}
-	                            <div class="mws-form-cols clearfix">
+	                        <div class="mws-form-item large {{ email_addresses_formset.prefix }}-mws-formset">
+                                {% if form.instance.pk %}
+                                    {{ form.id }}
+                                    {% if email_addresses_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row mws-form-item email_address">
 	                                        {% if form.email_address.errors %}
@@ -109,9 +112,35 @@
 	                            </div>
 	                        </div>
                         {% endfor %}
+                        <div class="hidden">
+                            <div id="{{ email_addresses_formset.prefix }}-form-template">
+                                <div class="mws-form-item large">
+                                    <div class="mws-form-cols clearfix">
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row mws-form-item email_address">
+                                                <input name="{{ email_addresses_formset.prefix }}-0-email_address" maxlength="255" placeholder="{% trans 'E-mail address' %}" type="text" class="mws-textinput" id="id_{{ email_addresses_formset.prefix }}-0-email_address" />
+                                            </div>
+                                        </div>
+                                        <div class="float-left center">
+                                            <div class="mws-form-col-row mws-form-item email_address email_is_primary">
+                                                <label>
+                                                    <input class="hidden" type="radio" value="{{ email_addresses_formset.prefix }}-0" name="primary-email" />
+                                                    <span>{% trans 'primary' %}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row mws-form-item formset-delete email_address">
+                                                <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row" /></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {{ email_addresses_formset.management_form }}
                     </div>
-
+                    
                     <div class="mws-form-row">
                         {{ form.website.label_tag }}
                         <div class="mws-form-item large">                            
@@ -129,14 +158,17 @@
                     <hr />
 
                     <div class="mws-form-row">
-                        <label for="id_phone_numbers-0-raw_input">{% trans 'Phone numbers' %}</label>
+                        <label for="id_{{ phone_numbers_formset.prefix }}-0-raw_input">{% trans 'Phone numbers' %}</label>
                         {% for form in phone_numbers_formset.forms %}
-                        	{% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-	                        {% if forloop.last %}
-	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
-	                        {% else %}
-	                        <div class="mws-form-item large mws-formset phone_numbers">
-	                        {% endif %}
+                            <div class="mws-form-item large {{ phone_numbers_formset.prefix }}-mws-formset">
+                                {% if form.instance.pk %}
+                                    {{ form.id }}
+                                    {% if phone_numbers_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row phone_number mws-form-item">
@@ -176,9 +208,46 @@
 	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
 	                                    </div>
 	                                </div>
-	                            </div>
-	                        </div>
+                                </div>
+                            </div>
                         {% endfor %}
+                        <div class="hidden">
+                            <div id="{{ phone_numbers_formset.prefix }}-form-template">
+                                <div class="mws-form-item large">
+                                    <div class="mws-form-cols clearfix">
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row phone_number mws-form-item">
+                                                <input name="phone_numbers-0-raw_input" placeholder="Phone number" class="mws-textinput" type="text" id="id_phone_numbers-0-raw_input" />
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row phone_number mws-form-item">
+                                                <select id="id_phone_numbers-0-type" class="other" name="phone_numbers-0-type">
+                                                    <option value="work" selected="selected">Work</option>
+                                                    <option value="mobile">Mobile</option>
+                                                    <option value="home">Home</option>
+                                                    <option value="fax_home">Fax (home)</option>
+                                                    <option value="fax_work">Fax (work)</option>
+                                                    <option value="data">Data</option>
+                                                    <option value="pager">Pager</option>
+                                                    <option value="other">Other</option>
+                                                </select>                                      
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row phone_number mws-form-item">
+                                                <input id="id_phone_numbers-0-other_type" type="text" class="mws-textinput other hidden" name="phone_numbers-0-other_type" maxlength="15" />
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="formset-delete mws-form-col-row mws-form-item">
+                                                <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {{ phone_numbers_formset.management_form }}
                     </div>
                     
@@ -186,15 +255,18 @@
                     TODO: find a proper solution to fix tabindex order
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
+                        <label for="id_{{ addresses_formset.prefix }}-0-postal_code">{% trans 'Addresses' %}</label>
                         {% for form in addresses_formset.forms %}
-	                        {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-	                        {% if forloop.last %}
-	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
-	                        {% else %}
-	                        <div class="mws-form-item large mws-formset addresses">
-	                        {% endif %}
-	                            <div class="mws-form-cols clearfix">
+                            <div class="mws-form-item large {{ addresses_formset.prefix }}-mws-formset">
+                                {% if form.instance.pk %}
+                                    {{ form.id }}
+                                    {% if addresses_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row address mws-form-item">
 	                                        {% if form.postal_code.errors %}
@@ -298,6 +370,56 @@
 	                            </div>
 	                        </div>
                         {% endfor %}
+                        <div class="hidden">
+                            <div id="{{ addresses_formset.prefix }}-form-template">
+                                <div class="mws-form-item large">
+                                    <div class="mws-form-cols clearfix">
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <input name="addresses-0-postal_code" maxlength="10" placeholder="Postal code" type="text" class="mws-textinput" id="id_addresses-0-postal_code" />
+                                            </div>
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <input name="addresses-0-city" maxlength="100" placeholder="City" type="text" class="mws-textinput" id="id_addresses-0-city" />
+                                            </div>
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <input name="addresses-0-state_province" maxlength="50" placeholder="State/province" type="text" class="mws-textinput" id="id_addresses-0-state_province" />
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="clearfix">
+                                                <div class="mws-form-col-row address mws-form-item float-left">
+                                                    <input id="id_addresses-0-street_number" type="text" placeholder="Street number" class="mws-textinput" name="addresses-0-street_number" />
+                                                </div>
+                                                <div class="mws-form-col-row address mws-form-item float-left clearfix">
+                                                    <input name="addresses-0-complement" maxlength="10" placeholder="Complement" type="text" class="mws-textinput" id="id_addresses-0-complement" />
+                                                </div>
+                                            </div>
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <input name="addresses-0-street" maxlength="255" placeholder="Street" type="text" class="mws-textinput" id="id_addresses-0-street" />
+                                            </div>
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <input name="addresses-0-country" maxlength="200" placeholder="Country" type="text" class="mws-textinput" id="id_addresses-0-country" />
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row address mws-form-item">
+                                                <select name="addresses-0-type" id="id_addresses-0-type">
+                                                    <option value="visiting" selected="selected">Visiting address</option>
+                                                    <option value="billing">Billing address</option>
+                                                    <option value="shipping">Shipping address</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="formset-delete mws-form-col-row mws-form-item">
+                                                <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row" /></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {{ addresses_formset.management_form }}
                     </div>
                 

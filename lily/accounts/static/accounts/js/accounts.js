@@ -110,6 +110,7 @@ $(document).ready(function() {
                 'class': 'mws-button red float-left',
                 text: gettext('No'),
                 click: function() {
+                    // cancel form on NO
                     $(this).dialog('close');
                 }
             },
@@ -117,32 +118,26 @@ $(document).ready(function() {
                 'class': 'mws-button green',
                 text: gettext('Yes'),
                 click: function() {
-                    // sendForm( $(this) );
+                    // submit form on YES
                     $(this).find('form').submit();
                 }
             }
-        ],
-        close: function() {
-            clearForm( $(this).find('form') );
-        }
+        ]
     });
     
-    // enable formsets
-    $('.mws-formset').each(function() {
-    	if( $(this).attr('id') != undefined ) {
-	        form_index = $(this).attr('id').replace(/[^\d.]/g, '');
-	        form_prefix = $(this).attr('id').substr(0, $(this).attr('id').indexOf(form_index) - 1);
-	    	$(this).formset( {
-	            prefix: form_prefix,
-	            addText: gettext('Add another'),
-	            preventEmptyFormset: true,
-	            formCssClass: form_prefix,
-	            addCssClass: form_prefix + '-add-row add-row',
-	            deleteCssClass: form_prefix + '-delete-row'
-	    	});
-    	}
+    // enable formsets for email addresses, phone numbers and addresses
+    form_prefices = ['email_addresses', 'phone_numbers', 'addresses'];    
+    $.each(form_prefices, function(index, form_prefix) {
+        $('.' + form_prefix + '-mws-formset').formset( {
+            formTemplate: $('#' + form_prefix + '-form-template'), // needs to be unique per formset
+            prefix: form_prefix, // needs to be unique per formset
+            addText: gettext('Add another'),
+            formCssClass: form_prefix, // needs to be unique per formset
+            addCssClass: form_prefix + '-add-row add-row', // needs to be unique per formset
+            deleteCssClass: form_prefix + '-delete-row' // needs to be unique per formset
+        });
     });
     
     // update e-mail formset to select first as primary
-    $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
+    // $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
 });

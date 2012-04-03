@@ -58,7 +58,7 @@
             insertDeleteLink = function(row) {
                 row.find('.' + options.deleteCssClass).click(function() {
                     var row = $(this).parents('.' + options.formCssClass),
-                        del = row.find('input:hidden[id $= "-DELETE"]');
+                        del = row.find('input[id $= "-DELETE"]').not(':visible');
                     if (del.length) {
                         // We're dealing with an inline formset; rather than remove
                         // this form from the DOM, we'll mark it as deleted and hide

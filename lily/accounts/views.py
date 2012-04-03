@@ -183,7 +183,7 @@ class AddAccountView(CreateView):
         """
         Overloading super().get_context_data to add formsets for template.
         """
-        kwargs = super(AddAccountView, self).get_context_data(kwargs)
+        kwargs = super(AddAccountView, self).get_context_data(**kwargs)
         kwargs.update({
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
@@ -307,7 +307,7 @@ class EditAccountView(UpdateView):
         """
         Overloading super().get_context_data to add formsets for template.
         """
-        kwargs = super(AddAccountView, self).get_context_data(kwargs)
+        kwargs = super(EditAccountView, self).get_context_data(**kwargs)
         kwargs.update({
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,

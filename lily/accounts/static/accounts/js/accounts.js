@@ -117,7 +117,8 @@ $(document).ready(function() {
                 'class': 'mws-button green',
                 text: gettext('Yes'),
                 click: function() {
-                    sendForm( $(this) );
+                    // sendForm( $(this) );
+                    $(this).find('form').submit();
                 }
             }
         ],

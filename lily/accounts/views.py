@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.forms.formsets import formset_factory
+from django.forms.models import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
@@ -8,11 +8,10 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, \
-    EmailAddressBaseForm, EmailAddressBaseFormSet, AddressBaseForm, \
-    AddressBaseFormSet, PhoneNumberBaseForm, PhoneNumberBaseFormSet, EditAccountForm
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
+    AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
 from lily.accounts.models import AccountModel
-from lily.utils.models import SocialMediaModel
+from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
 
 
 class AddAccountXHRView(CreateView):
@@ -85,30 +84,32 @@ class AddAccountView(CreateView):
     form_class = AddAccountForm
     
     # Create formsets
-    EmailAddressFormSet = formset_factory(EmailAddressBaseForm, formset=EmailAddressBaseFormSet)
-    AddressFormSet = formset_factory(AddressBaseForm, AddressBaseFormSet)
-    PhoneNumberFormSet = formset_factory(PhoneNumberBaseForm, formset=PhoneNumberBaseFormSet)
+    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
+    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form_kwargs(self):
         """
         Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
         instanciating the form.
         """
-        kwargs = super(EditAccountView, self).get_form_kwargs()
+        kwargs = super(AddAccountView, self).get_form_kwargs()
         kwargs.update({
             'user': self.request.user
         })
         return kwargs
     
-    def dispatch(self, request, *args, **kwargs):
+    def get_form(self, form_class):
         """
-        Overloading super().dispatch to pass POST data to all custom formsets.
+        Overloading super().get_form to instanciate formsets while instanciating the form.
         """
-        self.email_addresses_formset = self.EmailAddressFormSet(request.POST or None, prefix='email_addresses')
-        self.addresses_formset = self.AddressFormSet(request.POST or None, prefix='addresses')
-        self.phone_numbers_formset = self.PhoneNumberFormSet(request.POST or None, prefix='phone_numbers')
-
-        return super(AddAccountView, self).dispatch(request, *args, **kwargs)
+        form = super(AddAccountView, self).get_form(form_class)
+        
+        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
+        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
+        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumberModel.objects.none(), prefix='phone_numbers')
+        
+        return form
     
     def form_valid(self, form):
         """
@@ -209,9 +210,9 @@ class EditAccountView(UpdateView):
     model = AccountModel
     
     # Create formsets
-    EmailAddressFormSet = formset_factory(EmailAddressBaseForm, formset=EmailAddressBaseFormSet)
-    AddressFormSet = formset_factory(AddressBaseForm, AddressBaseFormSet)
-    PhoneNumberFormSet = formset_factory(PhoneNumberBaseForm, formset=PhoneNumberBaseFormSet)
+    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
+    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
     
     def get_form_kwargs(self):
         """
@@ -224,15 +225,17 @@ class EditAccountView(UpdateView):
         })
         return kwargs
     
-    def dispatch(self, request, *args, **kwargs):
+    def get_form(self, form_class):
         """
-        Overloading super().dispatch to pass POST data to all custom formsets.
+        Overloading super().get_form to instanciate formsets while instanciating the form.
         """
-        self.email_addresses_formset = self.EmailAddressFormSet(request.POST or None, prefix='email_addresses')
-        self.addresses_formset = self.AddressFormSet(request.POST or None, prefix='addresses')
-        self.phone_numbers_formset = self.PhoneNumberFormSet(request.POST or None, prefix='phone_numbers')
-
-        return super(EditAccountView, self).dispatch(request, *args, **kwargs)
+        form = super(EditAccountView, self).get_form(form_class)
+        
+        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
+        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
+        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
+        
+        return form
     
     def form_valid(self, form):
         """
@@ -319,7 +322,9 @@ class EditAccountView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('account_edit'))
+        return redirect(reverse('account_edit', kwargs={
+            'pk': self.object.pk,
+        }))
 
 
 class DeleteAccountView(DeleteView):
@@ -329,13 +334,16 @@ class DeleteAccountView(DeleteView):
     
     model = AccountModel
     
-    def dispatch(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         """
-        Overloading super().dispatch to remove the instance if posted via ajax.
+        Overloading super().delete to remove the related models and the instance itself.
         """
         
-        if request.is_ajax():
-            self.remove()
-        
-        return super(DeleteAccountView, self).dispatch(request, *args, **kwargs)
-    
+        self.object = self.get_object()
+        self.object.email_addresses.remove()
+        self.object.addresses.remove()
+        self.object.phone_numbers.remove()
+        self.object.delete()
+            
+        return redirect(reverse('account_list'))
+

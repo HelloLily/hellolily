@@ -240,8 +240,8 @@ class EmailAddressBaseForm(forms.ModelForm):
         }
 
 
-class EmailAddressBaseFormSet(forms.formsets.BaseFormSet):
-    form = EmailAddressBaseForm
+#class EmailAddressBaseFormSet(forms.formsets.BaseFormSet):
+#    form = EmailAddressBaseForm
 
 
 class PhoneNumberBaseForm(forms.ModelForm):
@@ -277,8 +277,8 @@ class PhoneNumberBaseForm(forms.ModelForm):
         }
 
 
-class PhoneNumberBaseFormSet(forms.formsets.BaseFormSet):
-    form = PhoneNumberBaseForm
+#class PhoneNumberBaseFormSet(forms.formsets.BaseFormSet):
+#    form = PhoneNumberBaseForm
 
 
 class AddressBaseForm(forms.ModelForm):
@@ -325,6 +325,6 @@ class AddressBaseForm(forms.ModelForm):
         }
 
 
-class AddressBaseFormSet(forms.formsets.BaseFormSet):
-    form = AddressBaseForm
+#class AddressBaseFormSet(forms.formsets.BaseFormSet):
+#    form = AddressBaseForm
 

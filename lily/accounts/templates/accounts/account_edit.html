@@ -74,7 +74,7 @@
                         {% for form in email_addresses_formset.forms %}
                         	{% if form.instance.pk %}{{ form.DELETE }}{% endif %}
 	                        {% if forloop.last %}
-	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset email_addresses">
+	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
 	                        {% else %}
 	                        <div class="mws-form-item large mws-formset email_addresses">
 	                        {% endif %}
@@ -135,7 +135,7 @@
 	                        {% if forloop.last %}
 	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
 	                        {% else %}
-	                        <div class="mws-form-item large mws-formset dynamic-form">
+	                        <div class="mws-form-item large mws-formset phone_numbers">
 	                        {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
@@ -192,7 +192,7 @@
 	                        {% if forloop.last %}
 	                        <div id="{{ form.prefix }}" class="mws-form-item large mws-formset">
 	                        {% else %}
-	                        <div class="mws-form-item large mws-formset dynamic-form">
+	                        <div class="mws-form-item large mws-formset addresses">
 	                        {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
@@ -433,7 +433,7 @@
                     </div>
                 
                     <div class="mws-button-row">
-                        <input type="submit" name="submit" value="{% trans 'Add' %}" class="mws-button blue" />
+                        <input type="submit" name="submit" value="{% trans 'Edit' %}" class="mws-button blue" />
                     </div>
                 </div>
             </form>

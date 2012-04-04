@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models.query_utils import Q
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 from lily.accounts.fields import MultipleInputAndChoiceField
@@ -6,7 +7,6 @@ from lily.accounts.models import AccountModel, TagModel
 from lily.accounts.widgets import InputAndSelectMultiple
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddressModel, PhoneNumberModel, AddressModel
-from django.forms.models import ModelMultipleChoiceField
 
 
 class AddAccountMinimalForm(forms.models.ModelForm):
@@ -210,13 +210,8 @@ class EditAccountForm(forms.models.ModelForm):
             tag_instance, created = TagModel.objects.get_or_create(tag=tag)
             instance.tags.add(tag_instance)
         
-        ## Check if any tags need to be removed        
-        # Create flatten array of the supplied tags in the queryset
-        tags_in_queryset = [tag['tag'] for tag in self.fields['tags'].queryset.all().values('tag')]
-        tags_to_check = filter(lambda x:x not in tags, tags_in_queryset)
-        
-        # Remove any relationships for these tags with instance
-        models = TagModel.objects.filter(tag__in=tags_to_check)
+        # Remove any relationships for these tag models with instance
+        models = instance.tags.filter(~Q(tag__in=tags))
         for model in models:
             instance.tags.remove(model)
         

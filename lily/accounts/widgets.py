@@ -44,19 +44,22 @@ class InputAndSelectMultiple(SelectMultiple):
         
         # Create a temporary mapping for key-value pairing
         mapping = {}
-        
         # Fill mapping with all values from queryset (pk, unicode)
         for choice in self.choices:
             choice = list(choice)
             mapping[choice[0]] = choice[1]
         
-        # Create a new value array which no longer contains pk, but only unicode
-        mapped_value = []
-        for v in value:
-            mapped_value.append(mapping[v])
-        
-        # Overwrite old value
-        value = mapped_value
+        if hasattr(value, '__iter__'):
+            # Create a new value array which no longer contains pk, but only unicode
+            mapped_value = []
+            for v in value:
+                if mapping.has_key(v):
+                    mapped_value.append(mapping[v])
+                else:
+                    mapped_value.append(v)
+            
+            # Overwrite old value
+            value = mapped_value
         
         # Expand choices with options that haven't seen the light in the database yet
         choices = list(choices)

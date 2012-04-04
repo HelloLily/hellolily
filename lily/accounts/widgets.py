@@ -11,12 +11,10 @@ class InputAndSelectMultiple(SelectMultiple):
     input-and-choice javascript.
     """
     
-    def __init__(self, attrs=None, preselected=(), choices=()):
+    def __init__(self, attrs=None, choices=()):
         super(InputAndSelectMultiple, self).__init__(attrs, choices)
         
-        # TODO: handle preselected choices
-        
-        # an array for choices that don't exist in the database yet
+        # An array for choices that don't exist in the database yet
         self.new_choices = []
     
     def value_from_datadict(self, data, files, name):
@@ -39,9 +37,27 @@ class InputAndSelectMultiple(SelectMultiple):
     
     def render(self, name, value, attrs=None, choices=()):
         """
-        Overloading super().render to inject options extracted from the POST data to the choices 
-        list so these options are rendered when the form is invalid.
+        Overloading super().render to render already related options as selected and 
+        to inject options extracted from the POST data to the choices list so these 
+        options are rendered when the form is invalid.
         """
+        
+        # Create a temporary mapping for key-value pairing
+        mapping = {}
+        
+        # Fill mapping with all values from queryset (pk, unicode)
+        for choice in self.choices:
+            choice = list(choice)
+            mapping[choice[0]] = choice[1]
+        
+        # Create a new value array which no longer contains pk, but only unicode
+        mapped_value = []
+        for v in value:
+            mapped_value.append(mapping[v])
+        
+        # Overwrite old value
+        value = mapped_value
+        
         # Expand choices with options that haven't seen the light in the database yet
         choices = list(choices)
         for choice in self.new_choices:
@@ -63,7 +79,6 @@ class InputAndSelectMultiple(SelectMultiple):
         Overloading super().render_option to print option_label twice (as text and value) and
         to use option_label to check if an option has been selected.
         """
-        option_value = force_unicode(option_value)
         if option_label in selected_choices:
             selected_html = u' selected="selected"'
         else:

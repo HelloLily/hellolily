@@ -11,7 +11,7 @@ class MultipleInputAndChoiceField(ModelMultipleChoiceField):
     
     def clean(self, value):
         """
-        Overloading super().clean to be able to submit a choice that's not in the given queryset.
+        Overloading super().clean to allow submitting choices that don't exist in the given queryset.
         """
         if self.required and not value:
             raise ValidationError(self.error_messages['required'])

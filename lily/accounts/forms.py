@@ -6,6 +6,7 @@ from lily.accounts.models import AccountModel, TagModel
 from lily.accounts.widgets import InputAndSelectMultiple
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddressModel, PhoneNumberModel, AddressModel
+from django.forms.models import ModelMultipleChoiceField
 
 
 class AddAccountMinimalForm(forms.models.ModelForm):
@@ -187,7 +188,6 @@ class EditAccountForm(forms.models.ModelForm):
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
         
-    
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
@@ -203,12 +203,22 @@ class EditAccountForm(forms.models.ModelForm):
         
         if commit:
             instance.save()
-            
+        
         tags = self.cleaned_data.get('tags')
         for tag in tags:
             # Create relationship with TagModel
             tag_instance, created = TagModel.objects.get_or_create(tag=tag)
             instance.tags.add(tag_instance)
+        
+        ## Check if any tags need to be removed        
+        # Create flatten array of the supplied tags in the queryset
+        tags_in_queryset = [tag['tag'] for tag in self.fields['tags'].queryset.all().values('tag')]
+        tags_to_check = filter(lambda x:x not in tags, tags_in_queryset)
+        
+        # Remove any relationships for these tags with instance
+        models = TagModel.objects.filter(tag__in=tags_to_check)
+        for model in models:
+            instance.tags.remove(model)
         
         return instance
     

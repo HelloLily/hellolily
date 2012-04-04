@@ -1,6 +1,10 @@
 *.db
+*.sqlite
 *.pyc
+*.pyo
+.env
 .project
 .pydevproject
+.DS_Store
 lily/media/
 lily/site_settings.py

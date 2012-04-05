@@ -23,7 +23,7 @@
         <form class="mws-form" action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
         	<div class="mws-form-inline">
         		<div class="mws-form-row">
-        			{% blocktrans with form.instance.name as contact %}Are you sure you want to delete the contact for {{ contact.full_name }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider setting this contact to inactive.{% endblocktrans %}
+        			{% blocktrans with form.instance.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
         		</div>
         	</div>
         </form>
@@ -99,6 +99,20 @@
                                 </div>
                             {% else %}
                                 {{ form.title }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mws-form-row">
+                        {{ form.gender.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.gender.errors %}
+                                <span class="field_error">{{ form.gender }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.gender.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.gender }}
                             {% endif %}
                         </div>
                     </div>
@@ -356,6 +370,20 @@
                                 </div>
                             {% else %}
                                 {{ form.status }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mws-form-row">
+                        {{ form.description.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.description.errors %}
+                                <span class="field_error">{{ form.description }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.description.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.description }}
                             {% endif %}
                         </div>
                     </div>

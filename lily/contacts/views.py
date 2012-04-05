@@ -47,7 +47,7 @@ class AddContactView(CreateView):
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
-                primary = form_kwargs.get('data').get('primary-email')
+                primary = form_kwargs['data'].get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 
@@ -130,20 +130,22 @@ class EditContactView(UpdateView):
         
         # Retrieve contact instance to use
         form_kwargs = self.get_form_kwargs()
-        contact_instance = form_kwargs.get('instance')
         
         # Save all e-mail address, phone number and address formsets
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+            # Save form
+            super(EditContactView, self).form_valid(form)
+            
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    contact_instance.email_addresses.remove(formset.instance)
+                    self.object.email_addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
                 # Check for e-mail address selected as primary
-                primary = form_kwargs.get('data').get('primary-email')
+                primary = form_kwargs['data'].get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 else:
@@ -152,13 +154,13 @@ class EditContactView(UpdateView):
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
                     formset.save()
-                    contact_instance.email_addresses.add(formset.instance)
+                    self.object.email_addresses.add(formset.instance)
             
             # Handle addresses
             for formset in self.addresses_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    contact_instance.addresses.remove(formset.instance)
+                    self.object.addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
@@ -170,20 +172,20 @@ class EditContactView(UpdateView):
                         formset.instance.state_province,
                         formset.instance.country]):
                     formset.save()
-                    contact_instance.addresses.add(formset.instance)
+                    self.object.addresses.add(formset.instance)
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    contact_instance.phone_numbers.remove(formset.instance)
+                    self.object.phone_numbers.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()
-                    contact_instance.phone_numbers.add(formset.instance)
+                    self.object.phone_numbers.add(formset.instance)
         
         return self.get_success_url()
     

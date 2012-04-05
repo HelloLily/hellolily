@@ -78,6 +78,8 @@ $(document).ready(function() {
             {
                 text: gettext('Add & edit'),
                 click: function() {
+                    // set form input to edit so we get a redirect to the extendend edit page
+                    $('#add-account-submit').val('edit');
                     sendForm( $(this) );
                 },
                 name: 'submit',

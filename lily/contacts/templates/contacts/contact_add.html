@@ -76,6 +76,34 @@
                         </div>
                     </div>
                     
+                    <div class="mws-form-row">
+                        {{ form.title.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.title.errors %}
+                                <span class="field_error">{{ form.title }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.title.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.title }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mws-form-row">
+                        {{ form.gender.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.gender.errors %}
+                                <span class="field_error">{{ form.gender }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.gender.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.gender }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     {% comment %}
                     TODO: Inform user when deleting a primary e-mail address and two or more options
                     are available and another was automatically selected as primary OR generate
@@ -128,20 +156,6 @@
                             {% include 'utils/email_address_formset_template.html' %}
                         </div>
                         {{ email_addresses_formset.management_form }}
-                    </div>
-
-                    <div class="mws-form-row">
-                        {{ form.gender.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.gender.errors %}
-                                <span class="field_error">{{ form.gender }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.gender.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.gender }}
-                            {% endif %}
-                        </div>
                     </div>
                 
                     <hr />
@@ -343,6 +357,20 @@
                                 </div>
                             {% else %}
                                 {{ form.status }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mws-form-row">
+                        {{ form.description.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.description.errors %}
+                                <span class="field_error">{{ form.description }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.description.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.description }}
                             {% endif %}
                         </div>
                     </div>

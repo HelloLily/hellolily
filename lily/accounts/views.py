@@ -34,23 +34,25 @@ class AddAccountXHRView(CreateView):
         account_instance = form_kwargs.get('instance')
         account_instance.email = form.cleaned_data.get('email')
         account_instance.save()
-
+        
         if self.request.is_ajax:
             # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs.get('data').get('submit', None)
+            submit_action = form_kwargs['data'].get('submit', None)
             if submit_action == 'edit':
-                redirect = True
-                url = redirect(reverse('account_edit', kwargs={
-                    'pk': self.object.pk,
-                }))
+                do_redirect = True
+                url = reverse('account_edit', kwargs={
+                    'pk': account_instance.pk,
+                })
+                html_response = ''
             else:
-                redirect = False    
+                do_redirect = False    
                 url = ''
+                html_response = _('Account %s has been saved.') % account_instance.name
             
             return HttpResponse(simplejson.dumps({
                 'error': False,
-                'html': _('Account %s has been saved.') % account_instance.name,
-                'redirect': redirect,
+                'html': html_response,
+                'redirect': do_redirect,
                 'url': url
             }))
         
@@ -133,20 +135,19 @@ class AddAccountView(CreateView):
         
         # Retrieve account instance to use
         form_kwargs = self.get_form_kwargs()
-        account_instance = form_kwargs.get('instance')
         
         # Save all e-mail address, phone number and address formsets
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
-                primary = form_kwargs.get('data').get('primary-email')
+                primary = form_kwargs['data'].get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
                     formset.save()
-                    account_instance.email_addresses.add(formset.instance)
+                    self.object.email_addresses.add(formset.instance)
             
             # Handle addresses
             for formset in self.addresses_formset:
@@ -158,14 +159,14 @@ class AddAccountView(CreateView):
                         formset.instance.state_province,
                         formset.instance.country]):
                     formset.save()
-                    account_instance.addresses.add(formset.instance)
+                    self.object.addresses.add(formset.instance)
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()
-                    account_instance.phone_numbers.add(formset.instance)
+                    self.object.phone_numbers.add(formset.instance)
         
         # Add relation to Facebook
         if cleaned_data.get('facebook'):
@@ -173,7 +174,7 @@ class AddAccountView(CreateView):
                 name='facebook', 
                 username=cleaned_data.get('facebook'),
                 profile_url='http://www.facebook.com/%s' % cleaned_data.get('facebook'))
-            account_instance.social_media.add(facebook)
+            self.object.social_media.add(facebook)
         
         # Add relation to Twitter
         if cleaned_data.get('twitter'):
@@ -181,14 +182,14 @@ class AddAccountView(CreateView):
                 name='twitter', 
                 username=cleaned_data.get('twitter'),
                 profile_url='http://twitter.com/%s' % cleaned_data.get('twitter'))
-            account_instance.social_media.add(twitter)
+            self.object.social_media.add(twitter)
         
         # Add relation to LinkedIn
         if cleaned_data.get('linkedin'):
             linkedin = SocialMediaModel.objects.create(
                 name='linkedin',
                 profile_url=cleaned_data.get('linkedin'))
-            account_instance.social_media.add(linkedin)
+            self.object.social_media.add(linkedin)
         
         return self.get_success_url()
     
@@ -272,7 +273,7 @@ class EditAccountView(UpdateView):
                     continue
                 
                 # Check for e-mail address selected as primary
-                primary = form_kwargs.get('data').get('primary-email')
+                primary = form_kwargs['data'].get('primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 else:

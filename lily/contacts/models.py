@@ -4,9 +4,6 @@ from lily.accounts.models import AccountModel
 from lily.utils.models import CommonModel, DeletedModel, PhoneNumberModel, EmailAddressModel
 
 
-CONTACT_UPLOAD_TO = 'images/profile/contact'
-
-
 class ContactModel(CommonModel):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
@@ -34,7 +31,6 @@ class ContactModel(CommonModel):
     title = models.CharField(max_length=20, verbose_name=_('title'), blank=True)
     status = models.IntegerField(choices=CONTACT_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
-    picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
 
     def full_name(self):

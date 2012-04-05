@@ -55,6 +55,38 @@ $(document).ready(function() {
         }
     }
     
+    // show delete-form-dialog
+    $('#delete-contact-dialog-btn').click(function(event) {
+        $('#delete-contact-form-dialog').dialog('open');
+        event.preventDefault();
+    });  
+    
+    // add jquery dialog for adding an account
+    $('#delete-contact-form-dialog').dialog({
+        autoOpen: false,
+        title: gettext('Delete contact'),
+        modal: true,
+        width: 640,
+        buttons: [
+            { 
+                'class': 'mws-button red float-left',
+                text: gettext('No'),
+                click: function() {
+                    // cancel form on NO
+                    $(this).dialog('close');
+                }
+            },
+            {
+                'class': 'mws-button green',
+                text: gettext('Yes'),
+                click: function() {
+                    // submit form on YES
+                    $(this).find('form').submit();
+                }
+            }
+        ]
+    });
+    
     // enable formsets for email addresses, phone numbers and addresses
     form_prefices = ['email_addresses', 'phone_numbers', 'addresses'];    
     $.each(form_prefices, function(index, form_prefix) {

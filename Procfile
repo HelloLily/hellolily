@@ -1,1 +1,1 @@
-web: python manage.py runserver 0.0.0.0:40247 --noreload
+web: python manage.py run_gunicorn 0.0.0.0:$PORT

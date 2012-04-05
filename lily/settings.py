@@ -144,16 +144,16 @@ INSTALLED_APPS = (
 # Settings for templated e-mail app
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
-email_settings = eval(os.environ.get('EMAIL', '{}'))
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
 
-DEFAULT_FROM_EMAIL = email_settings.get('FROM', 'example@provider.com')
-SERVER_EMAIL = email_settings.get('SERVER', 'example@provider.com')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', False)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.host.com')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-username')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
 
-EMAIL_USE_TLS = email_settings.get('USE_TLS', False)
-EMAIL_HOST = email_settings.get('HOST', 'smtp.host.com')
-EMAIL_HOST_USER = email_settings.get('USER', 'your-username')
-EMAIL_HOST_PASSWORD = email_settings.get('PASSWORD', 'your-password')
-EMAIL_PORT = email_settings.get('PORT', 25)
+
 
 LOGGING = {
     'version': 1,

@@ -10,9 +10,7 @@ DEBUG = os.environ.get('DEBUG', False)
 DEV = os.environ.get('DEV', False)
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
+ADMINS = eval(os.environ.get('ADMINS', '()'))
 
 MANAGERS = ADMINS
 
@@ -68,7 +66,6 @@ CUSTOM_USER_MODEL = 'users.UserModel'
 
 STATICFILES_DIRS = (
     local_path('static/'),
-    # Optional: see https://docs.djangoproject.com/en/1.3/ref/contrib/staticfiles/#prefixes-optional
 )
 
 STATICFILES_FINDERS = (
@@ -147,14 +144,16 @@ INSTALLED_APPS = (
 # Settings for templated e-mail app
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
-DEFAULT_FROM_EMAIL = 'lily@hellolily.com'
-SERVER_EMAIL = 'lily@hellolily.com'
+email_settings = eval(os.environ.get('EMAIL', '{}'))
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'lily@hellolily.com'
-EMAIL_HOST_PASSWORD = 'hellolily'
-EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = email_settings.get('FROM', 'example@provider.com')
+SERVER_EMAIL = email_settings.get('SERVER', 'example@provider.com')
+
+EMAIL_USE_TLS = email_settings.get('USE_TLS', False)
+EMAIL_HOST = email_settings.get('HOST', 'smtp.host.com')
+EMAIL_HOST_USER = email_settings.get('USER', 'your-username')
+EMAIL_HOST_PASSWORD = email_settings.get('PASSWORD', 'your-password')
+EMAIL_PORT = email_settings.get('PORT', 25)
 
 LOGGING = {
     'version': 1,
@@ -180,20 +179,16 @@ LOGGING = {
     }
 }
 
-# TODO add the add-on on heroku first(!) and then enable this.
-
 # Cache configuration
-#if not DEBUG:
-#    url = urlparse(os.environ['REDISTOGO_URL'])
-#    CACHES = {
-#        'default': {
-#            'BACKEND': 'redis_cache.RedisCache',
-#            'LOCATION': "{0.hostname}:{0.port}".format(url),
-#            'OPTIONS': {
-#                'PASSWORD': url.password,
-#                'DB': 0
-#            }
-#        }
-#    }
-
-
+if os.environ.get('REDISTOGO_URL', '') and os.environ.get('ENABLE_CACHE', True):
+    url = urlparse(os.environ['REDISTOGO_URL'])
+    CACHES = {
+        'default': {
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': "{0.hostname}:{0.port}".format(url),
+            'OPTIONS': {
+                'PASSWORD': url.password,
+                'DB': 0
+            }
+        }
+    }

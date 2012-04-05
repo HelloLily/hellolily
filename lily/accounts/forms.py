@@ -147,7 +147,7 @@ AddAccountForm = autostrip(AddAccountForm)
 
 class EditAccountForm(forms.models.ModelForm):
     """
-    Form for adding an account which includes all fields available.
+    Form for editing an existing account which includes all fields available.
     
     TODO: status field
     """

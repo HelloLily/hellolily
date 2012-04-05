@@ -3,9 +3,8 @@
 // TODO: select first e-mail as primary when deleting primary
 
 $(document).ready(function() {
-    // set focus on company name
-    set_focus('id_name'); 
-    
+    // set focus on first name
+    set_focus('id_first_name'); 
     
     // manually add hover classes when hovering over a label element
     $('.email_is_primary label span').live({
@@ -55,79 +54,6 @@ $(document).ready(function() {
             other_type_input.hide();
         }
     }
-    
-    // show add-form-dialog
-    $('#add-account-dialog-btn').click(function(event) {
-        $('#add-account-form-dialog').dialog('open');
-        event.preventDefault();
-    });
-    
-    // add jquery dialog for adding an account
-    $('#add-account-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('New account'),
-        modal: true,
-        width: 640,
-        buttons: [
-            { 
-                text: gettext('Cancel'),
-                click: function() {
-                    $(this).dialog('close');
-                }
-            },
-            {
-                text: gettext('Add & edit'),
-                click: function() {
-                    sendForm( $(this) );
-                },
-                name: 'submit',
-                value: 'edit'
-            },
-            {
-                text: gettext('Add'),
-                click: function() {
-                    sendForm( $(this) );
-                },
-                name: 'submit',
-                value: 'add'
-            },
-        ],
-        close: function() {
-            clearForm( $(this).find('form') );
-        }
-    });
-    
-    // show delete-form-dialog
-    $('#delete-account-dialog-btn').click(function(event) {
-        $('#delete-account-form-dialog').dialog('open');
-        event.preventDefault();
-    });  
-    
-    // add jquery dialog for adding an account
-    $('#delete-account-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('Delete account'),
-        modal: true,
-        width: 640,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('No'),
-                click: function() {
-                    // cancel form on NO
-                    $(this).dialog('close');
-                }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Yes'),
-                click: function() {
-                    // submit form on YES
-                    $(this).find('form').submit();
-                }
-            }
-        ]
-    });
     
     // enable formsets for email addresses, phone numbers and addresses
     form_prefices = ['email_addresses', 'phone_numbers', 'addresses'];    

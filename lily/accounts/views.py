@@ -36,9 +36,22 @@ class AddAccountXHRView(CreateView):
         account_instance.save()
 
         if self.request.is_ajax:
+            # Check if the user wants to 'add & edit'
+            submit_action = form_kwargs.get('data').get('submit', None)
+            if submit_action == 'edit':
+                redirect = True
+                url = redirect(reverse('account_edit', kwargs={
+                    'pk': self.object.pk,
+                }))
+            else:
+                redirect = False    
+                url = ''
+            
             return HttpResponse(simplejson.dumps({
                 'error': False,
-                'html': _('Account %s has been saved.') % account_instance.name
+                'html': _('Account %s has been saved.') % account_instance.name,
+                'redirect': redirect,
+                'url': url
             }))
         
         return url
@@ -48,7 +61,7 @@ class AddAccountXHRView(CreateView):
         Overloading super().form_invalid to return a different response to ajax requests.
         """
         
-        if self.is_ajax:
+        if self.request.is_ajax:
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
                  'error': True,
@@ -62,8 +75,15 @@ class AddAccountXHRView(CreateView):
         Get the url to redirect to after this form has succesfully been submitted. This url
         can change depending on which button in the form was pressed.
         """
-        # TODO: Return url based on pressed submit button
-        return redirect(reverse('account_add_xhr'))
+        
+#        form_kwargs = self.get_form_kwargs()
+#        submit_action = form_kwargs['data'].get('submit', False)
+#        if submit_action == 'edit':
+#            return redirect(reverse('account_edit', kwargs={
+#                'pk': self.object.pk,
+#            }))
+        
+        return redirect(reverse('account_list'))
 
 
 class AddAccountView(CreateView):
@@ -188,7 +208,7 @@ class AddAccountView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('account_add'))
+        return redirect(reverse('account_list'))
     
 
 class EditAccountView(UpdateView):
@@ -231,7 +251,7 @@ class EditAccountView(UpdateView):
     
     def form_valid(self, form):
         """
-        Add m2m relations to newly created account (i.e. Social media, Phone numbers, 
+        Save m2m relations to edited account (i.e. Social media, Phone numbers, 
         E-mail addresses and Addresses). 
         """
         
@@ -335,9 +355,11 @@ class EditAccountView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('account_edit', kwargs={
-            'pk': self.object.pk,
-        }))
+        # TODO: determine whether to go back to the list in search mode
+        return redirect(reverse('account_list'))
+#        return redirect(reverse('account_edit', kwargs={
+#            'pk': self.object.pk,
+#        }))
 
 
 class DeleteAccountView(DeleteView):
@@ -357,6 +379,8 @@ class DeleteAccountView(DeleteView):
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
         self.object.delete()
-            
+        
+        # TODO: check for contacts, tags, functions ..
+        
         return redirect(reverse('account_list'))
 

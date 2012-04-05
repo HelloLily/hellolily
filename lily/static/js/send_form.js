@@ -7,6 +7,7 @@ function clearForm(form) {
     });
 }
 
+// TODO: detect which button was clicked to be able to redirect to an edit view
 function sendForm(dialog) {
     var form = $(dialog).find('form')
     if( typeof(form === 'list') ){
@@ -44,6 +45,8 @@ function sendForm(dialog) {
                     bindFormset();
                 $('#loadingDialog').dialog('close');
                 $(dialog).dialog('open');
+            } else if( response.redirect === true ) {
+                window.location = response.url
             } else {
                 hideLoadingDialog();
                 $('#successDialogMessage').text(response.html);

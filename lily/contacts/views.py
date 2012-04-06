@@ -39,9 +39,10 @@ class AddContactView(CreateView):
         and Addresses). 
         """
         
-        # Retrieve account instance to use
+        # Save form
+        super(AddContactView,self).form_valid(form)
+        
         form_kwargs = self.get_form_kwargs()
-        contact_instance = form_kwargs.get('instance')
         
         # Save all e-mail address, phone number and address formsets
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
@@ -54,7 +55,7 @@ class AddContactView(CreateView):
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
                     formset.save()
-                    contact_instance.email_addresses.add(formset.instance)
+                    self.object.email_addresses.add(formset.instance)
             
             # Handle addresses
             for formset in self.addresses_formset:
@@ -66,14 +67,14 @@ class AddContactView(CreateView):
                         formset.instance.state_province,
                         formset.instance.country]):
                     formset.save()
-                    contact_instance.addresses.add(formset.instance)
+                    self.object.addresses.add(formset.instance)
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()
-                    contact_instance.phone_numbers.add(formset.instance)
+                    self.object.phone_numbers.add(formset.instance)
         
         return self.get_success_url()
     
@@ -128,7 +129,6 @@ class EditContactView(UpdateView):
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses). 
         """
         
-        # Retrieve contact instance to use
         form_kwargs = self.get_form_kwargs()
         
         # Save all e-mail address, phone number and address formsets

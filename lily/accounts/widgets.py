@@ -68,14 +68,8 @@ class InputAndSelectMultiple(SelectMultiple):
         # Convert back to tuple
         choices = tuple(choices)
         
-        if value is None: value = []
-        final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<select multiple="multiple"%s>' % flatatt(final_attrs)]
-        options = self.render_options(choices, value)
-        if options:
-            output.append(options)
-        output.append('</select>')
-        return mark_safe(u'\n'.join(output))
+        # Call super to handle rendering now we manipulated the options to be rendered
+        return super(InputAndSelectMultiple, self).render(name, value, attrs, choices)
     
     def render_option(self, selected_choices, option_value, option_label):
         """

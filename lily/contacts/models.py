@@ -63,7 +63,7 @@ class FunctionModel(DeletedModel):
     department = models.CharField(max_length=50, verbose_name=_('department'), blank=True)
     # Limited relation: only possible with contacts related to the same account 
     manager = models.ForeignKey(ContactModel, related_name='manager', verbose_name=_('manager'),
-                                blank=True)
+                                blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name=_('is active'))
     phone_numbers = models.ManyToManyField(PhoneNumberModel,
                                            verbose_name=_('list of phone numbers'))

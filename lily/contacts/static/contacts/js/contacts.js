@@ -102,6 +102,7 @@ $(document).ready(function() {
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
+    
     // TODO: put in utils or something    
     $('input:checkbox').screwDefaultButtons({
         checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',

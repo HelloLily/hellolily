@@ -5,12 +5,14 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
 {% endblock %}
@@ -388,6 +390,10 @@
                             {% else %}
                                 {{ form.accounts }}
                             {% endif %}
+                        </div>
+                    	<div class="mws-form-item large">
+                        	{{ form.edit_accounts.label }}                        
+	                        {{ form.edit_accounts }}
                         </div>
                     </div>
                     

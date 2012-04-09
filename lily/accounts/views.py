@@ -8,10 +8,12 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
-    AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
-from lily.accounts.models import AccountModel
-from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, \
+    EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
+from lily.accounts.models import AccountModel, TagModel
+from lily.contacts.models import FunctionModel
+from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, \
+    PhoneNumberModel
 
 
 class AddAccountXHRView(CreateView):
@@ -30,6 +32,7 @@ class AddAccountXHRView(CreateView):
         
         url = super(AddAccountXHRView, self).form_valid(form)
         
+        # Add e-mail address to account as primary
         form_kwargs = self.get_form_kwargs()
         self.object.email = form.cleaned_data.get('email')
         self.object.save()
@@ -48,6 +51,7 @@ class AddAccountXHRView(CreateView):
                 url = ''
                 html_response = _('Account %s has been saved.') % self.object.name
             
+            # Return response 
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': html_response,
@@ -76,14 +80,6 @@ class AddAccountXHRView(CreateView):
         Get the url to redirect to after this form has succesfully been submitted. This url
         can change depending on which button in the form was pressed.
         """
-        
-#        form_kwargs = self.get_form_kwargs()
-#        submit_action = form_kwargs['data'].get('submit', False)
-#        if submit_action == 'edit':
-#            return redirect(reverse('account_edit', kwargs={
-#                'pk': self.object.pk,
-#            }))
-        
         return redirect(reverse('account_list'))
 
 
@@ -381,9 +377,15 @@ class DeleteAccountView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
+        
+        functions = FunctionModel.objects.filter(account=self.object)
+        functions.delete()
+        tags = TagModel.objects.filter(account=self.object)
+        tags.delete()
+        
         self.object.delete()
         
-        # TODO: check for contacts, tags, functions ..
+        # TODO: check for contacts ..
         
         return redirect(reverse('account_list'))
 

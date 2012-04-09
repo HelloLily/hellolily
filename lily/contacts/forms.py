@@ -15,6 +15,9 @@ class AddContactForm(forms.models.ModelForm):
         widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
     )
     
+    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
+        widget=forms.CheckboxInput())
+    
     def clean(self):
         """
         Form validation: fill in at least first or last name.
@@ -121,13 +124,30 @@ class EditContactForm(forms.models.ModelForm):
     
 EditContactForm = autostrip(EditContactForm)
 
+class EditFunctionForm(forms.models.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(EditFunctionForm, self).__init__(*args, **kwargs)
+        
+        # Make all fields not required
+        for key, field in self.fields.iteritems():
+            self.fields[key].required = False
+
 class FunctionForm(forms.models.ModelForm):
     """
     Form to link contacts with accounts through functions.
     """
     
     class Meta:
-        model = FunctionModel
-        exclude = ('manager') # TODO: select a contact from the same account as manager
-
-AddFunctionForm = autostrip(FunctionForm)
+        exclude = ('is_deleted', 'contact', 'email_addresses', 'phone_numbers')
+        widgets = {
+             'title': forms.TextInput(attrs={
+                 'class': 'mws-textinput',
+                 'placeholder': _('Function title')
+             }),
+             'department': forms.TextInput(attrs={
+                 'class': 'mws-textinput',
+                 'placeholder': _('Department')
+             })
+        }
+        
+FunctionForm = autostrip(FunctionForm)

@@ -1,13 +1,13 @@
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
-from django.forms.models import modelformset_factory
+from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from extra_views.formsets import FormSetView
 from lily.accounts.forms import EmailAddressBaseForm, AddressBaseForm, \
     PhoneNumberBaseForm
 from lily.accounts.models import AccountModel
-from lily.contacts.forms import AddContactForm, EditContactForm
+from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, \
+    EditFunctionForm
 from lily.contacts.models import ContactModel, FunctionModel
 from lily.utils.models import EmailAddressModel, AddressModel, PhoneNumberModel
 
@@ -207,8 +207,6 @@ class EditContactView(UpdateView):
                 account = AccountModel.objects.get(pk=pk)
                 FunctionModel.objects.get_or_create(account=account, contact=self.object, manager=self.object)
             functions = FunctionModel.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
-            for function in functions: 
-                print function.account.name
             functions.delete()
         else:
             print 'removing all functions'
@@ -260,27 +258,60 @@ class DeleteContactView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
-        self.object.delete()
         
-        # TODO: check for functions ..
+        functions = FunctionModel.objects.filter(contact=self.object)
+        functions.delete()
+        
+        self.object.delete()
         
         return redirect(reverse('contact_list'))
 
-class EditFunctionView(FormSetView):
-#    """
-#    View to add functions to a contact.
-#    """
-#    
-#    template_name = 'contacts/function_add.html'
-#    form_class = FunctionForm
-#    formset_class = FunctionFormset
-#    
-    def __init__(self, **kwargs):
-        super(EditFunctionView, self).__init__(**kwargs)
-        
-        print kwargs
-#
-#    def form_valid(self, form):
-        
+class EditFunctionView(UpdateView):
+    """
+    View to edit functions a contact has.
+    """
     
+    template_name = 'contacts/function_edit.html'
+    form_class = EditFunctionForm
+    model = ContactModel
     
+    FunctionFormSet = inlineformset_factory(ContactModel, FunctionModel, fk_name='contact', form=FunctionForm, extra=0)
+    
+    def get_form(self, form_class):
+        """
+        Overloading super().get_form to instanciate formsets while instanciating the form.
+        """
+        form = super(EditFunctionView, self).get_form(form_class)
+        
+        self.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
+        
+        return form
+    
+    def form_valid(self, form):
+        """
+        Overloading super.form_valid(form) to save the forms in formset.
+        """
+        for form in self.formset:
+            form.save()
+        
+        return super(EditFunctionView, self).form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to add formset to context.
+        """
+        
+        kwargs = super(EditFunctionView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'formset': self.formset,
+        })
+        return kwargs
+    
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted. 
+        """
+        return redirect(reverse('contact_list'))
+    
+    class Meta:
+        fields = ()

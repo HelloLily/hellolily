@@ -1,10 +1,14 @@
 from django.core.urlresolvers import reverse
-from django.forms.models import modelformset_factory
+from django.db.models.query_utils import Q
+from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from lily.accounts.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
-from lily.contacts.forms import AddContactForm, EditContactForm
-from lily.contacts.models import ContactModel
+from lily.accounts.forms import EmailAddressBaseForm, AddressBaseForm, \
+    PhoneNumberBaseForm
+from lily.accounts.models import AccountModel
+from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, \
+    EditFunctionForm
+from lily.contacts.models import ContactModel, FunctionModel
 from lily.utils.models import EmailAddressModel, AddressModel, PhoneNumberModel
 
 class AddContactView(CreateView):
@@ -39,9 +43,10 @@ class AddContactView(CreateView):
         and Addresses). 
         """
         
-        # Save form
-        super(AddContactView,self).form_valid(form)
+        # Save instance
+        super(AddContactView, self).form_valid(form)
         
+        # Retrieve contact instance to use
         form_kwargs = self.get_form_kwargs()
         
         # Save all e-mail address, phone number and address formsets
@@ -75,6 +80,13 @@ class AddContactView(CreateView):
                 if formset.instance.raw_input:
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
+
+        # Save any selected accounts
+        if form_kwargs['data'].getlist('accounts'):
+            pks = form_kwargs['data'].getlist('accounts')
+            for pk in pks:
+                account = AccountModel.objects.get(pk=pk)
+                FunctionModel.objects.create(account=account, contact=self.object, manager=self.object)
         
         return self.get_success_url()
     
@@ -94,7 +106,7 @@ class AddContactView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('contact_add'))
+        return redirect(reverse('contact_list'))
 
 
 class EditContactView(UpdateView):
@@ -187,6 +199,19 @@ class EditContactView(UpdateView):
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
         
+        # Save any selected accounts
+        if form_kwargs['data'].getlist('accounts'):
+            pks = form_kwargs['data'].getlist('accounts')
+            for pk in pks:
+                account = AccountModel.objects.get(pk=pk)
+                FunctionModel.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+            functions = FunctionModel.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
+            functions.delete()
+        else:
+            print 'removing all functions'
+            functions = FunctionModel.objects.get(contact=self.object)
+            functions.delete()
+        
         return self.get_success_url()
     
     def get_context_data(self, **kwargs):
@@ -205,6 +230,13 @@ class EditContactView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
+        
+        form_kwargs = self.get_form_kwargs()
+        if form_kwargs['data'].get('edit_accounts'):
+            return redirect(reverse('function_edit', kwargs={
+                'pk': self.object.pk,
+            }))
+        
         return redirect(reverse('contact_edit', kwargs={
             'pk': self.object.pk,
         }))
@@ -225,8 +257,60 @@ class DeleteContactView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
+        
+        functions = FunctionModel.objects.filter(contact=self.object)
+        functions.delete()
+        
         self.object.delete()
         
-        # TODO: check for functions ..
-        
         return redirect(reverse('contact_list'))
+
+class EditFunctionView(UpdateView):
+    """
+    View to edit functions a contact has.
+    """
+    
+    template_name = 'contacts/function_edit.html'
+    form_class = EditFunctionForm
+    model = ContactModel
+    
+    FunctionFormSet = inlineformset_factory(ContactModel, FunctionModel, fk_name='contact', form=FunctionForm, extra=0)
+    
+    def get_form(self, form_class):
+        """
+        Overloading super().get_form to instanciate formsets while instanciating the form.
+        """
+        form = super(EditFunctionView, self).get_form(form_class)
+        
+        self.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
+        
+        return form
+    
+    def form_valid(self, form):
+        """
+        Overloading super.form_valid(form) to save the forms in formset.
+        """
+        for form in self.formset:
+            form.save()
+        
+        return super(EditFunctionView, self).form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to add formset to context.
+        """
+        
+        kwargs = super(EditFunctionView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'formset': self.formset,
+        })
+        return kwargs
+    
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted. 
+        """
+        return redirect(reverse('contact_list'))
+    
+    class Meta:
+        fields = ()

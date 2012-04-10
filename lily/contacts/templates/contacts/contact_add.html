@@ -5,12 +5,14 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
 {% endblock %}
@@ -374,7 +376,27 @@
                             {% endif %}
                         </div>
                     </div>
-                
+                    
+                    <hr />
+                    
+                    <div class="mws-form-row">
+                        {{ form.accounts.label_tag }}
+                        <div class="mws-form-item small">                            
+                            {% if form.accounts.errors %}
+                                <span class="field_error">{{ form.accounts }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.accounts.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.accounts }}
+                            {% endif %}
+                        </div>
+                    	<div class="mws-form-item large">
+                        	{{ form.edit_accounts.label }}                        
+	                        {{ form.edit_accounts }}
+                        </div>
+                    </div>
+                    
                     <div class="mws-button-row">
                         <input type="submit" name="submit" value="{% trans 'Add' %}" class="mws-button blue" />
                     </div>

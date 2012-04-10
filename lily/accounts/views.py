@@ -8,10 +8,12 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
-    AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
-from lily.accounts.models import AccountModel
-from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, \
+    EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
+from lily.accounts.models import AccountModel, TagModel
+from lily.contacts.models import FunctionModel
+from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, \
+    PhoneNumberModel
 
 
 class AddAccountXHRView(CreateView):
@@ -28,12 +30,12 @@ class AddAccountXHRView(CreateView):
         Add e-mail to newly created account.
         """
         
-        url = super(AddAccountXHRView,self).form_valid(form)
+        url = super(AddAccountXHRView, self).form_valid(form)
         
+        # Add e-mail address to account as primary
         form_kwargs = self.get_form_kwargs()
-        account_instance = form_kwargs.get('instance')
-        account_instance.email = form.cleaned_data.get('email')
-        account_instance.save()
+        self.object.email = form.cleaned_data.get('email')
+        self.object.save()
         
         if self.request.is_ajax:
             # Check if the user wants to 'add & edit'
@@ -41,14 +43,15 @@ class AddAccountXHRView(CreateView):
             if submit_action == 'edit':
                 do_redirect = True
                 url = reverse('account_edit', kwargs={
-                    'pk': account_instance.pk,
+                    'pk': self.object.pk,
                 })
                 html_response = ''
             else:
                 do_redirect = False    
                 url = ''
-                html_response = _('Account %s has been saved.') % account_instance.name
+                html_response = _('Account %s has been saved.') % self.object.name
             
+            # Return response 
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': html_response,
@@ -77,14 +80,6 @@ class AddAccountXHRView(CreateView):
         Get the url to redirect to after this form has succesfully been submitted. This url
         can change depending on which button in the form was pressed.
         """
-        
-#        form_kwargs = self.get_form_kwargs()
-#        submit_action = form_kwargs['data'].get('submit', False)
-#        if submit_action == 'edit':
-#            return redirect(reverse('account_edit', kwargs={
-#                'pk': self.object.pk,
-#            }))
-        
         return redirect(reverse('account_list'))
 
 
@@ -131,7 +126,8 @@ class AddAccountView(CreateView):
         E-mail addresses and Addresses). 
         """
         
-        cleaned_data = super(AddAccountView, self).form_valid(form)
+        # Save instance
+        super(AddAccountView, self).form_valid(form)
         
         # Retrieve account instance to use
         form_kwargs = self.get_form_kwargs()
@@ -167,28 +163,30 @@ class AddAccountView(CreateView):
                 if formset.instance.raw_input:
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
+        import pdb
+        pdb.set_trace()
         
         # Add relation to Facebook
-        if cleaned_data.get('facebook'):
+        if form_kwargs['data'].get('facebook'):
             facebook = SocialMediaModel.objects.create(
                 name='facebook', 
-                username=cleaned_data.get('facebook'),
-                profile_url='http://www.facebook.com/%s' % cleaned_data.get('facebook'))
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
             self.object.social_media.add(facebook)
         
         # Add relation to Twitter
-        if cleaned_data.get('twitter'):
+        if form_kwargs['data'].get('twitter'):
             twitter = SocialMediaModel.objects.create(
                 name='twitter', 
-                username=cleaned_data.get('twitter'),
-                profile_url='http://twitter.com/%s' % cleaned_data.get('twitter'))
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
             self.object.social_media.add(twitter)
         
         # Add relation to LinkedIn
-        if cleaned_data.get('linkedin'):
+        if form_kwargs['data'].get('linkedin'):
             linkedin = SocialMediaModel.objects.create(
                 name='linkedin',
-                profile_url=cleaned_data.get('linkedin'))
+                profile_url=form_kwargs['data'].get('linkedin'))
             self.object.social_media.add(linkedin)
         
         return self.get_success_url()
@@ -256,11 +254,11 @@ class EditAccountView(UpdateView):
         E-mail addresses and Addresses). 
         """
         
-        cleaned_data = super(EditAccountView, self).form_valid(form)
+        # Save instance
+        super(EditAccountView, self).form_valid(form)
         
         # Retrieve account instance to use
         form_kwargs = self.get_form_kwargs()
-        account_instance = form_kwargs.get('instance')
         
         # Save all e-mail address, phone number and address formsets
         if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
@@ -268,7 +266,7 @@ class EditAccountView(UpdateView):
             for formset in self.email_addresses_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    account_instance.email_addresses.remove(formset.instance)
+                    self.object.email_addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
@@ -282,13 +280,13 @@ class EditAccountView(UpdateView):
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
                     formset.save()
-                    account_instance.email_addresses.add(formset.instance)
+                    self.object.email_addresses.add(formset.instance)
             
             # Handle addresses
             for formset in self.addresses_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    account_instance.addresses.remove(formset.instance)
+                    self.object.addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
@@ -300,43 +298,43 @@ class EditAccountView(UpdateView):
                         formset.instance.state_province,
                         formset.instance.country]):
                     formset.save()
-                    account_instance.addresses.add(formset.instance)
+                    self.object.addresses.add(formset.instance)
             
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
                 # Check if existing instance has been marked for deletion
                 if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    account_instance.phone_numbers.remove(formset.instance)
+                    self.object.phone_numbers.remove(formset.instance)
                     formset.instance.delete()
                     continue
                 
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()
-                    account_instance.phone_numbers.add(formset.instance)
+                    self.object.phone_numbers.add(formset.instance)
         
         # Add relation to Facebook
-        if cleaned_data.get('facebook'):
+        if form_kwargs['data'].get('facebook'):
             facebook = SocialMediaModel.objects.create(
                 name='facebook', 
-                username=cleaned_data.get('facebook'),
-                profile_url='http://www.facebook.com/%s' % cleaned_data.get('facebook'))
-            account_instance.social_media.add(facebook)
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+            form_kwargs['data'].social_media.add(facebook)
         
         # Add relation to Twitter
-        if cleaned_data.get('twitter'):
+        if form_kwargs['data'].get('twitter'):
             twitter = SocialMediaModel.objects.create(
                 name='twitter', 
-                username=cleaned_data.get('twitter'),
-                profile_url='http://twitter.com/%s' % cleaned_data.get('twitter'))
-            account_instance.social_media.add(twitter)
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+            form_kwargs['data'].social_media.add(twitter)
         
         # Add relation to LinkedIn
-        if cleaned_data.get('linkedin'):
+        if form_kwargs['data'].get('linkedin'):
             linkedin = SocialMediaModel.objects.create(
                 name='linkedin',
-                profile_url=cleaned_data.get('linkedin'))
-            account_instance.social_media.add(linkedin)
+                profile_url=form_kwargs['data'].get('linkedin'))
+            form_kwargs['data'].social_media.add(linkedin)
         
         return self.get_success_url()
     
@@ -379,9 +377,15 @@ class DeleteAccountView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
+        
+        functions = FunctionModel.objects.filter(account=self.object)
+        functions.delete()
+        tags = TagModel.objects.filter(account=self.object)
+        tags.delete()
+        
         self.object.delete()
         
-        # TODO: check for contacts, tags, functions ..
+        # TODO: check for contacts ..
         
         return redirect(reverse('account_list'))
 

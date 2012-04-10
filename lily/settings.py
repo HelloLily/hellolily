@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     # 3rd party
     'templated_email',
     'gunicorn',
+    'activelink',
     
     # Lily
     'lily',

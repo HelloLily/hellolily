@@ -3,8 +3,8 @@
 // TODO: select first e-mail as primary when deleting primary
 
 $(document).ready(function() {
-    // set focus on company name
-    set_focus('id_name'); 
+    // set focus on first name
+    set_focus('id_first_name'); 
     
     // manually add hover classes when hovering over a label element
     $('.email_is_primary label span').live({
@@ -36,62 +36,16 @@ $(document).ready(function() {
         show_or_hide_other_option($(this)[0]);
     });
     
-    // show add-form-dialog
-    $('#add-account-dialog-btn').click(function(event) {
-        $('#add-account-form-dialog').dialog('open');
-        event.preventDefault();
-    });
-    
-    // add jquery dialog for adding an account
-    $('#add-account-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('New account'),
-        modal: true,
-        width: 640,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('Cancel'),
-                click: function() {
-                    $(this).dialog('close');
-                }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Add & edit'),
-                click: function() {
-                    // set form input to edit so we get a redirect to the extendend edit page
-                    $('#add-account-submit').val('edit');
-                    sendForm( $(this) );
-                },
-                name: 'submit',
-                value: 'edit'
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Add'),
-                click: function() {
-                    sendForm( $(this) );
-                },
-                name: 'submit',
-                value: 'add'
-            },
-        ],
-        close: function() {
-            clearForm( $(this).find('form') );
-        }
-    });
-    
     // show delete-form-dialog
-    $('#delete-account-dialog-btn').click(function(event) {
-        $('#delete-account-form-dialog').dialog('open');
+    $('#delete-contact-dialog-btn').click(function(event) {
+        $('#delete-contact-form-dialog').dialog('open');
         event.preventDefault();
     });  
     
     // add jquery dialog for adding an account
-    $('#delete-account-form-dialog').dialog({
+    $('#delete-contact-form-dialog').dialog({
         autoOpen: false,
-        title: gettext('Delete account'),
+        title: gettext('Delete contact'),
         modal: true,
         width: 640,
         buttons: [
@@ -128,5 +82,13 @@ $(document).ready(function() {
     });
     
     // update e-mail formset to select first as primary
-    // $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
+    // $('.email_is_primary input[name="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
+    
+    // TODO: put in utils or something    
+    $('input:checkbox').screwDefaultButtons({
+        checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',
+        unchecked:  'url(/static/plugins/screwdefaultbuttons/images/checkbox_unchecked.png)',
+        width:      16,
+        height:     16
+    }); 
 });

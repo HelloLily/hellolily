@@ -1,0 +1,53 @@
+{% load i18n %}
+
+<div id="{{ addresses_formset.prefix }}-form-template">
+    <div class="mws-form-item large">
+        <div class="mws-form-cols clearfix">
+            <div class="float-left">
+                <div class="mws-form-col-row address mws-form-item">
+                    <input name="addresses-0-postal_code" maxlength="10" placeholder="{% trans 'Postal code' %}" type="text" class="mws-textinput" id="id_addresses-0-postal_code" />
+                </div>
+                <div class="mws-form-col-row address mws-form-item">
+                    <input name="addresses-0-city" maxlength="100" placeholder="{% trans 'City' %}" type="text" class="mws-textinput" id="id_addresses-0-city" />
+                </div>
+                <div class="mws-form-col-row address mws-form-item">
+                    <input name="addresses-0-state_province" maxlength="50" placeholder="{% trans 'State/province' %}" type="text" class="mws-textinput" id="id_addresses-0-state_province" />
+                </div>
+            </div>
+            <div class="float-left">
+                <div class="clearfix">
+                    <div class="mws-form-col-row address mws-form-item float-left">
+                        <input id="id_addresses-0-street_number" type="text" placeholder="{% trans 'Street number' %}" class="mws-textinput" name="addresses-0-street_number" />
+                    </div>
+                    <div class="mws-form-col-row address mws-form-item float-left clearfix">
+                        <input name="addresses-0-complement" maxlength="10" placeholder="{% trans 'Complement' %}" type="text" class="mws-textinput" id="id_addresses-0-complement" />
+                    </div>
+                </div>
+                <div class="mws-form-col-row address mws-form-item">
+                    <input name="addresses-0-street" maxlength="255" placeholder="{% trans 'Street' %}" type="text" class="mws-textinput" id="id_addresses-0-street" />
+                </div>
+                <div class="mws-form-col-row address mws-form-item">
+                    <input name="addresses-0-country" maxlength="200" placeholder="{% trans 'Country' %}" type="text" class="mws-textinput" id="id_addresses-0-country" />
+                </div>
+            </div>
+            <div class="float-left">
+                <div class="mws-form-col-row address mws-form-item">
+                    <select name="addresses-0-type" id="id_addresses-0-type">
+                        {% block address_types %}
+                        <option value="visiting" selected="selected">{% trans 'Visiting address' %}</option>
+                        <option value="billing">{% trans 'Billing address' %}</option>
+                        <option value="shipping">{% trans 'Shipping address' %}</option>
+                        <option value="home">{% trans 'Home address' %}</option>
+                        <option value="other">{% trans 'Other' %}</option>
+                        {% endblock %}
+                    </select>
+                </div>
+            </div>
+            <div class="float-left">
+                <div class="formset-delete mws-form-col-row mws-form-item">
+                    <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row" /></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

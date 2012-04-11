@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static activelink %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -298,9 +298,11 @@
             {% block navigation %}
             <div id="mws-navigation">
                 <ul>
-                    <li><a href="#dashboard" class="blue mws-i-24 i-home-1">Dashboard</a></li>
-                    <li class="active">
-                        <a href="#updates" class="mws-i-24 i-power">Updates</a>
+                    <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
+                        <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} mws-i-24 i-home-1">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#updates" class="blue mws-i-24 i-power">Updates</a>
                         <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #fff">13</span>
                     </li>
                     <li class="mws-dropdown-menu">
@@ -310,15 +312,29 @@
                         </a>
                         
                         <ul>
-                            <li><a href="#messaging-email" class="blue mws-i-24 i-mail">E-mail</a></li>
-                            <li><a href="#messaging-facebook" class="blue mws-i-24 i-facebook">Facebook</a></li>
-                            <li><a href="#messaging-twitter" class="blue mws-i-24 i-twitter">Twitter</a></li>
+                            <li>
+                                <a href="#messaging-email" class="blue mws-i-24 i-mail">E-mail</a>
+                            </li>
+                            <li>
+                                <a href="#messaging-facebook" class="blue mws-i-24 i-facebook">Facebook</a>
+                            </li>
+                            <li>
+                                <a href="#messaging-twitter" class="blue mws-i-24 i-twitter">Twitter</a>
+                            </li>
                         </ul>
                     </li>
-                    <li><a href="#contacts" class="blue mws-i-24 i-group-2">Contacts</a></li>
-                    <li><a href="#accounts" class="blue mws-i-24 i-suitcase-1">Accounts</a></li>
-                    <li><a href="#deals" class="blue mws-i-24 i-folder">Deals</a></li>
-                    <li><a href="#contacts" class="blue mws-i-24 i-archive">Cases</a></li>
+                    <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
+                        <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-group-2">Contacts</a>
+                    </li>
+                    <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
+                        <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-suitcase-1">Accounts</a>
+                    </li>
+                    <li>
+                        <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
+                    </li>
+                    <li>
+                        <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
+                    </li>
                 </ul>
             </div>
             {% endblock %}

@@ -135,6 +135,7 @@ INSTALLED_APPS = (
     'templated_email',
     'easy_thumbnails',
     'gunicorn',
+    'activelink',
     
     # Lily
     'lily',

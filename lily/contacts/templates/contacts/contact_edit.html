@@ -1,30 +1,43 @@
 {% extends 'base.html' %}
 {% load i18n static %} 
 
-{% block title %}{% trans 'Add account' %} - {% endblock %}
+{% block title %}{% trans 'Edit contact' %} - {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+<script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/input-and-choice/input-and-choice.js' %}"></script>
+<script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
+
+    <input type="button" id="delete-contact-dialog-btn" class="mws-button red" value="{% trans 'Delete contact' %}" /> <br /><br />
+
+	<div id="delete-contact-form-dialog" class="hidden">
+        <form class="mws-form" action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
+        	<div class="mws-form-inline">
+        		<div class="mws-form-row">
+        			{% blocktrans with form.instance.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+        		</div>
+        	</div>
+        </form>
+    </div>
+
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
+            <span class="mws-i-24 i-fountain-pen">{% trans 'Edit contact' %}</span>
         </div>
         <div class="mws-panel-body">
             <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %} 
-				                
+                                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
                         <div class="mws-form-message error no_list_style_type">
@@ -33,21 +46,75 @@
                     </div>
                 {% endif %}
                 
-                {% comment %}
-                TODO: Check company name via AJAX, if it already exists show a link to edit it
-                TODO: Add image upload field for company logo or suggest images from social media
-                {% endcomment %}
                 <div class="mws-form-inline">
                     <div class="mws-form-row">
-                        {{ form.name.label_tag }}
+                        <label for="id_{{ form.first_name.html_name }}">{% trans 'Name' %}</label>
+                        <div class="mws-form-item large">
+                            <div class="mws-form-cols clearfix">
+                                <div class="mws-form-col-3-8 alpha">
+                                    <div class="mws-form-item">                                     
+                                        {% if form.first_name.errors %}
+                                            <span class="field_error">{{ form.first_name }}</span>
+                                            <div class="mws-error no_list_style_type">
+                                                  {{ form.first_name.errors }}
+                                            </div>
+                                        {% else %}
+                                               {{ form.first_name }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mws-form-col-1-8">
+                                    <div class="mws-form-item">                                     
+                                        {% if form.preposition.errors %}
+                                            <span class="field_error">{{ form.preposition }}</span>
+                                            <div class="mws-error no_list_style_type">
+                                                  {{ form.preposition.errors }}
+                                            </div>
+                                        {% else %}
+                                               {{ form.preposition }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mws-form-col-4-8">
+                                    <div class="mws-form-item">                                    
+                                        {% if form.last_name.errors %}
+                                            <span class="field_error">{{ form.last_name }}</span>
+                                            <div class="mws-error no_list_style_type">
+                                                  {{ form.last_name.errors }}
+                                            </div>
+                                        {% else %}
+                                               {{ form.last_name }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mws-form-row">
+                        {{ form.title.label_tag }}
                         <div class="mws-form-item large">                            
-                            {% if form.name.errors %}
-                                <span class="field_error">{{ form.name }}</span>
+                            {% if form.title.errors %}
+                                <span class="field_error">{{ form.title }}</span>
                                 <div class="mws-error no_list_style_type">
-                                      {{ form.name.errors }}
+                                      {{ form.title.errors }}
                                 </div>
                             {% else %}
-                                {{ form.name }}
+                                {{ form.title }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mws-form-row">
+                        {{ form.gender.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.gender.errors %}
+                                <span class="field_error">{{ form.gender }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.gender.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.gender }}
                             {% endif %}
                         </div>
                     </div>
@@ -58,9 +125,9 @@
                     an error on form submit
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label for="id_email_addresses-0-email_address">{% trans 'E-mail addresses' %}</label>
-	                    {% for form in email_addresses_formset.forms %}
-		                   <div class="mws-form-item large {{ email_addresses_formset.prefix }}-mws-formset">
+                        <label for="id_{{ email_addresses_formset.prefix }}-0-email_address">{% trans 'E-mail addresses' %}</label>
+                        {% for form in email_addresses_formset.forms %}
+	                        <div class="mws-form-item large {{ email_addresses_formset.prefix }}-mws-formset">
                                 {% if form.instance.pk %}
                                     {{ form.id }}
                                     {% if email_addresses_formset.can_delete %}
@@ -69,7 +136,7 @@
                                         </div>
                                     {% endif %}
                                 {% endif %}
-	                            <div class="mws-form-cols clearfix">
+                                <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row mws-form-item email_address">
 	                                        {% if form.email_address.errors %}
@@ -105,27 +172,13 @@
                         </div>
                         {{ email_addresses_formset.management_form }}
                     </div>
-
-                    <div class="mws-form-row">
-                        {{ form.website.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.website.errors %}
-                                <span class="field_error">{{ form.website }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.website.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.website }}
-                            {% endif %}
-                        </div>
-                    </div>
                 
                     <hr />
 
                     <div class="mws-form-row">
-                        <label for="id_phone_numbers-0-raw_input">{% trans 'Phone numbers' %}</label>
-	                    {% for form in phone_numbers_formset.forms %}
-	                    	<div class="mws-form-item large {{ phone_numbers_formset.prefix }}-mws-formset">
+                        <label for="id_{{ phone_numbers_formset.prefix }}-0-raw_input">{% trans 'Phone numbers' %}</label>
+                        {% for form in phone_numbers_formset.forms %}
+                            <div class="mws-form-item large {{ phone_numbers_formset.prefix }}-mws-formset">
                                 {% if form.instance.pk %}
                                     {{ form.id }}
                                     {% if phone_numbers_formset.can_delete %}
@@ -173,8 +226,8 @@
 	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
 	                                    </div>
 	                                </div>
-	                            </div>
-	                        </div>
+                                </div>
+                            </div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/phone_number_formset_template.html' %}
@@ -186,9 +239,9 @@
                     TODO: find a proper solution to fix tabindex order
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
-	                    {% for form in addresses_formset.forms %}
-	                        <div class="mws-form-item large {{ addresses_formset.prefix }}-mws-formset">
+                        <label for="id_{{ addresses_formset.prefix }}-0-postal_code">{% trans 'Addresses' %}</label>
+                        {% for form in addresses_formset.forms %}
+                            <div class="mws-form-item large {{ addresses_formset.prefix }}-mws-formset">
                                 {% if form.instance.pk %}
                                     {{ form.id }}
                                     {% if addresses_formset.can_delete %}
@@ -197,7 +250,7 @@
                                         </div>
                                     {% endif %}
                                 {% endif %}
-	                            <div class="mws-form-cols clearfix">
+                                <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row address mws-form-item">
 	                                        {% if form.postal_code.errors %}
@@ -302,125 +355,24 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'accounts/address_formset_template.html' %}
+                            {% include 'contacts/address_formset_template.html' %}
                         </div>
                         {{ addresses_formset.management_form }}
                     </div>
                 
                     <hr />
-                    
+                        
                     <div class="mws-form-row">
-                        {{ form.twitter.label_tag }}
+                        {{ form.status.label_tag }}
                         <div class="mws-form-item large">                            
-                            {% if form.twitter.errors %}
-                                <span class="field_error">{{ form.twitter }}</span>
+                            {% if form.status.errors %}
+                                <span class="field_error">{{ form.status }}</span>
                                 <div class="mws-error no_list_style_type">
-                                      {{ form.twitter.errors }}
+                                      {{ form.status.errors }}
                                 </div>
                             {% else %}
-                                {{ form.twitter }}
+                                {{ form.status }}
                             {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="mws-form-row">
-                        {{ form.linkedin.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.linkedin.errors %}
-                                <span class="field_error">{{ form.linkedin }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.linkedin.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.linkedin }}
-                            {% endif %}
-                        </div>
-                    </div>
-    
-                    <div class="mws-form-row">
-                        {{ form.facebook.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.facebook.errors %}
-                                <span class="field_error">{{ form.facebook }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.facebook.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.facebook }}
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    {% comment %}
-                    <hr />
-                    
-                        <div class="mws-form-row">
-                            {{ form.status.label_tag }}
-                            <div class="mws-form-item large">                            
-                                {% if form.status.errors %}
-                                    <span class="field_error">{{ form.status }}</span>
-                                    <div class="mws-error no_list_style_type">
-                                          {{ form.status.errors }}
-                                    </div>
-                                {% else %}
-                                    {{ form.status }}
-                                {% endif %}
-                            </div>
-                        </div>
-    
-                        <div class="mws-form-row">
-                            {{ form.company_size.label_tag }}
-                            <div class="mws-form-item large">                            
-                                {% if form.company_size.errors %}
-                                    <span class="field_error">{{ form.company_size }}</span>
-                                    <div class="mws-error no_list_style_type">
-                                          {{ form.company_size.errors }}
-                                    </div>
-                                {% else %}
-                                    {{ form.company_size }}
-                                {% endif %}
-                            </div>
-                        </div>
-                    
-                    {% endcomment %}
-                    
-                    <hr />
-                    
-                    <div class="mws-form-row">
-                        {{ form.tags.label_tag }}
-                        <div class="mws-form-cols clearfix">
-                            <div class="mws-form-col-row">
-                                <div class="float-left">
-                                    {% if form.tags.errors %}
-                                        <span class="field_error">
-                                            <div class="input-and-choice">
-                                                <div>
-                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                    <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
-                                                </div>
-                                                <div>
-                                                    {{ form.tags }}                                           
-                                                    <ul class="input-and-choice-list clearfix search-field"></ul>
-                                                </div>
-                                            </div>
-                                        </span>
-                                        <div class="mws-error no_list_style_type">
-                                              {{ form.tags.errors }}
-                                        </div>
-                                    {% else %}
-                                        <div class="input-and-choice">
-                                            <div>
-                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
-                                            </div>
-                                            <div>
-                                                {{ form.tags }}                                           
-                                                <ul class="input-and-choice-list clearfix search-field"></ul>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
                         </div>
                     </div>
                     
@@ -437,9 +389,29 @@
                             {% endif %}
                         </div>
                     </div>
+                    
+                    <hr />
+                    
+                    <div class="mws-form-row">
+                        {{ form.accounts.label_tag }}
+                        <div class="mws-form-item small">                            
+                            {% if form.accounts.errors %}
+                                <span class="field_error">{{ form.accounts }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.accounts.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.accounts }}
+                            {% endif %}
+                        </div>
+                    	<div class="mws-form-item large">
+                        	{{ form.edit_accounts.label }}                        
+	                        {{ form.edit_accounts }}
+                        </div>
+                    </div>
                 
                     <div class="mws-button-row">
-                        <input type="submit" name="submit" value="{% trans 'Add' %}" class="mws-button blue" />
+                        <input type="submit" name="submit" value="{% trans 'Edit' %}" class="mws-button blue" />
                     </div>
                 </div>
             </form>

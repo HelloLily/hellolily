@@ -54,8 +54,6 @@ class RegistrationView(FormView):
             last_name=form.cleaned_data['last_name']
         )
         
-        print form.cleaned_data['email']
-        
         # Add email address
         email = EmailAddressModel.objects.create(
             email_address=form.cleaned_data['email'],
@@ -243,7 +241,7 @@ class SendInvitationView(FormSetView):
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
     form, to use ajax append ?xhr to the url.
     """
-    template_name = "users/invitation_send.html"
+    template_name = 'users/invitation_send.html'
     form_template_name = 'users/invitation_send_form.html'
     form_class = InvitationForm
     formset_class = InvitationFormset

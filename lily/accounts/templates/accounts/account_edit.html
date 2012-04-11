@@ -113,30 +113,7 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            <div id="{{ email_addresses_formset.prefix }}-form-template">
-                                <div class="mws-form-item large">
-                                    <div class="mws-form-cols clearfix">
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row mws-form-item email_address">
-                                                <input name="{{ email_addresses_formset.prefix }}-0-email_address" maxlength="255" placeholder="{% trans 'E-mail address' %}" type="text" class="mws-textinput" id="id_{{ email_addresses_formset.prefix }}-0-email_address" />
-                                            </div>
-                                        </div>
-                                        <div class="float-left center">
-                                            <div class="mws-form-col-row mws-form-item email_address email_is_primary">
-                                                <label>
-                                                    <input class="hidden" type="radio" value="{{ email_addresses_formset.prefix }}-0" name="primary-email" />
-                                                    <span>{% trans 'primary' %}</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row mws-form-item formset-delete email_address">
-                                                <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row" /></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% include 'utils/email_address_formset_template.html' %}
                         </div>
                         {{ email_addresses_formset.management_form }}
                     </div>
@@ -212,41 +189,7 @@
                             </div>
                         {% endfor %}
                         <div class="hidden">
-                            <div id="{{ phone_numbers_formset.prefix }}-form-template">
-                                <div class="mws-form-item large">
-                                    <div class="mws-form-cols clearfix">
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row phone_number mws-form-item">
-                                                <input name="phone_numbers-0-raw_input" placeholder="Phone number" class="mws-textinput" type="text" id="id_phone_numbers-0-raw_input" />
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row phone_number mws-form-item">
-                                                <select id="id_phone_numbers-0-type" class="other" name="phone_numbers-0-type">
-                                                    <option value="work" selected="selected">Work</option>
-                                                    <option value="mobile">Mobile</option>
-                                                    <option value="home">Home</option>
-                                                    <option value="fax_home">Fax (home)</option>
-                                                    <option value="fax_work">Fax (work)</option>
-                                                    <option value="data">Data</option>
-                                                    <option value="pager">Pager</option>
-                                                    <option value="other">Other</option>
-                                                </select>                                      
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row phone_number mws-form-item">
-                                                <input id="id_phone_numbers-0-other_type" type="text" class="mws-textinput other hidden" name="phone_numbers-0-other_type" maxlength="15" />
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="formset-delete mws-form-col-row mws-form-item">
-                                                <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% include 'utils/phone_number_formset_template.html' %}
                         </div>
                         {{ phone_numbers_formset.management_form }}
                     </div>
@@ -371,54 +314,7 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            <div id="{{ addresses_formset.prefix }}-form-template">
-                                <div class="mws-form-item large">
-                                    <div class="mws-form-cols clearfix">
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <input name="addresses-0-postal_code" maxlength="10" placeholder="Postal code" type="text" class="mws-textinput" id="id_addresses-0-postal_code" />
-                                            </div>
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <input name="addresses-0-city" maxlength="100" placeholder="City" type="text" class="mws-textinput" id="id_addresses-0-city" />
-                                            </div>
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <input name="addresses-0-state_province" maxlength="50" placeholder="State/province" type="text" class="mws-textinput" id="id_addresses-0-state_province" />
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="clearfix">
-                                                <div class="mws-form-col-row address mws-form-item float-left">
-                                                    <input id="id_addresses-0-street_number" type="text" placeholder="Street number" class="mws-textinput" name="addresses-0-street_number" />
-                                                </div>
-                                                <div class="mws-form-col-row address mws-form-item float-left clearfix">
-                                                    <input name="addresses-0-complement" maxlength="10" placeholder="Complement" type="text" class="mws-textinput" id="id_addresses-0-complement" />
-                                                </div>
-                                            </div>
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <input name="addresses-0-street" maxlength="255" placeholder="Street" type="text" class="mws-textinput" id="id_addresses-0-street" />
-                                            </div>
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <input name="addresses-0-country" maxlength="200" placeholder="Country" type="text" class="mws-textinput" id="id_addresses-0-country" />
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="mws-form-col-row address mws-form-item">
-                                                <select name="addresses-0-type" id="id_addresses-0-type">
-                                                    <option value="visiting" selected="selected">Visiting address</option>
-                                                    <option value="billing">Billing address</option>
-                                                    <option value="shipping">Shipping address</option>
-                                                    <option value="other">Other</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="float-left">
-                                            <div class="formset-delete mws-form-col-row mws-form-item">
-                                                <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row" /></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% include 'accounts/address_formset_template.html' %}
                         </div>
                         {{ addresses_formset.management_form }}
                     </div>
@@ -431,7 +327,7 @@
                             {% if form.twitter.errors %}
                                 <span class="field_error">{{ form.twitter }}</span>
                                 <div class="mws-error no_list_style_type">
-                                      {{ form.twitter.errors }}
+                                    {{ form.twitter.errors }}
                                 </div>
                             {% else %}
                                 {{ form.twitter }}

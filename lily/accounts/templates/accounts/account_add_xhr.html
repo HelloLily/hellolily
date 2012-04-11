@@ -13,7 +13,8 @@
     <input type="button" id="add-account-dialog-btn" class="mws-button green" value="{% trans 'Add account' %}" />
     
     <div id="add-account-form-dialog">
-        <form class="mws-form" action="?xhr" method="post">
+        <form class="mws-form" action="" method="post">
+            <input type="hidden" id="add-account-submit" value="add" name="submit" />
             {% include 'accounts/account_add_xhr_form.html' %}
         </form>
     </div>

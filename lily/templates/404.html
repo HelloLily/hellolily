@@ -1,1 +1,13 @@
-404
+{% load i18n %}
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div id="mws-error-container">
+            <div id="mws-error-code">
+                <h1>Error <span>404</span></h1>
+            </div>
+            <p id="mws-error-message">{% trans 'Something went wrong trying to dig up this page. Maybe you can point us in the right direction using the search function?' %}</p>
+        </div>
+    </div>
+{% endblock %}

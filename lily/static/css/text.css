@@ -95,3 +95,9 @@ figure {
   border-bottom-left-radius         : 0px !important;
   border-bottom-right-radius        : 0px !important;
 }
+
+/* `Anchors
+----------------------------------------------------------------------------------------------------*/
+.no-decoration {
+	text-decoration: none;
+}

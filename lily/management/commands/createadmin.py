@@ -71,11 +71,12 @@ class Command(NoArgsCommand):
         """
         first_name = raw_input('Please enter a first name: ')
         last_name = raw_input('Please enter a last name: ')
-        if user is None:
-            username = raw_input('Please enter a username: ')
         accountname = raw_input('Please enter an account name: ')
         
         if user is None:
+            username = raw_input('Please enter a username: ')
+            email = raw_input('Please enter an e-mail address: ')
+            
             password1 = 0
             password2 = 1
             while password2 != password1:
@@ -90,16 +91,17 @@ class Command(NoArgsCommand):
         contact = ContactModel.objects.create(first_name=first_name, last_name=last_name)
         
         if user is None:
-            usermodel = UserModel();
-            usermodel.username = username;
+            usermodel = UserModel()
+            usermodel.username = username
+            usermodel.email = email
             usermodel.set_password(password2)
         else:
             usermodel = UserModel(user_ptr=user)
-            usermodel.username = user.username;
+            # Transfer values from superclass to subclass
+            usermodel.__dict__.update(user.__dict__)
         usermodel.is_superuser = True
-        usermodel.contact = contact;
-        usermodel.account = account;
-        usermodel.email = 'lily@hellolily.com';
+        usermodel.contact = contact
+        usermodel.account = account
         
         usermodel.save()
         

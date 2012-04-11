@@ -16,3 +16,88 @@
     width: 24px; 
     height: 24px;
 }
+
+.mws-table td {
+    overflow: hidden;
+}
+
+#account_logo {
+    width: 14%;
+    padding-left: 45px;
+}
+
+#account_name {
+    width: 20%;
+}
+
+#account_details {
+    width: 20%;
+}
+
+#account_created {
+    width: 14%;
+}
+
+#account_modified {
+    width: 14%;
+}
+
+#account_tags {
+    width: 18%;
+}
+
+.account_logo_img {
+    padding: 15px 10px 10px 10px;
+    vertical-align: middle;
+}
+
+.account_name span.business_name a {
+    font-size: 112%;
+    color: #50B3DF;
+}
+
+
+/*.mws-table tbody tr.odd:hover td.account_name span.business_name, 
+.mws-table tbody tr.even:hover td.account_name span.business_name {
+    color: black;
+}*/
+
+.account_created, .account_modified {
+    white-space: nowrap;
+}
+
+.account_details {
+    white-space: nowrap;
+}
+
+.account_tags {
+    height: 60px;
+}
+
+@media only screen and (max-width: 1150px) {
+    .account_logo {
+        padding-left: 10px !important;
+    }
+    .account_logo img {
+        padding: 10px 2px;
+    }
+}
+
+@media only screen and (max-width:920px) {
+    #account_tags, .account_tags {
+        display: none
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    #account_logo {
+        width: 30%;
+        padding-left: 35px;
+    }
+    #account_name {
+        width: 30%;
+    }
+    #account_details {
+        width: 40%;
+    }
+}

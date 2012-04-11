@@ -65,6 +65,45 @@ class AccountModel(CommonModel):
     
     def __unicode__(self):
         return self.name
+    
+    def get_address(self):
+        try:
+            address = self.addresses.all()[0]
+            return {
+                'address': '%s %s' % (address.street, address.street_number),
+                'country': address.country,
+            }
+        except:
+            return {
+                'address': '-',
+                'country': '-',
+            }
+    
+    def get_contact_details(self):
+        try:
+            phone = self.phone_numbers.filter(status=1)[0]
+            phone = phone.number
+        except:
+            phone = '-'   
+        
+        try:
+            email = self.email_addresses.filter(is_primary=True, status=1)[0]
+            email = email.email_address
+        except:
+            email = '-'
+        
+        return {
+            'phone': phone,
+            'mail': email,
+        }
+    
+    def get_tags(self):
+        try:
+            tags = self.tags.all()[:3]
+#            tags = (tags[0].tag, tags[1].tag, tags[1].tag,)
+        except:
+            tags = ('',)
+        return tags
 
     class Meta:
         verbose_name = _('account')

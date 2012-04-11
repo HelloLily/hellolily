@@ -48,3 +48,9 @@ def _uniquify (sequence, function=None):
                 continue
             seen.add(x)
             yield x
+    
+def is_ajax(request):
+    """
+    Return True if the request is for the AJAX version of a view.
+    """
+    return request.is_ajax() or 'xhr' in request.GET

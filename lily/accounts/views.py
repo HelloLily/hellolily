@@ -8,36 +8,85 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, \
-    EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
+    AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
 from lily.accounts.models import AccountModel, TagModel
 from lily.contacts.models import FunctionModel
-from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, \
-    PhoneNumberModel
+from lily.utils.functions import is_ajax
+from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
 
 
-class AddAccountXHRView(CreateView):
+class AddAccountView(CreateView):
     """
-    View to add an account with only the minimum of fields included in the template.
+    View to add an acccount with all fields included in the template including support to add
+    multiple instances of many-to-many relations with custom formsets. Also supports a smaller
+    form for ajax requests.
     """
     
-    template_name = 'accounts/account_add_xhr.html'
-    form_template_name = 'accounts/account_add_xhr_form.html'
-    form_class = AddAccountMinimalForm
+    # Default template and form
+    template_name = 'accounts/account_add.html'
+    form_class = AddAccountForm
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to change the template to be rendered.
+        """
+        
+        # Change form and template for ajax calls or create formset instances for the normal form
+        if is_ajax(request):
+            self.form_class = AddAccountMinimalForm
+            self.template_name = 'accounts/account_add_xhr.html'
+            self.form_template_name = 'accounts/account_add_xhr_form.html'
+        else:
+            self.EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
+            self.AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
+            self.PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
+        
+        return super(AddAccountView, self).dispatch(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        """
+        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
+        instanciating the form.
+        """
+        kwargs = super(AddAccountView, self).get_form_kwargs()
+        
+        # Add the user object in the kwargs for the normal form
+        if not is_ajax(self.request):
+            kwargs.update({
+                'user': self.request.user
+            })
+        return kwargs
+    
+    def get_form(self, form_class):
+        """
+        Overloading super().get_form to instanciate formsets while instanciating the form.
+        """
+        
+        # Instanciate the formsets for the normal form
+        if not is_ajax(self.request):
+            self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
+            self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
+            self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumberModel.objects.none(), prefix='phone_numbers')
+        
+        return super(AddAccountView, self).get_form(form_class)
     
     def form_valid(self, form):
         """
-        Add e-mail to newly created account.
+        Add m2m relations to newly created account (i.e. Social media, Phone numbers, 
+        E-mail addresses and Addresses). 
         """
         
-        url = super(AddAccountXHRView, self).form_valid(form)
+        # Save instance
+        super(AddAccountView, self).form_valid(form)
         
-        # Add e-mail address to account as primary
         form_kwargs = self.get_form_kwargs()
-        self.object.email = form.cleaned_data.get('email')
-        self.object.save()
-        
-        if self.request.is_ajax:
+            
+        if is_ajax(self.request):
+            # Add e-mail address to account as primary
+            self.object.email = form.cleaned_data.get('email')
+            self.object.save()
+            
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit', None)
             if submit_action == 'edit':
@@ -58,149 +107,91 @@ class AddAccountXHRView(CreateView):
                 'redirect': do_redirect,
                 'url': url
             }))
+        else: # Deal with all the extra fields on the normal form which are not in the ajax request
+            # Save all e-mail address, phone number and address formsets
+            if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+                # Handle e-mail addresses
+                for formset in self.email_addresses_formset:
+                    primary = form_kwargs['data'].get('primary-email')
+                    if formset.prefix == primary:
+                        formset.instance.is_primary = True
+                    
+                    # Only save e-mail address if something else than primary/status was filled in
+                    if formset.instance.email_address:
+                        formset.save()
+                        self.object.email_addresses.add(formset.instance)
+                
+                # Handle addresses
+                for formset in self.addresses_formset:
+                    # Only save address if something else than complement and/or type is filled in
+                    if any([formset.instance.street,
+                            formset.instance.street_number,
+                            formset.instance.postal_code,
+                            formset.instance.city,
+                            formset.instance.state_province,
+                            formset.instance.country]):
+                        formset.save()
+                        self.object.addresses.add(formset.instance)
+                
+                # Handle phone numbers
+                for formset in self.phone_numbers_formset:
+                    # Only save address if something was filled other than type
+                    if formset.instance.raw_input:
+                        formset.save()
+                        self.object.phone_numbers.add(formset.instance)
+            
+            # Add relation to Facebook
+            if form_kwargs['data'].get('facebook'):
+                facebook = SocialMediaModel.objects.create(
+                    name='facebook', 
+                    username=form_kwargs['data'].get('facebook'),
+                    profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+                self.object.social_media.add(facebook)
+            
+            # Add relation to Twitter
+            if form_kwargs['data'].get('twitter'):
+                twitter = SocialMediaModel.objects.create(
+                    name='twitter', 
+                    username=form_kwargs['data'].get('twitter'),
+                    profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+                self.object.social_media.add(twitter)
+            
+            # Add relation to LinkedIn
+            if form_kwargs['data'].get('linkedin'):
+                linkedin = SocialMediaModel.objects.create(
+                    name='linkedin',
+                    profile_url=form_kwargs['data'].get('linkedin'))
+                self.object.social_media.add(linkedin)
         
-        return url
+        return self.get_success_url()
     
     def form_invalid(self, form):
         """
         Overloading super().form_invalid to return a different response to ajax requests.
         """
         
-        if self.request.is_ajax:
+        if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
                  'error': True,
                  'html': render_to_string(self.form_template_name, context_instance=context)
             }), mimetype='application/javascript')
         
-        return super(AddAccountXHRView, self).form_invalid(form)
-    
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted. This url
-        can change depending on which button in the form was pressed.
-        """
-        return redirect(reverse('account_list'))
-
-
-class AddAccountView(CreateView):
-    """
-    View to add an acccount with all fields included in the template including support to add
-    multiple instances of many-to-many relations with custom formsets.
-    """
-    
-    template_name = 'accounts/account_add.html'
-    form_class = AddAccountForm
-    
-    # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
-    
-    def get_form_kwargs(self):
-        """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
-        instanciating the form.
-        """
-        kwargs = super(AddAccountView, self).get_form_kwargs()
-        kwargs.update({
-            'user': self.request.user
-        })
-        return kwargs
-    
-    def get_form(self, form_class):
-        """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
-        """
-        form = super(AddAccountView, self).get_form(form_class)
-        
-        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
-        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
-        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumberModel.objects.none(), prefix='phone_numbers')
-        
-        return form
-    
-    def form_valid(self, form):
-        """
-        Add m2m relations to newly created account (i.e. Social media, Phone numbers, 
-        E-mail addresses and Addresses). 
-        """
-        
-        # Save instance
-        super(AddAccountView, self).form_valid(form)
-        
-        # Retrieve account instance to use
-        form_kwargs = self.get_form_kwargs()
-        
-        # Save all e-mail address, phone number and address formsets
-        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
-            # Handle e-mail addresses
-            for formset in self.email_addresses_formset:
-                primary = form_kwargs['data'].get('primary-email')
-                if formset.prefix == primary:
-                    formset.instance.is_primary = True
-                
-                # Only save e-mail address if something else than primary/status was filled in
-                if formset.instance.email_address:
-                    formset.save()
-                    self.object.email_addresses.add(formset.instance)
-            
-            # Handle addresses
-            for formset in self.addresses_formset:
-                # Only save address if something else than complement and/or type is filled in
-                if any([formset.instance.street,
-                        formset.instance.street_number,
-                        formset.instance.postal_code,
-                        formset.instance.city,
-                        formset.instance.state_province,
-                        formset.instance.country]):
-                    formset.save()
-                    self.object.addresses.add(formset.instance)
-            
-            # Handle phone numbers
-            for formset in self.phone_numbers_formset:
-                # Only save address if something was filled other than type
-                if formset.instance.raw_input:
-                    formset.save()
-                    self.object.phone_numbers.add(formset.instance)
-        import pdb
-        pdb.set_trace()
-        
-        # Add relation to Facebook
-        if form_kwargs['data'].get('facebook'):
-            facebook = SocialMediaModel.objects.create(
-                name='facebook', 
-                username=form_kwargs['data'].get('facebook'),
-                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-            self.object.social_media.add(facebook)
-        
-        # Add relation to Twitter
-        if form_kwargs['data'].get('twitter'):
-            twitter = SocialMediaModel.objects.create(
-                name='twitter', 
-                username=form_kwargs['data'].get('twitter'),
-                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-            self.object.social_media.add(twitter)
-        
-        # Add relation to LinkedIn
-        if form_kwargs['data'].get('linkedin'):
-            linkedin = SocialMediaModel.objects.create(
-                name='linkedin',
-                profile_url=form_kwargs['data'].get('linkedin'))
-            self.object.social_media.add(linkedin)
-        
-        return self.get_success_url()
+        return super(AddAccountView, self).form_invalid(form)
     
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to add formsets for template.
         """
         kwargs = super(AddAccountView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'email_addresses_formset': self.email_addresses_formset,
-            'addresses_formset': self.addresses_formset,
-            'phone_numbers_formset': self.phone_numbers_formset,
-        })
+        
+        # Add formsets to context for the normal form
+        if not is_ajax(self.request):
+            kwargs.update({
+                'email_addresses_formset': self.email_addresses_formset,
+                'addresses_formset': self.addresses_formset,
+                'phone_numbers_formset': self.phone_numbers_formset,
+            })
         return kwargs
     
     def get_success_url(self):
@@ -319,7 +310,7 @@ class EditAccountView(UpdateView):
                 name='facebook', 
                 username=form_kwargs['data'].get('facebook'),
                 profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-            form_kwargs['data'].social_media.add(facebook)
+            self.object.social_media.add(facebook)
         
         # Add relation to Twitter
         if form_kwargs['data'].get('twitter'):
@@ -327,14 +318,14 @@ class EditAccountView(UpdateView):
                 name='twitter', 
                 username=form_kwargs['data'].get('twitter'),
                 profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-            form_kwargs['data'].social_media.add(twitter)
+            self.object.social_media.add(twitter)
         
         # Add relation to LinkedIn
         if form_kwargs['data'].get('linkedin'):
             linkedin = SocialMediaModel.objects.create(
                 name='linkedin',
                 profile_url=form_kwargs['data'].get('linkedin'))
-            form_kwargs['data'].social_media.add(linkedin)
+            self.object.social_media.add(linkedin)
         
         return self.get_success_url()
     

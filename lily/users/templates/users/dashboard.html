@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block content %}
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span class="mws-i-24 i-list">Some links to get around</span>
+    </div>
+    <div class="mws-panel-body">
+        <div class="mws-panel-content">
+            <h5 style="font-size: 22px;">Users & Usermanagement</h5>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
+                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
+                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
+                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
+                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
+            </p>
+            <p>
+                <ul class="mws-summary">
+                    <li><a href="{% url registration %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Registration of a new user</span></li>
+                    <li><a href="{% url registration_success %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Registration success page</span></li>
+                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Activation page, test after registering (needs valid generated link)</span></li>
+                    <li><a href="{% url activation_resend %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Resend your activation mail, for when you didn't get the first one</span></li>
+                    <li><a href="{% url login %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Login</span></li>
+                    <li><a href="{% url invitation_send %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Send invitations to new users, only if you have enough permissions though</span></li>
+                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Accept invitation, test after sending yourself one (needs valid generated link)</span></li>
+                    <li><a href="{% url invitation_success %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Invitation success page, for after you have successfully accepted an invitation</span></li>
+                    <li><a href="{% url logout %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Logout</span></li>
+                    <li><a href="{% url password_reset %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Apply for a password reset</span></li>
+                    <li><a href="{% url password_reset_done %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Password reset e-mail is sent</span></li>
+                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Accept password reset, test after requesting new password (needs valid generated link)</span></li>
+                    <li><a href="{% url password_reset_complete %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Password is successfully reset</span></li>
+                </ul>
+            </p>
+            
+            <h5 style="font-size: 22px;">Accounts</h5>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
+                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
+                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
+                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
+                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
+            </p>
+            <p>
+                <ul class="mws-summary">
+                    <li><a href="{% url account_add_xhr %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Add an account via a popup</span></li>
+                    <li><a href="{% url account_add %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Add account via normal form</span></li>
+                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Edit and delete require an instance, so click on items in the list to be linked through</span></li>
+                    <li><a href="{% url account_list %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">List of accounts (also in menu on the left)</span></li>
+                </ul>
+            </p>
+            
+            <h5 style="font-size: 22px;">Contacts</h5>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
+                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
+                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
+                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
+                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
+            </p>
+            <p>
+                <ul class="mws-summary">
+                    <li><a href="{% url contact_add %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Add a contact</span></li>
+                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Editing of functions and contacts plus deletion: click on listitems</span></li>
+                    <li><a href="{% url contact_list %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">List of contacts (also in menu on the left)</span></li>
+                </ul>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

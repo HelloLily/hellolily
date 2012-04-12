@@ -8,10 +8,10 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EmailAddressBaseForm, \
-    AddressBaseForm, PhoneNumberBaseForm, EditAccountForm
+from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EditAccountForm
 from lily.accounts.models import AccountModel, TagModel
 from lily.contacts.models import FunctionModel
+from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
 
@@ -22,7 +22,6 @@ class AddAccountView(CreateView):
     multiple instances of many-to-many relations with custom formsets. Also supports a smaller
     form for ajax requests.
     """
-    
     # Default template and form
     template_name = 'accounts/account_add.html'
     form_class = AddAccountForm
@@ -31,7 +30,6 @@ class AddAccountView(CreateView):
         """
         Overloading super().dispatch to change the template to be rendered.
         """
-        
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddAccountMinimalForm
@@ -62,7 +60,6 @@ class AddAccountView(CreateView):
         """
         Overloading super().get_form to instanciate formsets while instanciating the form.
         """
-        
         # Instanciate the formsets for the normal form
         if not is_ajax(self.request):
             self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
@@ -76,7 +73,6 @@ class AddAccountView(CreateView):
         Add m2m relations to newly created account (i.e. Social media, Phone numbers, 
         E-mail addresses and Addresses). 
         """
-        
         # Save instance
         super(AddAccountView, self).form_valid(form)
         
@@ -169,7 +165,6 @@ class AddAccountView(CreateView):
         """
         Overloading super().form_invalid to return a different response to ajax requests.
         """
-        
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
@@ -206,7 +201,6 @@ class EditAccountView(UpdateView):
     View to edit an acccount with all fields included in the template including support to add
     multiple instances of many-to-many relations with custom formsets.
     """
-    
     template_name = 'accounts/account_edit.html'
     form_class = EditAccountForm
     model = AccountModel
@@ -244,7 +238,6 @@ class EditAccountView(UpdateView):
         Save m2m relations to edited account (i.e. Social media, Phone numbers, 
         E-mail addresses and Addresses). 
         """
-        
         # Save instance
         super(EditAccountView, self).form_valid(form)
         
@@ -356,14 +349,12 @@ class DeleteAccountView(DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
-    
     model = AccountModel
     
     def delete(self, request, *args, **kwargs):
         """
         Overloading super().delete to remove the related models and the instance itself.
         """
-        
         self.object = self.get_object()
         self.object.email_addresses.remove()
         self.object.addresses.remove()

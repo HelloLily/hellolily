@@ -155,7 +155,7 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'utils/email_address_formset_template.html' %}
+                            {% include 'utils/email_address_formset_template.html' with formset_prefix=email_addresses_formset.prefix %}
                         </div>
                         {{ email_addresses_formset.management_form }}
                     </div>
@@ -217,7 +217,7 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'utils/phone_number_formset_template.html' %}
+                            {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %}
                         </div>
                         {{ phone_numbers_formset.management_form }}
                     </div>
@@ -342,7 +342,7 @@
 	                        </div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'contacts/address_formset_template.html' %}
+                            {% include 'contacts/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}
                         </div>
                         {{ addresses_formset.management_form }}
                     </div>

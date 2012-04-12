@@ -6,7 +6,7 @@ from lily.contacts.models import ContactModel
 from lily.users.models import UserModel
 
 class Command(NoArgsCommand):
-    help="""Create a user which can be used to log in to HelloLily. The default superuser that is prompted \
+    help = """Create a user which can be used to log in to HelloLily. The default superuser that is prompted \
             for after the syncdb command does not have the appropriate permission groups and is missing \
             the essential relation to a custom model used for log in."""
     
@@ -108,7 +108,7 @@ class Command(NoArgsCommand):
         if not self.is_user_in_group(usermodel):
             self.add_to_group(usermodel)
         
-        self.stdout.write('Admin created.')
+        self.stdout.write('Admin created.\n')
     
     def add_to_group(self, user, group_name='account_admin'):
         """
@@ -124,8 +124,6 @@ class Command(NoArgsCommand):
         """
         try:
             group = Group.objects.get(name=group_name)
-            import pdb
-            pdb.set_trace()
             user.groups.get(group)
             return True
         except Group.DoesNotExist:

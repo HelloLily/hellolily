@@ -9,7 +9,6 @@ class ContactModel(CommonModel):
     Contact model, this is a person's profile. Has an optional relation to an account through
     FunctionModel. Can be related from UserModel.
     """
-    
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
         (MALE_GENDER, _('Male')),
@@ -37,7 +36,6 @@ class ContactModel(CommonModel):
         """
         Return full name of this contact without unnecessary white space.
         """
-        
         if self.preposition:
             return ' '.join([self.first_name, self.preposition, self.last_name])
         
@@ -56,7 +54,6 @@ class FunctionModel(DeletedModel):
     """
     Function, third model with extra fields for the relation between Account and Contact.
     """
-    
     account = models.ForeignKey(AccountModel, related_name='account')
     contact = models.ForeignKey(ContactModel, related_name='contact')
     title = models.CharField(max_length=50, verbose_name=_('title'), blank=True)

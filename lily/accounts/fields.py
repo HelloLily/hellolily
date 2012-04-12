@@ -7,7 +7,7 @@ class MultipleInputAndChoiceField(ModelMultipleChoiceField):
     A subclass of ModelMultipleChoiceField to not only support making relationships between models,
     but also to create new instances of a model to create a relationship with.
     """
-    empty_label=None
+    empty_label = None
     
     def clean(self, value):
         """
@@ -21,6 +21,6 @@ class MultipleInputAndChoiceField(ModelMultipleChoiceField):
             raise ValidationError(self.error_messages['list'])
         
         # Remove duplicate value, ignore case
-        uniquify (value, lambda x: x.lower())
+        uniquify(value, lambda x: x.lower())
         
         return value

@@ -1,16 +1,19 @@
 {% load i18n %}
+{% comment %}
+Use {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %} to use this file.
+{% endcomment %}
 
-<div id="{{ phone_numbers_formset.prefix }}-form-template">
+<div id="{{ formset_prefix }}-form-template">
     <div class="mws-form-item large">
         <div class="mws-form-cols clearfix">
             <div class="float-left">
                 <div class="mws-form-col-row phone_number mws-form-item">
-                    <input name="phone_numbers-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput" type="text" id="id_phone_numbers-0-raw_input" />
+                    <input name="{{ formset_prefix }}-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput" type="text" id="id_{{ formset_prefix }}-0-raw_input" />
                 </div>
             </div>
             <div class="float-left">
                 <div class="mws-form-col-row phone_number mws-form-item">
-                    <select id="id_phone_numbers-0-type" class="other" name="phone_numbers-0-type">
+                    <select id="id_{{ formset_prefix }}-0-type" class="other" name="{{ formset_prefix }}-0-type">
                         {% block phone_number_types %}
                         <option value="work" selected="selected">{% trans 'Work' %}</option>
                         <option value="mobile">{% trans 'Mobile' %}</option>
@@ -27,13 +30,13 @@
             {% block other_phone_number_type %}
             <div class="float-left">
                 <div class="mws-form-col-row phone_number mws-form-item">
-                    <input id="id_phone_numbers-0-other_type" type="text" class="mws-textinput other hidden" name="phone_numbers-0-other_type" maxlength="15" />
+                    <input id="id_{{ formset_prefix }}-0-other_type" type="text" class="mws-textinput other hidden" name="{{ formset_prefix }}-0-other_type" maxlength="15" />
                 </div>
             </div>
             {% endblock %}
             <div class="float-left">
                 <div class="formset-delete mws-form-col-row mws-form-item">
-                    <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
+                    <a href="javascript:" class="mws-i-24 i-cross {{ formset_prefix }}-delete-row" /></a>
                 </div>
             </div>
         </div>

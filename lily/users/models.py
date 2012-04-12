@@ -19,7 +19,6 @@ class UserModel(User):
     """
     Custom user model, has relation with ContactModel.
     """
-        
     objects = UserManager()
     avatar = models.ImageField(upload_to=USER_UPLOAD_TO, verbose_name=_('avatar'), blank=True)
     contact = models.ForeignKey(ContactModel)

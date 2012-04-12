@@ -5,11 +5,13 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.functions' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/functions.js' %}"></script>
 {% endblock %}
 
@@ -38,7 +40,7 @@
                                 </div>
                             {% endif %}
                         {% endif %}
-                                
+                        
 	                    <div class="mws-form-row">
 							<div class="mws-panel-header">
 					            <span class="mws-i-24 i-companies">{{ form.account }}</span>
@@ -94,20 +96,130 @@
 	                        </div>
 	                    </div>
 	                    
-	                    {% if not forloop.last %}
-	                    <hr />
-	                    {% endif %}
-	                    
 	                    {% comment %}
-	                    TODO: E-mail address and telephone formsets
-	                    {% endcomment %}
+                        TODO: Inform user when deleting a primary e-mail address and two or more options
+                        are available and another was automatically selected as primary OR generate
+                        an error on form submit
+                        {% endcomment %}
+                        <div class="mws-form-row">
+                            <label>{% trans 'E-mail addresses' %}</label>
+                            {% for email_addresses_form in form.email_addresses_formset.forms %}
+                               <div class="mws-form-item large {{ form.email_addresses_formset.prefix }}-mws-formset">
+                                    {% if email_addresses_form.instance.pk %}
+                                        {{ email_addresses_form.id }}
+                                        {% if form.email_addresses_formset.can_delete %}
+                                            <div class="hidden">
+                                                {{ form.DELETE }}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    <div class="mws-form-cols clearfix">
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row mws-form-item email_address">
+                                                {% if email_addresses_form.email_address.errors %}
+                                                    <span class="field_error float-left">{{ email_addresses_form.email_address }}</span>
+                                                    <span class="mws-error inline plain float-left">
+                                                        {% for error in email_addresses_form.email_address.errors %}
+                                                            <strong>{{ error }}</strong>
+                                                        {% endfor %}
+                                                    </span>
+                                                {% else %}
+                                                    {{ email_addresses_form.email_address }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="float-left center">
+                                            <div class="mws-form-col-row mws-form-item email_address email_is_primary">
+                                                <label>
+                                                    <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ form.prefix }}_primary-email" />
+                                                    <span>{% trans 'primary' %}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="float-left">
+                                            <div class="mws-form-col-row mws-form-item formset-delete email_address">
+                                                <a href="javascript:" class="mws-i-24 i-cross {{ form.email_addresses_formset.prefix }}-delete-row" /></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="hidden">
+                                {% include 'utils/email_address_formset_template.html' with formset_prefix=form.email_addresses_formset.prefix %}
+                            </div>
+                            {{ form.email_addresses_formset.management_form }}
+                        </div>
+                        
+                        <div class="mws-form-row">
+                        <label>{% trans 'Phone numbers' %}</label>
+                        {% for phone_number_formset in form.phone_numbers_formset.forms %}
+                            <div class="mws-form-item large {{ form.phone_numbers_formset.prefix }}-mws-formset">
+                                {% if phone_number_formset.instance.pk %}
+                                    {{ phone_number_formset.id }}
+                                    {% if form.phone_numbers_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ phone_number_formset.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="mws-form-cols clearfix">
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row phone_number mws-form-item">
+                                            {% if phone_number_formset.raw_input.errors %}
+                                                <span class="field_error float-left">{{ phone_number_formset.raw_input }}</span>
+                                                <span class="mws-error inline plain float-left">
+                                                    {% for error in phone_number_formset.raw_input.errors %}
+                                                        <strong>{{ error }}</strong>
+                                                    {% endfor %}
+                                                </span>
+                                            {% else %}
+                                                {{ phone_number_formset.raw_input }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row phone_number mws-form-item">
+                                            {% if phone_number_formset.type.errors %}
+                                                <span class="field_error float-left">{{ phone_number_formset.type }}</span>
+                                                <span class="mws-error inline plain float-left">
+                                                    {% for error in phone_number_formset.type.errors %}
+                                                        <strong>{{ error }}</strong>
+                                                    {% endfor %}
+                                                </span>
+                                            {% else %}
+                                                {{ phone_number_formset.type }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row phone_number mws-form-item">
+                                            {{ phone_number_formset.other_type }}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="formset-delete mws-form-col-row mws-form-item">
+                                            <a href="javascript:" class="mws-i-24 i-cross {{ form.phone_numbers_formset.prefix }}-delete-row" /></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="hidden">
+                            {% include 'utils/phone_number_formset_template.html' with formset_prefix=form.phone_numbers_formset.prefix %}
+                        </div>
+                        {{ form.phone_numbers_formset.management_form }}
+                    </div>
+                        
+                        {% if not forloop.last %}
+                        <hr />
+                        {% endif %}
 	                    
 					{% endfor %}
 					{{ formset.management_form }}
                 
                     <div class="mws-button-row">
                     	{% comment %}
-                    	TODO: ask if the user is sure when the form has changed
+                    	TODO: ask if the user is sure when the form has changed to go back
                     	{% endcomment %}
                     	<a href="{% url contact_edit pk=form.instance.pk %}" class="no-decoration">
                             <button type="button" class="mws-button green">

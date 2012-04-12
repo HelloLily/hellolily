@@ -12,7 +12,6 @@ class TagModel(models.Model):
     """
     Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
     """
-    
     tag = models.CharField(max_length=50, verbose_name=_('tag'))
 
     def __unicode__(self):
@@ -27,7 +26,6 @@ class AccountModel(CommonModel):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """
-      
     STATUS_CHOICES = (
         # TODO: translate statuses (nl->en)
         # # ooit contact mee geweest | contacted

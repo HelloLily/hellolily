@@ -8,7 +8,6 @@ class DeletedModel(TimeStampedModel):
     """
     Deleted model, flags when an instance is deleted.
     """
-    
     deleted = ModificationDateTimeField(_('deleted')) 
     is_deleted = models.BooleanField(default=False)
     
@@ -20,7 +19,6 @@ class PhoneNumberModel(models.Model):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
     """
-    
     #TODO: check possibilities for integration of 
     # - http://pypi.python.org/pypi/phonenumbers and/or
     # - https://github.com/stefanfoulis/django-phonenumber-field
@@ -69,7 +67,6 @@ class SocialMediaModel(models.Model):
     Social media model, default supporting a few well known social media but has support for 
     custom input (other_name).
     """
-    
     SOCIAL_NAME_CHOICES = (
         ('facebook', _('Facebook')),
         ('twitter', _('Twitter')),
@@ -99,7 +96,6 @@ class AddressModel(models.Model):
     the view layer options are limited for different models. For example: options for an address
     for an account excludes 'home' as options for an address for a contact exclude 'visiting'.
     """
-    
     ADDRESS_TYPE_CHOICES = (
         ('visiting', _('Visiting address')),
         ('billing', _('Billing address')),
@@ -131,7 +127,6 @@ class EmailAddressModel(models.Model):
     Email address model, it's possible to set an email address as primary address as a model can 
     own multiple email addresses.
     """
-    
     INACTIVE_STATUS, ACTIVE_STATUS = range(2)
     EMAIL_STATUS_CHOICES = (
         (INACTIVE_STATUS, _('Inactive')),
@@ -155,7 +150,6 @@ class NoteModel(models.Model):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
-    
     note = models.TextField(verbose_name=_('note'))
     
     def __unicode__(self):
@@ -170,7 +164,6 @@ class CommonModel(DeletedModel):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    
     phone_numbers = models.ManyToManyField(PhoneNumberModel, 
                                            verbose_name=_('list of phone numbers'))
     social_media = models.ManyToManyField(SocialMediaModel, verbose_name=_('list of social media'))

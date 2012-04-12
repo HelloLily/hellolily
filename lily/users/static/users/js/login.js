@@ -25,14 +25,6 @@ $(document).ready(function() {
 	
     // set focus on username
 	set_focus('id_username');
-    
-    // replace default radio and/or check elements
-    $('input:radio').screwDefaultButtons({
-        checked:    'url(/static/plugins/screwdefaultbuttons/images/radio_checked.png)',
-        unchecked:  'url(/static/plugins/screwdefaultbuttons/images/radio_unchecked.png)',
-        width:      16,
-        height:     16
-    });
         
     $('input:checkbox').screwDefaultButtons({
         checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',

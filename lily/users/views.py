@@ -46,7 +46,6 @@ class RegistrationView(FormView):
         """
         Register a new user.
         """
-        
         # Create contact
         contact = ContactModel.objects.create(
             first_name=form.cleaned_data['first_name'],
@@ -111,7 +110,6 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        
         return redirect(reverse_lazy('registration_success'))
 
 class RegistrationSuccessView(TemplateView):
@@ -124,7 +122,6 @@ class ActivationView(TemplateView):
     """
     This view checks whether the activation link is valid and acts accordingly.
     """
-    
     # Template is only shown when something went wrong
     template_name = 'users/activation_failed.html'
     tgen = PasswordResetTokenGenerator()
@@ -225,7 +222,6 @@ class LoginView(View):
         """
         Check if the user wants to be remembered and return the default login view.
         """
-        
         if request.user.is_authenticated():
             return(redirect(reverse_lazy('dashboard')))
         

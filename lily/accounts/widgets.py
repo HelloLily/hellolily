@@ -10,7 +10,6 @@ class InputAndSelectMultiple(SelectMultiple):
     An subclass of SelectMultiple to create option elements with the same value as text to support 
     input-and-choice javascript.
     """
-    
     def __init__(self, attrs=None, choices=()):
         super(InputAndSelectMultiple, self).__init__(attrs, choices)
         
@@ -41,7 +40,6 @@ class InputAndSelectMultiple(SelectMultiple):
         to inject options extracted from the POST data to the choices list so these 
         options are rendered when the form is invalid.
         """
-        
         # Create a temporary mapping for key-value pairing
         mapping = {}
         # Fill mapping with all values from queryset (pk, unicode)

@@ -9,7 +9,6 @@ class ActivityModel(TimeStampedModel):
     Activity model, base class for several activities that users can create for in an activity
     stream.
     """
-    
     user = models.ForeignKey(UserModel)
     
     class Meta:
@@ -22,7 +21,6 @@ class PollModel(ActivityModel):
     """
     Poll mode, a poll with max. 5 answers.
     """
-    
     question = models.TextField(verbose_name=_('question'))
     answer1 = models.CharField(max_length=255, verbose_name=_('option 1'))
     answer2 = models.CharField(max_length=255, verbose_name=_('option 2'))
@@ -42,7 +40,6 @@ class BookmarkModel(ActivityModel):
     """
     Bookmark mode, simple url to share an interesting piece of the internet.
     """
-    
     url = models.URLField(verbose_name=_('bookmark url'))
     
     def __unicode__(self):
@@ -57,7 +54,6 @@ class EventModel(ActivityModel):
     """
     Event model, a happening with a start/end datetime with optional location/url/description.
     """
-    
     title = models.CharField(max_length=150, verbose_name=_('title'))
     date_start = models.DateField(verbose_name=_('start date'))
     time_start = models.TimeField(verbose_name=_('start time'))
@@ -79,7 +75,6 @@ class StatusModel(ActivityModel):
     """
     Status model, leaving a simple message to leave behind a short update what is going on.
     """
-    
     message = models.CharField(max_length=255, verbose_name=_('message'))
 
     def __unicode__(self):

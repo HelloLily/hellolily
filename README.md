@@ -1,4 +1,4 @@
-# Herokuapp Django Project #
+# HelloLily (Herokuapp/Django project) #
 
 ## Prerequisites ##
 

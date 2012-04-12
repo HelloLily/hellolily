@@ -21,7 +21,6 @@ from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel,
 class ListAccountView(ListView):
     template_name = 'accounts/list.html'
     model = AccountModel
-    paginate_by = 30
 
 
 class AddAccountView(CreateView):

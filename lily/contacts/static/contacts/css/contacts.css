@@ -16,3 +16,64 @@
     width: 24px; 
     height: 24px;
 }
+
+#contact_picture {
+    width: 15%;
+    padding-left: 45px;
+}
+
+#contact_personal {
+    width: 26%;
+}
+
+#contact_contact {
+    width: 27%;
+}
+
+#contact_created {
+    width: 16%;
+}
+
+#contact_modified {
+    width: 16%;
+}
+
+.contact_picture_img {
+    padding: 8px 10px 7px 15px;
+    vertical-align: middle;
+}
+
+.contact_personal span.contact_name a {
+    font-size: 108%;
+    color: #50B3DF;
+}
+
+.contact_created, .contact_modified {
+    white-space: nowrap;
+}
+
+.contact_contact {
+    white-space: nowrap;
+}
+
+@media only screen and (max-width: 1150px) {
+    .contact_picture {
+        padding-left: 10px !important;
+    }
+    .contact_picture img {
+        padding: 10px 2px;
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    #contact_picture {
+        width: 30%;
+        padding-left: 35px;
+    }
+    #contact_personal {
+        width: 30%;
+    }
+    #contact_contact {
+        width: 40%;
+    }
+}

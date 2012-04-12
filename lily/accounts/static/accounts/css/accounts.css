@@ -56,12 +56,6 @@
     color: #50B3DF;
 }
 
-
-/*.mws-table tbody tr.odd:hover td.account_name span.business_name, 
-.mws-table tbody tr.even:hover td.account_name span.business_name {
-    color: black;
-}*/
-
 .account_created, .account_modified {
     white-space: nowrap;
 }

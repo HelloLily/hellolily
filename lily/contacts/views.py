@@ -24,7 +24,7 @@ class AddContactView(CreateView):
     
     def get_form(self, form_class):
         """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
+        Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(AddContactView, self).get_form(form_class)
         
@@ -121,7 +121,7 @@ class EditContactView(UpdateView):
     
     def get_form(self, form_class):
         """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
+        Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(EditContactView, self).get_form(form_class)
         
@@ -224,8 +224,7 @@ class EditContactView(UpdateView):
         Get the url to redirect to after this form has succesfully been submitted. 
         """
         form_kwargs = self.get_form_kwargs()
-        print len(FunctionModel.objects.filter(contact=self.object)) 
-        print form_kwargs['data'].get('edit_accounts')
+        
         if len(FunctionModel.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
             return redirect(reverse('function_edit', kwargs={
                 'pk': self.object.pk,
@@ -266,33 +265,44 @@ class EditFunctionView(UpdateView):
     model = ContactModel
     
     FunctionFormSet = inlineformset_factory(ContactModel, FunctionModel, fk_name='contact', form=FunctionForm, extra=0)
+    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form(self, form_class):
         """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
+        Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(EditFunctionView, self).get_form(form_class)
         
-#        self.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
-        self.formset = self.FunctionFormSet(instance=self.object)
+        # Create function formset with all existing functions for current contact
+        self.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
+        
+        # Add e-mail address and phone number formsets to each function form, each with a unique prefix
+        for form in self.formset.forms:
+            form.email_addresses_formset = self.EmailAddressFormSet(data=self.request.POST or None, queryset=form.instance.email_addresses.all(), prefix='email_addresses_%s' % form.instance.pk)
+            form.phone_numbers_formset = self.PhoneNumberFormSet(data=self.request.POST or None, queryset=form.instance.phone_numbers.all(), prefix='phone_numbers_%s' % form.instance.pk)
         
         return form
     
     def form_valid(self, form):
         """
-        Overloading super.form_valid(form) to save the forms in formset.
+        Overloading super.form_valid to save the forms in formset.
         """
         if self.formset.is_valid():
             for form in self.formset:
                 # Save all e-mail address, phone number and address formsets
                 if form.email_addresses_formset.is_valid() and form.phone_numbers_formset.is_valid():
+                    
                     # Save form
-                    form_kwargs = form.save()
+                    form.save()
+                    
+                    form_kwargs = self.get_form_kwargs()
+                    
                     # Handle e-mail addresses
                     for formset in form.email_addresses_formset:
                         # Check if existing instance has been marked for deletion
                         if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                            form.object.email_addresses.remove(formset.instance)
+                            form.instance.email_addresses.remove(formset.instance)
                             formset.instance.delete()
                             continue
                         
@@ -306,20 +316,20 @@ class EditFunctionView(UpdateView):
                         # Only save e-mail address if something else than primary/status was filled in
                         if formset.instance.email_address:
                             formset.save()
-                            form.object.email_addresses.add(formset.instance)
+                            form.instance.email_addresses.add(formset.instance)
                     
                     # Handle phone numbers
                     for formset in form.phone_numbers_formset:
                         # Check if existing instance has been marked for deletion
                         if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                            form.object.phone_numbers.remove(formset.instance)
+                            form.instance.phone_numbers.remove(formset.instance)
                             formset.instance.delete()
                             continue
                         
                         # Only save address if something was filled other than type
                         if formset.instance.raw_input:
                             formset.save()
-                            form.object.phone_numbers.add(formset.instance)
+                            form.instance.phone_numbers.add(formset.instance)
         
         # Immediately return the success url, no need to save a non-edited Contact instance.
         return self.get_success_url()

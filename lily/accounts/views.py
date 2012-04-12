@@ -45,7 +45,7 @@ class AddAccountView(CreateView):
     def get_form_kwargs(self):
         """
         Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
-        instanciating the form.
+        instantiating the form.
         """
         kwargs = super(AddAccountView, self).get_form_kwargs()
         
@@ -58,9 +58,9 @@ class AddAccountView(CreateView):
     
     def get_form(self, form_class):
         """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
+        Overloading super().get_form to instantiate formsets while instantiating the form.
         """
-        # Instanciate the formsets for the normal form
+        # Instantiate the formsets for the normal form
         if not is_ajax(self.request):
             self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
             self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
@@ -213,7 +213,7 @@ class EditAccountView(UpdateView):
     def get_form_kwargs(self):
         """
         Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
-        instanciating the form.
+        instantiating the form.
         """
         kwargs = super(EditAccountView, self).get_form_kwargs()
         kwargs.update({
@@ -223,7 +223,7 @@ class EditAccountView(UpdateView):
     
     def get_form(self, form_class):
         """
-        Overloading super().get_form to instanciate formsets while instanciating the form.
+        Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(EditAccountView, self).get_form(form_class)
         

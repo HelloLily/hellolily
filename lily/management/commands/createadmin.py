@@ -4,6 +4,7 @@ from django.db.models.query_utils import Q
 from lily.accounts.models import AccountModel
 from lily.contacts.models import ContactModel
 from lily.users.models import UserModel
+import getpass
 
 class Command(NoArgsCommand):
     help = """Create a user which can be used to log in to HelloLily. The default superuser that is prompted \
@@ -80,7 +81,6 @@ class Command(NoArgsCommand):
             password1 = 0
             password2 = 1
             while password2 != password1:
-                import getpass
                 password1 = getpass.getpass('Your password: ')
                 password2 = getpass.getpass('Confirm password: ')
 

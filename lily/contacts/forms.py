@@ -140,18 +140,18 @@ class FunctionForm(forms.models.ModelForm):
     Form to link contacts with accounts through functions.
     """
     # Create basic formset
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
+#    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
+#    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
     
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
                  empty_permitted=False, instance=None):
         super(FunctionForm, self).__init__(data, files, 'id_%s_%%s' % instance.pk, prefix, initial,
                                            error_class, label_suffix, empty_permitted, instance)
-        
-        # Create formsets with instance pk in the prefix
-        self.email_addresses_formset = self.EmailAddressFormSet(queryset=instance.email_addresses.all(), prefix='email_addresses_%s' % instance.pk)
-        self.phone_numbers_formset = self.PhoneNumberFormSet(queryset=instance.phone_numbers.all(), prefix='phone_numbers_%s' % instance.pk)
+#        
+#        # Create formsets with instance pk in the prefix
+#        self.email_addresses_formset = self.EmailAddressFormSet(queryset=instance.email_addresses.all(), prefix='email_addresses_%s' % instance.pk)
+#        self.phone_numbers_formset = self.PhoneNumberFormSet(queryset=instance.phone_numbers.all(), prefix='phone_numbers_%s' % instance.pk)
     
     class Meta:
         exclude = ('is_deleted', 'contact', 'email_addresses', 'phone_numbers')

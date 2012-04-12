@@ -39,19 +39,32 @@ $(document).ready(function() {
 
     // enable formsets for email addresses and phone numbers
     form_prefices = ['email_addresses', 'phone_numbers'];
+    formset_classes = [];
+    
+    // find all formset classes
     $.each(form_prefices, function(index, form_prefix) {
         $('[class*="' + form_prefix + '"][class$="mws-formset"]').each(function(index, formset) {
-            pk = $(formset).attr('class').replace(/[^\d.]/g, '');
-            formset_class = form_prefix + '_' + pk;
+            pk = $(formset).attr('class').replace(/[^\d.]/g, ''); 
+            formset_prefix = form_prefix + '_' + pk;
+            formset_class = formset_prefix;
             
-            $(formset).formset( {
-                formTemplate: $('#' + formset_class + '-form-template'), // needs to be unique per formset
-                prefix: formset_class, // needs to be unique per formset
-                addText: gettext('Add another'),
-                formCssClass: formset_class, // needs to be unique per formset
-                addCssClass: formset_class + '-add-row add-row', // needs to be unique per formset
-                deleteCssClass: formset_class + '-delete-row' // needs to be unique per formset
-            });
+            // only remember formset_class once
+            if(formset_classes.indexOf(formset_class) == -1) {
+                formset_classes.push(formset_class);
+            }
         });
     });
+    
+    // only apply formset() once on each of the found formsets
+    $.each(formset_classes, function(index, formset_class) {
+        $('.' + formset_class + '-mws-formset').formset( {
+            formTemplate: $('#' + formset_class + '-form-template'), // needs to be unique per formset
+            prefix: formset_class, // needs to be unique per formset
+            addText: gettext('Add another'),
+            formCssClass: formset_class, // needs to be unique per formset
+            addCssClass: formset_class + '-add-row add-row', // needs to be unique per formset
+            deleteCssClass: formset_class + '-delete-row' // needs to be unique per formset
+        })
+    });
+    
 });

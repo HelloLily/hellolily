@@ -355,10 +355,7 @@ class EditFunctionView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-#        return redirect(reverse('contact_list'))
-        return redirect(reverse('function_edit', kwargs={
-            'pk': self.object.pk,
-        }))
+        return redirect(reverse('contact_list'))
     
     class Meta:
         fields = ()

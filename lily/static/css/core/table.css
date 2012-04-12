@@ -3,6 +3,7 @@ table.mws-table
 	width:100%;
 	margin:0;
 	border:0;
+	border-bottom: 1px solid #AAA;
 	border-collapse:collapse;
 }
 
@@ -27,9 +28,9 @@ table.mws-table
 .mws-table tfoot td
 {
 	padding:8px 16px;
-	border-left-width:1px;
-	border-left-style:dotted;
-	border-left-color:#bebebe !important;
+/*	border-left-width:1px;*/
+/*	border-left-style:dotted;*/
+/*	border-left-color:#bebebe !important;*/
 }
 
 .mws-table tbody td:first-child, 
@@ -48,14 +49,11 @@ table.mws-table
 	background-color:#fafafa;
 }
 
-.mws-table tbody tr.odd td.sorting_1
+.mws-table tbody tr.height_77
 {
-	background-color:#cccccc; 
-}
-
-.mws-table tbody tr.even td.sorting_1
-{
-	background-color:#e1e1e1;
+    height: 77px;
+    min-height: 77px;
+    max-height: 77px;
 }
 
 
@@ -63,7 +61,8 @@ table.mws-table
 
 div.dataTables_wrapper
 {
-	background:#444444;
+/*	background:#444444;*/
+    background: #d8d8d8;
 }
 
 .dataTables_wrapper table thead th.sorting, 
@@ -77,24 +76,24 @@ div.dataTables_wrapper
 .dataTables_wrapper table thead th.sorting_desc, 
 .dataTables_wrapper table thead th.sorting
 {
-	background-position:12px center;
+	background-position:right center;
 	background-repeat:no-repeat;
-	padding-left:30px;
+	padding:10px 22px 10px 14px;
 }
 
 .dataTables_wrapper table thead th.sorting
 {
-	background-image:url(../../images/core/sort.png);
+	background-image:url(../../images/core/sort_padded.png);
 }
 
 .dataTables_wrapper table thead th.sorting_asc
 {
-	background-image:url(../../images/core/sort_asc.png);
+	background-image:url(../../images/core/sort_asc_padded.png);
 }
 
 .dataTables_wrapper table thead th.sorting_desc
 {
-	background-image:url(../../images/core/sort_desc.png);
+	background-image:url(../../images/core/sort_desc_padded.png);
 }
 
 div.dataTables_wrapper:before,
@@ -135,14 +134,14 @@ div.dataTables_wrapper .dataTables_length
 
 div.dataTables_wrapper .dataTables_filter
 {
-	background-color:#cccccc;
+/*	background-color:#cccccc;*/
 	text-align:right;
 	border-bottom:1px solid #aaaaaa;
 }
 
 div.dataTables_wrapper .dataTables_info
 {
-	color:#ffffff;
+	color:#000000;
 	float:left;
 	margin-top:2px;
 	display:block;
@@ -152,11 +151,13 @@ div.dataTables_wrapper .dataTables_paginate
 {
 	color:#ffffff;
 	float:right;
-	padding:2px;
-	margin:10px 8px 10px 0;
+	padding:0; /* old = 2px */
+/*	margin:10px 8px 10px 0; old */
+    margin:8px;
+	border:1px solid #333;
 	
-	background-repeat:repeat;
-	background-image:url(../../images/core/mws-inset.png);
+/*	background-repeat:repeat;*/
+/*	background-image:url(../../images/core/mws-inset.png);*/
 	
 	/* CSS 3 */
 	
@@ -166,11 +167,11 @@ div.dataTables_wrapper .dataTables_paginate
 	-khtml-border-radius:4px;
 	border-radius:4px;
 	
-	-webkit-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-	-o-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-	-khtml-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-	box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+/*	-webkit-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);*/
+/*	-moz-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);*/
+/*	-o-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);*/
+/*	-khtml-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);*/
+/*	box-shadow:0px 1px 0px rgba(255, 255, 255, 0.15), inset 0px 1px 2px rgba(0, 0, 0, 0.5);*/
 }
 
 div.dataTables_wrapper .dataTables_paginate div
@@ -251,7 +252,7 @@ div.dataTables_wrapper .dataTables_paginate span.paginate_active
 {
 	float:left;
 	height:20px;
-	padding:0 10px;
+	padding:1px 15px;
 	display:block;
 	font-size:12px;
 	line-height:20px;
@@ -262,7 +263,7 @@ div.dataTables_wrapper .dataTables_paginate span.paginate_active
 	border-right:1px solid #232323;
 	border-left:1px solid #666666;
 	
-	border-right:1px solid rgba(0, 0, 0, 0.5);
+/*	border-right:1px solid rgba(0, 0, 0, 0.5);*/
 	border-left:1px solid rgba(255, 255, 255, 0.15);
 	
 	/* CSS 3 */
@@ -286,21 +287,21 @@ div.dataTables_wrapper .dataTables_paginate > span.paginate_button:last-child
 
 div.dataTables_wrapper .dataTables_paginate span.paginate_button_disabled
 {
-	color:#666666;
+	color:#969696;
 	cursor:default;
 }
 
 div.dataTables_wrapper .dataTables_paginate span.paginate_active
 {
-	color:#323232;
-	border:none;
+	color:#ffffff;
+/*	border:none;*/
 	background-image:none;
 	
 	/* CSS 3 */
 	
-	-webkit-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);
-	-moz-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);
-	-o-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);
-	-khtml-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);	
-	box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);
+/*	-webkit-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);*/
+/*	-moz-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);*/
+/*	-o-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);*/
+/*	-khtml-box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);	*/
+/*	box-shadow:inset 0px 0px 4px rgba(0, 0, 0, 0.25);*/
 }

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load i18n static thumbnail %} 
+
+{% block title %}{% trans 'Contact list' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".mws-datatable-fn").dataTable({
+        "sPaginationType": "full_numbers",
+        "bAutoWidth": false,
+        "aaSorting": [[1,'asc']],
+        "aoColumnDefs": [ 
+            { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+            { "bSortable": false, "aTargets": [2] }
+        ]
+    }); 
+});
+</script>
+{% endblock %}
+
+{% block content %}
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-header">
+            <span class="mws-i-24 i-list-images">{% trans 'Contact list' %}</span>
+        </div>
+        <div class="mws-panel-body">
+            <table class="mws-datatable-fn mws-table">
+                <thead>
+                    <tr>
+                        <th id="contact_picture" title="{% trans 'Picture' %}">{% trans 'Picture' %}</th>
+                        <th id="contact_personal" title="{% trans 'Personal' %}">{% trans 'Personal' %}</th>
+                        <th id="contact_contact" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
+                        <th id="contact_created" class="hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
+                        <th id="contact_modified" class="hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Modified' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        <tr>
+                            <td class="contact_picture">
+                                <input type="checkbox" name="selected_object" value="pk" />
+                                {% if object.logo %}
+                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="contact_picture_img" />
+                                {% else %}
+                                    <img src="{% static 'images/core/unknown_person_36x36.png' %}" alt="{{ object.title }}" class="contact_picture_img" />
+                                {% endif %}
+                            </td>
+                            <td class="contact_personal">
+                                <span class="contact_name full-width"><a href="{% url contact_edit pk=object.pk %}">{{ object.full_name|truncatechars:"26" }}</a></span>
+                                <span class="contact_social">
+                                    {% for sm in object.get_social %}
+                                        <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
+                                    {% endfor %}
+                                </span>
+                            </td>
+                            <td class="contact_contact">
+                                <span class="contact_phone full-width">
+                                    <img src="{% static 'images/core/phone.png' %}" alt="{{ object.title }}"/>
+                                    {{ object.get_phonenumber|truncatechars:"18" }}
+                                </span>
+                                <span class="contact_mail full-width">
+                                    <img src="{% static 'images/core/mail.png' %}" alt="{{ object.title }}" />
+                                    {{ object.get_email|truncatechars:"18" }}
+                                </span>
+                            </td>
+                            <td class="contact_created hide_on_small_screen">
+                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                {{ object.created|date:"d-m-Y" }}
+                            </td>
+                            <td class="contact_modified hide_on_small_screen">
+                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                {{ object.modified|date:"d-m-Y" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

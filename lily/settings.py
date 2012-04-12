@@ -64,6 +64,9 @@ PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) #
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 CUSTOM_USER_MODEL = 'users.UserModel'
 
+THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
+THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
+
 STATICFILES_DIRS = (
     local_path('static/'),
 )
@@ -130,6 +133,7 @@ INSTALLED_APPS = (
     
     # 3rd party
     'templated_email',
+    'easy_thumbnails',
     'gunicorn',
     'activelink',
     

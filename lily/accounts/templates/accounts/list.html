@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load i18n static thumbnail %} 
+
+{% block title %}{% trans 'Account list' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".mws-datatable-fn").dataTable({
+        "sPaginationType": "full_numbers",
+        "bAutoWidth": false,
+        "aaSorting": [[1,'asc']],
+        "aoColumnDefs": [ 
+            { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+            { "bSortable": false, "aTargets": [2] },
+            { "bSortable": false, "aTargets": [5] }
+        ]
+    }); 
+});
+</script>
+{% endblock %}
+
+{% block content %}
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-header">
+            <span class="mws-i-24 i-list-images">{% trans 'Account list' %}</span>
+        </div>
+        <div class="mws-panel-body">
+            <table class="mws-datatable-fn mws-table">
+                <thead>
+                    <tr>
+                        <th id="account_logo" title="{% trans 'Logo' %}">{% trans 'Logo' %}</th>
+                        <th id="account_name" title="{% trans 'Account' %}">{% trans 'Account' %}</th>
+                        <th id="account_details" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
+                        <th id="account_created" class="hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
+                        <th id="account_modified" class="hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Modified' %}</th>
+                        <th id="account_tags" title="{% trans 'Tags' %}">{% trans 'Tags' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        <tr class="height_77">
+                            <td class="account_logo">
+                                <input type="checkbox" name="selected_object" value="pk" />
+                                {% if object.logo %}
+                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="account_logo_img" />
+                                {% else %}
+                                    <img src="{% static 'images/core/unknown_account.png' %}" alt="{{ object.title }}" class="account_logo_img" />
+                                {% endif %}
+                            </td>
+                            <td class="account_name">
+                                <span class="business_name full-width"><a href="{% url account_edit pk=object.pk %}">{{ object.name|truncatechars:"18" }}</a></span>
+                                {% with address=object.get_address %}
+                                    <span class="business_address full-width">{{ address.address|truncatechars:"20" }}</span>
+                                    <span class="business_country full-width">{{ address.country|truncatechars:"20" }}</span>
+                                {% endwith %}
+                            </td>
+                            <td class="account_details">
+                                {% with contact=object.get_contact_details %}
+                                    <span class="contact_phone full-width">
+                                        <img src="{% static 'images/core/phone.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                        {{ contact.phone }}
+                                    </span>
+                                    <span class="contact_mail full-width">
+                                        <img src="{% static 'images/core/mail.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                        {{ contact.mail|truncatechars:"20" }}
+                                    </span>
+                                {% endwith %}
+                            </td>
+                            <td class="account_created hide_on_small_screen">
+                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                {{ object.created|date:"d-m-Y" }}
+                            </td>
+                            <td class="account_modified hide_on_small_screen">
+                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
+                                {{ object.modified|date:"d-m-Y" }}
+                            </td>
+                            <td class="account_tags">
+                                {% for tag in object.get_tags %}
+                                    <a href="#" class="tag">{{ tag }}</a>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -44,7 +44,25 @@ class ContactModel(CommonModel):
 
     def __unicode__(self):
         return self.full_name()
-
+    
+    def get_phonenumber(self):
+        try:
+            return self.phone_numbers.all()[0].raw_input
+        except:
+            return '-'
+        
+    def get_email(self):
+        try:
+            return self.email_addresses.all()[0].email_address
+        except:
+            return '-'
+    
+    def get_social(self):
+        try:
+            return self.social_media.all()
+        except:
+            return {}
+    
     class Meta:
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
@@ -54,8 +72,8 @@ class FunctionModel(DeletedModel):
     """
     Function, third model with extra fields for the relation between Account and Contact.
     """
-    account = models.ForeignKey(AccountModel, related_name='account')
-    contact = models.ForeignKey(ContactModel, related_name='contact')
+    account = models.ForeignKey(AccountModel, related_name='functions')
+    contact = models.ForeignKey(ContactModel, related_name='functions')
     title = models.CharField(max_length=50, verbose_name=_('title'), blank=True)
     department = models.CharField(max_length=50, verbose_name=_('department'), blank=True)
     # Limited relation: only possible with contacts related to the same account 

@@ -8,12 +8,18 @@ from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
-from lily.accounts.forms import AddAccountMinimalForm, AddAccountForm, EditAccountForm
+from django.views.generic.list import ListView
+from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm
 from lily.accounts.models import AccountModel, TagModel
 from lily.contacts.models import FunctionModel
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
+
+
+class ListAccountView(ListView):
+    template_name = 'accounts/list.html'
+    model = AccountModel
 
 
 class AddAccountView(CreateView):

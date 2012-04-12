@@ -3,11 +3,18 @@ from django.db.models.query_utils import Q
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 from lily.accounts.models import AccountModel
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import ContactModel, FunctionModel
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.models import EmailAddressModel, AddressModel, PhoneNumberModel
+
+
+class ListContactView(ListView):
+    template_name='contacts/contact_list.html'
+    model = ContactModel
+
 
 class AddContactView(CreateView):
     """

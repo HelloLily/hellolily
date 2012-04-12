@@ -69,7 +69,9 @@ div#mws-searchbox input.mws-search-submit,
 div.dataTables_wrapper .dataTables_paginate div, 
 div.dataTables_wrapper .dataTables_paginate span.paginate_active, 
 .mws-table tbody tr.odd:hover td, 
-.mws-table tbody tr.even:hover td, 
+.mws-table tbody tr.even:hover td,
+.mws-table tbody tr.odd:hover td a, 
+.mws-table tbody tr.even:hover td a, 
 .fc-state-highlight, 
 .ui-slider-horizontal .ui-slider-range, 
 .ui-slider-vertical .ui-slider-range, 
@@ -81,6 +83,7 @@ div.dataTables_wrapper .dataTables_paginate span.paginate_active,
 .ui-dialog-titlebar-close .ui-icon
 {
 	background-color:#50b3df;/* prev. #c5d52b; */
+	color: white !important;
 }
 
 #sub-panel-link

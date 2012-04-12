@@ -165,6 +165,22 @@
 	}
 }
 
+/* Screens <= 720px */
+
+@media only screen and (max-width: 745px) {
+    .hide_on_small_screen {
+        display: none;
+    }
+}
+
+/* Screens <= 840px */
+
+@media only screen and (max-width: 840px) {
+    .hide_on_small_screen_img {
+        display: none !important;
+    }
+}
+
 /* Screens <= 599px */
 
 @media only screen and (max-width : 599px) {
@@ -493,7 +509,6 @@
 	{
 		padding:0 8px;
 	}
-	
 	
 	/* Login Form styles ------------ 
 	---------------------------------*/	

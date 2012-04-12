@@ -270,3 +270,66 @@ div.mws-panel-toolbar ul li span:active
 	-khtml-box-shadow:inset 0px 0px 8px rgba(0, 0, 0, 0.1) !important;
 	box-shadow:inset 0px 0px 8px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* Misc */
+
+.full-width {
+    display: block;
+    width: 100%;
+}
+
+/* Alignment */
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.justify {
+    text-align: justify;
+}
+
+.float-none {
+    float: none;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.inline.float-left {
+    float: left !important;
+}
+
+/* Lists */
+
+.no_list_style_type,
+.no_list_style_type ul {
+    list-style-type: none;
+}
+
+.no_list_style_type li {
+    margin-left: 0;
+}
+
+.no_list_padding,
+.no_list_padding ul,
+.no_list_padding li {
+    padding-left: 0;
+    margin-left: 0;
+}

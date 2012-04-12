@@ -108,7 +108,7 @@ class AddAccountView(CreateView):
             if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
                 # Handle e-mail addresses
                 for formset in self.email_addresses_formset:
-                    primary = form_kwargs['data'].get('primary-email')
+                    primary = form_kwargs['data'].get(formset.prefix + 'primary-email')
                     if formset.prefix == primary:
                         formset.instance.is_primary = True
                     
@@ -255,7 +255,7 @@ class EditAccountView(UpdateView):
                     continue
                 
                 # Check for e-mail address selected as primary
-                primary = form_kwargs['data'].get('primary-email')
+                primary = form_kwargs['data'].get(formset.prefix + 'primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 else:

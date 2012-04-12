@@ -483,7 +483,7 @@ class DashboardView(TemplateView):
     """
     This view shows the dashboard of the logged in user.
     """
-    template_name = 'base.html'
+    template_name = 'users/dashboard.html'
     
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):

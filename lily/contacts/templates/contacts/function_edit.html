@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %} 
+{% load i18n static field_extras %} 
 
 {% block title %}{% trans 'Edit functions' %} - {% endblock %}
 
@@ -43,7 +43,7 @@
                         
 	                    <div class="mws-form-row">
 							<div class="mws-panel-header">
-					            <span class="mws-i-24 i-companies">{{ form.account }}</span>
+					            <span class="mws-i-24 i-companies">{{ form.account|display_value }}</span>
 					        </div>
 				        </div>
 					

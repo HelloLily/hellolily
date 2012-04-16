@@ -133,6 +133,11 @@
 	box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
 }
 
+/* Firefox's color for placeholders is close to the color used in textfields, so brighten it up */
+:-moz-placeholder { /* new */
+    color: #b3a9b3 !important; /* new */
+}
+
 .mws-form select {
     padding:5px 7px;
 }

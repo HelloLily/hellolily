@@ -282,12 +282,12 @@ class EditFunctionView(UpdateView):
         form = super(EditFunctionView, self).get_form(form_class)
         
         # Create function formset with all existing functions for current contact
-        self.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
+        self.formset = form.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
         
         # Add e-mail address and phone number formsets to each function form, each with a unique prefix
-        for form in self.formset.forms:
-            form.email_addresses_formset = self.EmailAddressFormSet(data=self.request.POST or None, queryset=form.instance.email_addresses.all(), prefix='email_addresses_%s' % form.instance.pk)
-            form.phone_numbers_formset = self.PhoneNumberFormSet(data=self.request.POST or None, queryset=form.instance.phone_numbers.all(), prefix='phone_numbers_%s' % form.instance.pk)
+        for _form in self.formset.forms:
+            _form.email_addresses_formset = self.EmailAddressFormSet(data=self.request.POST or None, queryset=_form.instance.email_addresses.all(), prefix='email_addresses_%s' % _form.instance.pk)
+            _form.phone_numbers_formset = self.PhoneNumberFormSet(data=self.request.POST or None, queryset=_form.instance.phone_numbers.all(), prefix='phone_numbers_%s' % _form.instance.pk)
         
         return form
     

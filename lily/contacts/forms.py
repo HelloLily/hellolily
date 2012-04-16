@@ -133,12 +133,42 @@ class EditFunctionForm(forms.models.ModelForm):
         # Make all fields not required
         for key, field in self.fields.iteritems():
             self.fields[key].required = False
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to validate all functions.
+        """
+        is_valid = super(EditFunctionForm, self).is_valid()
         
+        # Validate formset
+        for form in self.formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
 
 class FunctionForm(forms.models.ModelForm):
     """
     Form to link contacts with accounts through functions.
     """
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(FunctionForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
     
     class Meta:
         exclude = ('is_deleted', 'contact', 'email_addresses', 'phone_numbers')

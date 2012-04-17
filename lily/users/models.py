@@ -5,14 +5,10 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
-
 from lily.accounts.models import AccountModel
-
 from lily.contacts.models import ContactModel
+from lily.settings import USER_UPLOAD_TO
 from lily.utils.models import EmailAddressModel
-
-
-USER_UPLOAD_TO = 'images/profile/user'
 
 
 class UserModel(User):

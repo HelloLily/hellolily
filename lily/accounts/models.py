@@ -2,10 +2,8 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
+from lily.settings import ACCOUNT_UPLOAD_TO
 from lily.utils.models import CommonModel, EmailAddressModel
-
-
-ACCOUNT_UPLOAD_TO = 'images/profile/account'
 
 
 class TagModel(models.Model):
@@ -98,7 +96,6 @@ class AccountModel(CommonModel):
     def get_tags(self):
         try:
             tags = self.tags.all()[:3]
-#            tags = (tags[0].tag, tags[1].tag, tags[1].tag,)
         except:
             tags = ('',)
         return tags
@@ -128,5 +125,6 @@ def post_save_usermodel_handler(sender, **kwargs):
             email.save()
         except EmailAddressModel.DoesNotExist:
             # Add new e-mail address as primary
-            email = EmailAddressModel.objects.create(email_address=new_email_address, is_primary=True)
+            email = EmailAddressModel.objects.create(email_address=new_email_address, 
+                                                     is_primary=True)
             instance.email_addresses.add(email)

@@ -1,10 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from lily.accounts.models import AccountModel
+from lily.settings import CONTACT_UPLOAD_TO
 from lily.utils.models import CommonModel, DeletedModel, PhoneNumberModel, EmailAddressModel
-
-
-CONTACT_UPLOAD_TO = 'images/profile/contact'
 
 
 class ContactModel(CommonModel):
@@ -44,7 +42,6 @@ class ContactModel(CommonModel):
             return ' '.join([self.first_name, self.preposition, self.last_name])
         
         return ' '.join([self.first_name, self.last_name])
-            
 
     def __unicode__(self):
         return self.full_name()

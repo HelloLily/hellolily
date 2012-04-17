@@ -100,6 +100,7 @@ class Command(NoArgsCommand):
             # Transfer values from superclass to subclass
             customUser.__dict__.update(user.__dict__)
         customUser.is_superuser = True
+        customUser.is_staff = True
         customUser.contact = contact
         customUser.account = account
         

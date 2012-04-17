@@ -3,6 +3,11 @@ from django.forms.fields import ChoiceField, FileField
 from django import template
 register = template.Library()
 
+# Code below found at django ticket #10427 https://code.djangoproject.com/ticket/10427
+# According to the comments it should be fixed, but it doesn't seem to work in 1.3 or 1.4
+# Added functionality: conversion to integer to be able to display the display value after posting
+# a form (original int then turns into unicode).  
+
 @register.filter(name='field_value')
 def field_value(field):
     """ 

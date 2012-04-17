@@ -14,7 +14,7 @@ Use {% include 'utils/email_address_formset_template.html' with formset_prefix=e
             <div class="float-left center">
                 <div class="mws-form-col-row mws-form-item email_address email_is_primary">
                     <label>
-                        <input class="hidden" type="radio" value="{{ formset_prefix }}-0" name="{{ formset_prefix }}-primary-email" />
+                        <input class="hidden" type="radio" value="{{ formset_prefix }}-0" name="{{ formset_prefix }}_primary-email" />
                         <span>{% trans 'primary' %}</span>
                     </label>
                 </div>

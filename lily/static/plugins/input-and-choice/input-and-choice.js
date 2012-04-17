@@ -96,6 +96,7 @@
 
                     // prevent selected value as the new value for $(input)
                     $(input).val('');
+                    $(this).trigger('blur');
                     return false;
                 },
                 open: function(e, ui) {
@@ -103,7 +104,6 @@
                 },
                 close: function(e, ui) {
                     $(this).removeClass('no-bottom-radius');
-                    $(this).trigger('blur');
                 }
             }).focus(function() {
                 $(this).autocomplete('search', $(this).val());

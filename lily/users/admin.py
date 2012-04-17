@@ -1,4 +1,4 @@
 from django.contrib import admin
-from lily.users.models import UserModel 
+from lily.users.models import CustomUser
 
-admin.site.register(UserModel)
+admin.site.register(CustomUser)

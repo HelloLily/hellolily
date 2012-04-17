@@ -2,18 +2,18 @@ from django import forms
 from django.forms.models import modelformset_factory
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
-from lily.accounts.models import AccountModel
-from lily.contacts.models import ContactModel, FunctionModel
+from lily.accounts.models import Account
+from lily.contacts.models import Contact, Function
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddressModel, PhoneNumberModel
+from lily.utils.models import EmailAddress, PhoneNumber
 
 class AddContactForm(forms.models.ModelForm):
     """
     Form to add a contact which all fields available.
     """
     accounts = forms.ModelMultipleChoiceField(required=False,
-        queryset=AccountModel.objects.all(),
+        queryset=Account.objects.all(),
         widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
     )
     
@@ -33,7 +33,7 @@ class AddContactForm(forms.models.ModelForm):
         return cleaned_data
     
     class Meta:
-        model = ContactModel
+        model = Contact
         fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
         
         widgets = {
@@ -78,8 +78,8 @@ class EditContactForm(forms.models.ModelForm):
     
         # Add field to select accounts where this contact works or has worked at.
         self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
-            queryset=AccountModel.objects.all(),
-            initial=AccountModel.objects.filter(pk__in=FunctionModel.objects.filter(contact=instance).values('account_id')),
+            queryset=Account.objects.all(),
+            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
             widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
         )
     
@@ -96,7 +96,7 @@ class EditContactForm(forms.models.ModelForm):
         return cleaned_data
     
     class Meta:
-        model = ContactModel
+        model = Contact
         fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
                 
         widgets = {

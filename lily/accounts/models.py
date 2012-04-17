@@ -3,24 +3,10 @@ from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
 from lily.settings import ACCOUNT_UPLOAD_TO
-from lily.utils.models import CommonModel, EmailAddressModel
+from lily.utils.models import Common, EmailAddress, Tag
 
 
-class TagModel(models.Model):
-    """
-    Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
-    """
-    tag = models.CharField(max_length=50, verbose_name=_('tag'))
-
-    def __unicode__(self):
-        return self.tag
-    
-    class Meta:
-        verbose_name = _('tag')
-        verbose_name_plural = _('tags')
-
-
-class AccountModel(CommonModel):
+class Account(Common):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """
@@ -55,7 +41,7 @@ class AccountModel(CommonModel):
                               blank=True)
     company_size = models.CharField(max_length=15, choices=COMPANY_SIZE_CHOICES,
                                     verbose_name=_('company size'), blank=True)  
-    tags = models.ManyToManyField(TagModel, verbose_name=_('tags'), blank=True)
+    tags = models.ManyToManyField(Tag, verbose_name=_('tags'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     
@@ -109,10 +95,10 @@ class AccountModel(CommonModel):
 ## Signal listeners
 ## ------------------------------------------------------------------------------------------------
 
-@receiver(pre_save, sender=AccountModel)
-def post_save_usermodel_handler(sender, **kwargs):
+@receiver(pre_save, sender=Account)
+def post_save_account_handler(sender, **kwargs):
     """
-    If an e-mail attribute was set on an instance of UserModel, add a primary e-mail address or 
+    If an e-mail attribute was set on an instance of Account, add a primary e-mail address or 
     overwrite the existing one.
     """
     instance = kwargs['instance']
@@ -123,8 +109,8 @@ def post_save_usermodel_handler(sender, **kwargs):
             email = instance.email_addresses.get(is_primary=True)
             email.email_address = new_email_address
             email.save()
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             # Add new e-mail address as primary
-            email = EmailAddressModel.objects.create(email_address=new_email_address, 
+            email = EmailAddress.objects.create(email_address=new_email_address, 
                                                      is_primary=True)
             instance.email_addresses.add(email)

@@ -1,14 +1,14 @@
 from django.db import models
 from django.utils.translation import ugettext as _
-from lily.accounts.models import AccountModel
+from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
-from lily.utils.models import CommonModel, DeletedModel, PhoneNumberModel, EmailAddressModel
+from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress
 
 
-class ContactModel(CommonModel):
+class Contact(Common):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
-    FunctionModel. Can be related from UserModel.
+    Function. Can be related to CustomUser.
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
@@ -69,21 +69,21 @@ class ContactModel(CommonModel):
         verbose_name_plural = _('contacts')
 
    
-class FunctionModel(DeletedModel):
+class Function(Deleted):
     """
     Function, third model with extra fields for the relation between Account and Contact.
     """
-    account = models.ForeignKey(AccountModel, related_name='functions')
-    contact = models.ForeignKey(ContactModel, related_name='functions')
+    account = models.ForeignKey(Account, related_name='functions')
+    contact = models.ForeignKey(Contact, related_name='functions')
     title = models.CharField(max_length=50, verbose_name=_('title'), blank=True)
     department = models.CharField(max_length=50, verbose_name=_('department'), blank=True)
     # Limited relation: only possible with contacts related to the same account 
-    manager = models.ForeignKey(ContactModel, related_name='manager', verbose_name=_('manager'),
+    manager = models.ForeignKey(Contact, related_name='manager', verbose_name=_('manager'),
                                 blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name=_('is active'))
-    phone_numbers = models.ManyToManyField(PhoneNumberModel,
+    phone_numbers = models.ManyToManyField(PhoneNumber,
                                            verbose_name=_('list of phone numbers'))
-    email_addresses = models.ManyToManyField(EmailAddressModel,
+    email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of email addresses'))
     
     def __unicode__(self):

@@ -6,23 +6,23 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from lily.accounts.models import AccountModel
-from lily.contacts.models import ContactModel
-from lily.users.models import UserModel
-from lily.utils.models import EmailAddressModel
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
+from lily.users.models import CustomUser
+from lily.utils.models import EmailAddress
 
 
 class SimpleTest(TestCase):    
     
-    def test_usermodel_set_email(self):
+    def test_customuser_set_email(self):
         """
-        Test the pre_save signal involving e-mail addresses for UserModel.
+        Test the pre_save signal involving e-mail addresses for CustomUser.
         """
         
-        contact = ContactModel.objects.create(first_name='John', last_name='Doe')        
+        contact = Contact.objects.create(first_name='John', last_name='Doe')        
         contact.save()
         
-        u = UserModel()
+        u = CustomUser()
         u.contact = contact
         u.username = 'John'
         u.set_password('123456')
@@ -32,7 +32,7 @@ class SimpleTest(TestCase):
         try:
             email = u.contact.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual(None, email)
         
@@ -42,7 +42,7 @@ class SimpleTest(TestCase):
         try:
             email = u.contact.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('first@user.com', email)
         
@@ -53,7 +53,7 @@ class SimpleTest(TestCase):
         try:
             email = u.contact.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('second@user.com', email)
         
@@ -63,23 +63,23 @@ class SimpleTest(TestCase):
         try:
             email = u.contact.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('second@user.com', email)
     
-    def test_accountmodel_set_email(self):
+    def test_account_set_email(self):
         """
-        Test the pre_save signal involving e-mail addresses for AccountModel.
+        Test the pre_save signal involving e-mail addresses for Account.
         """
         
-        account = AccountModel.objects.create(name='Foo Bar inc.', website='http://foobar.org')
+        account = Account.objects.create(name='Foo Bar inc.', website='http://foobar.org')
         account.email = 'first@account.com' 
         
         email = None
         try:
             email = account.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual(None, email)
         
@@ -89,7 +89,7 @@ class SimpleTest(TestCase):
         try:
             email = account.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('first@account.com', email)
         
@@ -100,7 +100,7 @@ class SimpleTest(TestCase):
         try:
             email = account.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('second@account.com', email)
         
@@ -110,6 +110,6 @@ class SimpleTest(TestCase):
         try:
             email = account.email_addresses.get(is_primary=True)
             email = email.email_address 
-        except EmailAddressModel.DoesNotExist:
+        except EmailAddress.DoesNotExist:
             pass        
         self.assertEqual('second@account.com', email)

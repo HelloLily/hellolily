@@ -4,9 +4,9 @@ from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
 
-from lily.users.models import UserModel
+from lily.users.models import CustomUser
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddressModel
+from lily.utils.models import EmailAddress
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -28,7 +28,7 @@ class CustomAuthenticationForm(AuthenticationForm):
 class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
-    Css classes are added and UserModel is used for validation instead of User.
+    Css classes are added and CustomUser is used for validation instead of User.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-reset-email mws-textinput required',
@@ -42,7 +42,7 @@ class CustomPasswordResetForm(PasswordResetForm):
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data["email"]
-        self.users_cache = UserModel.objects.filter(
+        self.users_cache = CustomUser.objects.filter(
                                 contact__email_addresses__email_address__iexact=email, 
                                 contact__email_addresses__is_primary=True
                             )
@@ -60,7 +60,7 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomSetPasswordForm(SetPasswordForm):
     """
     This form is a subclass from the default SetPasswordForm.
-    Css classes are added and UserModel is used for validation instead of User.
+    Css classes are added and CustomUser is used for validation instead of User.
     """
     new_password1 = forms.CharField(label=_('New password'), widget=forms.PasswordInput(attrs={
         'class': 'mws-reset-password mws-textinput required',
@@ -89,7 +89,7 @@ class ResendActivationForm(forms.Form):
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data['email']
-        self.users_cache = UserModel.objects.filter(
+        self.users_cache = CustomUser.objects.filter(
                                 contact__email_addresses__email_address__iexact=email, 
                                 contact__email_addresses__is_primary=True
                             )
@@ -168,13 +168,13 @@ class RegistrationForm(forms.Form):
         
         if cleaned_data.get('username'):
             try:
-                UserModel.objects.get(username=cleaned_data.get('username'))
+                CustomUser.objects.get(username=cleaned_data.get('username'))
                 self._errors['username'] = self.error_class([_('Username already exists.')])
-            except UserModel.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 pass
         
         if cleaned_data.get('email'):
-            if UserModel.objects.filter(
+            if CustomUser.objects.filter(
                 contact__email_addresses__email_address__iexact=cleaned_data.get('email')
             ).exists():
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
@@ -236,9 +236,9 @@ class InvitationForm(forms.Form):
         
         if email:
             try:
-                UserModel.objects.get(contact__email_addresses__email_address__iexact=email)
+                CustomUser.objects.get(contact__email_addresses__email_address__iexact=email)
                 self._errors['email'] = self.error_class([_('This e-mail address is already linked to a user.')])
-            except UserModel.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 pass
             
         return cleaned_data

@@ -1,15 +1,15 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.models import TimeStampedModel
-from lily.users.models import UserModel
+from lily.users.models import CustomUser
 
 
-class ActivityModel(TimeStampedModel):
+class Activity(TimeStampedModel):
     """
     Activity model, base class for several activities that users can create for in an activity
     stream.
     """
-    user = models.ForeignKey(UserModel)
+    user = models.ForeignKey(CustomUser)
     
     class Meta:
         abstract = True
@@ -17,16 +17,11 @@ class ActivityModel(TimeStampedModel):
         verbose_name_plural = _('activities')
 
 
-class PollModel(ActivityModel):
+class Poll(Activity):
     """
-    Poll mode, a poll with max. 5 answers.
+    Poll model, a poll with max. 5 answers.
     """
     question = models.TextField(verbose_name=_('question'))
-    answer1 = models.CharField(max_length=255, verbose_name=_('option 1'))
-    answer2 = models.CharField(max_length=255, verbose_name=_('option 2'))
-    answer3 = models.CharField(max_length=255, verbose_name=_('option 3'), blank=True)
-    answer4 = models.CharField(max_length=255, verbose_name=_('option 4'), blank=True)
-    answer5 = models.CharField(max_length=255, verbose_name=_('option 5'), blank=True)
     
     def __unicode__(self):
         return self.question
@@ -36,9 +31,21 @@ class PollModel(ActivityModel):
         verbose_name_plural = _('polls')
 
 
-class BookmarkModel(ActivityModel):
+class Choice(models.Model):
     """
-    Bookmark mode, simple url to share an interesting piece of the internet.
+    Choice model, simple model with a single charfield to contain one choice for a poll.
+    """
+    choice = models.CharField(max_length=255, verbose_name=_('choice'))
+    poll = models.ForeignKey(Poll, related_name='choices')
+    
+    class Meta:
+        verbose_name = _('choice')
+        verbose_name_plural = _('choices')
+
+
+class Bookmark(Activity):
+    """
+    Bookmark model, simple url to share an interesting piece of the internet.
     """
     url = models.URLField(verbose_name=_('bookmark url'))
     
@@ -50,15 +57,16 @@ class BookmarkModel(ActivityModel):
         verbose_name_plural = _('bookmarks')
 
 
-class EventModel(ActivityModel):
+class Event(Activity):
     """
-    Event model, a happening with a start/end datetime with optional location/url/description.
+    Event model, a happening with date/time fields and optional location/url/description.
+    Not all dates are required to e.g. enable one-day events.
     """
     title = models.CharField(max_length=150, verbose_name=_('title'))
     start_date = models.DateField(verbose_name=_('start date'))
-    start_time = models.TimeField(verbose_name=_('start time'))
-    end_date = models.DateField(verbose_name=_('end date'))
-    end_time = models.TimeField(verbose_name=_('end time'))
+    start_time = models.TimeField(verbose_name=_('start time'), blank=True)
+    end_date = models.DateField(verbose_name=_('end date'), blank=True)
+    end_time = models.TimeField(verbose_name=_('end time'), blank=True)
     location = models.CharField(max_length=100, verbose_name=_('location'), blank=True)
     url = models.URLField(verbose_name=_('url'), blank=True)
     description = models.CharField(max_length=255, verbose_name=_('description'), blank=True)
@@ -71,9 +79,9 @@ class EventModel(ActivityModel):
         verbose_name_plural = _('events')
 
 
-class StatusModel(ActivityModel):
+class Status(Activity):
     """
-    Status model, leaving a simple message to leave behind a short update what is going on.
+    Status model, leaving a simple message behind with a short update what is going on.
     """
     message = models.CharField(max_length=255, verbose_name=_('message'))
 

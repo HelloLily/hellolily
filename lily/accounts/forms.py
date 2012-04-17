@@ -2,11 +2,11 @@ from django import forms
 from django.db.models.query_utils import Q
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
-from lily.accounts.fields import MultipleInputAndChoiceField
-from lily.accounts.models import AccountModel, TagModel
-from lily.accounts.widgets import InputAndSelectMultiple
+from lily.accounts.models import Account
+from lily.utils.fields import MultipleInputAndChoiceField
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddressModel
+from lily.utils.models import EmailAddress, Tag
+from lily.utils.widgets import InputAndSelectMultiple
 
 
 class AddAccountMinimalForm(forms.models.ModelForm):
@@ -36,31 +36,31 @@ class AddAccountMinimalForm(forms.models.ModelForm):
         
         if cleaned_data.get('name'):
             try:
-                AccountModel.objects.get(name=cleaned_data.get('name'))
+                Account.objects.get(name=cleaned_data.get('name'))
                 self._errors['name'] = self.error_class([_('Name already in use.')])
-            except AccountModel.DoesNotExist:
+            except Account.DoesNotExist:
                 pass
             
         if cleaned_data.get('email'): 
             try:
-                EmailAddressModel.objects.get(email_address=cleaned_data.get('email'))            
+                EmailAddress.objects.get(email_address=cleaned_data.get('email'))            
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-            except EmailAddressModel.DoesNotExist:
+            except EmailAddress.DoesNotExist:
                 pass
-            except EmailAddressModel.MultipleObjectsReturned: 
+            except EmailAddress.MultipleObjectsReturned: 
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
         
         if cleaned_data.get('website'):
             try:
-                AccountModel.objects.get(website=cleaned_data.get('website'))
+                Account.objects.get(website=cleaned_data.get('website'))
                 self._errors['website'] = self.error_class([_('Website already in use.')])
-            except AccountModel.DoesNotExist:
+            except Account.DoesNotExist:
                 pass
         
         return cleaned_data
         
     class Meta:
-        model = AccountModel
+        model = Account
         fields = ('name', 'email', 'website')
 
 AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
@@ -90,7 +90,7 @@ class AddAccountForm(forms.models.ModelForm):
             'placeholder': _('Facebook profile link')
     }))
     
-    tags = MultipleInputAndChoiceField(queryset=TagModel.objects.all(), required=False,
+    tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
             'class': 'input-and-choice-select',
     }))
@@ -110,7 +110,7 @@ class AddAccountForm(forms.models.ModelForm):
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
-        this account instance. Needs to be done here because the TagModels are expected to exist
+        this account instance. Needs to be done here because the Tags are expected to exist
         before self.instance is saved.
         """
         instance = super(AddAccountForm, self).save(commit=False)
@@ -118,16 +118,16 @@ class AddAccountForm(forms.models.ModelForm):
         if commit:
             instance.save()
             
-        tags = self.cleaned_data['tags']
+        tags = self.cleaned_data.get('tags')
         for tag in tags:
-            # Create relationship with TagModel
-            tag_instance, created = TagModel.objects.get_or_create(tag=tag)
+            # Create relationship with Tag
+            tag_instance, created = Tag.objects.get_or_create(tag=tag)
             instance.tags.add(tag_instance)
         
         return instance
     
     class Meta:
-        model = AccountModel
+        model = Account
         fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
                 
         widgets = {
@@ -172,7 +172,7 @@ class EditAccountForm(forms.models.ModelForm):
             'placeholder': _('Facebook profile link')
     }))
     
-    tags = MultipleInputAndChoiceField(queryset=TagModel.objects.all(), required=False,
+    tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
             'class': 'input-and-choice-select',
     }))
@@ -192,7 +192,7 @@ class EditAccountForm(forms.models.ModelForm):
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
-        this account instance. Needs to be done here because the TagModels are expected to exist
+        this account instance. Needs to be done here because the Tags are expected to exist
         before self.instance is saved.
         """
         instance = super(EditAccountForm, self).save(commit=False)
@@ -202,8 +202,8 @@ class EditAccountForm(forms.models.ModelForm):
         
         tags = self.cleaned_data.get('tags')
         for tag in tags:
-            # Create relationship with TagModel
-            tag_instance, created = TagModel.objects.get_or_create(tag=tag)
+            # Create relationship with Tag
+            tag_instance, created = Tag.objects.get_or_create(tag=tag)
             instance.tags.add(tag_instance)
         
         # Remove any relationships for these tag models with instance
@@ -214,7 +214,7 @@ class EditAccountForm(forms.models.ModelForm):
         return instance
     
     class Meta:
-        model = AccountModel
+        model = Account
         fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
                 
         widgets = {

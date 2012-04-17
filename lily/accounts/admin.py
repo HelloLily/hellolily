@@ -1,5 +1,4 @@
 from django.contrib import admin
-from lily.accounts.models import TagModel, AccountModel
+from lily.accounts.models import Account
 
-admin.site.register(TagModel)
-admin.site.register(AccountModel)
+admin.site.register(Account)

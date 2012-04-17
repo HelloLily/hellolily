@@ -4,7 +4,7 @@ from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
 
-class DeletedModel(TimeStampedModel):
+class Deleted(TimeStampedModel):
     """
     Deleted model, flags when an instance is deleted.
     """
@@ -15,7 +15,7 @@ class DeletedModel(TimeStampedModel):
         abstract = True
 
 
-class PhoneNumberModel(models.Model):
+class PhoneNumber(models.Model):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
     """
@@ -55,14 +55,14 @@ class PhoneNumberModel(models.Model):
         # Save raw input
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
         
-        super(PhoneNumberModel, self).save()
+        super(PhoneNumber, self).save()
     
     class Meta:
         verbose_name = _('phone number')
         verbose_name_plural = _('phone numbers')
 
 
-class SocialMediaModel(models.Model):
+class SocialMedia(models.Model):
     """
     Social media model, default supporting a few well known social media but has support for 
     custom input (other_name).
@@ -90,7 +90,7 @@ class SocialMediaModel(models.Model):
         verbose_name_plural = _('social media')
 
 
-class AddressModel(models.Model):
+class Address(models.Model):
     """
     Address model, has most default fields for an address and fixed preset values for type. In
     the view layer options are limited for different models. For example: options for an address
@@ -122,7 +122,7 @@ class AddressModel(models.Model):
         verbose_name_plural = _('addresses')
 
 
-class EmailAddressModel(models.Model):
+class EmailAddress(models.Model):
     """
     Email address model, it's possible to set an email address as primary address as a model can 
     own multiple email addresses.
@@ -146,7 +146,7 @@ class EmailAddressModel(models.Model):
         verbose_name_plural = _('e-mail addresses')
 
 
-class NoteModel(models.Model):
+class Note(models.Model):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
@@ -160,17 +160,31 @@ class NoteModel(models.Model):
         verbose_name_plural = _('notes')
 
 
-class CommonModel(DeletedModel):
+class Common(Deleted):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    phone_numbers = models.ManyToManyField(PhoneNumberModel, 
+    phone_numbers = models.ManyToManyField(PhoneNumber, 
                                            verbose_name=_('list of phone numbers'))
-    social_media = models.ManyToManyField(SocialMediaModel, verbose_name=_('list of social media'))
-    addresses = models.ManyToManyField(AddressModel, verbose_name=_('list of addresses'))
-    email_addresses = models.ManyToManyField(EmailAddressModel,
+    social_media = models.ManyToManyField(SocialMedia, verbose_name=_('list of social media'))
+    addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
+    email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of e-mail addresses'))
-    notes = models.ManyToManyField(NoteModel, verbose_name=_('list of notes'))
+    notes = models.ManyToManyField(Note, verbose_name=_('list of notes'))
     
     class Meta:
         abstract = True
+
+
+class Tag(models.Model):
+    """
+    Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
+    """
+    tag = models.CharField(max_length=50, verbose_name=_('tag'))
+
+    def __unicode__(self):
+        return self.tag
+    
+    class Meta:
+        verbose_name = _('tag')
+        verbose_name_plural = _('tags')

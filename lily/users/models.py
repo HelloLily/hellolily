@@ -5,20 +5,18 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
-from lily.accounts.models import AccountModel
-from lily.contacts.models import ContactModel
-from lily.settings import USER_UPLOAD_TO
-from lily.utils.models import EmailAddressModel
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
+from lily.utils.models import EmailAddress
 
 
-class UserModel(User):
+class CustomUser(User):
     """
-    Custom user model, has relation with ContactModel.
+    Custom user model, has relation with Contact.
     """
     objects = UserManager()
-    avatar = models.ImageField(upload_to=USER_UPLOAD_TO, verbose_name=_('avatar'), blank=True)
-    contact = models.ForeignKey(ContactModel)
-    account = models.ForeignKey(AccountModel)
+    contact = models.ForeignKey(Contact)
+    account = models.ForeignKey(Account)
     
     def __unicode__(self):
         return unicode(self.contact)
@@ -29,7 +27,7 @@ class UserModel(User):
                 if self.contact:
                     email = self.contact.email_addresses.get(is_primary=True)
                     return email.email_address
-            except EmailAddressModel.DoesNotExist:
+            except EmailAddress.DoesNotExist:
                 pass
             return None
         else:
@@ -47,10 +45,10 @@ class UserModel(User):
 ## Signal listeners
 ## ------------------------------------------------------------------------------------------------
 
-@receiver(pre_save, sender=UserModel)
-def post_save_usermodel_handler(sender, **kwargs):
+@receiver(pre_save, sender=CustomUser)
+def post_save_customuser_handler(sender, **kwargs):
     """
-    If an e-mail attribute was set on an instance of UserModel, add a primary e-mail address or 
+    If an e-mail attribute was set on an instance of CustomUser, add a primary e-mail address or 
     overwrite the existing one.
     """
     instance = kwargs['instance']
@@ -62,9 +60,9 @@ def post_save_usermodel_handler(sender, **kwargs):
                 email = instance.contact.email_addresses.get(is_primary=True)
                 email.email_address = new_email_address
                 email.save()
-            except EmailAddressModel.DoesNotExist:
+            except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
-                email = EmailAddressModel.objects.create(email_address=new_email_address, is_primary=True)
+                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
                 instance.contact.email_addresses.add(email)
 
 @receiver(user_logged_out)

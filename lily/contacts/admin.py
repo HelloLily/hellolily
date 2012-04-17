@@ -1,4 +1,4 @@
 from django.contrib import admin
-from lily.contacts.models import ContactModel
+from lily.contacts.models import Contact
 
-admin.site.register(ContactModel)
+admin.site.register(Contact)

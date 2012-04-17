@@ -66,7 +66,6 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
-USER_UPLOAD_TO = 'images/profile/user'
 
 # Static
 STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('static_collected/'))
@@ -87,7 +86,7 @@ LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
 LOGOUT_URL = reverse_lazy('logout')
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
-CUSTOM_USER_MODEL = 'users.UserModel'
+CUSTOM_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = (
     'lily.users.auth_backends.UserModelBackend',
 )
@@ -172,6 +171,9 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-username')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
 EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
 
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
+
 # Logging
 LOGGING = {
     'version': 1,
@@ -197,7 +199,7 @@ LOGGING = {
     }
 }
 
-# Settings for python apps
+# Settings for 3rd party apps
 
 # easy-thumbnails
 THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
@@ -205,8 +207,6 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
-SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
 
 # django-redis-cache
 if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):

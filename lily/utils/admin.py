@@ -1,9 +1,9 @@
 from django.contrib import admin
-from lily.utils.models import PhoneNumberModel, SocialMediaModel, SocialMediaModel, AddressModel, \
-                                EmailAddressModel, NoteModel
+from lily.utils.models import PhoneNumber, SocialMedia, Address, EmailAddress, Note, Tag
 
-admin.site.register(PhoneNumberModel)
-admin.site.register(SocialMediaModel)
-admin.site.register(AddressModel)
-admin.site.register(EmailAddressModel)
-admin.site.register(NoteModel)
+admin.site.register(PhoneNumber)
+admin.site.register(SocialMedia)
+admin.site.register(Address)
+admin.site.register(EmailAddress)
+admin.site.register(Note)
+admin.site.register(Tag)

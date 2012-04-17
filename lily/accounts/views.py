@@ -10,16 +10,16 @@ from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm
-from lily.accounts.models import AccountModel, TagModel
-from lily.contacts.models import FunctionModel
+from lily.accounts.models import Account
+from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
-from lily.utils.models import SocialMediaModel, EmailAddressModel, AddressModel, PhoneNumberModel
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
 
 
 class ListAccountView(ListView):
     template_name = 'accounts/list.html'
-    model = AccountModel
+    model = Account
 
 
 class AddAccountView(CreateView):
@@ -42,9 +42,9 @@ class AddAccountView(CreateView):
             self.template_name = 'accounts/account_add_xhr.html'
             self.form_template_name = 'accounts/account_add_xhr_form.html'
         else:
-            self.EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
-            self.AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
-            self.PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
+            self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm)
+            self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm)
+            self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm)
         
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
     
@@ -68,9 +68,9 @@ class AddAccountView(CreateView):
         """
         # Instantiate the formsets for the normal form
         if not is_ajax(self.request):
-            self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
-            self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
-            self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumberModel.objects.none(), prefix='phone_numbers')
+            self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
+            self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
+            self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
         
         return super(AddAccountView, self).get_form(form_class)
     
@@ -144,7 +144,7 @@ class AddAccountView(CreateView):
             
             # Add relation to Facebook
             if form_kwargs['data'].get('facebook'):
-                facebook = SocialMediaModel.objects.create(
+                facebook = SocialMedia.objects.create(
                     name='facebook', 
                     username=form_kwargs['data'].get('facebook'),
                     profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
@@ -152,7 +152,7 @@ class AddAccountView(CreateView):
             
             # Add relation to Twitter
             if form_kwargs['data'].get('twitter'):
-                twitter = SocialMediaModel.objects.create(
+                twitter = SocialMedia.objects.create(
                     name='twitter', 
                     username=form_kwargs['data'].get('twitter'),
                     profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
@@ -160,7 +160,7 @@ class AddAccountView(CreateView):
             
             # Add relation to LinkedIn
             if form_kwargs['data'].get('linkedin'):
-                linkedin = SocialMediaModel.objects.create(
+                linkedin = SocialMedia.objects.create(
                     name='linkedin',
                     profile_url=form_kwargs['data'].get('linkedin'))
                 self.object.social_media.add(linkedin)
@@ -209,12 +209,12 @@ class EditAccountView(UpdateView):
     """
     template_name = 'accounts/account_edit.html'
     form_class = EditAccountForm
-    model = AccountModel
+    model = Account
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form_kwargs(self):
         """
@@ -305,7 +305,7 @@ class EditAccountView(UpdateView):
         
         # Add relation to Facebook
         if form_kwargs['data'].get('facebook'):
-            facebook = SocialMediaModel.objects.create(
+            facebook = SocialMedia.objects.create(
                 name='facebook', 
                 username=form_kwargs['data'].get('facebook'),
                 profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
@@ -313,7 +313,7 @@ class EditAccountView(UpdateView):
         
         # Add relation to Twitter
         if form_kwargs['data'].get('twitter'):
-            twitter = SocialMediaModel.objects.create(
+            twitter = SocialMedia.objects.create(
                 name='twitter', 
                 username=form_kwargs['data'].get('twitter'),
                 profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
@@ -321,7 +321,7 @@ class EditAccountView(UpdateView):
         
         # Add relation to LinkedIn
         if form_kwargs['data'].get('linkedin'):
-            linkedin = SocialMediaModel.objects.create(
+            linkedin = SocialMedia.objects.create(
                 name='linkedin',
                 profile_url=form_kwargs['data'].get('linkedin'))
             self.object.social_media.add(linkedin)
@@ -355,7 +355,7 @@ class DeleteAccountView(DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
-    model = AccountModel
+    model = Account
     
     def delete(self, request, *args, **kwargs):
         """
@@ -366,9 +366,9 @@ class DeleteAccountView(DeleteView):
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
         
-        functions = FunctionModel.objects.filter(account=self.object)
+        functions = Function.objects.filter(account=self.object)
         functions.delete()
-        tags = TagModel.objects.filter(account=self.object)
+        tags = Tag.objects.filter(account=self.object)
         tags.delete()
         
         self.object.delete()

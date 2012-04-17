@@ -27,13 +27,13 @@ from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 # Lily imports
-from lily.accounts.models import AccountModel
-from lily.contacts.models import ContactModel
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm
-from lily.users.models import UserModel
-from lily.utils.models import EmailAddressModel
+from lily.users.models import CustomUser
+from lily.utils.models import EmailAddress
 
 class RegistrationView(FormView):
     """
@@ -47,25 +47,25 @@ class RegistrationView(FormView):
         Register a new user.
         """
         # Create contact
-        contact = ContactModel.objects.create(
+        contact = Contact.objects.create(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
         
         # Add email address
-        email = EmailAddressModel.objects.create(
+        email = EmailAddress.objects.create(
             email_address=form.cleaned_data['email'],
             is_primary=True
         )
         
         # Create account
-        account = AccountModel.objects.create(name=form.cleaned_data.get('company'))
+        account = Account.objects.create(name=form.cleaned_data.get('company'))
         
         contact.email_addresses.add(email)
         
         # Create and save user
-        user = UserModel()
+        user = CustomUser()
         user.contact = contact
         user.account = account
         user.username = form.cleaned_data['username']
@@ -136,9 +136,9 @@ class ActivationView(TemplateView):
         """
         try:
             self.uid = base36_to_int(kwargs['uidb36'])
-            self.user = UserModel.objects.get(id=self.uid)
+            self.user = CustomUser.objects.get(id=self.uid)
             self.token = kwargs['token']
-        except (ValueError, UserModel.DoesNotExist):
+        except (ValueError, CustomUser.DoesNotExist):
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
         
@@ -173,7 +173,7 @@ class ActivationResendView(FormView):
         If ResendActivationForm passed the validation, generate new token and send an e-mail.
         """
         self.TGen = PasswordResetTokenGenerator()
-        self.users = UserModel.objects.filter(
+        self.users = CustomUser.objects.filter(
                                 contact__email_addresses__email_address__iexact=form.cleaned_data['email'], 
                                 contact__email_addresses__is_primary=True
                             )
@@ -403,13 +403,13 @@ class AcceptInvitationView(FormView):
         # Default value is false, only set to true if all checks have passed
         self.valid_link = False
             
-        if UserModel.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
+        if CustomUser.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
             return self.valid_link
         
         try:
             # Check if it's a valid pk and try to retrieve the corresponding account
-            self.account = AccountModel.objects.get(pk=base36_to_int(self.aidb36))
-        except ValueError, AccountModel.DoesNotExist:
+            self.account = Account.objects.get(pk=base36_to_int(self.aidb36))
+        except ValueError, Account.DoesNotExist:
             return self.valid_link
         else:
             if not self.account.name == self.account_name:
@@ -443,14 +443,14 @@ class AcceptInvitationView(FormView):
         get_success_url method is called.
         """
         try:
-            contact = ContactModel.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
-        except ContactModel.DoesNotExist:
-            contact = ContactModel.objects.create(
+            contact = Contact.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
+        except Contact.DoesNotExist:
+            contact = Contact.objects.create(
                 first_name=form.cleaned_data['first_name'],
                 preposition=form.cleaned_data['preposition'],
                 last_name=form.cleaned_data['last_name']
             )
-            email = EmailAddressModel.objects.create(
+            email = EmailAddress.objects.create(
                 email_address=form.cleaned_data['email'],
                 is_primary=True
             )
@@ -458,7 +458,7 @@ class AcceptInvitationView(FormView):
         
         
         # Create and save user
-        user = UserModel()
+        user = CustomUser()
         user.contact = contact
         user.account = self.account
         user.username = form.cleaned_data['username']

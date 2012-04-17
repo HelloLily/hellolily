@@ -4,16 +4,16 @@ from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from lily.accounts.models import AccountModel
+from lily.accounts.models import Account
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
-from lily.contacts.models import ContactModel, FunctionModel
+from lily.contacts.models import Contact, Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
-from lily.utils.models import EmailAddressModel, AddressModel, PhoneNumberModel
+from lily.utils.models import EmailAddress, Address, PhoneNumber
 
 
 class ListContactView(ListView):
     template_name='contacts/contact_list.html'
-    model = ContactModel
+    model = Contact
 
 
 class AddContactView(CreateView):
@@ -25,9 +25,9 @@ class AddContactView(CreateView):
     form_class = AddContactForm
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm)
     
     def get_form(self, form_class):
         """
@@ -35,9 +35,9 @@ class AddContactView(CreateView):
         """
         form = super(AddContactView, self).get_form(form_class)
         
-        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddressModel.objects.none(), prefix='email_addresses')
-        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=AddressModel.objects.none(), prefix='addresses')
-        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumberModel.objects.none(), prefix='phone_numbers')
+        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
+        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
+        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
         
         return form
     
@@ -88,8 +88,8 @@ class AddContactView(CreateView):
         if form_kwargs['data'].getlist('accounts'):
             pks = form_kwargs['data'].getlist('accounts')
             for pk in pks:
-                account = AccountModel.objects.get(pk=pk)
-                FunctionModel.objects.create(account=account, contact=self.object, manager=self.object)
+                account = Account.objects.get(pk=pk)
+                Function.objects.create(account=account, contact=self.object, manager=self.object)
         
         return self.get_success_url()
     
@@ -119,12 +119,12 @@ class EditContactView(UpdateView):
     """
     template_name = 'contacts/contact_edit.html'
     form_class = EditContactForm
-    model = ContactModel
+    model = Contact
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
-    AddressFormSet = modelformset_factory(AddressModel, form=AddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form(self, form_class):
         """
@@ -204,12 +204,12 @@ class EditContactView(UpdateView):
         if form_kwargs['data'].getlist('accounts'):
             pks = form_kwargs['data'].getlist('accounts')
             for pk in pks:
-                account = AccountModel.objects.get(pk=pk)
-                FunctionModel.objects.get_or_create(account=account, contact=self.object, manager=self.object)
-            functions = FunctionModel.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
+                account = Account.objects.get(pk=pk)
+                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+            functions = Function.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
             functions.delete()
         else:
-            functions = FunctionModel.objects.filter(contact=self.object)
+            functions = Function.objects.filter(contact=self.object)
             functions.delete()
         
         return self.get_success_url()
@@ -232,7 +232,7 @@ class EditContactView(UpdateView):
         """
         form_kwargs = self.get_form_kwargs()
         
-        if len(FunctionModel.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
+        if len(Function.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
             return redirect(reverse('function_edit', kwargs={
                 'pk': self.object.pk,
             }))
@@ -245,7 +245,7 @@ class DeleteContactView(DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
-    model = ContactModel
+    model = Contact
     
     def delete(self, request, *args, **kwargs):
         """
@@ -256,7 +256,7 @@ class DeleteContactView(DeleteView):
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
         
-        functions = FunctionModel.objects.filter(contact=self.object)
+        functions = Function.objects.filter(contact=self.object)
         functions.delete()
         
         self.object.delete()
@@ -269,11 +269,11 @@ class EditFunctionView(UpdateView):
     """
     template_name = 'contacts/function_edit.html'
     form_class = EditFunctionForm
-    model = ContactModel
+    model = Contact
     
-    FunctionFormSet = inlineformset_factory(ContactModel, FunctionModel, fk_name='contact', form=FunctionForm, extra=0)
-    EmailAddressFormSet = modelformset_factory(EmailAddressModel, form=EmailAddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumberModel, form=PhoneNumberBaseForm, can_delete=True)
+    FunctionFormSet = inlineformset_factory(Contact, Function, fk_name='contact', form=FunctionForm, extra=0)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
     
     def get_form(self, form_class):
         """

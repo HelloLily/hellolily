@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddressModel, PhoneNumberModel, AddressModel
+from lily.utils.models import EmailAddress, PhoneNumber, Address
 
 
 class EmailAddressBaseForm(forms.ModelForm):
@@ -9,7 +9,7 @@ class EmailAddressBaseForm(forms.ModelForm):
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
     class Meta:
-        model = EmailAddressModel
+        model = EmailAddress
         exclude = ('status')
         widgets = {
             'email_address': forms.TextInput(attrs={
@@ -25,7 +25,7 @@ class PhoneNumberBaseForm(forms.ModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
-    type = forms.ChoiceField(choices=PhoneNumberModel.PHONE_TYPE_CHOICES, initial='work', 
+    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', 
         widget=forms.Select(attrs={
             'class': 'other'
         }
@@ -39,7 +39,7 @@ class PhoneNumberBaseForm(forms.ModelForm):
     }));
 
     class Meta:
-        model = PhoneNumberModel
+        model = PhoneNumber
         fields = ('raw_input', 'type', 'other_type')
         exclude = ('status')
         widgets = {
@@ -59,12 +59,12 @@ class AddressBaseForm(forms.ModelForm):
     """
     Form for adding an address which includes all fields available.
     """
-    type = forms.ChoiceField(choices=AddressModel.ADDRESS_TYPE_CHOICES, initial='visiting',
+    type = forms.ChoiceField(choices=Address.ADDRESS_TYPE_CHOICES, initial='visiting',
         widget=forms.Select()
     )
     
     class Meta:
-        model = AddressModel
+        model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
         widgets = {
             'street_number': forms.TextInput(attrs={

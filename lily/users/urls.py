@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     # Invitations
     url(r'^invitation/send/$', SendInvitationView.as_view(), name='invitation_send'),
     url(r'^invitation/accept/(?P<account_name>.+)/(?P<first_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
-    url(r'^invitation/success/', AcceptInvitationSuccessView.as_view(), name='invitation_success'),
+    url(r'^invitation/success/$', AcceptInvitationSuccessView.as_view(), name='invitation_success'),
     
     # Dashboard and other user specific views, which require a logged in user
     url(r'^$', DashboardView.as_view(), name='dashboard'),

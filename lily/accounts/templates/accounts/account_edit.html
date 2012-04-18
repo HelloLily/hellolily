@@ -18,19 +18,6 @@
 {% endblock %}
 
 {% block content %}
-
-    <input type="button" id="delete-account-dialog-btn" class="mws-button red" value="{% trans 'Delete account' %}" /> <br /><br />
-
-	<div id="delete-account-form-dialog" class="hidden">
-        <form class="mws-form" action="{% url account_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
-        	<div class="mws-form-inline">
-        		<div class="mws-form-row">
-        			{% blocktrans with form.instance.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
-        		</div>
-        	</div>
-        </form>
-    </div>
-
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-fountain-pen">{% trans 'Edit account' %}</span>
@@ -478,6 +465,18 @@
                     </div>
                 
                     <div class="mws-button-row">
+                        <input type="button" id="delete-account-dialog-btn" class="mws-button red float-left" value="{% trans 'Delete account' %}" />
+                    
+                        <div id="delete-account-form-dialog" class="hidden">
+                            <form class="mws-form" action="{% url account_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
+                                <div class="mws-form-inline">
+                                    <div class="mws-form-row">
+                                        {% blocktrans with form.instance.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
                         {% comment %}
                         TODO: ask if the user is sure when the form has changed to go back
                         {% endcomment %}

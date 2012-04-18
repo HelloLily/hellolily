@@ -62,7 +62,7 @@ class CustomSetPasswordForm(SetPasswordForm):
     This form is a subclass from the default SetPasswordForm.
     Css classes are added and CustomUser is used for validation instead of User.
     """
-    new_password1 = forms.CharField(label=_('New password'), widget=forms.PasswordInput(attrs={
+    new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput(attrs={
         'class': 'mws-reset-password mws-textinput required',
         'placeholder': _('New password')
     }))

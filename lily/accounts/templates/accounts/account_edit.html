@@ -451,7 +451,15 @@
                     </div>
                 
                     <div class="mws-button-row">
-                        <input type="submit" name="submit" value="{% trans 'Edit' %}" class="mws-button blue" />
+                        {% comment %}
+                        TODO: ask if the user is sure when the form has changed to go back
+                        {% endcomment %}
+                        <a href="{% url account_list %}" class="no-decoration">
+                            <button type="button" class="mws-button green">
+                                {% trans 'Cancel' %}
+                            </button>
+                        </a>
+                        <input type="submit" name="submit" value="{% trans 'Save' %}" class="mws-button blue" />
                     </div>
                 </div>
             </form>

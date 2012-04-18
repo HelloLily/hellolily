@@ -1,10 +1,13 @@
+import getpass
+
 from django.contrib.auth.models import Group, User
 from django.core.management.base import NoArgsCommand
 from django.db.models.query_utils import Q
+
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.users.models import CustomUser
-import getpass
+
 
 class Command(NoArgsCommand):
     help = """Create a user which can be used to log in to HelloLily. The default superuser that is prompted \

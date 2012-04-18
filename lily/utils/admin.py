@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from lily.utils.models import PhoneNumber, SocialMedia, Address, EmailAddress, Note, Tag
 
 admin.site.register(PhoneNumber)

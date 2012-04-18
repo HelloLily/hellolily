@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
+
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.utils.models import EmailAddress

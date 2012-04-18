@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+
 from lily.accounts.views import AddAccountView, EditAccountView, DeleteAccountView, ListAccountView
 
 urlpatterns = patterns('',

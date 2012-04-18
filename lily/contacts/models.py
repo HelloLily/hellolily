@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext as _
+
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
 from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress

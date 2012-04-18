@@ -1,5 +1,6 @@
 import os
 from urlparse import urlparse, uses_netloc
+
 from django.core.urlresolvers import reverse_lazy
 
 # Register database scheme and redis caching in URLs

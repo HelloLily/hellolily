@@ -6,7 +6,6 @@ from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress
 from lily.utils.widgets import JqueryPasswordInput
 
 

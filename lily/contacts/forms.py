@@ -1,12 +1,10 @@
 from django import forms
-from django.forms.models import modelformset_factory
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
+
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
-from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress, PhoneNumber
 
 class AddContactForm(forms.models.ModelForm):
     """

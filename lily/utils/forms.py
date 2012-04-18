@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext as _
+
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress, PhoneNumber, Address
 

@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+
 from lily.contacts.views import AddContactView, EditContactView, \
     DeleteContactView, EditFunctionView, ListContactView
 

@@ -1,8 +1,6 @@
-# Python imports
 from datetime import date, timedelta
 from hashlib import sha256
 
-# Django imports
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
@@ -21,12 +19,9 @@ from django.utils.translation import ugettext as _
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View, TemplateView, FormView
-
-# 3rd party imports
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 
-# Lily imports
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.users.decorators import group_required
@@ -455,7 +450,6 @@ class AcceptInvitationView(FormView):
                 is_primary=True
             )
             contact.email_addresses.add(email)
-        
         
         # Create and save user
         user = CustomUser()

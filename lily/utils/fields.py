@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.forms.models import ModelMultipleChoiceField
+
 from lily.utils.functions import uniquify
 
 class MultipleInputAndChoiceField(ModelMultipleChoiceField):

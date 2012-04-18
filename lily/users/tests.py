@@ -1,11 +1,5 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
+
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.users.models import CustomUser
@@ -17,6 +11,7 @@ class SimpleTest(TestCase):
     def test_customuser_set_email(self):
         """
         Test the pre_save signal involving e-mail addresses for CustomUser.
+        TODO: re-evaluate and document this file.
         """
         
         contact = Contact.objects.create(first_name='John', last_name='Doe')        

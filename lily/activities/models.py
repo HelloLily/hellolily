@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.models import TimeStampedModel
+
 from lily.users.models import CustomUser
 
 

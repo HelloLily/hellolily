@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+
 from lily.users.forms import CustomPasswordResetForm, CustomSetPasswordForm
 from lily.users.views import DashboardView, LoginView, RegistrationView, RegistrationSuccessView, \
     ActivationView, ActivationResendView, SendInvitationView, AcceptInvitationView, \

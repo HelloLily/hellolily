@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
+
 from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm
 from lily.accounts.models import Account
 from lily.contacts.models import Function

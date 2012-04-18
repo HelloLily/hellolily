@@ -61,14 +61,6 @@
                         <label for="id_email_addresses-0-email_address">{% trans 'E-mail addresses' %}</label>
 	                    {% for form in email_addresses_formset.forms %}
 		                   <div class="mws-form-item large {{ email_addresses_formset.prefix }}-mws-formset">
-                                {% if form.instance.pk %}
-                                    {{ form.id }}
-                                    {% if email_addresses_formset.can_delete %}
-                                        <div class="hidden">
-                                            {{ form.DELETE }}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row mws-form-item email_address">
@@ -107,17 +99,36 @@
                     </div>
 
                     <div class="mws-form-row">
-                        {{ form.website.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.website.errors %}
-                                <span class="field_error">{{ form.website }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.website.errors }}
+                        <label for="id_websites-0-website">{% trans 'Websites' %}</label>
+                        {% for form in websites_formset.forms %}
+                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">  
+                                <div class="mws-form-cols clearfix">
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row website mws-form-item">       
+                                            {% if form.website.errors %}
+                                                <span class="field_error float-left">{{ form.website }}</span>
+                                                <div class="mws-error inline plain float-left">
+                                                    {% for error in form.website.errors %}
+                                                        <strong>{{ error }}</strong>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.website }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="formset-delete mws-form-col-row mws-form-item">
+                                            <a href="javascript:" class="mws-i-24 i-cross websites-delete-row" /></a>
+                                        </div>
+                                    </div>
                                 </div>
-                            {% else %}
-                                {{ form.website }}
-                            {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="hidden">
+                            {% include 'accounts/website_formset_template.html' with formset_prefix=websites_formset.prefix %}
                         </div>
+                        {{ websites_formset.management_form }}
                     </div>
                 
                     <hr />
@@ -126,14 +137,6 @@
                         <label for="id_phone_numbers-0-raw_input">{% trans 'Phone numbers' %}</label>
 	                    {% for form in phone_numbers_formset.forms %}
 	                    	<div class="mws-form-item large {{ phone_numbers_formset.prefix }}-mws-formset">
-                                {% if form.instance.pk %}
-                                    {{ form.id }}
-                                    {% if phone_numbers_formset.can_delete %}
-                                        <div class="hidden">
-                                            {{ form.DELETE }}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row phone_number mws-form-item">
@@ -189,14 +192,6 @@
                         <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
 	                    {% for form in addresses_formset.forms %}
 	                        <div class="mws-form-item large {{ addresses_formset.prefix }}-mws-formset">
-                                {% if form.instance.pk %}
-                                    {{ form.id }}
-                                    {% if addresses_formset.can_delete %}
-                                        <div class="hidden">
-                                            {{ form.DELETE }}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row address mws-form-item">

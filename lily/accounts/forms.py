@@ -3,12 +3,12 @@ from django.db.models.query_utils import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
-
-from lily.accounts.models import Account
+from lily.accounts.models import Account, Website
 from lily.utils.fields import MultipleInputAndChoiceField
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress, Tag
 from lily.utils.widgets import InputAndSelectMultiple
+
 
 
 class AddAccountMinimalForm(ModelForm):
@@ -54,9 +54,9 @@ class AddAccountMinimalForm(ModelForm):
         
         if cleaned_data.get('website'):
             try:
-                Account.objects.get(website=cleaned_data.get('website'))
+                Website.objects.get(website=cleaned_data.get('website'))
                 self._errors['website'] = self.error_class([_('Website already in use.')])
-            except Account.DoesNotExist:
+            except Website.DoesNotExist:
                 pass
         
         return cleaned_data
@@ -77,13 +77,13 @@ class AddAccountForm(ModelForm):
     twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
-            'placeholder': _('Twitter username')
+            'placeholder': _('Twitter profile')
     }))
     
     linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
-            'placeholder': _('LinkedIn username')
+            'placeholder': _('LinkedIn profile')
     }))
     
     facebook = forms.URLField(label=_('Facebook'), required=False,
@@ -130,15 +130,12 @@ class AddAccountForm(ModelForm):
     
     class Meta:
         model = Account
-        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
+        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'description')
                 
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'mws-textinput required',
                 'placeholder': _('Company name'),
-            }),
-            'website': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
             }),
         }
 
@@ -227,3 +224,16 @@ class EditAccountForm(ModelForm):
         }
 
 EditAccountForm = autostrip(EditAccountForm)
+
+
+class WebsiteBaseForm(ModelForm):
+    website = forms.URLField(max_length=30, initial='http://',
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+    }))
+    
+    class Meta:
+        model = Website
+        exclude = ('account')
+
+WebsiteBaseForm = autostrip(WebsiteBaseForm)

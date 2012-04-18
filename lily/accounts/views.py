@@ -9,13 +9,14 @@ from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
-
-from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm
-from lily.accounts.models import Account
+from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm, \
+    WebsiteBaseForm
+from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
+
 
 
 class ListAccountView(ListView):
@@ -43,6 +44,7 @@ class AddAccountView(CreateView):
             self.template_name = 'accounts/account_add_xhr.html'
             self.form_template_name = 'accounts/account_add_xhr_form.html'
         else:
+            self.WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm)
             self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm)
             self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm)
             self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm)
@@ -69,6 +71,7 @@ class AddAccountView(CreateView):
         """
         # Instantiate the formsets for the normal form
         if not is_ajax(self.request):
+            self.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.none(), prefix='websites')
             self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
             self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
             self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
@@ -89,6 +92,10 @@ class AddAccountView(CreateView):
             # Add e-mail address to account as primary
             self.object.email = form.cleaned_data.get('email')
             self.object.save()
+            
+            # Save website
+            if form.cleaned_data.get('website'):
+                Website.objects.create(website=form.cleaned_data.get('website'), account=self.object)
             
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit', None)
@@ -112,7 +119,14 @@ class AddAccountView(CreateView):
             }))
         else: # Deal with all the extra fields on the normal form which are not in the ajax request
             # Save all e-mail address, phone number and address formsets
-            if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+            if self.websites_formset.is_valid() and self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+                # Handle websites
+                for formset in self.websites_formset:
+                    # Only save website if more than initial was filled in
+                    if formset.instance.website and not formset.instance.website == formset.fields['website'].initial:
+                        formset.instance.account = self.object
+                        formset.save()
+                
                 # Handle e-mail addresses
                 for formset in self.email_addresses_formset:
                     primary = form_kwargs['data'].get(formset.prefix + 'primary-email')
@@ -190,6 +204,7 @@ class AddAccountView(CreateView):
         # Add formsets to context for the normal form
         if not is_ajax(self.request):
             kwargs.update({
+                'websites_formset': self.websites_formset,
                 'email_addresses_formset': self.email_addresses_formset,
                 'addresses_formset': self.addresses_formset,
                 'phone_numbers_formset': self.phone_numbers_formset,
@@ -213,6 +228,7 @@ class EditAccountView(UpdateView):
     model = Account
     
     # Create formsets
+    WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, can_delete=True)
     EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
     AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True)
     PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
@@ -234,6 +250,7 @@ class EditAccountView(UpdateView):
         """
         form = super(EditAccountView, self).get_form(form_class)
         
+        self.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object), prefix='websites')
         self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
         self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
         self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
@@ -252,7 +269,18 @@ class EditAccountView(UpdateView):
         form_kwargs = self.get_form_kwargs()
         
         # Save all e-mail address, phone number and address formsets
-        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+        if self.websites_formset.is_valid() and self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+            # Handle websites
+            for formset in self.websites_formset:
+                # Check if existing instance has been marked for deletion
+                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+                    formset.instance.delete()
+                    continue
+                # Only save website if more than initial was filled in
+                if formset.instance.website and not formset.instance.website == formset.fields['website'].initial:
+                    formset.instance.account = self.object
+                    formset.save()
+                
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
                 # Check if existing instance has been marked for deletion
@@ -335,6 +363,7 @@ class EditAccountView(UpdateView):
         """
         kwargs = super(EditAccountView, self).get_context_data(**kwargs)
         kwargs.update({
+            'websites_formset': self.websites_formset,
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
             'phone_numbers_formset': self.phone_numbers_formset,
@@ -346,10 +375,10 @@ class EditAccountView(UpdateView):
         Get the url to redirect to after this form has succesfully been submitted. 
         """
         # TODO: determine whether to go back to the list in search mode
-        return redirect(reverse('account_list'))
-#        return redirect(reverse('account_edit', kwargs={
-#            'pk': self.object.pk,
-#        }))
+#        return redirect(reverse('account_list'))
+        return redirect(reverse('account_edit', kwargs={
+            'pk': self.object.pk,
+        }))
 
 
 class DeleteAccountView(DeleteView):

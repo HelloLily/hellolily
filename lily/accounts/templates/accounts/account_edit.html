@@ -119,17 +119,44 @@
                     </div>
                     
                     <div class="mws-form-row">
-                        {{ form.website.label_tag }}
-                        <div class="mws-form-item large">                            
-                            {% if form.website.errors %}
-                                <span class="field_error">{{ form.website }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.website.errors }}
+                        <label for="id_websites-0-website">{% trans 'Websites' %}</label>
+                        {% for form in websites_formset.forms %}
+                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">     
+                                {% if form.instance.pk %}
+                                    {{ form.id }}
+                                    {% if websites_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="mws-form-cols clearfix">
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row website mws-form-item">       
+                                            {% if form.website.errors %}
+                                                <span class="field_error float-left">{{ form.website }}</span>
+                                                <div class="mws-error inline plain float-left">
+                                                    {% for error in form.website.errors %}
+                                                        <strong>{{ error }}</strong>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.website }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="formset-delete mws-form-col-row mws-form-item">
+                                            <a href="javascript:" class="mws-i-24 i-cross websites-delete-row" /></a>
+                                        </div>
+                                    </div>
                                 </div>
-                            {% else %}
-                                {{ form.website }}
-                            {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="hidden">
+                            {% include 'accounts/website_formset_template.html' with formset_prefix=websites_formset.prefix %}
                         </div>
+                        {{ websites_formset.management_form }}
                     </div>
                 
                     <hr />
@@ -455,7 +482,7 @@
                         TODO: ask if the user is sure when the form has changed to go back
                         {% endcomment %}
                         <a href="{% url account_list %}" class="no-decoration">
-                            <button type="button" class="mws-button green">
+                            <button type="button" class="mws-button red">
                                 {% trans 'Cancel' %}
                             </button>
                         </a>

@@ -24,7 +24,7 @@ class Account(Common):
         ('prev_customer', _('previous customer')),
     )
     
-    COMPANY_SIZE_CHOICES = (
+    ACCOUNT_SIZE_CHOICES = (
         ('1', u'1'),
         ('2', u'2-10'),
         ('11', u'11-50'),
@@ -37,10 +37,9 @@ class Account(Common):
     
     customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
     name = models.CharField(max_length=255, verbose_name=_('company name'))
-    website = models.URLField(verbose_name=_('company\'s website'), blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
                               blank=True)
-    company_size = models.CharField(max_length=15, choices=COMPANY_SIZE_CHOICES,
+    company_size = models.CharField(max_length=15, choices=ACCOUNT_SIZE_CHOICES,
                                     verbose_name=_('company size'), blank=True)  
     tags = models.ManyToManyField(Tag, verbose_name=_('tags'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
@@ -91,6 +90,21 @@ class Account(Common):
         verbose_name = _('account')
         verbose_name_plural = _('accounts')
 
+
+class Website(models.Model):
+    """
+    Website model, simple url field to store a website reference.
+    """
+    website = models.URLField(max_length=255, verbose_name=_('website'))
+    account = models.ForeignKey(Account)
+    
+    def __unicode__(self):
+        return self.website
+    
+    class Meta:
+        verbose_name = _('website')
+        verbose_name_plural = _('websites')
+        
 
 ## ------------------------------------------------------------------------------------------------
 ## Signal listeners

@@ -115,7 +115,7 @@ $(document).ready(function() {
     });
     
     // enable formsets for email addresses, phone numbers and addresses
-    form_prefices = ['email_addresses', 'phone_numbers', 'addresses'];    
+    form_prefices = ['websites', 'email_addresses', 'phone_numbers', 'addresses'];    
     $.each(form_prefices, function(index, form_prefix) {
         $('.' + form_prefix + '-mws-formset').formset( {
             formTemplate: $('#' + form_prefix + '-form-template'), // needs to be unique per formset

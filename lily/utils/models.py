@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
@@ -153,7 +154,7 @@ class Note(models.Model):
     note = models.TextField(verbose_name=_('note'))
     
     def __unicode__(self):
-        return self.note
+        return truncatewords(self.note, 5)
 
     class Meta:
         verbose_name = _('note')

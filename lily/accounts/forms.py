@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models.query_utils import Q
+from django.forms import ModelForm
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
@@ -10,7 +11,7 @@ from lily.utils.models import EmailAddress, Tag
 from lily.utils.widgets import InputAndSelectMultiple
 
 
-class AddAccountMinimalForm(forms.models.ModelForm):
+class AddAccountMinimalForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -67,7 +68,7 @@ class AddAccountMinimalForm(forms.models.ModelForm):
 AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
 
 
-class AddAccountForm(forms.models.ModelForm):
+class AddAccountForm(ModelForm):
     """
     Form for adding an account which includes all fields available.
     
@@ -144,7 +145,7 @@ class AddAccountForm(forms.models.ModelForm):
 AddAccountForm = autostrip(AddAccountForm)
 
 
-class EditAccountForm(forms.models.ModelForm):
+class EditAccountForm(ModelForm):
     """
     Form for editing an existing account which includes all fields available.
     

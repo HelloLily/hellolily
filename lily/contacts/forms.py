@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ModelForm
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
@@ -6,7 +7,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.utils.functions import autostrip
 
-class AddContactForm(forms.models.ModelForm):
+class AddContactForm(ModelForm):
     """
     Form to add a contact which all fields available.
     """
@@ -60,7 +61,7 @@ class AddContactForm(forms.models.ModelForm):
 AddContactForm = autostrip(AddContactForm)
 
 
-class EditContactForm(forms.models.ModelForm):
+class EditContactForm(ModelForm):
     """
     Form for editing an existing contact which includes all fields available.
     """
@@ -123,7 +124,7 @@ class EditContactForm(forms.models.ModelForm):
 EditContactForm = autostrip(EditContactForm)
 
 
-class EditFunctionForm(forms.models.ModelForm):
+class EditFunctionForm(ModelForm):
     
     def __init__(self, *args, **kwargs):
         super(EditFunctionForm, self).__init__(*args, **kwargs)
@@ -145,7 +146,7 @@ class EditFunctionForm(forms.models.ModelForm):
         
         return is_valid
 
-class FunctionForm(forms.models.ModelForm):
+class FunctionForm(ModelForm):
     """
     Form to link contacts with accounts through functions.
     """

@@ -28,6 +28,7 @@ from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm
 from lily.users.models import CustomUser
+from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 
 class RegistrationView(FormView):
@@ -244,8 +245,6 @@ class SendInvitationView(FormSetView):
         Determine wheter the form is posted via ajax or not, this function is also decorated
         to prevent people with insufficient permissions to invite new people.
         """
-        self.ajax_call = 'xhr' in request.GET
-        
         return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
     
     def formset_valid(self, formset):
@@ -294,7 +293,7 @@ class SendInvitationView(FormSetView):
                     }
                 )
         
-        if self.ajax_call:
+        if is_ajax(self.request):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
@@ -307,7 +306,7 @@ class SendInvitationView(FormSetView):
         If the request is done via ajax, send back a json object with the error set to true and 
         the form rendered into a string.
         """
-        if self.ajax_call:
+        if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(formset=formset))
             return HttpResponse(simplejson.dumps({
                 'error': True,

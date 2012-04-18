@@ -1,11 +1,12 @@
 from django import forms
+from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress, PhoneNumber, Address
 
 
-class EmailAddressBaseForm(forms.ModelForm):
+class EmailAddressBaseForm(ModelForm):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
@@ -22,7 +23,7 @@ class EmailAddressBaseForm(forms.ModelForm):
 EmailAddressBaseForm = autostrip(EmailAddressBaseForm)
 
 
-class PhoneNumberBaseForm(forms.ModelForm):
+class PhoneNumberBaseForm(ModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
@@ -56,7 +57,7 @@ class PhoneNumberBaseForm(forms.ModelForm):
 PhoneNumberBaseForm = autostrip(PhoneNumberBaseForm)
 
 
-class AddressBaseForm(forms.ModelForm):
+class AddressBaseForm(ModelForm):
     """
     Form for adding an address which includes all fields available.
     """

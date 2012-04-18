@@ -1,5 +1,4 @@
 from django.forms.fields import ChoiceField, FileField
-
 from django import template
 register = template.Library()
 

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
+from django.forms import Form
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
 
@@ -70,7 +71,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         'placeholder': _('New password confirmation')
     }))
 
-class ResendActivationForm(forms.Form):
+class ResendActivationForm(Form):
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-reset-email mws-textinput required',
         'placeholder': _('E-mail address')
@@ -100,7 +101,7 @@ class ResendActivationForm(forms.Form):
                     raise forms.ValidationError(self.error_messages['active'])
         return email
 
-class RegistrationForm(forms.Form):
+class RegistrationForm(Form):
     """
     This is the registration form, which is used to register a new user.
     """
@@ -212,7 +213,7 @@ class UserRegistrationForm(RegistrationForm):
         
         return cleaned_data
     
-class InvitationForm(forms.Form):
+class InvitationForm(Form):
     """
     This is the invitation form, it is used to invite new users to join an account
     """

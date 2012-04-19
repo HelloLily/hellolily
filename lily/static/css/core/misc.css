@@ -278,6 +278,11 @@ div.mws-panel-toolbar ul li span:active
     width: 100%;
 }
 
+.hidden
+{
+    display:none !important;
+}
+
 /* Alignment */
 
 .center {

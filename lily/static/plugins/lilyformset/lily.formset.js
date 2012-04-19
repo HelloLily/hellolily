@@ -36,25 +36,27 @@
             
             preventEmptyFormset = function(row, forms) {
                 var deleteTriggers, buttonTrigger;
-                if (options.preventEmptyFormset && forms.length === 1) { // prevent deletion of last form
+                if (options.preventEmptyFormset && forms.length === 1) { 
+                    // Prevent the last form from being deleted:
                     deleteTriggers = forms.find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
-                        if ((buttonTrigger = $(deleteTriggers[i])) != undefined){
-                            $(buttonTrigger).removeClass('red').addClass('gray').attr('disabled', 'disabled');
-                        } else {
-                            $(deleteTriggers[i]).unbind('click');
+                        if ((buttonTrigger = $(deleteTriggers[i])) != undefined) {
+                            // $(buttonTrigger).removeClass('red').addClass('gray').attr('disabled', 'disabled');
+                            $(buttonTrigger).addClass('hidden');
                         }
                     }
-                } else { // make sure that delete on first form is enabled
+                } else { 
+                    // Make sure that delete on first form is enabled:
                     deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
-                        if ((buttonTrigger = $(deleteTriggers[i])) !== undefined){
-                            $(buttonTrigger).removeClass('gray').addClass('red').removeAttr('disabled');
+                        if ((buttonTrigger = $(deleteTriggers[i])) !== undefined) {
+                            // $(buttonTrigger).removeClass('gray').addClass('red').removeAttr('disabled');
+                            $(buttonTrigger).removeClass('hidden');
                         }
                     }
                 }
             },
-
+            
             insertDeleteLink = function(row) {
                 row.find('.' + options.deleteCssClass).click(function() {
                     var row = $(this).parents('.' + options.formCssClass),

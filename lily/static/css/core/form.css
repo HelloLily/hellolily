@@ -690,6 +690,6 @@ div.mws-dualbox button:active
 a.add-row {
     margin: 5px 0 0 0;
     padding-top: 0 !important;
-    display: block;
+    display: inline-block;
     color: #4682B4;
 }

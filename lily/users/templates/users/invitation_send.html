@@ -3,6 +3,10 @@
 
 {% block title %}{% trans 'Add an user to this account' %}{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'users/css/invitation.css' %}" media="screen" />
+{% endblock %}
+
 {% block scripts %}
 <script type="text/javascript">
     function bindFormset() {
@@ -11,7 +15,8 @@
             prefix: '{{ formset.prefix }}',
             addText: '{% trans "Add another" %}',
             preventEmptyFormset: true,
-            addCssClass: 'add-row mws-form-row'
+            addCssClass: 'add-row mws-form-row',
+            deleteCssClass: 'invitation-delete-row',
         });
     }
 
@@ -93,10 +98,8 @@
                             </div>
                         </div>
                        <div class="mws-form-col-2-8 alpha">
-                            <div class="mws-form-item">
-                                <button type="button" class="mws-button delete-row small red mws-reset-button">
-                                    {% trans 'Delete' %}
-                                </button>
+                            <div class="mws-form-item formset-delete">
+                                <a href="javascript:" class="mws-i-24 i-cross invitation-delete-row" /></a>
                             </div>
                         </div>
                     </div>

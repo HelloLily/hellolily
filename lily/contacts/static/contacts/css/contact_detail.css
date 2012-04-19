@@ -1,0 +1,117 @@
+#details_top_left {
+    width: 65%;
+}
+
+#details_top_right {
+    width: 35%;
+}
+
+#details_top {
+    padding: 12px;
+}
+
+#contact_image {
+    margin-right: 20px;
+}
+
+#contact_contact {
+    width: 95%;
+}
+
+#contact_contact span {
+    display: block;
+    text-align: right;
+    padding: 3px 0 3px 25px;
+    border-bottom: 1px solid #ccc;
+    height: 19px;
+}
+
+#contact_contact .contact_phone {
+    background: url('/static/images/core/phone.png') no-repeat 4px 48%;
+}
+
+#contact_contact .contact_email {
+    background: url('/static/images/core/mail.png') no-repeat 4px 48%;
+}
+
+#contact_contact .contact_twitter {
+    background: url('/static/images/core/twitter.png') no-repeat 4px 48%;
+}
+
+#details_body {
+    margin-bottom: 5px;
+}
+
+#tab-notes-history h2 {
+    margin-bottom: 0px;
+}
+
+#add-note-label {
+    font-size: 19px;
+    color: #777777;
+}
+
+#add-note-button {
+    margin-top: 133px;
+}
+
+.object-list-item {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.object-list-item.note {
+    background: url('/static/css/icons/24/blue/text-document-blue.png') no-repeat 100% 50%;
+}
+
+.object-list-item-date {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.object-list-item-name {
+    color: #9E9E9E;
+}
+
+.object-list-item-name:before {
+    content: "— "
+} 
+
+.object-list-item-content {
+    border-left: 5px solid #E2E2E2;
+    padding-left: 20px;
+    margin-top: 5px;
+}
+
+.object-list-item:hover .object-list-item-content {
+    border-left: 5px solid #50B3DF;
+}
+
+.object-list-item-text {
+    padding: 0 50px 5px 0;
+    text-align: justify;
+}
+
+.object-list-item-options {
+    display: none;
+    margin-right: 50px;
+}
+
+.object-list-item-options a {
+    margin-left: 10px;
+    color: #00E;
+}
+
+.object-list-item:hover .object-list-item-options {
+    display: block;
+}
+
+.mws-panel-header .mws-i-24 .float-right a {
+    margin: 0 4px 0 2px;
+}
+
+.contact_function {
+    font-size: 16px;
+    color: #777777;
+    margin-bottom: 6px;
+}

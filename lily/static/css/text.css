@@ -29,26 +29,32 @@ hr {
 
 h1 {
   font-size: 25px;
+  color: #50B3DF;
 }
 
 h2 {
   font-size: 23px;
+  color: #50B3DF;
 }
 
 h3 {
   font-size: 21px;
+  color: #50B3DF;
 }
 
 h4 {
   font-size: 19px;
+  color: #777777;
 }
 
 h5 {
   font-size: 17px;
+  color: #777777;
 }
 
 h6 {
   font-size: 15px;
+  color: #777777;
 }
 
 /* `Spacing
@@ -82,7 +88,7 @@ table,
 address,
 fieldset,
 figure {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* `Borders

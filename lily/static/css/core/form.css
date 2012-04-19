@@ -377,6 +377,7 @@
 {
 	height:10em;
 	resize:none;
+	font: 13px/1.5 'PTSansRegular', Arial, Helvetica, sans-serif;
 }
 
 /* Form Clearfix */
@@ -527,7 +528,9 @@
     margin-bottom:0px;
 }
 
-.mws-form .mws-form-item span.field_error input {
+.mws-form .mws-form-item span.field_error input,
+.mws-form .mws-form-item span.field_error textarea,
+.mws-form .mws-form-item span.field_error select {
     border-color:#eb979b !important;
 }
 

@@ -8,13 +8,28 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
-from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
+from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.models import EmailAddress, Address, PhoneNumber
+from lily.utils.views import DetailFormView
 
 
 class ListContactView(ListView):
     template_name='contacts/contact_list.html'
     model = Contact
+
+
+class DetailsContactView(DetailFormView):
+    template_name = "contacts/contact_details.html"
+    model = Contact
+    form_class = NoteForm
+    success_url = '/'
+    
+    def form_valid(self, form):
+        note = form.save(commit=False)
+        note.author = self.request.user
+        note.save()
+        
+        return super(DetailsContactView, self).form_valid(form)
 
 
 class AddContactView(CreateView):
@@ -243,6 +258,7 @@ class EditContactView(UpdateView):
             'pk': self.object.pk,
         }))
 
+
 class DeleteContactView(DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
@@ -264,6 +280,7 @@ class DeleteContactView(DeleteView):
         self.object.delete()
         
         return redirect(reverse('contact_list'))
+
 
 class EditFunctionView(UpdateView):
     """

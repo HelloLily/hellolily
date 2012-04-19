@@ -152,6 +152,7 @@ class Note(models.Model):
     Note model, simple text fields to store text about another model for everyone to see.
     """
     note = models.TextField(verbose_name=_('note'))
+    author = models.ForeignKey('users.UserModel', verbose_name=_('author'))
     
     def __unicode__(self):
         return truncatewords(self.note, 5)

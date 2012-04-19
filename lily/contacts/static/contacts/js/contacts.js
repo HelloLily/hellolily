@@ -19,8 +19,8 @@ $(document).ready(function() {
     // change selected primary e-mailadres
     $('.email_is_primary label span').live('click', function() {
     	// find elements
-    	formset = $(this).parentsUntil('.mws-form-row', '.mws-formset');
-        input_siblings = $(formset).siblings().find('.email_is_primary label input');
+        formset = $(this).closest('.mws-form-row');
+        input_siblings = $(formset).find('.email_is_primary label input');
         
         // uncheck others
         $(input_siblings).siblings('span').removeClass('checked');

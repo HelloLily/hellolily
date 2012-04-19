@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.users',
     'lily.utils',
+    'lily.utils.templatetags.field_extras',
 )
 
 # Settings for templated e-mail app

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %} 
+{% load i18n static field_extras %} 
 
 {% block title %}{% trans 'Edit functions' %} - {% endblock %}
 
@@ -43,7 +43,10 @@
                         
 	                    <div class="mws-form-row">
 							<div class="mws-panel-header">
-					            <span class="mws-i-24 i-companies">{{ form.account }}</span>
+							    <div class="hidden">
+							        {{ form.account }}
+							    </div>
+					            <span class="mws-i-24 i-companies">{{ form.account|display_value }}</span>
 					        </div>
 				        </div>
 					
@@ -131,8 +134,8 @@
                                         <div class="float-left center">
                                             <div class="mws-form-col-row mws-form-item email_address email_is_primary">
                                                 <label>
-                                                    <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ form.prefix }}_primary-email" />
-                                                    <span>{% trans 'primary' %}</span>
+                                                    <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ form.email_addresses_formset.prefix }}_primary-email" {% if form.is_primary.value %}selected="selected"{% endif %}/>
+                                                    <span {% if form.is_primary.value %}class="checked"{% endif %}>{% trans 'primary' %}</span>
                                                 </label>
                                             </div>
                                         </div>

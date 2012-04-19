@@ -55,10 +55,10 @@ class EventModel(ActivityModel):
     Event model, a happening with a start/end datetime with optional location/url/description.
     """
     title = models.CharField(max_length=150, verbose_name=_('title'))
-    date_start = models.DateField(verbose_name=_('start date'))
-    time_start = models.TimeField(verbose_name=_('start time'))
-    date_end = models.DateField(verbose_name=_('end date'))
-    time_end = models.TimeField(verbose_name=_('end time'))
+    start_date = models.DateField(verbose_name=_('start date'))
+    start_time = models.TimeField(verbose_name=_('start time'))
+    end_date = models.DateField(verbose_name=_('end date'))
+    end_time = models.TimeField(verbose_name=_('end time'))
     location = models.CharField(max_length=100, verbose_name=_('location'), blank=True)
     url = models.URLField(verbose_name=_('url'), blank=True)
     description = models.CharField(max_length=255, verbose_name=_('description'), blank=True)

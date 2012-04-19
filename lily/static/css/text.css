@@ -98,6 +98,14 @@ figure {
 
 /* `Anchors
 ----------------------------------------------------------------------------------------------------*/
+a {
+    color: #4682B4;
+}
+
+a:hover { 
+    color: #50B3DF !important;
+}
+
 .no-decoration {
 	text-decoration: none;
 }

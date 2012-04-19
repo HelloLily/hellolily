@@ -231,7 +231,7 @@ div#mws-user-tools #mws-user-info #mws-user-functions ul li
 div#mws-user-tools #mws-user-info #mws-user-functions ul li a
 {
 	text-decoration:none;
-	color:#50b3df; /* prev. #ffffff; */
+	/* prev. #ffffff; */
 }
 
 div#mws-user-tools #mws-user-info #mws-user-functions ul li a:hover
@@ -501,7 +501,7 @@ div#mws-navigation ul li
 
 div#mws-navigation ul li.mws-dropdown-menu /* new */
 {
-    background:url(../../images/core/mws-nav-ruler.png) repeat-x left bottom;
+    /* prev. background:url(../../images/core/mws-nav-ruler.png) repeat-x left bottom; */
 }
 
 div#mws-navigation ul li a, 
@@ -560,9 +560,10 @@ div#mws-navigation ul li.active /* new */
     background:#50b3df !important; /* new */
 }
 
-div#mws-navigation ul li.active > a /* new */
+div#mws-navigation ul li.active > a, /* new */
+div#mws-navigation ul li.active > a:hover /* new */
 {
-    color:#ffffff; /* new */
+    color:#ffffff !important; /* new */
 }
 
 div#mws-navigation ul li.active ul /* new */
@@ -592,6 +593,7 @@ div#mws-navigation ul li ul li a,
 div#mws-navigation ul li ul li span
 {
 	display:block;
+	color:black !important; /* new */
 	font-size:12px;
 	padding:4px 0 4px 40px;
 	/* prev. color:#ffffff !important; */

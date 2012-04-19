@@ -61,11 +61,11 @@
     $(document).ready(function() {
         
 		// TODO: see to it this code will be removed at some point 
-        $('#mws-navigation ul li').click(function() {
-            $active = $('#mws-navigation ul > li.active');
-            $active.removeClass('active').find('a').addClass('blue');
-            $(this).addClass('active').find('a').removeClass('blue');
-        });
+        // $('#mws-navigation ul li').click(function() {
+            // $active = $('#mws-navigation ul > li.active');
+            // $active.removeClass('active').find('a').addClass('blue');
+            // $(this).addClass('active').find('a').removeClass('blue');
+        // });
        
         $("#loadingDialog").dialog({
             autoOpen: false, 
@@ -104,8 +104,7 @@
     });
 </script>
 
-{% block scripts %}
-{% endblock %}
+{% block scripts %}{% endblock %}
 
 <title>{% block title %}{% endblock %} Hello Lily </title>
 
@@ -311,7 +310,7 @@
                             <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #ccc; margin-right: 0px">13</span>
                         </a>
                         
-                        <ul>
+                        <ul class="closed">
                             <li>
                                 <a href="#messaging-email" class="blue mws-i-24 i-mail">E-mail</a>
                             </li>

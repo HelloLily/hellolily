@@ -62,7 +62,7 @@ $(document).ready(function() {
             prefix: formset_class, // needs to be unique per formset
             addText: gettext('Add another'),
             formCssClass: formset_class, // needs to be unique per formset
-            addCssClass: formset_class + '-add-row add-row', // needs to be unique per formset
+            addCssClass: formset_class + '-add-row add-row mws-form-item', // needs to be unique per formset
             deleteCssClass: formset_class + '-delete-row' // needs to be unique per formset
         })
     });

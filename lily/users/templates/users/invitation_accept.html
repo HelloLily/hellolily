@@ -185,6 +185,11 @@
                 </div> 
                 
                 <div class="mws-button-row">
+                    <a href="{% url dashboard %}" class="no-decoration">
+                        <button type="button" class="mws-button red">
+                            {% trans 'Cancel' %}
+                        </button>
+                    </a>
                     <input type="submit" value="{% trans 'Accept' %}" class="mws-button blue" />
                 </div>
             </form>

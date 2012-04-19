@@ -26,7 +26,7 @@
 {
 	min-height:34px;
 	height:34px;
-	height:auto !important
+	height:auto !important;
 }
 
 .mws-form ul.mws-form-list, 
@@ -667,7 +667,7 @@ div.mws-dualbox button:active
 	box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* new form here on */
+/* new from here on */
 .mws-form .mws-form-cols .mws-form-col-row {
     padding: 0 0 2px;
     margin: 0 5px 0 0;
@@ -687,9 +687,9 @@ div.mws-dualbox button:active
     margin-right: 12px;
 }
 
-a.add-row
-{
-    margin: 5px 0 22px 162px;
+a.add-row {
+    margin: 5px 0 0 0;
+    padding-top: 0 !important;
     display: block;
     color: #4682B4;
 }

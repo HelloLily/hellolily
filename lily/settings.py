@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     'lily.activities',
     'lily.contacts',
     'lily.users',
+    'lily.notes',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
 )

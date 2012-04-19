@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddressModel, PhoneNumberModel, AddressModel
+from lily.utils.models import EmailAddressModel, PhoneNumberModel, AddressModel, NoteModel
 
 
 class EmailAddressBaseForm(forms.ModelForm):
@@ -98,3 +98,13 @@ class AddressBaseForm(forms.ModelForm):
         }
 
 AddressBaseForm = autostrip(AddressBaseForm)
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = NoteModel
+        exclude = ('author', )
+        widgets = {
+            'note': forms.Textarea(attrs={
+                'placeholder': _('Write your note here'),
+            })
+        }

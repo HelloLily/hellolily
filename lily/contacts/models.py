@@ -40,28 +40,51 @@ class ContactModel(CommonModel):
             return ' '.join([self.first_name, self.preposition, self.last_name])
         
         return ' '.join([self.first_name, self.last_name])
-            
-
-    def __unicode__(self):
-        return self.full_name()
     
     def get_phonenumber(self):
         try:
             return self.phone_numbers.all()[0].raw_input
         except:
-            return '-'
-        
+            return ''
+    
+    def get_work_phone(self):
+        try:
+            return self.phone_numbers.filter(type='work')[0].raw_input
+        except:
+            return ''
+    
+    def get_mobile_phone(self):
+        try:
+            return self.phone_numbers.filter(type='mobile')[0].raw_input
+        except:
+            return  ''
+    
     def get_email(self):
         try:
             return self.email_addresses.all()[0].email_address
         except:
-            return '-'
+            return ''
     
     def get_social(self):
         try:
             return self.social_media.all()
         except:
             return {}
+    
+    def get_twitter(self):
+        try:
+            return self.social_media.filter(name='twitter')[0]
+        except:
+            return ''
+    
+    def get_primary_function(self):
+        try:
+            return self.functions.all().order_by('-created')[0]
+        except:
+            return ''
+    
+    def __unicode__(self):
+        return self.full_name()
     
     class Meta:
         verbose_name = _('contact')

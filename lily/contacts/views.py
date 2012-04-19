@@ -7,13 +7,28 @@ from django.views.generic.list import ListView
 from lily.accounts.models import AccountModel
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import ContactModel, FunctionModel
-from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
+from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.models import EmailAddressModel, AddressModel, PhoneNumberModel
+from lily.utils.views import DetailFormView
 
 
 class ListContactView(ListView):
     template_name='contacts/contact_list.html'
     model = ContactModel
+
+
+class DetailsContactView(DetailFormView):
+    template_name = "contacts/contact_details.html"
+    model = ContactModel
+    form_class = NoteForm
+    success_url = '/'
+    
+    def form_valid(self, form):
+        note = form.save(commit=False)
+        note.author = self.request.user
+        note.save()
+        
+        return super(DetailsContactView, self).form_valid(form)
 
 
 class AddContactView(CreateView):

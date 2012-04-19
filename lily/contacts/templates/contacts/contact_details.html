@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}Contact details - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contact_detail.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".mws-tabs").tabs();
+        
+        // add jquery dialog for adding an account
+        $('#delete-contact-form-dialog').dialog({
+            autoOpen: false,
+            title: gettext('Delete contact'),
+            modal: true,
+            width: 640,
+            buttons: [
+                { 
+                    'class': 'mws-button red float-left',
+                    text: gettext('No'),
+                    click: function() {
+                        // cancel form on NO
+                        $(this).dialog('close');
+                    }
+                },
+                {
+                    'class': 'mws-button green',
+                    text: gettext('Yes'),
+                    click: function() {
+                        // submit form on YES
+                        $(this).find('form').submit();
+                    }
+                }
+            ]
+        });
+        
+        // show delete-form-dialog
+        $('#delete-contact-dialog-link').click(function(event) {
+            $('#delete-contact-form-dialog').dialog('open');
+            event.preventDefault();
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+    <div class="mws-panel grid_6">
+        <div class="mws-panel-header">
+            <span class="float-right">
+                <a href="{% url contact_edit pk=object.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
+                <a href="{% url contact_delete pk=object.pk %}" id="delete-contact-dialog-link">
+                    <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
+                </a>
+
+                <div id="delete-contact-form-dialog" class="hidden">
+                    <form class="mws-form" action="{% url contact_delete pk=object.pk %}" method="post">
+                        {% csrf_token %} 
+                        <div class="mws-form-inline">
+                            <div class="mws-form-row">
+                                {% blocktrans with object.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                
+            </span>
+            <span class="mws-i-24 i-v-card-1">
+                {{ object.full_name }}
+            </span>
+        </div>
+        <div class="mws-panel-body">
+            <div id="details_top" class="clearfix">
+                <div class="float-left" id="details_top_left">
+                    <img src="" alt="" style="width:100px; height:100px;" id="contact_image" class="float-left" />
+                    <div id="details_top_personal">
+                        <h2>{{ object.full_name|truncatechars:"24" }}</h2>
+                        <span class="contact_function full-width">
+                            {% with object.get_primary_function as function %}
+                                {% if function %}
+                                    {{ function }} at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
+                                {% else %}
+                                    {% trans 'No function filled in' %}
+                                {% endif %}
+                            {% endwith %}
+                        </span>
+                        <span class="contact_social full-width">
+                            {% for social in object.get_social %}
+                                <a href="{{ social.profile_url }}"><img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" /></a>
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+                <div class="float-right" id="details_top_right">
+                    <div id="contact_contact" class="float-right">
+                        <span class="contact_phone"><a href="#">{{ object.get_work_phone }}</a> (work)</span>
+                        <span class="contact_phone"><a href="#">{{ object.get_mobile_phone }}</a> (mobile)</span>
+                        <span class="contact_email"><a href="#">{{ object.get_email }}</a></span>
+                        <span class="contact_twitter"><a href="#">{{ object.get_twitter }}</a></span>
+                    </div>
+                </div>
+            </div>
+            <div id="details_body">
+                <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
+
+                    <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-notes-history">{% trans 'Notes & History' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-contact-details">{% trans 'Contact details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+                    </ul>
+                    
+                    <div id="tab-notes-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+                        <h2>{% trans 'Notes & History' %}</h2>
+                        {% if form %}
+                            <form class="mws-form" action="" method="post">
+                                {% csrf_token %}
+                                <div class="mws-form-cols clearfix">
+                                    <div class="mws-form-col-6-8 alpha">
+                                        <label for="id_note" id="add-note-label">{% trans 'Add a note' %}</label>
+                                        {% if form.note.errors %}
+                                            <div class="mws-form-item large">
+                                                <span class="field_error">{{ form.note }}</span>
+                                                <div class="mws-error no_list_style_type">
+                                                    {{ form.note.errors }}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="mws-form-item large">
+                                                {{ form.note }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mws-form-col-2-8">
+                                        <div class="mws-form-item large">
+                                            <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <hr />
+                        {% endif %}
+                        {% for note in object.notes.all %}
+                            <div class="object-list-item note">
+                                <div class="object-list-item-date">{{ note.created }}</div>
+                                <div class="object-list-item-content">
+                                    <div class="object-list-item-text">{{ note.note }}</div>
+                                    <div class="object-list-item-options float-right">
+                                        <a href="#">Edit</a>
+                                        <a href="#">Delete</a>
+                                    </div>
+                                    <div class="object-list-item-name">{{ note.author }}</div>
+                                </div>
+                            </div>
+                        {% empty %}
+                        
+                        {% endfor %}
+                    </div>
+                    
+                    <div id="tab-contact-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Contact details' %}</h2>
+                        <p>
+                            lorem ipsum
+                        </p>
+                    </div>
+                    
+                    <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Cases' %}</h2>
+                        <p>
+                            lorem ipsum
+                        </p>
+                    </div>
+                    
+                    <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Deals' %}</h2>
+                        <p>
+                            lorem ipsum
+                        </p>
+                    </div>
+                    
+                    <div id="tab-account" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Account' %}</h2>
+                        <p>
+                            lorem ipsum
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="mws-panel grid_2">
+        <div class="mws-panel-header">
+            <span class="mws-i-24 i-speech-bubbles-2">Social Stream</span>
+        </div>
+        <div class="mws-panel-body">
+            <div class="mws-panel-content">
+                <p>
+                    social stream
+                </p>
+            </div>
+        </div>
+    </div>
+   
+{% endblock %}

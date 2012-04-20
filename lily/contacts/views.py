@@ -109,6 +109,24 @@ class AddContactView(CreateView):
         
         return self.get_success_url()
     
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as 
+        checked for postbacks. 
+        """
+        # Check for the e-mail address to select as primary
+        form_kwargs = self.get_form_kwargs()
+        primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+        
+        for formset in self.email_addresses_formset:
+            if formset.prefix == primary:
+                # Mark as selected
+                formset.instance.is_primary = True
+                # TODO: try making the field selected to prevent double if statements in templates
+#                formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+        
+        return super(AddContactView, self).form_invalid(form)
+    
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to add formsets for template.
@@ -230,6 +248,24 @@ class EditContactView(UpdateView):
             functions.delete()
         
         return self.get_success_url()
+    
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as 
+        checked for postbacks. 
+        """
+        # Check for the e-mail address to select as primary
+        form_kwargs = self.get_form_kwargs()
+        primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+        
+        for formset in self.email_addresses_formset:
+            if formset.prefix == primary:
+                # Mark as selected
+                formset.instance.is_primary = True
+                # TODO: try making the field selected to prevent double if statements in templates
+                formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+        
+        return super(EditContactView, self).form_invalid(form)
     
     def get_context_data(self, **kwargs):
         """
@@ -359,6 +395,24 @@ class EditFunctionView(UpdateView):
         
         # Immediately return the success url, no need to save a non-edited Contact instance.
         return self.get_success_url()
+    
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as 
+        checked for postbacks. 
+        """
+        # Check for the e-mail address to select as primary
+        form_kwargs = self.get_form_kwargs()
+        primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+        
+        for formset in self.email_addresses_formset:
+            if formset.prefix == primary:
+                # Mark as selected
+                formset.instance.is_primary = True
+                # TODO: try making the field selected to prevent double if statements in templates
+#                formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+        
+        return super(EditAccountView, self).form_invalid(form)
     
     def get_context_data(self, **kwargs):
         """

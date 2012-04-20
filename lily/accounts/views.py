@@ -18,7 +18,6 @@ from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
 
 
-
 class ListAccountView(ListView):
     template_name = 'accounts/list.html'
     model = Account
@@ -184,7 +183,8 @@ class AddAccountView(CreateView):
     
     def form_invalid(self, form):
         """
-        Overloading super().form_invalid to return a different response to ajax requests.
+        Overloading super().form_invalid to return a different response to ajax requests. For normal
+        request: mark the primary checkbox as checked for postbacks. 
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
@@ -192,6 +192,17 @@ class AddAccountView(CreateView):
                  'error': True,
                  'html': render_to_string(self.form_template_name, context_instance=context)
             }), mimetype='application/javascript')
+        else:
+            # Check for the e-mail address to select as primary
+            form_kwargs = self.get_form_kwargs()
+            primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+            
+            for formset in self.email_addresses_formset:
+                if formset.prefix == primary:
+                    # Mark as selected
+                    formset.instance.is_primary = True
+                    # TODO: try making the field selected to prevent double if statements in templates
+#                    formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
         
         return super(AddAccountView, self).form_invalid(form)
     

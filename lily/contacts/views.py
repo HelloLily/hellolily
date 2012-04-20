@@ -1,10 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-
 from lily.accounts.models import Account
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
@@ -13,23 +13,34 @@ from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
 
 
+
 class ListContactView(ListView):
+    """
+    Display a list of all contacts
+    """
     template_name='contacts/contact_list.html'
     model = Contact
 
 
-class DetailsContactView(DetailFormView):
+class DetailContactView(DetailFormView):
+    """
+    Display a detail page for one contact.
+    """
     template_name = "contacts/contact_details.html"
     model = Contact
     form_class = NoteForm
-    success_url = '/'
     
     def form_valid(self, form):
         note = form.save(commit=False)
         note.author = self.request.user
         note.save()
         
-        return super(DetailsContactView, self).form_valid(form)
+        self.object.notes.add(note)
+        
+        return super(DetailContactView, self).form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('contact_details', kwargs={'pk': self.object.pk})
 
 
 class AddContactView(CreateView):
@@ -378,3 +389,12 @@ class EditFunctionView(UpdateView):
     
     class Meta:
         fields = ()
+
+
+# Perform logic here instead of in urls.py
+add_contact_view = login_required(AddContactView.as_view())
+edit_function_view = login_required(EditFunctionView.as_view())
+edit_contact_view = login_required(EditContactView.as_view())
+detail_contact_view = login_required(DetailContactView.as_view())
+delete_contact_view = login_required(DeleteContactView.as_view())
+list_contact_view = login_required(ListContactView.as_view())

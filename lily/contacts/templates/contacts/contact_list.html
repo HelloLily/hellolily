@@ -42,7 +42,7 @@
                                 {% endif %}
                             </td>
                             <td class="contact_personal">
-                                <span class="contact_name full-width"><a href="{% url contact_edit pk=object.pk %}">{{ object.full_name|truncatechars:"26" }}</a></span>
+                                <span class="contact_name full-width"><a href="{% url contact_details pk=object.pk %}">{{ object.full_name|truncatechars:"26" }}</a></span>
                                 <span class="contact_social">
                                     {% for sm in object.get_social %}
                                         <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>

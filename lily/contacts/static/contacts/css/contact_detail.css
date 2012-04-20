@@ -10,12 +10,32 @@
     padding: 12px;
 }
 
+#details_top_personal {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#details_top_personal h2 {
+    margin:0;
+    padding:0;
+}
+
 #contact_image {
     margin-right: 20px;
 }
 
+#contact_function {
+    font-size: 16px;
+    color: #777777;
+    margin-right: 1em;
+    overflow: hidden;
+    max-width: 275px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 #contact_contact {
-    width: 95%;
+    display: inline-block;
 }
 
 #contact_contact span {
@@ -24,6 +44,10 @@
     padding: 3px 0 3px 25px;
     border-bottom: 1px solid #ccc;
     height: 19px;
+}
+
+#contact_social {
+    margin-top: 6px;
 }
 
 #contact_contact .contact_phone {
@@ -108,10 +132,4 @@
 
 .mws-panel-header .mws-i-24 .float-right a {
     margin: 0 4px 0 2px;
-}
-
-.contact_function {
-    font-size: 16px;
-    color: #777777;
-    margin-bottom: 6px;
 }

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static i18n %}
+{% load static i18n thumbnail %}
 
 {% block title %}Contact details - {% endblock %}
 
@@ -78,36 +78,44 @@
             </span>
         </div>
         <div class="mws-panel-body">
+            
             <div id="details_top" class="clearfix">
-                <div class="float-left" id="details_top_left">
-                    <img src="" alt="" style="width:100px; height:100px;" id="contact_image" class="float-left" />
+                <div class="float-left">
+                    {% if object.picture %}
+                        <img id="contact_image" src="{% thumbnail object.picture 100x100 %}" alt="" />
+                    {% else %}
+                        <img id="contact_image" src="{% static 'images/core/unknown_person_100x100.png' %}" alt="" />
+                    {% endif %}
+                    
                     <div id="details_top_personal">
                         <h2>{{ object.full_name|truncatechars:"24" }}</h2>
-                        <span class="contact_function full-width">
+                        <div id="contact_function">
                             {% with object.get_primary_function as function %}
                                 {% if function %}
-                                    {{ function }} at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
+                                    {{ function }}<br /> 
+                                    at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
                                 {% else %}
                                     {% trans 'No function filled in' %}
                                 {% endif %}
                             {% endwith %}
-                        </span>
-                        <span class="contact_social full-width">
+                        </div>
+                        <div id="contact_social"> 
                             {% for social in object.get_social %}
-                                <a href="{{ social.profile_url }}"><img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" /></a>
+                                <a href="{{ social.profile_url }}" class="no-decoration">
+                                    <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
+                                </a>
                             {% endfor %}
-                        </span>
+                        </div>
                     </div>
                 </div>
-                <div class="float-right" id="details_top_right">
-                    <div id="contact_contact" class="float-right">
-                        <span class="contact_phone"><a href="#">{{ object.get_work_phone }}</a> (work)</span>
-                        <span class="contact_phone"><a href="#">{{ object.get_mobile_phone }}</a> (mobile)</span>
-                        <span class="contact_email"><a href="#">{{ object.get_email }}</a></span>
-                        <span class="contact_twitter"><a href="#">{{ object.get_twitter }}</a></span>
-                    </div>
+                <div id="contact_contact" class="float-right">
+                    <span class="contact_phone"><a href="#">{{ object.get_work_phone }}</a> (work)</span>
+                    <span class="contact_phone"><a href="#">{{ object.get_mobile_phone }}</a> (mobile)</span>
+                    <span class="contact_email"><a href="#">{{ object.get_email }}</a></span>
+                    <span class="contact_twitter"><a href="#">{{ object.get_twitter.username }}</a></span>
                 </div>
             </div>
+            
             <div id="details_body">
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
 
@@ -151,7 +159,7 @@
                         {% endif %}
                         {% for note in object.notes.all %}
                             <div class="object-list-item note">
-                                <div class="object-list-item-date">{{ note.created }}</div>
+                                <div class="object-list-item-date">{{ note.created|date:"l d-m-Y" }}</div>
                                 <div class="object-list-item-content">
                                     <div class="object-list-item-text">{{ note.note }}</div>
                                     <div class="object-list-item-options float-right">
@@ -162,7 +170,12 @@
                                 </div>
                             </div>
                         {% empty %}
-                        
+                            <div class="object-list-item">
+                                <div class="object-list-item-content">
+                                    <div class="object-list-item-text">{% trans 'No activity' %}</div>
+                                    <div class="object-list-item-name">{% trans 'John Doe' %}</div>
+                                </div>
+                            </div>
                         {% endfor %}
                     </div>
                     

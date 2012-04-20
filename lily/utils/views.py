@@ -8,6 +8,11 @@ from django.views.generic.edit import FormMixin
 
 
 class CustomSingleObjectMixin(object):
+    """
+    Namespace the variables so this mixin can be combined with other 
+    mixins which also use model/queryset. Behaviour besides this is 
+    the same as default Django SingleObjectMixin.
+    """
     detail_model = None
     detail_queryset = None
     detail_slug_field = 'slug'
@@ -86,11 +91,16 @@ class CustomSingleObjectMixin(object):
 
 
 class CustomMultipleObjectMixin(object):
+    """
+    Namespace the variables so this mixin can be combined with other 
+    mixins which also use model/queryset. Behaviour besides this is 
+    the same as default Django MultipleObjectMixin.
+    """
     allow_empty = True
     list_queryset = None
     list_model = None
     paginate_by = None
-    context_object_name = None
+    list_context_object_name = None
     paginator_class = Paginator
 
     def get_list_queryset(self):
@@ -153,8 +163,8 @@ class CustomMultipleObjectMixin(object):
         """
         Get the name of the item to be used in the context.
         """
-        if self.context_object_name:
-            return self.context_object_name
+        if self.list_context_object_name:
+            return self.list_context_object_name
         elif hasattr(object_list, 'model'):
             return smart_str('%s_list' % object_list.model._meta.object_name.lower())
         else:

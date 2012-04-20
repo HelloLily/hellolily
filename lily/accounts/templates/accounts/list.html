@@ -59,7 +59,7 @@ $(document).ready(function() {
                                 {% endif %}
                             </td>
                             <td class="account_name">
-                                <span class="business_name full-width"><a href="{% url account_edit pk=object.pk %}">{{ object.name|truncatechars:"18" }}</a></span>
+                                <span class="business_name full-width"><a href="{% url account_details pk=object.pk %}">{{ object.name|truncatechars:"18" }}</a></span>
                                 {% with address=object.get_address %}
                                     <span class="business_address full-width">{{ address.address|truncatechars:"20" }}</span>
                                     <span class="business_country full-width">{{ address.country|truncatechars:"20" }}</span>

@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
@@ -16,6 +17,7 @@ from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
+
 
 
 class ListAccountView(ListView):
@@ -418,3 +420,9 @@ class DeleteAccountView(DeleteView):
         
         return redirect(reverse('account_list'))
 
+
+# Perform logic here instead of in urls.py
+add_account_view = login_required(AddAccountView.as_view())
+edit_account_view = login_required(EditAccountView.as_view())
+delete_account_view = login_required(DeleteAccountView.as_view())
+list_account_view = login_required(ListAccountView.as_view())

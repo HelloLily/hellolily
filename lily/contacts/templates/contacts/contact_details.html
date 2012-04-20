@@ -92,7 +92,7 @@
                         <div id="contact_function">
                             {% with object.get_primary_function as function %}
                                 {% if function %}
-                                    {{ function }}<br /> 
+                                    {% if function.title %}{{ function.title }}<br />{% endif %}
                                     at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
                                 {% else %}
                                     {% trans 'No function filled in' %}

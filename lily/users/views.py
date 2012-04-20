@@ -13,7 +13,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils import simplejson
-from django.utils.decorators import method_decorator
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
 from django.template import RequestContext
@@ -238,14 +237,6 @@ class SendInvitationView(FormSetView):
     form_class = InvitationForm
     formset_class = InvitationFormset
     extra = 1
-    
-    @method_decorator(group_required('account_admin'))
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Determine wheter the form is posted via ajax or not, this function is also decorated
-        to prevent people with insufficient permissions to invite new people.
-        """
-        return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
     
     def formset_valid(self, formset):
         """
@@ -477,7 +468,13 @@ class DashboardView(TemplateView):
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
-    
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(DashboardView, self).dispatch(request, *args, **kwargs)
+
+# Perform logic here instead of in urls.py
+registration_view = RegistrationView.as_view()
+registration_success_view = RegistrationSuccessView.as_view()
+activation_view = ActivationView.as_view()
+activation_resend_view = ActivationResendView.as_view()
+login_view = LoginView.as_view()
+send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
+accept_invitation_view = AcceptInvitationSuccessView.as_view()
+dashboard_view = login_required(DashboardView.as_view())

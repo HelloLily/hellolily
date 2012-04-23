@@ -13,7 +13,6 @@ from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
 
 
-
 class ListContactView(ListView):
     """
     Display a list of all contacts

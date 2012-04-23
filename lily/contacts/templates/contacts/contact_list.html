@@ -12,6 +12,19 @@
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".mws-datatable-fn").dataTable({
+        "sPaginationType": "full_numbers",
+        "bAutoWidth": false,
+        "aaSorting": [[1,'asc']],
+        "aoColumnDefs": [ 
+            { "bSearchable": false, "bSortable": false, "aTargets": [0] }
+        ]
+    }); 
+});
+</script>
 {% endblock %}
 
 {% block content %}

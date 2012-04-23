@@ -3,7 +3,8 @@ from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress, PhoneNumber, Address, Note
+from lily.utils.models import EmailAddress, PhoneNumber, Address
+from lily.notes.models import Note
 
 
 class EmailAddressBaseForm(ModelForm):

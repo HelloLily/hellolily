@@ -690,7 +690,11 @@ div.mws-dualbox button:active
     margin-right: 12px;
 }
 
-a.add-row {
+.mws-form .add-row,
+.mws-form .email_addresses-add-row,
+.mws-form .phone_numbers-add-row,
+.mws-form .addresses-add-row,
+.mws-form .websites-add-row {
     margin: 5px 0 0 0;
     padding-top: 0 !important;
     display: inline-block;

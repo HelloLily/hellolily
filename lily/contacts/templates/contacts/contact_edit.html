@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -148,11 +149,13 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row mws-form-item formset-delete email_address">
-	                                        <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
 	                        </div>
+	                    {% empty %}
+	                       <div class="{{ email_addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/email_address_formset_template.html' with formset_prefix=email_addresses_formset.prefix %}
@@ -210,11 +213,13 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row"></a>
 	                                    </div>
 	                                </div>
                                 </div>
                             </div>
+                        {% empty %}
+                           <div class="{{ phone_numbers_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %}
@@ -335,11 +340,13 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
 	                        </div>
+                        {% empty %}
+                           <div class="{{ addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}
@@ -400,11 +407,13 @@
                     <div class="mws-button-row">
                         <input type="button" id="delete-contact-dialog-btn" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
                 
-                        <div id="delete-contact-form-dialog" class="hidden">
-                            <form class="mws-form" action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
-                                <div class="mws-form-inline">
-                                    <div class="mws-form-row">
-                                        {% blocktrans with form.instance.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                        <div id="delete-contact-form-dialog" style="display: none;">
+                            <form action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
+                                <div class="mws-form"> 
+                                    <div class="mws-form-inline">
+                                        <div class="mws-form-row">
+                                            {% blocktrans with form.instance.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                        </div>
                                     </div>
                                 </div>
                             </form>

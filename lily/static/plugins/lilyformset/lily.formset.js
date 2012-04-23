@@ -41,7 +41,6 @@
                     deleteTriggers = forms.find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) != undefined) {
-                            // $(buttonTrigger).removeClass('red').addClass('gray').attr('disabled', 'disabled');
                             $(buttonTrigger).addClass('hidden');
                         }
                     }
@@ -50,7 +49,6 @@
                     deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) !== undefined) {
-                            // $(buttonTrigger).removeClass('gray').addClass('red').removeAttr('disabled');
                             $(buttonTrigger).removeClass('hidden');
                         }
                     }
@@ -81,6 +79,23 @@
                         }
                         preventEmptyFormset(row, forms);
                     }
+                    
+                    
+                    if( forms === undefined ) {
+                        var forms = $('.' + options.formCssClass + ':visible').not('.formset-custom-template');
+                    } else {
+                        forms = $(forms).filter(':visible');
+                    }
+                    console.log(forms.length);
+                    if( options.notEmptyFormSetAddCssClass ) {
+                        addButton = $('#id_' + options.prefix + '-TOTAL_FORMS').siblings('.' + options.addCssClass)
+                        if (forms.length > 0) {
+                            $(addButton).addClass(options.notEmptyFormSetAddCssClass);
+                        } else {
+                            $(addButton).removeClass(options.notEmptyFormSetAddCssClass);
+                        }
+                    }
+                    
                     // If a post-delete callback was provided, call it with the deleted form:
                     if (options.removed) options.removed(row);
                     return false;
@@ -153,11 +168,27 @@
                 
                 var forms = $('.' + options.formCssClass).not('.formset-custom-template');
                 preventEmptyFormset(row, forms);
+                if( options.notEmptyFormSetAddCssClass ) {
+                    if (forms.length > 0) {
+                        $(this).addClass(options.notEmptyFormSetAddCssClass);
+                    } else {
+                        $(this).removeClass(options.notEmptyFormSetAddCssClass);
+                    }
+                }
                 
                 // If a post-add callback was supplied, call it with the added form:
                 if (options.added) options.added(row);
                 return false;
             });
+            
+            var forms = $('.' + options.formCssClass).not('.formset-custom-template');
+            if( options.notEmptyFormSetAddCssClass ) {
+                if (forms.length > 0) {
+                    $(addButton).addClass(options.notEmptyFormSetAddCssClass);
+                } else {
+                    $(addButton).removeClass(options.notEmptyFormSetAddCssClass);
+                }
+            }
         }
 
         return $$;
@@ -174,6 +205,7 @@
         extraClasses: [],                // Additional CSS classes, which will be applied to each form in turn
         added: null,                     // Function called each time a new form is added
         removed: null,                   // Function called each time a form is deleted
-        preventEmptyFormset: false       // Boolean value whether or not to prevent empty formset
+        preventEmptyFormset: false,      // Boolean value whether or not to prevent empty formset
+        notEmptyFormSetAddCssClass: ''      // CSS class applied to the add link when formset is not empty
     };
 })(jQuery)

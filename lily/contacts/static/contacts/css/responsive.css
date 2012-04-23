@@ -1,0 +1,21 @@
+@media only screen and (max-width: 1150px) {
+    .contact_picture {
+        padding-left: 10px !important;
+    }
+    .contact_picture img {
+        padding: 10px 2px;
+    }
+}
+
+@media only screen and (max-width: 650px) {
+    #contact_picture {
+        width: 30%;
+        padding-left: 35px;
+    }
+    #contact_personal {
+        width: 30%;
+    }
+    #contact_contact {
+        width: 40%;
+    }
+}

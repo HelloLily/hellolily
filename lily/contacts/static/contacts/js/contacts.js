@@ -69,16 +69,23 @@ $(document).ready(function() {
     });
     
     // enable formsets for email addresses, phone numbers and addresses
-    form_prefices = ['email_addresses', 'phone_numbers', 'addresses'];    
-    $.each(form_prefices, function(index, form_prefix) {
+    form_prefices = {'email_addresses': gettext('Add an e-mail address'), 'phone_numbers': gettext('Add a phone number'), 'addresses': gettext('Add an address')};    
+    for(form_prefix in form_prefices) {
         $('.' + form_prefix + '-mws-formset').formset( {
             formTemplate: $('#' + form_prefix + '-form-template'), // needs to be unique per formset
             prefix: form_prefix, // needs to be unique per formset
-            addText: gettext('Add another'),
+            addText: form_prefices[form_prefix],
             formCssClass: form_prefix, // needs to be unique per formset
-            addCssClass: form_prefix + '-add-row add-row mws-form-item', // needs to be unique per formset
-            deleteCssClass: form_prefix + '-delete-row' // needs to be unique per formset
+            addCssClass: form_prefix + '-add-row', // needs to be unique per formset
+            deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
+            notEmptyFormSetAddCssClass: 'mws-form-item'
         });
+    };
+    
+    // auto grow description 
+    $('#id_description').autoGrow({
+        cols: 60,
+        rows: 1
     });
     
     // update e-mail formset to select first as primary

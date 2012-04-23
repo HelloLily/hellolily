@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
+
 from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm, \
     WebsiteBaseForm
 from lily.accounts.models import Account, Website
@@ -17,7 +18,6 @@ from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
-
 
 
 class ListAccountView(ListView):
@@ -45,10 +45,10 @@ class AddAccountView(CreateView):
             self.template_name = 'accounts/account_add_xhr.html'
             self.form_template_name = 'accounts/account_add_xhr_form.html'
         else:
-            self.WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm)
-            self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm)
-            self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm)
-            self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm)
+            self.WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, extra=0)
+            self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
+            self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
+            self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
         
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
     
@@ -241,10 +241,10 @@ class EditAccountView(UpdateView):
     model = Account
     
     # Create formsets
-    WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, can_delete=True)
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
-    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
+    WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, can_delete=True, extra=0)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True, extra=0)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
     
     def get_form_kwargs(self):
         """

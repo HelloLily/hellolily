@@ -38,33 +38,32 @@ $(document).ready(function() {
     });
 
     // enable formsets for email addresses and phone numbers
-    form_prefices = ['email_addresses', 'phone_numbers'];
-    formset_classes = [];
+    form_prefices = {'email_addresses': gettext('Add an e-mail address'), 'phone_numbers': gettext('Add a phone number')};    
+    formset_classes = {};
     
     // find all formset classes
-    $.each(form_prefices, function(index, form_prefix) {
+   for(form_prefix in form_prefices) {
         $('[class*="' + form_prefix + '"][class$="mws-formset"]').each(function(index, formset) {
             pk = $(formset).attr('class').replace(/[^\d.]/g, ''); 
             formset_prefix = form_prefix + '_' + pk;
             formset_class = formset_prefix;
             
             // only remember formset_class once
-            if(formset_classes.indexOf(formset_class) == -1) {
-                formset_classes.push(formset_class);
-            }
+            formset_classes[formset_class] = form_prefices[form_prefix];
         });
-    });
+    };
     
     // only apply formset() once on each of the found formsets
-    $.each(formset_classes, function(index, formset_class) {
+    for(formset_class in formset_classes) {
         $('.' + formset_class + '-mws-formset').formset( {
             formTemplate: $('#' + formset_class + '-form-template'), // needs to be unique per formset
             prefix: formset_class, // needs to be unique per formset
-            addText: gettext('Add another'),
+            addText: formset_classes[formset_class],
             formCssClass: formset_class, // needs to be unique per formset
-            addCssClass: formset_class + '-add-row add-row mws-form-item', // needs to be unique per formset
-            deleteCssClass: formset_class + '-delete-row' // needs to be unique per formset
+            addCssClass: formset_class + '-add-row', // needs to be unique per formset
+            deleteCssClass: formset_class + '-delete-row', // needs to be unique per formset
+            notEmptyFormSetAddCssClass: 'mws-form-item'
         })
-    });
+    };
     
 });

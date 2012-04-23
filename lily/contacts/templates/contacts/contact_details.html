@@ -69,7 +69,7 @@
                         var successCallback = function() {
                              var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
                              var div = link.closest('.object-list-item.note');
-                             div.slideUp(750, function() {
+                             div.slideUp(500, function() {
                                 div.remove(); 
                              });
                         }
@@ -196,33 +196,16 @@
                             <hr />
                         {% endif %}
                         {% for note in object.notes.all %}
-                            <div class="object-list-item note">
-                                <div class="object-list-item-date">{{ note.created|date:"l d-m-Y" }}</div>
-                                <div class="object-list-item-content">
-                                    <div class="object-list-item-text">{{ note.note }}</div>
-                                    <div class="object-list-item-options float-right">
-                                        <a href="#">Edit</a>
-                                        <a href="{% url note_delete pk=note.pk %}" class="delete-note-dialog-link">
-                                            Delete
-                                        </a>
-                                    </div>
-                                    <div class="object-list-item-name">{{ note.author }}</div>
-                                </div>
-                            </div>
+                            {% include 'notes/note.html' with note=note %}
                         {% empty %}
-                            <div class="object-list-item">
-                                <div class="object-list-item-content">
-                                    <div class="object-list-item-text">{% trans 'No activity' %}</div>
-                                    <div class="object-list-item-name">{% trans 'John Doe' %}</div>
-                                </div>
-                            </div>
+                            {% include 'notes/note.html' with note=None %}
                         {% endfor %}
                         <div id="delete-note-form-dialog" style="display:none;">
                             <form class="mws-form" id="delete-note-form" action="" method="post">
                                 {% csrf_token %} 
                                 <div class="mws-form-inline">
                                     <div class="mws-form-row">
-                                        {% blocktrans with object.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                        {% blocktrans with object.full_name as contact %}Are you sure you want to delete the note for {{ object }}?{% endblocktrans %}
                                     </div>
                                 </div>
                             </form>

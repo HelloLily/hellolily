@@ -3,12 +3,12 @@ from django.db.models.query_utils import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
+
 from lily.accounts.models import Account, Website
 from lily.utils.fields import MultipleInputAndChoiceField
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress, Tag
 from lily.utils.widgets import InputAndSelectMultiple
-
 
 
 class AddAccountMinimalForm(ModelForm):
@@ -137,6 +137,12 @@ class AddAccountForm(ModelForm):
                 'class': 'mws-textinput required',
                 'placeholder': _('Company name'),
             }),
+            'description': forms.Textarea(attrs={
+                'cols': '60',
+                'rows': '5',
+                'placeholder': _('Description'),
+            }),
+        
         }
 
 AddAccountForm = autostrip(AddAccountForm)
@@ -220,7 +226,12 @@ class EditAccountForm(ModelForm):
             'name': forms.TextInput(attrs={
                 'class': 'mws-textinput required',
                 'placeholder': _('Company name'),
-            })
+            }),
+            'description': forms.Textarea(attrs={
+                'cols': '60',
+                'rows': '5',
+                'placeholder': _('Description'),
+            }),
         }
 
 EditAccountForm = autostrip(EditAccountForm)

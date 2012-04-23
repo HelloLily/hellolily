@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/input-and-choice/input-and-choice.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -86,11 +87,13 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="mws-form-col-row mws-form-item formset-delete email_address">
-	                                        <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
 	                        </div>
+                        {% empty %}
+                            <div class="{{ email_addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/email_address_formset_template.html' with formset_prefix=email_addresses_formset.prefix %}
@@ -119,11 +122,13 @@
                                     </div>
                                     <div class="float-left">
                                         <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross websites-delete-row" /></a>
+                                            <a href="javascript:" class="mws-i-24 i-cross websites-delete-row"></a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        {% empty %}
+                            <div class="{{ websites_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'accounts/website_formset_template.html' with formset_prefix=websites_formset.prefix %}
@@ -173,11 +178,14 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
 	                        </div>
+	                    {% empty %}
+                            <div class="{{ phone_numbers_formset.prefix }}-mws-formset">
+                            </div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %}
@@ -290,11 +298,14 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row" /></a>
+	                                        <a href="javascript:" class="mws-i-24 i-cross addresses-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
 	                        </div>
+                        {% empty %}
+                            <div class="{{ addresses_formset.prefix }}-mws-formset">  
+                            </div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'accounts/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}

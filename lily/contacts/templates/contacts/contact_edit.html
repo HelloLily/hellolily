@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -153,6 +154,8 @@
 	                                </div>
 	                            </div>
 	                        </div>
+	                    {% empty %}
+	                       <div class="{{ email_addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/email_address_formset_template.html' with formset_prefix=email_addresses_formset.prefix %}
@@ -215,6 +218,8 @@
 	                                </div>
                                 </div>
                             </div>
+                        {% empty %}
+                           <div class="{{ phone_numbers_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %}
@@ -340,6 +345,8 @@
 	                                </div>
 	                            </div>
 	                        </div>
+                        {% empty %}
+                           <div class="{{ addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
                             {% include 'utils/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}

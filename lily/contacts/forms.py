@@ -7,6 +7,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.utils.functions import autostrip
 
+
 class AddContactForm(ModelForm):
     """
     Form to add a contact which all fields available.
@@ -54,7 +55,10 @@ class AddContactForm(ModelForm):
                 'class': 'mws-textinput',
                 'placeholder': _('Title'),
             }),
-            'status': forms.Select(attrs={
+            'description': forms.Textarea(attrs={
+                'cols': '60',
+                'rows': '5',
+                'placeholder': _('Description'),
             }),
         }
 
@@ -117,7 +121,10 @@ class EditContactForm(ModelForm):
                 'class': 'mws-textinput',
                 'placeholder': _('Title'),
             }),
-            'status': forms.Select(attrs={
+            'description': forms.Textarea(attrs={
+                'cols': '60',
+                'rows': '5',
+                'placeholder': _('Description'),
             }),
         }
     

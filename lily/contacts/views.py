@@ -5,13 +5,13 @@ from django.forms.models import modelformset_factory, inlineformset_factory
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+
 from lily.accounts.models import Account
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
-
 
 
 class ListContactView(ListView):
@@ -52,9 +52,9 @@ class AddContactView(CreateView):
     form_class = AddContactForm
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm)
-    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
     
     def get_form(self, form_class):
         """
@@ -167,9 +167,9 @@ class EditContactView(UpdateView):
     model = Contact
     
     # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
-    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
+    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True, extra=0)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
     
     def get_form(self, form_class):
         """
@@ -320,8 +320,8 @@ class EditFunctionView(UpdateView):
     model = Contact
     
     FunctionFormSet = inlineformset_factory(Contact, Function, fk_name='contact', form=FunctionForm, extra=0)
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True)
+    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
+    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
     
     def get_form(self, form_class):
         """

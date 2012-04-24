@@ -457,12 +457,6 @@ class AcceptInvitationView(FormView):
         """
         return redirect(reverse_lazy('invitation_success'))
 
-class AcceptInvitationSuccessView(TemplateView):
-    """
-    This view shows the success page after accepting an invation
-    """
-    template_name = 'users/invitation_success.html'
-
 class DashboardView(TemplateView):
     """
     This view shows the dashboard of the logged in user.
@@ -476,5 +470,4 @@ activation_view = ActivationView.as_view()
 activation_resend_view = ActivationResendView.as_view()
 login_view = LoginView.as_view()
 send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
-accept_invitation_view = AcceptInvitationSuccessView.as_view()
 dashboard_view = login_required(DashboardView.as_view())

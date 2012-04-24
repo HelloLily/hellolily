@@ -65,8 +65,6 @@ class AddAccountMinimalForm(ModelForm):
         model = Account
         fields = ('name', 'email', 'website')
 
-AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
-
 
 class AddAccountForm(ModelForm):
     """
@@ -144,8 +142,6 @@ class AddAccountForm(ModelForm):
             }),
         
         }
-
-AddAccountForm = autostrip(AddAccountForm)
 
 
 class EditAccountForm(ModelForm):
@@ -234,8 +230,6 @@ class EditAccountForm(ModelForm):
             }),
         }
 
-EditAccountForm = autostrip(EditAccountForm)
-
 
 class WebsiteBaseForm(ModelForm):
     website = forms.URLField(max_length=30, initial='http://',
@@ -247,4 +241,8 @@ class WebsiteBaseForm(ModelForm):
         model = Website
         exclude = ('account')
 
+# Enable autostrip input on these forms
+AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
+AddAccountForm = autostrip(AddAccountForm)
+EditAccountForm = autostrip(EditAccountForm)
 WebsiteBaseForm = autostrip(WebsiteBaseForm)

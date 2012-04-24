@@ -62,8 +62,6 @@ class AddContactForm(ModelForm):
             }),
         }
 
-AddContactForm = autostrip(AddContactForm)
-
 
 class EditContactForm(ModelForm):
     """
@@ -127,8 +125,6 @@ class EditContactForm(ModelForm):
                 'placeholder': _('Description'),
             }),
         }
-    
-EditContactForm = autostrip(EditContactForm)
 
 
 class EditFunctionForm(ModelForm):
@@ -189,4 +185,8 @@ class FunctionForm(ModelForm):
              })
         }
         
+# Enable autostrip input on these forms
+AddContactForm = autostrip(AddContactForm)
+EditContactForm = autostrip(EditContactForm)
+EditFunctionForm = autostrip(EditFunctionForm)
 FunctionForm = autostrip(FunctionForm)

@@ -25,6 +25,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     }))
     remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
 
+
 class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
@@ -57,6 +58,7 @@ class CustomPasswordResetForm(PasswordResetForm):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
 
+
 class CustomSetPasswordForm(SetPasswordForm):
     """
     This form is a subclass from the default SetPasswordForm.
@@ -70,6 +72,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         'class': 'mws-reset-password mws-textinput required',
         'placeholder': _('New password confirmation')
     }))
+
 
 class ResendActivationForm(Form):
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
@@ -100,6 +103,7 @@ class ResendActivationForm(Form):
                 if user.is_active:
                     raise forms.ValidationError(self.error_messages['active'])
         return email
+
 
 class RegistrationForm(Form):
     """
@@ -181,7 +185,6 @@ class RegistrationForm(Form):
         
         return cleaned_data
 
-RegistrationForm = autostrip(RegistrationForm)
 
 class UserRegistrationForm(RegistrationForm):
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
@@ -212,10 +215,11 @@ class UserRegistrationForm(RegistrationForm):
             self._errors['company'] = self.error_class([_('You can\'t change the company name of the invitation.')])
         
         return cleaned_data
-    
+
+
 class InvitationForm(Form):
     """
-    This is the invitation form, it is used to invite new users to join an account
+    This is the invitation form, it is used to invite new users to join an account.
     """
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
@@ -246,7 +250,6 @@ class InvitationForm(Form):
 ## ------------------------------------------------------------------------------------------------
 ## Formsets
 ## ------------------------------------------------------------------------------------------------
-
 class RequiredFirstFormFormset(BaseFormSet):
     """
     This formset requires that the first form that is submitted is filled in.
@@ -263,6 +266,7 @@ class RequiredFirstFormFormset(BaseFormSet):
         if self.total_form_count() < 1:
             raise forms.ValidationError(_("We need some data before we can proceed. Fill out at least one form."))
 
+
 class RequiredFormset(BaseFormSet):
     """
     This formset requires all the forms that are submitted are filled in.
@@ -272,8 +276,12 @@ class RequiredFormset(BaseFormSet):
         super(RequiredFormset, self).__init__(*args, **kwargs)
         for form in self.forms:
             form.empty_permitted = False
-            
+
+ 
 class InvitationFormset(RequiredFirstFormFormset):
+    """
+    This formset is sending invitations to users based on e-mail addresses.
+    """
     def clean(self):
         """Checks that no two email addresses are the same."""
         super(InvitationFormset, self).clean()
@@ -288,3 +296,12 @@ class InvitationFormset(RequiredFirstFormFormset):
             if email and email in emails:
                 raise forms.ValidationError(_("You can't invite someone more than once (e-mail addresses must be unique)."))
             emails.append(email)
+
+
+# Enable autostrip input on these forms
+CustomAuthenticationForm = autostrip(CustomAuthenticationForm)
+CustomPasswordResetForm = autostrip(CustomPasswordResetForm)
+ResendActivationForm = autostrip(ResendActivationForm)
+RegistrationForm = autostrip(RegistrationForm)
+UserRegistrationForm = autostrip(UserRegistrationForm)
+InvitationForm = autostrip(InvitationForm)

@@ -20,8 +20,6 @@ class EmailAddressBaseForm(ModelForm):
             }),
         }
 
-EmailAddressBaseForm = autostrip(EmailAddressBaseForm)
-
 
 class PhoneNumberBaseForm(ModelForm):
     """
@@ -53,8 +51,6 @@ class PhoneNumberBaseForm(ModelForm):
                 'class': 'mws-textinput other hidden',
             }),
         }
-
-PhoneNumberBaseForm = autostrip(PhoneNumberBaseForm)
 
 
 class AddressBaseForm(ModelForm):
@@ -99,8 +95,6 @@ class AddressBaseForm(ModelForm):
             }),
         }
 
-AddressBaseForm = autostrip(AddressBaseForm)
-
 
 class NoteForm(forms.ModelForm):
     class Meta:
@@ -112,4 +106,8 @@ class NoteForm(forms.ModelForm):
             })
         }
 
+# Enable autostrip input on these forms
+EmailAddressBaseForm = autostrip(EmailAddressBaseForm)
+PhoneNumberBaseForm = autostrip(PhoneNumberBaseForm)
+AddressBaseForm = autostrip(AddressBaseForm)
 NoteForm = autostrip(NoteForm)

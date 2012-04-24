@@ -1,5 +1,4 @@
 from django.db import models
-from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
@@ -147,22 +146,6 @@ class EmailAddress(models.Model):
         verbose_name_plural = _('e-mail addresses')
 
 
-class Note(Deleted):
-    """
-    Note model, simple text fields to store text about another model for everyone to see.
-    """
-    note = models.TextField(verbose_name=_('note'))
-    author = models.ForeignKey('users.CustomUser', verbose_name=_('author')) 
-    
-    def __unicode__(self):
-        return truncatewords(self.note, 5)
-
-    class Meta:
-        ordering = ['-created']
-        verbose_name = _('note')
-        verbose_name_plural = _('notes')
-
-
 class Common(Deleted):
     """
     Common model to make it possible to easily define relations to other models.
@@ -173,7 +156,7 @@ class Common(Deleted):
     addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
     email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of e-mail addresses'))
-    notes = models.ManyToManyField(Note, verbose_name=_('list of notes'))
+    notes = models.ManyToManyField('notes.Note', verbose_name=_('list of notes'))
     
     class Meta:
         abstract = True

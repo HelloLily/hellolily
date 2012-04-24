@@ -1,0 +1,24 @@
+{% load i18n %}
+
+{% if note %}
+<div class="object-list-item note">
+    <div class="object-list-item-date">{{ note.created|date:"l d-m-Y" }}</div>
+    <div class="object-list-item-content">
+        <div class="object-list-item-text">{{ note.note }}</div>
+        <div class="object-list-item-options float-right">
+            <a href="#">Edit</a>
+            <a href="{% url note_delete pk=note.pk %}" class="delete-note-dialog-link">
+                Delete
+            </a>
+        </div>
+        <div class="object-list-item-name">{{ note.author }}</div>
+    </div>
+</div>
+{% else %}
+<div class="object-list-item">
+    <div class="object-list-item-content">
+        <div class="object-list-item-text">{% trans 'No activity' %}</div>
+        <div class="object-list-item-name">{% trans 'John Doe' %}</div>
+    </div>
+</div>
+{% endif %}

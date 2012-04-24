@@ -25,7 +25,7 @@
             buttons: [
                 { 
                     'class': 'mws-button red float-left',
-                    text: gettext('No'),
+                    text: gettext('Cancel'),
                     click: function() {
                         // cancel form on NO
                         $(this).dialog('close');
@@ -33,7 +33,7 @@
                 },
                 {
                     'class': 'mws-button green',
-                    text: gettext('Yes'),
+                    text: gettext('Continue'),
                     click: function() {
                         // submit form on YES
                         $(this).find('form').submit();
@@ -45,6 +45,44 @@
         // show delete-form-dialog
         $('#delete-contact-dialog-link').click(function(event) {
             $('#delete-contact-form-dialog').dialog('open');
+            event.preventDefault();
+        });
+        
+        // add jquery dialog for adding an account
+        $('#delete-note-form-dialog').dialog({
+            autoOpen: false,
+            title: gettext('Delete note'),
+            modal: true,
+            width: 640,
+            buttons: [
+                { 
+                    'class': 'mws-button red float-left',
+                    text: gettext('Cancel'),
+                    click: function() {
+                        $(this).dialog('close');
+                    }
+                },
+                {
+                    'class': 'mws-button green',
+                    text: gettext('Continue'),
+                    click: function() {
+                        var successCallback = function() {
+                             var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
+                             var div = link.closest('.object-list-item.note');
+                             div.slideUp(500, function() {
+                                div.remove(); 
+                             });
+                        }
+                        sendForm($(this), successCallback);
+                    }
+                }
+            ]
+        });
+        
+        // show delete-form-dialog
+        $('.delete-note-dialog-link').click(function(event) {
+            $('#delete-note-form-dialog #delete-note-form').attr('action', $(this).attr('href'));
+            $('#delete-note-form-dialog').dialog('open');
             event.preventDefault();
         });
     });
@@ -60,7 +98,7 @@
                     <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
                 </a>
 
-                <div id="delete-contact-form-dialog" class="hidden">
+                <div id="delete-contact-form-dialog" style="display:none;">
                     <form class="mws-form" action="{% url contact_delete pk=object.pk %}" method="post">
                         {% csrf_token %} 
                         <div class="mws-form-inline">
@@ -158,25 +196,20 @@
                             <hr />
                         {% endif %}
                         {% for note in object.notes.all %}
-                            <div class="object-list-item note">
-                                <div class="object-list-item-date">{{ note.created|date:"l d-m-Y" }}</div>
-                                <div class="object-list-item-content">
-                                    <div class="object-list-item-text">{{ note.note }}</div>
-                                    <div class="object-list-item-options float-right">
-                                        <a href="#">Edit</a>
-                                        <a href="#">Delete</a>
-                                    </div>
-                                    <div class="object-list-item-name">{{ note.author }}</div>
-                                </div>
-                            </div>
+                            {% include 'notes/note.html' with note=note %}
                         {% empty %}
-                            <div class="object-list-item">
-                                <div class="object-list-item-content">
-                                    <div class="object-list-item-text">{% trans 'No activity' %}</div>
-                                    <div class="object-list-item-name">{% trans 'John Doe' %}</div>
-                                </div>
-                            </div>
+                            {% include 'notes/note.html' with note=None %}
                         {% endfor %}
+                        <div id="delete-note-form-dialog" style="display:none;">
+                            <form class="mws-form" id="delete-note-form" action="" method="post">
+                                {% csrf_token %} 
+                                <div class="mws-form-inline">
+                                    <div class="mws-form-row">
+                                        {% blocktrans with object.full_name as contact %}Are you sure you want to delete the note for {{ object }}?{% endblocktrans %}
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     
                     <div id="tab-contact-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">

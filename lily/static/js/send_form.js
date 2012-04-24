@@ -8,23 +8,25 @@ function clearForm(form) {
 }
 
 // TODO: detect which button was clicked to be able to redirect to an edit view
-function sendForm(dialog) {
-    var form = $(dialog).find('form')
+function sendForm(dialog, successCallback, errorCallback) {
+    var form = $(dialog).find('form'),
+        counter = 0,
+        cb = null;
+    
     if( typeof(form === 'list') ){
         form = form[0]; 
     }
     
-    var hideLoadingDialog = (function() {
-        var counter = 0;
-        
-        return function() {
-            counter++;
-            if( counter === 2 ) {
-                $('#loadingDialog').dialog('close');
-                clearForm(form);
-            }
-        };
-    })();
+    var hideLoadingDialog = function(callback) {
+        counter++;
+        if(callback){ cb = callback; }
+        if(counter === 2) {
+            $('#loadingDialog').dialog('close');
+            clearForm(form);
+            $(dialog).dialog('close');
+            cb();
+        }
+    };
     
     $(form).ajaxSubmit({
         type: 'post',
@@ -35,9 +37,9 @@ function sendForm(dialog) {
         }, beforeSubmit: function() {
             $(form).dialog('close');
             $('#loadingDialog').dialog('open');
-            setTimeout(function() {
-                hideLoadingDialog();
-            }, 1500);
+                setTimeout(function() {
+                    hideLoadingDialog();
+                }, 1500);
         }, success: function(response) {
             if( response.error === true ) {
                 $(form).html(response.html);
@@ -48,16 +50,22 @@ function sendForm(dialog) {
             } else if( response.redirect === true ) {
                 window.location = response.url
             } else {
-                hideLoadingDialog();
-                $('#successDialogMessage').text(response.html);
-                $(dialog).dialog('close');
-                $('#successDialog').dialog('open');
+                if(!successCallback) {
+                    successCallback = function() {
+                        $('#successDialogMessage').text(response.html);
+                        $('#successDialog').dialog('open');
+                    };
+                }
+                hideLoadingDialog(successCallback);
             }
         }, error: function(){
-            setTimeout(function() {
-                $('#loadingDialog').dialog('close');
-                $('#errorDialog').dialog('open');
-            }, 1500);
+            if(!errorCallback){
+                errorCallback = function() {
+                    $(dialog).dialog('close');
+                    $('#errorDialog').dialog('open');
+                };
+            }            
+            hideLoadingDialog(errorCallback);
         }
     });
 }

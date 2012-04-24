@@ -455,7 +455,7 @@ class AcceptInvitationView(FormView):
         """
         Redirect to the success page.
         """
-        return redirect(reverse_lazy('invitation_success'))
+        return redirect(reverse_lazy('login'))
 
 class DashboardView(TemplateView):
     """

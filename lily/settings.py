@@ -37,7 +37,7 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 
 # Localization
 TIME_ZONE = 'Europe/Amsterdam'
-LANGUAGE_CODE = 'NL-nl'
+LANGUAGE_CODE = 'EN-en'
 USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))

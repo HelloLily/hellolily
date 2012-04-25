@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
+from django.contrib.auth.tokens import default_token_generator
 from django.forms import Form
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
@@ -65,6 +66,19 @@ class CustomPasswordResetForm(PasswordResetForm):
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
+    
+    def save(self, domain_override=None,
+             subject_template_name='registration/password_reset_subject.txt',
+             email_template_name='registration/password_reset_email.html',
+             use_https=False, token_generator=default_token_generator,
+             from_email=None, request=None):
+        """
+        Overloading super().save to use a custom email_template_name.
+        """
+        email_template_name = 'email/password_reset.email'
+        super(CustomPasswordResetForm, self).save(domain_override, subject_template_name,
+                                                  email_template_name, use_https, token_generator,
+                                                  from_email, request)
 
 
 class CustomSetPasswordForm(SetPasswordForm):

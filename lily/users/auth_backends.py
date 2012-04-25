@@ -3,32 +3,39 @@ from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
 
-class UserModelBackend(ModelBackend):
+
+class EmailAuthenticationBackend(ModelBackend):
     """
-    Authenticate the user, instead of using the default User model we use the
-    CustomUser model and return this as well.
+    Authenticate a CustomUser with e-mail address instead of username.
     """
     def authenticate(self, username=None, password=None, no_pass=False):
         """
-        Check if the user is properly authenticated, either by username
-        and password check (login), or code login (upon activation of account)
+        Check if the user is properly authenticated, either logging in by e-mail address 
+        and password or programmatically logged in (e.g. upon activation of account) 
+        using no_pass=True.
         """
         try:
-            user = self.user_class.objects.get(username=username)
-            if (user.is_active) and (user.check_password(password) or no_pass):
+            email = username
+            user = self.user_class.objects.get(
+                                contact__email_addresses__email_address__iexact=email, 
+                                contact__email_addresses__is_primary=True
+            )
+            
+            if(user.is_active) and (user.check_password(password) or no_pass):
                 return user
+            return None
         except self.user_class.DoesNotExist:
             return None
-
+    
     def get_user(self, user_id):
         """
-        Return the custom user model
+        Return the proper instance of CustomUser for given user_id.
         """
         try:
             return self.user_class.objects.get(pk=user_id)
         except self.user_class.DoesNotExist:
             return None
-
+        
     @property
     def user_class(self):
         """
@@ -39,3 +46,4 @@ class UserModelBackend(ModelBackend):
             if not self._user_class:
                 raise ImproperlyConfigured('Could not get custom user model')
         return self._user_class
+        

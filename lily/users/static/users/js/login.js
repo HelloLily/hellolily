@@ -23,8 +23,8 @@ $(document).ready(function() {
 		$('[placeholder]').placeholder();
 	}
 	
-    // set focus on username
-	set_focus('id_username');
+    // set focus on e-mail
+	set_focus('id_email');
         
     $('input:checkbox').screwDefaultButtons({
         checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',

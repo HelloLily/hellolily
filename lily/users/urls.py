@@ -1,14 +1,13 @@
 from django.conf.urls import patterns, url
 
 from lily.users.forms import CustomPasswordResetForm, CustomSetPasswordForm
-from lily.users.views import dashboard_view, login_view, registration_view, registration_success_view, \
+from lily.users.views import dashboard_view, login_view, registration_view, \
     activation_view, activation_resend_view, send_invitation_view, AcceptInvitationView
 
 
 urlpatterns = patterns('',
     # Registration
     url(r'^registration/$', registration_view, name='registration'),
-    url(r'^registration/success/$', registration_success_view, name='registration_success'),
     
     # Activation
     url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', activation_view, name='activation'),

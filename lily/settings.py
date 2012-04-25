@@ -89,7 +89,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) #
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 CUSTOM_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = (
-    'lily.users.auth_backends.UserModelBackend',
+    'lily.users.auth_backends.EmailAuthenticationBackend',
 )
 
 # Used middleware

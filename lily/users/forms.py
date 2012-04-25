@@ -15,9 +15,9 @@ class CustomAuthenticationForm(AuthenticationForm):
     This form is a subclass from the default AuthenticationForm.
     We just add classes to the fields here, validation is done in the parent form.
     """
-    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
-        'class': 'mws-login-username mws-textinput required',
-        'placeholder': _('Username')
+    email = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
+        'class': 'mws-login-email mws-textinput required',
+        'placeholder': _('E-mail address')
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
         'class': 'mws-login-password mws-textinput required',
@@ -109,12 +109,6 @@ class RegistrationForm(Form):
     """
     This is the registration form, which is used to register a new user.
     """
-    username = forms.CharField(label=_('Username'), min_length=4, max_length=30,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-username mws-textinput required',
-            'placeholder': _('Username')
-        })
-    )
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email mws-textinput required',

@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from hashlib import sha256
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -30,6 +31,7 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 
+
 class RegistrationView(FormView):
     """
     This view shows and handles the registration form, when valid register a new user.
@@ -47,27 +49,24 @@ class RegistrationView(FormView):
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
-        
-        # Add email address
-        email = EmailAddress.objects.create(
-            email_address=form.cleaned_data['email'],
-            is_primary=True
-        )
-        
         # Create account
         account = Account.objects.create(name=form.cleaned_data.get('company'))
-        
-        contact.email_addresses.add(email)
         
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.username = form.cleaned_data['username']
+        user.email = form.cleaned_data['email']
+        
+        # Store random unique data in username
+        user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
+        
+        # Set inactive by default, activaten by e-mail required
         user.is_active = False
         user.save()
         
+        # Add to admin group
         group = Group.objects.get_or_create(name='account_admin')
         user.groups.add(group[0])
     
@@ -105,13 +104,9 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        return redirect(reverse_lazy('registration_success'))
+        # TODO use messages to display registration succeeded
+        return redirect(reverse_lazy('login'))
 
-class RegistrationSuccessView(TemplateView):
-    """
-    Show a success page after regstration.
-    """
-    template_name = 'users/registration_success.html'
 
 class ActivationView(TemplateView):
     """
@@ -150,7 +145,7 @@ class ActivationView(TemplateView):
         self.user.save()
         
         # Log the user in
-        self.user = authenticate(username=self.user.username, no_pass=True)
+        self.user = authenticate(username=self.user.email, no_pass=True)
         user_login(request, self.user)
         
         # Redirect to dashboard
@@ -465,7 +460,6 @@ class DashboardView(TemplateView):
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()
-registration_success_view = RegistrationSuccessView.as_view()
 activation_view = ActivationView.as_view()
 activation_resend_view = ActivationResendView.as_view()
 login_view = LoginView.as_view()

@@ -8,6 +8,7 @@ class EmailAuthenticationBackend(ModelBackend):
     """
     Authenticate a CustomUser with e-mail address instead of username.
     """
+    
     def authenticate(self, username=None, password=None, no_pass=False):
         """
         Check if the user is properly authenticated, either logging in by e-mail address 

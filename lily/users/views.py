@@ -67,8 +67,8 @@ class RegistrationView(FormView):
         user.save()
         
         # Add to admin group
-        group = Group.objects.get_or_create(name='account_admin')
-        user.groups.add(group[0])
+        group, created = Group.objects.get_or_create(name='account_admin')
+        user.groups.add(group)
     
         # Get the current site
         try:
@@ -150,7 +150,8 @@ class ActivationView(TemplateView):
         
         # Redirect to dashboard
         return redirect(reverse_lazy('dashboard'))
-    
+
+
 class ActivationResendView(FormView):
     """
     This view is used by an user to request a new activation e-mail.
@@ -203,6 +204,7 @@ class ActivationResendView(FormView):
         """        
         return redirect(reverse_lazy('login'))
 
+
 class LoginView(View):
     """
     This view extends the default login view with a 'remember me' feature.
@@ -220,6 +222,7 @@ class LoginView(View):
             if not request.POST.get('remember_me', False):
                 request.session.set_expiry(None)
         return login(request, template_name='users/login.html', authentication_form=CustomAuthenticationForm, *args, **kwargs)
+
 
 class SendInvitationView(FormSetView):
     """
@@ -306,6 +309,7 @@ class SendInvitationView(FormSetView):
         """
         messages.success(self.request, _('The invitations were sent successfully.'))
         return reverse_lazy('dashboard')
+
 
 class AcceptInvitationView(FormView):
     """
@@ -440,7 +444,7 @@ class AcceptInvitationView(FormView):
         user = CustomUser()
         user.contact = contact
         user.account = self.account
-        user.username = form.cleaned_data['username']
+        user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
         user.save()
         
@@ -451,6 +455,7 @@ class AcceptInvitationView(FormView):
         Redirect to the success page.
         """
         return redirect(reverse_lazy('login'))
+
 
 class DashboardView(TemplateView):
     """

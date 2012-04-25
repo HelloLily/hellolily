@@ -12,10 +12,18 @@ from lily.utils.widgets import JqueryPasswordInput
 
 class CustomAuthenticationForm(AuthenticationForm):
     """
-    This form is a subclass from the default AuthenticationForm.
-    We just add classes to the fields here, validation is done in the parent form.
+    This form is a subclass from the default AuthenticationForm. Necessary to set CSS classes and
+    custom error_messages.
     """
-    email = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
+    error_messages = {
+        'invalid_login': _("Please enter a correct e-mail address and password. "
+                           "Note that both fields are case-sensitive."),
+        'no_cookies': _("Your Web browser doesn't appear to have cookies "
+                        "enabled. Cookies are required for logging in."),
+        'inactive': _("This account is inactive."),
+    }
+    
+    username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
         'class': 'mws-login-email mws-textinput required',
         'placeholder': _('E-mail address')
     }))
@@ -29,7 +37,7 @@ class CustomAuthenticationForm(AuthenticationForm):
 class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
-    Css classes are added and CustomUser is used for validation instead of User.
+    CSS classes are added and CustomUser is used for validation instead of User.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-reset-email mws-textinput required',

@@ -32,6 +32,29 @@ class AddContactForm(ModelForm):
         
         return cleaned_data
     
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(AddContactForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
+    
     class Meta:
         model = Contact
         fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
@@ -83,6 +106,29 @@ class EditContactForm(ModelForm):
             initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
             widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
         )
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(EditContactForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
     
     def clean(self):
         """

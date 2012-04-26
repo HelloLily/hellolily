@@ -60,7 +60,7 @@ class AddAccountMinimalForm(ModelForm):
                 pass
         
         return cleaned_data
-        
+    
     class Meta:
         model = Account
         fields = ('name', 'email', 'website')
@@ -106,6 +106,34 @@ class AddAccountForm(ModelForm):
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(AddAccountForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check websites
+        for form in self.websites_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
     
     def save(self, commit=True):
         """
@@ -189,6 +217,35 @@ class EditAccountForm(ModelForm):
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
+    
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(EditAccountForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check websites
+        for form in self.websites_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
     
     def save(self, commit=True):
         """

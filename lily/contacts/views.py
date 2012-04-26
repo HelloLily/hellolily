@@ -1,14 +1,28 @@
+from datetime import date, timedelta
+from hashlib import sha256
+import base64
+import pickle
+
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.forms.models import modelformset_factory, inlineformset_factory
+from django.http import Http404   
 from django.shortcuts import redirect
+from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext as _
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
 from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
+from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
@@ -195,25 +209,95 @@ class EditContactView(UpdateView):
             super(EditContactView, self).form_valid(form)
             
             # Handle e-mail addresses
-            for formset in self.email_addresses_formset:
-                # Check if existing instance has been marked for deletion
-                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    self.object.email_addresses.remove(formset.instance)
-                    formset.instance.delete()
-                    continue
+            allow_edit_email = email_verify = False
+            # TODO: move the permission logic to a decorator for this view
+            
+            # Permission check: users in a certain group and the contact's user can edit e-mail adresses
+            # For e-mailaddresses a confirmation e-mail is sent to the new e-mail adres when 
+            # the contact's user changes it. Another user with permissions can change it regardless.
+            try:
+                user = CustomUser.objects.get(contact=self.object)
                 
-                # Check for e-mail address selected as primary
-                primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-
-                if formset.prefix == primary:
-                    formset.instance.is_primary = True
+                # If it's the current logged in user's contact
+                if user == self.request.user:
+                    # Allow editing, but sent verification e-mails
+                    allow_edit_email = email_verify = True
                 else:
-                    formset.instance.is_primary = False
-                
-                # Only save e-mail address if something else than primary/status was filled in
-                if formset.instance.email_address:
-                    formset.save()
-                    self.object.email_addresses.add(formset.instance)
+                    # If the the current logged in user has the right permissions
+                    if 'account_admin' in self.request.user.groups.values_list('name', flat=True):
+                        # Allow editing 
+                        allow_edit_email = True                   
+            except CustomUser.DoesNotExist:
+                # If it's not a user's contact
+                allow_edit_email = True
+            
+            if allow_edit_email:
+                for formset in self.email_addresses_formset:
+                    # Check for e-mail address selected as primary
+                    primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+                    
+                    # Check if existing instance has been marked for deletion
+                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+                        self.object.email_addresses.remove(formset.instance)
+                        # Don't delete if it's the one marked as primary
+                        if formset.prefix != primary:
+                            formset.instance.delete()
+                        continue
+                    
+                    # Make sure only one is marked as primary
+                    if formset.prefix == primary:
+                        formset.instance.is_primary = True
+                    else:
+                        formset.instance.is_primary = False
+                    
+                    # Only save e-mail address if something else than primary/status was filled in
+                    if formset.instance.email_address:
+                        if not email_verify:
+                            formset.save()
+                            self.object.email_addresses.add(formset.instance)
+                        else:
+                            # get old/new e-mail address
+                            old_email = self.request.user.contact.email_addresses.filter(pk=form.instance.pk).values_list('email_address', flat=True)[0]
+                            new_email = formset.instance.email_address
+                            # get contact pk
+                            pk = self.object.pk
+                            # calculate expire date
+                            expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
+                            expire_date_pickled = pickle.dumps(expire_date)
+                            
+                            # get link to site
+                            protocol = self.request.is_secure() and 'https' or 'http'
+                            site = Site.objects.get_current()
+
+                            # Build data dict
+                            data = base64.urlsafe_b64encode(pickle.dumps({
+                                'contact_pk': self.object.pk,
+                                'old_email': old_email,
+                                'email_address': pickle.dumps(formset.instance),
+                                'expire_date': expire_date_pickled,
+                                'hash': sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest(),
+                            })).strip('=')
+                            
+                            # Build verification link
+                            verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
+                                'data': data
+                            }))
+                            
+                            # Sent an e-mail to the user current primary adress
+                            send_templated_mail(
+                                template_name='email_confirm',
+                                from_email=settings.DEFAULT_FROM_EMAIL,
+                                recipient_list=[new_email],
+                                context = {
+                                    'current_site': site,
+                                    'full_name': self.object.full_name(),
+                                    'verification_link': verification_link,
+                                    'email_address': formset.instance.email_address
+                                }
+                            )
+                            
+                            # Add message
+                            messages.success(self.request, _('An e-mail has sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
             
             # Handle addresses
             for formset in self.addresses_formset:
@@ -407,6 +491,95 @@ class EditFunctionView(UpdateView):
     
     class Meta:
         fields = ()
+    
+
+class ConfirmContactEmailView(TemplateView):
+    """
+    Confirm an e-mail address change for a contact which is linked to a user. 
+    """
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Verify the incoming request uri. Save the new e-mail address or throw a 404.
+        """
+        if request.method == 'POST':
+            # throw 404
+            raise Http404
+        else:
+            try:
+                data = pickle.loads(base64.urlsafe_b64decode(str(kwargs.get('data') + '=' * (len(kwargs.get('data')) % 4))))
+            except:
+                raise Http404
+            if self.is_valid_link(data):
+                # Unpickle EmailAddress object
+                email_address = pickle.loads(data.get('email_address'))
+                
+                # Save e-mail address
+                email_address.save()
+                
+                # Add to contact
+                contact_pk = data.get('contact_pk')
+                user = CustomUser.objects.get(pk=contact_pk)
+                user.contact.email_addresses.add(email_address)
+
+                # if logged in:
+                if request.user.is_authenticated():
+                    if email_address.is_primary:
+                        # add message
+                        messages.success(request, _('Your new e-mail address has now been changed. Please log back in.'))
+                        
+                        # force log out
+                        return redirect(reverse('logout'))
+                    else:
+                        # redirect to contact edit/view page
+                        return redirect(reverse('contact_details', kwargs={
+                            'pk': contact_pk
+                         }))
+                else:
+                    # redirect to contact edit/view page
+                    return redirect(reverse('contact_details', kwargs={
+                        'pk': contact_pk
+                     }))
+            else:
+                # throw 404
+                raise Http404
+        
+    def is_valid_link(self, data):
+        """
+        Verify the kwargs from the uri with the data in the hash.
+        """
+        # grab hash
+        hash = data.get('hash')
+        # grab old/new e-mail address
+        old_email = data.get('old_email')
+        
+        # Unpickle EmailAddress object 
+        email_address = pickle.loads(data.get('email_address'))
+        new_email = email_address.email_address
+        # grab pk
+        pk = data.get('contact_pk')
+        # grab datetime to test expire date
+        expire_date_pickled = data.get('expire_date')
+        
+        # Verify hash
+        if hash != sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest():
+            return False
+        
+        # Test expire date
+        try:
+            expire_date = pickle.loads(expire_date_pickled)
+            if date.today() > expire_date:
+                # Expire date has passed
+                return False
+        except pickle.UnpicklingError:
+            return False
+        
+        # Find a user's contact with old_email as an existing e-mail address
+        if old_email == '' and not force_unicode(old_email) in CustomUser.objects.filter(pk=pk).values_list('contact__email_addresses__email_address', flat=True):
+            # No e-mail found to change
+            return False
+        
+        return True
 
 
 # Perform logic here instead of in urls.py

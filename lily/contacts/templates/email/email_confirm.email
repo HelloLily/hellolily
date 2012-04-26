@@ -1,0 +1,36 @@
+{% load i18n %}
+
+{% block subject %}{{ current_site.name }} | {% trans 'E-mail verification' %}{% endblock %}
+
+{% block plain %}
+{% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
+Hello {{ name }},
+
+Click on the following link below to verify your e-mail address. This link will expire after seven days.
+{{ verification_link }}
+
+If this e-mail adress is your primary e-mail, please remember to use {{ email_address }} to log in once you've verified this e-mail adress.
+
+Sincerely,
+The {{ site_name }} team
+{% endblocktrans %}
+{% endblock %}
+
+{% block html %}
+{% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
+<p>Hello {{ name }},</p>
+
+<p>
+Click on <a href="{{ verification_link }}">this link</a> to verify your e-mail address. This link will expire after seven days.
+</p>
+
+<p>
+If this e-mail adress is your primary e-mail, please remember to use {{ email_address }} to log in once you've verified this e-mail adress.
+</p>
+
+<p>
+Sincerely, <br />
+The {{ site_name }} team
+</p>
+{% endblocktrans %}
+{% endblock %}

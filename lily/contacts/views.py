@@ -383,16 +383,14 @@ class EditContactView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        form_kwargs = self.get_form_kwargs()
+#        form_kwargs = self.get_form_kwargs()
+#        
+#        if len(Function.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
+#            return redirect(reverse('function_edit', kwargs={
+#                'pk': self.object.pk,
+#            }))
         
-        if len(Function.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
-            return redirect(reverse('function_edit', kwargs={
-                'pk': self.object.pk,
-            }))
-        
-        return redirect(reverse('contact_edit', kwargs={
-            'pk': self.object.pk,
-        }))
+        return redirect(reverse('contact_list'))
 
 
 class DeleteContactView(DeleteView):

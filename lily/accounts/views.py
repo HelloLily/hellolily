@@ -391,9 +391,6 @@ class EditAccountView(UpdateView):
         """
         # TODO: determine whether to go back to the list in search mode
         return redirect(reverse('account_list'))
-#        return redirect(reverse('account_edit', kwargs={
-#            'pk': self.object.pk,
-#        }))
 
 
 class DeleteAccountView(DeleteView):

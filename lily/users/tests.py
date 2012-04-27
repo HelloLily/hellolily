@@ -16,7 +16,7 @@ class Test(TestCase):
         
         # Create dummy account
         account = Account.objects.create(name='Foo Bar inc.')
-        account.email = 'first@account.com'
+        account.primary_email = 'first@account.com'
         
         # Create dummy contact
         contact = Contact.objects.create(first_name='John', last_name='Doe')        
@@ -30,7 +30,7 @@ class Test(TestCase):
         u.set_password('123456')
         
         # The attribute being tested
-        u.email = 'first@user.com'
+        u.primary_email = 'first@user.com'
         
         # assert email is not saved yet
         email = None
@@ -54,7 +54,7 @@ class Test(TestCase):
         self.assertEqual('first@user.com', email)
         
         # change and save email
-        u.email = 'second@user.com'
+        u.primary_email = 'second@user.com'
         u.save()
         
         # assert email equals second@user.com
@@ -67,7 +67,7 @@ class Test(TestCase):
         self.assertEqual('second@user.com', email)
         
         # change email (don't save)
-        u.email = 'third@user.com'
+        u.primary_email = 'third@user.com'
         
         # assert email still equals second@user.com 
         email = None
@@ -87,7 +87,7 @@ class Test(TestCase):
         
         # Create dummy account
         account = Account.objects.create(name='Foo Bar inc.')
-        account.email = 'first@account.com'
+        account.primary_email = 'first@account.com'
         
         # assert email is not saved yet
         email = None
@@ -111,7 +111,7 @@ class Test(TestCase):
         self.assertEqual('first@account.com', email)
         
         # change and save email
-        account.email = 'second@account.com'
+        account.primary_email = 'second@account.com'
         account.save()
         
         # assert email equals second@account.com
@@ -124,7 +124,7 @@ class Test(TestCase):
         self.assertEqual('second@account.com', email)
         
         # change email (don't save)
-        account.email = 'third@account.com'
+        account.primary_email = 'third@account.com'
         
         # assert email still equals second@user.com 
         email = None

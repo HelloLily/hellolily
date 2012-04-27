@@ -270,7 +270,7 @@ class EditContactView(UpdateView):
                             # get link to site
                             protocol = self.request.is_secure() and 'https' or 'http'
                             site = Site.objects.get_current()
-
+                            
                             # Build data dict
                             data = base64.urlsafe_b64encode(pickle.dumps({
                                 'contact_pk': self.object.pk,
@@ -297,7 +297,6 @@ class EditContactView(UpdateView):
                                     'email_address': formset.instance.email_address
                                 }
                             )
-                            
                             # Add message
                             messages.success(self.request, _('An e-mail has sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
             
@@ -508,35 +507,42 @@ class ConfirmContactEmailView(TemplateView):
             # throw 404
             raise Http404
         else:
+            # Base64 decode and unpickle data from URL
             try:
                 data = pickle.loads(base64.urlsafe_b64decode(str(kwargs.get('data') + '=' * (len(kwargs.get('data')) % 4))))
             except:
                 raise Http404
             if self.is_valid_link(data):
                 # Unpickle EmailAddress object
-                email_address = pickle.loads(data.get('email_address'))
-                
-                # Save e-mail address
-                email_address.save()
-                
-                # Add to contact
+                try:
+                    email_address = pickle.loads(data.get('email_address'))
+                except:
+                    # throw 404
+                    raise Http404
+                        
+                # Get contact
                 contact_pk = data.get('contact_pk')
                 user = CustomUser.objects.get(pk=contact_pk)
-                user.contact.email_addresses.add(email_address)
-
-                # if logged in:
-                if request.user.is_authenticated():
+                
+                # Save e-mail address
+                if email_address.pk is None and user.contact.email_addresses.filter(email_address=email_address.email_address).exists():
+                    # throw 404
+                    raise Http404
+                else:
+                    # Prevent multiple primary e-mail addresses 
                     if email_address.is_primary:
-                        # add message
-                        messages.success(request, _('Your new e-mail address has now been changed. Please log back in.'))
-                        
-                        # force log out
-                        return redirect(reverse('logout'))
-                    else:
-                        # redirect to contact edit/view page
-                        return redirect(reverse('contact_details', kwargs={
-                            'pk': contact_pk
-                         }))
+                        user.contact.email_addresses.all().update(is_primary=False)
+                    
+                    email_address.save()
+                    user.contact.email_addresses.add(email_address)
+                
+                # if logged in:
+                if request.user.is_authenticated() and email_address.is_primary:
+                    # add message
+                    messages.success(request, _('Your primary e-mail address has now been changed. Please log back in.'))
+                    
+                    # force log out
+                    return redirect(reverse('logout'))
                 else:
                     # redirect to contact edit/view page
                     return redirect(reverse('contact_details', kwargs={

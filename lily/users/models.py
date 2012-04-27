@@ -23,7 +23,7 @@ class CustomUser(User):
         return unicode(self.contact)
     
     def __getattribute__(self, name):
-        if name == 'email':
+        if name == 'primary_email':
             try:
                 if self.contact:
                     email = self.contact.email_addresses.get(is_primary=True)
@@ -53,9 +53,9 @@ def post_save_customuser_handler(sender, **kwargs):
     overwrite the existing one.
     """
     instance = kwargs['instance']
-    if instance.__dict__.has_key('email'):
-        new_email_address = instance.__dict__['email'];
-        if new_email_address:
+    if instance.__dict__.has_key('primary_email'):
+        new_email_address = instance.__dict__['primary_email'];
+        if len(new_email_address.strip()) > 0:
             try:
                 # Overwrite existing primary e-mail address
                 email = instance.contact.email_addresses.get(is_primary=True)

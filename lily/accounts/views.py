@@ -93,7 +93,7 @@ class AddAccountView(CreateView):
             
         if is_ajax(self.request):
             # Add e-mail address to account as primary
-            self.object.email = form.cleaned_data.get('email')
+            self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
             
             # Save website

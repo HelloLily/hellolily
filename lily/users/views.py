@@ -56,7 +56,7 @@ class RegistrationView(FormView):
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.email = form.cleaned_data['email']
+        user.primary_email = form.cleaned_data['email']
         
         # Store random unique data in username
         user.username = uuid4().get_hex()[:10]

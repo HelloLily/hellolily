@@ -101,7 +101,7 @@ class Command(NoArgsCommand):
         if user is None:
             customUser = CustomUser()
             customUser.username = uuid4().get_hex()[:10]
-            customUser.email = email
+            customUser.primary_email = email
             customUser.set_password(password2)
         else:
             customUser = CustomUser(user_ptr=user)

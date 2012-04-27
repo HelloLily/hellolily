@@ -90,8 +90,8 @@ class EditContactForm(ModelForm):
     """
     Form for editing an existing contact which includes all fields available.
     """
-    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
-        widget=forms.CheckboxInput())
+#    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
+#        widget=forms.CheckboxInput())
     
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -101,11 +101,24 @@ class EditContactForm(ModelForm):
                                               label_suffix, empty_permitted, instance)
     
         # Add field to select accounts where this contact works or has worked at.
-        self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
-            queryset=Account.objects.all(),
-            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
-            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
-        )
+#        self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
+#            queryset=Account.objects.all(),
+#            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
+#            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
+#        )
+        
+        # Try providing initial
+        is_working_at = Function.objects.filter(contact=instance).values_list('account_id', flat=True)
+        if len(is_working_at) == 1:
+            # Add field to select account where this contact is working at.
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
+                queryset=Account.objects.all(),
+                initial=is_working_at[0])
+        else:
+            # Add field to select account where this contact is working at.
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
+                queryset=Account.objects.all())
+                
     
     def is_valid(self):
         """

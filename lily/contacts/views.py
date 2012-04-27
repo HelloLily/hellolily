@@ -341,14 +341,27 @@ class EditContactView(UpdateView):
                     self.object.phone_numbers.add(formset.instance)
         
         # Save any selected accounts
-        if form_kwargs['data'].getlist('accounts'):
-            pks = form_kwargs['data'].getlist('accounts')
-            for pk in pks:
-                account = Account.objects.get(pk=pk)
-                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
-            functions = Function.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
+#        if form_kwargs['data'].getlist('accounts'):
+#            pks = form_kwargs['data'].getlist('accounts')
+#            for pk in pks:
+#                account = Account.objects.get(pk=pk)
+#                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+#            functions = Function.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
+#            functions.delete()
+#        else:
+#            functions = Function.objects.filter(contact=self.object)
+#            functions.delete()
+
+        # Save selected account
+        if form_kwargs['data'].get('account'):
+            pk = form_kwargs['data'].get('account')
+            account = Account.objects.get(pk=pk)
+            Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+            
+            functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
             functions.delete()
         else:
+            # No account selected
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
         

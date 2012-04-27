@@ -57,7 +57,7 @@ class AddContactForm(ModelForm):
     
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
         
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -144,7 +144,7 @@ class EditContactForm(ModelForm):
     
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
                 
         widgets = {
             'first_name': forms.TextInput(attrs={

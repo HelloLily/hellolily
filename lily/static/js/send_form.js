@@ -8,7 +8,7 @@ function clearForm(form) {
 }
 
 // TODO: detect which button was clicked to be able to redirect to an edit view
-function sendForm(dialog, successCallback, errorCallback) {
+function sendForm(dialog, successCallback, errorCallback, beforeSubmit) {
     var form = $(dialog).find('form'),
         counter = 0,
         cb = null;
@@ -35,28 +35,37 @@ function sendForm(dialog, successCallback, errorCallback) {
         data: {
             'csrfmiddlewaretoken': dialog.find('input[name="csrfmiddlewaretoken"]').val()
         }, beforeSubmit: function() {
-            $(form).dialog('close');
-            $('#loadingDialog').dialog('open');
-                setTimeout(function() {
-                    hideLoadingDialog();
-                }, 1500);
-        }, success: function(response) {
-            if( response.error === true ) {
-                $(form).html(response.html);
-                if( typeof bindFormset == typeof Function )
-                    bindFormset();
-                $('#loadingDialog').dialog('close');
-                $(dialog).dialog('open');
-            } else if( response.redirect === true ) {
-                window.location = response.url
+            if(!beforeSubmit) {
+                $(form).dialog('close');
+                $('#loadingDialog').dialog('open');
+                    setTimeout(function() {
+                        hideLoadingDialog();
+                    }, 1200);
             } else {
-                if(!successCallback) {
-                    successCallback = function() {
+                beforeSubmit();
+            }
+        }, success: function(response) {
+            if(!successCallback){
+                if( response.error === true ) {
+                    // Request was successfull but the form returned with errors
+                    $(form).html(response.html);
+                    if( typeof bindFormset == typeof Function )
+                        bindFormset();
+                    $('#loadingDialog').dialog('close');
+                    $(dialog).dialog('open');
+                } else if( response.redirect === true ) {
+                    // The page is redirected, follow the redirect
+                    window.location = response.url
+                } else {
+                    // Everything worked, handle the success response
+                    afterSuccess = function() {
                         $('#successDialogMessage').text(response.html);
                         $('#successDialog').dialog('open');
                     };
+                    hideLoadingDialog(afterSuccess);
                 }
-                hideLoadingDialog(successCallback);
+            } else {
+                successCallback(response, hideLoadingDialog);
             }
         }, error: function(){
             if(!errorCallback){
@@ -64,8 +73,9 @@ function sendForm(dialog, successCallback, errorCallback) {
                     $(dialog).dialog('close');
                     $('#errorDialog').dialog('open');
                 };
-            }            
-            hideLoadingDialog(errorCallback);
+                hideLoadingDialog(errorCallback);
+            }
+            errorCallback();
         }
     });
 }

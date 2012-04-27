@@ -6,12 +6,15 @@
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contact_detail.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/inline_edit/inline_edit.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $(".mws-tabs").tabs();
@@ -66,12 +69,28 @@
                     'class': 'mws-button green',
                     text: gettext('Continue'),
                     click: function() {
-                        var successCallback = function() {
-                             var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
-                             var div = link.closest('.object-list-item.note');
-                             div.slideUp(500, function() {
-                                div.remove(); 
-                             });
+                        var successCallback = function(response, hideLoadingDialog) {
+                            if( response.error === true ) {
+                                // Request was successfull but the form returned with errors
+                                $(form).html(response.html);
+                                if( typeof bindFormset == typeof Function )
+                                    bindFormset();
+                                $('#loadingDialog').dialog('close');
+                                $(dialog).dialog('open');
+                            } else if( response.redirect === true ) {
+                                // The page is redirected, follow the redirect
+                                window.location = response.url
+                            } else {
+                                // Everything worked, handle the success response
+                                afterSuccess = function() {
+                                    var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
+                                    var div = link.closest('.object-list-item.note');
+                                    div.slideUp(500, function() {
+                                        div.remove(); 
+                                    });
+                                };
+                                hideLoadingDialog(afterSuccess);
+                            }
                         }
                         sendForm($(this), successCallback);
                     }
@@ -83,6 +102,71 @@
         $('.delete-note-dialog-link').click(function(event) {
             $('#delete-note-form-dialog #delete-note-form').attr('action', $(this).attr('href'));
             $('#delete-note-form-dialog').dialog('open');
+            event.preventDefault();
+        });
+        
+        // auto grow description 
+        $('.autogrow').autoGrow({
+            cols: 60
+        });
+        
+        var editNoteListener = function(elem) {
+            note = $(elem).closest('.note');
+            textarea = note.find('textarea');
+            text = note.find('.object-list-item-text:visible:first');
+            
+            // copy original content into textarea
+            $(textarea).val(text.text());
+        };
+        
+        $('.object_edit_link').click(function() {
+            editNoteListener($(this));
+        });
+        
+        $('.object_cancel_link').live('click', function() {
+            clearForm($(this).closest('.iedit_wrapper').find('form'));
+        });
+        
+        $('.iedit_submit_button').live('click', function(event) {
+            container = $(this).closest('.iedit_wrapper');
+                        
+            var beforeSubmit = function() {
+                container.find('.object-list-ajax-message.loading').fadeIn(400);
+            };
+            
+            var successCallback = function(response, hideLoadingDialog) {
+                // Show the succes image at the right side of the note
+                container.html(response.html);
+                
+                
+                if( response.error === true ) {
+                    // Request was successfull but the form returned with errors
+                    container.find('.iedit_content .iedit_button').click();
+                } else {
+                    // Everything worked, handle the success response
+                    container.find('.object-list-ajax-message.loading').fadeOut(400, function() {
+                        container.find('.object-list-ajax-message.success').fadeIn(400);
+                    });
+                    
+                    container.find('.object-list-ajax-message.success').delay(5000).fadeOut(400);
+                }
+                container.find('.object_edit_link').click(function() {
+                    editNoteListener($(this));
+                });
+                container.find('.autogrow').autoGrow({
+                    cols: 60
+                });
+            };
+            
+            var errorCallback = function() {
+                // Show the error image at the right side of the note
+                container.find('.iedit_form .iedit_button').click();
+                container.find('.object-list-ajax-message.loading').fadeOut(400, function() {
+                    container.find('.object-list-ajax-message.error').fadeIn(400);
+                });
+            };
+            
+            sendForm(container, successCallback, errorCallback, beforeSubmit);
             event.preventDefault();
         });
     });
@@ -160,9 +244,9 @@
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
                         <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-notes-history">{% trans 'Notes & History' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-contact-details">{% trans 'Contact details' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
                     <div id="tab-notes-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
@@ -188,7 +272,7 @@
                                     </div>
                                     <div class="mws-form-col-2-8">
                                         <div class="mws-form-item large">
-                                            <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue">
+                                            <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
                                         </div>
                                     </div>
                                 </div>
@@ -196,9 +280,13 @@
                             <hr />
                         {% endif %}
                         {% for note in object.notes.all %}
-                            {% include 'notes/note.html' with note=note %}
+                            <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
+                                {% include 'notes/note.html' with note=note %}
+                            </div>
                         {% empty %}
-                            {% include 'notes/note.html' with note=None %}
+                            <div class="object-list-item">
+                                {% include 'notes/note.html' with note=None %}
+                            </div>
                         {% endfor %}
                         <div id="delete-note-form-dialog" style="display:none;">
                             <form class="mws-form" id="delete-note-form" action="" method="post">
@@ -219,8 +307,8 @@
                         </p>
                     </div>
                     
-                    <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Cases' %}</h2>
+                    <div id="tab-account" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Account' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
@@ -233,12 +321,13 @@
                         </p>
                     </div>
                     
-                    <div id="tab-account" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Account' %}</h2>
+                    <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Cases' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
                     </div>
+                    
                 </div>
             </div>
         </div>

@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
@@ -9,8 +11,8 @@ class Note(Deleted):
     Note model, simple text fields to store text about another model for everyone to see.
     """
     note = models.TextField(verbose_name=_('note'))
-    author = models.ForeignKey('users.CustomUser', verbose_name=_('author')) 
-    
+    author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
+        
     def __unicode__(self):
         return truncatewords(self.note, 5)
 

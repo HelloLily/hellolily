@@ -25,3 +25,69 @@ function show_or_hide_other_option(select, page_load) {
         other_type_input.val('');
     }
 }
+
+function setCaretAtEnd(elem) {
+    var range;
+    var caretPos = $(elem).val().length
+    
+    if (elem.createTextRange) {
+        range = elem.createTextRange();
+        range.move('character', caretPos);
+        range.select();
+    } else {
+        elem.focus();
+        if (elem.selectionStart !== undefined) {
+            elem.setSelectionRange(caretPos, caretPos);
+        }
+    }
+}
+
+// Calculate width for hidden elements by cloning the original
+(function($) {
+    $.fn.getHiddenOffsetWidth = function () {
+        var hiddenElement = $(this).clone().appendTo('body');
+        hiddenElement.show();
+        var width = $(hiddenElement).outerWidth();
+        $(hiddenElement).remove();
+        
+        return width;
+    };
+})(jQuery);
+
+// Calculate width for given element
+(function($) {
+    $.textMetrics = function(el) {
+        var h = 0, w = 0;
+    
+        var div = document.createElement('div');
+        document.body.appendChild(div);
+        $(div).css({
+            position: 'absolute',
+            left: -1000,
+            top: -1000,
+            padding: '0px',
+            display: 'none',
+            'white-space': 'nowrap'
+        });
+    
+        $(div).html($(el).html());
+        $(div).html(el);
+        var styles = ['font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'];
+        $(styles).each(function() {
+            var s = this.toString();
+            $(div).css(s, $(el).css(s));
+        });
+    
+        h = $(div).outerHeight();
+        w = $(div).outerWidth();
+    
+        $(div).remove();
+    
+        var ret = {
+            height: h,
+            width: w
+        };
+
+        return ret;
+    }
+})(jQuery);

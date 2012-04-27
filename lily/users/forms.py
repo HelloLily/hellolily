@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
+from django.contrib.auth.tokens import default_token_generator
 from django.forms import Form
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext as _
@@ -12,12 +13,20 @@ from lily.utils.widgets import JqueryPasswordInput
 
 class CustomAuthenticationForm(AuthenticationForm):
     """
-    This form is a subclass from the default AuthenticationForm.
-    We just add classes to the fields here, validation is done in the parent form.
+    This form is a subclass from the default AuthenticationForm. Necessary to set CSS classes and
+    custom error_messages.
     """
+    error_messages = {
+        'invalid_login': _("Please enter a correct e-mail address and password. "
+                           "Note that both fields are case-sensitive."),
+        'no_cookies': _("Your Web browser doesn't appear to have cookies "
+                        "enabled. Cookies are required for logging in."),
+        'inactive': _("This account is inactive."),
+    }
+    
     username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
-        'class': 'mws-login-username mws-textinput required',
-        'placeholder': _('Username')
+        'class': 'mws-login-email mws-textinput required',
+        'placeholder': _('E-mail address')
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
         'class': 'mws-login-password mws-textinput required',
@@ -25,10 +34,11 @@ class CustomAuthenticationForm(AuthenticationForm):
     }))
     remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
 
+
 class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
-    Css classes are added and CustomUser is used for validation instead of User.
+    CSS classes are added and CustomUser is used for validation instead of User.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-reset-email mws-textinput required',
@@ -56,6 +66,20 @@ class CustomPasswordResetForm(PasswordResetForm):
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
+    
+    def save(self, domain_override=None,
+             subject_template_name='registration/password_reset_subject.txt',
+             email_template_name='registration/password_reset_email.html',
+             use_https=False, token_generator=default_token_generator,
+             from_email=None, request=None):
+        """
+        Overloading super().save to use a custom email_template_name.
+        """
+        email_template_name = 'email/password_reset.email'
+        super(CustomPasswordResetForm, self).save(domain_override, subject_template_name,
+                                                  email_template_name, use_https, token_generator,
+                                                  from_email, request)
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     """
@@ -70,6 +94,7 @@ class CustomSetPasswordForm(SetPasswordForm):
         'class': 'mws-reset-password mws-textinput required',
         'placeholder': _('New password confirmation')
     }))
+
 
 class ResendActivationForm(Form):
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
@@ -101,16 +126,11 @@ class ResendActivationForm(Form):
                     raise forms.ValidationError(self.error_messages['active'])
         return email
 
+
 class RegistrationForm(Form):
     """
     This is the registration form, which is used to register a new user.
     """
-    username = forms.CharField(label=_('Username'), min_length=4, max_length=30,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-username mws-textinput required',
-            'placeholder': _('Username')
-        })
-    )
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email mws-textinput required',
@@ -181,7 +201,6 @@ class RegistrationForm(Form):
         
         return cleaned_data
 
-RegistrationForm = autostrip(RegistrationForm)
 
 class UserRegistrationForm(RegistrationForm):
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
@@ -212,10 +231,11 @@ class UserRegistrationForm(RegistrationForm):
             self._errors['company'] = self.error_class([_('You can\'t change the company name of the invitation.')])
         
         return cleaned_data
-    
+
+
 class InvitationForm(Form):
     """
-    This is the invitation form, it is used to invite new users to join an account
+    This is the invitation form, it is used to invite new users to join an account.
     """
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
@@ -246,7 +266,6 @@ class InvitationForm(Form):
 ## ------------------------------------------------------------------------------------------------
 ## Formsets
 ## ------------------------------------------------------------------------------------------------
-
 class RequiredFirstFormFormset(BaseFormSet):
     """
     This formset requires that the first form that is submitted is filled in.
@@ -263,6 +282,7 @@ class RequiredFirstFormFormset(BaseFormSet):
         if self.total_form_count() < 1:
             raise forms.ValidationError(_("We need some data before we can proceed. Fill out at least one form."))
 
+
 class RequiredFormset(BaseFormSet):
     """
     This formset requires all the forms that are submitted are filled in.
@@ -272,8 +292,12 @@ class RequiredFormset(BaseFormSet):
         super(RequiredFormset, self).__init__(*args, **kwargs)
         for form in self.forms:
             form.empty_permitted = False
-            
+
+ 
 class InvitationFormset(RequiredFirstFormFormset):
+    """
+    This formset is sending invitations to users based on e-mail addresses.
+    """
     def clean(self):
         """Checks that no two email addresses are the same."""
         super(InvitationFormset, self).clean()
@@ -288,3 +312,12 @@ class InvitationFormset(RequiredFirstFormFormset):
             if email and email in emails:
                 raise forms.ValidationError(_("You can't invite someone more than once (e-mail addresses must be unique)."))
             emails.append(email)
+
+
+# Enable autostrip input on these forms
+CustomAuthenticationForm = autostrip(CustomAuthenticationForm)
+CustomPasswordResetForm = autostrip(CustomPasswordResetForm)
+ResendActivationForm = autostrip(ResendActivationForm)
+RegistrationForm = autostrip(RegistrationForm)
+UserRegistrationForm = autostrip(UserRegistrationForm)
+InvitationForm = autostrip(InvitationForm)

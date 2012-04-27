@@ -1,3 +1,7 @@
+html {
+    overflow-y: scroll; /* new */
+}
+
 body
 {
 	color:#323232;

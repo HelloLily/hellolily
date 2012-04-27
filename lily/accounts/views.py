@@ -70,14 +70,16 @@ class AddAccountView(CreateView):
         """
         Overloading super().get_form to instantiate formsets while instantiating the form.
         """
+        form = super(AddAccountView, self).get_form(form_class)
+        
         # Instantiate the formsets for the normal form
         if not is_ajax(self.request):
-            self.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.none(), prefix='websites')
-            self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
-            self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
-            self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
+            self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.none(), prefix='websites')
+            self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
+            self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
+            self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
         
-        return super(AddAccountView, self).get_form(form_class)
+        return form
     
     def form_valid(self, form):
         """
@@ -91,7 +93,7 @@ class AddAccountView(CreateView):
             
         if is_ajax(self.request):
             # Add e-mail address to account as primary
-            self.object.email = form.cleaned_data.get('email')
+            self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
             
             # Save website
@@ -263,10 +265,10 @@ class EditAccountView(UpdateView):
         """
         form = super(EditAccountView, self).get_form(form_class)
         
-        self.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object), prefix='websites')
-        self.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
-        self.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
-        self.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
+        self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object), prefix='websites')
+        self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
+        self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
+        self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
         
         return form
     
@@ -389,9 +391,6 @@ class EditAccountView(UpdateView):
         """
         # TODO: determine whether to go back to the list in search mode
         return redirect(reverse('account_list'))
-#        return redirect(reverse('account_edit', kwargs={
-#            'pk': self.object.pk,
-#        }))
 
 
 class DeleteAccountView(DeleteView):

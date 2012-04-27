@@ -117,15 +117,15 @@ def post_save_account_handler(sender, **kwargs):
     overwrite the existing one.
     """
     instance = kwargs['instance']
-    if instance.__dict__.has_key('email'):
-        new_email_address = instance.__dict__['email'];
-        try:
-            # Overwrite existing primary e-mail address
-            email = instance.email_addresses.get(is_primary=True)
-            email.email_address = new_email_address
-            email.save()
-        except EmailAddress.DoesNotExist:
-            # Add new e-mail address as primary
-            email = EmailAddress.objects.create(email_address=new_email_address, 
-                                                     is_primary=True)
-            instance.email_addresses.add(email)
+    if instance.__dict__.has_key('primary_email'):
+        new_email_address = instance.__dict__['primary_email'];
+        if len(new_email_address.strip()) > 0:
+            try:
+                # Overwrite existing primary e-mail address
+                email = instance.email_addresses.get(is_primary=True)
+                email.email_address = new_email_address
+                email.save()
+            except EmailAddress.DoesNotExist:
+                # Add new e-mail address as primary
+                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
+                instance.email_addresses.add(email)

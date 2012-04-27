@@ -37,7 +37,7 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 
 # Localization
 TIME_ZONE = 'Europe/Amsterdam'
-LANGUAGE_CODE = 'NL-nl'
+LANGUAGE_CODE = 'EN-en'
 USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))
@@ -89,7 +89,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) #
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 CUSTOM_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = (
-    'lily.users.auth_backends.UserModelBackend',
+    'lily.users.auth_backends.EmailAuthenticationBackend',
 )
 
 # Used middleware
@@ -175,6 +175,7 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
+EMAIL_CONFIRM_TIMEOUT_DAYS = os.environ.get('EMAIL_CONFIRM_TIMEOUT_DAYS', 7)
 
 # Logging
 LOGGING = {

@@ -60,12 +60,10 @@ class AddAccountMinimalForm(ModelForm):
                 pass
         
         return cleaned_data
-        
+    
     class Meta:
         model = Account
         fields = ('name', 'email', 'website')
-
-AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
 
 
 class AddAccountForm(ModelForm):
@@ -109,6 +107,34 @@ class AddAccountForm(ModelForm):
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
     
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(AddAccountForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check websites
+        for form in self.websites_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
+    
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
@@ -144,8 +170,6 @@ class AddAccountForm(ModelForm):
             }),
         
         }
-
-AddAccountForm = autostrip(AddAccountForm)
 
 
 class EditAccountForm(ModelForm):
@@ -194,6 +218,35 @@ class EditAccountForm(ModelForm):
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
     
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(EditAccountForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check websites
+        for form in self.websites_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
+    
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
@@ -234,8 +287,6 @@ class EditAccountForm(ModelForm):
             }),
         }
 
-EditAccountForm = autostrip(EditAccountForm)
-
 
 class WebsiteBaseForm(ModelForm):
     website = forms.URLField(max_length=30, initial='http://',
@@ -247,4 +298,8 @@ class WebsiteBaseForm(ModelForm):
         model = Website
         exclude = ('account')
 
+# Enable autostrip input on these forms
+AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
+AddAccountForm = autostrip(AddAccountForm)
+EditAccountForm = autostrip(EditAccountForm)
 WebsiteBaseForm = autostrip(WebsiteBaseForm)

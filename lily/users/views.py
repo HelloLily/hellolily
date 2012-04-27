@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from hashlib import sha256
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
@@ -30,6 +31,7 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 
+
 class RegistrationView(FormView):
     """
     This view shows and handles the registration form, when valid register a new user.
@@ -47,29 +49,26 @@ class RegistrationView(FormView):
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
-        
-        # Add email address
-        email = EmailAddress.objects.create(
-            email_address=form.cleaned_data['email'],
-            is_primary=True
-        )
-        
         # Create account
         account = Account.objects.create(name=form.cleaned_data.get('company'))
-        
-        contact.email_addresses.add(email)
         
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.username = form.cleaned_data['username']
+        user.primary_email = form.cleaned_data['email']
+        
+        # Store random unique data in username
+        user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
+        
+        # Set inactive by default, activaten by e-mail required
         user.is_active = False
         user.save()
         
-        group = Group.objects.get_or_create(name='account_admin')
-        user.groups.add(group[0])
+        # Add to admin group
+        group, created = Group.objects.get_or_create(name='account_admin')
+        user.groups.add(group)
     
         # Get the current site
         try:
@@ -105,13 +104,9 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        return redirect(reverse_lazy('registration_success'))
+        # TODO use messages to display registration succeeded
+        return redirect(reverse_lazy('login'))
 
-class RegistrationSuccessView(TemplateView):
-    """
-    Show a success page after regstration.
-    """
-    template_name = 'users/registration_success.html'
 
 class ActivationView(TemplateView):
     """
@@ -150,12 +145,13 @@ class ActivationView(TemplateView):
         self.user.save()
         
         # Log the user in
-        self.user = authenticate(username=self.user.username, no_pass=True)
+        self.user = authenticate(username=self.user.email, no_pass=True)
         user_login(request, self.user)
         
         # Redirect to dashboard
         return redirect(reverse_lazy('dashboard'))
-    
+
+
 class ActivationResendView(FormView):
     """
     This view is used by an user to request a new activation e-mail.
@@ -208,6 +204,7 @@ class ActivationResendView(FormView):
         """        
         return redirect(reverse_lazy('login'))
 
+
 class LoginView(View):
     """
     This view extends the default login view with a 'remember me' feature.
@@ -225,6 +222,7 @@ class LoginView(View):
             if not request.POST.get('remember_me', False):
                 request.session.set_expiry(None)
         return login(request, template_name='users/login.html', authentication_form=CustomAuthenticationForm, *args, **kwargs)
+
 
 class SendInvitationView(FormSetView):
     """
@@ -311,6 +309,7 @@ class SendInvitationView(FormSetView):
         """
         messages.success(self.request, _('The invitations were sent successfully.'))
         return reverse_lazy('dashboard')
+
 
 class AcceptInvitationView(FormView):
     """
@@ -445,7 +444,7 @@ class AcceptInvitationView(FormView):
         user = CustomUser()
         user.contact = contact
         user.account = self.account
-        user.username = form.cleaned_data['username']
+        user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
         user.save()
         
@@ -455,13 +454,8 @@ class AcceptInvitationView(FormView):
         """
         Redirect to the success page.
         """
-        return redirect(reverse_lazy('invitation_success'))
+        return redirect(reverse_lazy('login'))
 
-class AcceptInvitationSuccessView(TemplateView):
-    """
-    This view shows the success page after accepting an invation
-    """
-    template_name = 'users/invitation_success.html'
 
 class DashboardView(TemplateView):
     """
@@ -471,10 +465,8 @@ class DashboardView(TemplateView):
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()
-registration_success_view = RegistrationSuccessView.as_view()
 activation_view = ActivationView.as_view()
 activation_resend_view = ActivationResendView.as_view()
 login_view = LoginView.as_view()
 send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
-accept_invitation_view = AcceptInvitationSuccessView.as_view()
 dashboard_view = login_required(DashboardView.as_view())

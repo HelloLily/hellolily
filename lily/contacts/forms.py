@@ -32,9 +32,32 @@ class AddContactForm(ModelForm):
         
         return cleaned_data
     
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(AddContactForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
+    
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
         
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -62,15 +85,13 @@ class AddContactForm(ModelForm):
             }),
         }
 
-AddContactForm = autostrip(AddContactForm)
-
 
 class EditContactForm(ModelForm):
     """
     Form for editing an existing contact which includes all fields available.
     """
-    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
-        widget=forms.CheckboxInput())
+#    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
+#        widget=forms.CheckboxInput())
     
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -80,11 +101,47 @@ class EditContactForm(ModelForm):
                                               label_suffix, empty_permitted, instance)
     
         # Add field to select accounts where this contact works or has worked at.
-        self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
-            queryset=Account.objects.all(),
-            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
-            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
-        )
+#        self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
+#            queryset=Account.objects.all(),
+#            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
+#            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
+#        )
+        
+        # Try providing initial
+        is_working_at = Function.objects.filter(contact=instance).values_list('account_id', flat=True)
+        if len(is_working_at) == 1:
+            # Add field to select account where this contact is working at.
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
+                queryset=Account.objects.all(),
+                initial=is_working_at[0])
+        else:
+            # Add field to select account where this contact is working at.
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
+                queryset=Account.objects.all())
+                
+    
+    def is_valid(self):
+        """
+        Overloading super().is_valid to also validate all formsets.
+        """
+        is_valid = super(EditContactForm, self).is_valid()
+        
+        # Check e-mail addresses
+        for form in self.email_addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check phone numbers
+        for form in self.phone_numbers_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        # Check addresses
+        for form in self.addresses_formset:
+            if not form.is_valid():
+                is_valid = False
+        
+        return is_valid
     
     def clean(self):
         """
@@ -100,7 +157,7 @@ class EditContactForm(ModelForm):
     
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'status', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
                 
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -127,8 +184,6 @@ class EditContactForm(ModelForm):
                 'placeholder': _('Description'),
             }),
         }
-    
-EditContactForm = autostrip(EditContactForm)
 
 
 class EditFunctionForm(ModelForm):
@@ -189,4 +244,8 @@ class FunctionForm(ModelForm):
              })
         }
         
+# Enable autostrip input on these forms
+AddContactForm = autostrip(AddContactForm)
+EditContactForm = autostrip(EditContactForm)
+EditFunctionForm = autostrip(EditFunctionForm)
 FunctionForm = autostrip(FunctionForm)

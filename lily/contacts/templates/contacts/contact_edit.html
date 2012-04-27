@@ -356,6 +356,7 @@
                 
                     <hr />
                         
+                    {% comment %}
                     <div class="mws-form-row">
                         {{ form.status.label_tag }}
                         <div class="mws-form-item large">                            
@@ -369,6 +370,7 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% endcomment %}
                     
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
@@ -386,6 +388,7 @@
                     
                     <hr />
                     
+                    {% comment %}
                     <div class="mws-form-row">
                         {{ form.accounts.label_tag }}
                         <div class="mws-form-item small">                            
@@ -403,7 +406,22 @@
 	                        {{ form.edit_accounts }}
                         </div>
                     </div>
-                
+                    {% endcomment %}
+                    
+                    <div class="mws-form-row">
+                        {{ form.account.label_tag }}
+                        <div class="mws-form-item small">
+                            {% if form.account.errors %}
+                                <span class="field_error">{{ form.account }}</span>
+                                <div class="mws-error no_list_style_type">
+                                    {{ form.account.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.account }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <div class="mws-button-row">
                         <input type="button" id="delete-contact-dialog-btn" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
                 

@@ -1,28 +1,38 @@
 from django.test import TestCase
-
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.users.models import CustomUser
 from lily.utils.models import EmailAddress
 
 
-class SimpleTest(TestCase):    
+class Test(TestCase):    
     
     def test_customuser_set_email(self):
         """
         Test the pre_save signal involving e-mail addresses for CustomUser.
-        TODO: re-evaluate and document this file.
+        This means when setting the attribute 'email', an emailadress instance
+        is actually being created and saved when the user instance is saved.
         """
         
+        # Create dummy account
+        account = Account.objects.create(name='Foo Bar inc.')
+        account.primary_email = 'first@account.com'
+        
+        # Create dummy contact
         contact = Contact.objects.create(first_name='John', last_name='Doe')        
         contact.save()
         
+        # Create dummy user
         u = CustomUser()
         u.contact = contact
+        u.account = account
         u.username = 'John'
         u.set_password('123456')
-        u.email = 'first@user.com'
         
+        # The attribute being tested
+        u.primary_email = 'first@user.com'
+        
+        # assert email is not saved yet
         email = None
         try:
             email = u.contact.email_addresses.get(is_primary=True)
@@ -31,8 +41,10 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual(None, email)
         
+        # Save email
         u.save()
         
+        # assert email equals first@user.com
         email = None
         try:
             email = u.contact.email_addresses.get(is_primary=True)
@@ -41,9 +53,11 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual('first@user.com', email)
         
-        u.email = 'second@user.com'
+        # change and save email
+        u.primary_email = 'second@user.com'
         u.save()
         
+        # assert email equals second@user.com
         email = None
         try:
             email = u.contact.email_addresses.get(is_primary=True)
@@ -52,8 +66,10 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual('second@user.com', email)
         
-        u.email = 'third@user.com'
+        # change email (don't save)
+        u.primary_email = 'third@user.com'
         
+        # assert email still equals second@user.com 
         email = None
         try:
             email = u.contact.email_addresses.get(is_primary=True)
@@ -65,11 +81,15 @@ class SimpleTest(TestCase):
     def test_account_set_email(self):
         """
         Test the pre_save signal involving e-mail addresses for Account.
+        This means when setting the attribute 'email', an emailadress instance
+        is actually being created and saved when the user instance is saved.
         """
         
-        account = Account.objects.create(name='Foo Bar inc.', website='http://foobar.org')
-        account.email = 'first@account.com' 
+        # Create dummy account
+        account = Account.objects.create(name='Foo Bar inc.')
+        account.primary_email = 'first@account.com'
         
+        # assert email is not saved yet
         email = None
         try:
             email = account.email_addresses.get(is_primary=True)
@@ -78,8 +98,10 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual(None, email)
         
+        # Save email
         account.save()
         
+        # assert email equals first@account.com
         email = None
         try:
             email = account.email_addresses.get(is_primary=True)
@@ -88,9 +110,11 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual('first@account.com', email)
         
-        account.email = 'second@account.com'
+        # change and save email
+        account.primary_email = 'second@account.com'
         account.save()
         
+        # assert email equals second@account.com
         email = None
         try:
             email = account.email_addresses.get(is_primary=True)
@@ -99,8 +123,10 @@ class SimpleTest(TestCase):
             pass        
         self.assertEqual('second@account.com', email)
         
-        account.email = 'third@account.com'
+        # change email (don't save)
+        account.primary_email = 'third@account.com'
         
+        # assert email still equals second@user.com 
         email = None
         try:
             email = account.email_addresses.get(is_primary=True)

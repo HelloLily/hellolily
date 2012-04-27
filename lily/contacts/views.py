@@ -254,7 +254,15 @@ class EditContactView(UpdateView):
                     
                     # Only save e-mail address if something else than primary/status was filled in
                     if formset.instance.email_address:
-                        if not email_verify:
+                        # Check if only the is_primary attribute has changed, if so allow the save.
+                        allow_save = False
+                        existing_email_address = None
+                        if formset.instance.pk:
+                            existing_email_address = EmailAddress.objects.get(pk=formset.instance.pk)
+                            if existing_email_address.email_address == formset.instance.email_address:
+                                allow_save = True
+                        
+                        if not email_verify or allow_save:
                             formset.save()
                             self.object.email_addresses.add(formset.instance)
                         else:
@@ -297,8 +305,9 @@ class EditContactView(UpdateView):
                                     'email_address': formset.instance.email_address
                                 }
                             )
+                            
                             # Add message
-                            messages.success(self.request, _('An e-mail has sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
+                            messages.success(self.request, _('An e-mail was sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
             
             # Handle addresses
             for formset in self.addresses_formset:

@@ -100,12 +100,13 @@ class AddressBaseForm(ModelForm):
 class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
-        exclude = ('author', )
+        exclude = ('author', 'object_id', 'content_type')
         widgets = {
             'note': forms.Textarea(attrs={
                 'placeholder': _('Write your note here'),
             })
         }
+
 
 # Enable autostrip input on these forms
 EmailAddressBaseForm = autostrip(EmailAddressBaseForm)

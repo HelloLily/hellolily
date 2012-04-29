@@ -6,13 +6,18 @@ from django.utils.translation import ugettext as _
 
 from lily.utils.models import Deleted
 
+
 class Note(Deleted):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
     note = models.TextField(verbose_name=_('note'))
     author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
-        
+    
+    content_type = models.ForeignKey(ContentType)
+    object_id  = models.PositiveIntegerField()
+    subject = generic.GenericForeignKey('content_type','object_id')
+    
     def __unicode__(self):
         return truncatewords(self.note, 5)
 

@@ -208,6 +208,7 @@ class EditFunctionForm(ModelForm):
         
         return is_valid
 
+
 class FunctionForm(ModelForm):
     """
     Form to link contacts with accounts through functions.
@@ -243,7 +244,8 @@ class FunctionForm(ModelForm):
                  'placeholder': _('Department')
              })
         }
-        
+
+
 # Enable autostrip input on these forms
 AddContactForm = autostrip(AddContactForm)
 EditContactForm = autostrip(EditContactForm)

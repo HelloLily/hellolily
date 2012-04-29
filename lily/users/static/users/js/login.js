@@ -24,7 +24,7 @@ $(document).ready(function() {
 	}
 	
     // set focus on e-mail
-	set_focus('id_email');
+	set_focus('id_username');
         
     $('input:checkbox').screwDefaultButtons({
         checked:    'url(/static/plugins/screwdefaultbuttons/images/checkbox_checked.png)',

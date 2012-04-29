@@ -11,6 +11,8 @@ class EditNoteForm(ModelForm):
     """
     class Meta:
         model = Note
-        exclude = ('author', )
+        exclude = ('author', 'object_id', 'content_type')
 
+
+# Enable autostrip input on these forms
 EditNoteForm = autostrip(EditNoteForm)

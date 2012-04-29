@@ -91,3 +91,13 @@ function setCaretAtEnd(elem) {
         return ret;
     }
 })(jQuery);
+
+// Submit a form on ctrl + enter
+function submit_form_on_ctrl_enter(event, form) {
+	if (event.keyCode == 13) {
+        if (event.ctrlKey) {
+            form.submit();
+        }
+        return false;
+    }
+}

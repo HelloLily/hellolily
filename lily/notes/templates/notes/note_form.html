@@ -2,22 +2,22 @@
 
 {% csrf_token %}
 
-{% ifactive "note_edit" pk=note.pk %}
+{% ifactive 'note_edit' pk=note.pk %}
 <div class="mws-form-inline">
 {% else %}
 <div class="mws-form-block">
 {% endifactive %}
     <div {% ifactive "note_edit" pk=note.pk %}class="mws-form-row"{% endifactive %}>
-        {% ifactive "note_edit" pk=note.pk %}
+        {% ifactive 'note_edit' pk=note.pk %}
             <label for="id_note_{{ note.pk }}">{% trans 'Note' %}</label>
         {% endifactive %}
-        {% if form.note.errors %}
+        {% if note.errors %}
             <div class="mws-form-item large">
                 <span class="field_error">
                     <textarea id="id_note_{{ note.pk }}" class="autogrow" name="note">{{ note.note }}</textarea>
                 </span>
                 <div class="mws-error no_list_style_type">
-                    {{ form.note.errors }}
+                    {{ note.errors }}
                 </div>
             </div>
         {% else %}

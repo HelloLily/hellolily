@@ -12,207 +12,50 @@
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/inline_edit/inline_edit.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $(".mws-tabs").tabs();
-        
-        // add jquery dialog for adding an account
-        $('#delete-contact-form-dialog').dialog({
-            autoOpen: false,
-            title: gettext('Delete contact'),
-            modal: true,
-            width: 640,
-            buttons: [
-                { 
-                    'class': 'mws-button red float-left',
-                    text: gettext('Cancel'),
-                    click: function() {
-                        // cancel form on NO
-                        $(this).dialog('close');
-                    }
-                },
-                {
-                    'class': 'mws-button green',
-                    text: gettext('Continue'),
-                    click: function() {
-                        // submit form on YES
-                        $(this).find('form').submit();
-                    }
-                }
-            ]
-        });
-        
-        // show delete-form-dialog
-        $('#delete-contact-dialog-link').click(function(event) {
-            $('#delete-contact-form-dialog').dialog('open');
-            event.preventDefault();
-        });
-        
-        // add jquery dialog for adding an account
-        $('#delete-note-form-dialog').dialog({
-            autoOpen: false,
-            title: gettext('Delete note'),
-            modal: true,
-            width: 640,
-            buttons: [
-                { 
-                    'class': 'mws-button red float-left',
-                    text: gettext('Cancel'),
-                    click: function() {
-                        $(this).dialog('close');
-                    }
-                },
-                {
-                    'class': 'mws-button green',
-                    text: gettext('Continue'),
-                    click: function() {
-                        var successCallback = function(response, hideLoadingDialog) {
-                            if( response.error === true ) {
-                                // Request was successfull but the form returned with errors
-                                $(form).html(response.html);
-                                if( typeof bindFormset == typeof Function )
-                                    bindFormset();
-                                $('#loadingDialog').dialog('close');
-                                $(dialog).dialog('open');
-                            } else if( response.redirect === true ) {
-                                // The page is redirected, follow the redirect
-                                window.location = response.url
-                            } else {
-                                // Everything worked, handle the success response
-                                afterSuccess = function() {
-                                    var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
-                                    var div = link.closest('.object-list-item.note');
-                                    div.slideUp(500, function() {
-                                        div.remove(); 
-                                    });
-                                };
-                                hideLoadingDialog(afterSuccess);
-                            }
-                        }
-                        sendForm($(this), successCallback);
-                    }
-                }
-            ]
-        });
-        
-        // show delete-form-dialog
-        $('.delete-note-dialog-link').click(function(event) {
-            $('#delete-note-form-dialog #delete-note-form').attr('action', $(this).attr('href'));
-            $('#delete-note-form-dialog').dialog('open');
-            event.preventDefault();
-        });
-        
-        // auto grow description 
-        $('.autogrow').autoGrow({
-            cols: 60
-        });
-        
-        var editNoteListener = function(elem) {
-            note = $(elem).closest('.note');
-            textarea = note.find('textarea');
-            text = note.find('.object-list-item-text:visible:first');
-            
-            // copy original content into textarea
-            $(textarea).val(text.text());
-        };
-        
-        $('.object_edit_link').click(function() {
-            editNoteListener($(this));
-        });
-        
-        $('.object_cancel_link').live('click', function() {
-            clearForm($(this).closest('.iedit_wrapper').find('form'));
-        });
-        
-        $('.iedit_submit_button').live('click', function(event) {
-            container = $(this).closest('.iedit_wrapper');
-                        
-            var beforeSubmit = function() {
-                container.find('.object-list-ajax-message.loading').fadeIn(400);
-            };
-            
-            var successCallback = function(response, hideLoadingDialog) {
-                // Show the succes image at the right side of the note
-                container.html(response.html);
-                
-                
-                if( response.error === true ) {
-                    // Request was successfull but the form returned with errors
-                    container.find('.iedit_content .iedit_button').click();
-                } else {
-                    // Everything worked, handle the success response
-                    container.find('.object-list-ajax-message.loading').fadeOut(400, function() {
-                        container.find('.object-list-ajax-message.success').fadeIn(400);
-                    });
-                    
-                    container.find('.object-list-ajax-message.success').delay(5000).fadeOut(400);
-                }
-                container.find('.object_edit_link').click(function() {
-                    editNoteListener($(this));
-                });
-                container.find('.autogrow').autoGrow({
-                    cols: 60
-                });
-            };
-            
-            var errorCallback = function() {
-                // Show the error image at the right side of the note
-                container.find('.iedit_form .iedit_button').click();
-                container.find('.object-list-ajax-message.loading').fadeOut(400, function() {
-                    container.find('.object-list-ajax-message.error').fadeIn(400);
-                });
-            };
-            
-            sendForm(container, successCallback, errorCallback, beforeSubmit);
-            event.preventDefault();
-        });
-    });
-</script>
+<script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url contact_edit pk=object.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
-                <a href="{% url contact_delete pk=object.pk %}" id="delete-contact-dialog-link">
+                <a href="{% url contact_edit pk=contact.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
+                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link">
                     <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
                 </a>
 
                 <div id="delete-contact-form-dialog" style="display:none;">
-                    <form class="mws-form" action="{% url contact_delete pk=object.pk %}" method="post">
+                    <form class="mws-form" action="{% url contact_delete pk=contact.pk %}" method="post">
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with object.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
                 </div>
-                
-                
             </span>
             <span class="mws-i-24 i-v-card-1">
-                {{ object.full_name }}
+                {{ contact.full_name }}
             </span>
         </div>
         <div class="mws-panel-body">
             
             <div id="details_top" class="clearfix">
                 <div class="float-left">
-                    {% if object.picture %}
-                        <img id="contact_image" src="{% thumbnail object.picture 100x100 %}" alt="" />
+                    {% if contact.picture %}
+                        <img id="contact_image" src="{% thumbnail contact.picture 100x100 %}" alt="" />
                     {% else %}
                         <img id="contact_image" src="{% static 'images/core/unknown_person_100x100.png' %}" alt="" />
                     {% endif %}
                     
                     <div id="details_top_personal">
-                        <h2>{{ object.full_name|truncatechars:"24" }}</h2>
+                        <h2>{{ contact.full_name|truncatechars:"24" }}</h2>
                         <div id="contact_function">
-                            {% with object.get_primary_function as function %}
+                            {% with contact.get_primary_function as function %}
                                 {% if function %}
                                     {% if function.title %}{{ function.title }}<br />{% endif %}
                                     at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
@@ -222,7 +65,7 @@
                             {% endwith %}
                         </div>
                         <div id="contact_social"> 
-                            {% for social in object.get_social %}
+                            {% for social in contact.get_social %}
                                 <a href="{{ social.profile_url }}" class="no-decoration">
                                     <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
                                 </a>
@@ -231,10 +74,10 @@
                     </div>
                 </div>
                 <div id="contact_contact" class="float-right">
-                    <span class="contact_phone"><a href="#">{{ object.get_work_phone }}</a> (work)</span>
-                    <span class="contact_phone"><a href="#">{{ object.get_mobile_phone }}</a> (mobile)</span>
-                    <span class="contact_email"><a href="#">{{ object.get_email }}</a></span>
-                    <span class="contact_twitter"><a href="#">{{ object.get_twitter.username }}</a></span>
+                    <span class="contact_phone"><a href="#">{{ contact.get_work_phone }}</a> (work)</span>
+                    <span class="contact_phone"><a href="#">{{ contact.get_mobile_phone }}</a> (mobile)</span>
+                    <span class="contact_email"><a href="#">{{ contact.get_email }}</a></span>
+                    <span class="contact_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
                 </div>
             </div>
             
@@ -242,44 +85,43 @@
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
 
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-notes-history">{% trans 'Notes & History' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-contact-details">{% trans 'Contact details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Contact history' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Contact details' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
-                    <div id="tab-notes-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Notes & History' %}</h2>
+                    <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+                        <h2>{% trans 'Contact history' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
-                                <div class="mws-form-cols clearfix">
-                                    <div class="mws-form-col-6-8 alpha">
-                                        <label for="id_note" id="add-note-label">{% trans 'Add a note' %}</label>
+<!--                                 <div class="mws-form-cols clearfix"> -->
+<!--                                     <div class="mws-form-col-6-8 alpha"> -->
+<!--                                         <label for="id_note" id="add-note-label">{% trans 'Add a note' %}</label> -->
+										<br />
                                         {% if form.note.errors %}
-                                            <div class="mws-form-item large">
+                                            <div class="mws-form-item inline note-textarea">
                                                 <span class="field_error">{{ form.note }}</span>
                                                 <div class="mws-error no_list_style_type">
                                                     {{ form.note.errors }}
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <div class="mws-form-item large">
+                                            <div class="mws-form-item inline note-textarea">
                                                 {{ form.note }}
                                             </div>
                                         {% endif %}
-                                    </div>
-                                    <div class="mws-form-col-2-8">
-                                        <div class="mws-form-item large">
-                                            <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
-                                        </div>
-                                    </div>
-                                </div>
+<!--                                     </div> -->
+<!--                                     <div class="mws-form-col-2-8"> -->
+                                         <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
+<!--                                     </div> -->
+<!--                                 </div> -->
                             </form>
                             <hr />
                         {% endif %}
-                        {% for note in object.notes.all %}
+                        {% for note in contact.notes.all %}
                             <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
                                 {% include 'notes/note.html' with note=note %}
                             </div>
@@ -293,14 +135,14 @@
                                 {% csrf_token %} 
                                 <div class="mws-form-inline">
                                     <div class="mws-form-row">
-                                        {% blocktrans with object.full_name as contact %}Are you sure you want to delete the note for {{ object }}?{% endblocktrans %}
+                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                     
-                    <div id="tab-contact-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                    <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Contact details' %}</h2>
                         <p>
                             lorem ipsum

@@ -66,7 +66,7 @@
     margin-bottom: 5px;
 }
 
-#tab-notes-history h2 {
+#tab-history h2 {
     margin-bottom: 0px;
 }
 
@@ -75,12 +75,16 @@
     color: #777777;
 }
 
-#add-note-button {
-    margin-top: 88px;
+#tab-history .mws-form {
+    margin-bottom: 8px;
 }
 
-#tab-notes-history .mws-form {
-    margin-bottom: 8px;
+.note-textarea {
+	vertical-align: bottom;
+}
+
+#add-note-button {
+	margin-bottom: 0;
 }
 
 .mws-panel-header .mws-i-24 .float-right a {

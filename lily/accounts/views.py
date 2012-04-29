@@ -15,14 +15,24 @@ from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccou
     WebsiteBaseForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
-from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm
+from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
+from lily.utils.views import DetailFormView
 
 
 class ListAccountView(ListView):
-    template_name = 'accounts/list.html'
+    template_name = 'accounts/account_list.html'
     model = Account
+
+
+class DetailAccountView(DetailFormView):
+    """
+    Display a detail page for a single accoutn.
+    """
+    template_name = 'accounts/account_details.html'
+    model = Account
+    form_class = NoteForm
 
 
 class AddAccountView(CreateView):
@@ -423,5 +433,6 @@ class DeleteAccountView(DeleteView):
 # Perform logic here instead of in urls.py
 add_account_view = login_required(AddAccountView.as_view())
 edit_account_view = login_required(EditAccountView.as_view())
+detail_account_view = login_required(DetailAccountView.as_view())
 delete_account_view = login_required(DeleteAccountView.as_view())
 list_account_view = login_required(ListAccountView.as_view())

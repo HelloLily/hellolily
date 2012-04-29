@@ -32,7 +32,7 @@ class ListContactView(ListView):
     """
     Display a list of all contacts
     """
-    template_name='contacts/contact_list.html'
+    template_name = 'contacts/contact_list.html'
     model = Contact
 
 
@@ -40,16 +40,15 @@ class DetailContactView(DetailFormView):
     """
     Display a detail page for one contact.
     """
-    template_name = "contacts/contact_details.html"
+    template_name = 'contacts/contact_details.html'
     model = Contact
     form_class = NoteForm
     
     def form_valid(self, form):
         note = form.save(commit=False)
         note.author = self.request.user
+        note.subject = self.object
         note.save()
-        
-        self.object.notes.add(note)
         
         return super(DetailContactView, self).form_valid(form)
     

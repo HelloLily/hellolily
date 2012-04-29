@@ -1,3 +1,4 @@
+from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
@@ -156,7 +157,9 @@ class Common(Deleted):
     addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
     email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of e-mail addresses'))
-    notes = models.ManyToManyField('notes.Note', verbose_name=_('list of notes'))
+    
+    notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
+                                    object_id_field='object_id', verbose_name='list of notes')
     
     class Meta:
         abstract = True

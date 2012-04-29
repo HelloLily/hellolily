@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 
+
 urlpatterns = patterns('',
     url(r'^accounts/', include('lily.accounts.urls')),
     url(r'^contacts/', include('lily.contacts.urls')),

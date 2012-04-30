@@ -46,11 +46,6 @@ $(document).ready(function() {
         ]
     });
     
-    // auto grow description 
-    $('.note-autogrow').autoGrow({
-        cols: 60
-    });
-    
     var editNoteListener = function(elem) {
         note = $(elem).closest('.note');
         textarea = note.find('textarea');
@@ -58,6 +53,9 @@ $(document).ready(function() {
         
         // copy original content into textarea
         $(textarea).val($.trim(text.text()));
+        $(textarea).autoGrow({
+	        cols: 60
+	    });
     };
     
     // edit note
@@ -108,10 +106,6 @@ $(document).ready(function() {
                 
                 container.find('.object-list-ajax-message.success').delay(5000).fadeOut(400);
             }
-            textarea = container.find('.note-autogrow');
-            textarea.autoGrow({
-                cols: 60
-            });
         };
         
         // do this on errors

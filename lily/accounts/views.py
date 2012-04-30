@@ -33,7 +33,17 @@ class DetailAccountView(DetailFormView):
     template_name = 'accounts/account_details.html'
     model = Account
     form_class = NoteForm
-
+    
+    def form_valid(self, form):
+        note = form.save(commit=False)
+        note.author = self.request.user
+        note.subject = self.object
+        note.save()
+        
+        return super(DetailAccountView, self).form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('account_details', kwargs={'pk': self.object.pk})
 
 class AddAccountView(CreateView):
     """

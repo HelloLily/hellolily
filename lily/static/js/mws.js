@@ -69,19 +69,16 @@ $(document).ready(function() {
 	});
 	
 	/* File Input Styling */
-	
 	if($.fn.customFileInput) {
 		$("input[type='file']").customFileInput();
 	}
 	
 	/* Chosen Select Box Plugin */
-	
 	if($.fn.chosen) {
 		$("select.chzn-select").chosen();
 	}
 	
 	/* Tooltips */
-	
 	if($.fn.tipsy) {
 		var gravity = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
 		for(var i in gravity)
@@ -91,12 +88,22 @@ $(document).ready(function() {
 	}
 	
 	/* Dual List Box */
-	
 	if($.configureBoxes) {
 		$.configureBoxes();
 	}
 	
+	/* Placeholders for browsers without support for the placeholder attribute */
 	if($.fn.placeholder) {
 		$('[placeholder]').placeholder();
 	}
+	
+	/* Enable tabs on this class */
+    $(".mws-tabs").tabs();
+    
+    /* Submit the form on ctrl + enter in a textarea */
+    $('.mws-form textarea').live('keydown', function(event) {
+    	form = $(this).closest('form');
+    	submit_form_on_ctrl_enter(event, form);
+    });
+	
 });

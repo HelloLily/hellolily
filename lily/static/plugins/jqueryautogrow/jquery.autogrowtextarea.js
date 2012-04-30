@@ -22,14 +22,9 @@
     			var maxLineWidth = parseInt(obj.style.width);
     			for (var i=lines.length-1; i>=0; --i)
     			{
-    			    // count 1 extra line for every white line
-    			    if( lines[i].length == 0) {
-    			        linesCount += 1;
-    			    } else {
-        			    lineWidth = $.textMetrics(lines[i]).width;
+    			    if( lines[i].length > 0) {    			    	lineWidth = jQuery.textMetrics(lines[i]).width;        			    
                         linesCount += Math.floor( lineWidth / maxLineWidth );
     			    }
-    			    
     			}
                 
     			if (linesCount >= rowsDefault)

@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if note %}
-<!--   The default visible div   -->
+<!--   The visible div on load   -->
 <div class="iedit_content">
     <div class="object-list-item-title">
         {{ note.created|date:"l d-m-Y" }} {{ asdf }}
@@ -13,7 +13,7 @@
         <span class="object-list-ajax-message error" style="display:none;">{% trans 'An error occurred' %}</span>
     </div>
     <div class="object-list-item-content">
-        <div class="object-list-item-text">{{ note.note }}</div>
+        <div class="object-list-item-text">{{ note.note|linebreaksbr }}</div>
         <div class="object-list-item-options float-right">
             <a href="{% url note_edit pk=note.pk %}" class="iedit_button object_edit_link" data-edit-selector="#note_{{ note.pk }}">
                 {% trans 'Edit' %}
@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<!--   The div that is displayed after user clicks on edit   -->
+<!--   The div that is displayed when editing, hidden by default   -->
 <div class="iedit_form" style="display: none;">
     <div class="object-list-item-title">
         {{ note.created|date:"l d-m-Y" }}

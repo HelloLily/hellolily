@@ -54,9 +54,9 @@ function setCaretAtEnd(elem) {
     };
 })(jQuery);
 
-// Calculate width for given element
+// Calculate width for given text or html
 (function($) {
-    $.textMetrics = function(el) {
+    $.textMetrics = function(html) {
         var h = 0, w = 0;
     
         var div = document.createElement('div');
@@ -69,14 +69,15 @@ function setCaretAtEnd(elem) {
             display: 'none',
             'white-space': 'nowrap'
         });
-    
-        $(div).html($(el).html());
-        $(div).html(el);
-        var styles = ['font-size','font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'];
-        $(styles).each(function() {
-            var s = this.toString();
-            $(div).css(s, $(el).css(s));
-        });
+
+        $(div).html(html);
+        
+        // TODO: add support for styles
+        // var styles = ['font-size', 'font-style', 'font-weight', 'font-family','line-height', 'text-transform', 'letter-spacing'];
+        // $(styles).each(function() {
+            // var s = this.toString();
+            // $(div).css(s, $(el).css(s));
+        // });
     
         h = $(div).outerHeight();
         w = $(div).outerWidth();

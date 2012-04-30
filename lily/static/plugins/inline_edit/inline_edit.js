@@ -15,9 +15,11 @@ if(typeof jQuery == 'undefined'){
 			}
 			return editable_sel
 		}
+		
 		// do visibility setup
 		$(".iedit_form").hide();
-		// $(".iedit_button").click(function(){
+		
+		// inline edit
 		$(".iedit_button").live('click', function() {
 			var editable_sel = getEditableSelector(this);
 			var editable = $(editable_sel).find("*").andSelf();

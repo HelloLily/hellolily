@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load static i18n thumbnail %}
 
-{% block title %}Contact details - {% endblock %}
+{% block title %}Account details - {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contact_detail.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen"/>
+<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_detail.css' %}" media="screen"/>
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen"/>
 {% endblock %}
 
 {% block scripts %}
@@ -16,56 +16,46 @@
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
 <script type="text/javascript" src="{% static 'notes/js/notes.js' %}"></script>
-<script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+<script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url contact_edit pk=contact.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
-                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link">
+                <a href="{% url account_edit pk=account.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
+                <a href="{% url account_delete pk=account.pk %}" id="delete-account-dialog-link">
                     <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
                 </a>
 
-                <div id="delete-contact-form-dialog" style="display:none;">
-                    <form class="mws-form" action="{% url contact_delete pk=contact.pk %}" method="post">
+                <div id="delete-account-form-dialog" style="display:none;">
+                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
                 </div>
             </span>
-            <span class="mws-i-24 i-v-card-1">
-                {{ contact.full_name }}
+            <span class="mws-i-24 i-companies">
+                {{ account.name }}
             </span>
         </div>
         <div class="mws-panel-body">
             
             <div id="details_top" class="clearfix">
                 <div class="float-left">
-                    {% if contact.picture %}
-                        <img id="contact_image" src="{% thumbnail contact.picture 100x100 %}" alt="" />
+                    {% if account.picture %}
+                        <img id="account_logo" src="{% thumbnail account.logo 100x100 %}" alt="" />
                     {% else %}
-                        <img id="contact_image" src="{% static 'images/core/unknown_person_100x100.png' %}" alt="" />
+                        <img id="account_logo" src="{% static 'images/core/unknown_account.png' %}" alt="" />
                     {% endif %}
                     
                     <div id="details_top_personal">
-                        <h2>{{ contact.full_name|truncatechars:"24" }}</h2>
-                        <div id="contact_function">
-                            {% with contact.get_primary_function as function %}
-                                {% if function %}
-                                    {% if function.title %}{{ function.title }}<br />{% endif %}
-                                    at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
-                                {% else %}
-                                    {% trans 'No function filled in' %}
-                                {% endif %}
-                            {% endwith %}
-                        </div>
-                        <div id="contact_social"> 
+                        <h2>{{ account.name|truncatechars:"24" }}</h2>
+                        <div id="account_social"> 
                             {% for social in contact.get_social %}
                                 <a href="{{ social.profile_url }}" class="no-decoration">
                                     <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
@@ -74,11 +64,10 @@
                         </div>
                     </div>
                 </div>
-                <div id="contact_contact" class="float-right">
-                    <span class="contact_phone"><a href="#">{{ contact.get_work_phone }}</a> (work)</span>
-                    <span class="contact_phone"><a href="#">{{ contact.get_mobile_phone }}</a> (mobile)</span>
-                    <span class="contact_email"><a href="#">{{ contact.get_email }}</a></span>
-                    <span class="contact_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
+                <div id="account_contact" class="float-right">
+                    <span class="account_phone"><a href="#">{{ account.get_phone }}</a></span>
+                    <span class="account_email"><a href="#">{{ account.email }}</a></span>
+                    <span class="account_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
                 </div>
             </div>
             
@@ -86,15 +75,15 @@
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
 
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Contact history' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Contact details' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Account history' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Account details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-employees">{% trans 'Employees' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Contact history' %}</h2>
+                        <h2>{% trans 'Account history' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
@@ -115,7 +104,7 @@
                             </form>
                             <hr />
                         {% endif %}
-                        {% for note in contact.notes.all %}
+                        {% for note in account.notes.all %}
                             <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
                                 {% include 'notes/note.html' with note=note %}
                             </div>
@@ -129,7 +118,7 @@
                                 {% csrf_token %} 
                                 <div class="mws-form-inline">
                                     <div class="mws-form-row">
-                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
+                                        {% blocktrans with account.name as account %}Are you sure you want to delete the note for {{ account }}?{% endblocktrans %}
                                     </div>
                                 </div>
                             </form>
@@ -137,14 +126,14 @@
                     </div>
                     
                     <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Contact details' %}</h2>
+                        <h2>{% trans 'Account details' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
                     </div>
                     
-                    <div id="tab-account" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Account' %}</h2>
+                    <div id="tab-employees" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Employees' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
@@ -168,7 +157,6 @@
             </div>
         </div>
     </div>
-    
     
     <div class="mws-panel grid_2">
         <div class="mws-panel-header">

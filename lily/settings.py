@@ -164,6 +164,7 @@ INSTALLED_APPS = (
     'lily.notes',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
+    'lily.utils.templatetags.utils',
 )
 
 # E-mail settings

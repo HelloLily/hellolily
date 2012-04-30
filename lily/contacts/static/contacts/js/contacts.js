@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
     
     // show delete-form-dialog
-    $('.delete-note-dialog-link').click(function(event) {
+    $('.delete-note-dialog-link').live('click', function(event) {
         $('#delete-note-form-dialog #delete-note-form').attr('action', $(this).attr('href'));
         $('#delete-note-form-dialog').dialog('open');
         event.preventDefault();
@@ -185,7 +185,7 @@ $(document).ready(function() {
     });
     
     // submit the form on ctrl + enter
-    $('textarea').keydown(function(event) {
+    $('.mws-form textarea').live('keydown', function(event) {
     	form = $(this).closest('form');
     	submit_form_on_ctrl_enter(event, form);
     });
@@ -209,7 +209,7 @@ $(document).ready(function() {
     });
     
     // use AJAX when submitting
-    $('.note form').submit(function() {
+    $('.note form').live('submit', function() {
     	// find the container
     	container = $(this).closest('.iedit_wrapper');
         

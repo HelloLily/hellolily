@@ -97,8 +97,8 @@ $(document).ready(function() {
                                 </span> 
                             </td>
                             <td class="contact_contact">
-                                <span class="contact_phone">{{ object.get_phonenumber }}</span>
-                                <span class="contact_mail">{{ object.get_email }}</span>
+                                {% with object.get_phonenumber as nr %}{% if nr %}<span class="contact_phone">{{ nr }}</span>{% endif %}{% endwith %}
+                                {% with object.get_email as mail %}{% if mail %}<span class="contact_mail">{{ mail }}</span>{% endif %}{% endwith %}
                             </td>
                             <td class="contact_created hide_on_small_screen">
                                 {{ object.created|date:"d-m-Y" }}

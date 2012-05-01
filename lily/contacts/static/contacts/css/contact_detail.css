@@ -41,7 +41,7 @@
 #contact_contact span {
     display: block;
     text-align: right;
-    padding: 3px 0 3px 25px;
+    padding: 3px 0 3px 35px;
     border-bottom: 1px solid #ccc;
     height: 19px;
 }
@@ -52,6 +52,10 @@
 
 #contact_contact .contact_phone {
     background: url('/static/images/core/phone.png') no-repeat 4px 48%;
+}
+
+#contact_contact .contact_mobile_phone {
+    background: url('/static/images/core/mobile-phone.png') no-repeat 4px 48%;
 }
 
 #contact_contact .contact_email {

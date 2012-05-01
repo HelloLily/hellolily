@@ -75,10 +75,10 @@
                     </div>
                 </div>
                 <div id="contact_contact" class="float-right">
-                    <span class="contact_phone"><a href="#">{{ contact.get_work_phone }}</a> (work)</span>
-                    <span class="contact_phone"><a href="#">{{ contact.get_mobile_phone }}</a> (mobile)</span>
-                    <span class="contact_email"><a href="#">{{ contact.get_email }}</a></span>
-                    <span class="contact_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
+                    {% with contact.get_work_phone as nr %}{% if nr %}<span class="contact_phone"><a href="#">{{ nr }}</a></span>{% endif %}{% endwith %}
+                    {% with contact.get_mobile_phone as nr %}{% if nr %}<span class="contact_mobile_phone"><a href="#">{{ nr }}</a></span>{% endif %}{% endwith %}
+                    {% with contact.get_email as email %}{% if email %}<span class="contact_email"><a href="#">{{ email }}</a></span>{% endif %}{% endwith %}
+                    {% with contact.get_twitter as tw %}{% if tw %}<span class="contact_twitter"><a href="#">{{ tw.username }}</a></span>{% endif %}{% endwith %}
                 </div>
             </div>
             

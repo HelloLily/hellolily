@@ -23,7 +23,39 @@ $(document).ready(function() {
         "aoColumnDefs": [ 
             { "bSearchable": false, "bSortable": false, "aTargets": [0] }
         ]
-    }); 
+    });
+    
+    $('.delete_icon').click(function(event) {
+        var location = $(this).attr('href');
+        $('#delete-contact-form-dialog form').attr('action', location);
+        $('#delete-contact-form-dialog').dialog('open');
+        event.preventDefault();
+    })
+    
+    $('#delete-contact-form-dialog').dialog({
+        autoOpen: false,
+        title: gettext('Delete contact'),
+        modal: true,
+        width: 640,
+        buttons: [
+            { 
+                'class': 'mws-button red float-left',
+                text: gettext('Cancel'),
+                click: function() {
+                    // cancel form on NO
+                    $(this).dialog('close');
+                }
+            },
+            {
+                'class': 'mws-button green',
+                text: gettext('Continue'),
+                click: function() {
+                    // submit form on YES
+                    $(this).find('form').submit();
+                }
+            }
+        ]
+    });
 });
 </script>
 {% endblock %}
@@ -48,7 +80,8 @@ $(document).ready(function() {
                     {% for object in object_list %}
                         <tr>
                             <td class="contact_picture">
-                                <input type="checkbox" name="selected_object" value="pk" />
+                                <a href="{% url contact_edit pk=object.pk %}" title="{% trans 'Edit' %}" class="edit_icon"></a>
+                                <a href="{% url contact_delete pk=object.pk %}" title="{% trans 'Delete' %}" class="delete_icon"></a>
                                 {% if object.logo %}
                                     <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="contact_picture_img" />
                                 {% else %}
@@ -61,30 +94,32 @@ $(document).ready(function() {
                                     {% for sm in object.get_social %}
                                         <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
                                     {% endfor %}
-                                </span>
+                                </span> 
                             </td>
                             <td class="contact_contact">
-                                <span class="contact_phone full-width">
-                                    <img src="{% static 'images/core/phone.png' %}" alt="{{ object.title }}"/>
-                                    {{ object.get_phonenumber|truncatechars:"18" }}
-                                </span>
-                                <span class="contact_mail full-width">
-                                    <img src="{% static 'images/core/mail.png' %}" alt="{{ object.title }}" />
-                                    {{ object.get_email|truncatechars:"18" }}
-                                </span>
+                                <span class="contact_phone">{{ object.get_phonenumber }}</span>
+                                <span class="contact_mail">{{ object.get_email }}</span>
                             </td>
                             <td class="contact_created hide_on_small_screen">
-                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
                                 {{ object.created|date:"d-m-Y" }}
                             </td>
                             <td class="contact_modified hide_on_small_screen">
-                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
                                 {{ object.modified|date:"d-m-Y" }}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div id="delete-contact-form-dialog" style="display:none;">
+                <form class="mws-form" action="" method="post">
+                    {% csrf_token %} 
+                    <div class="mws-form-inline">
+                        <div class="mws-form-row">
+                            {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ object }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

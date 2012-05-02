@@ -182,6 +182,12 @@ class AddContactView(CreateView):
                     account = Account.objects.get(pk=pk)
                     Function.objects.create(account=account, contact=self.object, manager=self.object)
         
+        # Save selected account
+        if form_kwargs['data'].get('account'):
+            pk = form_kwargs['data'].get('account')
+            account = Account.objects.get(pk=pk)
+            Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+        
         return self.get_success_url()
     
     def form_invalid(self, form):

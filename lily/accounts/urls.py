@@ -5,7 +5,6 @@ from lily.accounts.views import add_account_view, edit_account_view, delete_acco
 
 
 urlpatterns = patterns('',
-     url(r'^add/\?xhr$', add_account_view, name='account_add_xhr'),
      url(r'^add/$', add_account_view, name='account_add'),
      url(r'^edit/(?P<pk>[\w-]+)/$', edit_account_view, name='account_edit'),
      url(r'^details/(?P<pk>[\w-]+)/$', detail_account_view, name='account_details'),

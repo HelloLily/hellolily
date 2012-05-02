@@ -6,6 +6,64 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.utils.functions import autostrip
+from lily.utils.models import EmailAddress
+
+
+class AddContactMinimalForm(ModelForm):
+    """
+    Form to add an account with the absolute minimum of information.
+    """
+    email = forms.EmailField(label=_('E-mail'), max_length=255, required=False, 
+        widget=forms.TextInput(attrs={
+        'class': 'mws-textinput',
+        'placeholder': _('E-mail address')
+    }))
+    
+    phone = forms.CharField(max_length=40, required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('Phone number')
+    }))
+    
+    def clean(self):
+        """
+        Form validation: all fields should be unique.
+        """
+        cleaned_data = super(AddContactMinimalForm, self).clean()
+        
+        # check if at least first or last name has been provided.
+        if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
+            self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
+            
+        if cleaned_data.get('email'): 
+            try:
+                EmailAddress.objects.get(email_address=cleaned_data.get('email'))            
+                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
+            except EmailAddress.DoesNotExist:
+                pass
+            except EmailAddress.MultipleObjectsReturned: 
+                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
+        
+        return cleaned_data
+    
+    class Meta:
+        model = Contact
+        fields = ('first_name', 'preposition', 'last_name', 'email', 'phone')
+        
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'mws-textinput required',
+                'placeholder': _('First name'),
+            }),
+            'preposition': forms.TextInput(attrs={
+                'class': 'mws-textinput',
+                'placeholder': _('Preposition'),
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'mws-textinput',
+                'placeholder': _('Last name'),
+            }),
+        }
 
 
 class AddContactForm(ModelForm):
@@ -247,6 +305,7 @@ class FunctionForm(ModelForm):
 
 
 # Enable autostrip input on these forms
+AddContactMinimalForm = autostrip(AddContactMinimalForm)
 AddContactForm = autostrip(AddContactForm)
 EditContactForm = autostrip(EditContactForm)
 EditFunctionForm = autostrip(EditFunctionForm)

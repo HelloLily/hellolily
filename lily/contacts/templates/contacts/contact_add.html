@@ -370,6 +370,7 @@
                         </div>
                     </div>
                     {% endcomment %}
+                    
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
                         <div class="mws-form-item large">                            
@@ -386,6 +387,7 @@
                     
                     <hr />
                     
+                    {% comment %}
                     <div class="mws-form-row">
                         {{ form.accounts.label_tag }}
                         <div class="mws-form-item small">                            
@@ -401,6 +403,21 @@
                     	<div class="mws-form-item large">
                         	{{ form.edit_accounts.label }}                        
 	                        {{ form.edit_accounts }}
+                        </div>
+                    </div>
+                    {% endcomment %}
+                    
+                    <div class="mws-form-row">
+                        {{ form.account.label_tag }}
+                        <div class="mws-form-item small">
+                            {% if form.account.errors %}
+                                <span class="field_error">{{ form.account }}</span>
+                                <div class="mws-error no_list_style_type">
+                                    {{ form.account.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.account }}
+                            {% endif %}
                         </div>
                     </div>
                     

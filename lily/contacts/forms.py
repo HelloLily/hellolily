@@ -70,14 +70,17 @@ class AddContactForm(ModelForm):
     """
     Form to add a contact which all fields available.
     """
-    accounts = forms.ModelMultipleChoiceField(required=False,
-        queryset=Account.objects.all(),
-        widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
-    )
+#    accounts = forms.ModelMultipleChoiceField(required=False,
+#        queryset=Account.objects.all(),
+#        widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
+#    )
+
+    account = forms.ModelChoiceField(label=_('Works at'), required=False,
+                                     queryset=Account.objects.all())
     
     edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
         widget=forms.CheckboxInput())
-    
+     
     def clean(self):
         """
         Form validation: fill in at least first or last name.

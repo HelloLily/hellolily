@@ -7,4 +7,5 @@
 .pydevproject
 .DS_Store
 lily/media/
+lily/files/
 lily/site_settings.py

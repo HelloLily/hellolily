@@ -154,6 +154,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'gunicorn',
     'activelink',
+    'south',
     
     # Lily
     'lily',

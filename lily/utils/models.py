@@ -52,11 +52,11 @@ class PhoneNumber(models.Model):
     def __unicode__(self):
         return self.number
     
-    def save(self):
+    def save(self, *args, **kwargs):
         # Save raw input
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
         
-        super(PhoneNumber, self).save()
+        super(PhoneNumber, self).save(*args, **kwargs)
     
     class Meta:
         verbose_name = _('phone number')

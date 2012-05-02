@@ -10,8 +10,11 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.forms.models import modelformset_factory, inlineformset_factory
-from django.http import Http404   
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
+from django.template.context import RequestContext
+from django.template.loader import render_to_string
+from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
@@ -20,10 +23,12 @@ from django.views.generic.list import ListView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.forms import AddContactForm, EditContactForm, FunctionForm, EditFunctionForm
+from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditContactForm, \
+    FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
+from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
 
@@ -61,13 +66,25 @@ class AddContactView(CreateView):
     View to add a contact with all fields included in the template including support to add
     multiple instances of many-to-many relations with custom formsets.
     """
+    
+    # Default template and form
     template_name = 'contacts/contact_add.html'
     form_class = AddContactForm
     
-    # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
-    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to change the template to be rendered.
+        """
+        # Change form and template for ajax calls or create formset instances for the normal form
+        if is_ajax(request):
+            self.form_class = AddContactMinimalForm
+            self.template_name = 'contacts/contact_add_xhr_form.html'
+        else:
+            self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
+            self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
+            self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
+        
+        return super(AddContactView, self).dispatch(request, *args, **kwargs)
     
     def get_form(self, form_class):
         """
@@ -75,10 +92,11 @@ class AddContactView(CreateView):
         """
         form = super(AddContactView, self).get_form(form_class)
         
-        # Also link formsets to form to allow validation
-        self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
-        self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
-        self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
+        # Instantiate the formsets for the normal form
+        if not is_ajax(self.request):
+            self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
+            self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
+            self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
         
         return form
     
@@ -93,44 +111,76 @@ class AddContactView(CreateView):
         # Retrieve contact instance to use
         form_kwargs = self.get_form_kwargs()
         
-        # Save all e-mail address, phone number and address formsets
-        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
-            # Handle e-mail addresses
-            for formset in self.email_addresses_formset:
-                primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-                if formset.prefix == primary:
-                    formset.instance.is_primary = True
+        if is_ajax(self.request):
+            # Add e-mail address to account as primary
+            self.object.primary_email = form.cleaned_data.get('email')
+            self.object.save()
+            import pdb
+            pdb.set_trace()
+            # Save website
+            if form.cleaned_data.get('phone'):
+                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
+                self.object.phone_numbers.add(phone)
+            
+            # Check if the user wants to 'add & edit'
+            submit_action = form_kwargs['data'].get('submit', None)
+            if submit_action == 'edit':
+                do_redirect = True
+                url = reverse('contact_edit', kwargs={
+                    'pk': self.object.pk,
+                })
+                html_response = ''
+            else:
+                do_redirect = False    
+                url = ''
+                html_response = _('Contact %s has been saved.') % self.object.full_name()
+            
+            # Return response 
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'html': html_response,
+                'redirect': do_redirect,
+                'url': url
+            }))
+        else: # Deal with all the extra fields on the normal form which are not in the ajax request
+            # Save all e-mail address, phone number and address formsets
+            if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+                # Handle e-mail addresses
+                for formset in self.email_addresses_formset:
+                    primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+                    if formset.prefix == primary:
+                        formset.instance.is_primary = True
+                    
+                    # Only save e-mail address if something else than primary/status was filled in
+                    if formset.instance.email_address:
+                        formset.save()
+                        self.object.email_addresses.add(formset.instance)
                 
-                # Only save e-mail address if something else than primary/status was filled in
-                if formset.instance.email_address:
-                    formset.save()
-                    self.object.email_addresses.add(formset.instance)
-            
-            # Handle addresses
-            for formset in self.addresses_formset:
-                # Only save address if something else than complement and/or type is filled in
-                if any([formset.instance.street,
-                        formset.instance.street_number,
-                        formset.instance.postal_code,
-                        formset.instance.city,
-                        formset.instance.state_province,
-                        formset.instance.country]):
-                    formset.save()
-                    self.object.addresses.add(formset.instance)
-            
-            # Handle phone numbers
-            for formset in self.phone_numbers_formset:
-                # Only save address if something was filled other than type
-                if formset.instance.raw_input:
-                    formset.save()
-                    self.object.phone_numbers.add(formset.instance)
-
-        # Save any selected accounts
-        if form_kwargs['data'].getlist('accounts'):
-            pks = form_kwargs['data'].getlist('accounts')
-            for pk in pks:
-                account = Account.objects.get(pk=pk)
-                Function.objects.create(account=account, contact=self.object, manager=self.object)
+                # Handle addresses
+                for formset in self.addresses_formset:
+                    # Only save address if something else than complement and/or type is filled in
+                    if any([formset.instance.street,
+                            formset.instance.street_number,
+                            formset.instance.postal_code,
+                            formset.instance.city,
+                            formset.instance.state_province,
+                            formset.instance.country]):
+                        formset.save()
+                        self.object.addresses.add(formset.instance)
+                
+                # Handle phone numbers
+                for formset in self.phone_numbers_formset:
+                    # Only save address if something was filled other than type
+                    if formset.instance.raw_input:
+                        formset.save()
+                        self.object.phone_numbers.add(formset.instance)
+    
+            # Save any selected accounts
+            if form_kwargs['data'].getlist('accounts'):
+                pks = form_kwargs['data'].getlist('accounts')
+                for pk in pks:
+                    account = Account.objects.get(pk=pk)
+                    Function.objects.create(account=account, contact=self.object, manager=self.object)
         
         return self.get_success_url()
     
@@ -139,16 +189,23 @@ class AddContactView(CreateView):
         Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as 
         checked for postbacks. 
         """
-        # Check for the e-mail address to select as primary
-        form_kwargs = self.get_form_kwargs()
-        primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-        
-        for formset in self.email_addresses_formset:
-            if formset.prefix == primary:
-                # Mark as selected
-                formset.instance.is_primary = True
-                # TODO: try making the field selected to prevent double if statements in templates
-#                formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+        if is_ajax(self.request):
+            context = RequestContext(self.request, self.get_context_data(form=form))
+            return HttpResponse(simplejson.dumps({
+                 'error': True,
+                 'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/javascript')
+        else:
+            # Check for the e-mail address to select as primary
+            form_kwargs = self.get_form_kwargs()
+            primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+            
+            for formset in self.email_addresses_formset:
+                if formset.prefix == primary:
+                    # Mark as selected
+                    formset.instance.is_primary = True
+                    # TODO: try making the field selected to prevent double if statements in templates
+#                    formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
         
         return super(AddContactView, self).form_invalid(form)
     
@@ -157,11 +214,14 @@ class AddContactView(CreateView):
         Overloading super().get_context_data to add formsets for template.
         """
         kwargs = super(AddContactView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'email_addresses_formset': self.email_addresses_formset,
-            'addresses_formset': self.addresses_formset,
-            'phone_numbers_formset': self.phone_numbers_formset,
-        })
+        
+        # Add formsets to context for the normal form
+        if not is_ajax(self.request):
+            kwargs.update({
+                'email_addresses_formset': self.email_addresses_formset,
+                'addresses_formset': self.addresses_formset,
+                'phone_numbers_formset': self.phone_numbers_formset,
+            })
         return kwargs
     
     def get_success_url(self):
@@ -611,8 +671,8 @@ class ConfirmContactEmailView(TemplateView):
 
 # Perform logic here instead of in urls.py
 add_contact_view = login_required(AddContactView.as_view())
-edit_function_view = login_required(EditFunctionView.as_view())
-edit_contact_view = login_required(EditContactView.as_view())
 detail_contact_view = login_required(DetailContactView.as_view())
 delete_contact_view = login_required(DeleteContactView.as_view())
+edit_function_view = login_required(EditFunctionView.as_view())
+edit_contact_view = login_required(EditContactView.as_view())
 list_contact_view = login_required(ListContactView.as_view())

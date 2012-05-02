@@ -62,8 +62,7 @@ class AddAccountView(CreateView):
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddAccountMinimalForm
-            self.template_name = 'accounts/account_add_xhr.html'
-            self.form_template_name = 'accounts/account_add_xhr_form.html'
+            self.template_name = 'accounts/account_add_xhr_form.html'
         else:
             self.WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, extra=0)
             self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
@@ -214,7 +213,7 @@ class AddAccountView(CreateView):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
                  'error': True,
-                 'html': render_to_string(self.form_template_name, context_instance=context)
+                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/javascript')
         else:
             # Check for the e-mail address to select as primary
@@ -442,7 +441,7 @@ class DeleteAccountView(DeleteView):
 
 # Perform logic here instead of in urls.py
 add_account_view = login_required(AddAccountView.as_view())
-edit_account_view = login_required(EditAccountView.as_view())
 detail_account_view = login_required(DetailAccountView.as_view())
 delete_account_view = login_required(DeleteAccountView.as_view())
+edit_account_view = login_required(EditAccountView.as_view())
 list_account_view = login_required(ListAccountView.as_view())

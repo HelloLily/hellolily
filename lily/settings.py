@@ -152,7 +152,6 @@ INSTALLED_APPS = (
     'south',
     
     # Lily
-    'lily',
     'lily.accounts',
     'lily.activities',
     'lily.contacts',

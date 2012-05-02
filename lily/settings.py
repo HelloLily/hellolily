@@ -58,7 +58,7 @@ X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN') # For producti
 # Media and static file locations
 
 # Media
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', local_path('media/'))
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', local_path('files/media/'))
 MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
 
 FILE_UPLOAD_HANDLERS = (
@@ -70,7 +70,7 @@ ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
 
 # Static
-STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('static_collected/'))
+STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 
 STATICFILES_DIRS = (

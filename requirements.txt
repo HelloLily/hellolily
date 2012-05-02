@@ -1,6 +1,7 @@
 Django>=1.4
 PIL>=1.1.7
-gunicorn>=0.13.4
+gunicorn>=0.14.2
+gevent>=0.13.7
 psycopg2>=2.4.4
 django-extensions>=0.8
 django-templated-email>=0.4.1

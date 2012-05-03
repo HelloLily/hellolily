@@ -1,13 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
+
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.html import escapejs
+from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
@@ -27,6 +30,34 @@ from lily.utils.views import DetailFormView
 class ListAccountView(ListView):
     template_name = 'accounts/account_list.html'
     model = Account
+    
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            # If kwarg is provided, try reducing the queryset
+            if self.kwargs.get('b36_pks', None):
+                try:
+                    # Convert base36 to int
+                    b36_pks = self.kwargs.get('b36_pks').split(';')
+                    int_pks = []
+                    for pk in b36_pks:
+                        int_pks.append(base36_to_int(pk))
+                    # Filter queryset
+                    queryset = self.model._default_manager.filter(pk__in=int_pks)
+                except:
+                    queryset = self.model._default_manager.all()
+            else:
+                queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+        return queryset
 
 
 class DetailAccountView(DetailFormView):

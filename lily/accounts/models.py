@@ -45,8 +45,31 @@ class Account(Common):
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     
-    def __unicode__(self):
-        return self.name
+    def get_work_phone(self):
+        try:
+            return self.phone_numbers.filter(type='work')[0].raw_input
+        except:
+            return ''
+    
+    def get_mobile_phone(self):
+        try:
+            return self.phone_numbers.filter(type='mobile')[0].raw_input
+        except:
+            return  ''
+    
+    def get_phonenumber(self):
+        work_phone = self.get_work_phone()
+        if len(work_phone) > 0:
+            return work_phone
+        
+        mobile_phone = self.get_mobile_phone()
+        if len(mobile_phone) > 0:
+            return mobile_phone
+        
+        try:
+            return self.phone_numbers.all()[0].raw_input
+        except:
+            return ''
     
     def get_address(self):
         try:
@@ -57,8 +80,8 @@ class Account(Common):
             }
         except:
             return {
-                'address': '-',
-                'country': '-',
+                'address': '',
+                'country': '',
             }
     
     def get_contact_details(self):
@@ -85,7 +108,10 @@ class Account(Common):
         except:
             tags = ('',)
         return tags
-
+    
+    def __unicode__(self):
+        return self.name
+    
     class Meta:
         verbose_name = _('account')
         verbose_name_plural = _('accounts')

@@ -6,6 +6,7 @@ import pickle
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
@@ -17,6 +18,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escapejs
+from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -41,6 +43,34 @@ class ListContactView(ListView):
     """
     template_name = 'contacts/contact_list.html'
     model = Contact
+    
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            # If kwarg is provided, try reducing the queryset
+            if self.kwargs.get('b36_pks', None):
+                try:
+                    # Convert base36 to int
+                    b36_pks = self.kwargs.get('b36_pks').split(';')
+                    int_pks = []
+                    for pk in b36_pks:
+                        int_pks.append(base36_to_int(pk))
+                    # Filter queryset
+                    queryset = self.model._default_manager.filter(pk__in=int_pks)
+                except:
+                    queryset = self.model._default_manager.all()
+            else:
+                queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+        return queryset
 
 
 class DetailContactView(DetailFormView):

@@ -207,11 +207,6 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
-# South settings
-SOUTH_MIGRATION_MODULES = {
-    'easy_thumbnails': 'ignore',
-}
-
 # django-redis-cache
 if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):
     url = urlparse(os.environ['REDISTOGO_URL'])

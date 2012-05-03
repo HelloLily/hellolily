@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib import messages
 
 def autostrip(cls):
     """
@@ -54,3 +55,10 @@ def is_ajax(request):
     Return True if the request is for the AJAX version of a view.
     """
     return request.is_ajax() or 'xhr' in request.GET
+
+def clear_messages(request):
+    """
+    Clear messages for given request.
+    """
+    storage = messages.get_messages(request)
+    storage.used = True

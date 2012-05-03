@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
@@ -130,6 +131,7 @@ class AddAccountView(CreateView):
             else:
                 do_redirect = False    
                 url = ''
+                # TODO: jGrowl
                 html_response = _('Account %s has been saved.') % self.object.name
             
             # Return response 
@@ -201,7 +203,10 @@ class AddAccountView(CreateView):
                     name='linkedin',
                     profile_url=form_kwargs['data'].get('linkedin'))
                 self.object.social_media.add(linkedin)
-        
+            
+            # Show save message
+            messages.success(self.request, _("%s (Account) has been saved.") % self.object.name);
+            
         return self.get_success_url()
     
     def form_invalid(self, form):
@@ -389,6 +394,9 @@ class EditAccountView(UpdateView):
                 profile_url=form_kwargs['data'].get('linkedin'))
             self.object.social_media.add(linkedin)
         
+        # Show save message
+        messages.success(self.request, _("%s (Account) has been edited.") % self.object.name);
+            
         return self.get_success_url()
     
     def get_context_data(self, **kwargs):
@@ -431,6 +439,9 @@ class DeleteAccountView(DeleteView):
         functions.delete()
         tags = Tag.objects.filter(account=self.object)
         tags.delete()
+        
+        # Show delete message
+        messages.success(self.request, _("%s (Account) has been deleted.") % self.object.name);
         
         self.object.delete()
         

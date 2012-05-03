@@ -28,7 +28,7 @@ from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditConta
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
-from lily.utils.functions import is_ajax
+from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import EmailAddress, Address, PhoneNumber
 from lily.utils.views import DetailFormView
 
@@ -115,8 +115,7 @@ class AddContactView(CreateView):
             # Add e-mail address to account as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
-            import pdb
-            pdb.set_trace()
+            
             # Save website
             if form.cleaned_data.get('phone'):
                 phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
@@ -133,6 +132,7 @@ class AddContactView(CreateView):
             else:
                 do_redirect = False    
                 url = ''
+                # TODO use jGrowl
                 html_response = _('Contact %s has been saved.') % self.object.full_name()
             
             # Return response 
@@ -181,6 +181,9 @@ class AddContactView(CreateView):
                 for pk in pks:
                     account = Account.objects.get(pk=pk)
                     Function.objects.create(account=account, contact=self.object, manager=self.object)
+        
+            # Show save message
+            messages.success(self.request, _("%s (Contact) has been saved.") % self.object.full_name());
         
         # Save selected account
         if form_kwargs['data'].get('account'):
@@ -372,7 +375,7 @@ class EditContactView(UpdateView):
                             )
                             
                             # Add message
-                            messages.success(self.request, _('An e-mail was sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
+                            messages.info(self.request, _('An e-mail was sent to %s with a link to verify a new e-mail address.' % formset.instance.email_address))
             
             # Handle addresses
             for formset in self.addresses_formset:
@@ -430,6 +433,9 @@ class EditContactView(UpdateView):
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
         
+        # Show save message
+        messages.success(self.request, _("%s (Contact) has been edited.") % self.object.full_name());
+        
         return self.get_success_url()
     
     def get_context_data(self, **kwargs):
@@ -475,6 +481,9 @@ class DeleteContactView(DeleteView):
         
         functions = Function.objects.filter(contact=self.object)
         functions.delete()
+        
+        # Show delete message
+        messages.success(self.request, _("%s (Contact) has been deleted.") % self.object.full_name());
         
         self.object.delete()
         
@@ -623,6 +632,8 @@ class ConfirmContactEmailView(TemplateView):
                 
                 # if logged in:
                 if request.user.is_authenticated() and email_address.is_primary:
+                    # clear any existing messages
+                    clear_messages(request)
                     # add message
                     messages.success(request, _('Your primary e-mail address has now been changed. Please log back in.'))
                     

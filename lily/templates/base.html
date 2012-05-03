@@ -1,4 +1,4 @@
-{% load i18n static activelink %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load i18n static activelink messages %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head> 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -186,6 +186,31 @@
                 }
             });
             {% endifstartswith %}
+            
+            // jGrowl defaults
+            $.jGrowl.defaults.closerTemplate = '<div>[ close all ]</div>';
+            $.jGrowl.defaults.position = 'bottom-right';
+            $.jGrowl.defaults.sticky = false;
+            $.jGrowl.defaults.glue = 'after';
+            $.jGrowl.defaults.themeState = '';
+            $.jGrowl.defaults.pool = 2;
+            $.jGrowl.defaults.beforeOpen = function(notification,message,o,container) {
+                if( $(notification).find('a').length == 0 ) {
+                    $(notification).click(function() {
+                        $(this).trigger('jGrowl.beforeClose'); 
+                    });
+                } else {
+                    $(notification).dblclick(function() {
+                        $(this).trigger('jGrowl.beforeClose'); 
+                    });
+                }
+            };
+                          
+            {% for message in messages|unique_messages|message_css_tags %}
+            $.jGrowl("{{ message.message|safe }}", {
+                theme: "{{ message.tags }}"
+            });
+            {% endfor %}
         });
     </script>
     

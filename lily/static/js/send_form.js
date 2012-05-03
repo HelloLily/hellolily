@@ -59,8 +59,20 @@ function sendForm(dialog, successCallback, errorCallback, beforeSubmit) {
                 } else {
                     // Everything worked, handle the success response
                     afterSuccess = function() {
-                        $('#successDialogMessage').text(response.html);
-                        $('#successDialog').dialog('open');
+                        if( response.html.length ) {
+                            $('#successDialogMessage').text(response.html);
+                            $('#successDialog').dialog('open');
+                        }
+                        
+                        if( $.jGrowl ) {
+                            if( response.notification ) {
+                                for(i=0; i < response.notification.length; i++) {
+                                    $.jGrowl(response.notification[i].message, {
+                                        theme: response.notification[i].tags 
+                                    });
+                                }
+                            }
+                        }
                     };
                     hideLoadingDialog(afterSuccess);
                 }

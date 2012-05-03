@@ -95,6 +95,9 @@ class RegistrationView(FormView):
                 'token': token,
             }
         )
+        
+        # Show registration message
+        messages.success(self.request, _('Registration completed. Check your <nobr>e-mail</nobr> to activate your account.'))
                 
 # TODO: support for Clients        user.client = form.cleaned_data['company']
         
@@ -104,7 +107,6 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        # TODO use messages to display registration succeeded
         return redirect(reverse_lazy('login'))
 
 
@@ -133,9 +135,8 @@ class ActivationView(TemplateView):
             return TemplateView.get(self, request, *args, **kwargs)
         
         if self.tgen.check_token(self.user, self.token):
-            # Message that user is activated
-            messages.success(request, _('Your account is now activated. You have been logged in' \
-                                        ' and can start browsing.'))
+            # Show activation message
+            messages.info(request, _('Your account is now activated and you are now logged in.'))
         else:
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)

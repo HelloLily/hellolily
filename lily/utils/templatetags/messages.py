@@ -1,9 +1,15 @@
 from django import template
-from django.contrib.messages import INFO, SUCCESS, WARNING, ERROR
 register = template.Library()
 
 from lily.utils.functions import uniquify
 
+# Map message levels to CSS classes
+tag_mapping = {
+    'info': 'info mws-ic-16 ic-exclamation',
+    'success': 'success mws-ic-16 ic-accept',
+    'warning': 'warning mws-ic-16 ic-error',
+    'error': 'error mws-ic-16 ic-cross'
+}
 
 @register.filter(name='unique_messages')
 def unique_messages(messages):
@@ -34,18 +40,12 @@ def message_css_tags(messages):
     """
     Add CSS classes to the messages from Django Messages Framework.
     """
-    # Map message levels to CSS classes
-    tag_mapping = {
-        INFO: 'info mws-ic-16 ic-exclamation',
-        SUCCESS: 'success mws-ic-16 ic-accept',
-        WARNING: 'warning mws-ic-16 ic-error',
-        ERROR: 'error mws-ic-16 ic-cross'
-    }
+    
     
     # Set new 'css_class' attribute
     for m in messages:
         print m.level
-        m.extra_tags = tag_mapping.get(m.level)
+        m.extra_tags = tag_mapping.get(m.tags)
     
     return messages
                 

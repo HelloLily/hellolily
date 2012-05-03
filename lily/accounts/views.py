@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
@@ -19,6 +20,7 @@ from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
+from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
 
@@ -127,18 +129,33 @@ class AddAccountView(CreateView):
                 url = reverse('account_edit', kwargs={
                     'pk': self.object.pk,
                 })
+                notification = False
                 html_response = ''
             else:
-                do_redirect = False    
-                url = ''
-                # TODO: jGrowl
-                html_response = _('Account %s has been saved.') % self.object.name
+                list_url = reverse('account_list')
+                message = _('%s (Account) has been saved.') % self.object.name
+                
+                # Redirect if in the list view
+                if self.request.path == list_url:
+                    # Show save message
+                    messages.success(self.request, message)
+            
+                    do_redirect = True    
+                    url = list_url
+                    notification = False
+                    html_response = ''
+                else:
+                    do_redirect = False    
+                    url = ''
+                    html_response = ''
+                    notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
             
             # Return response 
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': html_response,
                 'redirect': do_redirect,
+                'notification': notification,
                 'url': url
             }))
         else: # Deal with all the extra fields on the normal form which are not in the ajax request
@@ -205,7 +222,7 @@ class AddAccountView(CreateView):
                 self.object.social_media.add(linkedin)
             
             # Show save message
-            messages.success(self.request, _("%s (Account) has been saved.") % self.object.name);
+            messages.success(self.request, _('%s (Account) has been saved.') % self.object.name);
             
         return self.get_success_url()
     
@@ -395,7 +412,7 @@ class EditAccountView(UpdateView):
             self.object.social_media.add(linkedin)
         
         # Show save message
-        messages.success(self.request, _("%s (Account) has been edited.") % self.object.name);
+        messages.success(self.request, _('%s (Account) has been edited.') % self.object.name);
             
         return self.get_success_url()
     
@@ -441,7 +458,7 @@ class DeleteAccountView(DeleteView):
         tags.delete()
         
         # Show delete message
-        messages.success(self.request, _("%s (Account) has been deleted.") % self.object.name);
+        messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name);
         
         self.object.delete()
         

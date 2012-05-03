@@ -1,9 +1,13 @@
 from django import forms
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import get_current_site
 from django.forms import Form
 from django.forms.formsets import BaseFormSet
+from django.template import loader
+from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
@@ -47,6 +51,19 @@ class CustomPasswordResetForm(PasswordResetForm):
     
     inactive_error_message = _('You cannot request a password reset for an account that is inactive.')
     
+    def form_valid(self, form):
+        """
+        Overloading super().form_valid to add a message telling an e-mail was sent.
+        """
+        
+        # Send e-mail
+        super(CustomPasswordResetForm, self).form_valid(form)
+        
+        # Show message
+        messages.info(self.request, _('An <nobr>e-mail</nobr> with reset instructions has been sent to %s.') % form.cleaned_data.get('email'))
+        
+        return self.get_success_url()
+    
     def clean_email(self):
         """
         Validates that an active user exists with the given email address.
@@ -54,8 +71,10 @@ class CustomPasswordResetForm(PasswordResetForm):
         email = self.cleaned_data["email"]
         self.users_cache = CustomUser.objects.filter(
                                 contact__email_addresses__email_address__iexact=email, 
-                                contact__email_addresses__is_primary=True
+                                contact__email_addresses__is_primary=True,
+                                is_active=True
                             )
+        
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
         else:
@@ -66,7 +85,7 @@ class CustomPasswordResetForm(PasswordResetForm):
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
-    
+        
     def save(self, domain_override=None,
              subject_template_name='registration/password_reset_subject.txt',
              email_template_name='registration/password_reset_email.html',
@@ -76,9 +95,28 @@ class CustomPasswordResetForm(PasswordResetForm):
         Overloading super().save to use a custom email_template_name.
         """
         email_template_name = 'email/password_reset.email'
-        super(CustomPasswordResetForm, self).save(domain_override, subject_template_name,
-                                                  email_template_name, use_https, token_generator,
-                                                  from_email, request)
+        from django.core.mail import send_mail
+        for user in self.users_cache:
+            if not domain_override:
+                current_site = get_current_site(request)
+                site_name = current_site.name
+                domain = current_site.domain
+            else:
+                site_name = domain = domain_override
+            c = {
+                'email': user.primary_email,
+                'domain': domain,
+                'site_name': site_name,
+                'uid': int_to_base36(user.id),
+                'user': user,
+                'token': token_generator.make_token(user),
+                'protocol': use_https and 'https' or 'http',
+            }
+            subject = loader.render_to_string(subject_template_name, c)
+            # Email subject *must not* contain newlines
+            subject = ''.join(subject.splitlines())
+            email = loader.render_to_string(email_template_name, c)
+            send_mail(subject, email, from_email, [user.primary_email])
 
 
 class CustomSetPasswordForm(SetPasswordForm):
@@ -262,6 +300,7 @@ class InvitationForm(Form):
                 pass
             
         return cleaned_data
+
 
 ## ------------------------------------------------------------------------------------------------
 ## Formsets

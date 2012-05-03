@@ -24,15 +24,6 @@
                 </div>
                 <img src="{% static 'images/logo-hellolily-login.png' %}" id="login-logo"/>
                 <form class="mws-form" action="" method="post">
-                    {% if messages %}
-                        <div class="mws-form-row mws-message-container">
-                            <div class="mws-form-row mws-login-message">
-                            {% for message in messages %}
-                                {{ message|safe }}
-                            {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
             
                     {% csrf_token %}
                     

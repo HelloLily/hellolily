@@ -16,6 +16,7 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
+from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -28,8 +29,9 @@ from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditConta
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
-from lily.utils.functions import is_ajax
+from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import EmailAddress, Address, PhoneNumber
+from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
 
@@ -115,8 +117,7 @@ class AddContactView(CreateView):
             # Add e-mail address to account as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
-            import pdb
-            pdb.set_trace()
+            
             # Save website
             if form.cleaned_data.get('phone'):
                 phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
@@ -129,17 +130,33 @@ class AddContactView(CreateView):
                 url = reverse('contact_edit', kwargs={
                     'pk': self.object.pk,
                 })
+                notification = False
                 html_response = ''
             else:
-                do_redirect = False    
-                url = ''
-                html_response = _('Contact %s has been saved.') % self.object.full_name()
+                list_url = reverse('contact_list')
+                message = _('%s (Contact) has been saved.') % self.object.full_name()
+
+                # Redirect if in the list view
+                if self.request.path == list_url:
+                    # Show save message
+                    messages.success(self.request, message)
+            
+                    do_redirect = True    
+                    url = list_url
+                    notification = False
+                    html_response = ''
+                else:
+                    do_redirect = False    
+                    url = ''
+                    html_response = ''
+                    notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
             
             # Return response 
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': html_response,
                 'redirect': do_redirect,
+                'notification': notification,
                 'url': url
             }))
         else: # Deal with all the extra fields on the normal form which are not in the ajax request
@@ -181,6 +198,9 @@ class AddContactView(CreateView):
                 for pk in pks:
                     account = Account.objects.get(pk=pk)
                     Function.objects.create(account=account, contact=self.object, manager=self.object)
+        
+            # Show save message
+            messages.success(self.request, _('%s (Contact) has been saved.') % self.object.full_name());
         
         # Save selected account
         if form_kwargs['data'].get('account'):
@@ -372,7 +392,7 @@ class EditContactView(UpdateView):
                             )
                             
                             # Add message
-                            messages.success(self.request, _('An e-mail was sent to %s with a link to verify this e-mail address.' % formset.instance.email_address))
+                            messages.info(self.request, _('An e-mail was sent to %s with a link to verify a new e-mail address.' % formset.instance.email_address))
             
             # Handle addresses
             for formset in self.addresses_formset:
@@ -430,6 +450,9 @@ class EditContactView(UpdateView):
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
         
+        # Show save message
+        messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());
+        
         return self.get_success_url()
     
     def get_context_data(self, **kwargs):
@@ -475,6 +498,9 @@ class DeleteContactView(DeleteView):
         
         functions = Function.objects.filter(contact=self.object)
         functions.delete()
+        
+        # Show delete message
+        messages.success(self.request, _('%s (Contact) has been deleted.') % self.object.full_name());
         
         self.object.delete()
         
@@ -623,8 +649,10 @@ class ConfirmContactEmailView(TemplateView):
                 
                 # if logged in:
                 if request.user.is_authenticated() and email_address.is_primary:
+                    # clear any existing messages
+                    clear_messages(request)
                     # add message
-                    messages.success(request, _('Your primary e-mail address has now been changed. Please log back in.'))
+                    messages.success(request, _('Your primary e-mail address has been changed. Please log back in.'))
                     
                     # force log out
                     return redirect(reverse('logout'))

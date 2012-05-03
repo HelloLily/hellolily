@@ -129,6 +129,7 @@
 /* ------------------------------------------- jGrowl
 ----------------------------------------------------- */
 
+/* prev. 
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
 {
 	opacity:1 !important;
@@ -138,7 +139,50 @@ div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
 	background-image:url(../../images/core/mws-dark-bg.png);
 	border:1px solid #666666;
 	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
+}*/
+
+div.jGrowl div.jGrowl-closer {
+    padding-left: 23px;
+    padding-right: 23px;
+    border: 1px solid;
+    border-color: #789FCC;
 }
+
+div.jGrowl div.jGrowl-notification {
+    border: 1px solid;
+    padding-left: 36px;
+    background-repeat: no-repeat;
+    background-position: 10px 11px;
+    min-height: 0 !important;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+/** Theme 'info' **/
+div.jGrowl div.jGrowl-notification.info {
+    border-color: #789FCC !important;
+    background-color: #50B3DF;
+}
+
+/** Theme 'success' **/
+div.jGrowl div.jGrowl-notification.success {
+    border-color: #789FCC !important;
+    background-color: #50B3DF !important;
+}
+
+/** Theme 'warning' **/
+div.jGrowl div.jGrowl-notification.warning {
+    border-color: #789FCC !important;
+    background-color: #50B3DF !important;
+}
+
+/** Theme 'error' **/
+div.jGrowl div.jGrowl-notification.error {
+    color: #FBE3E4 !important;
+    border-color: #FBC2C4 !important;
+    background-color: #8A1F11 !important;
+    opacity: 1!important;
+}
+
 
 /* --------------------------------------- End jGrowl
 ----------------------------------------------------- */

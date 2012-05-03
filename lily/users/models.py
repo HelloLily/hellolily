@@ -69,4 +69,4 @@ def post_save_customuser_handler(sender, **kwargs):
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):
     request = kwargs['request']
-    messages.info(request, _('You have succesfully logged out.'))
+    messages.info(request, _('You are now logged out.'))

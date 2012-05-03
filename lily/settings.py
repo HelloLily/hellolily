@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'lily.notes',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
+    'lily.utils.templatetags.messages',
     'lily.utils.templatetags.utils',
 )
 
@@ -197,6 +198,9 @@ LOGGING = {
         },
     }
 }
+
+# Messaging framework
+MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Settings for 3rd party apps
 

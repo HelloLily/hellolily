@@ -1,5 +1,6 @@
 {% load i18n %} 
-    
+
+<input type="hidden" id="add-contact-submit" value="add" name="submit" />                                    
 {% csrf_token %}
 
 {% if form.non_field_errors %}

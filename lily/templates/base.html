@@ -247,7 +247,6 @@
                     <div class="hidden">
                         <div id="add-account-form-dialog">
                             <form class="mws-form" action="{% url account_add %}" method="post">
-                                <input type="hidden" id="add-account-submit" value="add" name="submit" />
                                 {% include 'accounts/account_add_xhr_form.html' with form=quickbutton_form_account %}
                             </form>
                         </div>
@@ -264,7 +263,6 @@
                     <div class="hidden">
                         <div id="add-contact-form-dialog">
                             <form class="mws-form" action="{% url contact_add %}" method="post">
-                                <input type="hidden" id="add-contact-submit" value="add" name="submit" />
                                 {% include 'contacts/contact_add_xhr_form.html' with form=quickbutton_form_contact %}
                             </form>
                         </div>

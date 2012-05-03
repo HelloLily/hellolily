@@ -82,8 +82,8 @@ $(document).ready(function() {
                             <td class="contact_picture">
                                 <a href="{% url contact_edit pk=object.pk %}" title="{% trans 'Edit' %}" class="edit_icon"></a>
                                 <a href="{% url contact_delete pk=object.pk %}" title="{% trans 'Delete' %}" class="delete_icon"></a>
-                                {% if object.logo %}
-                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="contact_picture_img" />
+                                {% if object.picture %}
+                                    <img src="{% thumbnail object.picture 36x36 %}" alt="{{ object.title }}" class="contact_picture_img" />
                                 {% else %}
                                     <img src="{% static 'images/core/unknown_person_36x36.png' %}" alt="{{ object.title }}" class="contact_picture_img" />
                                 {% endif %}

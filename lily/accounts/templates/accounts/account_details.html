@@ -47,7 +47,7 @@
             
             <div id="details_top" class="clearfix">
                 <div class="float-left">
-                    {% if account.picture %}
+                    {% if account.logo %}
                         <img id="account_logo" src="{% thumbnail account.logo 100x100 %}" alt="" />
                     {% else %}
                         <img id="account_logo" src="{% static 'images/core/unknown_account.png' %}" alt="" />

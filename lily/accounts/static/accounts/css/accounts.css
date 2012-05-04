@@ -21,6 +21,20 @@
     overflow: hidden;
 }
 
+#account_controls,
+.account_controls {
+    padding: 0 40px !important;
+    vertical-align: middle;
+}
+
+.account_controls a {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin-right: 4px;
+}
+
+
 #account_logo {
     width: 14%;
     padding-left: 45px;

@@ -45,31 +45,48 @@ class Account(Common):
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
+    
     def get_work_phone(self):
         try:
-            return self.phone_numbers.filter(type='work')[0].raw_input
+            return self.phone_numbers.filter(type='work')[0]
         except:
-            return ''
+            return None
     
     def get_mobile_phone(self):
         try:
-            return self.phone_numbers.filter(type='mobile')[0].raw_input
+            return self.phone_numbers.filter(type='mobile')[0]
         except:
-            return  ''
+            return  None
     
-    def get_phonenumber(self):
+    def get_phone_number(self):
+        """
+        Return a phone number for an account in the order of:
+        - a work phone
+        - mobile phone
+        - any other existing phone number (except of the type fax or data)
+        """
         work_phone = self.get_work_phone()
-        if len(work_phone) > 0:
+        if work_phone:
             return work_phone
         
         mobile_phone = self.get_mobile_phone()
-        if len(mobile_phone) > 0:
+        if mobile_phone:
             return mobile_phone
         
         try:
-            return self.phone_numbers.all()[0].raw_input
+            return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
         except:
-            return ''
+            return None
     
     def get_address(self):
         try:
@@ -80,8 +97,8 @@ class Account(Common):
             }
         except:
             return {
-                'address': '',
-                'country': '',
+                'address': None,
+                'country': None,
             }
     
     def get_contact_details(self):
@@ -89,18 +106,23 @@ class Account(Common):
             phone = self.phone_numbers.filter(status=1)[0]
             phone = phone.number
         except:
-            phone = '-'   
+            phone = None   
         
         try:
-            email = self.email_addresses.filter(is_primary=True, status=1)[0]
-            email = email.email_address
+            email = self.primary_email
         except:
-            email = '-'
+            email = None
         
         return {
             'phone': phone,
             'mail': email,
         }
+    
+    def get_twitter(self):
+        try:
+            return self.social_media.filter(name='twitter')[0]
+        except:
+            return ''
     
     def get_tags(self):
         try:
@@ -111,6 +133,14 @@ class Account(Common):
     
     def __unicode__(self):
         return self.name
+    
+    def get_contacts(self):
+        functions = self.functions.all()
+        contacts = []
+        for function in functions:
+            contacts.append(function.contact)
+        
+        return contacts
     
     class Meta:
         verbose_name = _('account')

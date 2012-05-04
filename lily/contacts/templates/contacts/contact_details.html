@@ -84,17 +84,16 @@
             
             <div id="details_body">
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
-
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Contact history' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Contact details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Contact history' %}</h2>
+                        <h2>{% trans 'History' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
@@ -137,7 +136,7 @@
                     </div>
                     
                     <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Contact details' %}</h2>
+                        <h2>{% trans 'Details' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
@@ -163,7 +162,6 @@
                             lorem ipsum
                         </p>
                     </div>
-                    
                 </div>
             </div>
         </div>

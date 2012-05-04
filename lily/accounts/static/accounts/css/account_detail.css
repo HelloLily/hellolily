@@ -37,7 +37,11 @@
 }
 
 #account_social {
-    margin-top: 6px;
+    margin-top: 16px;
+}
+
+#account_contact .account_mobile_phone {
+    background: url('/static/images/core/mobile-phone.png') no-repeat 4px 48%;
 }
 
 #account_contact .account_phone {

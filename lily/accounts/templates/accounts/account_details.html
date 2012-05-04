@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static i18n thumbnail %}
+{% load static i18n thumbnail utils %}
 
 {% block title %}Account details - {% endblock %}
 
@@ -44,7 +44,6 @@
             </span>
         </div>
         <div class="mws-panel-body">
-            
             <div id="details_top" class="clearfix">
                 <div class="float-left">
                     {% if account.logo %}
@@ -52,11 +51,31 @@
                     {% else %}
                         <img id="account_logo" src="{% static 'images/core/unknown_account.png' %}" alt="" />
                     {% endif %}
-                    
                     <div id="details_top_personal">
                         <h2>{{ account.name|truncatechars:"24" }}</h2>
+                        <div id="contact_function">
+                            {% with account.get_contacts as contacts %}
+                                {% if contacts|length == 1 %}
+                                    {% url contact_details pk=contacts.0.pk as contact_link  %}
+                                    
+                                    {% blocktrans with contacts|first as first_contact and contact_link as link %}
+                                        <a href="{{ link }}">{{ first_contact }}</a> works here
+                                    {% endblocktrans %}
+                                {% elif contacts|length > 0 %}
+                                    {% with contacts|joinby:';' as contacts_csv %}
+                                        {% url contact_list_filtered b36_pks=contacts_csv as contacts_link %}
+                                    
+                                        {% blocktrans with contacts_link as link and contacts|length as count %}
+                                            <a href="{{ link }}">{{ count }} contacts</a>
+                                        {% endblocktrans %}
+                                    {% endwith %}
+                                {% else %}
+                                    {% trans 'No known contacts' %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                         <div id="account_social"> 
-                            {% for social in contact.get_social %}
+                            {% for social in account.social_media.all %}
                                 <a href="{{ social.profile_url }}" class="no-decoration">
                                     <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
                                 </a>
@@ -65,25 +84,44 @@
                     </div>
                 </div>
                 <div id="account_contact" class="float-right">
-                    <span class="account_phone"><a href="#">{{ account.get_phone_number }}</a></span>
-                    <span class="account_email"><a href="#">{{ account.email }}</a></span>
-                    <span class="account_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
+                    {% with account.get_phone_number as phone %}
+                        {% if phone.raw_input %}
+                            {% if phone.type == 'mobile' %}
+                                <span class="account_mobile_phone">
+                            {% else %}
+                                <span class="account_phone">
+                            {% endif %}
+                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                </span>
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% with account.primary_email as email %}
+                        {% if email %}
+                            <span class="account_email"><a href="mailto:{{ email }}">{{ email }}</a></span>
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% with account.get_twitter as twitter %}
+                        {% if twitter.username %}
+                            <span class="account_twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
             
             <div id="details_body">
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
-
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Account history' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Account details' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-employees">{% trans 'Employees' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-contacts">{% trans 'Contacts' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Account history' %}</h2>
+                        <h2>{% trans 'History' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
@@ -126,14 +164,14 @@
                     </div>
                     
                     <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Account details' %}</h2>
+                        <h2>{% trans 'Details' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
                     </div>
                     
-                    <div id="tab-employees" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Employees' %}</h2>
+                    <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Contacts' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
@@ -152,7 +190,6 @@
                             lorem ipsum
                         </p>
                     </div>
-                    
                 </div>
             </div>
         </div>

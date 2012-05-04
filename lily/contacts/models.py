@@ -37,6 +37,17 @@ class Contact(Common):
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
 
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
+    
     def full_name(self):
         """
         Return full name of this contact without unnecessary white space.
@@ -69,12 +80,6 @@ class Contact(Common):
             return self.email_addresses.all()[0].email_address
         except:
             return ''
-    
-    def get_social(self):
-        try:
-            return self.social_media.all()
-        except:
-            return {}
     
     def get_twitter(self):
         try:

@@ -108,19 +108,19 @@
 }
 
 #account_contact .phone {
-   	background-image: url('/static/images/core/phone.png');
+   background-image: url('/static/images/core/phone.png');
 }
 
 #account_contact .mobile_phone {
-   	background-image: url('/static/images/core/mobile-phone.png');
+   background-image: url('/static/images/core/mobile-phone.png');
 }
 
 #account_contact .email {
-   	background-image: url('/static/images/core/mail.png');
+   background-image: url('/static/images/core/mail.png');
 }
 
 #account_contact .twitter {
-   	background-image: url('/static/images/core/twitter.png');
+   background-image: url('/static/images/core/twitter.png');
 }
 
 #details_body {

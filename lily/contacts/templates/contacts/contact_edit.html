@@ -422,14 +422,14 @@
                     </div>
                     
                     <div class="mws-button-row">
-                        <input type="button" id="delete-contact-dialog-btn" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
+                        <input type="button" id="delete-contact-dialog-link" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
                 
                         <div id="delete-contact-form-dialog" style="display: none;">
                             <form action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %} 
                                 <div class="mws-form"> 
                                     <div class="mws-form-inline">
                                         <div class="mws-form-row">
-                                            {% blocktrans with form.instance.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                            {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? This cannot be undone.{% endblocktrans %}
                                         </div>
                                     </div>
                                 </div>

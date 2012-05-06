@@ -66,7 +66,7 @@ class Account(Common):
         try:
             return self.phone_numbers.filter(type='mobile')[0]
         except:
-            return  None
+            return None
     
     def get_phone_number(self):
         """
@@ -127,9 +127,6 @@ class Account(Common):
             tags = ('',)
         return tags
     
-    def __unicode__(self):
-        return self.name
-    
     def get_contacts(self):
         functions = self.functions.all()
         contacts = []
@@ -137,6 +134,9 @@ class Account(Common):
             contacts.append(function.contact)
         
         return contacts
+    
+    def __unicode__(self):
+        return self.name
     
     class Meta:
         verbose_name = _('account')

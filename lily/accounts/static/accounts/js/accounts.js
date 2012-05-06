@@ -36,18 +36,18 @@ $(document).ready(function() {
         show_or_hide_other_option($(this)[0]);
     });
     
-    // show delete account dialog
-    $('#delete-account-dialog-btn').click(function(event) {
+    // delete account
+    $('#delete-account-dialog-link').click(function(event) {
         $('#delete-account-form-dialog').dialog('open');
         event.preventDefault();
     });  
     
-    // delete account
+    // transform div into delete dialog
     $('#delete-account-form-dialog').dialog({
         autoOpen: false,
         title: gettext('Delete account'),
         modal: true,
-        width: 640,
+        width: 350,
         buttons: [
             { 
                 'class': 'mws-button red float-left',
@@ -90,37 +90,4 @@ $(document).ready(function() {
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
-
-    // delete account
-    $('#delete-account-dialog-link').click(function(event) {
-        $('#delete-account-form-dialog').dialog('open');
-        event.preventDefault();
-    });
-    // transform div into delete dialog
-    $('#delete-account-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('Delete account'),
-        modal: true,
-        width: 640,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('Cancel'),
-                click: function() {
-                    // cancel form on NO
-                    $(this).dialog('close');
-                }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Continue'),
-                click: function() {
-                    // submit form on YES
-                    $(this).find('form').submit();
-                }
-            }
-        ]
-    });
-    
-    
 });

@@ -33,7 +33,7 @@
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
@@ -93,24 +93,22 @@
                     {% with account.get_phone_number as phone %}
                         {% if phone.raw_input %}
                             {% if phone.type == 'mobile' %}
-                                <span class="account_mobile_phone">
+                                <span class="mobile_phone">
                             {% else %}
-                                <span class="account_phone">
+                                <span class="phone">
                             {% endif %}
                                     <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
                                 </span>
                         {% endif %}
                     {% endwith %}
                     
-                    {% with account.primary_email as email %}
-                        {% if email %}
-                            <span class="account_email"><a href="mailto:{{ email }}">{{ email }}</a></span>
-                        {% endif %}
-                    {% endwith %}
+                    {% if account.primary_email %}
+                            <span class="email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
+                    {% endif %}
                     
                     {% with account.get_twitter as twitter %}
                         {% if twitter.username %}
-                            <span class="account_twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                            <span class="twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
                         {% endif %}
                     {% endwith %}
                 </div>

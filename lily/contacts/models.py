@@ -48,32 +48,37 @@ class Contact(Common):
         else:
             return object.__getattribute__(self, name)
     
-    def full_name(self):
-        """
-        Return full name of this contact without unnecessary white space.
-        """
-        if self.preposition:
-            return ' '.join([self.first_name, self.preposition, self.last_name])
-        
-        return ' '.join([self.first_name, self.last_name])
-    
-    def get_phonenumber(self):
-        try:
-            return self.phone_numbers.all()[0].raw_input
-        except:
-            return ''
-    
     def get_work_phone(self):
         try:
-            return self.phone_numbers.filter(type='work')[0].raw_input
+            return self.phone_numbers.filter(type='work')[0]
         except:
-            return ''
+            return None
     
     def get_mobile_phone(self):
         try:
-            return self.phone_numbers.filter(type='mobile')[0].raw_input
+            return self.phone_numbers.filter(type='mobile')[0]
         except:
-            return  ''
+            return None
+    
+    def get_phone_number(self):
+        """
+        Return a phone number for an account in the order of:
+        - a work phone
+        - mobile phone
+        - any other existing phone number (except of the type fax or data)
+        """
+        work_phone = self.get_work_phone()
+        if work_phone:
+            return work_phone
+        
+        mobile_phone = self.get_mobile_phone()
+        if mobile_phone:
+            return mobile_phone
+        
+        try:
+            return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
+        except:
+            return None
     
     def get_email(self):
         try:
@@ -86,6 +91,15 @@ class Contact(Common):
             return self.social_media.filter(name='twitter')[0]
         except:
             return ''
+    
+    def full_name(self):
+        """
+        Return full name of this contact without unnecessary white space.
+        """
+        if self.preposition:
+            return ' '.join([self.first_name, self.preposition, self.last_name])
+        
+        return ' '.join([self.first_name, self.last_name])
     
     def get_primary_function(self):
         try:

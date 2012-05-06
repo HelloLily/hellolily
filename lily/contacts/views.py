@@ -32,7 +32,7 @@ from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import EmailAddress, Address, PhoneNumber
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
@@ -237,6 +237,29 @@ class AddContactView(CreateView):
             pk = form_kwargs['data'].get('account')
             account = Account.objects.get(pk=pk)
             Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+            
+        # Add relation to Facebook
+        if form_kwargs['data'].get('facebook'):
+            facebook = SocialMedia.objects.create(
+                name='facebook', 
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+            self.object.social_media.add(facebook)
+        
+        # Add relation to Twitter
+        if form_kwargs['data'].get('twitter'):
+            twitter = SocialMedia.objects.create(
+                name='twitter', 
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+            self.object.social_media.add(twitter)
+        
+        # Add relation to LinkedIn
+        if form_kwargs['data'].get('linkedin'):
+            linkedin = SocialMedia.objects.create(
+                name='linkedin',
+                profile_url=form_kwargs['data'].get('linkedin'))
+            self.object.social_media.add(linkedin)
         
         return self.get_success_url()
     
@@ -479,6 +502,44 @@ class EditContactView(UpdateView):
             # No account selected
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
+            
+        # Add relation to Facebook
+        if form_kwargs['data'].get('facebook'):
+            # Prevent re-creating
+            facebook, created = SocialMedia.objects.get_or_create(
+                name='facebook', 
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+            if created:
+                self.object.social_media.add(facebook)
+        else:
+            # Remove possible Facebook relations
+            self.object.social_media.filter(name='facebook').delete()
+        
+        # Add relation to Twitter
+        if form_kwargs['data'].get('twitter'):
+            # Prevent re-creating
+            twitter, created = SocialMedia.objects.get_or_create(
+                name='twitter', 
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+            if created:
+                self.object.social_media.add(twitter)
+        else:
+            # Remove possible Twitter relations
+            self.object.social_media.filter(name='twitter').delete()
+        
+        # Add relation to LinkedIn
+        if form_kwargs['data'].get('linkedin'):
+            # Prevent re-creating
+            linkedin, created = SocialMedia.objects.get_or_create(
+                name='linkedin',
+                profile_url=form_kwargs['data'].get('linkedin'))
+            if created:
+                self.object.social_media.add(linkedin)
+        else:
+            # Remove possible LinkedIn relations
+            self.object.social_media.filter(name='linkedin').delete()
         
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());

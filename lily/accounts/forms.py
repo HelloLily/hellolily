@@ -102,7 +102,7 @@ class AddAccountForm(ModelForm):
         super(AddAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
-    
+        
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
@@ -189,16 +189,16 @@ class EditAccountForm(ModelForm):
             'placeholder': _('Twitter username')
     }))
     
-    linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+    linkedin = forms.URLField(label=_('Facebook'), required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
-            'placeholder': _('LinkedIn username')
+            'placeholder': _('LinkedIn profile link')
     }))
     
-    facebook = forms.URLField(label=_('Facebook'), required=False,
+    facebook = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
-            'placeholder': _('Facebook profile link')
+            'placeholder': _('Facebook username')
     }))
     
     tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
@@ -213,6 +213,20 @@ class EditAccountForm(ModelForm):
         super(EditAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
+        
+        # Try providing initial social media
+        try:
+            self.fields['twitter'].initial = self.instance.social_media.filter(name='twitter')[0].username
+        except Exception:
+            pass
+        try:
+            self.fields['linkedin'].initial = self.instance.social_media.filter(name='linkedin')[0].profile_url
+        except:
+            pass
+        try:
+            self.fields['facebook'].initial = self.instance.social_media.filter(name='facebook')[0].username
+        except:
+            pass
         
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client

@@ -25,29 +25,28 @@
     overflow: hidden;
 }
 
-.mws-table .controls {
-	max-width: 55px;
-}
-
 .mws-table tbody .controls {
     vertical-align: middle;
-	padding: 0 0 0 8px !important;
+    text-align: center;
+    padding: 0 0 0 8px !important;
+    line-height: 16px;
 }
 
 .mws-table .controls a {
     display: inline-block;
-    height: 16px;
-    width: 16px;
-    margin-right: 0px;
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+    padding: 1px;
+    background-position: 50% 50%;
 }
 
 .mws-table thead .logo {
 	border-left: none !important;
-    vertical-align: middle;
 }
 
 .mws-table .logo {
-	padding: 0 0 0 10px !important;
+	padding: 0 0 0 7px !important;
     vertical-align: middle;
 }
 
@@ -99,20 +98,28 @@
    height: 19px;
 }
 
-#account_contact .account_mobile_phone {
-   background: url('/static/images/core/mobile-phone.png') no-repeat 4px 48%;
+#account_contact .phone,
+#account_contact .mobile_phone,
+#account_contact .email,
+#account_contact .twitter {
+	background-repeat: no-repeat;
+	background-position: 4px 48%;
 }
 
-#account_contact .account_phone {
-   background: url('/static/images/core/phone.png') no-repeat 4px 48%;
+#account_contact .phone {
+   background-image: url('/static/images/core/phone.png');
 }
 
-#account_contact .account_email {
-   background: url('/static/images/core/mail.png') no-repeat 4px 48%;
+#account_contact .mobile_phone {
+   background-image: url('/static/images/core/mobile-phone.png');
 }
 
-#account_contact .account_twitter {
-   background: url('/static/images/core/twitter.png') no-repeat 4px 48%;
+#account_contact .email {
+   background-image: url('/static/images/core/mail.png');
+}
+
+#account_contact .twitter {
+   background-image: url('/static/images/core/twitter.png');
 }
 
 #details_body {

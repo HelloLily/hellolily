@@ -33,7 +33,7 @@
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
@@ -102,11 +102,9 @@
                         {% endif %}
                     {% endwith %}
                     
-                    {% with account.primary_email as email %}
-                        {% if email %}
-                            <span class="account_email"><a href="mailto:{{ email }}">{{ email }}</a></span>
-                        {% endif %}
-                    {% endwith %}
+                    {% if account.primary_email %}
+                            <span class="account_email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
+                    {% endif %}
                     
                     {% with account.get_twitter as twitter %}
                         {% if twitter.username %}

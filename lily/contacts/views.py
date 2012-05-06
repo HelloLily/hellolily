@@ -154,7 +154,7 @@ class AddContactView(CreateView):
                 self.object.phone_numbers.add(phone)
             
             # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs['data'].get('submit', None)
+            submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
                 do_redirect = True
                 url = reverse('contact_edit', kwargs={

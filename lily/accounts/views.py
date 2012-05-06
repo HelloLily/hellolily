@@ -154,7 +154,7 @@ class AddAccountView(CreateView):
                 Website.objects.create(website=form.cleaned_data.get('website'), account=self.object)
             
             # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs['data'].get('submit', None)
+            submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
                 do_redirect = True
                 url = reverse('account_edit', kwargs={

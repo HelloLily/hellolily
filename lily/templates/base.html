@@ -382,16 +382,18 @@
     </div>
     {% endblock %}
     
-    <div id="loadingDialog"></div>
-    <div id="successDialog">
-        <div class="mws-dialog-inner">
-            <p id="successDialogMessage"></p>
-        </div>
-    </div>
-    <div id="errorDialog">
-        <div class="mws-dialog-inner">
-            <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
-        </div>
+    <div class="hidden">
+	    <div id="loadingDialog"></div>
+	    <div id="successDialog">
+	        <div class="mws-dialog-inner">
+	            <p id="successDialogMessage"></p>
+	        </div>
+	    </div>
+	    <div id="errorDialog">
+	        <div class="mws-dialog-inner">
+	            <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
+	        </div>
+	    </div>
     </div>
     
 </body>

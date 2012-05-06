@@ -20,11 +20,11 @@ $(document).ready(function() {
     $(".mws-datatable-fn").dataTable({
         "sPaginationType": "full_numbers",
         "bAutoWidth": false,
-        "aaSorting": [[1,'asc']],
+        "aaSorting": [[2,'asc']],
         "aoColumnDefs": [ 
-            { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-            { "bSortable": false, "aTargets": [2] },
-            { "bSortable": false, "aTargets": [5] }
+            { "bSortable": false, "aTargets": [0] },
+            { "bSortable": false, "aTargets": [1] },
+            { "bSortable": false, "aTargets": [6] }
         ]
     }); 
     
@@ -71,55 +71,78 @@ $(document).ready(function() {
         <div class="mws-panel-body">
             <table class="mws-datatable-fn mws-table">
                 <thead>
-                    <tr>
-                        <th id="account_controls"></th>
-                        <th id="account_logo" title="{% trans 'Logo' %}">{% trans 'Logo' %}</th>
-                        <th id="account_name" title="{% trans 'Account' %}">{% trans 'Account' %}</th>
-                        <th id="account_details" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
-                        <th id="account_created" class="hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
-                        <th id="account_modified" class="hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Modified' %}</th>
-                        <th id="account_tags" title="{% trans 'Tags' %}">{% trans 'Tags' %}</th>
+                    <tr class="account_table_row">
+                        <th class="controls"></th>
+                        <th class="logo"></th>
+                        <th class="name" title="{% trans 'Account' %}">
+                        	{% trans 'Account' %}
+                        </th>
+                        <th class="details" title="{% trans 'Contact' %}">
+                        	{% trans 'Contact' %}
+                        </th>
+                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">
+                        	{% trans 'Created' %}
+                       	</th>
+                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">
+                        	{% trans 'Last modified' %}
+                        </th>
+                        <th class="tags" title="{% trans 'Tags' %}">
+                        	{% trans 'Tags' %}
+                        </th>
                     </tr>
                 </thead>
+                
                 <tbody>
                     {% for object in object_list %}
                         <tr class="height_77">
-                            <td class="account_controls">
-                                <a href="{% url account_edit pk=object.pk %}" title="{% trans 'Edit' %}" class="mws-ic-16 ic-edit no-decoration"></a>                                <a href="{% url account_delete pk=object.pk %}" title="{% trans 'Delete' %}" class="mws-ic-16 ic-trash no-decoration"></a>
+                            <td class="controls">
+                                <a href="{% url account_edit pk=object.pk %}" title="{% trans 'Edit' %}" class="mws-ic-16 ic-edit no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" title="{% trans 'Delete' %}" class="mws-ic-16 ic-trash no-decoration inline-block" title="{% trans 'Delete' %}"></a>
                             </td>
-                            <td class="account_logo">
+                            <td class="logo">
                                 {% if object.logo %}
-                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="account_logo_img" />
+                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="hide_on_small_screen" />
                                 {% else %}
-                                    <img src="{% static 'images/core/unknown_account.png' %}" alt="{{ object.title }}" class="account_logo_img" />
+                                    <img src="{% static 'images/core/unknown_account.png' %}" alt="{{ object.title }}" class=" hide_on_small_screen" />
                                 {% endif %}
                             </td>
-                            <td class="account_name">
-                                <span class="business_name full-width"><a href="{% url account_details pk=object.pk %}">{{ object.name|truncatechars:"18" }}</a></span>
-                                {% with address=object.get_address %}
-                                    <span class="business_address full-width">{{ address.address|truncatechars:"20" }}</span>
-                                    <span class="business_country full-width">{{ address.country|truncatechars:"20" }}</span>
+                            <td class="name">
+                                <span class="full-width">
+                                	<a href="{% url account_details pk=object.pk %}">
+                                		{{ object.name|truncatechars:"18" }}
+                                	</a>
+                                </span>
+                                {% with object.get_address as address %}
+                                    {% if address.street %}
+                                    	<span class="address full-width">{{ address.street|truncatechars:"20" }} {{ address.street_number }}</span>
+                                    {% endif %}
+                                    {% if address.country %}
+                                    	<span class="country full-width">{{ address.country|truncatechars:"20" }}</span>
+                                    {% endif %}
                                 {% endwith %}
                             </td>
-                            <td class="account_details">
+                            <td class="details">
                                 {% with contact=object.get_contact_details %}
-                                    <span class="contact_phone full-width mws-ic-16 ic-telephone" style="padding-left: 24px;">
-                                        {{ contact.phone }}
-                                    </span>
-                                    <span class="contact_mail full-width mws-ic-16 ic-email" style="padding-left: 24px;">
-                                        {{ contact.mail|truncatechars:"20" }}
-                                    </span>
+                                    {% if contact.mail %}
+                                    	<span class="mail full-width mws-ic-16 ic-email" style="padding-left: 24px;">
+	                                        <a href="mailto:{{ contact.mail }}" title="{{ contact.mail }}">{{ contact.mail|truncatechars:"20" }}</a>
+	                                    </span>
+                                    {% endif %}
+                                    {% if contact.phone %}
+                                    	<span class="phone full-width mws-ic-16 ic-telephone" style="padding-left: 24px;">
+                                        	<a href="tel:{{ contact.phone }}" title="{{ contact.phone }}">{{ contact.phone }}</a>
+                                    	</span>
+                                    {% endif %}
                                 {% endwith %}
                             </td>
-                            <td class="account_created hide_on_small_screen">
-                                {{ object.created|date:"d-m-Y" }}
+                            <td class="created hide_on_small_screen">
+                                {{ object.created|date:"d-m-Y H:i" }}
                             </td>
-                            <td class="account_modified hide_on_small_screen">
-                                {{ object.modified|date:"d-m-Y" }}
+                            <td class="modified hide_on_small_screen">
+                                {{ object.modified|date:"d-m-Y H:i" }}
                             </td>
-                            <td class="account_tags">
+                            <td class="tags">
                                 {% for tag in object.get_tags %}
-                                    <a href="#" class="tag">{{ tag }}</a>
+                                    <a href="javascript:void(0)" class="tag">{{ tag }}</a><br />
                                 {% endfor %}
                             </td>
                         </tr>

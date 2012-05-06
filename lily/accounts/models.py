@@ -90,15 +90,11 @@ class Account(Common):
     
     def get_address(self):
         try:
-            address = self.addresses.all()[0]
-            return {
-                'address': '%s %s' % (address.street, address.street_number),
-                'country': address.country,
-            }
+            return self.addresses.all()[0]
         except:
             return {
-                'address': None,
-                'country': None,
+                'address': '',
+                'country': '',
             }
     
     def get_contact_details(self):

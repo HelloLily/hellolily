@@ -5,7 +5,7 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen"/>
-<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_detail.css' %}" media="screen"/>
+<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen"/>
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen"/>
 {% endblock %}
 
@@ -55,6 +55,12 @@
                         <h2>{{ account.name|truncatechars:"24" }}</h2>
                         <div id="contact_function">
                             {% with account.get_contacts as contacts %}
+                            	{% comment %}
+                            		Show the full name + link to detail view if a single contact is
+                            		linked to this account. In case there are more contacts, show the
+                            		number of contacts and point the link to the contacts' list view.
+                            	{% endcomment %}
+                            	
                                 {% if contacts|length == 1 %}
                                     {% url contact_details pk=contacts.0.pk as contact_link  %}
                                     
@@ -125,6 +131,7 @@
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
+                                
 								<br />
                                 {% if form.note.errors %}
                                     <div class="mws-form-item inline note-textarea">
@@ -140,17 +147,16 @@
                                 {% endif %}
                                 <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
                             </form>
+                            
                             <hr />
                         {% endif %}
+                        
                         {% for note in account.notes.all %}
                             <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
                                 {% include 'notes/note.html' with note=note %}
                             </div>
-                        {% empty %}
-                            <div class="object-list-item">
-                                {% include 'notes/note.html' with note=None %}
-                            </div>
                         {% endfor %}
+                        
                         <div id="delete-note-form-dialog" style="display:none;">
                             <form class="mws-form" id="delete-note-form" action="" method="post">
                                 {% csrf_token %} 
@@ -195,6 +201,7 @@
         </div>
     </div>
     
+    {% comment %}
     <div class="mws-panel grid_2">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-speech-bubbles-2">Social Stream</span>
@@ -207,5 +214,6 @@
             </div>
         </div>
     </div>
+    {% endcomment %}
    
 {% endblock %}

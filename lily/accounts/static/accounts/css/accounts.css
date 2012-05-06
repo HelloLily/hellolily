@@ -1,3 +1,5 @@
+/* Add/Edit */
+
 .mws-form .email_is_primary label span {
     color: #aaa;
     font-weight: normal;
@@ -17,66 +19,114 @@
     height: 24px;
 }
 
+/* List */
+
 .mws-table td {
     overflow: hidden;
 }
 
-#account_controls,
-.account_controls {
-    padding: 0 40px !important;
-    vertical-align: middle;
+.mws-table .controls {
+	max-width: 55px;
 }
 
-.account_controls a {
+.mws-table tbody .controls {
+    vertical-align: middle;
+	padding: 0 0 0 8px !important;
+}
+
+.mws-table .controls a {
     display: inline-block;
     height: 16px;
     width: 16px;
-    margin-right: 4px;
+    margin-right: 0px;
 }
 
-
-#account_logo {
-    width: 14%;
-    padding-left: 45px;
-}
-
-#account_name {
-    width: 20%;
-}
-
-#account_details {
-    width: 20%;
-}
-
-#account_created {
-    width: 14%;
-}
-
-#account_modified {
-    width: 14%;
-}
-
-#account_tags {
-    width: 18%;
-}
-
-.account_logo_img {
-    padding: 15px 10px 10px 10px;
+.mws-table thead .logo {
+	border-left: none !important;
     vertical-align: middle;
 }
 
-.account_name span.business_name a {
+.mws-table .logo {
+	padding: 0 0 0 10px !important;
+    vertical-align: middle;
+}
+
+.mws-table .name a {
     font-size: 112%;
 }
 
-.account_created, .account_modified {
+.mws-table .details {
     white-space: nowrap;
 }
 
-.account_details {
+.mws-table .created,
+.mws-table .modified {
     white-space: nowrap;
 }
 
-.account_tags {
-    height: 60px;
+/* Detail */
+
+#details_top {
+   padding: 12px;
+}
+
+#account_logo {
+   margin-right: 20px;
+}
+
+#details_top_personal {
+   display: inline-block;
+   vertical-align: middle;
+}
+
+#details_top_personal h2 {
+   margin: 0;
+}
+
+#account_social {
+   margin-top: 16px;
+}
+
+#account_contact {
+   display: inline-block;
+}
+
+#account_contact span {
+   display: block;
+   text-align: right;
+   padding: 3px 0 3px 25px;
+   border-bottom: 1px solid #ccc;
+   height: 19px;
+}
+
+#account_contact .account_mobile_phone {
+   background: url('/static/images/core/mobile-phone.png') no-repeat 4px 48%;
+}
+
+#account_contact .account_phone {
+   background: url('/static/images/core/phone.png') no-repeat 4px 48%;
+}
+
+#account_contact .account_email {
+   background: url('/static/images/core/mail.png') no-repeat 4px 48%;
+}
+
+#account_contact .account_twitter {
+   background: url('/static/images/core/twitter.png') no-repeat 4px 48%;
+}
+
+#details_body {
+   margin-bottom: 5px;
+}
+
+#tab-history .mws-form {
+   margin-bottom: 8px;
+}
+
+.note-textarea {
+	vertical-align: bottom;
+}
+
+#add-note-button {
+	margin-bottom: 0;
 }

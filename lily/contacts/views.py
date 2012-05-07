@@ -6,6 +6,7 @@ import pickle
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
@@ -17,6 +18,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escapejs
+from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -30,7 +32,7 @@ from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import EmailAddress, Address, PhoneNumber
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
@@ -41,6 +43,34 @@ class ListContactView(ListView):
     """
     template_name = 'contacts/contact_list.html'
     model = Contact
+    
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            # If kwarg is provided, try reducing the queryset
+            if self.kwargs.get('b36_pks', None):
+                try:
+                    # Convert base36 to int
+                    b36_pks = self.kwargs.get('b36_pks').split(';')
+                    int_pks = []
+                    for pk in b36_pks:
+                        int_pks.append(base36_to_int(pk))
+                    # Filter queryset
+                    queryset = self.model._default_manager.filter(pk__in=int_pks)
+                except:
+                    queryset = self.model._default_manager.all()
+            else:
+                queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+        return queryset
 
 
 class DetailContactView(DetailFormView):
@@ -124,7 +154,7 @@ class AddContactView(CreateView):
                 self.object.phone_numbers.add(phone)
             
             # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs['data'].get('submit', None)
+            submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
                 do_redirect = True
                 url = reverse('contact_edit', kwargs={
@@ -207,6 +237,29 @@ class AddContactView(CreateView):
             pk = form_kwargs['data'].get('account')
             account = Account.objects.get(pk=pk)
             Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+            
+        # Add relation to Facebook
+        if form_kwargs['data'].get('facebook'):
+            facebook = SocialMedia.objects.create(
+                name='facebook', 
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+            self.object.social_media.add(facebook)
+        
+        # Add relation to Twitter
+        if form_kwargs['data'].get('twitter'):
+            twitter = SocialMedia.objects.create(
+                name='twitter', 
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+            self.object.social_media.add(twitter)
+        
+        # Add relation to LinkedIn
+        if form_kwargs['data'].get('linkedin'):
+            linkedin = SocialMedia.objects.create(
+                name='linkedin',
+                profile_url=form_kwargs['data'].get('linkedin'))
+            self.object.social_media.add(linkedin)
         
         return self.get_success_url()
     
@@ -449,6 +502,44 @@ class EditContactView(UpdateView):
             # No account selected
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
+            
+        # Add relation to Facebook
+        if form_kwargs['data'].get('facebook'):
+            # Prevent re-creating
+            facebook, created = SocialMedia.objects.get_or_create(
+                name='facebook', 
+                username=form_kwargs['data'].get('facebook'),
+                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+            if created:
+                self.object.social_media.add(facebook)
+        else:
+            # Remove possible Facebook relations
+            self.object.social_media.filter(name='facebook').delete()
+        
+        # Add relation to Twitter
+        if form_kwargs['data'].get('twitter'):
+            # Prevent re-creating
+            twitter, created = SocialMedia.objects.get_or_create(
+                name='twitter', 
+                username=form_kwargs['data'].get('twitter'),
+                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+            if created:
+                self.object.social_media.add(twitter)
+        else:
+            # Remove possible Twitter relations
+            self.object.social_media.filter(name='twitter').delete()
+        
+        # Add relation to LinkedIn
+        if form_kwargs['data'].get('linkedin'):
+            # Prevent re-creating
+            linkedin, created = SocialMedia.objects.get_or_create(
+                name='linkedin',
+                profile_url=form_kwargs['data'].get('linkedin'))
+            if created:
+                self.object.social_media.add(linkedin)
+        else:
+            # Remove possible LinkedIn relations
+            self.object.social_media.filter(name='linkedin').delete()
         
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());

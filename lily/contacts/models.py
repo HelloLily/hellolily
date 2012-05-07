@@ -15,15 +15,21 @@ class Contact(Common):
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
+        (UNKNOWN_GENDER, _('Select gender')),
         (MALE_GENDER, _('Male')),
         (FEMALE_GENDER, _('Female')),
-        (UNKNOWN_GENDER, _('Unknown')),
     )
     
     INACTIVE_STATUS, ACTIVE_STATUS = range(2)
     CONTACT_STATUS_CHOICES = (
         (INACTIVE_STATUS, _('Inactive')),
         (ACTIVE_STATUS, _('Active')),
+    )
+    
+    FORMAL, INFORMAL = range(2)
+    SALUTATION_CHOICES = (
+        (FORMAL, _('Formal')),
+        (INFORMAL, _('Informal')),
     )
     
     first_name = models.CharField(max_length=255, verbose_name=_('first name'), blank=True)
@@ -36,7 +42,64 @@ class Contact(Common):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
+                                 verbose_name=_('salutation'))
 
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
+    
+    def get_work_phone(self):
+        try:
+            return self.phone_numbers.filter(type='work')[0]
+        except:
+            return None
+    
+    def get_mobile_phone(self):
+        try:
+            return self.phone_numbers.filter(type='mobile')[0]
+        except:
+            return None
+    
+    def get_phone_number(self):
+        """
+        Return a phone number for an account in the order of:
+        - a work phone
+        - mobile phone
+        - any other existing phone number (except of the type fax or data)
+        """
+        work_phone = self.get_work_phone()
+        if work_phone:
+            return work_phone
+        
+        mobile_phone = self.get_mobile_phone()
+        if mobile_phone:
+            return mobile_phone
+        
+        try:
+            return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
+        except:
+            return None
+    
+    def get_email(self):
+        try:
+            return self.email_addresses.all()[0].email_address
+        except:
+            return ''
+    
+    def get_twitter(self):
+        try:
+            return self.social_media.filter(name='twitter')[0]
+        except:
+            return ''
+    
     def full_name(self):
         """
         Return full name of this contact without unnecessary white space.
@@ -45,42 +108,6 @@ class Contact(Common):
             return ' '.join([self.first_name, self.preposition, self.last_name])
         
         return ' '.join([self.first_name, self.last_name])
-    
-    def get_phonenumber(self):
-        try:
-            return self.phone_numbers.all()[0].raw_input
-        except:
-            return ''
-    
-    def get_work_phone(self):
-        try:
-            return self.phone_numbers.filter(type='work')[0].raw_input
-        except:
-            return ''
-    
-    def get_mobile_phone(self):
-        try:
-            return self.phone_numbers.filter(type='mobile')[0].raw_input
-        except:
-            return  ''
-    
-    def get_email(self):
-        try:
-            return self.email_addresses.all()[0].email_address
-        except:
-            return ''
-    
-    def get_social(self):
-        try:
-            return self.social_media.all()
-        except:
-            return {}
-    
-    def get_twitter(self):
-        try:
-            return self.social_media.filter(name='twitter')[0]
-        except:
-            return ''
     
     def get_primary_function(self):
         try:

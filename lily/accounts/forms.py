@@ -72,23 +72,23 @@ class AddAccountForm(ModelForm):
     
     TODO: status field
     """
-    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Twitter profile')
-    }))
-    
-    linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('LinkedIn profile')
-    }))
-    
-    facebook = forms.URLField(label=_('Facebook'), required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Facebook profile link')
-    }))
+#    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Twitter profile')
+#    }))
+#    
+#    linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('LinkedIn profile')
+#    }))
+#    
+#    facebook = forms.URLField(label=_('Facebook'), required=False,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Facebook profile link')
+#    }))
     
     tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
@@ -102,7 +102,7 @@ class AddAccountForm(ModelForm):
         super(AddAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
-    
+        
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
 #        self.fields['tags'].queryset = user.account.tags.all()
@@ -156,7 +156,8 @@ class AddAccountForm(ModelForm):
     
     class Meta:
         model = Account
-        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'description')
+#        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'description')
+        fields = ('name', 'tags', 'description')
                 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -165,7 +166,7 @@ class AddAccountForm(ModelForm):
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
-                'rows': '5',
+                'rows': '3',
                 'placeholder': _('Description'),
             }),
         
@@ -183,23 +184,23 @@ class EditAccountForm(ModelForm):
             'class': 'mws-textinput',
     }))
     
-    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Twitter username')
-    }))
-    
-    linkedin = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('LinkedIn username')
-    }))
-    
-    facebook = forms.URLField(label=_('Facebook'), required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Facebook profile link')
-    }))
+#    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Twitter username')
+#    }))
+#    
+#    linkedin = forms.URLField(label=_('Facebook'), required=False,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('LinkedIn profile link')
+#    }))
+#    
+#    facebook = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Facebook username')
+#    }))
     
     tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
@@ -213,6 +214,20 @@ class EditAccountForm(ModelForm):
         super(EditAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
+        
+#        # Try providing initial social media
+#        try:
+#            self.fields['twitter'].initial = self.instance.social_media.filter(name='twitter')[0].username
+#        except Exception:
+#            pass
+#        try:
+#            self.fields['linkedin'].initial = self.instance.social_media.filter(name='linkedin')[0].profile_url
+#        except:
+#            pass
+#        try:
+#            self.fields['facebook'].initial = self.instance.social_media.filter(name='facebook')[0].username
+#        except:
+#            pass
         
         # TODO: Limit queryset to tags used by accounts created by users from user's account or
         # tags used by accounts linked to the user's client
@@ -273,7 +288,8 @@ class EditAccountForm(ModelForm):
     
     class Meta:
         model = Account
-        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
+#        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
+        fields = ('name', 'tags', 'website', 'description')
                 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -282,7 +298,7 @@ class EditAccountForm(ModelForm):
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
-                'rows': '5',
+                'rows': '3',
                 'placeholder': _('Description'),
             }),
         }

@@ -1,13 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
+
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.html import escapejs
+from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
@@ -27,6 +30,34 @@ from lily.utils.views import DetailFormView
 class ListAccountView(ListView):
     template_name = 'accounts/account_list.html'
     model = Account
+    
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            # If kwarg is provided, try reducing the queryset
+            if self.kwargs.get('b36_pks', None):
+                try:
+                    # Convert base36 to int
+                    b36_pks = self.kwargs.get('b36_pks').split(';')
+                    int_pks = []
+                    for pk in b36_pks:
+                        int_pks.append(base36_to_int(pk))
+                    # Filter queryset
+                    queryset = self.model._default_manager.filter(pk__in=int_pks)
+                except:
+                    queryset = self.model._default_manager.all()
+            else:
+                queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+        return queryset
 
 
 class DetailAccountView(DetailFormView):
@@ -47,6 +78,7 @@ class DetailAccountView(DetailFormView):
     
     def get_success_url(self):
         return reverse('account_details', kwargs={'pk': self.object.pk})
+
 
 class AddAccountView(CreateView):
     """
@@ -123,7 +155,7 @@ class AddAccountView(CreateView):
                 Website.objects.create(website=form.cleaned_data.get('website'), account=self.object)
             
             # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs['data'].get('submit', None)
+            submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
                 do_redirect = True
                 url = reverse('account_edit', kwargs={
@@ -198,28 +230,28 @@ class AddAccountView(CreateView):
                         formset.save()
                         self.object.phone_numbers.add(formset.instance)
             
-            # Add relation to Facebook
-            if form_kwargs['data'].get('facebook'):
-                facebook = SocialMedia.objects.create(
-                    name='facebook', 
-                    username=form_kwargs['data'].get('facebook'),
-                    profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-                self.object.social_media.add(facebook)
-            
-            # Add relation to Twitter
-            if form_kwargs['data'].get('twitter'):
-                twitter = SocialMedia.objects.create(
-                    name='twitter', 
-                    username=form_kwargs['data'].get('twitter'),
-                    profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-                self.object.social_media.add(twitter)
-            
-            # Add relation to LinkedIn
-            if form_kwargs['data'].get('linkedin'):
-                linkedin = SocialMedia.objects.create(
-                    name='linkedin',
-                    profile_url=form_kwargs['data'].get('linkedin'))
-                self.object.social_media.add(linkedin)
+#            # Add relation to Facebook
+#            if form_kwargs['data'].get('facebook'):
+#                facebook = SocialMedia.objects.create(
+#                    name='facebook', 
+#                    username=form_kwargs['data'].get('facebook'),
+#                    profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+#                self.object.social_media.add(facebook)
+#            
+#            # Add relation to Twitter
+#            if form_kwargs['data'].get('twitter'):
+#                twitter = SocialMedia.objects.create(
+#                    name='twitter', 
+#                    username=form_kwargs['data'].get('twitter'),
+#                    profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+#                self.object.social_media.add(twitter)
+#            
+#            # Add relation to LinkedIn
+#            if form_kwargs['data'].get('linkedin'):
+#                linkedin = SocialMedia.objects.create(
+#                    name='linkedin',
+#                    profile_url=form_kwargs['data'].get('linkedin'))
+#                self.object.social_media.add(linkedin)
             
             # Show save message
             messages.success(self.request, _('%s (Account) has been saved.') % self.object.name);
@@ -387,29 +419,44 @@ class EditAccountView(UpdateView):
                 if formset.instance.raw_input:
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
-        
-        # Add relation to Facebook
-        if form_kwargs['data'].get('facebook'):
-            facebook = SocialMedia.objects.create(
-                name='facebook', 
-                username=form_kwargs['data'].get('facebook'),
-                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-            self.object.social_media.add(facebook)
-        
-        # Add relation to Twitter
-        if form_kwargs['data'].get('twitter'):
-            twitter = SocialMedia.objects.create(
-                name='twitter', 
-                username=form_kwargs['data'].get('twitter'),
-                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-            self.object.social_media.add(twitter)
-        
-        # Add relation to LinkedIn
-        if form_kwargs['data'].get('linkedin'):
-            linkedin = SocialMedia.objects.create(
-                name='linkedin',
-                profile_url=form_kwargs['data'].get('linkedin'))
-            self.object.social_media.add(linkedin)
+            
+#        # Add relation to Facebook
+#        if form_kwargs['data'].get('facebook'):
+#            # Prevent re-creating
+#            facebook, created = SocialMedia.objects.get_or_create(
+#                name='facebook', 
+#                username=form_kwargs['data'].get('facebook'),
+#                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+#            if created:
+#                self.object.social_media.add(facebook)
+#        else:
+#            # Remove possible Facebook relations
+#            self.object.social_media.filter(name='facebook').delete()
+#        
+#        # Add relation to Twitter
+#        if form_kwargs['data'].get('twitter'):
+#            # Prevent re-creating
+#            twitter, created = SocialMedia.objects.get_or_create(
+#                name='twitter', 
+#                username=form_kwargs['data'].get('twitter'),
+#                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+#            if created:
+#                self.object.social_media.add(twitter)
+#        else:
+#            # Remove possible Twitter relations
+#            self.object.social_media.filter(name='twitter').delete()
+#        
+#        # Add relation to LinkedIn
+#        if form_kwargs['data'].get('linkedin'):
+#            # Prevent re-creating
+#            linkedin, created = SocialMedia.objects.get_or_create(
+#                name='linkedin',
+#                profile_url=form_kwargs['data'].get('linkedin'))
+#            if created:
+#                self.object.social_media.add(linkedin)
+#        else:
+#            # Remove possible LinkedIn relations
+#            self.object.social_media.filter(name='linkedin').delete()
         
         # Show save message
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name);

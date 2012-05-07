@@ -100,8 +100,8 @@ $(document).ready(function() {
 	/* Enable tabs on this class */
     $(".mws-tabs").tabs();
     
-    /* Submit the form on ctrl + enter in a textarea */
-    $('.mws-form textarea').live('keydown', function(event) {
+    /* Submit the form on ctrl + enter in any input field (including textarea/checkbox/radiobutton/select) */
+    $('form.mws-form :input').live('keydown', function(event) {
     	form = $(this).closest('form');
     	submit_form_on_ctrl_enter(event, form);
     });

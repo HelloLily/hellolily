@@ -5,7 +5,7 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contact_detail.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen" />
 {% endblock %}
 
@@ -33,7 +33,7 @@
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? This cannot be undone.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
@@ -44,7 +44,6 @@
             </span>
         </div>
         <div class="mws-panel-body">
-            
             <div id="details_top" class="clearfix">
                 <div class="float-left">
                     {% if contact.picture %}
@@ -60,13 +59,11 @@
                                 {% if function %}
                                     {% if function.title %}{{ function.title }}<br />{% endif %}
                                     at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
-                                {% else %}
-                                    {% trans 'No function filled in' %}
                                 {% endif %}
                             {% endwith %}
                         </div>
                         <div id="contact_social"> 
-                            {% for social in contact.get_social %}
+                            {% for social in contact.social_media.all %}
                                 <a href="{{ social.profile_url }}" class="no-decoration">
                                     <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
                                 </a>
@@ -75,26 +72,42 @@
                     </div>
                 </div>
                 <div id="contact_contact" class="float-right">
-                    {% with contact.get_work_phone as nr %}{% if nr %}<span class="contact_phone"><a href="#">{{ nr }}</a></span>{% endif %}{% endwith %}
-                    {% with contact.get_mobile_phone as nr %}{% if nr %}<span class="contact_mobile_phone"><a href="#">{{ nr }}</a></span>{% endif %}{% endwith %}
-                    {% with contact.get_email as email %}{% if email %}<span class="contact_email"><a href="#">{{ email }}</a></span>{% endif %}{% endwith %}
-                    {% with contact.get_twitter as tw %}{% if tw %}<span class="contact_twitter"><a href="#">{{ tw.username }}</a></span>{% endif %}{% endwith %}
+                    {% with contact.get_phone_number as phone %}
+                        {% if phone.raw_input %}
+                            {% if phone.type == 'mobile' %}
+                                <span class="mobile_phone">
+                            {% else %}
+                                <span class="phone">
+                            {% endif %}
+                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                </span>
+                        {% endif %}
+                    {% endwith %}
+                    
+                 	{% if contact.primary_email %}
+                            <span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
+                    {% endif %}
+                    
+                    {% with contact.get_twitter as twitter %}
+                        {% if twitter.username %}
+                            <span class="twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
             
             <div id="details_body">
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
-
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Contact history' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Contact details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Contact history' %}</h2>
+                        <h2>{% trans 'History' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
@@ -119,10 +132,6 @@
                             <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
                                 {% include 'notes/note.html' with note=note %}
                             </div>
-                        {% empty %}
-                            <div class="object-list-item">
-                                {% include 'notes/note.html' with note=None %}
-                            </div>
                         {% endfor %}
                         <div id="delete-note-form-dialog" style="display:none;">
                             <form class="mws-form" id="delete-note-form" action="" method="post">
@@ -137,7 +146,7 @@
                     </div>
                     
                     <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Contact details' %}</h2>
+                        <h2>{% trans 'Details' %}</h2>
                         <p>
                             lorem ipsum
                         </p>
@@ -163,13 +172,12 @@
                             lorem ipsum
                         </p>
                     </div>
-                    
                 </div>
             </div>
         </div>
     </div>
     
-    
+    {% comment %}
     <div class="mws-panel grid_2">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-speech-bubbles-2">Social Stream</span>
@@ -182,5 +190,6 @@
             </div>
         </div>
     </div>
+    {% endcomment %}
    
 {% endblock %}

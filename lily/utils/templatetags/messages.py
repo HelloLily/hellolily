@@ -40,11 +40,8 @@ def message_css_tags(messages):
     """
     Add CSS classes to the messages from Django Messages Framework.
     """
-    
-    
     # Set new 'css_class' attribute
     for m in messages:
-        print m.level
         m.extra_tags = tag_mapping.get(m.tags)
     
     return messages

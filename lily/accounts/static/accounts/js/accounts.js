@@ -84,8 +84,6 @@ $(document).ready(function() {
     
     // auto grow description 
     $('#id_description').autoGrow({
-        cols: 60,
-        rows: 1
     });
     
     // update e-mail formset to select first as primary

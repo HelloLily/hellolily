@@ -58,6 +58,12 @@
     white-space: nowrap;
 }
 
+.mws-table .details .mail,
+.mws-table .details .phone,
+.mws-table .details .mobile-phone  {
+   padding-left: 24px;
+}
+
 .mws-table .created,
 .mws-table .modified {
     white-space: nowrap;

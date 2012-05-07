@@ -32,27 +32,13 @@
     line-height: 16px;
 }
 
-.mws-table .edit_icon,
-.mws-table .delete_icon {
+.mws-table .controls a {
     display: inline-block;
-    width: 16px;
-    height: 16px;
-	background-repeat: no-repeat;
-	background-position: 50% 50%;
-    background-image: url('/static/css/icons/16/pencil-blue.png');
-}
-
-.mws-table .delete_icon {
-    margin-left: 4px;
-    background-image: url('/static/css/icons/16/trash-blue.png');
-}
-
-.mws-table tr:hover .edit_icon {
-    background-image: url('/static/css/icons/16/pencil-white.png');
-}
-
-.mws-table tr:hover .delete_icon {
-    background-image: url('/static/css/icons/16/trash-white.png');
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+    padding: 1px;
+    background-position: 50% 50%;
 }
 
 .mws-table thead .picture {
@@ -72,34 +58,14 @@
     font-size: 108%;
 }
 
-.mws-table .contact {
+.mws-table .details {
     white-space: nowrap;
 }
 
-.mws-table .contact span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.mws-table .phone,
-.mws-table .mail {
-    padding-left: 30px;
-	background-repeat: no-repeat;
-	background-position: 2% 50%;
-	background-image: url('/static/images/core/phone.png');
-}
-
-.mws-table .mail {
-    background-image: url('/static/images/core/mail.png')
-}
-
-.mws-table tr:hover .phone {
-    background-image: url('/static/images/core/phone_white.png');
-}
-
-.mws-table tr:hover .mail {
-    background-image: url('/static/images/core/mail_white.png');
+.mws-table .details .mail,
+.mws-table .details .phone,
+.mws-table .details .mobile-phone  {
+   padding-left: 24px;
 }
 
 .mws-table .created,

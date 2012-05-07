@@ -15,15 +15,21 @@ class Contact(Common):
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
+        (UNKNOWN_GENDER, _('Select gender')),
         (MALE_GENDER, _('Male')),
         (FEMALE_GENDER, _('Female')),
-        (UNKNOWN_GENDER, _('Unknown')),
     )
     
     INACTIVE_STATUS, ACTIVE_STATUS = range(2)
     CONTACT_STATUS_CHOICES = (
         (INACTIVE_STATUS, _('Inactive')),
         (ACTIVE_STATUS, _('Active')),
+    )
+    
+    FORMAL, INFORMAL = range(2)
+    SALUTATION_CHOICES = (
+        (FORMAL, _('Formal')),
+        (INFORMAL, _('Informal')),
     )
     
     first_name = models.CharField(max_length=255, verbose_name=_('first name'), blank=True)
@@ -36,6 +42,8 @@ class Contact(Common):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
+                                 verbose_name=_('salutation'))
 
     def __getattribute__(self, name):
         if name == 'primary_email':

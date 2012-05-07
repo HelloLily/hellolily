@@ -15,50 +15,50 @@
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
 <script type="text/javascript">
-$(document).ready(function() {
-    $(".mws-datatable-fn").dataTable({
-        "sPaginationType": "full_numbers",
-        "bAutoWidth": false,
-        "aaSorting": [[2,'asc']],
-        "aoColumnDefs": [ 
-            { "bSortable": false, "bSortable": false, "aTargets": [0] },
-            { "bSortable": false, "bSortable": false, "aTargets": [1] },
-            { "bSortable": false, "bSortable": false, "aTargets": [6] }
-        ]
-    }); 
-    
-    $('.mws-table .delete_icon').click(function(event) {
-        var location = $(this).attr('href');
-        $('#delete-account-form-dialog form').attr('action', location);
-        $('#delete-account-form-dialog').dialog('open');
-        event.preventDefault();
-    })
-    
-    $('#delete-account-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('Delete account'),
-        modal: true,
-        width: 350,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('Cancel'),
-                click: function() {
-                    // cancel form on NO
-                    $(this).dialog('close');
+    $(document).ready(function() {
+        $(".mws-datatable-fn").dataTable({
+            "sPaginationType": "full_numbers",
+            "bAutoWidth": false,
+            "aaSorting": [[2,'asc']],
+            "aoColumnDefs": [ 
+                { "bSortable": false, "bSortable": false, "aTargets": [0] },
+                { "bSortable": false, "bSortable": false, "aTargets": [1] },
+                { "bSortable": false, "bSortable": false, "aTargets": [6] }
+            ]
+        }); 
+        
+        $('.mws-table .delete_icon').click(function(event) {
+            var location = $(this).attr('href');
+            $('#delete-account-form-dialog form').attr('action', location);
+            $('#delete-account-form-dialog').dialog('open');
+            event.preventDefault();
+        })
+        
+        $('#delete-account-form-dialog').dialog({
+            autoOpen: false,
+            title: gettext('Delete account'),
+            modal: true,
+            width: 350,
+            buttons: [
+                { 
+                    'class': 'mws-button red float-left',
+                    text: gettext('Cancel'),
+                    click: function() {
+                        // cancel form on NO
+                        $(this).dialog('close');
+                    }
+                },
+                {
+                    'class': 'mws-button green',
+                    text: gettext('Continue'),
+                    click: function() {
+                        // submit form on YES
+                        $(this).find('form').submit();
+                    }
                 }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Continue'),
-                click: function() {
-                    // submit form on YES
-                    $(this).find('form').submit();
-                }
-            }
-        ]
+            ]
+        });
     });
-});
 </script>
 {% endblock %}
 
@@ -94,7 +94,7 @@ $(document).ready(function() {
                     {% for object in object_list %}
                         <tr class="height_77">
                             <td class="controls">
-                                <a href="{% url account_edit pk=object.pk %}" title="{% trans 'Edit' %}" class="mws-ic-16 ic-edit no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" title="{% trans 'Delete' %}" class="mws-ic-16 ic-trash no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                                <a href="{% url account_edit pk=object.pk %}" class="mws-ic-16 ic-edit no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" class="mws-ic-16 ic-trash no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
                             </td>
                             <td class="logo hide_on_small_screen">
                                 {% if object.logo %}
@@ -120,28 +120,32 @@ $(document).ready(function() {
                             </td>
                             <td class="details">
                                 {% if object.primary_email %}
-                                	<span class="mail full-width mws-ic-16 ic-email" style="padding-left: 24px;">
+                                	<span class="mail full-width mws-ic-16 ic-email">
                                         <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
                                     </span>
                                 {% endif %}
                                 
-                                {% with object.get_phone_number as phone %}
+                                {% with object.get_work_phone as phone %}
 			                        {% if phone.raw_input %}
-			                            {% if phone.type == 'mobile' %}
-			                                <span class="phone full-width mws-ic-16 ic-mobile-phone" style="padding-left: 24px;">
-			                            {% else %}
-			                                <span class="phone full-width mws-ic-16 ic-telephone" style="padding-left: 24px;">
-			                            {% endif %}
-			                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
-			                                </span>
+		                                <span class="phone full-width mws-ic-16 ic-telephone">
+		                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+		                                </span>
 			                        {% endif %}
 			                    {% endwith %}
+			                    
+			                    {% with object.get_mobile_phone as phone %}
+                                    {% if phone.raw_input %}
+                                        <span class="mobile-phone full-width mws-ic-16 ic-mobile-phone">
+                                            <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                        </span>
+                                    {% endif %}
+                                {% endwith %}
                             </td>
                             <td class="created hide_on_small_screen">
-                                {{ object.created|date:"d-m-Y H:i" }}
+                                {{ object.created|date:"d-m-Y | H:i" }}
                             </td>
                             <td class="modified hide_on_small_screen">
-                                {{ object.modified|date:"d-m-Y H:i" }}
+                                {{ object.modified|date:"d-m-Y | H:i" }}
                             </td>
                             <td class="tags">
                                 {% for tag in object.get_tags %}

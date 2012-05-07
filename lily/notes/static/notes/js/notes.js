@@ -4,7 +4,7 @@ $(document).ready(function() {
         autoOpen: false,
         title: gettext('Delete note'),
         modal: true,
-        width: 640,
+        width: 350,
         buttons: [
             { 
                 'class': 'mws-button red float-left',

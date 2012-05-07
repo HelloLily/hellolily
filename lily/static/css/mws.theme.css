@@ -60,10 +60,6 @@ div#mws-navigation ul li.active {
     background:#ffffff url(../images/core/mws-inset.png); /* new */
 }
 
-div#mws-navigation ul li:hover {
-/*    background:#d9d9d9 url(../images/core/mws-sub-nav-bg.png) !important; /* new */*/
-} 
-
 div#mws-searchbox input.mws-search-submit, 
 .mws-panel .mws-panel-header .mws-collapse-button span, 
 div.dataTables_wrapper .dataTables_paginate div, 

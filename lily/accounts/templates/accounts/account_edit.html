@@ -274,6 +274,14 @@
                         <label for="id_{{ addresses_formset.prefix }}-0-postal_code">{% trans 'Addresses' %}</label>
                         {% for form in addresses_formset.forms %}
                             <div class="{{ addresses_formset.prefix }}-mws-formset">
+                                {% if form.instance.pk %}
+                                    {{ form.id }}
+                                    {% if addresses_formset.can_delete %}
+                                        <div class="hidden">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
                                 <div class="mws-form-item large">
                                     <div class="mws-form-cols clearfix">
                                         <div class="mws-form-col-2-8 alpha">

@@ -101,9 +101,15 @@
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
                         <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+                        {% with contact.get_primary_function as function %}
+                            {% if function %}
+                                <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+                            {% endif %}
+                        {% endwith %}
+                        {% comment %}
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
+                        {% endcomment %}
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">

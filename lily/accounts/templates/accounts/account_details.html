@@ -187,7 +187,7 @@
                                         </div>
                                     {% endif %}
                                 {% endwith %}
-                                {% with object.get_billing_address as address %}
+                                {% with object.get_shipping_address as address %}
                                     {% if address %}
                                         <div class="address">
                                             <h6>{% trans 'Shipping' %}</h6>
@@ -199,7 +199,7 @@
                                         </div>
                                     {% endif %}
                                 {% endwith %}
-                                {% with object.get_billing_address as address %}
+                                {% with object.get_visiting_address as address %}
                                     {% if address %}
                                         <div class="address">
                                             <h6>{% trans 'Visiting' %}</h6>
@@ -228,14 +228,13 @@
                                             </div>
                                         </div>
                                 {% endfor %}
-                                
                             </div>
                         </div>
                         <div class="grid_4">
                             <div id="detail-phones" class="detail-block">
                                 <h4>{% trans 'Phone numbers' %}</h4>
                                 
-                                {% for phone in account.phone_numbers.all %}
+                                {% for phone in object.phone_numbers.all %}
                                     {% if phone.raw_input %}
                                         {% if phone.type == 'mobile' %}
                                             <div class="mobile_phone">
@@ -253,7 +252,7 @@
                             <div id="detail-emails" class="detail-block">
                                 <h4>{% trans 'E-mail addresses' %}</h4>
                                 
-                                {% for email in account.email_addresses.all %}
+                                {% for email in object.email_addresses.all %}
                                     {% if email.email_address %}
                                             {% if email.is_primary %}
                                                 <div class="primary email">

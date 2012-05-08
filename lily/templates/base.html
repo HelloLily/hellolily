@@ -350,12 +350,14 @@
                     <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
                         <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-suitcase-1">Accounts</a>
                     </li>
+                    {% comment %}
                     <li>
                         <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
                     </li>
                     <li>
                         <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
                     </li>
+                    {% endcomment %}
                 </ul>
             </div>
             {% endblock %}

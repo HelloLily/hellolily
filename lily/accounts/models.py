@@ -88,14 +88,23 @@ class Account(Common):
         except:
             return None
     
-    def get_address(self):
+    def get_address(self, type=None):
         try:
-            return self.addresses.all()[0]
+            if not type:
+                return self.addresses.all()[0]
+            else:
+                return self.addresses.filter(type=type)[0]
         except:
-            return {
-                'address': '',
-                'country': '',
-            }
+            return None
+    
+    def get_billing_address(self):
+        return self.get_address(type='billing')
+    
+    def get_shipping_address(self):
+        return self.get_address(type='shipping')
+    
+    def get_visiting_address(self):
+        return self.get_address(type='visiting')
     
     def get_contact_details(self):
         try:
@@ -148,7 +157,8 @@ class Website(models.Model):
     Website model, simple url field to store a website reference.
     """
     website = models.URLField(max_length=255, verbose_name=_('website'))
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, related_name='websites')
+    is_primary = models.BooleanField(default=False, verbose_name=_('primary website'))
     
     def __unicode__(self):
         return self.website

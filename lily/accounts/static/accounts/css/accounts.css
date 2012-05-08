@@ -60,7 +60,7 @@
 
 .mws-table .details .mail,
 .mws-table .details .phone,
-.mws-table .details .mobile-phone  {
+.mws-table .details .mobile_phone  {
    padding-left: 24px;
 }
 
@@ -133,6 +133,8 @@
    	margin-bottom: 5px;
 }
 
+/* History tab */
+
 #tab-history .mws-form {
    	margin-bottom: 8px;
 }
@@ -144,3 +146,29 @@
 #add-note-button {
 	margin-bottom: 0;
 }
+
+/* Details tab */
+
+.detail-block {
+    margin-bottom: 24px;
+}
+
+#detail-addresses h6,
+#detail-phones h6,
+#detail-emails h6,
+#detail-websites h6 {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 80px;
+    font-weight: normal;
+    
+}
+
+#detail-addresses .address .inline,
+#detail-phones .phone .inline,
+#detail-phones .mobile_phone .inline,
+#detail-emails .email .inline,
+#detail-websites .website .inline {
+    margin-bottom: 16px;
+    margin-left: 12px;
+}   

@@ -157,7 +157,6 @@ class Common(Deleted):
     addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
     email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of e-mail addresses'))
-    
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
     

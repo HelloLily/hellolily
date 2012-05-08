@@ -57,6 +57,7 @@
             
             insertDeleteLink = function(row) {
                 row.find('.' + options.deleteCssClass).click(function() {
+                    console.log('done');
                     var row = $(this).parents('.' + options.formCssClass),
                         del = row.find('input[id $= "-DELETE"]').not(':visible');
                     if (del.length) {

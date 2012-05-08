@@ -3,8 +3,8 @@
 // TODO: select first e-mail as primary when deleting primary
 
 $(document).ready(function() {
-    // set focus on company name
-    set_focus('id_name'); 
+    // set focus on website
+    set_focus('id_primary_website'); 
     
     // manually add hover classes when hovering over a label element
     $('.email_is_primary label span').live({
@@ -83,8 +83,7 @@ $(document).ready(function() {
     };
     
     // auto grow description 
-    $('#id_description').autoGrow({
-    });
+    $('#id_description').autoGrow();
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 

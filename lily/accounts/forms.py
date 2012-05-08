@@ -54,7 +54,7 @@ class AddAccountMinimalForm(ModelForm):
         
         if cleaned_data.get('website'):
             try:
-                Website.objects.get(website=cleaned_data.get('website'))
+                Website.objects.get(website=cleaned_data.get('website'), is_primary=True)
                 self._errors['website'] = self.error_class([_('Website already in use.')])
             except Website.DoesNotExist:
                 pass
@@ -89,6 +89,12 @@ class AddAccountForm(ModelForm):
 #            'class': 'mws-textinput',
 #            'placeholder': _('Facebook profile link')
 #    }))
+    
+    primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('Primary website')
+    }))
     
     tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
         widget=InputAndSelectMultiple(attrs={
@@ -206,6 +212,12 @@ class EditAccountForm(ModelForm):
         widget=InputAndSelectMultiple(attrs={
             'class': 'input-and-choice-select',
     }))
+    
+    primary_website = forms.URLField(label=_('Primary website'), required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': _('Primary website')
+    }))
 
     def __init__(self, user=None, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -214,6 +226,12 @@ class EditAccountForm(ModelForm):
         super(EditAccountForm, self).__init__(data, files, auto_id, prefix,
                  initial, error_class, label_suffix,
                  empty_permitted, instance)
+        
+        # Provide initial data for primary website
+        try:
+            self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
+        except Exception:
+            pass
         
 #        # Try providing initial social media
 #        try:

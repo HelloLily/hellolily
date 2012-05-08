@@ -10,7 +10,7 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.html import escapejs
-from django.utils.http import base36_to_int
+from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView, DeleteView
@@ -230,6 +230,16 @@ class AddAccountView(CreateView):
                         formset.save()
                         self.object.phone_numbers.add(formset.instance)
             
+            # Add primary website
+            if form_kwargs['data'].get('primary_website'):
+                try:
+                    website = self.object.websites.get(is_primary=True)
+                    website.website = form_kwargs['data'].get('primary_website')
+                    website.save()
+                except Website.DoesNotExist:
+                    Website.objects.create(account=self.object, is_primary=True,
+                                           website = form_kwargs['data'].get('primary_website'))
+
 #            # Add relation to Facebook
 #            if form_kwargs['data'].get('facebook'):
 #                facebook = SocialMedia.objects.create(
@@ -303,7 +313,7 @@ class AddAccountView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('account_list'))
+        return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
     
 
 class EditAccountView(UpdateView):
@@ -338,7 +348,7 @@ class EditAccountView(UpdateView):
         """
         form = super(EditAccountView, self).get_form(form_class)
         
-        self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object), prefix='websites')
+        self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object, is_primary=False), prefix='websites')
         self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
         self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
         self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
@@ -420,6 +430,23 @@ class EditAccountView(UpdateView):
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
             
+        # Add primary website
+        if form_kwargs['data'].get('primary_website'):
+            try:
+                website = self.object.websites.get(is_primary=True)
+                website.website = form_kwargs['data'].get('primary_website')
+                website.save()
+            except Website.DoesNotExist:
+                Website.objects.create(account=self.object, is_primary=True,
+                                       website = form_kwargs['data'].get('primary_website'))
+        else:
+            # Remove possible primary website
+            try:
+                website = Website.objects.filter(account=self.object, is_primary=True)
+                website.delete()
+            except Exception:
+                pass
+                
 #        # Add relation to Facebook
 #        if form_kwargs['data'].get('facebook'):
 #            # Prevent re-creating
@@ -481,7 +508,7 @@ class EditAccountView(UpdateView):
         Get the url to redirect to after this form has succesfully been submitted. 
         """
         # TODO: determine whether to go back to the list in search mode
-        return redirect(reverse('account_list'))
+        return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
 
 
 class DeleteAccountView(DeleteView):

@@ -13,11 +13,10 @@
             // other queued events might try to focus an element as well.
             setTimeout(function() {
                 elementid = this.data('click-focus');
-                elem = document.getElementById(elementid );
+                elem = document.getElementById(elementid);
                 if( elem ) 
                     elem.focus();
             }, 0);
-            
         });
     });
 })(jQuery);

@@ -94,6 +94,24 @@ class Contact(Common):
         except:
             return ''
     
+    def get_address(self, type=None):
+        try:
+            if not type:
+                return self.addresses.all()[0]
+            else:
+                return self.addresses.filter(type=type)[0]
+        except:
+            return None
+    
+    def get_billing_address(self):
+        return self.get_address(type='billing')
+    
+    def get_shipping_address(self):
+        return self.get_address(type='shipping')
+    
+    def get_home_address(self):
+        return self.get_address(type='home')
+    
     def get_twitter(self):
         try:
             return self.social_media.filter(name='twitter')[0]

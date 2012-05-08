@@ -285,13 +285,13 @@
 	                        Hello, {{ user }}
 	                    </div>
 	                    <ul>
-	                        <li><a href="#">{% trans 'Settings' %}</a></li>
+	                        {% comment %}<li><a href="#">{% trans 'Settings' %}</a></li>{% endcomment %}
 	                        <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
 	                    </ul>
 	                </div>
 	            </div>
 	        </div>
-	        
+	        {% comment %}
             <!-- Searchbox Container -->
             <div id="mws-search-container">
                 <!-- Searchbox -->
@@ -300,6 +300,7 @@
                     <input type="submit" class="mws-search-submit" />
                 </form>
             </div>
+            {% endcomment %}
 		</div>
     </div>
     

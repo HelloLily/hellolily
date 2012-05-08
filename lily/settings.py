@@ -157,6 +157,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.users',
     'lily.notes',
+    'lily.provide',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
     'lily.utils.templatetags.messages',
@@ -213,6 +214,9 @@ LOGGING = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Settings for 3rd party apps
+
+# dataprovider
+DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
 
 # easy-thumbnails
 THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))

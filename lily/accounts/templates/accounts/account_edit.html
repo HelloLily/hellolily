@@ -39,6 +39,20 @@
                 {% endcomment %}
                 <div class="mws-form-inline">
                     <div class="mws-form-row">
+                        {{ form.primary_website.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.primary_website.errors %}
+                                <span class="field_error">{{ form.primary_website }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.primary_website.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.primary_website }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mws-form-row">
                         {{ form.name.label_tag }}
                         <div class="mws-form-item large">                            
                             {% if form.name.errors %}

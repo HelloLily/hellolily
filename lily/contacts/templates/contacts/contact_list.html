@@ -101,7 +101,7 @@
                                 {% endif %}
                             </td>
                             <td class="personal">
-                                <span class="name full-width"><a href="{% url contact_details pk=object.pk %}">{{ object.full_name|truncatechars:"26" }}</a></span>
+                                <div class="name"><a href="{% url contact_details pk=object.pk %}">{{ object.full_name|truncatechars:"26" }}</a></div>
                                 <span class="social">
                                     {% for sm in object.get_social %}
                                         <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
@@ -110,24 +110,24 @@
                             </td>
                             <td class="details">
                                 {% if object.primary_email %}
-                                    <span class="mail full-width mws-ic-16 ic-email">
+                                    <div class="mail mws-ic-16 ic-email">
                                         <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
-                                    </span>
+                                    </div>
                                 {% endif %}
                                 
                                 {% with object.get_work_phone as phone %}
                                     {% if phone.raw_input %}
-                                        <span class="phone full-width mws-ic-16 ic-telephone">
+                                        <div class="phone mws-ic-16 ic-telephone">
                                             <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
-                                        </span>
+                                        </div>
                                     {% endif %}
                                 {% endwith %}
                                 
                                 {% with object.get_mobile_phone as phone %}
                                     {% if phone.raw_input %}
-                                        <span class="mobile-phone full-width mws-ic-16 ic-mobile-phone">
+                                        <div class="mobile_phone mws-ic-16 ic-mobile-phone">
                                             <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
-                                        </span>
+                                        </div>
                                     {% endif %}
                                 {% endwith %}
                             </td>

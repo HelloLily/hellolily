@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escapejs
-from django.utils.http import base36_to_int
+from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -307,7 +307,7 @@ class AddContactView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted. 
         """
-        return redirect(reverse('contact_list'))
+        return redirect(reverse('contact_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
 
 
 class EditContactView(UpdateView):
@@ -569,7 +569,7 @@ class EditContactView(UpdateView):
 #                'pk': self.object.pk,
 #            }))
         
-        return redirect(reverse('contact_list'))
+        return redirect(reverse('contact_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
 
 
 class DeleteContactView(DeleteView):

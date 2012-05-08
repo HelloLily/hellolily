@@ -103,7 +103,7 @@
                     {% endwith %}
                     
                     {% if account.primary_email %}
-                            <span class="email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
+                        <span class="email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
                     {% endif %}
                     
                     {% with account.get_twitter as twitter %}
@@ -169,20 +169,132 @@
                         </div>
                     </div>
                     
-                    <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Details' %}</h2>
-                        <p>
-                            lorem ipsum
-                        </p>
+                    <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
+                        <h2>{% trans 'Contact details' %}</h2>
+                        <div class="grid_4">
+                            <div id="detail-addresses" class="detail-block">
+                                <h4>{% trans 'Addresses' %}</h4>
+                                
+                                {% with object.get_billing_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Billing' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% with object.get_billing_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Shipping' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% with object.get_billing_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Visiting' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                            <div id="detail-websites" class="detail-block">
+                                <h4>{% trans 'Websites' %}</h4>
+                                
+                                {% for website in account.websites.all %}
+                                    {% if website.is_primary %}
+                                            <div class="primary website">
+                                                <h6>{% trans 'Primary' %}</h6>
+                                    {% else %}
+                                        <div class="website">
+                                            <h6></h6>
+                                    {% endif %}
+                                            <div class="inline">
+                                                <a href="{{ website.website }}">{{ website.website }}</a>
+                                            </div>
+                                        </div>
+                                {% endfor %}
+                                
+                            </div>
+                        </div>
+                        <div class="grid_4">
+                            <div id="detail-phones" class="detail-block">
+                                <h4>{% trans 'Phone numbers' %}</h4>
+                                
+                                {% for phone in account.phone_numbers.all %}
+                                    {% if phone.raw_input %}
+                                        {% if phone.type == 'mobile' %}
+                                            <div class="mobile_phone">
+                                        {% else %}
+                                            <div class="phone">
+                                        {% endif %}
+                                                <h6>{{ phone.get_type_display }}</h6>
+                                                <div class="inline">
+                                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                                </div>
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div id="detail-emails" class="detail-block">
+                                <h4>{% trans 'E-mail addresses' %}</h4>
+                                
+                                {% for email in account.email_addresses.all %}
+                                    {% if email.email_address %}
+                                            {% if email.is_primary %}
+                                                <div class="primary email">
+                                                    <h6>{% trans 'Primary' %}</h6>
+                                            {% else %}
+                                                <div class="email">
+                                                    <h6></h6>
+                                            {% endif %}
+                                                    <div class="inline">
+                                                        <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                                    </div>
+                                                </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                     
                     <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Contacts' %}</h2>
-                        <p>
-                            lorem ipsum
-                        </p>
+                        <div id="detail-emails" class="detail-block">
+                            {% for function in account.functions.all %}
+                                <p>
+                                    <a href="{% url contact_details pk=function.contact.pk %}">{{ function.contact.full_name }}</a>
+                                    {% if function.title %}
+                                        as {{ function.title }}
+                                    {% endif %}
+                                    
+                                    {% if not function.is_active %}
+                                        ({% trans 'Inactive' %})
+                                    {% else %}
+                                        {% if not function.contact.status == 1 %}
+                                        ({{ function.contact.get_status_display }})
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            {% endfor %}
+                        </div>
                     </div>
                     
+                    {% comment %}
                     <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Deals' %}</h2>
                         <p>
@@ -196,6 +308,7 @@
                             lorem ipsum
                         </p>
                     </div>
+                    {% endcomment %}
                 </div>
             </div>
         </div>

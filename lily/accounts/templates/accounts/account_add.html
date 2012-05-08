@@ -24,7 +24,8 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %} 
+            <form class="mws-form" autocomplete="off" action="" method="post">
+                {% csrf_token %} 
 				                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
@@ -39,6 +40,20 @@
                 TODO: Add image upload field for company logo or suggest images from social media
                 {% endcomment %}
                 <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        {{ form.primary_website.label_tag }}
+                        <div class="mws-form-item large">                            
+                            {% if form.primary_website.errors %}
+                                <span class="field_error">{{ form.primary_website }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.primary_website.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.primary_website }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <div class="mws-form-row">
                         {{ form.name.label_tag }}
                         <div class="mws-form-item large">                            
@@ -213,7 +228,7 @@
                     <div class="mws-form-row">
                         <label for="id_websites-0-website">{% trans 'Extra websites' %}</label>
                         {% for form in websites_formset.forms %}
-                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">  
+                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset"> 
                                 <div class="mws-form-cols clearfix">
                                     <div class="float-left">
                                         <div class="mws-form-col-row website mws-form-item">       

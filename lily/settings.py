@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django.contrib.humanize',
     
     # 3rd party
     'templated_email',
@@ -160,6 +161,11 @@ INSTALLED_APPS = (
     'lily.utils',
     'lily.utils.templatetags.field_extras',
     'lily.utils.templatetags.utils',
+    'lily.messages',
+)
+
+MESSAGE_APPS = (
+    'lily.messages.email',
 )
 
 # E-mail settings

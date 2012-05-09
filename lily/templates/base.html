@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/fonts/ptsans/stylesheet.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/fluid.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/16x16.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/icons/20x20.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/24x24.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/32x32.css' %}" media="screen" />
     
@@ -302,25 +303,40 @@
                         <a href="#updates" class="blue mws-i-24 i-power">Updates</a>
                         <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #fff">13</span>
                     </li>
+                    {% endcomment %}
                     <li class="mws-dropdown-menu">
-                        <a href="#messaging" class="blue mws-i-24 i-message mws-dropdown-trigger">Messages
+                        <a href="#messaging" class="blue mws-i-24 i-message mws-dropdown-trigger">
+                            Messages
                             <!-- Unread messages count -->
-                            <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #ccc; margin-right: 0px">13</span>
+                            <span class="mws-nav-tooltip mws-inset">13</span>
                         </a>
                         
-                        <ul class="closed">
+                        <ul {% ifstartswith "messages_dashboard" %}class="open"{% else %}class="closed"{% endifstartswith%}>
                             <li>
-                                <a href="#messaging-email" class="blue mws-i-24 i-mail">E-mail</a>
+                                <a href="{% url messages_dashboard %}" class="mws-i-20 i-archive">
+                                    {% trans 'Inbox' %}
+                                    <span class="mws-nav-tooltip mws-inset" >146</span>
+                                </a>
                             </li>
                             <li>
-                                <a href="#messaging-facebook" class="blue mws-i-24 i-facebook">Facebook</a>
+                                <a href="{% url messages_sent %}" class="mws-i-20 i-bended-arrow-left">
+                                    {% trans 'Sent' %}
+                                </a>
                             </li>
                             <li>
-                                <a href="#messaging-twitter" class="blue mws-i-24 i-twitter">Twitter</a>
+                                <a href="{% url messages_drafts %}" class="mws-i-20 i-create">
+                                    {% trans 'Drafts' %}
+                                    <span class="mws-nav-tooltip mws-inset">11</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url messages_archived %}" class="mws-i-20 i-folder">
+                                    {% trans 'Archived' %}
+                                    <span class="mws-nav-tooltip mws-inset">32</span>
+                                </a>
                             </li>
                         </ul>
                     </li>
-                    {% endcomment %}
                     <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
                         <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-group-2">Contacts</a>
                     </li>

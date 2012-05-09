@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load i18n static activelink humanize  %}
+
+{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block content %}
+<div class="mws-panel grid_8">
+    <div class="mws-panel-body" style="border: 1px solid #BCBCBC;">
+        <div class="mws-panel-content" style="padding: 8px;">
+            <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
+                <button type="button" class="mws-button blue small">
+                    {% trans 'Add account' %}
+                </button>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="mws-panel grid_8">
+    <div class="mws-panel-header">
+        <span class="mws-i-24 i-mail">{% trans 'e-mail' %}</span>
+    </div>
+    <div class="mws-panel-body">
+        <div id="email-control-panel">
+            controls
+        </div>
+        <div id="email-messages">
+            <table style="margin: 0; width: 100%;">
+                <tbody>
+                    {% for object in object_list %}
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>{% if '\\Seen' in object.message_flags %}seen{% endif %}</td>
+<!--                             <td>{% if object.from_name %}{{ object.from_name }}{% else %}{{ object.from_email }}{% endif %}</td> -->
+                            <td>{{ object.subject }} - {{ object.message_text|safe|truncatechars:"40" }}</td>
+                            <td title="{{ object.date|date:'l  d-m-Y  H:i:s' }}">{{ object.date|naturalday }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

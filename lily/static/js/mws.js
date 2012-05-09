@@ -55,10 +55,7 @@ $(document).ready(function() {
 			$(".mws-dropdown-menu").removeClass("toggled");
 		}
 	});
-	
-	/* Side Menu Notification Class */
-	$(".mws-nav-tooltip").addClass("mws-inset");
-	
+		
 	/* Table Row CSS Class */
 	$("table.mws-table tbody tr:even").addClass("even");
 	$("table.mws-table tbody tr:odd").addClass("odd");

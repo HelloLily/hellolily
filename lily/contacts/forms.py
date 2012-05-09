@@ -79,7 +79,8 @@ class AddContactForm(ModelForm):
 #        widget=forms.CheckboxInput())
 
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.all())
+                                     queryset=Account.objects.all(),empty_label=_('Select an account'),
+                                     widget=forms.Select(attrs={'class': 'chzn-select'}))
     
 #    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
 #        widget=forms.TextInput(attrs={
@@ -205,18 +206,20 @@ class EditContactForm(ModelForm):
 #            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
 #            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
 #        )
-        
+
         # Try providing initial account info
         is_working_at = Function.objects.filter(contact=instance).values_list('account_id', flat=True)
         if len(is_working_at) == 1:
             # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
-                queryset=Account.objects.all(),
-                initial=is_working_at[0])
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
+                queryset=Account.objects.all(), initial=is_working_at[0],
+                empty_label=_('Select an account'),
+                widget=forms.Select(attrs={'class': 'chzn-select'}))
         else:
             # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
-                queryset=Account.objects.all())
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
+                queryset=Account.objects.all(), empty_label=_('Select an account'),
+                widget=forms.Select(attrs={'class': 'chzn-select'}))
             
 #        # Try providing initial social media
 #        try:

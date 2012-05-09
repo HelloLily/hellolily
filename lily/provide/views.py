@@ -1,10 +1,11 @@
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.views.generic.base import View
 import json
 import urllib
 import urllib2
 
 from lily import settings
+from lily.utils.functions import parse_address
 
 
 class ProvideBaseView(View):
@@ -25,7 +26,7 @@ class ProvideBaseView(View):
         # get domain
         self.domain = kwargs.get('domain').strip()
         if len(self.domain) == 0:
-            return Http404
+            raise Http404()
         
         self.api_output = self.do_request_to_api(self.get_url())
         try:
@@ -42,7 +43,7 @@ class ProvideBaseView(View):
         return self.api_url
     
     def get_query_string(self, **kwargs):
-        if len(kwargs.keys()) > 0:
+        if len(kwargs) > 0:
             return '?' + urllib.urlencode(kwargs)
         return ''
     
@@ -90,15 +91,19 @@ class DataproviderView(ProvideBaseView):
             raise Exception(self.api_output.get('error').get('message'))
         
         result = self.api_output['results'][0]
-
+        
+        street, street_number, complement = parse_address(result.get('address'))
+        
         # Copy interesting fields to new object
         self.view_output = {
             'name': result.get('company'),
             'tags': result.get('keywords').split(','),
+            'description': result.get('description'),
             'addresses': [
                 {
-                 'street_number': result.get('address'),
-                 'street': result.get('address'),
+                 'street': street,
+                 'street_number': street_number,
+                 'complement': complement,
                  'city': result.get('city'),
                  'country': result.get('country'),
                  'postal_code': result.get('zipcode'),
@@ -107,3 +112,6 @@ class DataproviderView(ProvideBaseView):
         }
         
         return json.dumps(self.view_output)
+    
+    def get_error_output(self):
+            raise Http404()

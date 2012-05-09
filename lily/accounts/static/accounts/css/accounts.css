@@ -19,6 +19,23 @@
     height: 24px;
 }
 
+.mws-form .enrich-account-button {
+    margin: 0;
+}
+
+#enrich-busy {
+    background-image: url(../../images/blue-loading.gif);
+    background-position: center 20%;
+    background-color: rgba(255, 255, 255, .85);
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+    display: block;
+    position: absolute;
+    text-align: center;
+    padding-top: 36%;
+}
+
 /* List */
 
 .mws-table td {

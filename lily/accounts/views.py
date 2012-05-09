@@ -152,7 +152,8 @@ class AddAccountView(CreateView):
             
             # Save website
             if form.cleaned_data.get('website'):
-                Website.objects.create(website=form.cleaned_data.get('website'), account=self.object)
+                Website.objects.create(website=form.cleaned_data.get('website'),
+                                       account=self.object, is_primary=True)
             
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)

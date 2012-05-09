@@ -86,5 +86,45 @@ $(document).ready(function() {
     $('#id_description').autoGrow();
     
     // update e-mail formset to select first as primary
-    // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked'); 
+    // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
+    
+    
+    function do_busy(text, dots) {
+        if( dots.length == 3) {
+            return do_busy(text, '');
+        }
+        return do_busy(text, dots + '.');
+    }
+    
+    // request data to enrich form
+    $('#enrich-account-button').click(function(event) {
+        
+        domain = $('#id_primary_website').val().replace('http://', '');
+        if( $.trim(domain).length > 0 ) {
+            $('#enrich-busy').show();
+            timeout = setTimeout(function() { $('#enrich-busy').text(do_busy($('#enrich-busy').text(), '.')); }, 500);
+                
+            $.ajax({
+                url: '/provide/account/' + domain,
+                data: '',
+                type: 'GET',
+            })
+            .done(function() { 
+                $.jGrowl(gettext('Form has been updated with details for ' + domain), {
+                     theme: 'info mws-ic-16 ic-accept'
+                 });
+            })
+            .fail(function() {
+                 $.jGrowl(gettext('No information found for ' + domain), {
+                     theme: 'info mws-ic-16 ic-exclamation'
+                 });
+            })
+            .always(function() {
+                clearTimeout(timeout);
+                $('#enrich-busy').hide();
+            });
+        }
+        
+        event.preventDefault();
+    });
 });

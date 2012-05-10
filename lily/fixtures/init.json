@@ -73,7 +73,7 @@
         "pk": 2,
         "model": "utils.socialmedia",
         "fields": {
-            "username": "@VoysTelecom",
+            "username": "VoysTelecom",
             "profile_url": "http://twitter.com/#!/voystelecom",
             "name": "twitter",
             "other_name": ""

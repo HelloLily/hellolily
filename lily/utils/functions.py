@@ -1,5 +1,8 @@
 from django import forms
 from django.contrib import messages
+import re
+from lily.utils.models import Address
+
 
 def autostrip(cls):
     """
@@ -62,3 +65,36 @@ def clear_messages(request):
     """
     storage = messages.get_messages(request)
     storage.used = True
+
+def parse_address(address):
+    """
+    Parse an address string and return street, number and complement
+    """
+    street = None
+    street_number = None
+    complement = None
+    try:
+        if len(address) > 0:
+            match = re.search('\d', address)
+            if match:
+                number_pos = match.start()
+                street = address[:number_pos].strip()
+                match = re.search('[^\d]', address[number_pos:])
+                if match:
+                    complement_pos = match.start()
+                    street_number = address[number_pos:][:complement_pos].strip()
+                    
+                    match = re.search('[a-zA-Z]', address[number_pos:][complement_pos:])
+                    if match:
+                        actual_complement_pos = match.start()
+                        complement = address[number_pos:][complement_pos:][actual_complement_pos:].strip()
+                    else:
+                        complement = address[number_pos:][complement_pos:].strip()
+                else:
+                    street_number = address[number_pos:].strip()
+            else:
+                street = address
+    except:
+        pass
+    
+    return street, street_number, complement

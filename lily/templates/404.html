@@ -1,13 +1,20 @@
-{% load i18n %}
 {% extends 'base.html' %}
+{% load i18n static %}
 
-{% block content %}
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}" media="screen" />
+{% endblock %}
+    
+{% block body %}
     <div class="container">
         <div id="mws-error-container">
             <div id="mws-error-code">
                 <h1>Error <span>404</span></h1>
             </div>
-            <p id="mws-error-message">{% trans 'Something went wrong trying to dig up this page. Maybe you can point us in the right direction using the search function?' %}</p>
+            <p id="mws-error-message">{% trans 'Page not found' %}</p>
+            {% comment %}
+            <p id="mws-error-message">{% trans 'Something went wrong digging up this page. Maybe you can try again using the search?' %}</p>
+            {% endcomment %}
         </div>
     </div>
 {% endblock %}

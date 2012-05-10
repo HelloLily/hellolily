@@ -4,7 +4,7 @@ $(document).ready(function() {
         autoOpen: false,
         title: gettext('Delete note'),
         modal: true,
-        width: 640,
+        width: 350,
         buttons: [
             { 
                 'class': 'mws-button red float-left',
@@ -36,6 +36,7 @@ $(document).ready(function() {
                                 div.slideUp(500, function() {
                                     div.remove(); 
                                 });
+                                $(div).find(textarea).elastic();
                             };
                             hideLoadingDialog(afterSuccess);
                         }
@@ -46,16 +47,14 @@ $(document).ready(function() {
         ]
     });
     
+    $('.note-autogrow').elastic();
+    
     var editNoteListener = function(elem) {
         note = $(elem).closest('.note');
         textarea = note.find('textarea');
-        text = note.find('.object-list-item-text:visible:first');
-        
-        // copy original content into textarea
+        text = note.find('.object-list-item-text:first');
+        $(textarea).trigger('change');
         $(textarea).val($.trim(text.text()));
-        $(textarea).autoGrow({
-	        cols: 60
-	    });
     };
     
     // edit note
@@ -75,7 +74,7 @@ $(document).ready(function() {
     
     // cancel editing note
     $('.note .object_cancel_link').live('click', function() {
-        clearForm($(this).closest('.iedit_wrapper').find('form'));
+        // clearForm($(this).closest('.iedit_wrapper').find('form'));
     });
     
     // delete note
@@ -106,6 +105,8 @@ $(document).ready(function() {
                 
                 container.find('.object-list-ajax-message.success').delay(5000).fadeOut(400);
             }
+            
+            container.find('.note-autogrow').elastic();
         };
         
         // do this on errors

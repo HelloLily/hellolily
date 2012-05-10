@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^delete/xhr/(?P<pk>[\w-]+)/$', delete_contact_view, name='contact_delete'),
     url(r'^confirm-email/(?P<data>.+)/$', ConfirmContactEmailView.as_view(), name='contact_confirm_email'),
     url(r'^$', list_contact_view, name='contact_list'),
+     url(r'^(?P<b36_pks>[\w;]*)/$', list_contact_view, name='contact_list_filtered'),
 )

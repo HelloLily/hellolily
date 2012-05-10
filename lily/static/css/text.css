@@ -109,7 +109,7 @@ a {
 }
 
 a:hover { 
-    color: #50B3DF !important;
+    color: #50B3DF;
 }
 
 .no-decoration {

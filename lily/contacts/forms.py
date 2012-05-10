@@ -74,12 +74,31 @@ class AddContactForm(ModelForm):
 #        queryset=Account.objects.all(),
 #        widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
 #    )
+#    
+#    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
+#        widget=forms.CheckboxInput())
 
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.all())
+                                     queryset=Account.objects.all(),empty_label=_('Select an account'),
+                                     widget=forms.Select(attrs={'class': 'chzn-select'}))
     
-    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
-        widget=forms.CheckboxInput())
+#    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Twitter username')
+#    }))
+#    
+#    linkedin = forms.URLField(label=_('Facebook'), required=False,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('LinkedIn profile link')
+#    }))
+#    
+#    facebook = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Facebook username')
+#    }))
      
     def clean(self):
         """
@@ -118,7 +137,7 @@ class AddContactForm(ModelForm):
     
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description', 'salutation')
         
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -141,8 +160,10 @@ class AddContactForm(ModelForm):
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
-                'rows': '5',
+                'rows': '3',
                 'placeholder': _('Description'),
+            }),
+            'salutation': forms.Select(attrs={
             }),
         }
 
@@ -153,6 +174,24 @@ class EditContactForm(ModelForm):
     """
 #    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
 #        widget=forms.CheckboxInput())
+    
+#    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Twitter username')
+#    }))
+#    
+#    linkedin = forms.URLField(label=_('Facebook'), required=False,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('LinkedIn profile link')
+#    }))
+#    
+#    facebook = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
+#        widget=forms.TextInput(attrs={
+#            'class': 'mws-textinput',
+#            'placeholder': _('Facebook username')
+#    }))
     
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
                  initial=None, error_class=ErrorList, label_suffix=':',
@@ -167,19 +206,34 @@ class EditContactForm(ModelForm):
 #            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
 #            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
 #        )
-        
-        # Try providing initial
+
+        # Try providing initial account info
         is_working_at = Function.objects.filter(contact=instance).values_list('account_id', flat=True)
         if len(is_working_at) == 1:
             # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
-                queryset=Account.objects.all(),
-                initial=is_working_at[0])
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
+                queryset=Account.objects.all(), initial=is_working_at[0],
+                empty_label=_('Select an account'),
+                widget=forms.Select(attrs={'class': 'chzn-select'}))
         else:
             # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'),required=False,
-                queryset=Account.objects.all())
-                
+            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
+                queryset=Account.objects.all(), empty_label=_('Select an account'),
+                widget=forms.Select(attrs={'class': 'chzn-select'}))
+            
+#        # Try providing initial social media
+#        try:
+#            self.fields['twitter'].initial = self.instance.social_media.filter(name='twitter')[0].username
+#        except Exception:
+#            pass
+#        try:
+#            self.fields['linkedin'].initial = self.instance.social_media.filter(name='linkedin')[0].profile_url
+#        except:
+#            pass
+#        try:
+#            self.fields['facebook'].initial = self.instance.social_media.filter(name='facebook')[0].username
+#        except:
+#            pass
     
     def is_valid(self):
         """
@@ -218,7 +272,7 @@ class EditContactForm(ModelForm):
     
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description')
+        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description', 'salutation')
                 
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -241,8 +295,10 @@ class EditContactForm(ModelForm):
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
-                'rows': '5',
+                'rows': '3',
                 'placeholder': _('Description'),
+            }),
+            'salutation': forms.Select(attrs={
             }),
         }
 

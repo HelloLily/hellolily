@@ -86,7 +86,7 @@
                     } else {
                         forms = $(forms).filter(':visible');
                     }
-                    console.log(forms.length);
+					
                     if( options.notEmptyFormSetAddCssClass ) {
                         addButton = $('#id_' + options.prefix + '-TOTAL_FORMS').siblings('.' + options.addCssClass)
                         if (forms.length > 0) {

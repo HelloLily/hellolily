@@ -79,6 +79,7 @@
 .ui-dialog .ui-dialog-title
 {
 	font-size:14px !important;
+	color: white;
 }
 
 .ui-dialog .ui-dialog-content.el-dialog-form

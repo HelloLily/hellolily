@@ -1,3 +1,5 @@
+/* Add/Edit */
+
 .mws-form .email_is_primary label span {
     color: #aaa;
     font-weight: normal;
@@ -17,52 +19,179 @@
     height: 24px;
 }
 
+.mws-form .enrich-account-button {
+    margin: 0;
+}
+
+#enrich-busy {
+    /* prev. 
+    background-image: url(../../images/blue-loading.gif);
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    */
+    background-color: rgba(255, 255, 255, .85);
+    height: 100%;
+    width: 100%;
+    display: block;
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+}
+
+#enrich-busy-message {
+	margin-top: 18%;
+}
+
+/* List */
+
 .mws-table td {
     overflow: hidden;
 }
 
-#account_logo {
-    width: 14%;
-    padding-left: 45px;
+.mws-table tbody .controls {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 0 0 8px !important;
+    line-height: 16px;
 }
 
-#account_name {
-    width: 20%;
+.mws-table .controls a {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+    padding: 1px;
+    background-position: 50% 50%;
 }
 
-#account_details {
-    width: 20%;
+.mws-table thead .logo {
+	border-left: none !important;
 }
 
-#account_created {
-    width: 14%;
-}
-
-#account_modified {
-    width: 14%;
-}
-
-#account_tags {
-    width: 18%;
-}
-
-.account_logo_img {
-    padding: 15px 10px 10px 10px;
+.mws-table .logo {
+	padding: 0 0 0 7px !important;
     vertical-align: middle;
 }
 
-.account_name span.business_name a {
+.mws-table .name a {
     font-size: 112%;
 }
 
-.account_created, .account_modified {
+.mws-table .details {
     white-space: nowrap;
 }
 
-.account_details {
+.mws-table .details .mail,
+.mws-table .details .phone,
+.mws-table .details .mobile_phone  {
+   padding-left: 24px;
+}
+
+.mws-table .created,
+.mws-table .modified {
     white-space: nowrap;
 }
 
-.account_tags {
-    height: 60px;
+/* Detail */
+
+#details_top {
+    padding: 12px;
 }
+
+#account_logo {
+    margin-right: 20px;
+    vertical-align: top;
+}
+
+#details_top_personal {
+   	display: inline-block;
+   	vertical-align: middle;
+}
+
+#details_top_personal h2 {
+   	margin: 0;
+}
+
+#account_social {
+   	margin-top: 16px;
+}
+
+#account_contact {
+   	display: inline-block;
+}
+
+#account_contact span {
+   	display: block;
+   	text-align: right;
+   	padding: 3px 0 3px 25px;
+   	border-bottom: 1px solid #ccc;
+   	height: 19px;
+}
+
+#account_contact .phone,
+#account_contact .mobile_phone,
+#account_contact .email,
+#account_contact .twitter {
+	background-repeat: no-repeat;
+	background-position: 4px 48%;
+}
+
+#account_contact .phone {
+   background-image: url('/static/images/core/phone.png');
+}
+
+#account_contact .mobile_phone {
+   background-image: url('/static/images/core/mobile-phone.png');
+}
+
+#account_contact .email {
+   background-image: url('/static/images/core/mail.png');
+}
+
+#account_contact .twitter {
+   background-image: url('/static/images/core/twitter.png');
+}
+
+#details_body {
+   	margin-bottom: 5px;
+}
+
+/* History tab */
+
+#tab-history .mws-form {
+   	margin-bottom: 8px;
+}
+
+.note-textarea {
+	vertical-align: bottom;
+}
+
+#add-note-button {
+	margin-bottom: 0;
+}
+
+/* Details tab */
+
+.detail-block {
+    margin-bottom: 24px;
+}
+
+#detail-addresses h6,
+#detail-phones h6,
+#detail-emails h6,
+#detail-websites h6 {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 80px;
+    font-weight: normal;
+    
+}
+
+#detail-addresses .address .inline,
+#detail-phones .phone .inline,
+#detail-phones .mobile_phone .inline,
+#detail-emails .email .inline,
+#detail-websites .website .inline {
+    margin-bottom: 16px;
+    margin-left: 12px;
+}   

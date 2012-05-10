@@ -49,6 +49,11 @@
 	border:1px dotted #bcbcbc;
 }
 
+.mws-form .mws-form-inline /* new */
+{
+	position: relative;
+}
+
 .mws-form .mws-form-inline label
 {
 	padding-top:7px;

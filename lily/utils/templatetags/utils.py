@@ -74,3 +74,21 @@ def ifnotisajax(parser, token):
     nodelist_true, nodelist_false = parse_if_else(parser, token, 'endifnotisajax')
     return IsNotAjaxNode(nodelist_true, nodelist_false)
 
+@register.filter
+def joinby(value, delimiter):
+    """
+    Simply create a string delimiter by given character. 
+    When a list with database items is given it will use the primary keys.
+    """
+    items = []
+    if type( value ) == list:
+        for item in value:
+            if item.pk:
+                items.append(str(item.pk))
+            else:
+                item.append(item)
+    else:
+        items = value
+    
+    return delimiter.join(items)
+

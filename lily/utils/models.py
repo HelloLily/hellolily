@@ -116,7 +116,7 @@ class Address(models.Model):
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
-        return u'%s %s' % (self.postal_code, self.street_number)
+        return u'%s %s %s' % (self.postal_code or '', self.street or '', self.street_number or '')
 
     class Meta:
         verbose_name = _('address')
@@ -157,7 +157,6 @@ class Common(Deleted):
     addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
     email_addresses = models.ManyToManyField(EmailAddress,
                                              verbose_name=_('list of e-mail addresses'))
-    
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
     

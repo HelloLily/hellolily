@@ -1,3 +1,5 @@
+/* Add/Edit */
+
 .mws-form .email_is_primary label span {
     color: #aaa;
     font-weight: normal;
@@ -17,87 +19,167 @@
     height: 24px;
 }
 
-.edit_icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background: url('/static/css/icons/16/pencil-blue.png') no-repeat 50% 50%;
-}
+/* List */
 
-tr:hover .edit_icon {
-    background: url('/static/css/icons/16/pencil-white.png') no-repeat 50% 50%;
-}
-
-.delete_icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background: url('/static/css/icons/16/trash-blue.png') no-repeat 50% 50%;
-}
-
-tr:hover .delete_icon {
-    background: url('/static/css/icons/16/trash-white.png') no-repeat 50% 50%;
-}
-
-.contact_contact span {
-    display: block;
+.mws-table td {
     overflow: hidden;
+}
+
+.mws-table tbody .controls {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 0 0 3px !important;
+    line-height: 16px;
+}
+
+.mws-table .controls a {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+    padding: 1px;
+    background-position: 50% 50%;
+}
+
+.mws-table thead .picture {
+	border-left: none !important;
+}
+
+.mws-table .picture {
+	padding: 0 0 0 10px !important;
+    vertical-align: middle;
+}
+
+.mws-table .picture img {
+	max-width: 36px;
+}
+
+.mws-table .personal .name a {
+    font-size: 108%;
+}
+
+.mws-table .details {
+    white-space: nowrap;
+}
+
+.mws-table .details .mail,
+.mws-table .details .phone,
+.mws-table .details .mobile_phone  {
+   padding-left: 24px;
+}
+
+.mws-table .created,
+.mws-table .modified {
+    white-space: nowrap;
+}
+
+/* Detail */
+
+#details_top {
+    padding: 12px;
+}
+
+#contact_image {
+    margin-right: 20px;
+    vertical-align: top;
+}
+
+#details_top_personal {
+    display: inline-block;
+}
+
+#details_top_personal h2 {
+    margin:0;
+}
+
+#contact_function {
+    font-size: 16px;
+    color: #777777;
+    margin-right: 1em;
+    overflow: hidden;
+    max-width: 275px;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.contact_phone {
-    background: url('/static/images/core/phone.png') no-repeat 2% 50%;
-    padding-left: 30px;
+#contact_social {
+    margin-top: 16px;
 }
 
-tr:hover .contact_phone {
-    background: url('/static/images/core/phone_white.png') no-repeat 2% 50%;
-}
-
-.contact_mail {
-    background: url('/static/images/core/mail.png') no-repeat 2% 50%;
-    padding-left: 30px;
-}
-
-tr:hover .contact_mail {
-    background: url('/static/images/core/mail_white.png') no-repeat 2% 50%;
-}
-
-#contact_picture {
-    width: 15%;
-    padding-left: 45px;
-}
-
-#contact_personal {
-    width: 26%;
+#contact_contact span {
+    display: block;
+    text-align: right;
+    padding: 3px 0 3px 35px;
+    border-bottom: 1px solid #ccc;
+    height: 19px;
 }
 
 #contact_contact {
-    width: 27%;
+    display: inline-block;
 }
 
-#contact_created {
-    width: 16%;
+#contact_contact .phone,
+#contact_contact .mobile_phone,
+#contact_contact .email,
+#contact_contact .twitter {
+	background-repeat: no-repeat;
+	background-position: 4px 48%;
 }
 
-#contact_modified {
-    width: 16%;
+#contact_contact .phone {
+    background-image: url('/static/images/core/phone.png')
 }
 
-.contact_picture_img {
-    padding: 0 0 0 12px;
-    vertical-align: bottom;
+#contact_contact .mobile_phone {
+    background-image: url('/static/images/core/mobile-phone.png');
 }
 
-.contact_personal span.contact_name a {
-    font-size: 108%;
-    color: #50B3DF;
+#contact_contact .email {
+    background-image: url('/static/images/core/mail.png');
 }
 
-.contact_created, .contact_modified {
-    white-space: nowrap;
+#contact_contact .twitter {
+    background-image: url('/static/images/core/twitter.png');
 }
 
-.contact_contact {
-    white-space: nowrap;
+#details_body {
+    margin-bottom: 5px;
+}
+
+/* History tab */
+
+#tab-history .mws-form {
+    margin-bottom: 8px;
+}
+
+.note-textarea {
+	vertical-align: bottom;
+}
+
+#add-note-button {
+	margin-bottom: 0;
+}
+
+/* Details tab */
+
+.detail-block {
+    margin-bottom: 24px;
+}
+
+#detail-addresses h6,
+#detail-phones h6,
+#detail-emails h6 {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 80px;
+    font-weight: normal;
+    
+}
+
+#detail-addresses .address .inline,
+#detail-phones .phone .inline,
+#detail-phones .mobile_phone .inline,
+#detail-emails .email .inline {
+    margin-bottom: 16px;
+    margin-left: 12px;
 }

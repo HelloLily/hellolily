@@ -7,7 +7,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/responsive.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
@@ -16,85 +15,157 @@
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
 <script type="text/javascript">
-$(document).ready(function() {
-    $(".mws-datatable-fn").dataTable({
-        "sPaginationType": "full_numbers",
-        "bAutoWidth": false,
-        "aaSorting": [[1,'asc']],
-        "aoColumnDefs": [ 
-            { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-            { "bSortable": false, "aTargets": [2] },
-            { "bSortable": false, "aTargets": [5] }
-        ]
-    }); 
-});
+    $(document).ready(function() {
+        $(".mws-datatable-fn").dataTable({
+            "sPaginationType": "full_numbers",
+            "bAutoWidth": false,
+            "aaSorting": [[2,'asc']],
+            "aoColumnDefs": [ 
+                { "bSortable": false, "bSortable": false, "aTargets": [0] },
+                { "bSortable": false, "bSortable": false, "aTargets": [1] },
+                { "bSortable": false, "bSortable": false, "aTargets": [6] }
+            ]
+        }); 
+        
+        $('.mws-table .delete_icon').click(function(event) {
+            var location = $(this).attr('href');
+            $('#delete-account-form-dialog form').attr('action', location);
+            $('#delete-account-form-dialog').dialog('open');
+            event.preventDefault();
+        })
+        
+        $('#delete-account-form-dialog').dialog({
+            autoOpen: false,
+            title: gettext('Delete account'),
+            modal: true,
+            width: 350,
+            buttons: [
+                { 
+                    'class': 'mws-button red float-left',
+                    text: gettext('Cancel'),
+                    click: function() {
+                        // cancel form on NO
+                        $(this).dialog('close');
+                    }
+                },
+                {
+                    'class': 'mws-button green',
+                    text: gettext('Continue'),
+                    click: function() {
+                        // submit form on YES
+                        $(this).find('form').submit();
+                    }
+                }
+            ]
+        });
+    });
 </script>
 {% endblock %}
 
 {% block content %}
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-list-images">{% trans 'Account list' %}</span>
+            <span class="mws-i-24 i-list-images">{% trans 'Accounts' %}</span>
         </div>
         <div class="mws-panel-body">
             <table class="mws-datatable-fn mws-table">
                 <thead>
                     <tr>
-                        <th id="account_logo" title="{% trans 'Logo' %}">{% trans 'Logo' %}</th>
-                        <th id="account_name" title="{% trans 'Account' %}">{% trans 'Account' %}</th>
-                        <th id="account_details" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
-                        <th id="account_created" class="hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
-                        <th id="account_modified" class="hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Modified' %}</th>
-                        <th id="account_tags" title="{% trans 'Tags' %}">{% trans 'Tags' %}</th>
+                        <th class="controls"></th>
+                        <th class="logo hide_on_small_screen"></th>
+                        <th class="name" title="{% trans 'Account' %}">
+                        	{% trans 'Account' %}
+                        </th>
+                        <th class="details" title="{% trans 'Contact' %}">
+                        	{% trans 'Contact' %}
+                        </th>
+                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">
+                        	{% trans 'Created' %}
+                       	</th>
+                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">
+                        	{% trans 'Last modified' %}
+                        </th>
+                        <th class="tags" title="{% trans 'Tags' %}">
+                        	{% trans 'Tags' %}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for object in object_list %}
                         <tr class="height_77">
-                            <td class="account_logo">
-                                <input type="checkbox" name="selected_object" value="pk" />
+                            <td class="controls">
+                                <a href="{% url account_edit pk=object.pk %}" class="mws-ic-16 ic-edit no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" class="mws-ic-16 ic-trash no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                            </td>
+                            <td class="logo hide_on_small_screen">
                                 {% if object.logo %}
-                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" class="account_logo_img" />
+                                    <img src="{% thumbnail object.logo 36x36 %}" alt="{{ object.title }}" />
                                 {% else %}
-                                    <img src="{% static 'images/core/unknown_account.png' %}" alt="{{ object.title }}" class="account_logo_img" />
+                                    <img src="{% static 'images/core/unknown_account.png' %}" alt="{{ object.title }}" />
                                 {% endif %}
                             </td>
-                            <td class="account_name">
-                                <span class="business_name full-width"><a href="{% url account_details pk=object.pk %}">{{ object.name|truncatechars:"18" }}</a></span>
-                                {% with address=object.get_address %}
-                                    <span class="business_address full-width">{{ address.address|truncatechars:"20" }}</span>
-                                    <span class="business_country full-width">{{ address.country|truncatechars:"20" }}</span>
+                            <td class="name">
+                                <div>
+                                	<a href="{% url account_details pk=object.pk %}">
+                                		{{ object.name|truncatechars:"18" }}
+                                	</a>
+                                </div>
+                                {% with object.get_address as address %}
+                                    {% if address.street %}
+                                    	<div class="address">{{ address.street|truncatechars:"20" }} {{ address.street_number }}</div>
+                                    {% endif %}
+                                    {% if address.country %}
+                                    	<div class="country">{{ address.country|truncatechars:"20" }}</div>
+                                    {% endif %}
                                 {% endwith %}
                             </td>
-                            <td class="account_details">
-                                {% with contact=object.get_contact_details %}
-                                    <span class="contact_phone full-width">
-                                        <img src="{% static 'images/core/phone.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
-                                        {{ contact.phone }}
-                                    </span>
-                                    <span class="contact_mail full-width">
-                                        <img src="{% static 'images/core/mail.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
-                                        {{ contact.mail|truncatechars:"20" }}
-                                    </span>
+                            <td class="details">
+                                {% if object.primary_email %}
+                                	<div class="mail mws-ic-16 ic-email">
+                                        <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
+                                    </div>
+                                {% endif %}
+                                
+                                {% with object.get_work_phone as phone %}
+			                        {% if phone.raw_input %}
+		                                <div class="phone mws-ic-16 ic-telephone">
+		                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+		                                </div>
+			                        {% endif %}
+			                    {% endwith %}
+			                    
+			                    {% with object.get_mobile_phone as phone %}
+                                    {% if phone.raw_input %}
+                                        <div class="mobile_phone mws-ic-16 ic-mobile-phone">
+                                            <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                        </div>
+                                    {% endif %}
                                 {% endwith %}
                             </td>
-                            <td class="account_created hide_on_small_screen">
-                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
-                                {{ object.created|date:"d-m-Y" }}
+                            <td class="created hide_on_small_screen">
+                                {{ object.created|date:"d-m-Y | H:i" }}
                             </td>
-                            <td class="account_modified hide_on_small_screen">
-                                <img src="{% static 'images/core/calendar.png' %}" alt="{{ object.title }}" class="hide_on_small_screen_img" />
-                                {{ object.modified|date:"d-m-Y" }}
+                            <td class="modified hide_on_small_screen">
+                                {{ object.modified|date:"d-m-Y | H:i" }}
                             </td>
-                            <td class="account_tags">
+                            <td class="tags">
                                 {% for tag in object.get_tags %}
-                                    <a href="#" class="tag">{{ tag }}</a>
+                                    <a href="javascript:void(0)" class="tag">{{ tag }}</a><br />
                                 {% endfor %}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div id="delete-account-form-dialog" style="display:none;">
+                <form class="mws-form" action="" method="post">
+                    {% csrf_token %} 
+                    <div class="mws-form-inline">
+                        <div class="mws-form-row">
+                            {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

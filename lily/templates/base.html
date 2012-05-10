@@ -285,13 +285,13 @@
 	                        Hello, {{ user }}
 	                    </div>
 	                    <ul>
-	                        <li><a href="#">{% trans 'Settings' %}</a></li>
+	                        {% comment %}<li><a href="#">{% trans 'Settings' %}</a></li>{% endcomment %}
 	                        <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
 	                    </ul>
 	                </div>
 	            </div>
 	        </div>
-	        
+	        {% comment %}
             <!-- Searchbox Container -->
             <div id="mws-search-container">
                 <!-- Searchbox -->
@@ -300,6 +300,7 @@
                     <input type="submit" class="mws-search-submit" />
                 </form>
             </div>
+            {% endcomment %}
 		</div>
     </div>
     
@@ -350,12 +351,14 @@
                     <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
                         <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-suitcase-1">Accounts</a>
                     </li>
+                    {% comment %}
                     <li>
                         <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
                     </li>
                     <li>
                         <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
                     </li>
+                    {% endcomment %}
                 </ul>
             </div>
             {% endblock %}
@@ -382,16 +385,18 @@
     </div>
     {% endblock %}
     
-    <div id="loadingDialog"></div>
-    <div id="successDialog">
-        <div class="mws-dialog-inner">
-            <p id="successDialogMessage"></p>
-        </div>
-    </div>
-    <div id="errorDialog">
-        <div class="mws-dialog-inner">
-            <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
-        </div>
+    <div class="hidden">
+	    <div id="loadingDialog"></div>
+	    <div id="successDialog">
+	        <div class="mws-dialog-inner">
+	            <p id="successDialogMessage"></p>
+	        </div>
+	    </div>
+	    <div id="errorDialog">
+	        <div class="mws-dialog-inner">
+	            <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
+	        </div>
+	    </div>
     </div>
     
 </body>

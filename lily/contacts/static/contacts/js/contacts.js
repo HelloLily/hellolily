@@ -46,7 +46,7 @@ $(document).ready(function() {
         autoOpen: false,
         title: gettext('Delete contact'),
         modal: true,
-        width: 640,
+        width: 350,
         buttons: [
             { 
                 'class': 'mws-button red float-left',
@@ -82,37 +82,8 @@ $(document).ready(function() {
     };
     
     // auto grow description 
-    $('#id_description').autoGrow({
-        cols: 60,
-        rows: 1
-    });
+    $('#id_description').elastic();
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
-    
-    // delete contact
-    $('#delete-contact-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('Delete contact'),
-        modal: true,
-        width: 640,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('Cancel'),
-                click: function() {
-                    // cancel form on NO
-                    $(this).dialog('close');
-                }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Continue'),
-                click: function() {
-                    // submit form on YES
-                    $(this).find('form').submit();
-                }
-            }
-        ]
-    });
 });

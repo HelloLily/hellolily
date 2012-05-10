@@ -157,6 +157,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.users',
     'lily.notes',
+    'lily.provide',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
     'lily.utils.templatetags.messages',
@@ -184,6 +185,11 @@ LOGGING = {
         }
     },
     'handlers': {
+        'console': {
+            'level':'DEBUG',
+            'filters': ['require_debug_false'],
+            'class':'logging.StreamHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -191,8 +197,13 @@ LOGGING = {
         }
     },
     'loggers': {
+        'django': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -203,6 +214,9 @@ LOGGING = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Settings for 3rd party apps
+
+# dataprovider
+DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
 
 # easy-thumbnails
 THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))

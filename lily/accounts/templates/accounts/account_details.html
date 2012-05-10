@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% load static i18n thumbnail %}
+{% load static i18n thumbnail utils %}
 
 {% block title %}Account details - {% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen"/>
-<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_detail.css' %}" media="screen"/>
+<link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen"/>
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/inline_edit/css/inline_edit.css' %}" media="screen"/>
 {% endblock %}
 
@@ -14,7 +14,7 @@
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/inline_edit/inline_edit.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 <script type="text/javascript" src="{% static 'notes/js/notes.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
 {% endblock %}
@@ -33,7 +33,7 @@
                         {% csrf_token %} 
                         <div class="mws-form-inline">
                             <div class="mws-form-row">
-                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? All related e-mail addresses, addresses and phone numbers will be deleted as well! If you want to keep this information you might want to consider changing the status.{% endblocktrans %}
+                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
                             </div>
                         </div>
                     </form>
@@ -44,7 +44,6 @@
             </span>
         </div>
         <div class="mws-panel-body">
-            
             <div id="details_top" class="clearfix">
                 <div class="float-left">
                     {% if account.logo %}
@@ -52,11 +51,37 @@
                     {% else %}
                         <img id="account_logo" src="{% static 'images/core/unknown_account.png' %}" alt="" />
                     {% endif %}
-                    
                     <div id="details_top_personal">
                         <h2>{{ account.name|truncatechars:"24" }}</h2>
+                        <div id="contact_function">
+                            {% with account.get_contacts as contacts %}
+                            	{% comment %}
+                            		Show the full name + link to detail view if a single contact is
+                            		linked to this account. In case there are more contacts, show the
+                            		number of contacts and point the link to the contacts' list view.
+                            	{% endcomment %}
+                            	
+                                {% if contacts|length == 1 %}
+                                    {% url contact_details pk=contacts.0.pk as contact_link  %}
+                                    
+                                    {% blocktrans with contacts|first as first_contact and contact_link as link %}
+                                        <a href="{{ link }}">{{ first_contact }}</a> works here
+                                    {% endblocktrans %}
+                                {% elif contacts|length > 0 %}
+                                    {% with contacts|joinby:';' as contacts_csv %}
+                                        {% url contact_list_filtered b36_pks=contacts_csv as contacts_link %}
+                                    
+                                        {% blocktrans with contacts_link as link and contacts|length as count %}
+                                            <a href="{{ link }}">{{ count }} contacts</a>
+                                        {% endblocktrans %}
+                                    {% endwith %}
+                                {% else %}
+                                    {% trans 'No known contacts' %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                         <div id="account_social"> 
-                            {% for social in contact.get_social %}
+                            {% for social in account.social_media.all %}
                                 <a href="{{ social.profile_url }}" class="no-decoration">
                                     <img src="{% static 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
                                 </a>
@@ -65,28 +90,48 @@
                     </div>
                 </div>
                 <div id="account_contact" class="float-right">
-                    <span class="account_phone"><a href="#">{{ account.get_phone }}</a></span>
-                    <span class="account_email"><a href="#">{{ account.email }}</a></span>
-                    <span class="account_twitter"><a href="#">{{ contact.get_twitter.username }}</a></span>
+                    {% with account.get_phone_number as phone %}
+                        {% if phone.raw_input %}
+                            {% if phone.type == 'mobile' %}
+                                <span class="mobile_phone">
+                            {% else %}
+                                <span class="phone">
+                            {% endif %}
+                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                </span>
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if account.primary_email %}
+                        <span class="email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
+                    {% endif %}
+                    
+                    {% with account.get_twitter as twitter %}
+                        {% if twitter.username %}
+                            <span class="twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
             
             <div id="details_body">
                 <div class="mws-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
-
                     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
-                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'Account history' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Account details' %}</a></li>
-                        <li class="ui-state-default ui-corner-top"><a href="#tab-employees">{% trans 'Employees' %}</a></li>
+                        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
+                        <li class="ui-state-default ui-corner-top"><a href="#tab-contacts">{% trans 'Contacts' %}</a></li>
+                        {% comment %}
                         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
+                        {% endcomment %}
                     </ul>
                     
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-                        <h2>{% trans 'Account history' %}</h2>
+                        <h2>{% trans 'History' %}</h2>
                         {% if form %}
                             <form class="mws-form" action="" method="post">
                                 {% csrf_token %}
+                                
 								<br />
                                 {% if form.note.errors %}
                                     <div class="mws-form-item inline note-textarea">
@@ -102,17 +147,16 @@
                                 {% endif %}
                                 <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
                             </form>
+                            
                             <hr />
                         {% endif %}
+                        
                         {% for note in account.notes.all %}
                             <div class="object-list-item note iedit_wrapper" id="note_{{ note.pk }}">
                                 {% include 'notes/note.html' with note=note %}
                             </div>
-                        {% empty %}
-                            <div class="object-list-item">
-                                {% include 'notes/note.html' with note=None %}
-                            </div>
                         {% endfor %}
+                        
                         <div id="delete-note-form-dialog" style="display:none;">
                             <form class="mws-form" id="delete-note-form" action="" method="post">
                                 {% csrf_token %} 
@@ -125,20 +169,131 @@
                         </div>
                     </div>
                     
-                    <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Account details' %}</h2>
-                        <p>
-                            lorem ipsum
-                        </p>
+                    <div id="tab-details" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
+                        <h2>{% trans 'Contact details' %}</h2>
+                        <div class="grid_4">
+                            <div id="detail-addresses" class="detail-block">
+                                <h4>{% trans 'Addresses' %}</h4>
+                                
+                                {% with object.get_billing_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Billing' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% with object.get_shipping_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Shipping' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% with object.get_visiting_address as address %}
+                                    {% if address %}
+                                        <div class="address">
+                                            <h6>{% trans 'Visiting' %}</h6>
+                                            <div class="inline">
+                                                {{ address.street }} {{ address.street_number }} {{ addrss.complement }} <br />
+                                                {{ address.postal_code }} {{ address.city }} <br />
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                            <div id="detail-websites" class="detail-block">
+                                <h4>{% trans 'Websites' %}</h4>
+                                
+                                {% for website in account.websites.all %}
+                                    {% if website.is_primary %}
+                                            <div class="primary website">
+                                                <h6>{% trans 'Primary' %}</h6>
+                                    {% else %}
+                                        <div class="website">
+                                            <h6></h6>
+                                    {% endif %}
+                                            <div class="inline">
+                                                <a href="{{ website.website }}">{{ website.website }}</a>
+                                            </div>
+                                        </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="grid_4">
+                            <div id="detail-phones" class="detail-block">
+                                <h4>{% trans 'Phone numbers' %}</h4>
+                                
+                                {% for phone in object.phone_numbers.all %}
+                                    {% if phone.raw_input %}
+                                        {% if phone.type == 'mobile' %}
+                                            <div class="mobile_phone">
+                                        {% else %}
+                                            <div class="phone">
+                                        {% endif %}
+                                                <h6>{{ phone.get_type_display }}</h6>
+                                                <div class="inline">
+                                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                                </div>
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div id="detail-emails" class="detail-block">
+                                <h4>{% trans 'E-mail addresses' %}</h4>
+                                
+                                {% for email in object.email_addresses.all %}
+                                    {% if email.email_address %}
+                                            {% if email.is_primary %}
+                                                <div class="primary email">
+                                                    <h6>{% trans 'Primary' %}</h6>
+                                            {% else %}
+                                                <div class="email">
+                                                    <h6></h6>
+                                            {% endif %}
+                                                    <div class="inline">
+                                                        <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                                    </div>
+                                                </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                     
-                    <div id="tab-employees" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-                        <h2>{% trans 'Employees' %}</h2>
-                        <p>
-                            lorem ipsum
-                        </p>
+                    <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+                        <h2>{% trans 'Contacts' %}</h2>
+                        <div id="detail-emails" class="detail-block">
+                            {% for function in account.functions.all %}
+                                <p>
+                                    <a href="{% url contact_details pk=function.contact.pk %}">{{ function.contact.full_name }}</a>
+                                    {% if function.title %}
+                                        as {{ function.title }}
+                                    {% endif %}
+                                    
+                                    {% if not function.is_active %}
+                                        ({% trans 'Inactive' %})
+                                    {% else %}
+                                        {% if not function.contact.status == 1 %}
+                                        ({{ function.contact.get_status_display }})
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            {% endfor %}
+                        </div>
                     </div>
                     
+                    {% comment %}
                     <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Deals' %}</h2>
                         <p>
@@ -152,12 +307,13 @@
                             lorem ipsum
                         </p>
                     </div>
-                    
+                    {% endcomment %}
                 </div>
             </div>
         </div>
     </div>
     
+    {% comment %}
     <div class="mws-panel grid_2">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-speech-bubbles-2">Social Stream</span>
@@ -170,5 +326,6 @@
             </div>
         </div>
     </div>
+    {% endcomment %}
    
 {% endblock %}

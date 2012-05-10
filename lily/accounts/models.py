@@ -45,6 +45,13 @@ class Account(Common):
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     
+    legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
+    taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)
+    bankaccountnumber = models.CharField(max_length=20, verbose_name=_('bank account number'), blank=True)
+    cocnumber = models.CharField(max_length=10, verbose_name=_('coc number'), blank=True)
+    iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
+    bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
+    
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:

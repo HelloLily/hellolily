@@ -27,6 +27,16 @@
         <div class="mws-panel-body">
             <form class="mws-form" autocomplete="off" action="" method="post">
                 {% csrf_token %} 
+                
+                {% comment %}
+                The following fields are hidden fields which can be filled using Enrich, but can't be edited visually yet.
+                {% endcomment %}
+                {{ form.legalentity }}
+                {{ form.taxnumber }}
+                {{ form.bankaccountnumber }}
+                {{ form.cocnumber }}
+                {{ form.iban }}
+                {{ form.bic }}
 				                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">

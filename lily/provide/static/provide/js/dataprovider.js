@@ -13,15 +13,15 @@ function dataprovider_json_to_form(json, form) {
         // textarea.scrollTop(textarea[0].scrollHeight - textarea.height()).trigger('change');
     }
     // add tags
-    if( json.tags.length ) {
-    	input = $(form).find('.input-and-choice-input');
-    	button = $(form).find('.input-and-choice-button');
-            for( var i = 0; i < json.tags.length; i++ ) {
-            	input.val(json.tags[i]);
-                button.click();
-                input.val('');
-            }
-    }
+    // if( json.tags.length ) {
+    	// input = $(form).find('.input-and-choice-input');
+    	// button = $(form).find('.input-and-choice-button');
+            // for( var i = 0; i < json.tags.length; i++ ) {
+            	// input.val(json.tags[i]);
+                // button.click();
+                // input.val('');
+            // }
+    // }
     // add email addresses
     if( json.email_addresses.length ) {
         email_addresses_container = $(form).find('.email_addresses-add-row').parent();
@@ -51,7 +51,7 @@ function dataprovider_json_to_form(json, form) {
         	$(form).find('.addresses-add-row').click();
             address_elem = $(addresses_container).find('.addresses:visible:last');
             address_json = json.addresses[i];
-            
+            console.log(address_json);
             $(address_elem).find('[name^="addresses"][name$="street"]').val(address_json.street)
             $(address_elem).find('[name^="addresses"][name$="street_number"]').val(address_json.street_number)
             $(address_elem).find('[name^="addresses"][name$="complement"]').val(address_json.complement)
@@ -60,5 +60,27 @@ function dataprovider_json_to_form(json, form) {
             $(address_elem).find('[name^="addresses"][name$="country"]').val(address_json.country)
         }
     }
-    // TODO: set cocnumber
+    // set legalentity
+    if( json.legalentity )
+        $(form).find('[name="legalentity"]').val(json.legalentity);
+    
+    // set taxnumber
+    if( json.taxnumber )
+        $(form).find('[name="taxnumber"]').val(json.taxnumber);
+        
+    // set bankaccountnumber
+    if( json.bankaccountnumber )
+        $(form).find('[name="bankaccountnumber"]').val(json.bankaccountnumber);
+        
+    // set cocnumber
+    if( json.cocnumber )
+        $(form).find('[name="cocnumber"]').val(json.cocnumber);
+        
+    // set iban
+    if( json.iban )
+        $(form).find('[name="iban"]').val(json.iban);
+        
+    // set bic
+    if( json.bic )
+        $(form).find('[name="bic"]').val(json.bic);
 }

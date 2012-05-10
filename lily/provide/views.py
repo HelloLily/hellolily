@@ -57,7 +57,6 @@ class ProvideBaseView(View):
         """
         Make a request to the given url and return the output.
         """
-        print url
         response = urllib2.urlopen(url)
         return response.read()
     
@@ -82,13 +81,22 @@ class DataproviderView(ProvideBaseView):
     api_key = settings.DATAPROVIDER_API_KEY
     
     def get_domain(self):
-        return self.domain.replace('www.', '')
+        """
+        Return domain without http:// but with 'www.'
+        """
+        if self.domain[:6] == 'http://':
+            self.domain = self.domain[6:]
+        if self.domain[:4] != 'www.':
+            self.domain = 'www.' + self.domain
+        
+        return self.domain
     
     def get_query_kwargs(self):
         kwargs = {'api_key': self.api_key,
                        'q_field': 'hostname',
                        'q_value': self.get_domain(),
-                       'q_operator': 5}
+#                       'q_operator': 5 # ends with
+        }
         return kwargs
     
     def set_view_output(self):
@@ -110,17 +118,23 @@ class DataproviderView(ProvideBaseView):
         tags = result.get('keywords').strip().rstrip(',').split(',') if result.get('keywords') else []
         email_addresses = [result.get('emails')] if result.get('emails') else []
         phone_numbers = [result.get('phonenumber')] if result.get('phonenumber') else []
-        address = parse_address(result.get('address')) if result.get('address') else None
-        street, street_number, complement = parse_address(address)
-        addresses = [{
-                 'street': street,
-                 'street_number': street_number,
-                 'complement': complement,
-                 'city': result.get('city'),
-                 'country': result.get('country'),
-                 'postal_code': result.get('zipcode'),
-                }] if address or result.get('city') or result.get('country') or result.get('zipcode') else []
+        legalentity = result.get('legalentity') if result.get('legalentity') else None
+        taxnumber = result.get('taxnumber') if result.get('taxnumber') else None
+        bankaccountnumber = result.get('bankaccountnumber') if result.get('bankaccountnumber') else None
         cocnumber = result.get('cocnumber') if result.get('cocnumber') else None
+        iban = result.get('iban') if result.get('iban') else None
+        bic = result.get('bic') if result.get('bic') else None
+        
+        address = result.get('address') if result.get('address') else None
+        street, street_number, complement = parse_address(address) if address else None
+        addresses = [{
+            'street': street,
+            'street_number': street_number,
+            'complement': complement,
+            'city': result.get('city'),
+            'country': result.get('country'),
+            'postal_code': result.get('zipcode'),
+        }] if address or result.get('city') or result.get('zipcode') or result.get('country') else []
 
         # Build dict with account information
         self.view_output = {
@@ -130,7 +144,12 @@ class DataproviderView(ProvideBaseView):
             'email_addresses': email_addresses,
             'phone_numbers': phone_numbers,
             'addresses': addresses,
-            'cocnumber': cocnumber
+            'legalentity': legalentity,
+            'taxnumber': taxnumber,
+            'bankaccountnumber': bankaccountnumber,
+            'cocnumber': cocnumber,
+            'iban': iban,
+            'bic': bic,
         }
         
         return simplejson.dumps(self.view_output)

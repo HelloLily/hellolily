@@ -163,7 +163,7 @@ class AddAccountForm(ModelForm):
     class Meta:
         model = Account
 #        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'description')
-        fields = ('name', 'tags', 'description')
+        fields = ('name', 'tags', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
                 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -175,6 +175,12 @@ class AddAccountForm(ModelForm):
                 'rows': '3',
                 'placeholder': _('Description'),
             }),
+            'legalentity': forms.HiddenInput(), 
+            'taxnumber': forms.HiddenInput(),
+            'bankaccountnumber': forms.HiddenInput(),
+            'cocnumber': forms.HiddenInput(),
+            'iban': forms.HiddenInput(),
+            'bic': forms.HiddenInput(),
         
         }
 
@@ -307,7 +313,7 @@ class EditAccountForm(ModelForm):
     class Meta:
         model = Account
 #        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
-        fields = ('name', 'tags', 'website', 'description')
+        fields = ('name', 'tags', 'website', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
                 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -319,6 +325,12 @@ class EditAccountForm(ModelForm):
                 'rows': '3',
                 'placeholder': _('Description'),
             }),
+            'legalentity': forms.HiddenInput(), 
+            'taxnumber': forms.HiddenInput(),
+            'bankaccountnumber': forms.HiddenInput(),
+            'cocnumber': forms.HiddenInput(),
+            'iban': forms.HiddenInput(),
+            'bic': forms.HiddenInput(),
         }
 
 

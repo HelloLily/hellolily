@@ -11,6 +11,10 @@
   border-radius: 5px;
 }
 
+.input-and-choice-button {
+    padding-bottom: 5px !important;
+}
+
 .input-and-choice .search-choice {
   float: left;
   list-style: none;

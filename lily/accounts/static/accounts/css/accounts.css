@@ -19,8 +19,9 @@
     height: 24px;
 }
 
-.mws-form .enrich-account-button {
+#enrich-account-button {
     margin: 0;
+    padding-bottom: 5px;
 }
 
 #enrich-busy {

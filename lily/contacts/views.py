@@ -167,7 +167,7 @@ class AddContactView(CreateView):
                 message = _('%s (Contact) has been saved.') % self.object.full_name()
 
                 # Redirect if in the list view
-                if self.request.path == list_url:
+                if self.request.META['HTTP_REFERER'].endswith(list_url):
                     # Show save message
                     messages.success(self.request, message)
             

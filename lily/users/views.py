@@ -23,13 +23,14 @@ from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
+from lily.multitenant.models import Tenant
 
 
 class RegistrationView(FormView):
@@ -43,19 +44,26 @@ class RegistrationView(FormView):
         """
         Register a new user.
         """
+        # Create new tenant
+        tenant = Tenant.objects.create()
+        
         # Create contact
         contact = Contact.objects.create(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
-            last_name=form.cleaned_data['last_name']
+            last_name=form.cleaned_data['last_name'],
+            tenant=tenant
         )
         # Create account
-        account = Account.objects.create(name=form.cleaned_data.get('company'))
+        account = Account.objects.create(name=form.cleaned_data.get('company'),tenant=tenant)
+        
+        Function.objects.create(account=account, contact=contact)
         
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
+        user.tenant = tenant
         user.primary_email = form.cleaned_data['email']
         
         # Store random unique data in username
@@ -98,8 +106,6 @@ class RegistrationView(FormView):
         
         # Show registration message
         messages.success(self.request, _('Registration completed. Check your <nobr>e-mail</nobr> to activate your account.'))
-                
-# TODO: support for Clients        user.client = form.cleaned_data['company']
         
         return self.get_success_url()
     
@@ -146,7 +152,7 @@ class ActivationView(TemplateView):
         self.user.save()
         
         # Log the user in
-        self.user = authenticate(username=self.user.email, no_pass=True)
+        self.user = authenticate(username=self.user.primary_email, no_pass=True)
         user_login(request, self.user)
         
         # Redirect to dashboard

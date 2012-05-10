@@ -95,6 +95,7 @@ AUTHENTICATION_BACKENDS = (
 
 # Used middleware
 MIDDLEWARE_CLASSES = (
+    # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -102,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
+    # Lily
     'lily.multitenant.middleware.TenantMiddleWare',
 )
 
@@ -154,6 +156,7 @@ INSTALLED_APPS = (
     'south',
     
     # Lily
+    'lily', # required for management command
     'lily.accounts',
     'lily.activities',
     'lily.contacts',

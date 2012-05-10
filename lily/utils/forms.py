@@ -13,6 +13,7 @@ class EmailAddressBaseForm(ModelForm):
     """
     class Meta:
         model = EmailAddress
+        fields = ('email_address', 'is_primary')
         exclude = ('status')
         widgets = {
             'email_address': forms.TextInput(attrs={

@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib import messages
 import re
-from lily.utils.models import Address
 
 
 def autostrip(cls):

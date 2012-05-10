@@ -4,6 +4,8 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
+from lily.multitenant.models import MultiTenantMixin
+
 
 class Deleted(TimeStampedModel):
     """
@@ -16,7 +18,7 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class PhoneNumber(models.Model):
+class PhoneNumber(MultiTenantMixin, models.Model):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
     """
@@ -63,7 +65,7 @@ class PhoneNumber(models.Model):
         verbose_name_plural = _('phone numbers')
 
 
-class SocialMedia(models.Model):
+class SocialMedia(MultiTenantMixin, models.Model):
     """
     Social media model, default supporting a few well known social media but has support for 
     custom input (other_name).
@@ -91,7 +93,7 @@ class SocialMedia(models.Model):
         verbose_name_plural = _('social media')
 
 
-class Address(models.Model):
+class Address(MultiTenantMixin, models.Model):
     """
     Address model, has most default fields for an address and fixed preset values for type. In
     the view layer options are limited for different models. For example: options for an address
@@ -123,7 +125,7 @@ class Address(models.Model):
         verbose_name_plural = _('addresses')
 
 
-class EmailAddress(models.Model):
+class EmailAddress(MultiTenantMixin, models.Model):
     """
     Email address model, it's possible to set an email address as primary address as a model can 
     own multiple email addresses.
@@ -147,7 +149,7 @@ class EmailAddress(models.Model):
         verbose_name_plural = _('e-mail addresses')
 
 
-class Common(Deleted):
+class Common(MultiTenantMixin, Deleted):
     """
     Common model to make it possible to easily define relations to other models.
     """
@@ -164,7 +166,7 @@ class Common(Deleted):
         abstract = True
 
 
-class Tag(models.Model):
+class Tag(MultiTenantMixin, models.Model):
     """
     Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
     """

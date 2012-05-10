@@ -24,16 +24,22 @@
 }
 
 #enrich-busy {
+    /* prev. 
     background-image: url(../../images/blue-loading.gif);
     background-position: center 20%;
-    background-color: rgba(255, 255, 255, .85);
     background-repeat: no-repeat;
+    */
+    background-color: rgba(255, 255, 255, .85);
     height: 100%;
     width: 100%;
     display: block;
     position: absolute;
     text-align: center;
-    padding-top: 36%;
+    z-index: 1;
+}
+
+#enrich-busy-message {
+	margin-top: 18%;
 }
 
 /* List */

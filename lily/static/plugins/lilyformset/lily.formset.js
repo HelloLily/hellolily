@@ -57,7 +57,6 @@
             
             insertDeleteLink = function(row) {
                 row.find('.' + options.deleteCssClass).click(function() {
-                    console.log('done');
                     var row = $(this).parents('.' + options.formCssClass),
                         del = row.find('input[id $= "-DELETE"]').not(':visible');
                     if (del.length) {
@@ -87,7 +86,7 @@
                     } else {
                         forms = $(forms).filter(':visible');
                     }
-                    console.log(forms.length);
+					
                     if( options.notEmptyFormSetAddCssClass ) {
                         addButton = $('#id_' + options.prefix + '-TOTAL_FORMS').siblings('.' + options.addCssClass)
                         if (forms.length > 0) {

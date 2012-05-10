@@ -82,49 +82,92 @@ $(document).ready(function() {
         });
     };
     
-    // auto grow description 
-    $('#id_description').autoGrow();
+    // auto grow description
+    $('#id_description').elastic();
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
     
     
-    function do_busy(text, dots) {
-        if( dots.length == 3) {
-            return do_busy(text, '');
-        }
-        return do_busy(text, dots + '.');
-    }
-    
     // request data to enrich form
-    $('#enrich-account-button').click(function(event) {
-        
-        domain = $('#id_primary_website').val().replace('http://', '');
+    function do_request_to_enrich(form) {
+    	domain = $('#id_primary_website').val().replace('http://', '');
         if( $.trim(domain).length > 0 ) {
             $('#enrich-busy').show();
-            timeout = setTimeout(function() { $('#enrich-busy').text(do_busy($('#enrich-busy').text(), '.')); }, 500);
-                
-            $.ajax({
+            $('#enrich-busy-message').text(gettext('Looking for information about') + ' ' + domain + ' ');
+            
+            msg_text = $('#enrich-busy-message').text();
+            function do_busy(text, dots) {
+			 	if( dots.length == 3 ) {
+		            dots = '';
+		       	}
+		        dots += '.';
+	        	$('#enrich-busy-message').text(msg_text + dots);
+				
+	        	timeout = setTimeout(function() {
+	        		do_busy(msg_text, dots);
+	            }, 1000);
+	    	}
+    		do_busy(msg_text, '');
+            
+            var jqXHR = $.ajax({
                 url: '/provide/account/' + domain,
-                data: '',
                 type: 'GET',
+                dataType: 'json',
             })
-            .done(function() { 
-                $.jGrowl(gettext('Form has been updated with details for ' + domain), {
-                     theme: 'info mws-ic-16 ic-accept'
-                 });
-            })
-            .fail(function() {
-                 $.jGrowl(gettext('No information found for ' + domain), {
-                     theme: 'info mws-ic-16 ic-exclamation'
-                 });
-            })
-            .always(function() {
-                clearTimeout(timeout);
-                $('#enrich-busy').hide();
+            
+    		jqXHR.done(function(data, status, xhr) {
+				dataprovider_json_to_form(data, form);
+            	
+                $.jGrowl(gettext('Form has been updated with details for') + ' ' + domain, {
+                    theme: 'info mws-ic-16 ic-accept'
+                });
+           });
+	           
+	       	jqXHR.fail(function() {
+            	$.jGrowl(gettext('No information found for') + ' ' + domain, {
+                    theme: 'info mws-ic-16 ic-exclamation'
+                });
+           });
+	           
+	       	jqXHR.always(function() {
+        		clearTimeout(timeout);
+            	setTimeout(function() {
+            		$('#enrich-busy-message').text(gettext('Search complete.'));
+            		setTimeout(function() {
+        				// hide overlay
+	                	$('#enrich-busy').hide();
+	                	// remove request object
+	                	jqXHR = null;
+		            }, 500);
+	            }, 1000);
+                
             });
+	        
+	        $('#enrich-account-cancel').click(function(event) {
+	        	// if the request is still running, abort it.
+	        	if( jqXHR ) jqXHR.abort();
+	        	// hide overlay
+		        clearTimeout(timeout);
+		        $('#enrich-busy').hide();
+		        
+		        event.preventDefault();
+		    });
         }
-        
+    }
+    
+    // do above request on enter key in text input and on button click
+    $('#id_primary_website').keydown(function(event) {
+    	// enrich on enter key
+        if (event.keyCode == 13) {
+        	form = $(this).closest('form');
+        	do_request_to_enrich(form);
+        	event.preventDefault();
+	    }
+    });
+    $('#enrich-account-button').click(function(event) {
+    	form = $(this).closest('form');
+    	do_request_to_enrich(form);
         event.preventDefault();
     });
 });

@@ -12,7 +12,7 @@
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'provide/js/dataprovider.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
@@ -41,6 +41,13 @@
                 TODO: Add image upload field for company logo or suggest images from social media
                 {% endcomment %}
                 <div class="mws-form-inline">
+                	<div id="enrich-busy" style="display: none;">
+                		<div id="enrich-busy-message"></div>
+                		<img src="{% static 'images/blue-loading.gif' %}" alt="" />
+                		<p>
+                			<a href="javascript:" id="enrich-account-cancel">{% trans 'Cancel' %}</a>
+                		</p>
+                	</div>
                     <div class="mws-form-row">
                         {{ form.primary_website.label_tag }}
                         <div class="mws-form-item large">
@@ -145,7 +152,7 @@
                            <div class="mws-form-item large {{ email_addresses_formset.prefix }}-mws-formset">
                                 <div class="mws-form-cols clearfix">
                                     <div class="float-left">
-                                        <div class="mws-form-col-row mws-form-item email_address">
+                                        <div class="mws-form-col-row mws-form-item">
                                             {% if form.email_address.errors %}
                                                 <span class="field_error float-left">{{ form.email_address }}</span>
                                                 <span class="mws-error inline plain float-left">
@@ -159,7 +166,7 @@
                                         </div>
                                     </div>
                                     <div class="float-left center">
-                                        <div class="mws-form-col-row mws-form-item email_address email_is_primary">
+                                        <div class="mws-form-col-row mws-form-item email_is_primary">
                                             <label>
                                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ email_addresses_formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
                                                 <span {% if form.instance.is_primary %}class="checked"{% endif %}>{% trans 'primary' %}</span>
@@ -167,7 +174,7 @@
                                         </div>
                                     </div>
                                     <div class="float-left">
-                                        <div class="mws-form-col-row mws-form-item formset-delete email_address">
+                                        <div class="mws-form-col-row mws-form-item formset-delete">
                                             <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row"></a>
                                         </div>
                                     </div>
@@ -188,7 +195,7 @@
 	                    	<div class="mws-form-item large {{ phone_numbers_formset.prefix }}-mws-formset">
 	                            <div class="mws-form-cols clearfix">
 	                                <div class="float-left">
-	                                    <div class="mws-form-col-row phone_number mws-form-item">
+	                                    <div class="mws-form-col-row mws-form-item">
 	                                        {% if form.raw_input.errors %}
 	                                            <span class="field_error float-left">{{ form.raw_input }}</span>
 	                                            <span class="mws-error inline plain float-left">
@@ -202,7 +209,7 @@
 	                                    </div>
 	                                </div>
 	                                <div class="float-left">
-	                                    <div class="mws-form-col-row phone_number mws-form-item">
+	                                    <div class="mws-form-col-row mws-form-item">
 	                                        {% if form.type.errors %}
 	                                            <span class="field_error float-left">{{ form.type }}</span>
 	                                            <span class="mws-error inline plain float-left">
@@ -216,7 +223,7 @@
 	                                    </div>
 	                                </div>
 	                                <div class="float-left">
-	                                    <div class="mws-form-col-row phone_number mws-form-item">
+	                                    <div class="mws-form-col-ro mws-form-item">
 	                                        {{ form.other_type }}
 	                                    </div>
 	                                </div>
@@ -243,7 +250,7 @@
                             <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset"> 
                                 <div class="mws-form-cols clearfix">
                                     <div class="float-left">
-                                        <div class="mws-form-col-row website mws-form-item">       
+                                        <div class="mws-form-col-row mws-form-item">       
                                             {% if form.website.errors %}
                                                 <span class="field_error float-left">{{ form.website }}</span>
                                                 <div class="mws-error inline plain float-left">
@@ -379,7 +386,7 @@
                                             </div>
                                         </div>
                                         <div class="mws-form-col-1-8">
-                                            <div class="formset-delete address mws-form-item">
+                                            <div class="formset-delete mws-form-item">
                                                 <a href="javascript:" class="mws-i-24 i-cross {{ addresses_formset.prefix }}-delete-row"></a>
                                             </div>
                                         </div>

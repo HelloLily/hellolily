@@ -70,27 +70,31 @@ def parse_address(address):
     """
     Parse an address string and return street, number and complement
     """
-    street = ''
-    street_number = ''
-    complement = ''
-    if len(address) > 0:
-        match = re.search('\d', address)
-        if match:
-            number_pos = match.start()
-            street = address[:number_pos].strip()
-            match = re.search('[^\d]', address[number_pos:])
+    street = None
+    street_number = None
+    complement = None
+    try:
+        if len(address) > 0:
+            match = re.search('\d', address)
             if match:
-                complement_pos = match.start()
-                street_number = address[number_pos:][:complement_pos].strip()
-                
-                match = re.search('[a-zA-Z]', address[number_pos:][complement_pos:])
+                number_pos = match.start()
+                street = address[:number_pos].strip()
+                match = re.search('[^\d]', address[number_pos:])
                 if match:
-                    actual_complement_pos = match.start()
-                    complement = address[number_pos:][complement_pos:][actual_complement_pos:].strip()
+                    complement_pos = match.start()
+                    street_number = address[number_pos:][:complement_pos].strip()
+                    
+                    match = re.search('[a-zA-Z]', address[number_pos:][complement_pos:])
+                    if match:
+                        actual_complement_pos = match.start()
+                        complement = address[number_pos:][complement_pos:][actual_complement_pos:].strip()
+                    else:
+                        complement = address[number_pos:][complement_pos:].strip()
                 else:
-                    complement = address[number_pos:][complement_pos:].strip()
+                    street_number = address[number_pos:].strip()
             else:
-                street_number = address[number_pos:].strip()
-        else:
-            street = address
+                street = address
+    except:
+        pass
+    
     return street, street_number, complement

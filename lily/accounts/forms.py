@@ -213,7 +213,7 @@ class EditAccountForm(ModelForm):
             'class': 'input-and-choice-select',
     }))
     
-    primary_website = forms.URLField(label=_('Primary website'), required=False,
+    primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
             'placeholder': _('Primary website')

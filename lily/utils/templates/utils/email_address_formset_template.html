@@ -7,12 +7,12 @@ Use {% include 'utils/email_address_formset_template.html' with formset_prefix=e
     <div class="mws-form-item large">
         <div class="mws-form-cols clearfix">
             <div class="float-left">
-                <div class="mws-form-col-row mws-form-item email_address">
+                <div class="mws-form-col-row mws-form-item">
                     <input name="{{ formset_prefix }}-0-email_address" maxlength="255" placeholder="{% trans 'E-mail address' %}" type="text" class="mws-textinput" id="id_{{ formset_prefix }}-0-email_address" />
                 </div>
             </div>
             <div class="float-left center">
-                <div class="mws-form-col-row mws-form-item email_address email_is_primary">
+                <div class="mws-form-col-row mws-form-item email_is_primary">
                     <label>
                         <input class="hidden" type="radio" value="{{ formset_prefix }}-0" name="{{ formset_prefix }}_primary-email" />
                         <span>{% trans 'primary' %}</span>
@@ -20,7 +20,7 @@ Use {% include 'utils/email_address_formset_template.html' with formset_prefix=e
                 </div>
             </div>
             <div class="float-left">
-                <div class="mws-form-col-row mws-form-item formset-delete email_address">
+                <div class="mws-form-col-row mws-form-item formset-delete">
                     <a href="javascript:" class="mws-i-24 i-cross {{ formset_prefix }}-delete-row"></a>
                 </div>
             </div>

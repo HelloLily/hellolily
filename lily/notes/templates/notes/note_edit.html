@@ -12,15 +12,7 @@
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/jqueryautogrow/jquery.autogrowtextarea.js' %}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-       $('.note-autogrow').autoGrow({
-           cols: 80,
-           rows: 1
-       }) 
-    });
-</script>
+<script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 {% endblock %}
 
 {% block content %}

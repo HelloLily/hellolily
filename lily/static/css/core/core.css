@@ -153,7 +153,7 @@ form#mws-searchbox .mws-search-submit
 	margin-top:-12px; /* new */
 	border:none;
 	cursor:pointer;
-	background:#50b3df url(../../images/core/mws-search-icon.png) no-repeat center center;
+	background:#1C76BC url(../../images/core/mws-search-icon.png) no-repeat center center;
 	
 	/* CSS 3 */
 	
@@ -566,7 +566,7 @@ div#mws-navigation ul li ul
 
 div#mws-navigation ul li.active /* new */
 {
-    background:#50b3df !important; /* new */
+    background:#1C76BC !important; /* new */
 }
 
 div#mws-navigation ul li.active > a, /* new */

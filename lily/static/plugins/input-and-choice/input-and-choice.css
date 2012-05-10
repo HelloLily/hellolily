@@ -83,13 +83,7 @@
     border: none;   
 }
 .ui-autocomplete .ui-menu-item .ui-state-hover {
-    background-color: #50B3DF;
+    background-color: #1C76BC !important;
     color: #ffffff;
     font-weight: normal;
-
-    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #50B3DF), color-stop(100%, #09aadc));*/
-    background-image: -webkit-linear-gradient(#50B3DF,#09aadc);
-    background-image: -moz-linear-gradient(#50B3DF,#09aadc);
-    background-image: -o-linear-gradient(#50B3DF,#09aadc);
-    background-image: linear-gradient(#50B3DF,#09aadc);
 }

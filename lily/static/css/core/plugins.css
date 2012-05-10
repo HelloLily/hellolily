@@ -161,19 +161,19 @@ div.jGrowl div.jGrowl-notification {
 /** Theme 'info' **/
 div.jGrowl div.jGrowl-notification.info {
     border-color: #789FCC !important;
-    background-color: #50B3DF;
+    background-color: #1C76BC;
 }
 
 /** Theme 'success' **/
 div.jGrowl div.jGrowl-notification.success {
     border-color: #789FCC !important;
-    background-color: #50B3DF !important;
+    background-color: #1C76BC !important;
 }
 
 /** Theme 'warning' **/
 div.jGrowl div.jGrowl-notification.warning {
     border-color: #789FCC !important;
-    background-color: #50B3DF !important;
+    background-color: #1C76BC !important;
 }
 
 /** Theme 'error' **/

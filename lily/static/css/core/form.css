@@ -173,7 +173,7 @@
 .mws-form input:focus, /* new */
 .mws-form textarea:focus /* new */
 {
-    border-color:#50b3df; /* new */
+    border-color:#1C76BC; /* new */
     box-shadow:0 0 5px rgba(0, 0, 0, 0.3); /* new */
 }
 

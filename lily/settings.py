@@ -101,6 +101,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'lily.multitenant.middleware.TenantMiddleWare',
 )
 
 # Main urls file
@@ -155,6 +157,7 @@ INSTALLED_APPS = (
     'lily.accounts',
     'lily.activities',
     'lily.contacts',
+    'lily.multitenant',
     'lily.users',
     'lily.notes',
     'lily.provide',

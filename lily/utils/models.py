@@ -22,7 +22,7 @@ class PhoneNumber(MultiTenantMixin, models.Model):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
     """
-    #TODO: check possibilities for integration of 
+    # TODO: check possibilities for integration of 
     # - http://pypi.python.org/pypi/phonenumbers and/or
     # - https://github.com/stefanfoulis/django-phonenumber-field
     
@@ -55,7 +55,7 @@ class PhoneNumber(MultiTenantMixin, models.Model):
         return self.number
     
     def save(self, *args, **kwargs):
-        # Save raw input
+        # Save raw input as number only
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
         
         super(PhoneNumber, self).save(*args, **kwargs)

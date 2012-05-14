@@ -276,7 +276,7 @@
 	            <div id="mws-user-info" class="mws-inset">            
 	                <!-- User Photo -->
 	                <div id="mws-user-photo">
-	                    <a href="#"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User Photo" title="{% trans 'Profile' %}" /></a>
+	                    <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User Photo" title="{% trans 'Profile' %}" /></a>
 	                </div>
 	                
 	                <!-- Username and Functions -->

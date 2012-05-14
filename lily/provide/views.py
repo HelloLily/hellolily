@@ -126,7 +126,7 @@ class DataproviderView(ProvideBaseView):
         bic = result.get('bic') if result.get('bic') else None
         
         address = result.get('address') if result.get('address') else None
-        street, street_number, complement = parse_address(address) if address else None
+        street, street_number, complement = parse_address(address) if address else None, None, None
         addresses = [{
             'street': street,
             'street_number': street_number,

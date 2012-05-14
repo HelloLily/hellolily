@@ -17,7 +17,7 @@ class EmailAddressBaseForm(ModelForm):
         exclude = ('status')
         widgets = {
             'email_address': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('E-mail address'),
             }),
         }
@@ -29,14 +29,14 @@ class PhoneNumberBaseForm(ModelForm):
     """
     type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', 
         widget=forms.Select(attrs={
-            'class': 'other'
+            'class': 'other tabbable'
         }
     ))
     
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
     raw_input = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        'class': 'mws-textinput',
+        'class': 'mws-textinput tabbable',
         'placeholder': _('Phone number'),
     }));
 
@@ -45,13 +45,12 @@ class PhoneNumberBaseForm(ModelForm):
         fields = ('raw_input', 'type', 'other_type')
         exclude = ('status')
         widgets = {
-            'raw_input': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Phone number'),
-            }),
             'other_type': forms.TextInput(attrs={
-                'class': 'mws-textinput other hidden',
+                'class': 'mws-textinput other hidden tabbable',
             }),
+            'type': forms.Select(attrs={
+                'class': 'tabbable'
+            })
         }
 
 
@@ -60,7 +59,9 @@ class AddressBaseForm(ModelForm):
     Form for adding an address which includes all fields available.
     """
     type = forms.ChoiceField(choices=Address.ADDRESS_TYPE_CHOICES, initial='visiting',
-        widget=forms.Select()
+        widget=forms.Select(attrs={
+            'class': 'tabbable'
+        })
     )
     
     class Meta:
@@ -68,31 +69,31 @@ class AddressBaseForm(ModelForm):
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
         widgets = {
             'street_number': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Street number'),
             }),
             'complement': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Complement'),
             }),
             'street': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Street'),
             }),
             'postal_code': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Postal code'),
             }),
             'city': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('City'),
             }),
             'state_province': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('State/province'),
             }),
             'country': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Country'),
             }),
         }
@@ -104,6 +105,7 @@ class NoteForm(forms.ModelForm):
         exclude = ('author', 'object_id', 'content_type')
         widgets = {
             'note': forms.Textarea(attrs={
+                'class': 'tabbable',
                 'placeholder': _('Write your note here'),
             })
         }

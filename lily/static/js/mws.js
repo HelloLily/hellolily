@@ -105,5 +105,10 @@ $(document).ready(function() {
     	form = $(this).closest('form');
     	submit_form_on_ctrl_enter(event, form);
     });
+    
+    /* Re-index tabbale elements on page load */
+   	if($.tabthisbody) {
+		$.tabthisbody();
+   	}
 	
 });

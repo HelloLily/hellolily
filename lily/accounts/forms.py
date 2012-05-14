@@ -92,7 +92,7 @@ class AddAccountForm(ModelForm):
     
     primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
+            'class': 'mws-textinput tabbable',
             'placeholder': _('Primary website')
     }))
     
@@ -167,12 +167,13 @@ class AddAccountForm(ModelForm):
                 
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput required tabbable',
                 'placeholder': _('Company name'),
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
                 'rows': '3',
+                'class': 'tabbable',
                 'placeholder': _('Description'),
             }),
             'legalentity': forms.HiddenInput(), 
@@ -190,12 +191,7 @@ class EditAccountForm(ModelForm):
     Form for editing an existing account which includes all fields available.
     
     TODO: status field
-    """
-    website = forms.URLField(max_length=30, initial='http://', required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-    }))
-    
+    """    
 #    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
 #        widget=forms.TextInput(attrs={
 #            'class': 'mws-textinput',
@@ -221,7 +217,7 @@ class EditAccountForm(ModelForm):
     
     primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
+            'class': 'mws-textinput tabbable',
             'placeholder': _('Primary website')
     }))
 
@@ -313,16 +309,17 @@ class EditAccountForm(ModelForm):
     class Meta:
         model = Account
 #        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
-        fields = ('name', 'tags', 'website', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
+        fields = ('name', 'tags', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
                 
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput required tabbable',
                 'placeholder': _('Company name'),
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
                 'rows': '3',
+                'class': 'tabbable',
                 'placeholder': _('Description'),
             }),
             'legalentity': forms.HiddenInput(), 
@@ -337,7 +334,7 @@ class EditAccountForm(ModelForm):
 class WebsiteBaseForm(ModelForm):
     website = forms.URLField(max_length=30, initial='http://',
         widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
+            'class': 'mws-textinput tabbable',
     }))
     
     class Meta:

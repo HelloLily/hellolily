@@ -40,8 +40,7 @@ $(document).ready(function() {
     $('#delete-account-dialog-link').click(function(event) {
         $('#delete-account-form-dialog').dialog('open');
         event.preventDefault();
-    });  
-    
+    });
     // transform div into delete dialog
     $('#delete-account-form-dialog').dialog({
         autoOpen: false,
@@ -77,6 +76,7 @@ $(document).ready(function() {
             addText: form_prefices[form_prefix],
             formCssClass: form_prefix, // needs to be unique per formset
             addCssClass: form_prefix + '-add-row', // needs to be unique per formset
+            added: function() { $.tabthisbody(); },
             deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
             notEmptyFormSetAddCssClass: 'mws-form-item'
         });

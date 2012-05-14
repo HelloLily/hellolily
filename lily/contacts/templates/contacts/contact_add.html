@@ -23,7 +23,7 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Add contact' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %} 
+            <form class="mws-form tabthis" autocomplete="off" action="" method="post">{% csrf_token %} 
 				                
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
@@ -188,7 +188,7 @@
 	                                    <div class="mws-form-col-row mws-form-item email_address email_is_primary">
 	                                        <label>
                                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ email_addresses_formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
-                                                <span {% if form.instance.is_primary %}class="checked"{% endif %}>{% trans 'primary' %}</span>
+                                                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">{% trans 'primary' %}</span>
 	                                        </label>
 	                                    </div>
 	                                </div>
@@ -484,7 +484,7 @@
                     {% endcomment %}
                     
                     <div class="mws-button-row">
-                        <input type="submit" value="{% trans 'Add' %}" class="mws-button blue" />
+                        <input type="submit" value="{% trans 'Add' %}" class="mws-button blue tabbable" />
                     </div>
                 </div>
             </form>

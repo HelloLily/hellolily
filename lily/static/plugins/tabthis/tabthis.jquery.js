@@ -1,5 +1,5 @@
 /*
- * TabThis v1
+ * TabThis v1.1
  * 
  * by Cornelis Poppema
  * 
@@ -7,12 +7,14 @@
  * 
  */
 (function($) {
-    var tabindex = 1;
-    $('.tabthis:visible').each(function() {
-        tabthese = $(this).find('.tabbable:visible');
-        $(tabthese).each(function(idx, elem) {
-            $(elem).attr('tabindex', tabindex+idx);
-        });
-        tabindex += tabthese.length;
-    });
+	$.tabthisbody = function() {
+    	var tabindex = 1;
+	    $('body .tabthis:visible').each(function() {
+	        tabthese = $(this).find('.tabbable:visible'); //.not('.tabthis');
+	        $(tabthese).each(function(idx, elem) {
+	            $(elem).attr('tabindex', tabindex+idx);
+	        });
+	        tabindex += tabthese.length;
+	    });
+   	}
 })(jQuery);

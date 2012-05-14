@@ -80,7 +80,7 @@ class AddContactForm(ModelForm):
 
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
                                      queryset=Account.objects.all(),empty_label=_('Select an account'),
-                                     widget=forms.Select(attrs={'class': 'chzn-select'}))
+                                     widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
     
 #    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
 #        widget=forms.TextInput(attrs={
@@ -141,29 +141,32 @@ class AddContactForm(ModelForm):
         
         widgets = {
             'first_name': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput required tabbable',
                 'placeholder': _('First name'),
             }),
             'preposition': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Preposition'),
             }),
             'last_name': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Last name'),
             }),
             'gender': forms.Select(attrs={
+                'class': 'tabbable',
             }),
             'title': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Title'),
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
                 'rows': '3',
+                'class': 'tabbable',
                 'placeholder': _('Description'),
             }),
             'salutation': forms.Select(attrs={
+                'class': 'tabbable',
             }),
         }
 
@@ -214,12 +217,12 @@ class EditContactForm(ModelForm):
             self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
                 queryset=Account.objects.all(), initial=is_working_at[0],
                 empty_label=_('Select an account'),
-                widget=forms.Select(attrs={'class': 'chzn-select'}))
+                widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
         else:
             # Add field to select account where this contact is working at.
             self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
                 queryset=Account.objects.all(), empty_label=_('Select an account'),
-                widget=forms.Select(attrs={'class': 'chzn-select'}))
+                widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
             
 #        # Try providing initial social media
 #        try:
@@ -276,29 +279,32 @@ class EditContactForm(ModelForm):
                 
         widgets = {
             'first_name': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
+                'class': 'mws-textinput required tabbable',
                 'placeholder': _('First name'),
             }),
             'preposition': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Preposition'),
             }),
             'last_name': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Last name'),
             }),
             'gender': forms.Select(attrs={
+                'class': ' tabbable'
             }),
             'title': forms.TextInput(attrs={
-                'class': 'mws-textinput',
+                'class': 'mws-textinput tabbable',
                 'placeholder': _('Title'),
             }),
             'description': forms.Textarea(attrs={
                 'cols': '60',
                 'rows': '3',
+                'class': 'tabbable',
                 'placeholder': _('Description'),
             }),
             'salutation': forms.Select(attrs={
+                'class': 'tabbable'
             }),
         }
 

@@ -188,7 +188,7 @@ class AddContactView(CreateView):
                 'redirect': do_redirect,
                 'notification': notification,
                 'url': url
-            }))
+            }), mimetype='application/json')
         else: # Deal with all the extra fields on the normal form which are not in the ajax request
             # Save all e-mail address, phone number and address formsets
             if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
@@ -271,9 +271,9 @@ class AddContactView(CreateView):
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
-                 'error': True,
-                 'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/javascript')
+                'error': True,
+                'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/json')
         else:
             # Check for the e-mail address to select as primary
             form_kwargs = self.get_form_kwargs()
@@ -700,61 +700,58 @@ class ConfirmContactEmailView(TemplateView):
     """
     Confirm an e-mail address change for a contact which is linked to a user. 
     """
+    http_method_names = ['get']
     
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         Verify the incoming request uri. Save the new e-mail address or throw a 404.
         """
-        if request.method == 'POST':
-            # throw 404
+        # Base64 decode and unpickle data from URL
+        try:
+            data = pickle.loads(base64.urlsafe_b64decode(str(kwargs.get('data') + '=' * (len(kwargs.get('data')) % 4))))
+        except:
             raise Http404
-        else:
-            # Base64 decode and unpickle data from URL
+        if self.is_valid_link(data):
+            # Unpickle EmailAddress object
             try:
-                data = pickle.loads(base64.urlsafe_b64decode(str(kwargs.get('data') + '=' * (len(kwargs.get('data')) % 4))))
+                email_address = pickle.loads(data.get('email_address'))
             except:
-                raise Http404
-            if self.is_valid_link(data):
-                # Unpickle EmailAddress object
-                try:
-                    email_address = pickle.loads(data.get('email_address'))
-                except:
-                    # throw 404
-                    raise Http404
-                        
-                # Get contact
-                contact_pk = data.get('contact_pk')
-                user = CustomUser.objects.get(pk=contact_pk)
-                
-                # Save e-mail address
-                if email_address.pk is None and user.contact.email_addresses.filter(email_address=email_address.email_address).exists():
-                    # throw 404
-                    raise Http404
-                else:
-                    # Prevent multiple primary e-mail addresses 
-                    if email_address.is_primary:
-                        user.contact.email_addresses.all().update(is_primary=False)
-                    
-                    email_address.save()
-                    user.contact.email_addresses.add(email_address)
-                
-                # if logged in:
-                if request.user.is_authenticated() and email_address.is_primary:
-                    # clear any existing messages
-                    clear_messages(request)
-                    # add message
-                    messages.success(request, _('Your primary e-mail address has been changed. Please log back in.'))
-                    
-                    # force log out
-                    return redirect(reverse('logout'))
-                else:
-                    # redirect to contact edit/view page
-                    return redirect(reverse('contact_details', kwargs={
-                        'pk': contact_pk
-                     }))
-            else:
                 # throw 404
                 raise Http404
+                    
+            # Get contact
+            contact_pk = data.get('contact_pk')
+            user = CustomUser.objects.get(pk=contact_pk)
+            
+            # Save e-mail address
+            if email_address.pk is None and user.contact.email_addresses.filter(email_address=email_address.email_address).exists():
+                # throw 404
+                raise Http404
+            else:
+                # Prevent multiple primary e-mail addresses 
+                if email_address.is_primary:
+                    user.contact.email_addresses.all().update(is_primary=False)
+                
+                email_address.save()
+                user.contact.email_addresses.add(email_address)
+            
+            # if logged in:
+            if request.user.is_authenticated() and email_address.is_primary:
+                # clear any existing messages
+                clear_messages(request)
+                # add message
+                messages.success(request, _('Your primary e-mail address has been changed. Please log back in.'))
+                
+                # force log out
+                return redirect(reverse('logout'))
+            else:
+                # redirect to contact edit/view page
+                return redirect(reverse('contact_details', kwargs={
+                    'pk': contact_pk
+                 }))
+        else:
+            # throw 404
+            raise Http404
         
     def is_valid_link(self, data):
         """

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import messages
 import re
+import string
 
 
 def autostrip(cls):
@@ -97,3 +98,10 @@ def parse_address(address):
         pass
     
     return street, street_number, complement
+
+def flatten(input):
+    """
+    Flatten the input so only alphanumeric characters remain.
+    """
+    pattern = re.compile('[\W_]+')
+    return pattern.sub('', re.escape(input)).lower()

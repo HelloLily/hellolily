@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 
 from django.shortcuts import redirect
 from django.template.context import RequestContext
@@ -12,7 +12,7 @@ from django.utils import simplejson
 from django.utils.html import escapejs
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
-from django.views.generic import CreateView
+from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -21,7 +21,7 @@ from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccou
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
-from lily.utils.functions import is_ajax
+from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
@@ -190,7 +190,7 @@ class AddAccountView(CreateView):
                 'redirect': do_redirect,
                 'notification': notification,
                 'url': url
-            }))
+            }), mimetype='application/json')
         else: # Deal with all the extra fields on the normal form which are not in the ajax request
             # Save all e-mail address, phone number and address formsets
             if self.websites_formset.is_valid() and self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
@@ -277,9 +277,9 @@ class AddAccountView(CreateView):
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
-                 'error': True,
-                 'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/javascript')
+                'error': True,
+                'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/json')
         else:
             # Check for the e-mail address to select as primary
             form_kwargs = self.get_form_kwargs()
@@ -542,9 +542,37 @@ class DeleteAccountView(DeleteView):
         return redirect(reverse('account_list'))
 
 
+class ExistsAccountView(View):
+    """
+    Check whether an account exists based on slugs. 
+    """
+    http_method_names = ['get']
+    
+    def get(self, request, *args, **kwargs):
+        # Check if an account can be found using slugified names
+        name = kwargs.pop('account_name')
+        flattened = flatten(name)
+        
+        exists = False
+        edit_url = None
+        accounts = Account.objects.filter(flatname=flattened)
+        if accounts.exists():
+            account = accounts[0]
+            exists = True
+            edit_url = reverse('account_edit', kwargs={ 'pk': account.pk })
+        else:            
+            raise Http404()
+        
+        return HttpResponse(simplejson.dumps({
+            'exists': exists,
+            'edit_url': edit_url
+        }), mimetype='application/json')
+
+
 # Perform logic here instead of in urls.py
 add_account_view = login_required(AddAccountView.as_view())
 detail_account_view = login_required(DetailAccountView.as_view())
 delete_account_view = login_required(DeleteAccountView.as_view())
 edit_account_view = login_required(EditAccountView.as_view())
 list_account_view = login_required(ListAccountView.as_view())
+exist_account_view = login_required(ExistsAccountView.as_view())

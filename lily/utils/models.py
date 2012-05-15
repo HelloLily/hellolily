@@ -58,7 +58,7 @@ class PhoneNumber(MultiTenantMixin, models.Model):
         # Save raw input as number only
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
         
-        super(PhoneNumber, self).save(*args, **kwargs)
+        return super(PhoneNumber, self).save(*args, **kwargs)
     
     class Meta:
         verbose_name = _('phone number')

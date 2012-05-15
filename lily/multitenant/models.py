@@ -34,7 +34,7 @@ class MultiTenantMixin(models.Model):
         if user and user.is_authenticated():
             self.tenant = user.tenant
         
-        super(MultiTenantMixin, self).save(*args, **kwargs)
+        return super(MultiTenantMixin, self).save(*args, **kwargs)
     
     class Meta:
         abstract = True

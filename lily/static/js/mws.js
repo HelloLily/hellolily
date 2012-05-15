@@ -105,5 +105,24 @@ $(document).ready(function() {
     	form = $(this).closest('form');
     	submit_form_on_ctrl_enter(event, form);
     });
+    
+    /* Defaults for jGrowl */
+    $.jGrowl.defaults.closerTemplate = '<div>[ close all ]</div>';
+    $.jGrowl.defaults.position = 'bottom-right';
+    $.jGrowl.defaults.sticky = false;
+    $.jGrowl.defaults.glue = 'after';
+    $.jGrowl.defaults.themeState = '';
+    $.jGrowl.defaults.pool = 2;
+    $.jGrowl.defaults.beforeOpen = function(notification,message,o,container) {
+        if( $(notification).find('a').length == 0 ) {
+            $(notification).click(function() {
+                $(this).trigger('jGrowl.beforeClose'); 
+            });
+        } else {
+            $(notification).dblclick(function() {
+                $(this).trigger('jGrowl.beforeClose'); 
+            });
+        }
+    };
 	
 });

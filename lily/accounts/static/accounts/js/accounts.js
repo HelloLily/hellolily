@@ -78,7 +78,7 @@ $(document).ready(function() {
             formCssClass: form_prefix, // needs to be unique per formset
             addCssClass: form_prefix + '-add-row', // needs to be unique per formset
             deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
-            notEmptyFormSetAddCssClass: 'mws-form-item'
+            notEmptyFormSetAddCssClass: 'mws-form-item',
         });
     };
     
@@ -87,7 +87,6 @@ $(document).ready(function() {
     
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
-    
     
     // request data to enrich form
     function do_request_to_enrich(form) {
@@ -110,26 +109,27 @@ $(document).ready(function() {
 	    	}
     		do_busy(msg_text, '');
             
+            // try this
             var jqXHR = $.ajax({
                 url: '/provide/account/' + domain,
                 type: 'GET',
                 dataType: 'json',
             })
-            
+            // on success
     		jqXHR.done(function(data, status, xhr) {
 				dataprovider_json_to_form(data, form);
             	
                 $.jGrowl(gettext('Form has been updated with details for') + ' ' + domain, {
                     theme: 'info mws-ic-16 ic-accept'
                 });
-           });
-	           
+            });
+	        // on error
 	       	jqXHR.fail(function() {
             	$.jGrowl(gettext('No information found for') + ' ' + domain, {
                     theme: 'info mws-ic-16 ic-exclamation'
                 });
-           });
-	           
+            });
+	        // finally do this
 	       	jqXHR.always(function() {
         		clearTimeout(timeout);
             	setTimeout(function() {
@@ -144,7 +144,7 @@ $(document).ready(function() {
                 
             });
 	        
-	        $('#enrich-account-cancel').click(function(event) {
+            $('#enrich-account-cancel').click(function(event) {
 	        	// if the request is still running, abort it.
 	        	if( jqXHR ) jqXHR.abort();
 	        	// hide overlay

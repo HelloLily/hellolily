@@ -293,7 +293,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
-            }))
+            }), mimetype='application/json')
         return HttpResponseRedirect(self.get_success_url())
     
     def formset_invalid(self, formset):
@@ -307,7 +307,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': True,
                 'html': render_to_string(self.form_template_name, context)
-            }), mimetype='application/javascript')
+            }), mimetype='application/json')
         return self.render_to_response(self.get_context_data(formset=formset))
     
     def get_success_url(self):

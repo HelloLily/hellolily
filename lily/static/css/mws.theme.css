@@ -87,3 +87,7 @@ div.dataTables_wrapper .dataTables_paginate span.paginate_active,
     margin:4px 6px 0 0;
     color:#4682B4;
 }
+
+.existing-account-link {
+    line-height: 34px;
+}

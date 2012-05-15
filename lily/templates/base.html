@@ -44,16 +44,23 @@
     <!-- JavaScript -->
     <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
     
     <script type="text/javascript" src="{% static 'plugins/jgrowl/jquery.jgrowl-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/tipsy/jquery.tipsy-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'plugins/clickfocus/clickfocus.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/lilyformset/lily.formset.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/jqueryform/jquery.form.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/send_form.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/mws.js' %}"></script>
+    
+    {% ifstartswith "account_list" %}
+    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+    <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
+    {% endifstartswith %}
     
     <script type="text/javascript">
         $(document).ready(function() {
@@ -186,25 +193,6 @@
                 }
             });
             {% endifstartswith %}
-            
-            // jGrowl defaults
-            $.jGrowl.defaults.closerTemplate = '<div>[ close all ]</div>';
-            $.jGrowl.defaults.position = 'bottom-right';
-            $.jGrowl.defaults.sticky = false;
-            $.jGrowl.defaults.glue = 'after';
-            $.jGrowl.defaults.themeState = '';
-            $.jGrowl.defaults.pool = 2;
-            $.jGrowl.defaults.beforeOpen = function(notification,message,o,container) {
-                if( $(notification).find('a').length == 0 ) {
-                    $(notification).click(function() {
-                        $(this).trigger('jGrowl.beforeClose'); 
-                    });
-                } else {
-                    $(notification).dblclick(function() {
-                        $(this).trigger('jGrowl.beforeClose'); 
-                    });
-                }
-            };
                           
             {% for message in messages|unique_messages|message_css_tags %}
             $.jGrowl("{{ message.message|safe }}", {

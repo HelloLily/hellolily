@@ -55,6 +55,7 @@ $(document).ready(function() {
         text = note.find('.object-list-item-text:first');
         $(textarea).trigger('change');
         $(textarea).val($.trim(text.text()));
+        $.tabthisbody();
     };
     
     // edit note

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %} 
+{% load i18n static %}
 
 {% block title %}{% trans 'Add account' %} - {% endblock %}
 
@@ -23,9 +23,9 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" autocomplete="off" action="" method="post">
-                {% csrf_token %} 
-                
+            <form class="mws-form tabthis" autocomplete="off" action="" method="post">
+                {% csrf_token %}
+
                 {% comment %}
                 The following fields are hidden fields which can be filled using Enrich, but can't be edited visually yet.
                 {% endcomment %}
@@ -35,7 +35,7 @@
                 {{ form.cocnumber }}
                 {{ form.iban }}
                 {{ form.bic }}
-				                
+
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
                         <div class="mws-form-message error no_list_style_type">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                 {% endif %}
-                
+
                 {% comment %}
                 TODO: Check company name via AJAX, if it already exists show a link to edit it
                 TODO: Add image upload field for company logo or suggest images from social media
@@ -61,7 +61,7 @@
                         <div class="mws-form-item large">
                             <div class="mws-form-cols clearfix">
                                 <div class="mws-form-col-3-8 alpha">
-                                     <div class="mws-form-item">                        
+                                     <div class="mws-form-item">
                                         {% if form.primary_website.errors %}
                                             <span class="field_error">{{ form.primary_website }}</span>
                                             <div class="mws-error no_list_style_type">
@@ -73,14 +73,14 @@
                                     </div>
                                 </div>
                                 <div class="mws-form-col-2-8 alpha">
-                                     <div class="mws-form-item">                         
-                                        <input type="button" id="enrich-account-button" class="mws-button blue" value="{% trans 'Enrich' %}" />
+                                     <div class="mws-form-item">
+                                        <input type="button" id="enrich-account-button" class="mws-button blue tabbable" value="{% trans 'Enrich' %}" />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mws-form-row">
                         {{ form.name.label_tag }}
                         <div class="mws-form-item large">
@@ -105,10 +105,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
-                        <div class="mws-form-item large">                            
+                        <div class="mws-form-item large">
                             {% if form.description.errors %}
                                 <span class="field_error">{{ form.description }}</span>
                                 <div class="mws-error no_list_style_type">
@@ -119,7 +119,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+
                     <div class="mws-form-row">
                         {{ form.tags.label_tag }}
                         <div class="mws-form-cols clearfix">
@@ -129,11 +129,11 @@
                                         <span class="field_error">
                                             <div class="input-and-choice">
                                                 <div>
-                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                    <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
+                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                                    <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                                 </div>
                                                 <div>
-                                                    {{ form.tags }}                                           
+                                                    {{ form.tags }}
                                                     <ul class="input-and-choice-list clearfix search-field"></ul>
                                                 </div>
                                             </div>
@@ -144,11 +144,11 @@
                                     {% else %}
                                         <div class="input-and-choice">
                                             <div>
-                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                                <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                             </div>
                                             <div>
-                                                {{ form.tags }}                                           
+                                                {{ form.tags }}
                                                 <ul class="input-and-choice-list clearfix search-field"></ul>
                                             </div>
                                         </div>
@@ -157,9 +157,9 @@
                             </div>
                         </div>
                     </div>
-                
+
                     <hr />
-                    
+
                     {% comment %}
                     TODO: Inform user when deleting a primary e-mail address and two or more options
                     are available and another was automatically selected as primary OR generate
@@ -188,7 +188,7 @@
                                         <div class="mws-form-col-row mws-form-item email_is_primary">
                                             <label>
                                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ email_addresses_formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
-                                                <span {% if form.instance.is_primary %}class="checked"{% endif %}>{% trans 'primary' %}</span>
+                                                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">{% trans 'primary' %}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -242,7 +242,7 @@
 	                                    </div>
 	                                </div>
 	                                <div class="float-left">
-	                                    <div class="mws-form-col-ro mws-form-item">
+	                                    <div class="mws-form-col-row mws-form-item">
 	                                        {{ form.other_type }}
 	                                    </div>
 	                                </div>
@@ -262,14 +262,14 @@
                         </div>
                         {{ phone_numbers_formset.management_form }}
                     </div>
-                    
+
                     <div class="mws-form-row">
                         <label for="id_websites-0-website">{% trans 'Extra websites' %}</label>
                         {% for form in websites_formset.forms %}
-                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset"> 
+                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">
                                 <div class="mws-form-cols clearfix">
                                     <div class="float-left">
-                                        <div class="mws-form-col-row mws-form-item">       
+                                        <div class="mws-form-col-row mws-form-item">
                                             {% if form.website.errors %}
                                                 <span class="field_error float-left">{{ form.website }}</span>
                                                 <div class="mws-error inline plain float-left">
@@ -297,12 +297,12 @@
                         </div>
                         {{ websites_formset.management_form }}
                     </div>
-                    
+
                     {% comment %}
                     TODO: find a proper solution to fix tabindex order
                     {% endcomment %}
                     <div class="mws-form-row">
-                        <label for="id_addresses-0-postal_code">{% trans 'Addresses' %}</label>
+                        <label for="id_addresses-0-street">{% trans 'Addresses' %}</label>
 	                    {% for form in addresses_formset.forms %}
 	                        <div class="{{ addresses_formset.prefix }}-mws-formset">
                                 <div class="mws-form-item large">
@@ -421,21 +421,21 @@
                                 </div>
                             </div>
                         {% empty %}
-                            <div class="{{ addresses_formset.prefix }}-mws-formset">  
+                            <div class="{{ addresses_formset.prefix }}-mws-formset">
                             </div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'accounts/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}
+                            {% include 'accounts/address_formset_template.html' with formset_prefix=addresses_formset.prefix country_choices=countries %}
                         </div>
                         {{ addresses_formset.management_form }}
                     </div>
-                
+
                     {% comment %}
                     <hr />
-                    
+
                     <div class="mws-form-row">
                         {{ form.twitter.label_tag }}
-                        <div class="mws-form-item large">                            
+                        <div class="mws-form-item large">
                             {% if form.twitter.errors %}
                                 <span class="field_error">{{ form.twitter }}</span>
                                 <div class="mws-error no_list_style_type">
@@ -446,10 +446,10 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+
                     <div class="mws-form-row">
                         {{ form.linkedin.label_tag }}
-                        <div class="mws-form-item large">                            
+                        <div class="mws-form-item large">
                             {% if form.linkedin.errors %}
                                 <span class="field_error">{{ form.linkedin }}</span>
                                 <div class="mws-error no_list_style_type">
@@ -460,10 +460,10 @@
                             {% endif %}
                         </div>
                     </div>
-    
+
                     <div class="mws-form-row">
                         {{ form.facebook.label_tag }}
-                        <div class="mws-form-item large">                            
+                        <div class="mws-form-item large">
                             {% if form.facebook.errors %}
                                 <span class="field_error">{{ form.facebook }}</span>
                                 <div class="mws-error no_list_style_type">
@@ -475,13 +475,13 @@
                         </div>
                     </div>
                     {% endcomment %}
-                    
+
                     {% comment %}
                     <hr />
-                    
+
                         <div class="mws-form-row">
                             {{ form.status.label_tag }}
-                            <div class="mws-form-item large">                            
+                            <div class="mws-form-item large">
                                 {% if form.status.errors %}
                                     <span class="field_error">{{ form.status }}</span>
                                     <div class="mws-error no_list_style_type">
@@ -492,10 +492,10 @@
                                 {% endif %}
                             </div>
                         </div>
-    
+
                         <div class="mws-form-row">
                             {{ form.company_size.label_tag }}
-                            <div class="mws-form-item large">                            
+                            <div class="mws-form-item large">
                                 {% if form.company_size.errors %}
                                     <span class="field_error">{{ form.company_size }}</span>
                                     <div class="mws-error no_list_style_type">
@@ -506,11 +506,11 @@
                                 {% endif %}
                             </div>
                         </div>
-                    
+
                     {% endcomment %}
-                
+
                     <div class="mws-button-row">
-                        <input type="submit" value="{% trans 'Add' %}" class="mws-button blue" />
+                        <input type="submit" value="{% trans 'Add' %}" class="mws-button blue tabbable" />
                     </div>
                 </div>
             </form>

@@ -46,6 +46,7 @@
     <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
     
+    <script type="text/javascript" src="{% static 'plugins/tabthis/tabthis.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/jgrowl/jquery.jgrowl-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/tipsy/jquery.tipsy-min.js' %}"></script>
@@ -224,10 +225,10 @@
 	        </div>
             
             <!-- Button Container -->
-            <div id="mws-quickbutton-container">
+            <div id="mws-quickbutton-container" class="tabthis">
                 {% ifstartswith "account_list" %}
                     <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
-                        <button type="button" class="mws-button blue">
+                        <button type="button" class="mws-button blue tabbable">
                             {% trans 'Add account' %}
                         </button>
                     </a>
@@ -243,7 +244,7 @@
                 
                 {% ifstartswith "contact_list" %}
                     <a id="quickbutton-contact" href="{% url contact_add %}" class="no-decoration">
-                        <button type="button" class="mws-button blue">
+                        <button type="button" class="mws-button blue tabbable">
                             {% trans 'Add contact' %}
                         </button>
                     </a>
@@ -284,8 +285,8 @@
             <div id="mws-search-container">
                 <!-- Searchbox -->
                 <form id="mws-searchbox" class="mws-form" action="">
-                    <input type="text" name="keywords" class="mws-search-input" />
-                    <input type="submit" class="mws-search-submit" />
+                    <input type="text" name="keywords" class="mws-search-input tabbable" />
+                    <input type="submit" class="mws-search-submit tabbable" />
                 </form>
             </div>
             {% endcomment %}

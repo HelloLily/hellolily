@@ -20,7 +20,7 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Edit note' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" action="{% url note_edit pk=note.pk %}" method="post">
+            <form class="mws-form tabthis" action="{% url note_edit pk=note.pk %}" method="post">
                 {% include 'notes/note_form.html' %}
                 <div class="mws-button-row">
                     <input type="submit" value="Submit" class="mws-button red">

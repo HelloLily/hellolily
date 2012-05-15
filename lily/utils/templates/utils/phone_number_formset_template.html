@@ -8,12 +8,12 @@ Use {% include 'utils/phone_number_formset_template.html' with formset_prefix=ph
         <div class="mws-form-cols clearfix">
             <div class="float-left">
                 <div class="mws-form-col-row mws-form-item">
-                    <input name="{{ formset_prefix }}-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput" type="text" id="id_{{ formset_prefix }}-0-raw_input" />
+                    <input name="{{ formset_prefix }}-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput tabbable" type="text" id="id_{{ formset_prefix }}-0-raw_input" />
                 </div>
             </div>
             <div class="float-left">
                 <div class="mws-form-col-row mws-form-item">
-                    <select id="id_{{ formset_prefix }}-0-type" class="other" name="{{ formset_prefix }}-0-type">
+                    <select id="id_{{ formset_prefix }}-0-type" class="other chzn-select-no-search tabbable" name="{{ formset_prefix }}-0-type">
                         {% block phone_number_types %}
                         <option value="work" selected="selected">{% trans 'Work' %}</option>
                         <option value="mobile">{% trans 'Mobile' %}</option>
@@ -24,13 +24,13 @@ Use {% include 'utils/phone_number_formset_template.html' with formset_prefix=ph
                         <option value="pager">{% trans 'Pager' %}</option>
                         <option value="other">{% trans 'Other' %}</option>
                         {% endblock %}
-                    </select>                                      
+                    </select>
                 </div>
             </div>
             {% block other_phone_number_type %}
             <div class="float-left">
                 <div class="mws-form-col-row mws-form-item">
-                    <input id="id_{{ formset_prefix }}-0-other_type" type="text" class="mws-textinput other hidden" name="{{ formset_prefix }}-0-other_type" maxlength="15" />
+                    <input id="id_{{ formset_prefix }}-0-other_type" type="text" class="mws-textinput other hidden tabbable" name="{{ formset_prefix }}-0-other_type" maxlength="15" />
                 </div>
             </div>
             {% endblock %}

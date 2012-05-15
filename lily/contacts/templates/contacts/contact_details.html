@@ -84,7 +84,7 @@
                     {% endwith %}
                     
                  	{% if contact.primary_email %}
-                            <span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
+                    	<span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
                     {% endif %}
                     
                     {% with contact.get_twitter as twitter %}
@@ -114,7 +114,7 @@
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <h2>{% trans 'History' %}</h2>
                         {% if form %}
-                            <form class="mws-form" action="" method="post">
+                            <form class="mws-form tabthis" action="" method="post">
                                 {% csrf_token %}
 								<br />
                                 {% if form.note.errors %}
@@ -129,7 +129,7 @@
                                         {{ form.note }}
                                     </div>
                                 {% endif %}
-                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
+                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small tabbable">
                             </form>
                             
                             <hr />
@@ -139,15 +139,17 @@
                                 {% include 'notes/note.html' with note=note %}
                             </div>
                         {% endfor %}
-                        <div id="delete-note-form-dialog" style="display:none;">
-                            <form class="mws-form" id="delete-note-form" action="" method="post">
-                                {% csrf_token %} 
-                                <div class="mws-form-inline">
-                                    <div class="mws-form-row">
-                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="hidden">
+	                        <div id="delete-note-form-dialog">
+	                            <form class="mws-form" id="delete-note-form" action="" method="post">
+	                                {% csrf_token %} 
+	                                <div class="mws-form-inline">
+	                                    <div class="mws-form-row">
+	                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
+	                                    </div>
+	                                </div>
+	                            </form>
+	                        </div>
                         </div>
                     </div>
                     

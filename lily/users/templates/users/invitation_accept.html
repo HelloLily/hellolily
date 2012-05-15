@@ -21,7 +21,7 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Registration form' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" autocomplete="off" action="" method="post">{% csrf_token %}
+            <form class="mws-form tabthis" autocomplete="off" action="" method="post">{% csrf_token %}
                 
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
@@ -189,7 +189,7 @@
                             {% trans 'Cancel' %}
                         </button>
                     </a>
-                    <input type="submit" value="{% trans 'Accept' %}" class="mws-button blue" />
+                    <input type="submit" value="{% trans 'Accept' %}" class="mws-button blue tabbable" />
                 </div>
             </form>
         </div>

@@ -27,15 +27,17 @@
                     <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
                 </a>
 
-                <div id="delete-account-form-dialog" style="display:none;">
-                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
-                        {% csrf_token %} 
-                        <div class="mws-form-inline">
-                            <div class="mws-form-row">
-                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
-                            </div>
-                        </div>
-                    </form>
+				<div class="hidden">
+	                <div id="delete-account-form-dialog">
+	                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
+	                        {% csrf_token %} 
+	                        <div class="mws-form-inline">
+	                            <div class="mws-form-row">
+	                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
                 </div>
             </span>
             <span class="mws-i-24 i-companies">
@@ -128,7 +130,7 @@
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <h2>{% trans 'History' %}</h2>
                         {% if form %}
-                            <form class="mws-form" action="" method="post">
+                            <form class="mws-form tabthis" action="" method="post">
                                 {% csrf_token %}
                                 
 								<br />
@@ -144,7 +146,7 @@
                                         {{ form.note }}
                                     </div>
                                 {% endif %}
-                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
+                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small tabbable">
                             </form>
                             
                             <hr />

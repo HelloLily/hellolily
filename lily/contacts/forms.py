@@ -127,11 +127,7 @@ class AddContactForm(ModelForm):
                 'placeholder': _('Last name'),
             }),
             'gender': forms.Select(attrs={
-<<<<<<< HEAD
-                'class': 'mws-textinput chzn-select-no-search',
-=======
-                'class': 'tabbable',
->>>>>>> 7eb0e86ce924030e7dd1085d7bc668c8b1fa1902
+                'class': 'mws-textinput chzn-select-no-search tabbable',
             }),
             'title': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
@@ -144,13 +140,8 @@ class AddContactForm(ModelForm):
                 'placeholder': _('Description'),
             }),
             'salutation': forms.Select(attrs={
-<<<<<<< HEAD
-                'class': 'mws-textinput chzn-select-no-search',
+                'class': 'mws-textinput chzn-select-no-search tabbable',
             })
-=======
-                'class': 'tabbable',
-            }),
->>>>>>> 7eb0e86ce924030e7dd1085d7bc668c8b1fa1902
         }
 
 
@@ -205,13 +196,7 @@ class EditContactForm(ModelForm):
             # Add field to select account where this contact is working at.
             self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
                 queryset=Account.objects.all(), empty_label=_('Select an account'),
-<<<<<<< HEAD
-                widget=forms.Select(attrs={'class': 'chzn-select'}))
-
-=======
                 widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
-
->>>>>>> 7eb0e86ce924030e7dd1085d7bc668c8b1fa1902
 #        # Try providing initial social media
 #        try:
 #            self.fields['twitter'].initial = self.instance.social_media.filter(name='twitter')[0].username

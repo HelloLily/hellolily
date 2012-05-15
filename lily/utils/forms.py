@@ -27,12 +27,12 @@ class PhoneNumberBaseForm(ModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
-    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', 
+    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work',
         widget=forms.Select(attrs={
-            'class': 'other'
+            'class': 'other chzn-select-no-search'
         }
     ))
-    
+
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
     raw_input = forms.CharField(required=False, widget=forms.TextInput(attrs={
@@ -60,9 +60,11 @@ class AddressBaseForm(ModelForm):
     Form for adding an address which includes all fields available.
     """
     type = forms.ChoiceField(choices=Address.ADDRESS_TYPE_CHOICES, initial='visiting',
-        widget=forms.Select()
+        widget=forms.Select(attrs={
+            'class': 'mws-textinput chzn-select-no-search',
+        })
     )
-    
+
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
@@ -91,9 +93,8 @@ class AddressBaseForm(ModelForm):
                 'class': 'mws-textinput',
                 'placeholder': _('State/province'),
             }),
-            'country': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Country'),
+            'country': forms.Select(attrs={
+                'class': 'mws-textinput chzn-select',
             }),
         }
 

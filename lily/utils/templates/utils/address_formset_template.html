@@ -41,12 +41,19 @@ Use {% include 'utils/address_formset_template.html' with formset_prefix=address
         <div class="mws-form-cols clearfix">
             <div class="mws-form-col-2-8 alpha">
                 <div class="mws-form-item">
-                    <input name="{{ formset_prefix }}-0-country" maxlength="200" placeholder="{% trans 'Country' %}" type="text" class="mws-textinput" id="id_{{ formset_prefix }}-0-country" />
+                    <select name="{{ formset_prefix }}-0-country" id="id_{{ formset_prefix }}-0-country" class="chzn-select">
+                        {% block countries %}
+                            <option value="">---------</option>
+                            {% for value, text in country_choices %}
+                                <option value="{{ value }}">{{ text }}</option>
+                            {% endfor %}
+                        {% endblock %}
+                    </select>
                 </div>
             </div>
             <div class="mws-form-col-2-8">
                 <div class="mws-form-item">
-                    <select name="{{ formset_prefix }}-0-type" id="id_{{ formset_prefix }}-0-type">
+                    <select name="{{ formset_prefix }}-0-type" id="id_{{ formset_prefix }}-0-type" class="chzn-select-no-search">
                         {% block address_types %}
                         <option value="visiting" selected="selected">{% trans 'Visiting address' %}</option>
                         <option value="billing">{% trans 'Billing address' %}</option>

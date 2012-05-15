@@ -13,7 +13,7 @@ Use {% include 'utils/phone_number_formset_template.html' with formset_prefix=ph
             </div>
             <div class="float-left">
                 <div class="mws-form-col-row mws-form-item">
-                    <select id="id_{{ formset_prefix }}-0-type" class="other" name="{{ formset_prefix }}-0-type">
+                    <select id="id_{{ formset_prefix }}-0-type" class="other chzn-select-no-search" name="{{ formset_prefix }}-0-type">
                         {% block phone_number_types %}
                         <option value="work" selected="selected">{% trans 'Work' %}</option>
                         <option value="mobile">{% trans 'Mobile' %}</option>
@@ -24,7 +24,7 @@ Use {% include 'utils/phone_number_formset_template.html' with formset_prefix=ph
                         <option value="pager">{% trans 'Pager' %}</option>
                         <option value="other">{% trans 'Other' %}</option>
                         {% endblock %}
-                    </select>                                      
+                    </select>
                 </div>
             </div>
             {% block other_phone_number_type %}

@@ -29,14 +29,17 @@ class CustomAuthenticationForm(AuthenticationForm):
     }
     
     username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
-        'class': 'mws-login-email mws-textinput required',
+        'class': 'mws-login-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'mws-login-password mws-textinput required',
+        'class': 'mws-login-password mws-textinput required tabbable',
         'placeholder': _('Password')
     }))
-    remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
+    remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'tabbable'
+    }))
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -45,7 +48,7 @@ class CustomPasswordResetForm(PasswordResetForm):
     CSS classes are added and CustomUser is used for validation instead of User.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
-        'class': 'mws-reset-email mws-textinput required',
+        'class': 'mws-reset-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     
@@ -125,18 +128,18 @@ class CustomSetPasswordForm(SetPasswordForm):
     Css classes are added and CustomUser is used for validation instead of User.
     """
     new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput(attrs={
-        'class': 'mws-reset-password mws-textinput required',
+        'class': 'mws-reset-password mws-textinput required tabbable',
         'placeholder': _('New password')
     }))
     new_password2 = forms.CharField(label=_('New password confirmation'), widget=forms.PasswordInput(attrs={
-        'class': 'mws-reset-password mws-textinput required',
+        'class': 'mws-reset-password mws-textinput required tabbable',
         'placeholder': _('New password confirmation')
     }))
 
 
 class ResendActivationForm(Form):
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
-        'class': 'mws-reset-email mws-textinput required',
+        'class': 'mws-reset-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     
@@ -171,43 +174,43 @@ class RegistrationForm(Form):
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-email mws-textinput required',
+            'class': 'mws-register-email mws-textinput required tabbable',
             'placeholder': _('E-mail')
         }
     ))
     password = forms.CharField(label=_('Password'), min_length=6, 
         widget=JqueryPasswordInput(attrs={
-            'class': 'mws-register-password mws-textinput required',
+            'class': 'mws-register-password mws-textinput required tabbable',
             'placeholder': _('Password')
         }
     ))
     password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6, 
         widget=forms.PasswordInput(attrs={
-            'class': 'mws-register-password mws-textinput required',
+            'class': 'mws-register-password mws-textinput required tabbable',
             'placeholder': _('Password confirmation')
         }
     ))
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-first-name mws-textinput required',
+            'class': 'mws-register-first-name mws-textinput required tabbable',
             'placeholder': _('First name')
         }
     ))
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-preposition mws-textinput',
+            'class': 'mws-register-preposition mws-textinput tabbable',
             'placeholder': _('Preposition')
         }
     ))
     last_name = forms.CharField(label=_('Last name'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-last-name mws-textinput required',
+            'class': 'mws-register-last-name mws-textinput required tabbable',
             'placeholder': _('Last name')
         }
     ))
     company = forms.CharField(label=_('Company'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-company mws-textinput required',
+            'class': 'mws-register-company mws-textinput required tabbable',
             'placeholder': _('Company')
         }
     ))
@@ -277,13 +280,13 @@ class InvitationForm(Form):
     """
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-name mws-textinput required',
+            'class': 'mws-register-name mws-textinput required tabbable',
             'placeholder': _('First name')
         }
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-email mws-textinput required',
+            'class': 'mws-register-email mws-textinput required tabbable',
             'placeholder': _('E-mail')
         }
     ))

@@ -25,7 +25,7 @@
             <span class="mws-i-24 i-fountain-pen">{% trans 'Edit account' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form" autocomplete="off" action="" method="post">
+            <form class="mws-form tabthis" autocomplete="off" action="" method="post">
                 {% csrf_token %}
                 
                 {% comment %}
@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="mws-form-col-2-8 alpha">
                                      <div class="mws-form-item">                         
-                                        <input type="button" id="enrich-account-button" class="mws-button blue" value="{% trans 'Enrich' %}" />
+                                        <input type="button" id="enrich-account-button" class="mws-button blue tabbable" value="{% trans 'Enrich' %}" />
                                     </div>
                                 </div>
                             </div>
@@ -120,8 +120,8 @@
                                         <span class="field_error">
                                             <div class="input-and-choice">
                                                 <div>
-                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                    <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
+                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />            
+                                                    <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                                 </div>
                                                 <div>
                                                     {{ form.tags }}                                           
@@ -135,8 +135,8 @@
                                     {% else %}
                                         <div class="input-and-choice">
                                             <div>
-                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input" />            
-                                                <input type="button" class="input-and-choice-button mws-button blue" value="Add" />
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />            
+                                                <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                             </div>
                                             <div>
                                                 {{ form.tags }}                                           
@@ -187,7 +187,7 @@
                                         <div class="mws-form-col-row mws-form-item email_is_primary">
                                             <label>
                                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ email_addresses_formset.prefix }}_primary-email" {% if form.is_primary.value %}checked="checked"{% endif %}/>
-                                                <span {% if form.is_primary.value %}class="checked"{% endif %}>{% trans 'primary' %}</span>
+                                                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">{% trans 'primary' %}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -552,7 +552,7 @@
                                 {% trans 'Cancel' %}
                             </button>
                         </a>
-                        <input type="submit" value="{% trans 'Save' %}" class="mws-button blue" />
+                        <input type="submit" value="{% trans 'Save' %}" class="mws-button blue tabbable" />
                     </div>
                 </div>
             </form>

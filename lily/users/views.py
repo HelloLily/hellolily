@@ -30,6 +30,7 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
+from lily.utils.views import MultipleModelListView
 from lily.multitenant.models import Tenant
 
 
@@ -464,11 +465,18 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(TemplateView):
+class DashboardView(MultipleModelListView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
+    models = [Account, Contact]
+    
+    def get_model_queryset(self, list_name, model):
+        """
+        Return the five newest objects for given model.
+        """
+        return model._default_manager.order_by('-created').all()[:5]
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()

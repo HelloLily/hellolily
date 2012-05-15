@@ -140,13 +140,14 @@ else:
 # Used and installed apps
 INSTALLED_APPS = (
     # Django
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
     
     # 3rd party
     'templated_email',

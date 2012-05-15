@@ -22,7 +22,7 @@ from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax
-from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
@@ -30,7 +30,7 @@ from lily.utils.views import DetailFormView
 class ListAccountView(ListView):
     template_name = 'accounts/account_list.html'
     model = Account
-    
+
     def get_queryset(self):
         """
         Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
@@ -67,15 +67,15 @@ class DetailAccountView(DetailFormView):
     template_name = 'accounts/account_details.html'
     model = Account
     form_class = NoteForm
-    
+
     def form_valid(self, form):
         note = form.save(commit=False)
         note.author = self.request.user
         note.subject = self.object
         note.save()
-        
+
         return super(DetailAccountView, self).form_valid(form)
-    
+
     def get_success_url(self):
         return reverse('account_details', kwargs={'pk': self.object.pk})
 
@@ -103,58 +103,58 @@ class AddAccountView(CreateView):
             self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
             self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
             self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
-        
+
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
-    
+
     def get_form_kwargs(self):
         """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
+        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
         instantiating the form.
         """
         kwargs = super(AddAccountView, self).get_form_kwargs()
-        
+
         # Add the user object in the kwargs for the normal form
         if not is_ajax(self.request):
             kwargs.update({
                 'user': self.request.user
             })
         return kwargs
-    
+
     def get_form(self, form_class):
         """
         Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(AddAccountView, self).get_form(form_class)
-        
+
         # Instantiate the formsets for the normal form
         if not is_ajax(self.request):
             self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.none(), prefix='websites')
             self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
             self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
             self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
-        
+
         return form
-    
+
     def form_valid(self, form):
         """
-        Add m2m relations to newly created account (i.e. Social media, Phone numbers, 
-        E-mail addresses and Addresses). 
+        Add m2m relations to newly created account (i.e. Social media, Phone numbers,
+        E-mail addresses and Addresses).
         """
         # Save instance
         super(AddAccountView, self).form_valid(form)
-        
+
         form_kwargs = self.get_form_kwargs()
-            
+
         if is_ajax(self.request):
             # Add e-mail address to account as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
-            
+
             # Save website
             if form.cleaned_data.get('website'):
                 Website.objects.create(website=form.cleaned_data.get('website'),
                                        account=self.object, is_primary=True)
-            
+
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
@@ -167,23 +167,23 @@ class AddAccountView(CreateView):
             else:
                 list_url = reverse('account_list')
                 message = _('%s (Account) has been saved.') % self.object.name
-                
+
                 # Redirect if in the list view
                 if self.request.META['HTTP_REFERER'].endswith(list_url):
                     # Show save message
                     messages.success(self.request, message)
-            
-                    do_redirect = True    
+
+                    do_redirect = True
                     url = list_url
                     notification = False
                     html_response = ''
                 else:
-                    do_redirect = False    
+                    do_redirect = False
                     url = ''
                     html_response = ''
                     notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-            
-            # Return response 
+
+            # Return response
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': html_response,
@@ -200,18 +200,18 @@ class AddAccountView(CreateView):
                     if formset.instance.website and not formset.instance.website == formset.fields['website'].initial:
                         formset.instance.account = self.object
                         formset.save()
-                
+
                 # Handle e-mail addresses
                 for formset in self.email_addresses_formset:
                     primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
                     if formset.prefix == primary:
                         formset.instance.is_primary = True
-                    
+
                     # Only save e-mail address if something else than primary/status was filled in
                     if formset.instance.email_address:
                         formset.save()
                         self.object.email_addresses.add(formset.instance)
-                
+
                 # Handle addresses
                 for formset in self.addresses_formset:
                     # Only save address if something else than complement and/or type is filled in
@@ -223,14 +223,14 @@ class AddAccountView(CreateView):
                             formset.instance.country]):
                         formset.save()
                         self.object.addresses.add(formset.instance)
-                
+
                 # Handle phone numbers
                 for formset in self.phone_numbers_formset:
                     # Only save address if something was filled other than type
                     if formset.instance.raw_input:
                         formset.save()
                         self.object.phone_numbers.add(formset.instance)
-            
+
             # Add primary website
             if form_kwargs['data'].get('primary_website'):
                 try:
@@ -244,35 +244,35 @@ class AddAccountView(CreateView):
 #            # Add relation to Facebook
 #            if form_kwargs['data'].get('facebook'):
 #                facebook = SocialMedia.objects.create(
-#                    name='facebook', 
+#                    name='facebook',
 #                    username=form_kwargs['data'].get('facebook'),
 #                    profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
 #                self.object.social_media.add(facebook)
-#            
+#
 #            # Add relation to Twitter
 #            if form_kwargs['data'].get('twitter'):
 #                twitter = SocialMedia.objects.create(
-#                    name='twitter', 
+#                    name='twitter',
 #                    username=form_kwargs['data'].get('twitter'),
 #                    profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
 #                self.object.social_media.add(twitter)
-#            
+#
 #            # Add relation to LinkedIn
 #            if form_kwargs['data'].get('linkedin'):
 #                linkedin = SocialMedia.objects.create(
 #                    name='linkedin',
 #                    profile_url=form_kwargs['data'].get('linkedin'))
 #                self.object.social_media.add(linkedin)
-            
+
             # Show save message
             messages.success(self.request, _('%s (Account) has been saved.') % self.object.name);
-            
+
         return self.get_success_url()
-    
+
     def form_invalid(self, form):
         """
         Overloading super().form_invalid to return a different response to ajax requests. For normal
-        request: mark the primary checkbox as checked for postbacks. 
+        request: mark the primary checkbox as checked for postbacks.
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
@@ -284,22 +284,22 @@ class AddAccountView(CreateView):
             # Check for the e-mail address to select as primary
             form_kwargs = self.get_form_kwargs()
             primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-            
+
             for formset in self.email_addresses_formset:
                 if formset.prefix == primary:
                     # Mark as selected
                     formset.instance.is_primary = True
                     # TODO: try making the field selected to prevent double if statements in templates
 #                    formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
-        
+
         return super(AddAccountView, self).form_invalid(form)
-    
+
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to add formsets for template.
         """
         kwargs = super(AddAccountView, self).get_context_data(**kwargs)
-        
+
         # Add formsets to context for the normal form
         if not is_ajax(self.request):
             kwargs.update({
@@ -307,15 +307,16 @@ class AddAccountView(CreateView):
                 'email_addresses_formset': self.email_addresses_formset,
                 'addresses_formset': self.addresses_formset,
                 'phone_numbers_formset': self.phone_numbers_formset,
+                'countries': COUNTRIES,
             })
         return kwargs
-    
+
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted. 
+        Get the url to redirect to after this form has succesfully been submitted.
         """
         return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
-    
+
 
 class EditAccountView(UpdateView):
     """
@@ -325,16 +326,16 @@ class EditAccountView(UpdateView):
     template_name = 'accounts/account_edit.html'
     form_class = EditAccountForm
     model = Account
-    
+
     # Create formsets
     WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, can_delete=True, extra=0)
     EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
     AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True, extra=0)
     PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
-    
+
     def get_form_kwargs(self):
         """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for 
+        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
         instantiating the form.
         """
         kwargs = super(EditAccountView, self).get_form_kwargs()
@@ -342,31 +343,31 @@ class EditAccountView(UpdateView):
             'user': self.request.user
         })
         return kwargs
-    
+
     def get_form(self, form_class):
         """
         Overloading super().get_form to instantiate formsets while instantiating the form.
         """
         form = super(EditAccountView, self).get_form(form_class)
-        
+
         self.websites_formset = form.websites_formset = self.WebsiteFormSet(self.request.POST or None, queryset=Website.objects.filter(account=self.object, is_primary=False), prefix='websites')
         self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
         self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
         self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
-        
+
         return form
-    
+
     def form_valid(self, form):
         """
-        Save m2m relations to edited account (i.e. Social media, Phone numbers, 
-        E-mail addresses and Addresses). 
+        Save m2m relations to edited account (i.e. Social media, Phone numbers,
+        E-mail addresses and Addresses).
         """
         # Save instance
         super(EditAccountView, self).form_valid(form)
-        
+
         # Retrieve account instance to use
         form_kwargs = self.get_form_kwargs()
-        
+
         # Save all e-mail address, phone number and address formsets
         if self.websites_formset.is_valid() and self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
             # Handle websites
@@ -379,7 +380,7 @@ class EditAccountView(UpdateView):
                 if formset.instance.website and not formset.instance.website == formset.fields['website'].initial:
                     formset.instance.account = self.object
                     formset.save()
-                
+
             # Handle e-mail addresses
             for formset in self.email_addresses_formset:
                 # Check if existing instance has been marked for deletion
@@ -387,19 +388,19 @@ class EditAccountView(UpdateView):
                     self.object.email_addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
-                
+
                 # Check for e-mail address selected as primary
                 primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
                 if formset.prefix == primary:
                     formset.instance.is_primary = True
                 else:
                     formset.instance.is_primary = False
-                
+
                 # Only save e-mail address if something else than primary/status was filled in
                 if formset.instance.email_address:
                     formset.save()
                     self.object.email_addresses.add(formset.instance)
-            
+
             # Handle addresses
             for formset in self.addresses_formset:
                 # Check if existing instance has been marked for deletion
@@ -407,7 +408,7 @@ class EditAccountView(UpdateView):
                     self.object.addresses.remove(formset.instance)
                     formset.instance.delete()
                     continue
-                
+
                 # Only save address if something else than complement and/or type is filled in
                 if any([formset.instance.street,
                         formset.instance.street_number,
@@ -417,7 +418,7 @@ class EditAccountView(UpdateView):
                         formset.instance.country]):
                     formset.save()
                     self.object.addresses.add(formset.instance)
-            
+
             # Handle phone numbers
             for formset in self.phone_numbers_formset:
                 # Check if existing instance has been marked for deletion
@@ -425,12 +426,12 @@ class EditAccountView(UpdateView):
                     self.object.phone_numbers.remove(formset.instance)
                     formset.instance.delete()
                     continue
-                
+
                 # Only save address if something was filled other than type
                 if formset.instance.raw_input:
                     formset.save()
                     self.object.phone_numbers.add(formset.instance)
-            
+
         # Add primary website
         if form_kwargs['data'].get('primary_website'):
             try:
@@ -447,12 +448,12 @@ class EditAccountView(UpdateView):
                 website.delete()
             except Exception:
                 pass
-                
+
 #        # Add relation to Facebook
 #        if form_kwargs['data'].get('facebook'):
 #            # Prevent re-creating
 #            facebook, created = SocialMedia.objects.get_or_create(
-#                name='facebook', 
+#                name='facebook',
 #                username=form_kwargs['data'].get('facebook'),
 #                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
 #            if created:
@@ -460,12 +461,12 @@ class EditAccountView(UpdateView):
 #        else:
 #            # Remove possible Facebook relations
 #            self.object.social_media.filter(name='facebook').delete()
-#        
+#
 #        # Add relation to Twitter
 #        if form_kwargs['data'].get('twitter'):
 #            # Prevent re-creating
 #            twitter, created = SocialMedia.objects.get_or_create(
-#                name='twitter', 
+#                name='twitter',
 #                username=form_kwargs['data'].get('twitter'),
 #                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
 #            if created:
@@ -473,7 +474,7 @@ class EditAccountView(UpdateView):
 #        else:
 #            # Remove possible Twitter relations
 #            self.object.social_media.filter(name='twitter').delete()
-#        
+#
 #        # Add relation to LinkedIn
 #        if form_kwargs['data'].get('linkedin'):
 #            # Prevent re-creating
@@ -485,12 +486,12 @@ class EditAccountView(UpdateView):
 #        else:
 #            # Remove possible LinkedIn relations
 #            self.object.social_media.filter(name='linkedin').delete()
-        
+
         # Show save message
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name);
-            
+
         return self.get_success_url()
-    
+
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to add formsets for template.
@@ -503,10 +504,10 @@ class EditAccountView(UpdateView):
             'phone_numbers_formset': self.phone_numbers_formset,
         })
         return kwargs
-    
+
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted. 
+        Get the url to redirect to after this form has succesfully been submitted.
         """
         # TODO: determine whether to go back to the list in search mode
         return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
@@ -517,7 +518,7 @@ class DeleteAccountView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Account
-    
+
     def delete(self, request, *args, **kwargs):
         """
         Overloading super().delete to remove the related models and the instance itself.
@@ -526,19 +527,19 @@ class DeleteAccountView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
-        
+
         functions = Function.objects.filter(account=self.object)
         functions.delete()
         tags = Tag.objects.filter(account=self.object)
         tags.delete()
-        
+
         # Show delete message
         messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name);
-        
+
         self.object.delete()
-        
+
         # TODO: check for contacts ..
-        
+
         return redirect(reverse('account_list'))
 
 

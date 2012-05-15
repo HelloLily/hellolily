@@ -264,7 +264,7 @@ class EditContactForm(ModelForm):
                 'placeholder': _('Last name'),
             }),
             'gender': forms.Select(attrs={
-                'class': ' tabbable'
+                'class': ' tabbable chzn-select-no-search'
             }),
             'title': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
@@ -277,7 +277,7 @@ class EditContactForm(ModelForm):
                 'placeholder': _('Description'),
             }),
             'salutation': forms.Select(attrs={
-                'class': 'tabbable'
+                'class': 'tabbable chzn-select-no-search'
             }),
         }
 

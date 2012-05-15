@@ -555,6 +555,7 @@ class EditContactView(UpdateView):
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
             'phone_numbers_formset': self.phone_numbers_formset,
+            'countries': COUNTRIES,
         })
         return kwargs
 

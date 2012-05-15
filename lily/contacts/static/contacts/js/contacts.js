@@ -76,7 +76,7 @@ $(document).ready(function() {
             addText: form_prefices[form_prefix],
             formCssClass: form_prefix, // needs to be unique per formset
             addCssClass: form_prefix + '-add-row', // needs to be unique per formset
-            added: function() { $.tabthisbody(); enableChosen(row); },
+            added: function(row) { $.tabthisbody(); enableChosen(row); },
             deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
             notEmptyFormSetAddCssClass: 'mws-form-item',
         });

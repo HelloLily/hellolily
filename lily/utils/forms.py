@@ -70,7 +70,7 @@ class AddressBaseForm(ModelForm):
         widgets = {
             'street_number': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
-                'placeholder': _('Street number'),
+                'placeholder': _('Number'),
             }),
             'complement': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',

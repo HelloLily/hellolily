@@ -19,7 +19,7 @@
 {% block content %}
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-fountain-pen">{% trans 'Edit contact' %}</span>
+            <span>{% trans 'Edit contact' %}</span>
         </div>
         <div class="mws-panel-body">
             <form class="mws-form tabthis" autocomplete="off" action="" method="post">{% csrf_token %}
@@ -193,7 +193,7 @@
                                     </div>
                                     <div class="float-left">
                                         <div class="mws-form-col-row mws-form-item formset-delete email_address">
-                                            <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row"></a>
+                                            <a href="javascript:" class="i-16 i-trash-1 blue email_addresses-delete-row"></a>
                                         </div>
                                     </div>
                                 </div>
@@ -255,7 +255,7 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row"></a>
+	                                        <a href="javascript:" class="i-16 i-trash-1 blue phone_numbers-delete-row"></a>
 	                                    </div>
 	                                </div>
                                 </div>
@@ -385,7 +385,7 @@
                                         </div>
                                         <div class="mws-form-col-1-8">
                                             <div class="formset-delete address mws-form-item">
-                                                <a href="javascript:" class="mws-i-24 i-cross {{ addresses_formset.prefix }}-delete-row"></a>
+                                                <a href="javascript:" class="i-16 i-trash-1 blue {{ addresses_formset.prefix }}-delete-row"></a>
                                             </div>
                                         </div>
                                     </div>

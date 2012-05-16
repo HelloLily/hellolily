@@ -13,10 +13,10 @@
     cursor: pointer;
 }
 
-.mws-form .formset-delete .mws-i-24 {
+.mws-form .formset-delete .i-16 {
     display: block; 
-    width: 24px; 
-    height: 24px;
+    width: 16px;
+    height: 32px;
 }
 
 /* List */
@@ -62,9 +62,7 @@
     white-space: nowrap;
 }
 
-.mws-table .details .mail,
-.mws-table .details .phone,
-.mws-table .details .mobile_phone  {
+.mws-table .details .i-16  {
    padding-left: 24px;
 }
 

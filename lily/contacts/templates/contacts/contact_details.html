@@ -22,10 +22,8 @@
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url contact_edit pk=contact.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
-                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link">
-                    <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
-                </a>
+                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link" class="i-32 i-trash-2"></a>
+                <a href="{% url contact_edit pk=contact.pk %}" class="i-32 i-edit"></a>
 
                 <div id="delete-contact-form-dialog" style="display:none;">
                     <form class="mws-form" action="{% url contact_delete pk=contact.pk %}" method="post">
@@ -38,9 +36,7 @@
                     </form>
                 </div>
             </span>
-            <span class="mws-i-24 i-v-card-1">
-                {{ contact.full_name }}
-            </span>
+            <span>{{ contact.full_name }}</span>
         </div>
         <div class="mws-panel-body">
             <div id="details_top" class="clearfix">

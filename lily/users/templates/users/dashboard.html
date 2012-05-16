@@ -10,19 +10,19 @@
 {% block content %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
-        <span class="mws-i-24 i-list">{% trans 'Dashboard' %}</span>
+        <span>{% trans 'Dashboard' %}</span>
     </div>
     <div class="mws-panel-body">
         <div class="mws-panel-content">
             <h4>System message</h4>
             <p>
-                If you find any bugs or want improvements please report them. We know that the mobile is not perfect yet and it's on our todo list. For a full list of known bug and features to come check out our <a href="https://trello.com/board/hellolily/4f5885b678986de1120affbb">trello page</a>.
+                If you find any bugs or want improvements please report them. We know that the mobile is not perfect yet and it's on our todo list. For a full list of known bug and features to come check out our <a href="https://trello.com/board/hellolily/4f5885b678986de1120affbb" target="_blank">page at Trello</a>.
             </p>
             <hr />
             
             <div id="dashboard-latest" class="clearfix">
 				<div class="object-list grid_4">
-            		<h2 class="blue mws-i-24 i-group-2">{% trans 'Latest contacts' %}</h2>
+            		<h2 class="i-32 i-contacts blue">{% trans 'Latest contacts' %}</h2>
 					<div>
 						{% for contact in contact_list %}
 							<div class="object">
@@ -48,7 +48,7 @@
 					</div>
 				</div>     
             	<div class="object-list grid_4">
-            		<h2 class="blue mws-i-24 i-suitcase-1">{% trans 'Latest accounts' %}</h2>
+            		<h2 class="i-32 i-accounts blue">{% trans 'Latest accounts' %}</h2>
 					<div>
 						{% for account in account_list %}
 							<div class="object">
@@ -110,7 +110,7 @@
                 </ul>
             </p>
             
-            <h5 style="font-size: 22px;">Contacts</h5>
+            <h2>Contacts</h2>
             <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
                 Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 

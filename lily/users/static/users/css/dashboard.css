@@ -1,7 +1,12 @@
-#dashboard-latest h2.mws-i-24 {
+#dashboard-latest h2.i-32 {
 	padding-left: 40px;
-	background-position: 8px center;
+	background-position: left center;
 }
+
+#dashboard-latest .object-list {
+    margin: 0 0 1em;
+}
+
 #dashboard-latest .object-title {
 	display: inline-block;
 	line-height: 24px;
@@ -10,10 +15,14 @@
 	vertical-align: top;
 }
 
+#dashboard-latest .object-more {
+    display: inline-block;
+    width: 28%;
+}
+
 #dashboard-latest .object-creation-time {
 	display: inline-block;
 	line-height: 24px;
 	font-size: 11px;
 	color: #333333;
-	width: 28%;
 }

@@ -20,7 +20,7 @@
 {% block content %}
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-fountain-pen">{% trans 'Add account' %}</span>
+            <span>{% trans 'Add account' %}</span>
         </div>
         <div class="mws-panel-body">
             <form class="mws-form tabthis" autocomplete="off" action="" method="post">
@@ -194,7 +194,7 @@
                                     </div>
                                     <div class="float-left">
                                         <div class="mws-form-col-row mws-form-item formset-delete">
-                                            <a href="javascript:" class="mws-i-24 i-cross email_addresses-delete-row"></a>
+                                            <a href="javascript:" class="i-16 i-trash-1 blue email_addresses-delete-row"></a>
                                         </div>
                                     </div>
                                 </div>
@@ -248,7 +248,7 @@
 	                                </div>
 	                                <div class="float-left">
 	                                    <div class="formset-delete mws-form-col-row mws-form-item">
-	                                        <a href="javascript:" class="mws-i-24 i-cross phone_numbers-delete-row"></a>
+	                                        <a href="javascript:" class="i-16 i-trash-1 blue phone_numbers-delete-row"></a>
 	                                    </div>
 	                                </div>
 	                            </div>
@@ -261,41 +261,6 @@
                             {% include 'utils/phone_number_formset_template.html' with formset_prefix=phone_numbers_formset.prefix %}
                         </div>
                         {{ phone_numbers_formset.management_form }}
-                    </div>
-
-                    <div class="mws-form-row">
-                        <label for="id_websites-0-website">{% trans 'Extra websites' %}</label>
-                        {% for form in websites_formset.forms %}
-                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">
-                                <div class="mws-form-cols clearfix">
-                                    <div class="float-left">
-                                        <div class="mws-form-col-row mws-form-item">
-                                            {% if form.website.errors %}
-                                                <span class="field_error float-left">{{ form.website }}</span>
-                                                <div class="mws-error inline plain float-left">
-                                                    {% for error in form.website.errors %}
-                                                        <strong>{{ error }}</strong>
-                                                    {% endfor %}
-                                                </div>
-                                            {% else %}
-                                                {{ form.website }}
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="float-left">
-                                        <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross websites-delete-row"></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="{{ websites_formset.prefix }}-mws-formset"></div>
-                        {% endfor %}
-                        <div class="hidden">
-                            {% include 'accounts/website_formset_template.html' with formset_prefix=websites_formset.prefix %}
-                        </div>
-                        {{ websites_formset.management_form }}
                     </div>
 
                     {% comment %}
@@ -406,7 +371,7 @@
                                         </div>
                                         <div class="mws-form-col-1-8">
                                             <div class="formset-delete mws-form-item">
-                                                <a href="javascript:" class="mws-i-24 i-cross {{ addresses_formset.prefix }}-delete-row"></a>
+                                                <a href="javascript:" class="i-16 i-trash-1 blue {{ addresses_formset.prefix }}-delete-row"></a>
                                             </div>
                                         </div>
                                     </div>
@@ -428,6 +393,41 @@
                             {% include 'accounts/address_formset_template.html' with formset_prefix=addresses_formset.prefix country_choices=countries %}
                         </div>
                         {{ addresses_formset.management_form }}
+                    </div>
+
+                    <div class="mws-form-row">
+                        <label for="id_websites-0-website">{% trans 'Extra websites' %}</label>
+                        {% for form in websites_formset.forms %}
+                            <div class="mws-form-item large {{ websites_formset.prefix }}-mws-formset">
+                                <div class="mws-form-cols clearfix">
+                                    <div class="float-left">
+                                        <div class="mws-form-col-row mws-form-item">
+                                            {% if form.website.errors %}
+                                                <span class="field_error float-left">{{ form.website }}</span>
+                                                <div class="mws-error inline plain float-left">
+                                                    {% for error in form.website.errors %}
+                                                        <strong>{{ error }}</strong>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.website }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="float-left">
+                                        <div class="formset-delete mws-form-col-row mws-form-item">
+                                            <a href="javascript:" class="i-16 i-trash-1 blue websites-delete-row"></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="{{ websites_formset.prefix }}-mws-formset"></div>
+                        {% endfor %}
+                        <div class="hidden">
+                            {% include 'accounts/website_formset_template.html' with formset_prefix=websites_formset.prefix %}
+                        </div>
+                        {{ websites_formset.management_form }}
                     </div>
 
                     {% comment %}

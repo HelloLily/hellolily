@@ -65,7 +65,7 @@
 {% block content %}
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
-            <span class="mws-i-24 i-list-images">{% trans 'Accounts' %}</span>
+            <span>{% trans 'Accounts' %}</span>
         </div>
         <div class="mws-panel-body">
             <table class="mws-datatable-fn mws-table">
@@ -94,7 +94,7 @@
                     {% for object in object_list %}
                         <tr class="height_77">
                             <td class="controls">
-                                <a href="{% url account_edit pk=object.pk %}" class="mws-ic-16 ic-edit no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" class="mws-ic-16 ic-trash no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                                <a href="{% url account_edit pk=object.pk %}" class="i-16 i-edit blue no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
                             </td>
                             <td class="logo hide_on_small_screen">
                                 {% if object.logo %}
@@ -111,7 +111,7 @@
                                 </div>
                                 {% with object.get_address as address %}
                                     {% if address.street %}
-                                    	<div class="address">{{ address.street|truncatechars:"20" }} {{ address.street_number }}</div>
+                                    	<div class="address">{{ address.city }}</div>
                                     {% endif %}
                                     {% if address.country %}
                                     	<div class="country">{{ address.country|truncatechars:"20" }}</div>
@@ -120,14 +120,14 @@
                             </td>
                             <td class="details">
                                 {% if object.primary_email %}
-                                	<div class="mail mws-ic-16 ic-email">
+                                	<div class="i-16 i-mail blue">
                                         <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
                                     </div>
                                 {% endif %}
                                 
                                 {% with object.get_work_phone as phone %}
 			                        {% if phone.raw_input %}
-		                                <div class="phone mws-ic-16 ic-telephone">
+		                                <div class="i-16 i-phone blue">
 		                                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
 		                                </div>
 			                        {% endif %}
@@ -135,7 +135,7 @@
 			                    
 			                    {% with object.get_mobile_phone as phone %}
                                     {% if phone.raw_input %}
-                                        <div class="mobile_phone mws-ic-16 ic-mobile-phone">
+                                        <div class="i-16 i-mobile blue">
                                             <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
                                         </div>
                                     {% endif %}

@@ -17,7 +17,7 @@ class AddContactMinimalForm(ModelForm):
                                      queryset=Account.objects.all(),
                                      empty_label=_('Select an account'),
                                      widget=forms.Select(attrs={'class': 'chzn-select'}))
-    
+
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=False,
         widget=forms.TextInput(attrs={
         'class': 'mws-textinput',
@@ -29,6 +29,12 @@ class AddContactMinimalForm(ModelForm):
             'class': 'mws-textinput',
             'placeholder': _('Phone number')
     }))
+
+    def __init__(self, *args, **kwargs):
+        kwargs.update({
+            'auto_id':'id_contact_quickbutton_%s'
+        })
+        super(AddContactMinimalForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         """
@@ -75,7 +81,7 @@ class AddContactForm(ModelForm):
     Form to add a contact which all fields available.
     """
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.all(), 
+                                     queryset=Account.objects.all(),
                                      empty_label=_('Select an account'),
                                      widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
 

@@ -403,7 +403,7 @@
                            <div class="{{ addresses_formset.prefix }}-mws-formset"></div>
                         {% endfor %}
                         <div class="hidden">
-                            {% include 'utils/address_formset_template.html' with formset_prefix=addresses_formset.prefix %}
+                            {% include 'utils/address_formset_template.html' with formset_prefix=addresses_formset.prefix country_choices=countries %}
                         </div>
                         {{ addresses_formset.management_form }}
                     </div>

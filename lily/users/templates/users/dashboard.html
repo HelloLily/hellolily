@@ -22,14 +22,22 @@
             
             <div id="dashboard-latest" class="clearfix">
 				<div class="object-list grid_4">
-            		<h2 class="blue mws-i-24 i-group-2">{% trans 'Last few contacts' %}</h2>
+            		<h2 class="blue mws-i-24 i-group-2">{% trans 'Latest contacts' %}</h2>
 					<div>
 						{% for contact in contact_list %}
 							<div class="object">
 								<div class="object-title">
 									<a href="{% url contact_details pk=contact.pk %}" title="{% trans 'View details for '} {{ contact }}">{{ contact }}</a>
 								</div>
-								<div class="object-creation-time">{{ contact.created|naturaltime }}</div>
+								<div class="object-more">
+    								<div class="object-creation-time">{{ contact.created|naturaltime }}</div>
+                                    {% if forloop.last %}
+                                    <div>
+                                        <p></p>
+                                        <a href="{% url contact_list %}">{% trans 'All contacts' %}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
 							</div>
 						{% empty %}
 							<div>
@@ -38,16 +46,24 @@
 							</div>
 						{% endfor %}
 					</div>
-				</div>		    
+				</div>     
             	<div class="object-list grid_4">
-            		<h2 class="blue mws-i-24 i-suitcase-1">{% trans 'Last few accounts' %}</h2>
+            		<h2 class="blue mws-i-24 i-suitcase-1">{% trans 'Latest accounts' %}</h2>
 					<div>
 						{% for account in account_list %}
 							<div class="object">
 								<div class="object-title">
 									<a href="{% url account_details pk=account.pk %}" title="{% trans 'View details for '} {{ account }}">{{ account }}</a>
 								</div>
-								<div class="object-creation-time">{{ account.created|naturaltime }}</div>
+                                <div class="object-more">
+    								<div class="object-creation-time">{{ account.created|naturaltime }}</div>
+    								{% if forloop.last %}
+                                    <div>
+                                        <p></p>
+                                        <a href="{% url account_list %}">{% trans 'All accounts' %}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
 							</div>
 						{% empty %}
 							<div>
@@ -56,10 +72,9 @@
 							</div>
 						{% endfor %}
 					</div>
-				</div>	        
-            </div>
+				</div>	       
+            </div>   
 
-			<br />
             <hr />
             
             <h2>Other things you can do</h2>

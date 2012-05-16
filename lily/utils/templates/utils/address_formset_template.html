@@ -43,7 +43,6 @@ Use {% include 'utils/address_formset_template.html' with formset_prefix=address
                 <div class="mws-form-item">
                     <select name="{{ formset_prefix }}-0-country" id="id_{{ formset_prefix }}-0-country" class="chzn-select">
                         {% block countries %}
-                            <option value="">---------</option>
                             {% for value, text in country_choices %}
                                 <option value="{{ value }}">{{ text }}</option>
                             {% endfor %}

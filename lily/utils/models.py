@@ -11,6 +11,7 @@ from lily.settings import TENANT_MIXIN as TenantMixin
 #   adapted from http://opencountrycodes.appspot.com/python/
 #   source from http://djangosnippets.org/snippets/1476/
 COUNTRIES = (
+    ('', _('Select a country')),
     ('AF', _('Afghanistan')),
     ('AX', _('Aland Islands')),
     ('AL', _('Albania')),

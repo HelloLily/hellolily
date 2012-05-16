@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress, PhoneNumber, Address
+from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.notes.models import Note
 
 
@@ -63,6 +63,9 @@ class AddressBaseForm(ModelForm):
             'class': 'mws-textinput chzn-select-no-search tabbable',
         })
     )
+    country = forms.ChoiceField(choices=COUNTRIES, required=False, widget=forms.Select(attrs={
+        'class': 'mws-textinput chzn-select tabbable',
+    }))
 
     class Meta:
         model = Address
@@ -91,9 +94,6 @@ class AddressBaseForm(ModelForm):
             'state_province': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
                 'placeholder': _('State/province'),
-            }),
-            'country': forms.Select(attrs={
-                'class': 'mws-textinput chzn-select tabbable',
             }),
         }
 

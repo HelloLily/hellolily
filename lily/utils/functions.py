@@ -105,3 +105,6 @@ def flatten(input):
     """
     pattern = re.compile('[\W_]+')
     return pattern.sub('', re.escape(input)).lower()
+
+def dummy_function(x, y=None):
+    return y

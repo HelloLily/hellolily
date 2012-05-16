@@ -104,7 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     # Lily
-    'lily.multitenant.middleware.TenantMiddleWare',
+    'lily.tenant.middleware.TenantMiddleWare',
 )
 
 # Main urls file
@@ -160,10 +160,10 @@ INSTALLED_APPS = (
     'lily.accounts',
     'lily.activities',
     'lily.contacts',
-    'lily.multitenant',
-    'lily.users',
     'lily.notes',
     'lily.provide',
+    'lily.tenant',
+    'lily.users',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
     'lily.utils.templatetags.messages',
@@ -218,6 +218,13 @@ LOGGING = {
 
 # Messaging framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
+
+# Tenant support
+import django.db.models
+TENANT_MIXIN = django.db.models.Model # prevent models from breaking, use the default base model
+if boolean(os.environ.get('MULTI_TENTANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
+    import lily.tenant.models
+    TENANT_MIXIN = lily.tenant.models.TenantMixin
 
 # Settings for 3rd party apps
 

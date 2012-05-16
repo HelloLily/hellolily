@@ -7,7 +7,7 @@ from django.utils.encoding import force_unicode
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
-from lily.multitenant.models import Tenant
+from lily.tenant.models import Tenant
 from lily.users.models import CustomUser
 
 

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from lily.multitenant.models import MultiTenantMixin
+from lily.settings import TENANT_MIXIN as TenantMixin
 
 
 # ISO 3166-1 country names and codes
@@ -259,17 +259,6 @@ COUNTRIES = (
     ('ZW', _('Zimbabwe')),
 )
 
-class CountryField(models.CharField):
-
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 2)
-        kwargs.setdefault('choices', COUNTRIES)
-
-        super(CountryField, self).__init__(*args, **kwargs)
-
-    def get_internal_type(self):
-        return "CharField"
-
 
 class Deleted(TimeStampedModel):
     """
@@ -282,7 +271,7 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class PhoneNumber(MultiTenantMixin, models.Model):
+class PhoneNumber(TenantMixin):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
     """
@@ -329,7 +318,7 @@ class PhoneNumber(MultiTenantMixin, models.Model):
         verbose_name_plural = _('phone numbers')
 
 
-class SocialMedia(MultiTenantMixin, models.Model):
+class SocialMedia(TenantMixin):
     """
     Social media model, default supporting a few well known social media but has support for
     custom input (other_name).
@@ -357,7 +346,7 @@ class SocialMedia(MultiTenantMixin, models.Model):
         verbose_name_plural = _('social media')
 
 
-class Address(MultiTenantMixin, models.Model):
+class Address(TenantMixin):
     """
     Address model, has most default fields for an address and fixed preset values for type. In
     the view layer options are limited for different models. For example: options for an address
@@ -378,7 +367,7 @@ class Address(MultiTenantMixin, models.Model):
     city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
     state_province = models.CharField(max_length=50, verbose_name=_('state/province'), blank=True)
     # TODO: maybe try setting a default based on account/user preferences for country
-    country = CountryField(verbose_name=_('country'), blank=True)
+    country = models.CharField(max_length=2, choices=COUNTRIES, verbose_name=_('country'), blank=True)
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
@@ -389,7 +378,7 @@ class Address(MultiTenantMixin, models.Model):
         verbose_name_plural = _('addresses')
 
 
-class EmailAddress(MultiTenantMixin, models.Model):
+class EmailAddress(TenantMixin):
     """
     Email address model, it's possible to set an email address as primary address as a model can
     own multiple email addresses.
@@ -413,7 +402,7 @@ class EmailAddress(MultiTenantMixin, models.Model):
         verbose_name_plural = _('e-mail addresses')
 
 
-class Common(MultiTenantMixin, Deleted):
+class Common(Deleted, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """
@@ -430,7 +419,7 @@ class Common(MultiTenantMixin, Deleted):
         abstract = True
 
 
-class Tag(MultiTenantMixin, models.Model):
+class Tag(TenantMixin):
     """
     Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
     """

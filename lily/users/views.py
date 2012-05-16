@@ -30,7 +30,10 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
-from lily.multitenant.models import Tenant
+try:
+    from lily.tenant.functions import add_tenant_and_save
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant_and_save
 
 
 class RegistrationView(FormView):
@@ -44,18 +47,18 @@ class RegistrationView(FormView):
         """
         Register a new user.
         """
-        # Create new tenant
-        tenant = Tenant.objects.create()
         
         # Create contact
         contact = Contact.objects.create(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
-            last_name=form.cleaned_data['last_name'],
-            tenant=tenant
+            last_name=form.cleaned_data['last_name']
         )
+        tenant = add_tenant_and_save(contact)
+        
         # Create account
-        account = Account.objects.create(name=form.cleaned_data.get('company'),tenant=tenant)
+        account = Account.objects.create(name=form.cleaned_data.get('company'))
+        add_tenant_and_save(contact, tenant)
         
         Function.objects.create(account=account, contact=contact)
         
@@ -63,7 +66,6 @@ class RegistrationView(FormView):
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.tenant = tenant
         user.primary_email = form.cleaned_data['email']
         
         # Store random unique data in username
@@ -73,6 +75,8 @@ class RegistrationView(FormView):
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
         user.save()
+        
+        add_tenant_and_save(user, tenant)
         
         # Add to admin group
         group, created = Group.objects.get_or_create(name='account_admin')

@@ -148,10 +148,17 @@ class AddContactView(CreateView):
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
 
-            # Save website
+            # Save phone number
             if form.cleaned_data.get('phone'):
                 phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
                 self.object.phone_numbers.add(phone)
+
+            # Save account
+            if form_kwargs['data'].get('account'):
+                pk = form_kwargs['data'].get('account')
+                account = Account.objects.get(pk=pk)
+                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+
 
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)
@@ -223,11 +230,11 @@ class AddContactView(CreateView):
                         self.object.phone_numbers.add(formset.instance)
 
             # Save any selected accounts
-            if form_kwargs['data'].getlist('accounts'):
-                pks = form_kwargs['data'].getlist('accounts')
-                for pk in pks:
-                    account = Account.objects.get(pk=pk)
-                    Function.objects.create(account=account, contact=self.object, manager=self.object)
+#            if form_kwargs['data'].getlist('accounts'):
+#                pks = form_kwargs['data'].getlist('accounts')
+#                for pk in pks:
+#                    account = Account.objects.get(pk=pk)
+#                    Function.objects.create(account=account, contact=self.object, manager=self.object)
 
             # Show save message
             messages.success(self.request, _('%s (Contact) has been saved.') % self.object.full_name());
@@ -238,28 +245,28 @@ class AddContactView(CreateView):
             account = Account.objects.get(pk=pk)
             Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
 
-        # Add relation to Facebook
-        if form_kwargs['data'].get('facebook'):
-            facebook = SocialMedia.objects.create(
-                name='facebook',
-                username=form_kwargs['data'].get('facebook'),
-                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-            self.object.social_media.add(facebook)
-
-        # Add relation to Twitter
-        if form_kwargs['data'].get('twitter'):
-            twitter = SocialMedia.objects.create(
-                name='twitter',
-                username=form_kwargs['data'].get('twitter'),
-                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-            self.object.social_media.add(twitter)
-
-        # Add relation to LinkedIn
-        if form_kwargs['data'].get('linkedin'):
-            linkedin = SocialMedia.objects.create(
-                name='linkedin',
-                profile_url=form_kwargs['data'].get('linkedin'))
-            self.object.social_media.add(linkedin)
+#        # Add relation to Facebook
+#        if form_kwargs['data'].get('facebook'):
+#            facebook = SocialMedia.objects.create(
+#                name='facebook',
+#                username=form_kwargs['data'].get('facebook'),
+#                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+#            self.object.social_media.add(facebook)
+#
+#        # Add relation to Twitter
+#        if form_kwargs['data'].get('twitter'):
+#            twitter = SocialMedia.objects.create(
+#                name='twitter',
+#                username=form_kwargs['data'].get('twitter'),
+#                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+#            self.object.social_media.add(twitter)
+#
+#        # Add relation to LinkedIn
+#        if form_kwargs['data'].get('linkedin'):
+#            linkedin = SocialMedia.objects.create(
+#                name='linkedin',
+#                profile_url=form_kwargs['data'].get('linkedin'))
+#            self.object.social_media.add(linkedin)
 
         return self.get_success_url()
 

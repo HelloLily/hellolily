@@ -160,6 +160,9 @@
                 title: gettext('New contact'),
                 modal: true,
                 width: 640,
+                open: function() {
+                	enableChosen($(this));
+                },
                 buttons: [
                     { 
                         'class': 'mws-button red float-left',

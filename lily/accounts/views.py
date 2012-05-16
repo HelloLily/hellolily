@@ -502,6 +502,7 @@ class EditAccountView(UpdateView):
             'email_addresses_formset': self.email_addresses_formset,
             'addresses_formset': self.addresses_formset,
             'phone_numbers_formset': self.phone_numbers_formset,
+            'countries': COUNTRIES,
         })
         return kwargs
 
@@ -545,15 +546,15 @@ class DeleteAccountView(DeleteView):
 
 class ExistsAccountView(View):
     """
-    Check whether an account exists based on slugs. 
+    Check whether an account exists based on slugs.
     """
     http_method_names = ['get']
-    
+
     def get(self, request, *args, **kwargs):
         # Check if an account can be found using slugified names
         name = kwargs.pop('account_name')
         flattened = flatten(name)
-        
+
         exists = False
         edit_url = None
         accounts = Account.objects.filter(flatname=flattened)
@@ -561,9 +562,9 @@ class ExistsAccountView(View):
             account = accounts[0]
             exists = True
             edit_url = reverse('account_edit', kwargs={ 'pk': account.pk })
-        else:            
+        else:
             raise Http404()
-        
+
         return HttpResponse(simplejson.dumps({
             'exists': exists,
             'edit_url': edit_url

@@ -38,6 +38,7 @@ $(document).ready(function() {
 
     // delete contact
     $('#delete-contact-dialog-link').click(function(event) {
+    	console.log($('#delete-contact-form-dialog').html());
         $('#delete-contact-form-dialog').dialog('open');
         event.preventDefault();
     });
@@ -48,19 +49,19 @@ $(document).ready(function() {
         modal: true,
         width: 350,
         buttons: [
-            {
+            { 
                 'class': 'mws-button red float-left',
-                text: gettext('No'),
+                text: gettext('Cancel'),
                 click: function() {
-                    // cancel form on NO
+                    // cancel form on Cancel
                     $(this).dialog('close');
                 }
             },
             {
                 'class': 'mws-button green',
-                text: gettext('Yes'),
+                text: gettext('Continue'),
                 click: function() {
-                    // submit form on YES
+                    // submit form on Continue
                     $(this).find('form').submit();
                 }
             }

@@ -498,18 +498,6 @@
                     <div class="mws-button-row">
                         <input type="button" id="delete-contact-dialog-link" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
 
-                        <div id="delete-contact-form-dialog" style="display: none;">
-                            <form action="{% url contact_delete pk=form.instance.pk %}" method="post">{% csrf_token %}
-                                <div class="mws-form">
-                                    <div class="mws-form-inline">
-                                        <div class="mws-form-row">
-                                            {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? This cannot be undone.{% endblocktrans %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
                         {% comment %}
                         TODO: ask if the user is sure when the form has changed to go back
                         {% endcomment %}
@@ -523,5 +511,16 @@
                 </div>
             </form>
         </div>
+    </div>
+    
+    <div id="delete-contact-form-dialog" style="display: none;">
+        <form class="mws-form" action="{% url contact_delete pk=form.instance.pk %}" method="post">
+        	{% csrf_token %}
+            <div class="mws-form-inline">
+                <div class="mws-form-row">
+                    {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? This cannot be undone.{% endblocktrans %}
+                </div>
+            </div>
+        </form>
     </div>
 {% endblock %}

@@ -524,18 +524,6 @@
                     <div class="mws-button-row">
                         <input type="button" id="delete-account-dialog-link" class="mws-button red float-left" value="{% trans 'Delete account' %}" />
 
-                        <div id="delete-account-form-dialog" style="display: none;">
-                            <form class="" action="{% url account_delete pk=form.instance.pk %}" method="post">{% csrf_token %}
-                                <div class="mws-form">
-                                    <div class="mws-form-inline">
-                                        <div class="mws-form-row">
-                                            {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
                         {% comment %}
                         TODO: ask if the user is sure when the form has changed to go back
                         {% endcomment %}
@@ -549,5 +537,17 @@
                 </div>
             </form>
         </div>
+    </div>
+    
+    <div id="delete-account-form-dialog" style="display: none;">
+        <form action="{% url account_delete pk=form.instance.pk %}" method="post">{% csrf_token %}
+            <div class="mws-form">
+                <div class="mws-form-inline">
+                    <div class="mws-form-row">
+                        {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 {% endblock %}

@@ -176,7 +176,6 @@ class AddContactView(CreateView):
                 # Redirect if in the list view or dashboard
                 url_obj = urlparse(self.request.META['HTTP_REFERER'])
                 if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
-                    
                     # Show save message
                     messages.success(self.request, message)
 

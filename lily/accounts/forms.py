@@ -28,14 +28,20 @@ class AddAccountMinimalForm(ModelForm):
     website = forms.URLField(max_length=30, initial='http://', required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
+            'placeholder': 'http://'
     }))
 
     def __init__(self, *args, **kwargs):
+        """
+        Overload super.__init__ to change auto_id to prevent clashing form field id's with 
+        other forms.
+        """
         kwargs.update({
-            'auto_id':'id_account_quickbutton_%s'
+            'auto_id': 'id_account_quickbutton_%s',
         })
+        
         super(AddAccountMinimalForm, self).__init__(*args, **kwargs)
-
+    
     def clean(self):
         """
         Form validation: all fields should be unique.
@@ -57,7 +63,7 @@ class AddAccountMinimalForm(ModelForm):
                 pass
             except EmailAddress.MultipleObjectsReturned:
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-
+        
         if cleaned_data.get('website'):
             try:
                 Website.objects.get(website=cleaned_data.get('website'), is_primary=True)
@@ -69,7 +75,7 @@ class AddAccountMinimalForm(ModelForm):
 
     class Meta:
         model = Account
-        fields = ('name', 'email', 'website')
+        fields = ('name', 'email')
 
 
 class AddAccountForm(ModelForm):
@@ -99,7 +105,7 @@ class AddAccountForm(ModelForm):
     primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput tabbable',
-            'placeholder': _('Primary website')
+            'placeholder': 'http://'
     }))
 
     tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
@@ -224,7 +230,7 @@ class EditAccountForm(ModelForm):
     primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput tabbable',
-            'placeholder': _('Primary website')
+            'placeholder': 'http://'
     }))
 
     def __init__(self, user=None, data=None, files=None, auto_id='id_%s', prefix=None,
@@ -341,6 +347,7 @@ class WebsiteBaseForm(ModelForm):
     website = forms.URLField(max_length=30, initial='http://',
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput tabbable',
+            'placeholder': 'http://'
     }))
 
     class Meta:

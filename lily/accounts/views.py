@@ -107,6 +107,22 @@ class AddAccountView(CreateView):
 
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        """
+        Overloading super().post to filter http:// as non provided value for the website field.
+        Drawback: http:// dissappears from the input fields on postbacks.
+        """
+        post_data = request.POST.copy()
+        if post_data.get('website') and post_data['website'] == 'http://':
+            post_data['website'] = ''
+            
+        if post_data.get('primary_website') and post_data['primary_website'] == 'http://':
+            post_data['primary_website'] = ''
+        
+        request.POST = post_data
+        
+        return super(AddAccountView, self).post(request, *args, **kwargs)
+        
     def get_form_kwargs(self):
         """
         Overloading super().get_form_kwargs to add the user object to the keyword arguments for
@@ -333,6 +349,19 @@ class EditAccountView(UpdateView):
     EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
     AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True, extra=0)
     PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Overloading super().post to filter http:// as non provided value for the website field.
+        Drawback: http:// dissappears from the input fields on postbacks.
+        """
+        post_data = request.POST.copy()
+        if post_data.get('primary_website') and post_data['primary_website'] == 'http://':
+            post_data['primary_website'] = ''
+        
+        request.POST = post_data
+        
+        return super(EditAccountView, self).post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         """

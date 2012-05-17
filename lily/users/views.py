@@ -61,6 +61,7 @@ class RegistrationView(FormView):
         account = Account.objects.create(name=form.cleaned_data.get('company'))
         add_tenant_and_save(contact, tenant)
         
+        # Create function
         Function.objects.create(account=account, contact=contact)
         
         # Create and save user
@@ -452,12 +453,19 @@ class AcceptInvitationView(FormView):
             )
             contact.email_addresses.add(email)
         
+        # Create function
+        Function.objects.create(account=self.account, contact=contact)
+        
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
+        
+        # TODO: move this...
+        if hasattr(self.account, 'tenant'):
+            add_tenant_and_save(contact, self.account.tenant)
         user.save()
         
         return self.get_success_url()

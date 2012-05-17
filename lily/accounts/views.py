@@ -273,9 +273,12 @@ class AddAccountView(CreateView):
 #
 #            # Add relation to Twitter
 #            if form_kwargs['data'].get('twitter'):
+#                username = form_kwargs['data'].get('twitter')
+#                if username[:1] == '@':
+#                    username = username[1:]
 #                twitter = SocialMedia.objects.create(
 #                    name='twitter',
-#                    username=form_kwargs['data'].get('twitter'),
+#                    username=username,
 #                    profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
 #                self.object.social_media.add(twitter)
 #
@@ -500,9 +503,12 @@ class EditAccountView(UpdateView):
 #        # Add relation to Twitter
 #        if form_kwargs['data'].get('twitter'):
 #            # Prevent re-creating
+#            username = form_kwargs['data'].get('twitter')
+#            if username[:1] == '@':
+#                username = username[1:]
 #            twitter, created = SocialMedia.objects.get_or_create(
 #                name='twitter',
-#                username=form_kwargs['data'].get('twitter'),
+#                username=username,
 #                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
 #            if created:
 #                self.object.social_media.add(twitter)

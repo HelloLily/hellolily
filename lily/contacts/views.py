@@ -256,9 +256,12 @@ class AddContactView(CreateView):
 #
 #        # Add relation to Twitter
 #        if form_kwargs['data'].get('twitter'):
+#            username = form_kwargs['data'].get('twitter')
+#            if username[:1] == '@':
+#                username = username[1:]
 #            twitter = SocialMedia.objects.create(
 #                name='twitter',
-#                username=form_kwargs['data'].get('twitter'),
+#                username=username,
 #                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
 #            self.object.social_media.add(twitter)
 #
@@ -511,43 +514,46 @@ class EditContactView(UpdateView):
             functions = Function.objects.filter(contact=self.object)
             functions.delete()
 
-        # Add relation to Facebook
-        if form_kwargs['data'].get('facebook'):
-            # Prevent re-creating
-            facebook, created = SocialMedia.objects.get_or_create(
-                name='facebook',
-                username=form_kwargs['data'].get('facebook'),
-                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-            if created:
-                self.object.social_media.add(facebook)
-        else:
-            # Remove possible Facebook relations
-            self.object.social_media.filter(name='facebook').delete()
-
-        # Add relation to Twitter
-        if form_kwargs['data'].get('twitter'):
-            # Prevent re-creating
-            twitter, created = SocialMedia.objects.get_or_create(
-                name='twitter',
-                username=form_kwargs['data'].get('twitter'),
-                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-            if created:
-                self.object.social_media.add(twitter)
-        else:
-            # Remove possible Twitter relations
-            self.object.social_media.filter(name='twitter').delete()
-
-        # Add relation to LinkedIn
-        if form_kwargs['data'].get('linkedin'):
-            # Prevent re-creating
-            linkedin, created = SocialMedia.objects.get_or_create(
-                name='linkedin',
-                profile_url=form_kwargs['data'].get('linkedin'))
-            if created:
-                self.object.social_media.add(linkedin)
-        else:
-            # Remove possible LinkedIn relations
-            self.object.social_media.filter(name='linkedin').delete()
+#        # Add relation to Facebook
+#        if form_kwargs['data'].get('facebook'):
+#            # Prevent re-creating
+#            facebook, created = SocialMedia.objects.get_or_create(
+#                name='facebook',
+#                username=form_kwargs['data'].get('facebook'),
+#                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
+#            if created:
+#                self.object.social_media.add(facebook)
+#        else:
+#            # Remove possible Facebook relations
+#            self.object.social_media.filter(name='facebook').delete()
+#
+#        # Add relation to Twitter
+#        if form_kwargs['data'].get('twitter'):
+#            # Prevent re-creating
+#            username = form_kwargs['data'].get('twitter')
+#            if username[:1] == '@':
+#                username = username[1:]
+#            twitter, created = SocialMedia.objects.get_or_create(
+#                name='twitter',
+#                username=username,
+#                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
+#            if created:
+#                self.object.social_media.add(twitter)
+#        else:
+#            # Remove possible Twitter relations
+#            self.object.social_media.filter(name='twitter').delete()
+#
+#        # Add relation to LinkedIn
+#        if form_kwargs['data'].get('linkedin'):
+#            # Prevent re-creating
+#            linkedin, created = SocialMedia.objects.get_or_create(
+#                name='linkedin',
+#                profile_url=form_kwargs['data'].get('linkedin'))
+#            if created:
+#                self.object.social_media.add(linkedin)
+#        else:
+#            # Remove possible LinkedIn relations
+#            self.object.social_media.filter(name='linkedin').delete()
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());

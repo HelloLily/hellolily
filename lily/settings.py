@@ -223,7 +223,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 # Tenant support
 import django.db.models
 TENANT_MIXIN = django.db.models.Model # prevent models from breaking, use the default base model
-if boolean(os.environ.get('MULTI_TENTANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
+if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
     import lily.tenant.models
     TENANT_MIXIN = lily.tenant.models.TenantMixin
 

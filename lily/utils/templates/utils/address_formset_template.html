@@ -6,67 +6,71 @@ Use {% include 'utils/address_formset_template.html' with formset_prefix=address
 <div id="{{ formset_prefix }}-form-template">
     <div class="mws-form-item large">
         <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-2-8 alpha">
-                <div class="mws-form-item">
-                    <input name="{{ formset_prefix }}-0-street" maxlength="255" placeholder="{% trans 'Street' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-street" />
-                </div>
-            </div>
-            <div class="mws-form-col-2-8">
-                 <div class="mws-form-item float-left">
-                    <input id="id_{{ formset_prefix }}-0-street_number" type="text" placeholder="{% trans 'Street number' %}" class="mws-textinput tabbable" name="{{ formset_prefix }}-0-street_number" />
-                </div>
-            </div>
-            <div class="mws-form-col-2-8">
-                <div class="mws-form-item float-left clearfix">
-                    <input name="{{ formset_prefix }}-0-complement" maxlength="10" placeholder="{% trans 'Complement' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-complement" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mws-form-item large">
-        <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-2-8 alpha">
-                <div class="mws-form-item">
-                    <input name="{{ formset_prefix }}-0-postal_code" maxlength="10" placeholder="{% trans 'Postal code' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-postal_code" />
-                </div>
-            </div>
-            <div class="mws-form-col-4-8">
-                <div class="mws-form-item">
-                    <input name="{{ formset_prefix }}-0-city" maxlength="100" placeholder="{% trans 'City' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-city" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="mws-form-item large">
-        <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-2-8 alpha">
-                <div class="mws-form-item">
-                    <select name="{{ formset_prefix }}-0-country" id="id_{{ formset_prefix }}-0-country" class="chzn-select">
-                        {% block countries %}
-                            {% for value, text in country_choices %}
-                                <option value="{{ value }}">{{ text }}</option>
-                            {% endfor %}
-                        {% endblock %}
-                    </select>
-                </div>
-            </div>
-            <div class="mws-form-col-2-8">
-                <div class="mws-form-item">
-                    <select name="{{ formset_prefix }}-0-type" id="id_{{ formset_prefix }}-0-type" class="chzn-select-no-search tabbable">
-                        {% block address_types %}
-                        <option value="visiting" selected="selected">{% trans 'Visiting address' %}</option>
-                        <option value="billing">{% trans 'Billing address' %}</option>
-                        <option value="shipping">{% trans 'Shipping address' %}</option>
-                        <option value="home">{% trans 'Home address' %}</option>
-                        <option value="other">{% trans 'Other' %}</option>
-                        {% endblock %}
-                    </select>
-                </div>
-            </div>
-            <div class="mws-form-col-1-8">
-                <div class="formset-delete mws-form-item">
-                    <a href="javascript:" class="i-16 i-trash-1 blue {{ formset_prefix }}-delete-row"></a>
-                </div>
+            <div class="mws-form-col-7-8 alpha">
+            	<div class="mws-form-item large">
+			        <div class="mws-form-cols clearfix">
+			            <div class="mws-form-col-3-8 alpha">
+			                <div class="mws-form-item">
+			                    <input name="{{ formset_prefix }}-0-street" maxlength="255" placeholder="{% trans 'Street' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-street" />
+			                </div>
+			            </div>
+			            <div class="mws-form-col-2-8">
+			                 <div class="mws-form-item">
+			                    <input id="id_{{ formset_prefix }}-0-street_number" type="text" placeholder="{% trans 'Street number' %}" class="mws-textinput tabbable" name="{{ formset_prefix }}-0-street_number" />
+			                </div>
+			            </div>
+			            <div class="mws-form-col-2-8">
+			                <div class="mws-form-item">
+			                    <input name="{{ formset_prefix }}-0-complement" maxlength="10" placeholder="{% trans 'Complement' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-complement" />
+			                </div>
+			            </div>
+			            <div class="mws-form-col-1-8 formset-delete">
+			                <a href="javascript:" class="i-16 i-trash-1 blue {{ formset_prefix }}-delete-row"></a>
+			            </div>
+			        </div>
+			    </div>
+			    <div class="mws-form-item large">
+			        <div class="mws-form-cols clearfix">
+			            <div class="mws-form-col-3-8 alpha">
+			                <div class="mws-form-item">
+			                    <input name="{{ formset_prefix }}-0-postal_code" maxlength="10" placeholder="{% trans 'Postal code' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-postal_code" />
+			                </div>
+			            </div>
+			            <div class="mws-form-col-4-8">
+			                <div class="mws-form-item">
+			                    <input name="{{ formset_prefix }}-0-city" maxlength="100" placeholder="{% trans 'City' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset_prefix }}-0-city" />
+			                </div>
+			            </div>
+			        </div>
+			    </div>
+			    <div class="mws-form-item large">
+			        <div class="mws-form-cols clearfix">
+			            <div class="mws-form-col-4-8 alpha">
+			                <div class="mws-form-item">
+			                    <select name="{{ formset_prefix }}-0-country" id="id_{{ formset_prefix }}-0-country" class="chzn-select tabbable">
+			                        {% block countries %}
+			                            {% for value, text in country_choices %}
+			                                <option value="{{ value }}">{{ text }}</option>
+			                            {% endfor %}
+			                        {% endblock %}
+			                    </select>
+			                </div>
+			            </div>
+			            <div class="mws-form-col-3-8">
+			                <div class="mws-form-item">
+			                    <select name="{{ formset_prefix }}-0-type" id="id_{{ formset_prefix }}-0-type" class="chzn-select-no-search tabbable">
+			                        {% block address_types %}
+			                        <option value="visiting" selected="selected">{% trans 'Visiting address' %}</option>
+			                        <option value="billing">{% trans 'Billing address' %}</option>
+			                        <option value="shipping">{% trans 'Shipping address' %}</option>
+			                        <option value="home">{% trans 'Home address' %}</option>
+			                        <option value="other">{% trans 'Other' %}</option>
+			                        {% endblock %}
+			                    </select>
+			                </div>
+			            </div>
+			        </div>
+			    </div>
             </div>
         </div>
     </div>

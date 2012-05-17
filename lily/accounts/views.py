@@ -163,14 +163,19 @@ class AddAccountView(CreateView):
         form_kwargs = self.get_form_kwargs()
 
         if is_ajax(self.request):
-            # Add e-mail address to account as primary
-            self.object.primary_email = form.cleaned_data.get('email')
-            self.object.save()
-
             # Save website
             if form.cleaned_data.get('website'):
                 Website.objects.create(website=form.cleaned_data.get('website'),
                                        account=self.object, is_primary=True)
+
+            # Add e-mail address to account as primary
+            self.object.primary_email = form.cleaned_data.get('email')
+            self.object.save()
+
+            # Save phone number
+            if form.cleaned_data.get('phone'):
+                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
+                self.object.phone_numbers.add(phone)
 
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)

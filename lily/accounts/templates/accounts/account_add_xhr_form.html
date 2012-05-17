@@ -13,6 +13,19 @@
     
 <div class="mws-form-inline">
     <div class="mws-form-row">
+        {{ form.website.label_tag }}
+        <div class="mws-form-item large">                            
+            {% if form.website.errors %}
+                <span class="field_error">{{ form.website }}</span>
+                <div class="mws-error no_list_style_type">
+                    {{ form.website.errors }}
+                </div>
+            {% else %}
+                {{ form.website }}
+            {% endif %}
+        </div>
+    </div>
+    <div class="mws-form-row">
         {{ form.name.label_tag }}
         <div class="mws-form-item large">
             <div class="mws-form-cols clearfix">
@@ -50,15 +63,15 @@
         </div>
     </div>
     <div class="mws-form-row">
-        {{ form.website.label_tag }}
+        {{ form.phone.label_tag }}
         <div class="mws-form-item large">                            
-            {% if form.website.errors %}
-                <span class="field_error">{{ form.website }}</span>
+            {% if form.phone.errors %}
+                <span class="field_error">{{ form.phone }}</span>
                 <div class="mws-error no_list_style_type">
-                    {{ form.website.errors }}
+                      {{ form.phone.errors }}
                 </div>
             {% else %}
-                {{ form.website }}
+                {{ form.phone }}
             {% endif %}
         </div>
     </div>

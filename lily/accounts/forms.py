@@ -15,6 +15,12 @@ class AddAccountMinimalForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
+    website = forms.URLField(max_length=30, initial='http://', required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'mws-textinput',
+            'placeholder': 'http://'
+    }))
+    
     name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={
         'class': 'mws-textinput required',
         'placeholder': _('Company name')
@@ -25,10 +31,10 @@ class AddAccountMinimalForm(ModelForm):
         'placeholder': _('E-mail address')
     }))
 
-    website = forms.URLField(max_length=30, initial='http://', required=False,
+    phone = forms.CharField(max_length=40, required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-textinput',
-            'placeholder': 'http://'
+            'placeholder': _('Phone number')
     }))
 
     def __init__(self, *args, **kwargs):

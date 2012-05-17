@@ -41,7 +41,7 @@
                     deleteTriggers = forms.find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) != undefined) {
-                            $(buttonTrigger).addClass('hidden');
+                            $(buttonTrigger).parent().addClass('hidden');
                         }
                     }
                 } else { 
@@ -49,7 +49,7 @@
                     deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) !== undefined) {
-                            $(buttonTrigger).removeClass('hidden');
+                            $(buttonTrigger).parent().removeClass('hidden');
                         }
                     }
                 }

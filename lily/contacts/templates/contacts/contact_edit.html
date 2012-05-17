@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %}
+{% load i18n static field_extras %}
 
 {% block title %}{% trans 'Edit contact' %} - {% endblock %}
 
@@ -144,14 +144,28 @@
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
                         <div class="mws-form-item large">
-                            {% if form.description.errors %}
-                                <span class="field_error">{{ form.description }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.description.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.description }}
-                            {% endif %}
+                        	{% if form.description|field_value %}
+	                            {% if form.description.errors %}
+	                                <span class="field_error">{{ form.description }}</span>
+	                                <div class="mws-error no_list_style_type">
+	                                      {{ form.description.errors }}
+	                                </div>
+	                            {% else %}
+	                                {{ form.description }}
+	                            {% endif %}
+                        	{% else %}
+								<a href="javascript:" class="click-show" data-click-show="description_wrapper">Add description</a>
+								<div id="description_wrapper" class="hidden">
+		                            {% if form.description.errors %}
+		                                <span class="field_error">{{ form.description }}</span>
+		                                <div class="mws-error no_list_style_type">
+		                                      {{ form.description.errors }}
+		                                </div>
+		                            {% else %}
+		                                {{ form.description }}
+		                            {% endif %}
+	                       		</div>
+                        	{% endif %}
                         </div>
                     </div>
 

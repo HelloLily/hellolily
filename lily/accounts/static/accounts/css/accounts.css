@@ -38,6 +38,11 @@
 	margin-top: 18%;
 }
 
+.mws-form-row a.click-show {
+	margin-top: 5px;
+	display: inline-block;
+}
+
 /* List */
 
 .mws-table td {

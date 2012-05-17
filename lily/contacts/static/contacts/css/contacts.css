@@ -1,5 +1,10 @@
 /* Add/Edit */
 
+.mws-form-row a.click-show {
+	margin-top: 5px;
+	display: inline-block;
+}
+
 .mws-form .email_is_primary label span {
     color: #aaa;
     font-weight: normal;

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static %}
+{% load i18n static field_extras %}
 
 {% block title %}{% trans 'Add account' %} - {% endblock %}
 
@@ -109,39 +109,37 @@
                     <div class="mws-form-row">
                         {{ form.description.label_tag }}
                         <div class="mws-form-item large">
-                            {% if form.description.errors %}
-                                <span class="field_error">{{ form.description }}</span>
-                                <div class="mws-error no_list_style_type">
-                                      {{ form.description.errors }}
-                                </div>
-                            {% else %}
-                                {{ form.description }}
-                            {% endif %}
+                        	{% if form.description|field_value %}
+	                            {% if form.description.errors %}
+	                                <span class="field_error">{{ form.description }}</span>
+	                                <div class="mws-error no_list_style_type">
+	                                      {{ form.description.errors }}
+	                                </div>
+	                            {% else %}
+	                                {{ form.description }}
+	                            {% endif %}
+                        	{% else %}
+								<a href="javascript:" class="click-show" data-click-show="description_wrapper">Add description</a>
+								<div id="description_wrapper" class="hidden">
+		                            {% if form.description.errors %}
+		                                <span class="field_error">{{ form.description }}</span>
+		                                <div class="mws-error no_list_style_type">
+		                                      {{ form.description.errors }}
+		                                </div>
+		                            {% else %}
+		                                {{ form.description }}
+		                            {% endif %}
+	                       		</div>
+                        	{% endif %}
                         </div>
                     </div>
 
                     <div class="mws-form-row">
                         {{ form.tags.label_tag }}
-                        <div class="mws-form-cols clearfix">
-                            <div>
-                                <div class="float-left">
-                                    {% if form.tags.errors %}
-                                        <span class="field_error">
-                                            <div class="input-and-choice">
-                                                <div>
-                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
-                                                    <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
-                                                </div>
-                                                <div>
-                                                    {{ form.tags }}
-                                                    <ul class="input-and-choice-list clearfix search-field"></ul>
-                                                </div>
-                                            </div>
-                                        </span>
-                                        <div class="mws-error no_list_style_type">
-                                              {{ form.tags.errors }}
-                                        </div>
-                                    {% else %}
+                    	<div class="mws-form-cols clearfix">
+                            <div class="float-left">
+                                {% if form.tags.errors %}
+                                    <span class="field_error">
                                         <div class="input-and-choice">
                                             <div>
                                                 <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
@@ -152,8 +150,22 @@
                                                 <ul class="input-and-choice-list clearfix search-field"></ul>
                                             </div>
                                         </div>
-                                    {% endif %}
-                                </div>
+                                    </span>
+                                    <div class="mws-error no_list_style_type">
+                                          {{ form.tags.errors }}
+                                    </div>
+                                {% else %}
+                                    <div class="input-and-choice">
+                                        <div>
+                                            <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                            <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                        </div>
+                                        <div>
+                                            {{ form.tags }}
+                                            <ul class="input-and-choice-list clearfix search-field"></ul>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

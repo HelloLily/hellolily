@@ -26,7 +26,13 @@
                 { "bSortable": false, "bSortable": false, "aTargets": [3] },
                 { "bSortable": false, "bSortable": false, "aTargets": [6] }
             ]
-        }); 
+        });
+        
+        $('.mws-datatable-fn tr').live({
+	        hover: function() {
+	            $(this).find('.i-16').toggleClass('blue'); 
+	        }
+	    });
         
         $('.mws-table .delete_icon').click(function(event) {
             var location = $(this).attr('href');

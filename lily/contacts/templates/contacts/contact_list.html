@@ -26,6 +26,12 @@
             ]
         });
         
+        $('.mws-datatable-fn tr').live({
+	        hover: function() {
+	            $(this).find('.i-16').toggleClass('blue'); 
+	        }
+	    });
+        
         $('.mws-table .delete_icon').click(function(event) {
             var location = $(this).attr('href');
             $('#delete-contact-form-dialog form').attr('action', location);

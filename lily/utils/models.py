@@ -283,11 +283,6 @@ class PhoneNumber(TenantMixin):
     PHONE_TYPE_CHOICES = (
         ('work', _('Work')),
         ('mobile', _('Mobile')),
-        ('home', _('Home')),
-        ('fax_home', _('Fax (home)')),
-        ('fax_work', _('Fax (work)')),
-        ('data', _('Data')),
-        ('pager', _('Pager')),
         ('other', _('Other')),
     )
 

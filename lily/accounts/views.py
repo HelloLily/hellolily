@@ -1,10 +1,11 @@
+from urlparse import urlparse
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
-
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -165,16 +166,16 @@ class AddAccountView(CreateView):
                 notification = False
                 html_response = ''
             else:
-                list_url = reverse('account_list')
                 message = _('%s (Account) has been saved.') % self.object.name
 
-                # Redirect if in the list view
-                if self.request.META['HTTP_REFERER'].endswith(list_url):
+                # Redirect if in the list view or dashboard
+                url_obj = urlparse(self.request.META['HTTP_REFERER'])
+                if url_obj.path.endswith(reverse('account_list')) or url_obj.path == reverse('dashboard'):
                     # Show save message
                     messages.success(self.request, message)
 
                     do_redirect = True
-                    url = list_url
+                    url = self.request.META['HTTP_REFERER']
                     notification = False
                     html_response = ''
                 else:

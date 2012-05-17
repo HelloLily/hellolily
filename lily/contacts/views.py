@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from hashlib import sha256
+from urlparse import urlparse
 import base64
 import pickle
 
@@ -170,16 +171,17 @@ class AddContactView(CreateView):
                 notification = False
                 html_response = ''
             else:
-                list_url = reverse('contact_list')
                 message = _('%s (Contact) has been saved.') % self.object.full_name()
-
-                # Redirect if in the list view
-                if self.request.META['HTTP_REFERER'].endswith(list_url):
+                
+                # Redirect if in the list view or dashboard
+                url_obj = urlparse(self.request.META['HTTP_REFERER'])
+                if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
+                    
                     # Show save message
                     messages.success(self.request, message)
 
                     do_redirect = True
-                    url = list_url
+                    url = self.request.META['HTTP_REFERER']
                     notification = False
                     html_response = ''
                 else:

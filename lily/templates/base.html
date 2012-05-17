@@ -59,8 +59,10 @@
     <script type="text/javascript" src="{% static 'js/send_form.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/mws.js' %}"></script>
 
-    {% ifstartswith "account_list" %}
     <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
+    
+    {% ifstartswith "account_list" %}
     <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
     {% endifstartswith %}
 
@@ -101,103 +103,135 @@
             });
 
             {% ifstartswith "account_list" %}
-            // show add account dialog
-            $('#quickbutton-account').click(function(event) {
-                $('#add-account-form-dialog').dialog('open');
-                event.preventDefault();
-            });
-
-            // add account
-            $('#add-account-form-dialog').dialog({
-                autoOpen: false,
-                title: gettext('New account'),
-                modal: true,
-                width: 640,
-                buttons: [
-                    {
-                        'class': 'mws-button red float-left',
-                        text: gettext('Cancel'),
-                        click: function() {
-                            $(this).dialog('close');
-                        }
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add & edit'),
-                        click: function() {
-                            // set form input to edit so we get a redirect to the extendend edit page
-                            $('#add-account-submit').val('edit');
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'edit'
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add'),
-                        click: function() {
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'add'
-                    },
-                ],
-                close: function() {
-                    clearForm( $(this).find('form') );
-                }
-            });
+            
+        	if(true) {
+        		
+       		{% else %}
+	       		{% ifactive "dashboard" %} 
+	            
+	        	if(true) {
+	        		
+       			{% else %}
+       			
+	        	if(false) {
+	        		
+	            {% endifactive %}
+	            
             {% endifstartswith %}
 
-            {% ifstartswith "contact_list" %}
-            // show add contact dialog
-            $('#quickbutton-contact').click(function(event) {
-                $('#add-contact-form-dialog').dialog('open');
-                event.preventDefault();
-            });
-
-            // add contact
-            $('#add-contact-form-dialog').dialog({
-                autoOpen: false,
-                title: gettext('New contact'),
-                modal: true,
-                width: 640,
-                open: function() {
-                	enableChosen($(this));
-                },
-                buttons: [
-                    {
-                        'class': 'mws-button red float-left',
-                        text: gettext('Cancel'),
-                        click: function() {
-                            $(this).dialog('close');
-                        }
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add & edit'),
-                        click: function() {
-                            // set form input to edit so we get a redirect to the extendend edit page
-                            $('#add-contact-submit').val('edit');
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'edit'
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add'),
-                        click: function() {
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'add'
-                    },
-                ],
-                close: function() {
-                    clearForm( $(this).find('form') );
-                }
-            });
+	            // show add account dialog
+	            $('#quickbutton-account').click(function(event) {
+	                $('#add-account-form-dialog').dialog('open');
+	                event.preventDefault();
+	            });
+	
+	            // add account
+	            $('#add-account-form-dialog').dialog({
+	                autoOpen: false,
+	                title: gettext('New account'),
+	                modal: true,
+	                width: 640,
+	                buttons: [
+	                    {
+	                        'class': 'mws-button red float-left',
+	                        text: gettext('Cancel'),
+	                        click: function() {
+	                            $(this).dialog('close');
+	                        }
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add & edit'),
+	                        click: function() {
+	                            // set form input to edit so we get a redirect to the extendend edit page
+	                            $('#add-account-submit').val('edit');
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'edit'
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add'),
+	                        click: function() {
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'add'
+	                    },
+	                ],
+	                close: function() {
+	                    clearForm( $(this).find('form') );
+	                }
+	            });
+            }
+			
+			{% ifstartswith "contact_list" %}
+            
+        	if(true) {
+        		
+       		{% else %}
+	       		{% ifactive "dashboard" %} 
+	            
+	        	if(true) {
+	        		
+       			{% else %}
+       			
+	        	if(false) {
+	        		
+	            {% endifactive %}
+	            
             {% endifstartswith %}
+            
+	            // show add contact dialog
+	            $('#quickbutton-contact').click(function(event) {
+	                $('#add-contact-form-dialog').dialog('open');
+	                event.preventDefault();
+	            });
+	
+	            // add contact
+	            $('#add-contact-form-dialog').dialog({
+	                autoOpen: false,
+	                title: gettext('New contact'),
+	                modal: true,
+	                width: 640,
+	                open: function() {
+	                	enableChosen($(this));
+	                },
+	                buttons: [
+	                    {
+	                        'class': 'mws-button red float-left',
+	                        text: gettext('Cancel'),
+	                        click: function() {
+	                            $(this).dialog('close');
+	                        }
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add & edit'),
+	                        click: function() {
+	                            // set form input to edit so we get a redirect to the extendend edit page
+	                            $('#add-contact-submit').val('edit');
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'edit'
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add'),
+	                        click: function() {
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'add'
+	                    },
+	                ],
+	                close: function() {
+	                    clearForm( $(this).find('form') );
+	                }
+	            });
+			}
 
             {% for message in messages|unique_messages|message_css_tags %}
             $.jGrowl("{{ message.message|safe }}", {
@@ -261,6 +295,35 @@
                         </div>
                     </div>
                 {% endifstartswith%}
+                
+                {% ifactive "dashboard" %}
+                    <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
+                        <button type="button" class="mws-button blue tabbable">
+                            {% trans 'Add account' %}
+                        </button>
+                    </a>
+
+                    <div class="hidden">
+                        <div id="add-account-form-dialog">
+                            <form class="mws-form" action="{% url account_add %}" method="post">
+                                {% include 'accounts/account_add_xhr_form.html' with form=quickbutton_form_account %}
+                            </form>
+                        </div>
+                    </div>
+                    <a id="quickbutton-contact" href="{% url contact_add %}" class="no-decoration">
+                        <button type="button" class="mws-button blue tabbable">
+                            {% trans 'Add contact' %}
+                        </button>
+                    </a>
+
+                    <div class="hidden">
+                        <div id="add-contact-form-dialog">
+                            <form class="mws-form" action="{% url contact_add %}" method="post">
+                                {% include 'contacts/contact_add_xhr_form.html' with form=quickbutton_form_contact %}
+                            </form>
+                        </div>
+                    </div>
+                {% endifactive %}
             </div>
 
 	        <!-- User Tools (notifications, logout, profile, change password) -->

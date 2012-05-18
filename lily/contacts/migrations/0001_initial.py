@@ -11,6 +11,7 @@ class Migration(SchemaMigration):
         # Adding model 'Contact'
         db.create_table('contacts_contact', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
             ('deleted', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
@@ -23,6 +24,7 @@ class Migration(SchemaMigration):
             ('status', self.gf('django.db.models.fields.IntegerField')(default=1)),
             ('picture', self.gf('django.db.models.fields.files.ImageField')(max_length=100, blank=True)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('salutation', self.gf('django.db.models.fields.IntegerField')(default=0)),
         ))
         db.send_create_signal('contacts', ['Contact'])
 
@@ -119,21 +121,29 @@ class Migration(SchemaMigration):
         'accounts.account': {
             'Meta': {'object_name': 'Account'},
             'addresses': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.Address']", 'symmetrical': 'False'}),
+            'bankaccountnumber': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
+            'bic': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
+            'cocnumber': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
             'company_size': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'customer_id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'email_addresses': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.EmailAddress']", 'symmetrical': 'False'}),
+            'flatname': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'iban': ('django.db.models.fields.CharField', [], {'max_length': '40', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'legalentity': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
             'logo': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'blank': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'phone_numbers': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.PhoneNumber']", 'symmetrical': 'False'}),
             'social_media': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.SocialMedia']", 'symmetrical': 'False'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.Tag']", 'symmetrical': 'False', 'blank': 'True'})
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.Tag']", 'symmetrical': 'False', 'blank': 'True'}),
+            'taxnumber': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -180,8 +190,10 @@ class Migration(SchemaMigration):
             'phone_numbers': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.PhoneNumber']", 'symmetrical': 'False'}),
             'picture': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'blank': 'True'}),
             'preposition': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'salutation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'social_media': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['utils.SocialMedia']", 'symmetrical': 'False'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'})
         },
         'contacts.function': {
@@ -219,22 +231,28 @@ class Migration(SchemaMigration):
             'note': ('django.db.models.fields.TextField', [], {}),
             'object_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
+        'tenant.tenant': {
+            'Meta': {'object_name': 'Tenant'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
         'users.customuser': {
             'Meta': {'object_name': 'CustomUser', '_ormbases': ['auth.User']},
             'account': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Account']"}),
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']"}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
             'user_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
         },
         'utils.address': {
             'Meta': {'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'complement': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
-            'country': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'country': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'postal_code': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
             'state_province': ('django.db.models.fields.CharField', [], {'max_length': '50', 'blank': 'True'}),
             'street': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'street_number': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
         'utils.emailaddress': {
@@ -242,7 +260,8 @@ class Migration(SchemaMigration):
             'email_address': ('django.db.models.fields.EmailField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '50'})
+            'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '50'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},
@@ -251,6 +270,7 @@ class Migration(SchemaMigration):
             'other_type': ('django.db.models.fields.CharField', [], {'max_length': '15', 'null': 'True', 'blank': 'True'}),
             'raw_input': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '10'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'default': "'work'", 'max_length': '15'})
         },
         'utils.socialmedia': {
@@ -259,12 +279,14 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'other_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
             'profile_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         },
         'utils.tag': {
             'Meta': {'object_name': 'Tag'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'tag': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+            'tag': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         }
     }
 

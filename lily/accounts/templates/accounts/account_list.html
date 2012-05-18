@@ -121,7 +121,7 @@
                                     	<div class="address">{{ address.city }}</div>
                                     {% endif %}
                                     {% if address.country %}
-                                    	<div class="country">{{ address.country|truncatechars:"20" }}</div>
+                                    	<div class="country">{{ address.get_country_display }}</div>
                                     {% endif %}
                                 {% endwith %}
                             </td>

@@ -232,6 +232,16 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        
+                        <hr />
+                        
+                        <h2>{% trans 'Additional information' %}</h2>
+                        <div class="grid_8">
+                            <div class="detail-block">
+                                <h4>{% trans 'Description' %}</h4>
+                                {{ object.description|linebreaksbr }}
+                            </div>
+                        </div>
                     </div>
                     
                     {% with contact.get_primary_function as function %}

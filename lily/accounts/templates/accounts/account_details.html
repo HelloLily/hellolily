@@ -266,6 +266,29 @@
                                 {% endfor %}
                             </div>
                         </div>
+                        
+                        <hr />
+                        
+                        <h2>{% trans 'Additional information' %}</h2>
+                        <div class="grid_8">
+                            <div class="detail-block">
+                                <h4>{% trans 'Description' %}</h4>
+                                {{ object.description|linebreaksbr }}
+                            </div>
+                            
+                            <div class="detail-block">
+                                <h4>{% trans 'Tags' %}</h4>
+                                {% comment %}
+                                TODO: when searching on tags is possible, change these into links
+                                {% endcomment %}
+                                {% for tag in object.tags.all %}
+                                    {{ tag }}
+                                    {% if not forloop.last %}
+                                    ,
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                     
                     <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">

@@ -67,7 +67,10 @@
 	div#mws-navigation ul li a.mws-i-24, 
 	div#mws-navigation ul li span.mws-i-24, 
 	div#mws-navigation ul li a.mws-ic, 
-	div#mws-navigation ul li span.mws-ic
+	div#mws-navigation ul li span.mws-ic,
+	
+    div#mws-navigation ul li a.i-32, /* new */
+    div#mws-navigation ul li span.i-32 /* new */
 	{
 		padding:0;
 		padding-top:40px;

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from lily.settings import TENANT_MIXIN as TenantMixin
+from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 
 # ISO 3166-1 country names and codes

@@ -8,12 +8,13 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.settings import TENANT_MIXIN as TenantMixin
+from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.utils.models import EmailAddress
+
 try:
     from lily.tenant.functions import add_tenant_and_save
 except ImportError:
     from lily.utils.functions import dummy_function as add_tenant_and_save
-from lily.utils.models import EmailAddress
 
 
 class CustomUser(User, TenantMixin):

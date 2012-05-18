@@ -8,10 +8,15 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.settings import TENANT_MIXIN as TenantMixin
+try:
+    from lily.tenant.functions import add_tenant_and_save
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant_and_save
 from lily.utils.models import EmailAddress
 
 
-class CustomUser(User):
+class CustomUser(User, TenantMixin):
     """
     Custom user model, has relation with Contact.
     """
@@ -64,6 +69,7 @@ def post_save_customuser_handler(sender, **kwargs):
             except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
                 email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
+                add_tenant_and_save(email, instance.tenant)
                 instance.contact.email_addresses.add(email)
 
 @receiver(user_logged_out)

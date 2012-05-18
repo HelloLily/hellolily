@@ -676,25 +676,6 @@ div.mws-dualbox button:active
 }
 
 /* new from here on */
-.mws-form .mws-form-cols .mws-form-col-row {
-    padding: 0 0 2px;
-    margin: 0 5px 0 0;
-    
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -khtml-box-sizing: border-box;
-}
-
-.mws-form-col-row .mws-button {
-    margin: 0px;
-}
-
-.mws-form .float-left {
-    margin-right: 12px;
-}
-
 .mws-form .add-row,
 .mws-form .email_addresses-add-row,
 .mws-form .phone_numbers-add-row,

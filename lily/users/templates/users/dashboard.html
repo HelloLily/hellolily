@@ -1,23 +1,83 @@
 {% extends 'base.html' %}
-{% load i18n static %}
+{% load i18n static humanize %}
 
 {% block title %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'users/css/dashboard.css' %}" media="screen" />
+{% endblock %}
 
 {% block content %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
-        <span class="mws-i-24 i-list">Some links to get around</span>
+        <span>{% trans 'Dashboard' %}</span>
     </div>
     <div class="mws-panel-body">
         <div class="mws-panel-content">
-            <h5 style="font-size: 22px;">Users & Usermanagement</h5>
+            <h4>System message</h4>
             <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
-                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
-                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
-                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
-                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
+                If you find any bugs or want improvements please report them. We know that the mobile is not perfect yet and it's on our todo list. For a full list of known bug and features to come check out our <a href="https://trello.com/board/hellolily/4f5885b678986de1120affbb" target="_blank">page at Trello</a>.
             </p>
+            <hr />
+            
+            <div id="dashboard-latest" class="clearfix">
+				<div class="object-list grid_4">
+            		<h2 class="i-32 i-contacts blue">{% trans 'Latest contacts' %}</h2>
+					<div>
+						{% for contact in contact_list %}
+							<div class="object">
+								<div class="object-title">
+									<a href="{% url contact_details pk=contact.pk %}" title="{% trans 'View details for '} {{ contact }}">{{ contact }}</a>
+								</div>
+								<div class="object-more">
+    								<div class="object-creation-time">{{ contact.created|naturaltime }}</div>
+                                    {% if forloop.last %}
+                                    <div>
+                                        <p></p>
+                                        <a href="{% url contact_list %}">{% trans 'All contacts' %}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+							</div>
+						{% empty %}
+							<div>
+								No contacts created yet. <br />
+								<a href="{% url contact_add %}">Create one</a>.
+							</div>
+						{% endfor %}
+					</div>
+				</div>     
+            	<div class="object-list grid_4">
+            		<h2 class="i-32 i-accounts blue">{% trans 'Latest accounts' %}</h2>
+					<div>
+						{% for account in account_list %}
+							<div class="object">
+								<div class="object-title">
+									<a href="{% url account_details pk=account.pk %}" title="{% trans 'View details for '} {{ account }}">{{ account }}</a>
+								</div>
+                                <div class="object-more">
+    								<div class="object-creation-time">{{ account.created|naturaltime }}</div>
+    								{% if forloop.last %}
+                                    <div>
+                                        <p></p>
+                                        <a href="{% url account_list %}">{% trans 'All accounts' %}</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+							</div>
+						{% empty %}
+							<div>
+								No accounts created yet. <br />
+								<a href="{% url account_add %}">Create one</a>.
+							</div>
+						{% endfor %}
+					</div>
+				</div>	       
+            </div>   
+
+            <hr />
+            
+            <h2>Other things you can do</h2>
             <p>
                 <ul class="mws-summary">
                     <li><a href="{% url registration %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Registration of a new user</span></li>
@@ -34,7 +94,7 @@
                 </ul>
             </p>
             
-            <h5 style="font-size: 22px;">Accounts</h5>
+            <h2>Accounts</h2>
             <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
                 Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
@@ -50,7 +110,7 @@
                 </ul>
             </p>
             
-            <h5 style="font-size: 22px;">Contacts</h5>
+            <h2>Contacts</h2>
             <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
                 Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 

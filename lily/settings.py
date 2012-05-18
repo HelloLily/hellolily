@@ -95,12 +95,16 @@ AUTHENTICATION_BACKENDS = (
 
 # Used middleware
 MIDDLEWARE_CLASSES = (
+    # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Lily
+    'lily.tenant.middleware.TenantMiddleWare',
 )
 
 # Main urls file
@@ -136,13 +140,14 @@ else:
 # Used and installed apps
 INSTALLED_APPS = (
     # Django
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
     
     # 3rd party
     'templated_email',
@@ -152,12 +157,14 @@ INSTALLED_APPS = (
     'south',
     
     # Lily
+    'lily', # required for management command
     'lily.accounts',
     'lily.activities',
     'lily.contacts',
-    'lily.users',
     'lily.notes',
     'lily.provide',
+    'lily.tenant',
+    'lily.users',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
     'lily.utils.templatetags.messages',
@@ -212,6 +219,13 @@ LOGGING = {
 
 # Messaging framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
+
+# Tenant support
+import django.db.models
+TENANT_MIXIN = django.db.models.Model # prevent models from breaking, use the default base model
+if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
+    import lily.tenant.models
+    TENANT_MIXIN = lily.tenant.models.TenantMixin
 
 # Settings for 3rd party apps
 

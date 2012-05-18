@@ -13,10 +13,10 @@
     cursor: pointer;
 }
 
-.mws-form .formset-delete .mws-i-24 {
+.mws-form .formset-delete .i-16 {
     display: block; 
-    width: 24px; 
-    height: 24px;
+    width: 16px;
+    height: 32px;
 }
 
 #enrich-account-button {
@@ -25,11 +25,6 @@
 }
 
 #enrich-busy {
-    /* prev. 
-    background-image: url(../../images/blue-loading.gif);
-    background-position: center 20%;
-    background-repeat: no-repeat;
-    */
     background-color: rgba(255, 255, 255, .85);
     height: 100%;
     width: 100%;
@@ -41,6 +36,11 @@
 
 #enrich-busy-message {
 	margin-top: 18%;
+}
+
+.mws-form-row a.click-show {
+	margin-top: 5px;
+	display: inline-block;
 }
 
 /* List */
@@ -82,9 +82,7 @@
     white-space: nowrap;
 }
 
-.mws-table .details .mail,
-.mws-table .details .phone,
-.mws-table .details .mobile_phone  {
+.mws-table .details .i-16  {
    padding-left: 24px;
 }
 
@@ -129,28 +127,8 @@
    	height: 19px;
 }
 
-#account_contact .phone,
-#account_contact .mobile_phone,
-#account_contact .email,
-#account_contact .twitter {
-	background-repeat: no-repeat;
+#account_contact .i-16 {
 	background-position: 4px 48%;
-}
-
-#account_contact .phone {
-   background-image: url('/static/images/core/phone.png');
-}
-
-#account_contact .mobile_phone {
-   background-image: url('/static/images/core/mobile-phone.png');
-}
-
-#account_contact .email {
-   background-image: url('/static/images/core/mail.png');
-}
-
-#account_contact .twitter {
-   background-image: url('/static/images/core/twitter.png');
 }
 
 #details_body {

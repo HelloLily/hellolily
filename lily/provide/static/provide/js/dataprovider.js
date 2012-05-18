@@ -1,13 +1,65 @@
 /** 
+ * Dialog to use when asking to overwrite existing account information.
+ */
+function dataprovider_ask_overwrite(msg, func) {
+    var confirm_dialog = $('<div id="dialog-confirm" title="Overwrite?"><div class="mws-form"><div class="mws-form-inline"><div class="mws-form-row">' + msg + '?</div></div></div></div>');
+    
+    $( confirm_dialog ).dialog( "destroy" );
+    
+    $( confirm_dialog ).dialog({
+        resizable: false,
+        modal: true,
+        width: 640,
+        buttons: [
+            { 
+                'class': 'mws-button red float-left',
+                text: gettext('Cancel'),
+                click: function() {
+                    // cancel form on NO
+                    $(this).dialog('close');
+                }
+            },
+            {
+                'class': 'mws-button green',
+                text: gettext('Overwrite'),
+                click: function() {
+                    func();
+                    $( this ).dialog( "close" );
+                }
+            }
+        ]
+    });
+}
+
+
+/** 
  * Try filling up a form with data from provided json object 
  */
 function dataprovider_json_to_form(json, form) {
     // set company name
-    if( json.name )
-        $(form).find('[name="name"]').val(json.name);
+    if( json.name ) {
+        var name = $(form).find('[name="name"]');
+        var set_name = function() { $(name).val(json.name); }
+        if( $(name).val().length > 0) {
+            if( $.trim($(name).val()) != json.name) {
+                var result = dataprovider_ask_overwrite('Do you want to overwrite the account\'s name with "' + json.name + '"?', set_name);
+            }
+        } else {
+            set_name();
+        }
+        
+    }
     // set description
     if( json.description ) {
-        $(form).find('[name="description"]').val(json.description)
+        var description = $(form).find('[name="description"]');
+        var set_description = function() { $(description).val(json.description); }
+        if( $(description).val().length > 0) {
+            if( $.trim($(description).val()) != json.description) {
+                var result = dataprovider_ask_overwrite('Do you want to overwrite the account\'s description with "' + json.description + '"?', set_description);
+            }
+        } else {
+            set_description();
+        }
     	// textarea = $(form).find('[name="description"]');
         // textarea.val(json.description);
         // textarea.scrollTop(textarea[0].scrollHeight - textarea.height()).trigger('change');
@@ -51,7 +103,7 @@ function dataprovider_json_to_form(json, form) {
         	$(form).find('.addresses-add-row').click();
             address_elem = $(addresses_container).find('.addresses:visible:last');
             address_json = json.addresses[i];
-            console.log(address_json);
+            
             $(address_elem).find('[name^="addresses"][name$="street"]').val(address_json.street)
             $(address_elem).find('[name^="addresses"][name$="street_number"]').val(address_json.street_number)
             $(address_elem).find('[name^="addresses"][name$="complement"]').val(address_json.complement)

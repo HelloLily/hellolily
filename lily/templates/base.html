@@ -1,14 +1,14 @@
 {% load i18n static activelink messages %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head> 
+<head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+
     <!-- Apple iOS and Android stuff (do not remove) -->
     <meta name="apple-mobile-web-app-capable" content="no" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    
+
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
-    
+
     <!-- Required Stylesheets -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/text.css' %}" media="screen" />
@@ -17,13 +17,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/16x16.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/24x24.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/icons/32x32.css' %}" media="screen" />
-    
+    <link rel="stylesheet" type="text/css" href="{% static 'css/icons/custom.css' %}" media="screen" />
+
     <!-- Plugin Stylesheets -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" /> 
+    <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'plugins/jgrowl/jquery.jgrowl.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'plugins/chosen/chosen.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'plugins/tipsy/tipsy.css' %}" media="screen" />
-    
+
     <!-- Theme Stylesheet -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/core.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/panels.css' %}" media="screen" />
@@ -36,176 +37,202 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/plugins.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/responsive.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/core/themer.css' %}" media="screen" />
-    
+
     {% block styles %}{% endblock %}
-    
+
     <link rel="stylesheet" type="text/css" href="{% static 'css/mws.theme.css' %}" media="screen" />
-    
+
     <!-- JavaScript -->
     <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
-    
+    <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'plugins/tabthis/tabthis.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/jgrowl/jquery.jgrowl-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/tipsy/jquery.tipsy-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'plugins/clickfocus/clickfocus.jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/lilyformset/lily.formset.js' %}"></script>
     <script type="text/javascript" src="{% static 'plugins/jqueryform/jquery.form.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/send_form.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/mws.js' %}"></script>
+
+    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
     
+    {% ifstartswith "account_list" %}
+    <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
+    {% endifstartswith %}
+
     <script type="text/javascript">
         $(document).ready(function() {
             $("#loadingDialog").dialog({
-                autoOpen: false, 
-                title: "{% trans 'Please wait...' %}", 
-                modal: true, 
+                autoOpen: false,
+                title: "{% trans 'Please wait...' %}",
+                modal: true,
                 width: "320",
                 closeOnEscape: false,
                 resizable: false,
                 open: function(event, ui) { $(this).parent().children().children('.ui-dialog-titlebar-close').hide(); }
             });
-            
+
             $("#successDialog").dialog({
-                autoOpen: false, 
-                title: "{% trans 'Success' %}", 
-                modal: true, 
-                width: "320", 
+                autoOpen: false,
+                title: "{% trans 'Success' %}",
+                modal: true,
+                width: "320",
                 buttons: [{
-                    text: "{% trans 'Close' %}", 
+                    text: "{% trans 'Close' %}",
                     click: function() {
                         $( this ).dialog( "close" );
                     }}]
             });
-            
+
             $("#errorDialog").dialog({
-                autoOpen: false, 
-                title: "{% trans 'Error' %}", 
-                modal: true, 
-                width: "320", 
+                autoOpen: false,
+                title: "{% trans 'Error' %}",
+                modal: true,
+                width: "320",
                 buttons: [{
-                    text: "{% trans 'Close' %}", 
+                    text: "{% trans 'Close' %}",
                     click: function() {
                         $( this ).dialog( "close" );
                     }}]
             });
-           
+
             {% ifstartswith "account_list" %}
-            // show add account dialog
-            $('#quickbutton-account').click(function(event) {
-                $('#add-account-form-dialog').dialog('open');
-                event.preventDefault();
-            });
-                    
-            // add account
-            $('#add-account-form-dialog').dialog({
-                autoOpen: false,
-                title: gettext('New account'),
-                modal: true,
-                width: 640,
-                buttons: [
-                    { 
-                        'class': 'mws-button red float-left',
-                        text: gettext('Cancel'),
-                        click: function() {
-                            $(this).dialog('close');
-                        }
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add & edit'),
-                        click: function() {
-                            // set form input to edit so we get a redirect to the extendend edit page
-                            $('#add-account-submit').val('edit');
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'edit'
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add'),
-                        click: function() {
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'add'
-                    },
-                ],
-                close: function() {
-                    clearForm( $(this).find('form') );
-                }
-            });
+            
+        	if(true) {
+        		
+       		{% else %}
+	       		{% ifactive "dashboard" %} 
+	            
+	        	if(true) {
+	        		
+       			{% else %}
+       			
+	        	if(false) {
+	        		
+	            {% endifactive %}
+	            
+            {% endifstartswith %}
+
+	            // show add account dialog
+	            $('#quickbutton-account').click(function(event) {
+	                $('#add-account-form-dialog').dialog('open');
+	                event.preventDefault();
+	            });
+	
+	            // add account
+	            $('#add-account-form-dialog').dialog({
+	                autoOpen: false,
+	                title: gettext('New account'),
+	                modal: true,
+	                width: 640,
+	                buttons: [
+	                    {
+	                        'class': 'mws-button red float-left',
+	                        text: gettext('Cancel'),
+	                        click: function() {
+	                            $(this).dialog('close');
+	                        }
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add more details'),
+	                        click: function() {
+	                            // set form input to edit so we get a redirect to the extendend edit page
+	                            $('#add-account-submit').val('edit');
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'edit'
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add account'),
+	                        click: function() {
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'add'
+	                    },
+	                ],
+	                close: function() {
+	                    clearForm( $(this).find('form') );
+	                }
+	            });
+            }
+			
+			{% ifstartswith "contact_list" %}
+            
+        	if(true) {
+        		
+       		{% else %}
+	       		{% ifactive "dashboard" %} 
+	            
+	        	if(true) {
+	        		
+       			{% else %}
+       			
+	        	if(false) {
+	        		
+	            {% endifactive %}
+	            
             {% endifstartswith %}
             
-            {% ifstartswith "contact_list" %}
-            // show add contact dialog
-            $('#quickbutton-contact').click(function(event) {
-                $('#add-contact-form-dialog').dialog('open');
-                event.preventDefault();
-            });
-                    
-            // add contact
-            $('#add-contact-form-dialog').dialog({
-                autoOpen: false,
-                title: gettext('New contact'),
-                modal: true,
-                width: 640,
-                buttons: [
-                    { 
-                        'class': 'mws-button red float-left',
-                        text: gettext('Cancel'),
-                        click: function() {
-                            $(this).dialog('close');
-                        }
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add & edit'),
-                        click: function() {
-                            // set form input to edit so we get a redirect to the extendend edit page
-                            $('#add-contact-submit').val('edit');
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'edit'
-                    },
-                    {
-                        'class': 'mws-button green',
-                        text: gettext('Add'),
-                        click: function() {
-                            sendForm( $(this) );
-                        },
-                        name: 'submit',
-                        value: 'add'
-                    },
-                ],
-                close: function() {
-                    clearForm( $(this).find('form') );
-                }
-            });
-            {% endifstartswith %}
-            
-            // jGrowl defaults
-            $.jGrowl.defaults.closerTemplate = '<div>[ close all ]</div>';
-            $.jGrowl.defaults.position = 'bottom-right';
-            $.jGrowl.defaults.sticky = false;
-            $.jGrowl.defaults.glue = 'after';
-            $.jGrowl.defaults.themeState = '';
-            $.jGrowl.defaults.pool = 2;
-            $.jGrowl.defaults.beforeOpen = function(notification,message,o,container) {
-                if( $(notification).find('a').length == 0 ) {
-                    $(notification).click(function() {
-                        $(this).trigger('jGrowl.beforeClose'); 
-                    });
-                } else {
-                    $(notification).dblclick(function() {
-                        $(this).trigger('jGrowl.beforeClose'); 
-                    });
-                }
-            };
-                          
+	            // show add contact dialog
+	            $('#quickbutton-contact').click(function(event) {
+	                $('#add-contact-form-dialog').dialog('open');
+	                event.preventDefault();
+	            });
+	
+	            // add contact
+	            $('#add-contact-form-dialog').dialog({
+	                autoOpen: false,
+	                title: gettext('New contact'),
+	                modal: true,
+	                width: 640,
+	                open: function() {
+	                	enableChosen($(this));
+	                },
+	                buttons: [
+	                    {
+	                        'class': 'mws-button red float-left',
+	                        text: gettext('Cancel'),
+	                        click: function() {
+	                            $(this).dialog('close');
+	                        }
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add more details'),
+	                        click: function() {
+	                            // set form input to edit so we get a redirect to the extendend edit page
+	                            $('#add-contact-submit').val('edit');
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'edit'
+	                    },
+	                    {
+	                        'class': 'mws-button green',
+	                        text: gettext('Add account'),
+	                        click: function() {
+	                            sendForm( $(this) );
+	                        },
+	                        name: 'submit',
+	                        value: 'add'
+	                    },
+	                ],
+	                close: function() {
+	                    clearForm( $(this).find('form') );
+	                }
+	            });
+			}
+
             {% for message in messages|unique_messages|message_css_tags %}
             $.jGrowl("{{ message.message|safe }}", {
                 theme: "{{ message.tags }}"
@@ -213,9 +240,9 @@
             {% endfor %}
         });
     </script>
-    
+
     {% block scripts %}{% endblock %}
-    
+
     <title>{% block title %}{% endblock %} Hello Lily </title>
 
 </head>
@@ -224,7 +251,7 @@
     {% block body %}
     <!-- Header -->
     <div id="mws-header">
-    
+
     	<!-- Header Container -->
     	<div id="mws-header-container">
 	        <!-- Logo Container -->
@@ -234,16 +261,16 @@
 	                <img src="{% static 'images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
 	            </div>
 	        </div>
-            
+
             <!-- Button Container -->
-            <div id="mws-quickbutton-container">
+            <div id="mws-quickbutton-container" class="tabthis">
                 {% ifstartswith "account_list" %}
                     <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
-                        <button type="button" class="mws-button blue">
+                        <button type="button" class="mws-button blue tabbable">
                             {% trans 'Add account' %}
                         </button>
                     </a>
-                    
+
                     <div class="hidden">
                         <div id="add-account-form-dialog">
                             <form class="mws-form" action="{% url account_add %}" method="post">
@@ -252,14 +279,14 @@
                         </div>
                     </div>
                 {% endifstartswith %}
-                
+
                 {% ifstartswith "contact_list" %}
                     <a id="quickbutton-contact" href="{% url contact_add %}" class="no-decoration">
-                        <button type="button" class="mws-button blue">
+                        <button type="button" class="mws-button blue tabbable">
                             {% trans 'Add contact' %}
                         </button>
                     </a>
-                    
+
                     <div class="hidden">
                         <div id="add-contact-form-dialog">
                             <form class="mws-form" action="{% url contact_add %}" method="post">
@@ -268,17 +295,46 @@
                         </div>
                     </div>
                 {% endifstartswith%}
+                
+                {% ifactive "dashboard" %}
+                    <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
+                        <button type="button" class="mws-button blue tabbable">
+                            {% trans 'Add account' %}
+                        </button>
+                    </a>
+
+                    <div class="hidden">
+                        <div id="add-account-form-dialog">
+                            <form class="mws-form" action="{% url account_add %}" method="post">
+                                {% include 'accounts/account_add_xhr_form.html' with form=quickbutton_form_account %}
+                            </form>
+                        </div>
+                    </div>
+                    <a id="quickbutton-contact" href="{% url contact_add %}" class="no-decoration">
+                        <button type="button" class="mws-button blue tabbable">
+                            {% trans 'Add contact' %}
+                        </button>
+                    </a>
+
+                    <div class="hidden">
+                        <div id="add-contact-form-dialog">
+                            <form class="mws-form" action="{% url contact_add %}" method="post">
+                                {% include 'contacts/contact_add_xhr_form.html' with form=quickbutton_form_contact %}
+                            </form>
+                        </div>
+                    </div>
+                {% endifactive %}
             </div>
-	        
+
 	        <!-- User Tools (notifications, logout, profile, change password) -->
-	        <div id="mws-user-tools">	            
+	        <div id="mws-user-tools">
 	            <!-- User Information and functions section -->
-	            <div id="mws-user-info" class="mws-inset">            
+	            <div id="mws-user-info" class="mws-inset">
 	                <!-- User Photo -->
 	                <div id="mws-user-photo">
-	                    <a href="#"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User Photo" title="{% trans 'Profile' %}" /></a>
+	                    <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User Photo" title="{% trans 'Profile' %}" /></a>
 	                </div>
-	                
+
 	                <!-- Username and Functions -->
 	                <div id="mws-user-functions">
 	                    <div id="mws-username">
@@ -296,31 +352,38 @@
             <div id="mws-search-container">
                 <!-- Searchbox -->
                 <form id="mws-searchbox" class="mws-form" action="">
-                    <input type="text" name="keywords" class="mws-search-input" />
-                    <input type="submit" class="mws-search-submit" />
+                    <input type="text" name="keywords" class="mws-search-input tabbable" />
+                    <input type="submit" class="mws-search-submit tabbable" />
                 </form>
             </div>
             {% endcomment %}
 		</div>
     </div>
-    
+
     <!-- Start Main Wrapper -->
     <div id="mws-wrapper">
-    
+
         <!-- Necessary markup, do not remove -->
         <div id="mws-sidebar-stitch"></div>
         <!-- <div id="mws-sidebar-bg"></div> -->
-        
+
         <!-- Sidebar Wrapper -->
         <div id="mws-sidebar">
-            
+
             <!-- Main Navigation -->
             {% block navigation %}
             <div id="mws-navigation">
                 <ul>
                     <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
-                        <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} mws-i-24 i-home-1">Dashboard</a>
+                        <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">Dashboard</a>
                     </li>
+                    <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
+                        <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">Contacts</a>
+                    </li>
+                    <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
+                        <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">Accounts</a>
+                    </li>
+                    
                     {% comment %}
                     <li>
                         <a href="#updates" class="blue mws-i-24 i-power">Updates</a>
@@ -331,7 +394,7 @@
                             <!-- Unread messages count -->
                             <span class="mws-nav-tooltip mws-inset" style="padding: 5px 13px 5px 5px; border-top-right-radius: 0; border-bottom-right-radius: 0; background: #ccc; margin-right: 0px">13</span>
                         </a>
-                        
+
                         <ul class="closed">
                             <li>
                                 <a href="#messaging-email" class="blue mws-i-24 i-mail">E-mail</a>
@@ -344,14 +407,6 @@
                             </li>
                         </ul>
                     </li>
-                    {% endcomment %}
-                    <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
-                        <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-group-2">Contacts</a>
-                    </li>
-                    <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
-                        <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} mws-i-24 i-suitcase-1">Accounts</a>
-                    </li>
-                    {% comment %}
                     <li>
                         <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
                     </li>
@@ -363,28 +418,28 @@
             </div>
             {% endblock %}
         </div>
-                
+
         <!-- Main Container -->
         <div id="mws-container" class="clearfix">
-        
+
             <!-- Inner Container -->
             <div class="container">
-                
+
                 <!-- Statistics Button Container -->
                 {% block statistics %}{% endblock %}
-                
+
                 <!-- Panels -->
                 {% block content %}{% endblock %}
             </div>
-                       
+
             <!-- Footer -->
             <div id="mws-footer">
-                Copyright Your Website 2012. All Rights Reserved.
+                Copyright HelloLily 2012. All Rights Reserved.
             </div>
         </div>
     </div>
     {% endblock %}
-    
+
     <div class="hidden">
 	    <div id="loadingDialog"></div>
 	    <div id="successDialog">
@@ -398,6 +453,6 @@
 	        </div>
 	    </div>
     </div>
-    
+
 </body>
 </html>

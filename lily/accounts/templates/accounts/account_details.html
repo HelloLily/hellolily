@@ -13,7 +13,6 @@
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/inline_edit/inline_edit.js' %}"></script>
-<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 <script type="text/javascript" src="{% static 'notes/js/notes.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
@@ -23,25 +22,23 @@
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url account_edit pk=account.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
-                <a href="{% url account_delete pk=account.pk %}" id="delete-account-dialog-link">
-                    <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
-                </a>
+                <a href="{% url account_delete pk=account.pk %}" id="delete-account-dialog-link" class="i-32 i-trash-2"></a>
+                <a href="{% url account_edit pk=account.pk %}" class="i-32 i-edit"></a>
 
-                <div id="delete-account-form-dialog" style="display:none;">
-                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
-                        {% csrf_token %} 
-                        <div class="mws-form-inline">
-                            <div class="mws-form-row">
-                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
-                            </div>
-                        </div>
-                    </form>
+				<div class="hidden">
+	                <div id="delete-account-form-dialog">
+	                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
+	                        {% csrf_token %} 
+	                        <div class="mws-form-inline">
+	                            <div class="mws-form-row">
+	                                {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
                 </div>
             </span>
-            <span class="mws-i-24 i-companies">
-                {{ account.name }}
-            </span>
+            <span>{{ account.name }}</span>
         </div>
         <div class="mws-panel-body">
             <div id="details_top" class="clearfix">
@@ -93,9 +90,9 @@
                     {% with account.get_phone_number as phone %}
                         {% if phone.raw_input %}
                             {% if phone.type == 'mobile' %}
-                                <span class="mobile_phone">
+                                <span class="i-16 i-mobile blue">
                             {% else %}
-                                <span class="phone">
+                                <span class="i-16 i-phone blue">
                             {% endif %}
                                     <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
                                 </span>
@@ -103,12 +100,12 @@
                     {% endwith %}
                     
                     {% if account.primary_email %}
-                        <span class="email"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
+                        <span class="i-16 i-mail blue"><a href="mailto:{{ account.primary_email }}">{{ account.primary_email }}</a></span>
                     {% endif %}
                     
                     {% with account.get_twitter as twitter %}
                         {% if twitter.username %}
-                            <span class="twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                            <span class="i-16 i-twitter blue"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
                         {% endif %}
                     {% endwith %}
                 </div>
@@ -129,7 +126,7 @@
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <h2>{% trans 'History' %}</h2>
                         {% if form %}
-                            <form class="mws-form" action="" method="post">
+                            <form class="mws-form tabthis" action="" method="post">
                                 {% csrf_token %}
                                 
 								<br />
@@ -145,7 +142,7 @@
                                         {{ form.note }}
                                     </div>
                                 {% endif %}
-                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
+                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small tabbable">
                             </form>
                             
                             <hr />

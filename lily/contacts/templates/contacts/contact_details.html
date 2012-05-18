@@ -13,7 +13,6 @@
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/inline_edit/inline_edit.js' %}"></script>
-<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 <script type="text/javascript" src="{% static 'notes/js/notes.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
@@ -23,10 +22,8 @@
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url contact_edit pk=contact.pk %}"><img src="{% static 'css/icons/24/fountain-pen.png' %}" alt="" /></a>
-                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link">
-                    <img src="{% static 'css/icons/24/trashcan-2.png' %}" alt="" />
-                </a>
+                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link" class="i-32 i-trash-2"></a>
+                <a href="{% url contact_edit pk=contact.pk %}" class="i-32 i-edit"></a>
 
                 <div id="delete-contact-form-dialog" style="display:none;">
                     <form class="mws-form" action="{% url contact_delete pk=contact.pk %}" method="post">
@@ -39,9 +36,7 @@
                     </form>
                 </div>
             </span>
-            <span class="mws-i-24 i-v-card-1">
-                {{ contact.full_name }}
-            </span>
+            <span>{{ contact.full_name }}</span>
         </div>
         <div class="mws-panel-body">
             <div id="details_top" class="clearfix">
@@ -85,7 +80,7 @@
                     {% endwith %}
                     
                  	{% if contact.primary_email %}
-                            <span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
+                    	<span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
                     {% endif %}
                     
                     {% with contact.get_twitter as twitter %}
@@ -115,7 +110,7 @@
                     <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                         <h2>{% trans 'History' %}</h2>
                         {% if form %}
-                            <form class="mws-form" action="" method="post">
+                            <form class="mws-form tabthis" action="" method="post">
                                 {% csrf_token %}
 								<br />
                                 {% if form.note.errors %}
@@ -130,7 +125,7 @@
                                         {{ form.note }}
                                     </div>
                                 {% endif %}
-                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small">
+                                <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small tabbable">
                             </form>
                             
                             <hr />
@@ -140,15 +135,17 @@
                                 {% include 'notes/note.html' with note=note %}
                             </div>
                         {% endfor %}
-                        <div id="delete-note-form-dialog" style="display:none;">
-                            <form class="mws-form" id="delete-note-form" action="" method="post">
-                                {% csrf_token %} 
-                                <div class="mws-form-inline">
-                                    <div class="mws-form-row">
-                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="hidden">
+	                        <div id="delete-note-form-dialog">
+	                            <form class="mws-form" id="delete-note-form" action="" method="post">
+	                                {% csrf_token %} 
+	                                <div class="mws-form-inline">
+	                                    <div class="mws-form-row">
+	                                        {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the note for {{ contact }}?{% endblocktrans %}
+	                                    </div>
+	                                </div>
+	                            </form>
+	                        </div>
                         </div>
                     </div>
                     

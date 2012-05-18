@@ -11,12 +11,11 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'users/js/login.js' %}"></script>
 {% endblock %}
 
 {% block body %}
-    <div id="mws-login-wrapper">
+    <div id="mws-login-wrapper" class="tabthis">
         <div id="mws-login">
             <div class="mws-panel">
                 <div class="mws-panel-header">
@@ -48,13 +47,13 @@
                     </div>
                     
                    <div class="mws-form-row">
-                        <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button" />
+                        <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button tabbable" />
                     </div>
                 </form>
             </div>
         </div>
-        <a href="{% url password_reset %}" class="float-right" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
+        <a href="{% url password_reset %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
         <div class="clearfix"></div>
-        <a href="{% url activation_resend %}" class="float-right" id="sub-panel-link">{% trans 'Resend activation e-mail' %}</a>
+        <a href="{% url activation_resend %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Resend activation e-mail' %}</a>
     </div>
 {% endblock %}

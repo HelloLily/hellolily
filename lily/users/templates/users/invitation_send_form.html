@@ -32,7 +32,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="mws-form-col-3-8 alpha">
+                    <div class="mws-form-col-3-8">
                         <div class="mws-form-item"> 
                             {% if form.email.errors %}
                                 <span class="field_error">{{ form.email }}</span>
@@ -44,15 +44,8 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="mws-form-col-2-8 alpha">
-                        <div class="mws-form-item">
-                            <div class="mws-form-item formset-delete">
-                                <a href="javascript:" class="mws-i-24 i-cross invitation-delete-row"></a>
-                            </div>
-                          <!--   <button type="button" class="mws-button delete-row small red mws-reset-button">
-                                {% trans 'Delete' %}
-                            </button> -->
-                        </div>
+                    <div class="mws-form-col-2-8 formset-delete">
+                        <a href="javascript:" class="i-16 i-trash-1 blue invitation-delete-row"></a>
                     </div>
                 </div>
             </div>

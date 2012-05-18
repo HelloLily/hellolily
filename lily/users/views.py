@@ -23,13 +23,18 @@ from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
+from lily.utils.views import MultipleModelListView
+try:
+    from lily.tenant.functions import add_tenant_and_save
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant_and_save
 
 
 class RegistrationView(FormView):
@@ -43,14 +48,21 @@ class RegistrationView(FormView):
         """
         Register a new user.
         """
+        
         # Create contact
         contact = Contact.objects.create(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
+        tenant = add_tenant_and_save(contact)
+        
         # Create account
         account = Account.objects.create(name=form.cleaned_data.get('company'))
+        add_tenant_and_save(contact, tenant)
+        
+        # Create function
+        Function.objects.create(account=account, contact=contact)
         
         # Create and save user
         user = CustomUser()
@@ -65,6 +77,8 @@ class RegistrationView(FormView):
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
         user.save()
+        
+        add_tenant_and_save(user, tenant)
         
         # Add to admin group
         group, created = Group.objects.get_or_create(name='account_admin')
@@ -98,8 +112,6 @@ class RegistrationView(FormView):
         
         # Show registration message
         messages.success(self.request, _('Registration completed. Check your <nobr>e-mail</nobr> to activate your account.'))
-                
-# TODO: support for Clients        user.client = form.cleaned_data['company']
         
         return self.get_success_url()
     
@@ -146,7 +158,7 @@ class ActivationView(TemplateView):
         self.user.save()
         
         # Log the user in
-        self.user = authenticate(username=self.user.email, no_pass=True)
+        self.user = authenticate(username=self.user.primary_email, no_pass=True)
         user_login(request, self.user)
         
         # Redirect to dashboard
@@ -287,7 +299,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
-            }))
+            }), mimetype='application/json')
         return HttpResponseRedirect(self.get_success_url())
     
     def formset_invalid(self, formset):
@@ -301,7 +313,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': True,
                 'html': render_to_string(self.form_template_name, context)
-            }), mimetype='application/javascript')
+            }), mimetype='application/json')
         return self.render_to_response(self.get_context_data(formset=formset))
     
     def get_success_url(self):
@@ -441,12 +453,19 @@ class AcceptInvitationView(FormView):
             )
             contact.email_addresses.add(email)
         
+        # Create function
+        Function.objects.create(account=self.account, contact=contact)
+        
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
+        
+        # TODO: move this...
+        if hasattr(self.account, 'tenant'):
+            add_tenant_and_save(contact, self.account.tenant)
         user.save()
         
         return self.get_success_url()
@@ -458,11 +477,18 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(TemplateView):
+class DashboardView(MultipleModelListView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
+    models = [Account, Contact]
+    
+    def get_model_queryset(self, list_name, model):
+        """
+        Return the five newest objects for given model.
+        """
+        return model._default_manager.order_by('-created').all()[:5]
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()

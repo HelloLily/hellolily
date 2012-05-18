@@ -13,16 +13,40 @@
     
 <div class="mws-form-inline">
     <div class="mws-form-row">
-        {{ form.name.label_tag }}
+        {{ form.website.label_tag }}
         <div class="mws-form-item large">                            
-            {% if form.name.errors %}
-                <span class="field_error">{{ form.name }}</span>
+            {% if form.website.errors %}
+                <span class="field_error">{{ form.website }}</span>
                 <div class="mws-error no_list_style_type">
-                      {{ form.name.errors }}
+                    {{ form.website.errors }}
                 </div>
             {% else %}
-                {{ form.name }}
+                {{ form.website }}
             {% endif %}
+        </div>
+    </div>
+    <div class="mws-form-row">
+        {{ form.name.label_tag }}
+        <div class="mws-form-item large">
+            <div class="mws-form-cols clearfix">
+                <div class="mws-form-col-4-8 alpha">
+                    <div class="mws-form-item">                    
+                        {% if form.name.errors %}
+                            <span class="field_error">{{ form.name }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.name.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.name }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mws-form-col-4-8">
+                     <div class="mws-form-item">
+                        <a href="#" class="existing-account-link hidden" title="{% trans 'Follow this link to edit an existing account' %}">{% trans 'Edit existing account' %}</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="mws-form-row">
@@ -31,7 +55,7 @@
             {% if form.email.errors %}
                 <span class="field_error">{{ form.email }}</span>
                 <div class="mws-error no_list_style_type">
-                      {{ form.email.errors }}
+                    {{ form.email.errors }}
                 </div>
             {% else %}
                 {{ form.email }}
@@ -39,15 +63,15 @@
         </div>
     </div>
     <div class="mws-form-row">
-        {{ form.website.label_tag }}
+        {{ form.phone.label_tag }}
         <div class="mws-form-item large">                            
-            {% if form.website.errors %}
-                <span class="field_error">{{ form.website }}</span>
+            {% if form.phone.errors %}
+                <span class="field_error">{{ form.phone }}</span>
                 <div class="mws-error no_list_style_type">
-                      {{ form.website.errors }}
+                      {{ form.phone.errors }}
                 </div>
             {% else %}
-                {{ form.website }}
+                {{ form.phone }}
             {% endif %}
         </div>
     </div>

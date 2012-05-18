@@ -5,9 +5,9 @@
 .el-finder
 {
 	min-width:0 !important;
-	
+
 	/* CSS 3 */
-	
+
 	-webkit-border-radius:0 !important;
 	-moz-border-radius:0 !important;
 	border-radius:0 !important;
@@ -16,7 +16,7 @@
 .el-finder-dialog {
 	font-size:100%;
 }
-.el-finder-dialog .ui-dialog-titlebar { 
+.el-finder-dialog .ui-dialog-titlebar {
 	padding:12px !important;
 }
 .el-finder-dialog .ui-dialog-buttonpane {
@@ -29,7 +29,7 @@
 	font-size:0.9em !important;
 }
 
-.el-finder-dialog .ui-tabs { 
+.el-finder-dialog .ui-tabs {
 	font-size:100%;
 }
 
@@ -130,13 +130,13 @@
 /* ------------------------------------------- jGrowl
 ----------------------------------------------------- */
 
-/* prev. 
+/* prev.
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
 {
 	opacity:1 !important;
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
-    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important; 
-	
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important;
+
 	background-image:url(../../images/core/mws-dark-bg.png);
 	border:1px solid #666666;
 	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
@@ -193,7 +193,7 @@ div.jGrowl div.jGrowl-notification.error {
 
 /* ------------------------------------ Full Calendar
 ----------------------------------------------------- */
-	
+
 .fc-event-skin
 {
 	border-color: #000000 !important;
@@ -208,3 +208,23 @@ div.jGrowl div.jGrowl-notification.error {
 
 /* -------------------------------- End Full Calendar
 ----------------------------------------------------- */
+
+
+
+
+
+/* ------------------------------------ Chosen
+----------------------------------------------------- */
+
+.chzn-container-single .chzn-single {
+	height: 23px !important;
+  	line-height: 25px !important;
+}
+
+.chzn-container .chzn-results .highlighted {
+ 	background-color: #1C76BC;
+ }
+
+/* -------------------------------- End Chosen
+----------------------------------------------------- */
+

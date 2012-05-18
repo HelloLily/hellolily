@@ -21,7 +21,7 @@ class AddAccountMinimalForm(ModelForm):
             'placeholder': 'http://'
     }))
     
-    name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={
+    name = forms.CharField(max_length=255, label=_('Company name'), widget=forms.TextInput(attrs={
         'class': 'mws-textinput required',
         'placeholder': _('Company name')
     }))
@@ -57,7 +57,7 @@ class AddAccountMinimalForm(ModelForm):
         if cleaned_data.get('name'):
             try:
                 Account.objects.get(name=cleaned_data.get('name'))
-                self._errors['name'] = self.error_class([_('Name already in use.')])
+                self._errors['name'] = self.error_class([_('Company name already in use.')])
             except Account.DoesNotExist:
                 pass
 

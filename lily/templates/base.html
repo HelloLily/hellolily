@@ -262,6 +262,8 @@
 	            </div>
 	        </div>
 
+            {% if user.is_authenticated %}
+            
             <!-- Button Container -->
             <div id="mws-quickbutton-container" class="tabthis">
                 {% ifstartswith "account_list" %}
@@ -347,6 +349,9 @@
 	                </div>
 	            </div>
 	        </div>
+	        
+	        {% endif %}
+	        
 	        {% comment %}
             <!-- Searchbox Container -->
             <div id="mws-search-container">

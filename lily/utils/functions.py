@@ -107,7 +107,7 @@ def flatten(input):
     return pattern.sub('', re.escape(input)).lower()
 
 def dummy_function(x, y=None):
-    return y
+    return x, y
 
 def import_from_string(string_name):
     """

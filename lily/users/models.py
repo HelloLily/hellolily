@@ -12,9 +12,9 @@ from lily.utils.functions import get_tenant_mixin as TenantMixin
 from lily.utils.models import EmailAddress
 
 try:
-    from lily.tenant.functions import add_tenant_and_save
+    from lily.tenant.functions import add_tenant
 except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant_and_save
+    from lily.utils.functions import dummy_function as add_tenant
 
 
 class CustomUser(User, TenantMixin):
@@ -69,8 +69,9 @@ def post_save_customuser_handler(sender, **kwargs):
                 email.save()
             except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
-                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
-                add_tenant_and_save(email, instance.tenant)
+                email = EmailAddress(email_address=new_email_address, is_primary=True)
+                add_tenant(email, instance.tenant)
+                email.save()
                 instance.contact.email_addresses.add(email)
 
 @receiver(user_logged_out)

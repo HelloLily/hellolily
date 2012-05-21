@@ -116,3 +116,12 @@ def in_group(user, groups):
     group_list = force_unicode(groups).split(',')
     return bool(user.groups.filter(name__in=group_list).values('name'))
 
+@register.filter
+def has_user_in_group(object, groups):
+    """
+    Return a boolean if the object has a relation with any user in given group, or comma-separated
+    list of groups. 
+    """
+    group_list = force_unicode(groups).split(',')
+    
+    return bool(object.user.filter(groups__name__in=group_list))

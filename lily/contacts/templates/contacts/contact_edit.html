@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static field_extras %}
+{% load i18n static field_extras utils %}
 
 {% block title %}{% trans 'Edit contact' %} - {% endblock %}
 
@@ -265,7 +265,6 @@
 						                <a href="javascript:" class="i-16 i-trash-1 blue {{ phone_numbers_formset.prefix }}-delete-row"></a>
 						            </div>
 						        </div>
-                                </div>
                             </div>
                         {% empty %}
                            <div class="{{ phone_numbers_formset.prefix }}-mws-formset"></div>
@@ -496,7 +495,9 @@
                     {% endcomment %}
 
                     <div class="mws-button-row">
-                        <input type="button" id="delete-contact-dialog-link" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
+                        {% if not form.instance|has_user_in_group:'account_admin' %}
+                            <input type="button" id="delete-contact-dialog-link" class="mws-button red float-left" value="{% trans 'Delete contact' %}" />
+                        {% endif %}
 
                         {% comment %}
                         TODO: ask if the user is sure when the form has changed to go back

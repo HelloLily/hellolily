@@ -22,8 +22,8 @@ class CustomUser(User, TenantMixin):
     Custom user model, has relation with Contact.
     """
     objects = UserManager()
-    contact = models.ForeignKey(Contact)
-    account = models.ForeignKey(Account)
+    contact = models.ForeignKey(Contact, related_name='user')
+    account = models.ForeignKey(Account, related_name='user')
     
     def __unicode__(self):
         return unicode(self.contact)

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static field_extras %}
+{% load i18n static field_extras utils %}
 
 {% block title %}{% trans 'Edit account' %} - {% endblock %}
 
@@ -12,7 +12,6 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
-<script type="text/javascript" src="{% static 'provide/js/dataprovider.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/input-and-choice/input-and-choice.js' %}"></script>
 {% endblock %}
@@ -70,11 +69,6 @@
                                         {% else %}
                                             {{ form.primary_website }}
                                         {% endif %}
-                                    </div>
-                                </div>
-                                <div class="mws-form-col-2-8 alpha">
-                                     <div class="mws-form-item">
-                                        <input type="button" id="enrich-account-button" class="mws-button blue tabbable" value="{% trans 'Enrich' %}" />
                                     </div>
                                 </div>
                             </div>
@@ -522,7 +516,9 @@
                     {% endcomment %}
 
                     <div class="mws-button-row">
-                        <input type="button" id="delete-account-dialog-link" class="mws-button red float-left" value="{% trans 'Delete account' %}" />
+                        {% if not form.instance|has_user_in_group:'account_admin' %}
+                            <input type="button" id="delete-account-dialog-link" class="mws-button red float-left" value="{% trans 'Delete account' %}" />
+                        {% endif %}
 
                         {% comment %}
                         TODO: ask if the user is sure when the form has changed to go back

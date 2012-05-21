@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static thumbnail %} 
+{% load i18n static thumbnail utils %} 
 
 {% block title %}{% trans 'Account list' %} - {% endblock %}
 
@@ -101,7 +101,10 @@
                     {% for object in object_list %}
                         <tr class="height_77">
                             <td class="controls">
-                                <a href="{% url account_edit pk=object.pk %}" class="i-16 i-edit blue no-decoration inline-block" title="{% trans 'Edit' %}"></a>                                <a href="{% url account_delete pk=object.pk %}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                                <a href="{% url account_edit pk=object.pk %}" class="i-16 i-edit blue no-decoration inline-block" title="{% trans 'Edit' %}"></a>
+                                
+                                {% if not object|has_user_in_group:'account_admin' %}                                    <a href="{% url account_delete pk=object.pk %}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                                {% endif %}
                             </td>
                             <td class="logo hide_on_small_screen">
                                 {% if object.logo %}

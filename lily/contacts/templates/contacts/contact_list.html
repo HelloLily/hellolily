@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static thumbnail %} 
+{% load i18n static thumbnail %}
 
 {% block title %}{% trans 'Contact list' %} - {% endblock %}
 
@@ -13,39 +13,42 @@
 <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables.date-min.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $(".mws-datatable-fn").dataTable({
             "sPaginationType": "full_numbers",
             "bAutoWidth": false,
-            "aaSorting": [[2, 'asc']],
-            "aoColumnDefs": [ 
+            "aaSorting": [[{{ order_by }}, '{{ sort_order }}']],
+            "aoColumnDefs": [
                 { "bSearchable": false, "bSortable": false, "aTargets": [0] },
                 { "bSearchable": false, "bSortable": false, "aTargets": [1] },
-                { "bSearchable": false, "bSortable": false, "aTargets": [3] }
+                { "bSortable": false, "aTargets": [3] },
+                { "sType": "date-euro", "aTargets": [4] },
+                { "sType": "date-euro", "aTargets": [5] },
             ]
         });
-        
+
         $('.mws-datatable-fn tr').live({
 	        hover: function() {
-	            $(this).find('.i-16').toggleClass('blue'); 
+	            $(this).find('.i-16').toggleClass('blue');
 	        }
 	    });
-        
+
         $('.mws-table .delete_icon').click(function(event) {
             var location = $(this).attr('href');
             $('#delete-contact-form-dialog form').attr('action', location);
             $('#delete-contact-form-dialog').dialog('open');
             event.preventDefault();
         })
-        
+
         $('#delete-contact-form-dialog').dialog({
             autoOpen: false,
             title: gettext('Delete contact'),
             modal: true,
             width: 350,
             buttons: [
-                { 
+                {
                     'class': 'mws-button red float-left',
                     text: gettext('Cancel'),
                     click: function() {
@@ -111,7 +114,7 @@
                                     {% for sm in object.get_social %}
                                         <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
                                     {% endfor %}
-                                </span> 
+                                </span>
                             </td>
                             <td class="details">
                                 {% if object.primary_email %}
@@ -119,7 +122,7 @@
                                         <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
                                     </div>
                                 {% endif %}
-                                
+
                                 {% with object.get_work_phone as phone %}
                                     {% if phone.raw_input %}
                                         <div class="i-16 i-phone blue">
@@ -127,7 +130,7 @@
                                         </div>
                                     {% endif %}
                                 {% endwith %}
-                                
+
                                 {% with object.get_mobile_phone as phone %}
                                     {% if phone.raw_input %}
                                         <div class="i-16 i-mobile blue">
@@ -137,10 +140,10 @@
                                 {% endwith %}
                             </td>
                             <td class="created hide_on_small_screen">
-                                {{ object.created|date:"d-m-Y | H:i" }}
+                                {{ object.created|date:"d/m/Y H:i:s" }}
                             </td>
                             <td class="modified hide_on_small_screen">
-                                {{ object.modified|date:"d-m-Y | H:i" }}
+                                {{ object.modified|date:"d/m/Y H:i:s" }}
                             </td>
                         </tr>
                     {% endfor %}
@@ -148,7 +151,7 @@
             </table>
             <div id="delete-contact-form-dialog" style="display:none;">
                 <form class="mws-form" action="" method="post">
-                    {% csrf_token %} 
+                    {% csrf_token %}
                     <div class="mws-form-inline">
                         <div class="mws-form-row">
                             {% blocktrans with contact.full_name as contact %}Are you sure you want to delete the contact for {{ contact }}? This cannot be undone.{% endblocktrans %}

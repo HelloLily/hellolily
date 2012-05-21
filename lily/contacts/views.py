@@ -44,6 +44,7 @@ class ListContactView(ListView):
     """
     template_name = 'contacts/contact_list.html'
     model = Contact
+    sortable = ['2', '4', '5', ]
 
     def get_queryset(self):
         """
@@ -72,6 +73,21 @@ class ListContactView(ListView):
             raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
                                        % self.__class__.__name__)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to add formsets for template.
+        """
+        kwargs = super(ListContactView, self).get_context_data(**kwargs)
+
+        order_by = '2' if self.request.GET.get('order_by') not in self.sortable else self.request.GET.get('order_by')
+        sort_order = 'asc' if self.request.GET.get('sort_order') == 'asc' else 'desc'
+
+        kwargs.update({
+            'order_by': order_by,
+            'sort_order': sort_order,
+        })
+        return kwargs
 
 
 class DetailContactView(DetailFormView):
@@ -172,7 +188,7 @@ class AddContactView(CreateView):
                 html_response = ''
             else:
                 message = _('%s (Contact) has been saved.') % self.object.full_name()
-                
+
                 # Redirect if in the list view or dashboard
                 url_obj = urlparse(self.request.META['HTTP_REFERER'])
                 if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
@@ -318,7 +334,7 @@ class AddContactView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect(reverse('contact_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
+        return redirect('%s?order_by=4&sort_order=desc' % (reverse('contact_list')))
 
 
 class EditContactView(UpdateView):
@@ -584,7 +600,7 @@ class EditContactView(UpdateView):
 #                'pk': self.object.pk,
 #            }))
 
-        return redirect(reverse('contact_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
+        return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
 
 
 class DeleteContactView(DeleteView):

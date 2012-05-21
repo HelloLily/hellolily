@@ -32,9 +32,9 @@ from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
 try:
-    from lily.tenant.functions import add_tenant_and_save
+    from lily.tenant.functions import add_tenant
 except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant_and_save
+    from lily.utils.functions import dummy_function as add_tenant
 
 
 class RegistrationView(FormView):
@@ -50,16 +50,18 @@ class RegistrationView(FormView):
         """
         
         # Create contact
-        contact = Contact.objects.create(
+        contact = Contact(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
-        tenant = add_tenant_and_save(contact)
+        contact, tenant = add_tenant(contact)
+        contact.save()
         
         # Create account
-        account = Account.objects.create(name=form.cleaned_data.get('company'))
-        add_tenant_and_save(contact, tenant)
+        account = Account(name=form.cleaned_data.get('company'))
+        add_tenant(account, tenant)
+        account.save()
         
         # Create function
         Function.objects.create(account=account, contact=contact)
@@ -76,9 +78,9 @@ class RegistrationView(FormView):
         
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
-        user.save()
         
-        add_tenant_and_save(user, tenant)
+        add_tenant(user, tenant)
+        user.save()
         
         # Add to admin group
         group, created = Group.objects.get_or_create(name='account_admin')
@@ -465,7 +467,7 @@ class AcceptInvitationView(FormView):
         
         # TODO: move this...
         if hasattr(self.account, 'tenant'):
-            add_tenant_and_save(contact, self.account.tenant)
+            add_tenant(contact, self.account.tenant)
         user.save()
         
         return self.get_success_url()

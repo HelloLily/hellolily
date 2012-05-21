@@ -4,7 +4,7 @@ from lily.tenant.middleware import get_current_user
 from lily.tenant.models import Tenant
 
 
-def add_tenant_and_save(model, tenant=None):
+def add_tenant(model, tenant=None):
     if isinstance(model, models.Model):
         user = get_current_user()
         
@@ -16,6 +16,5 @@ def add_tenant_and_save(model, tenant=None):
             tenant = Tenant.objects.create()
         
         model.tenant = tenant
-        model.save()
     
-    return tenant
+    return model, tenant

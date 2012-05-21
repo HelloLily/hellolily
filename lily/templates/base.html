@@ -2,13 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="{% static 'images/favicon.ico' %}" rel="icon" type="image/x-icon">
 
     <!-- Apple iOS and Android stuff (do not remove) -->
     <meta name="apple-mobile-web-app-capable" content="no" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
-
+    
     <!-- Required Stylesheets -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/text.css' %}" media="screen" />
@@ -262,6 +263,8 @@
 	            </div>
 	        </div>
 
+            {% if user.is_authenticated %}
+            
             <!-- Button Container -->
             <div id="mws-quickbutton-container" class="tabthis">
                 {% ifstartswith "account_list" %}
@@ -347,6 +350,9 @@
 	                </div>
 	            </div>
 	        </div>
+	        
+	        {% endif %}
+	        
 	        {% comment %}
             <!-- Searchbox Container -->
             <div id="mws-search-container">

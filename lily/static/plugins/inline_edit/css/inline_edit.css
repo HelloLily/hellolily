@@ -73,7 +73,7 @@
 
 .object-list-item-options a {
     margin-left: 10px;
-    color: #00E;
+    /* prev. color: #00E;*/
 }
 
 .object-list-item:hover .object-list-item-options {

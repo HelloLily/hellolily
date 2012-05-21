@@ -107,4 +107,26 @@ def flatten(input):
     return pattern.sub('', re.escape(input)).lower()
 
 def dummy_function(x, y=None):
-    return y
+    return x, y
+
+def import_from_string(string_name):
+    """
+    Given a string like 'module.submodule.name' which refers to a function or class, return that 
+    function so it can be called (or the class)
+    
+    source: http://www.technomancy.org/python/converting-string-to-function/
+    """
+    # Split the string_name into 2, the module that it's in, and func_name, the function itself
+    mod_name, func_name = string_name.rsplit(".", 1)
+
+    mod = __import__(mod_name)
+    # ``__import__`` only gives us the top level module, i.e. ``module``, so 'walk down the tree' getattr'ing each submodule.
+    # from http://docs.python.org/faq/programming.html?highlight=importlib#import-x-y-z-returns-module-x-how-do-i-get-z
+    for i in mod_name.split(".")[1:]:
+        mod = getattr(mod, i)
+
+    # Now that we have a reference to ``module.submodule``, ``func_name`` is available as an attribute to that, so return it.
+    return getattr(mod, func_name)
+
+from lily.settings import TENANT_MIXIN
+get_tenant_mixin = import_from_string(TENANT_MIXIN)

@@ -52,7 +52,7 @@ function dataprovider_json_to_form(json, form) {
     // set description
     if( json.description ) {
         var description = $(form).find('[name="description"]');
-        var set_description = function() { $(description).val(json.description); }
+        var set_description = function() { $(description).val(json.description); link = $(form).find('a.click-show[data-click-show="description_wrapper"]'); link.click(); }
         if( $(description).val().length > 0) {
             if( $.trim($(description).val()) != json.description) {
                 var result = dataprovider_ask_overwrite('Do you want to overwrite the account\'s description with "' + json.description + '"?', set_description);

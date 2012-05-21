@@ -620,7 +620,7 @@ div#mws-container
 {
 	margin-left:200px;
 	padding-top:100px;
-	background:url(/static/images/core/mws-sidebar-stitch-right.png) repeat-y right; /* prev. background-color:#f0f0f0; */
+	/* prev. background:url(/static/images/core/mws-sidebar-stitch-right.png) repeat-y right; */ /* prev. background-color:#f0f0f0; */
 }
 
 div#mws-container .container

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from lily.settings import TENANT_MIXIN as TenantMixin
+from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 
 # ISO 3166-1 country names and codes
@@ -304,9 +304,22 @@ class PhoneNumber(TenantMixin):
         return self.number
 
     def save(self, *args, **kwargs):
-        # Save raw input as number only
+        # Save raw input as number only (for searching)
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
-
+        
+        # Replace starting digits
+        if self.number[:3] == '310':
+            self.number = self.number.replace('310', '31', 1)
+        if self.number[:2] == '06':
+            self.number = self.number.replace('06', '316', 1)
+        if self.number[:1] == '0':
+            self.number = self.number.replace('0', '31', 1)
+        
+        self.number = '+' + self.number
+        
+        # Overwrite user input
+        self.raw_input = self.number # reserved field for future display based on locale
+        
         return super(PhoneNumber, self).save(*args, **kwargs)
 
     class Meta:

@@ -86,25 +86,37 @@ class DataproviderView(ProvideBaseView):
         """
         if self.domain[:6] == 'http://':
             self.domain = self.domain[6:]
-        if self.domain[:4] != 'www.':
-            self.domain = 'www.' + self.domain
-        
+        if self.domain[:4] == 'www.':
+            self.domain = self.domain[4:]
+            
         return self.domain
     
     def get_query_kwargs(self):
         kwargs = {'api_key': self.api_key,
                        'q_field': 'hostname',
                        'q_value': self.get_domain(),
-#                       'q_operator': 5 # ends with
+#                       'q_operator': 5 # filter: ends with
         }
+        print kwargs
         return kwargs
     
-    def set_view_output(self):
+    def set_view_output(self, retry=False):
         """
         Create a generic json format for account information based on the json from dataprovider.
         """
         # Expected api output is json
         self.api_output = simplejson.loads(self.api_output)
+        
+        # Return 404 when nothing was found
+        if self.api_output.get('found') == 0:
+            if not retry:
+                # No luck without leading www., try with www.:
+                self.domain = 'www.' + self.domain
+                # Retry
+                self.api_output = self.do_request_to_api(self.get_url())
+                self.set_view_output(retry=True)
+            else:
+                raise Http404()
         
         # Raise exception when the api returned an error
         if self.api_output.get('error'):
@@ -112,6 +124,7 @@ class DataproviderView(ProvideBaseView):
         
         # Filter useful data
         result = self.api_output['results'][0]
+        
         
         company = result.get('company').replace('\\', '') if result.get('company') else None
         description = result.get('description').replace('\\', '') if result.get('description') else None
@@ -126,7 +139,11 @@ class DataproviderView(ProvideBaseView):
         bic = result.get('bic') if result.get('bic') else None
         
         address = result.get('address') if result.get('address') else None
-        street, street_number, complement = parse_address(address) if address else None, None, None
+        if address:
+            street, street_number, complement = parse_address(address)
+        else:
+            street, street_number, complement = None, None, None
+
         addresses = [{
             'street': street,
             'street_number': street_number,
@@ -158,4 +175,4 @@ class DataproviderView(ProvideBaseView):
         return HttpResponse(self.view_output, mimetype='application/json')
     
     def get_error_output(self):
-            raise Http404()
+        raise Http404()

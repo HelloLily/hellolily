@@ -244,29 +244,30 @@
                         </div>
                     </div>
                     
+                    {% comment %}
+                    
                     {% with contact.get_primary_function as function %}
                         {% if function %}
                             <div id="tab-account" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                                 <h2>{% trans 'Account' %}</h2>
                                 <p>
-                                    lorem ipsum
+                                    Account(s)
                                 </p>
                             </div>
                         {% endif %}
                     {% endwith %}
                     
-                    {% comment %}
                     <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Deals' %}</h2>
                         <p>
-                            lorem ipsum
+                            Deals
                         </p>
                     </div>
                     
                     <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
                         <h2>{% trans 'Cases' %}</h2>
                         <p>
-                            lorem ipsum
+                            Cases
                         </p>
                     </div>
                     {% endcomment %}

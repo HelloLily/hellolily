@@ -1,14 +1,12 @@
 from django import forms
-from django.db.models.query_utils import Q
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
-from lily.utils.fields import MultipleInputAndChoiceField
+from lily.tags.forms import TagsFormMixin
 from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress, Tag
-from lily.utils.widgets import InputAndSelectMultiple
+from lily.utils.models import EmailAddress
 
 
 class AddAccountMinimalForm(ModelForm):
@@ -84,7 +82,7 @@ class AddAccountMinimalForm(ModelForm):
         fields = ('name', 'email')
 
 
-class AddAccountForm(ModelForm):
+class AddAccountForm(TagsFormMixin, ModelForm):
     """
     Form for adding an account which includes all fields available.
 
@@ -114,23 +112,6 @@ class AddAccountForm(ModelForm):
             'placeholder': 'http://'
     }))
 
-    tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
-        widget=InputAndSelectMultiple(attrs={
-            'class': 'input-and-choice-select',
-    }))
-
-    def __init__(self, user=None, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False, instance=None):
-
-        super(AddAccountForm, self).__init__(data, files, auto_id, prefix,
-                 initial, error_class, label_suffix,
-                 empty_permitted, instance)
-
-        # TODO: Limit queryset to tags used by accounts created by users from user's account or
-        # tags used by accounts linked to the user's client
-#        self.fields['tags'].queryset = user.account.tags.all()
-
     def is_valid(self):
         """
         Overloading super().is_valid to also validate all formsets.
@@ -159,29 +140,10 @@ class AddAccountForm(ModelForm):
 
         return is_valid
 
-    def save(self, commit=True):
-        """
-        Overloading super().save to create save tags and create the relationships with
-        this account instance. Needs to be done here because the Tags are expected to exist
-        before self.instance is saved.
-        """
-        instance = super(AddAccountForm, self).save(commit=False)
-
-        if commit:
-            instance.save()
-
-        tags = self.cleaned_data.get('tags')
-        for tag in tags:
-            # Create relationship with Tag
-            tag_instance, created = Tag.objects.get_or_create(tag=tag)
-            instance.tags.add(tag_instance)
-
-        return instance
-
     class Meta:
         model = Account
 #        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'description')
-        fields = ('name', 'tags', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
+        fields = ('name', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
 
         widgets = {
             'name': forms.TextInput(attrs={
@@ -204,7 +166,7 @@ class AddAccountForm(ModelForm):
         }
 
 
-class EditAccountForm(ModelForm):
+class EditAccountForm(TagsFormMixin, ModelForm):
     """
     Form for editing an existing account which includes all fields available.
 
@@ -227,11 +189,6 @@ class EditAccountForm(ModelForm):
 #            'class': 'mws-textinput',
 #            'placeholder': _('Facebook username')
 #    }))
-
-    tags = MultipleInputAndChoiceField(queryset=Tag.objects.all(), required=False,
-        widget=InputAndSelectMultiple(attrs={
-            'class': 'input-and-choice-select',
-    }))
 
     primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False,
         widget=forms.TextInput(attrs={
@@ -267,11 +224,6 @@ class EditAccountForm(ModelForm):
 #        except:
 #            pass
 
-        # TODO: Limit queryset to tags used by accounts created by users from user's account or
-        # tags used by accounts linked to the user's client
-#        self.fields['tags'].queryset = user.account.tags.all()
-
-
     def is_valid(self):
         """
         Overloading super().is_valid to also validate all formsets.
@@ -300,34 +252,10 @@ class EditAccountForm(ModelForm):
 
         return is_valid
 
-    def save(self, commit=True):
-        """
-        Overloading super().save to create save tags and create the relationships with
-        this account instance. Needs to be done here because the Tags are expected to exist
-        before self.instance is saved.
-        """
-        instance = super(EditAccountForm, self).save(commit=False)
-
-        if commit:
-            instance.save()
-
-        tags = self.cleaned_data.get('tags')
-        for tag in tags:
-            # Create relationship with Tag
-            tag_instance, created = Tag.objects.get_or_create(tag=tag)
-            instance.tags.add(tag_instance)
-
-        # Remove any relationships for these tag models with instance
-        models = instance.tags.filter(~Q(tag__in=tags))
-        for model in models:
-            instance.tags.remove(model)
-
-        return instance
-
     class Meta:
         model = Account
 #        fields = ('name', 'tags', 'twitter', 'facebook', 'linkedin', 'website', 'description')
-        fields = ('name', 'tags', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
+        fields = ('name', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')
 
         widgets = {
             'name': forms.TextInput(attrs={

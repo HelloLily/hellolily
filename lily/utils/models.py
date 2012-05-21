@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
+from lily.tags.models import TaggedObjectMixin
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 
@@ -427,17 +428,3 @@ class Common(Deleted, TenantMixin):
 
     class Meta:
         abstract = True
-
-
-class Tag(TenantMixin):
-    """
-    Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
-    """
-    tag = models.CharField(max_length=50, verbose_name=_('tag'))
-
-    def __unicode__(self):
-        return self.tag
-
-    class Meta:
-        verbose_name = _('tag')
-        verbose_name_plural = _('tags')

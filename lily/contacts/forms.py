@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
+from lily.tags.forms import TagsFormMixin
 from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress
 
@@ -76,7 +77,7 @@ class AddContactMinimalForm(ModelForm):
             }),
         }
 
-class AddContactForm(ModelForm):
+class AddContactForm(TagsFormMixin, ModelForm):
     """
     Form to add a contact which all fields available.
     """
@@ -156,7 +157,7 @@ class AddContactForm(ModelForm):
         }
 
 
-class EditContactForm(ModelForm):
+class EditContactForm(TagsFormMixin, ModelForm):
     """
     Form for editing an existing contact which includes all fields available.
     """

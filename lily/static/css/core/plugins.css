@@ -223,7 +223,7 @@ div.jGrowl div.jGrowl-notification.error {
 }
 
 .chzn-container .chzn-results .highlighted {
- 	background-color: #1C76BC;
+ 	background: #1C76BC !important;
  }
 
 /* -------------------------------- End Chosen

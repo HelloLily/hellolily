@@ -23,7 +23,7 @@ from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import flatten, is_ajax
-from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag, COUNTRIES
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DetailFormView
 
@@ -138,20 +138,6 @@ class AddAccountView(CreateView):
         request.POST = post_data
 
         return super(AddAccountView, self).post(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
-        instantiating the form.
-        """
-        kwargs = super(AddAccountView, self).get_form_kwargs()
-
-        # Add the user object in the kwargs for the normal form
-        if not is_ajax(self.request):
-            kwargs.update({
-                'user': self.request.user
-            })
-        return kwargs
 
     def get_form(self, form_class):
         """
@@ -386,17 +372,6 @@ class EditAccountView(UpdateView):
         request.POST = post_data
 
         return super(EditAccountView, self).post(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
-        instantiating the form.
-        """
-        kwargs = super(EditAccountView, self).get_form_kwargs()
-        kwargs.update({
-            'user': self.request.user
-        })
-        return kwargs
 
     def get_form(self, form_class):
         """

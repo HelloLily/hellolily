@@ -177,7 +177,7 @@ EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.host.com')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-username')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
-EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')

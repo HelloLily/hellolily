@@ -552,17 +552,18 @@ class DeleteAccountView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Account
+    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
         """
         Overloading super().delete to remove the related models and the instance itself.
         """
+        self.object = self.get_object()
         
         # Check this account isn't linked to a user in an admin group.
         if has_user_in_group(self.object, 'account_admin'):
             raise Http404()
         
-        self.object = self.get_object()
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()

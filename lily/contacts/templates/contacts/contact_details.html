@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static i18n thumbnail %}
+{% load static i18n thumbnail utils %}
 
 {% block title %}Contact details - {% endblock %}
 
@@ -22,9 +22,14 @@
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link" class="i-32 i-trash-2"></a>
+                
+                {% if not contact|has_user_in_group:'account_admin' %}
+                    <a href="{% url contact_delete pk=contact.pk %}" id="delete-contact-dialog-link" class="i-32 i-trash-2"></a>
+                {% endif %}
+                
                 <a href="{% url contact_edit pk=contact.pk %}" class="i-32 i-edit"></a>
 
+                {% if not contact|has_user_in_group:'account_admin' %}
                 <div id="delete-contact-form-dialog" style="display:none;">
                     <form class="mws-form" action="{% url contact_delete pk=contact.pk %}" method="post">
                         {% csrf_token %} 
@@ -35,6 +40,7 @@
                         </div>
                     </form>
                 </div>
+                {% endif %}
             </span>
             <span>{{ contact.full_name }}</span>
         </div>

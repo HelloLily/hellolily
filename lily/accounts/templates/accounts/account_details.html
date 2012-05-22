@@ -22,9 +22,13 @@
     <div class="mws-panel grid_6">
         <div class="mws-panel-header">
             <span class="float-right">
-                <a href="{% url account_delete pk=account.pk %}" id="delete-account-dialog-link" class="i-32 i-trash-2"></a>
+                
+                {% if not account|has_user_in_group:'account_admin' %}
+                    <a href="{% url account_delete pk=account.pk %}" id="delete-account-dialog-link" class="i-32 i-trash-2"></a>
+                {% endif %}
                 <a href="{% url account_edit pk=account.pk %}" class="i-32 i-edit"></a>
 
+                {% if not account|has_user_in_group:'account_admin' %}
 				<div class="hidden">
 	                <div id="delete-account-form-dialog">
 	                    <form class="mws-form" action="{% url account_delete pk=account.pk %}" method="post">
@@ -37,6 +41,7 @@
 	                    </form>
 	                </div>
                 </div>
+                {% endif %}
             </span>
             <span>{{ account.name }}</span>
         </div>

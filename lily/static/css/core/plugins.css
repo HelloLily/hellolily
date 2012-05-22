@@ -224,7 +224,11 @@ div.jGrowl div.jGrowl-notification.error {
 
 .chzn-container .chzn-results .highlighted {
  	background: #1C76BC !important;
- }
+}
+ 
+#id_contact_quickbutton_account_chzn.chzn-container .chzn-results {
+    max-height: 90px !important;
+}
 
 /* -------------------------------- End Chosen
 ----------------------------------------------------- */

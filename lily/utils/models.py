@@ -380,8 +380,7 @@ class Address(TenantMixin):
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
-        return u'%s %s %s %s' % (self.postal_code or '', self.street or '', 
-                                 self.street_number or '', self.complement or '')
+        return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
 
     class Meta:
         verbose_name = _('address')

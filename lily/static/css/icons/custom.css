@@ -24,6 +24,7 @@
 .blue.i-32.i-accounts { background-image: url(custom/blue/32/accounts.png); }
 .blue.i-32.i-contacts { background-image: url(custom/blue/32/contacts.png); }
 .blue.i-32.i-home { background-image: url(custom/blue/32/home.png); }
+.blue.i-32.i-note { background-image: url(custom/blue/32/note.png); }
 
 div#mws-navigation ul li a.i-32, 
 div#mws-navigation ul li span.i-32 {

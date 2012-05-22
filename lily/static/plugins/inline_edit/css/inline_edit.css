@@ -4,7 +4,7 @@
 }
 
 .object-list-item.note {
-    background: url('/static/css/icons/24/blue/text-document-blue.png') no-repeat 100% 50%;
+    background-position: 100% 50%;
 }
 
 .object-list-item-title {

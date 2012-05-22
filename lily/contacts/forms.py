@@ -84,7 +84,7 @@ class AddContactForm(ModelForm):
                                      queryset=Account.objects.all(),
                                      empty_label=_('Select an account'),
                                      widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
-
+    
     def clean(self):
         """
         Form validation: fill in at least first or last name.

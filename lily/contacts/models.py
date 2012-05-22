@@ -44,7 +44,7 @@ class Contact(Common):
     description = models.TextField(verbose_name=_('description'), blank=True)
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
                                  verbose_name=_('salutation'))
-
+    
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:

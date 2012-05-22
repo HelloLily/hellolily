@@ -35,6 +35,7 @@ from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberB
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
+from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import DetailFormView
 
 
@@ -597,6 +598,11 @@ class DeleteContactView(DeleteView):
         """
         Overloading super().delete to remove the related models and the instance itself.
         """
+        
+        # Check this contact isn't linked to a user in an admin group.
+        if has_user_in_group(self.object, 'account_admin'):
+            raise Http404()
+        
         self.object = self.get_object()
         self.object.email_addresses.remove()
         self.object.addresses.remove()

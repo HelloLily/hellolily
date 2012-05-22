@@ -13,7 +13,7 @@ You just signed up for {{ site_name }}, using:
     Join date:  {{ date_joined }}
 
 Please click the following link to activate your account or copy/paste the link to the address bar in your browser:
-{{ url }}
+{{ protocol }}://{{ domain }}{{ url }}
 
 Thanks, you rock!
 {% endblocktrans %}

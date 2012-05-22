@@ -27,7 +27,7 @@
 						{% for contact in contact_list %}
 							<div class="object">
 								<div class="object-title">
-									<a href="{% url contact_details pk=contact.pk %}" title="{% trans 'View details for '} {{ contact }}">{{ contact }}</a>
+									<a href="{% url contact_details pk=contact.pk %}" title="{% trans 'View details for ' %} {{ contact }}">{{ contact }}</a>
 								</div>
 								<div class="object-more">
     								<div class="object-creation-time">{{ contact.created|naturaltime }}</div>
@@ -53,7 +53,7 @@
 						{% for account in account_list %}
 							<div class="object">
 								<div class="object-title">
-									<a href="{% url account_details pk=account.pk %}" title="{% trans 'View details for '} {{ account }}">{{ account }}</a>
+									<a href="{% url account_details pk=account.pk %}" title="{% trans 'View details for ' %} {{ account }}">{{ account }}</a>
 								</div>
                                 <div class="object-more">
     								<div class="object-creation-time">{{ account.created|naturaltime }}</div>

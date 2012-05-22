@@ -86,10 +86,16 @@ class AddContactForm(TagsFormMixin, ModelForm):
     Form to add a contact which all fields available.
     """
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.all(),
+                                     queryset=Account.objects.none(),
                                      empty_label=_('Select an account'),
                                      widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
     
+    def __init__(self, *args, **kwargs):
+        super(AddContactForm, self).__init__(*args, **kwargs)
+        
+        # Provide filtered query set
+        self.fields['account'].queryset = Account.objects.all()
+        
     def clean(self):
         """
         Form validation: fill in at least first or last name.

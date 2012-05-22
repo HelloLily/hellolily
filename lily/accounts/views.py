@@ -23,7 +23,7 @@ from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import flatten, is_ajax
-from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, Tag, COUNTRIES
+from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import DetailFormView
@@ -32,6 +32,7 @@ from lily.utils.views import DetailFormView
 class ListAccountView(ListView):
     template_name = 'accounts/account_list.html'
     model = Account
+    sortable = ['2', '4', '5', ]
 
     def get_queryset(self):
         """
@@ -60,6 +61,21 @@ class ListAccountView(ListView):
             raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
                                        % self.__class__.__name__)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to add formsets for template.
+        """
+        kwargs = super(ListAccountView, self).get_context_data(**kwargs)
+
+        order_by = '2' if self.request.GET.get('order_by') not in self.sortable else self.request.GET.get('order_by')
+        sort_order = 'asc' if self.request.GET.get('sort_order') == 'asc' else 'desc'
+
+        kwargs.update({
+            'order_by': order_by,
+            'sort_order': sort_order,
+        })
+        return kwargs
 
 
 class DetailAccountView(DetailFormView):
@@ -116,27 +132,13 @@ class AddAccountView(CreateView):
         post_data = request.POST.copy()
         if post_data.get('website') and post_data['website'] == 'http://':
             post_data['website'] = ''
-            
+
         if post_data.get('primary_website') and post_data['primary_website'] == 'http://':
             post_data['primary_website'] = ''
-        
-        request.POST = post_data
-        
-        return super(AddAccountView, self).post(request, *args, **kwargs)
-        
-    def get_form_kwargs(self):
-        """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
-        instantiating the form.
-        """
-        kwargs = super(AddAccountView, self).get_form_kwargs()
 
-        # Add the user object in the kwargs for the normal form
-        if not is_ajax(self.request):
-            kwargs.update({
-                'user': self.request.user
-            })
-        return kwargs
+        request.POST = post_data
+
+        return super(AddAccountView, self).post(request, *args, **kwargs)
 
     def get_form(self, form_class):
         """
@@ -341,7 +343,7 @@ class AddAccountView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
+        return redirect('%s?order_by=4&sort_order=desc' % (reverse('account_list')))
 
 
 class EditAccountView(UpdateView):
@@ -367,21 +369,10 @@ class EditAccountView(UpdateView):
         post_data = request.POST.copy()
         if post_data.get('primary_website') and post_data['primary_website'] == 'http://':
             post_data['primary_website'] = ''
-        
-        request.POST = post_data
-        
-        return super(EditAccountView, self).post(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        """
-        Overloading super().get_form_kwargs to add the user object to the keyword arguments for
-        instantiating the form.
-        """
-        kwargs = super(EditAccountView, self).get_form_kwargs()
-        kwargs.update({
-            'user': self.request.user
-        })
-        return kwargs
+        request.POST = post_data
+
+        return super(EditAccountView, self).post(request, *args, **kwargs)
 
     def get_form(self, form_class):
         """
@@ -553,7 +544,7 @@ class EditAccountView(UpdateView):
         Get the url to redirect to after this form has succesfully been submitted.
         """
         # TODO: determine whether to go back to the list in search mode
-        return redirect(reverse('account_list_filtered', kwargs={'b36_pks': int_to_base36(self.object.pk)}))
+        return redirect('%s?order_by=5&sort_order=desc' % (reverse('account_list')))
 
 
 class DeleteAccountView(DeleteView):

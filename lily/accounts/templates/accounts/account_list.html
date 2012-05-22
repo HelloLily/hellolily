@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static thumbnail utils %} 
+{% load i18n static thumbnail utils %}
 
 {% block title %}{% trans 'Account list' %} - {% endblock %}
 
@@ -12,42 +12,46 @@
 {% block scripts %}
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables.date-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
+<script type="text/javascript" src="{% static 'provide/js/dataprovider.js' %}"></script>
 <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $(".mws-datatable-fn").dataTable({
             "sPaginationType": "full_numbers",
             "bAutoWidth": false,
-            "aaSorting": [[2, 'asc']],
-            "aoColumnDefs": [ 
-                { "bSortable": false, "bSortable": false, "aTargets": [0] },
-                { "bSortable": false, "bSortable": false, "aTargets": [1] },
-                { "bSortable": false, "bSortable": false, "aTargets": [3] },
-                { "bSortable": false, "bSortable": false, "aTargets": [6] }
+            "aaSorting": [[{{ order_by }}, '{{ sort_order }}']],
+            "aoColumnDefs": [
+                { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+                { "bSearchable": false, "bSortable": false, "aTargets": [1] },
+                { "bSortable": false, "aTargets": [3] },
+                { "sType": "date-euro", "aTargets": [4] },
+                { "sType": "date-euro", "aTargets": [5] },
+                { "bSearchable": false, "bSortable": false, "aTargets": [6] }
             ]
         });
-        
+
         $('.mws-datatable-fn tr').live({
 	        hover: function() {
-	            $(this).find('.i-16').toggleClass('blue'); 
+	            $(this).find('.i-16').toggleClass('blue');
 	        }
 	    });
-        
+
         $('.mws-table .delete_icon').click(function(event) {
             var location = $(this).attr('href');
             $('#delete-account-form-dialog form').attr('action', location);
             $('#delete-account-form-dialog').dialog('open');
             event.preventDefault();
         })
-        
+
         $('#delete-account-form-dialog').dialog({
             autoOpen: false,
             title: gettext('Delete account'),
             modal: true,
             width: 350,
             buttons: [
-                { 
+                {
                     'class': 'mws-button red float-left',
                     text: gettext('Cancel'),
                     click: function() {
@@ -102,8 +106,8 @@
                         <tr class="height_77">
                             <td class="controls">
                                 <a href="{% url account_edit pk=object.pk %}" class="i-16 i-edit blue no-decoration inline-block" title="{% trans 'Edit' %}"></a>
-                                
-                                {% if not object|has_user_in_group:'account_admin' %}                                    <a href="{% url account_delete pk=object.pk %}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
+                                {% if not object|has_user_in_group:'account_admin' %}
+                                    <a href="{% url account_delete pk=object.pk %}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon" title="{% trans 'Delete' %}"></a>
                                 {% endif %}
                             </td>
                             <td class="logo hide_on_small_screen">
@@ -134,7 +138,7 @@
                                         <a href="mailto:{{ object.primary_email }}" title="{{ object.primary_email }}">{{ object.primary_email|truncatechars:"20" }}</a>
                                     </div>
                                 {% endif %}
-                                
+
                                 {% with object.get_work_phone as phone %}
 			                        {% if phone.raw_input %}
 		                                <div class="i-16 i-phone blue">
@@ -142,7 +146,7 @@
 		                                </div>
 			                        {% endif %}
 			                    {% endwith %}
-			                    
+
 			                    {% with object.get_mobile_phone as phone %}
                                     {% if phone.raw_input %}
                                         <div class="i-16 i-mobile blue">
@@ -152,10 +156,10 @@
                                 {% endwith %}
                             </td>
                             <td class="created hide_on_small_screen">
-                                {{ object.created|date:"d-m-Y | H:i" }}
+                                {{ object.created|date:"d/m/Y H:i:s" }}
                             </td>
                             <td class="modified hide_on_small_screen">
-                                {{ object.modified|date:"d-m-Y | H:i" }}
+                                {{ object.modified|date:"d/m/Y H:i:s" }}
                             </td>
                             <td class="tags">
                                 {% for tag in object.get_tags %}
@@ -168,7 +172,7 @@
             </table>
             <div id="delete-account-form-dialog" style="display:none;">
                 <form class="mws-form" action="" method="post">
-                    {% csrf_token %} 
+                    {% csrf_token %}
                     <div class="mws-form-inline">
                         <div class="mws-form-row">
                             {% blocktrans with account.name as account %}Are you sure you want to delete the account for {{ account }}? This can not be undone.{% endblocktrans %}

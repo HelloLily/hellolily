@@ -4,11 +4,12 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
 
 from lily.settings import ACCOUNT_UPLOAD_TO
+from lily.tags.models import TaggedObjectMixin
 from lily.utils.functions import flatten
-from lily.utils.models import Common, EmailAddress, Tag
+from lily.utils.models import Common, EmailAddress
 
 
-class Account(Common):
+class Account(Common, TaggedObjectMixin):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """
@@ -43,7 +44,6 @@ class Account(Common):
                               blank=True)
     company_size = models.CharField(max_length=15, choices=ACCOUNT_SIZE_CHOICES,
                                     verbose_name=_('company size'), blank=True)  
-    tags = models.ManyToManyField(Tag, verbose_name=_('tags'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)    
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)

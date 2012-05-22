@@ -1,8 +1,8 @@
-{% load i18n %} 
+{% load i18n static %}
 
 <input type="hidden" id="add-account-submit" value="add" name="submit_button" />
 {% csrf_token %}
-    
+
 {% if form.non_field_errors %}
     <div class="mws-form-row">
         <div class="mws-form-message error no_list_style_type">
@@ -10,19 +10,37 @@
         </div>
     </div>
 {% endif %}
-    
+
 <div class="mws-form-inline">
+    <div id="enrich-busy" style="display: none;">
+        <div id="enrich-busy-message"></div>
+        <img src="{% static 'images/blue-loading.gif' %}" alt="" />
+        <p>
+            <a href="javascript:" id="enrich-account-cancel">{% trans 'Cancel' %}</a>
+        </p>
+    </div>
     <div class="mws-form-row">
         {{ form.website.label_tag }}
-        <div class="mws-form-item large">                            
-            {% if form.website.errors %}
-                <span class="field_error">{{ form.website }}</span>
-                <div class="mws-error no_list_style_type">
-                    {{ form.website.errors }}
+        <div class="mws-form-item large">
+            <div class="mws-form-cols clearfix">
+                <div class="mws-form-col-7-8 alpha">
+                     <div class="mws-form-item">
+                        {% if form.website.errors %}
+                            <span class="field_error">{{ form.website }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.website.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.website }}
+                        {% endif %}
+                    </div>
                 </div>
-            {% else %}
-                {{ form.website }}
-            {% endif %}
+                <div class="mws-form-col-1-8 alpha">
+                     <div class="mws-form-item">
+                        <input type="button" id="enrich-account-quickbutton-button" class="mws-button blue tabbable" value="{% trans 'Enrich' %}" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="mws-form-row">
@@ -30,7 +48,7 @@
         <div class="mws-form-item large">
             <div class="mws-form-cols clearfix">
                 <div class="mws-form-col-4-8 alpha">
-                    <div class="mws-form-item">                    
+                    <div class="mws-form-item">
                         {% if form.name.errors %}
                             <span class="field_error">{{ form.name }}</span>
                             <div class="mws-error no_list_style_type">
@@ -51,7 +69,7 @@
     </div>
     <div class="mws-form-row">
         {{ form.email.label_tag }}
-        <div class="mws-form-item large">                            
+        <div class="mws-form-item large">
             {% if form.email.errors %}
                 <span class="field_error">{{ form.email }}</span>
                 <div class="mws-error no_list_style_type">
@@ -64,7 +82,7 @@
     </div>
     <div class="mws-form-row">
         {{ form.phone.label_tag }}
-        <div class="mws-form-item large">                            
+        <div class="mws-form-item large">
             {% if form.phone.errors %}
                 <span class="field_error">{{ form.phone }}</span>
                 <div class="mws-error no_list_style_type">

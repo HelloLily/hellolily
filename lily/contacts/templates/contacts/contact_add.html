@@ -6,7 +6,7 @@
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
@@ -14,6 +14,7 @@
 <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/input-and-choice/input-and-choice.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +23,9 @@
             <span>{% trans 'Add contact' %}</span>
         </div>
         <div class="mws-panel-body">
-            <form class="mws-form tabthis" autocomplete="off" action="" method="post">{% csrf_token %}
+            <form class="mws-form tabthis" autocomplete="off" action="" method="post">
+            	{% csrf_token %}
+            	
                 {% if form.non_field_errors %}
                     <div class="mws-form-row">
                         <div class="mws-form-message error no_list_style_type">
@@ -165,6 +168,42 @@
                         	{% endif %}
                         </div>
                     </div>
+                    
+                    <div class="mws-form-row">
+                        {{ form.tags.label_tag }}
+                    	<div class="mws-form-cols clearfix">
+                            <div class="float-left">
+                                {% if form.tags.errors %}
+                                    <span class="field_error">
+                                        <div class="input-and-choice">
+                                            <div>
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
+                                                <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                            </div>
+                                            <div>
+                                                {{ form.tags }}
+                                                <ul class="input-and-choice-list clearfix search-field"></ul>
+                                            </div>
+                                        </div>
+                                    </span>
+                                    <div class="mws-error no_list_style_type">
+                                          {{ form.tags.errors }}
+                                    </div>
+                                {% else %}
+                                    <div class="input-and-choice">
+                                        <div>
+                                            <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
+                                            <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                        </div>
+                                        <div>
+                                            {{ form.tags }}
+                                            <ul class="input-and-choice-list clearfix search-field"></ul>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
 
                     <hr />
 
@@ -226,7 +265,7 @@
                                         {% else %}
                                             {{ form.raw_input }}
                                         {% endif %}
-						            </div>    
+						            </div>
 						            <div class="mws-form-col-2-8">
 						                {% if form.type.errors %}
                                             <span class="field_error float-left">{{ form.type }}</span>
@@ -388,7 +427,7 @@
                     </div>
 
                     {% comment %}
-                    
+
 	                    <div class="mws-form-row">
 	                        {{ form.twitter.label_tag }}
 	                        <div class="mws-form-item large">
@@ -402,7 +441,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.linkedin.label_tag }}
 	                        <div class="mws-form-item large">
@@ -416,7 +455,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.facebook.label_tag }}
 	                        <div class="mws-form-item large">
@@ -430,9 +469,9 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <hr />
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.status.label_tag }}
 	                        <div class="mws-form-item large">
@@ -446,7 +485,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.accounts.label_tag }}
 	                        <div class="mws-form-item small">
@@ -464,7 +503,7 @@
 		                        {{ form.edit_accounts }}
 	                        </div>
 	                    </div>
-	                
+
                     {% endcomment %}
 
                     <div class="mws-button-row">

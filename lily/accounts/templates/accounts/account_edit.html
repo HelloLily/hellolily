@@ -126,7 +126,7 @@
                                         <span class="field_error">
                                             <div class="input-and-choice">
                                                 <div>
-                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="Tag" />
                                                     <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                                 </div>
                                                 <div>
@@ -141,12 +141,12 @@
                                     {% else %}
                                         <div class="input-and-choice">
                                             <div>
-                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="Tag" />
                                                 <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                             </div>
                                             <div>
                                                 {{ form.tags }}
-                                                <ul class="input-and-choice-list clearfix search-field"></ul>
+                                                <ul class="input-and-choice-list clearfix chzn-results search-field"></ul>
                                             </div>
                                         </div>
                                     {% endif %}

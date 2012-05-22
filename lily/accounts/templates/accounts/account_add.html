@@ -86,7 +86,7 @@
                         <div class="mws-form-item large">
                             <div class="mws-form-cols clearfix">
                                 <div class="mws-form-col-4-8 alpha">
-                                    <div class="mws-form-item">                    
+                                    <div class="mws-form-item">
                                         {% if form.name.errors %}
                                             <span class="field_error">{{ form.name }}</span>
                                             <div class="mws-error no_list_style_type">
@@ -142,7 +142,7 @@
                                     <span class="field_error">
                                         <div class="input-and-choice">
                                             <div>
-                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
                                                 <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                             </div>
                                             <div>
@@ -157,7 +157,7 @@
                                 {% else %}
                                     <div class="input-and-choice">
                                         <div>
-                                            <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" />
+                                            <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
                                             <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
                                         </div>
                                         <div>
@@ -230,7 +230,7 @@
                                         {% else %}
                                             {{ form.raw_input }}
                                         {% endif %}
-						            </div>    
+						            </div>
 						            <div class="mws-form-col-2-8">
 						                {% if form.type.errors %}
                                             <span class="field_error float-left">{{ form.type }}</span>
@@ -425,9 +425,9 @@
                     </div>
 
                     {% comment %}
-                    
+
 	                    <hr />
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.twitter.label_tag }}
 	                        <div class="mws-form-item large">
@@ -441,7 +441,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.linkedin.label_tag }}
 	                        <div class="mws-form-item large">
@@ -455,7 +455,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <div class="mws-form-row">
 	                        {{ form.facebook.label_tag }}
 	                        <div class="mws-form-item large">
@@ -469,7 +469,7 @@
 	                            {% endif %}
 	                        </div>
 	                    </div>
-	
+
 	                    <hr />
 
                         <div class="mws-form-row">

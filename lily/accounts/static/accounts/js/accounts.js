@@ -89,8 +89,8 @@ $(document).ready(function() {
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
 
     // request data to enrich form
-    function do_request_to_enrich(form) {
-    	domain = $('#id_primary_website').val().replace('http://', '');
+    function do_request_to_enrich(form, domain) {
+
         if( $.trim(domain).length > 0 ) {
             $('#enrich-busy').show();
             $('#enrich-busy-message').text(gettext('Looking for information about') + ' ' + domain + ' ');
@@ -157,17 +157,24 @@ $(document).ready(function() {
     }
 
     // do above request on enter key in text input and on button click
-    $('#id_primary_website').keydown(function(event) {
-    	// enrich on enter key
-        if (event.keyCode == 13) {
-        	form = $(this).closest('form');
-        	do_request_to_enrich(form);
-        	event.preventDefault();
-	    }
+    $('#id_primary_website, #id_account_quickbutton_website').each(function() {
+        $(this).keydown(function(event) {
+        	// enrich on enter key
+            if (event.keyCode == 13) {
+            	form = $(this).closest('form');
+                domain = $(this).val().replace('http://', '');
+            	do_request_to_enrich(form, domain);
+            	event.preventDefault();
+    	    }
+        });
     });
-    $('#enrich-account-button').click(function(event) {
-    	form = $(this).closest('form');
-    	do_request_to_enrich(form);
-        event.preventDefault();
+    $('#enrich-account-button, #enrich-account-quickbutton-button').each(function() {
+        $(this).click(function(event) {
+        	console.log('account button click');
+            form = $(this).closest('form');
+            domain = $(this).closest('.mws-form-row').find(':input:first').val().replace('http://', '');
+        	do_request_to_enrich(form, domain);
+            event.preventDefault();
+        });
     });
 });

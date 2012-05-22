@@ -5,10 +5,11 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
+from lily.tags.models import TaggedObjectMixin
 from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress
 
 
-class Contact(Common):
+class Contact(Common, TaggedObjectMixin):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
     Function. Can be related to CustomUser.

@@ -1,7 +1,10 @@
+from itertools import chain
+
 from django import forms
 from django.forms.widgets import SelectMultiple
 from django.utils.encoding import force_unicode
-from django.utils.html import conditional_escape
+from django.utils.html import escape, conditional_escape
+
 
 class JqueryPasswordInput(forms.PasswordInput):
     class Media:
@@ -66,7 +69,7 @@ class InputAndSelectMultiple(SelectMultiple):
             mapping[choice[0]] = choice[1]
         
         if hasattr(value, '__iter__'):
-            # Create a new value array which no longer contains pk, but only unicode
+            # Prepare new values for the same format as choices 
             mapped_value = []
             for v in value:
                 if mapping.has_key(v):
@@ -76,11 +79,12 @@ class InputAndSelectMultiple(SelectMultiple):
             
             # Overwrite old value
             value = mapped_value
-        
+
         # Expand choices with options that haven't seen the light in the database yet
         choices = list(choices)
         for choice in self.new_choices:
             choices.append([choice, choice])
+        
         # Convert back to tuple
         choices = tuple(choices)
         

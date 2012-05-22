@@ -84,21 +84,11 @@
                     <tr>
                         <th class="controls"></th>
                         <th class="logo hide_on_small_screen"></th>
-                        <th class="name" title="{% trans 'Account' %}">
-                        	{% trans 'Account' %}
-                        </th>
-                        <th class="details" title="{% trans 'Contact' %}">
-                        	{% trans 'Contact' %}
-                        </th>
-                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">
-                        	{% trans 'Created' %}
-                       	</th>
-                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">
-                        	{% trans 'Last modified' %}
-                        </th>
-                        <th class="tags" title="{% trans 'Tags' %}">
-                        	{% trans 'Tags' %}
-                        </th>
+                        <th class="name" title="{% trans 'Account' %}">{% trans 'Account' %}</th>
+                        <th class="details" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
+                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
+                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Last modified' %}</th>
+                        <th class="tags" title="{% trans 'Tags' %}">{% trans 'Tags' %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -120,7 +110,7 @@
                             <td class="name">
                                 <div>
                                 	<a href="{% url account_details pk=object.pk %}">
-                                		{{ object.name|truncatechars:"18" }}
+                                		{{ object.name }}
                                 	</a>
                                 </div>
                                 {% with object.get_address as address %}

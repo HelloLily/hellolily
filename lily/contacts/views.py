@@ -19,7 +19,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escapejs
-from django.utils.http import base36_to_int, int_to_base36
+from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -45,7 +45,7 @@ class ListContactView(ListView):
     """
     template_name = 'contacts/contact_list.html'
     model = Contact
-    sortable = ['2', '4', '5', ]
+    sortable = ['2', '5', '6', ]
 
     def get_queryset(self):
         """
@@ -335,7 +335,7 @@ class AddContactView(CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=4&sort_order=desc' % (reverse('contact_list')))
+        return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
 
 
 class EditContactView(UpdateView):
@@ -601,7 +601,7 @@ class EditContactView(UpdateView):
 #                'pk': self.object.pk,
 #            }))
 
-        return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
+        return redirect('%s?order_by=6&sort_order=desc' % (reverse('contact_list')))
 
 
 class DeleteContactView(DeleteView):

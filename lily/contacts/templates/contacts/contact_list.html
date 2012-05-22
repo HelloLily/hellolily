@@ -24,8 +24,8 @@
                 { "bSearchable": false, "bSortable": false, "aTargets": [0] },
                 { "bSearchable": false, "bSortable": false, "aTargets": [1] },
                 { "bSortable": false, "aTargets": [3] },
-                { "sType": "date-euro", "aTargets": [4] },
                 { "sType": "date-euro", "aTargets": [5] },
+                { "sType": "date-euro", "aTargets": [6] },
             ]
         });
 
@@ -81,21 +81,11 @@
                     <tr>
                     	<th class="controls"></th>
                         <th class="picture hide_on_small_screen"></th>
-                        <th class="personal" title="{% trans 'Personal' %}">
-                        	{% trans 'Personal' %}
-                        </th>
-                        <th class="contact" title="{% trans 'Contact' %}">
-                        	{% trans 'Contact' %}
-                        </th>
-                        <th class="account" title="{% trans 'Works at' %}">
-                            {% trans 'Works at' %}
-                        </th>
-                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">
-                        	{% trans 'Created' %}
-                        </th>
-                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">
-                        	{% trans 'Last modified' %}
-                        </th>
+                        <th class="personal" title="{% trans 'Personal' %}">{% trans 'Personal' %}</th>
+                        <th class="contact" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
+                        <th class="account" title="{% trans 'Works at' %}">{% trans 'Works at' %}</th>
+                        <th class="created hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
+                        <th class="modified hide_on_small_screen" title="{% trans 'Modified' %}">{% trans 'Last modified' %}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -70,9 +70,9 @@
                     {% with contact.get_phone_number as phone %}
                         {% if phone.raw_input %}
                             {% if phone.type == 'mobile' %}
-                                <span class="mobile_phone">
+                                <span class="i-16 i-mobile blue">
                             {% else %}
-                                <span class="phone">
+                                <span class="i-16 i-phone blue">
                             {% endif %}
                                     <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
                                 </span>
@@ -80,12 +80,12 @@
                     {% endwith %}
                     
                  	{% if contact.primary_email %}
-                    	<span class="email"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
+                    	<span class="i-16 i-mail blue"><a href="mailto:{{ contact.primary_email }}">{{ contact.primary_email }}</a></span>
                     {% endif %}
                     
                     {% with contact.get_twitter as twitter %}
                         {% if twitter.username %}
-                            <span class="twitter"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
+                            <span class="i-16 i-twitter blue"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
                         {% endif %}
                     {% endwith %}
                 </div>

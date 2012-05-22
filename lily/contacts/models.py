@@ -8,6 +8,11 @@ from lily.settings import CONTACT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress
 
+try:
+    from lily.tenant.functions import add_tenant
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant
+
 
 class Contact(Common, TaggedObjectMixin):
     """
@@ -187,5 +192,7 @@ def post_save_contact_handler(sender, **kwargs):
                 email.save()
             except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
-                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
+                email = EmailAddress(email_address=new_email_address, is_primary=True)
+                add_tenant(email, instance.tenant)
+                email.save()
                 instance.email_addresses.add(email)

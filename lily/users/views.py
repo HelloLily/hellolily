@@ -444,16 +444,19 @@ class AcceptInvitationView(FormView):
         try:
             contact = Contact.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
         except Contact.DoesNotExist:
-            contact = Contact.objects.create(
+            contact = Contact(
                 first_name=form.cleaned_data['first_name'],
                 preposition=form.cleaned_data['preposition'],
                 last_name=form.cleaned_data['last_name']
             )
-            email = EmailAddress.objects.create(
-                email_address=form.cleaned_data['email'],
-                is_primary=True
-            )
-            contact.email_addresses.add(email)
+            
+            if hasattr(self.account, 'tenant'):
+                add_tenant(contact, self.account.tenant)
+             
+            contact.save()
+            
+            contact.primary_email = form.cleaned_data['email']
+            contact.save()
         
         # Create function
         Function.objects.create(account=self.account, contact=contact)
@@ -467,7 +470,7 @@ class AcceptInvitationView(FormView):
         
         # TODO: move this...
         if hasattr(self.account, 'tenant'):
-            add_tenant(contact, self.account.tenant)
+            add_tenant(user, self.account.tenant)
         user.save()
         
         return self.get_success_url()

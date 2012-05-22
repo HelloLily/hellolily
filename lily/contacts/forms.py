@@ -15,7 +15,7 @@ class AddContactMinimalForm(ModelForm):
     Form to add an account with the absolute minimum of information.
     """
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.all(),
+                                     queryset=Account.objects.none(),
                                      empty_label=_('Select an account'),
                                      widget=forms.Select(attrs={'class': 'chzn-select'}))
 
@@ -36,6 +36,10 @@ class AddContactMinimalForm(ModelForm):
             'auto_id':'id_contact_quickbutton_%s'
         })
         super(AddContactMinimalForm, self).__init__(*args, **kwargs)
+        
+        # Provide filtered query set
+        self.fields['account'].queryset = Account.objects.all()
+        
 
     def clean(self):
         """

@@ -624,6 +624,7 @@ class DeleteContactView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
+        self.object.tags.remove()
 
         functions = Function.objects.filter(contact=self.object)
         functions.delete()

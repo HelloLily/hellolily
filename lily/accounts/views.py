@@ -567,11 +567,10 @@ class DeleteAccountView(DeleteView):
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
+        self.object.tags.remove()
 
         functions = Function.objects.filter(account=self.object)
         functions.delete()
-        tags = Tag.objects.filter(account=self.object)
-        tags.delete()
 
         # Show delete message
         messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name);

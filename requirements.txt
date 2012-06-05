@@ -11,3 +11,4 @@ django-activelink>=0.3
 easy-thumbnails
 south>=0.7.4
 newrelic==1.2.1.265
+django-newrelic-extensions==0.0.1

@@ -102,7 +102,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
+    # Third party
+    'newrelicextensions.middleware.NewRelicMiddleware',
+
     # Lily
     'lily.tenant.middleware.TenantMiddleWare',
 )
@@ -123,7 +126,7 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'lily.utils.context_processors.quickbutton_forms',
 )
 
-# Disable caching in a development environment 
+# Disable caching in a development environment
 if not DEBUG:
     TEMPLATE_LOADERS = (
         ('django.template.loaders.cached.Loader', (
@@ -148,14 +151,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # 3rd party
     'templated_email',
     'easy_thumbnails',
     'gunicorn',
     'activelink',
     'south',
-    
+
     # Lily
     'lily', # required for management command
     'lily.accounts',
@@ -237,6 +240,22 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
+
+NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
+NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
+NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
+    'user': {
+        'username': 'Django username',
+        'is_superuser': 'Django super user',
+        'is_staff': 'Django staff user',
+    },
+    'is_secure': 'Secure connection',
+    'is_ajax': 'Ajax request',
+    'method': 'Http Method',
+    'COOKIES': 'Http cookies',
+    'META': 'Http meta data',
+    'session': 'Http session',
+}
 
 # django-redis-cache
 if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):

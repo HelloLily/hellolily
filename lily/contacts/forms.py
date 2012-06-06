@@ -47,17 +47,13 @@ class AddContactMinimalForm(ModelForm):
         """
         cleaned_data = super(AddContactMinimalForm, self).clean()
 
-        # check if at least first or last name has been provided.
+        # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
 
+        # Prevent multiple contacts with the same e-mailadress when adding
         if cleaned_data.get('email'):
-            try:
-                EmailAddress.objects.get(email_address=cleaned_data.get('email'))
-                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-            except EmailAddress.DoesNotExist:
-                pass
-            except EmailAddress.MultipleObjectsReturned:
+            if Contact.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
 
         return cleaned_data
@@ -95,14 +91,20 @@ class AddContactForm(TagsFormMixin, ModelForm):
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
-        
+
+    # TODO: add e-mailadres check
+    #        # Prevent multiple contacts with the same e-mailadress when adding
+    #        if cleaned_data.get('email'):
+    #            if Contact.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
+    #                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
+    
     def clean(self):
         """
         Form validation: fill in at least first or last name.
         """
         cleaned_data = super(AddContactForm, self).clean()
 
-        # check if at least first or last name has been provided.
+        # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
 

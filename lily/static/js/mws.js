@@ -6,6 +6,37 @@ function enableChosen(elem) {
 	}
 }
 
+function enableValidate(elem) {
+	/* JQuery validate plugin */
+	// if($.fn.validate){
+	// 	$(elem).validate({
+	// 		success: function (label) {
+	// 			console.log($(label).parent().prev().hasClass('field_error'));
+
+	// 			if( $(label).parent().prev().hasClass('field_error') ) {
+
+	// 			}
+
+	// 			if($(label).parent().prev().hasClass('field_error')) {
+	// 				$(label).parent().prev().children('input').unwrap();
+	// 			}
+	// 			$(label).parent().remove();
+	// 			$(label).remove();
+	// 		},
+	// 		errorElement: "li",
+	// 		errorPlacement: function(error, element) {
+	// 			if(!$(element).parent().hasClass('field_error')) {
+	// 				$(element).wrap('<span class="field_error"></span>');
+	// 			}
+	// 			if(!$(element).parent().next().hasClass('mws-error')) {
+	// 				$('<div class="mws-error no_list_style_type"><ul class="errorlist"></ul></div>').insertAfter($(element).parent());
+	// 			}
+	// 			$(element).parent().next().append(error);
+	// 		}
+	// 	});
+	// }
+}
+
 $(document).ready(function() {
 	/* Core JS Functions */
 
@@ -106,12 +137,12 @@ $(document).ready(function() {
     	form = $(this).closest('form');
     	submit_form_on_ctrl_enter(event, form);
     });
-    
+
     /* Re-index tabbale elements on page load */
     if($.tabthisbody) {
         $.tabthisbody();
     }
-   	
+
     /* Defaults for jGrowl */
     $.jGrowl.defaults.closerTemplate = '<div>[ close all ]</div>';
     $.jGrowl.defaults.position = 'bottom-right';
@@ -122,13 +153,32 @@ $(document).ready(function() {
     $.jGrowl.defaults.beforeOpen = function(notification,message,o,container) {
         if( $(notification).find('a').length == 0 ) {
             $(notification).click(function() {
-                $(this).trigger('jGrowl.beforeClose'); 
+                $(this).trigger('jGrowl.beforeClose');
             });
         } else {
             $(notification).dblclick(function() {
-                $(this).trigger('jGrowl.beforeClose'); 
+                $(this).trigger('jGrowl.beforeClose');
             });
         }
     };
-	
+	// $('form').validate({
+	// 	rules: {
+	// 		input: {
+	// 			required: true,
+	// 		}
+	// 	},
+	// 	submitHandler: function(form) {
+	// 		console.log('valid');
+	// 	},
+	// 	invalidHandler: function(form, validator) {
+	// 		console.log('invalid');
+	// 	}
+	// });
+
+
+
+	$("form").each(function() {
+		enableValidate($(this))
+	});
+
 });

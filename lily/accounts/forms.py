@@ -52,22 +52,20 @@ class AddAccountMinimalForm(ModelForm):
         """
         cleaned_data = super(AddAccountMinimalForm, self).clean()
 
+        # Prevent multiple accounts with the same company name
         if cleaned_data.get('name'):
             try:
                 Account.objects.get(name=cleaned_data.get('name'))
                 self._errors['name'] = self.error_class([_('Company name already in use.')])
             except Account.DoesNotExist:
                 pass
-
+        
+        # Prevent multiple accounts with the same e-mailadress when adding
         if cleaned_data.get('email'):
-            try:
-                EmailAddress.objects.get(email_address=cleaned_data.get('email'))
-                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-            except EmailAddress.DoesNotExist:
-                pass
-            except EmailAddress.MultipleObjectsReturned:
+            if Account.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
         
+        # Prevent multiple accounts with the same primary website when adding
         if cleaned_data.get('website'):
             try:
                 Website.objects.get(website=cleaned_data.get('website'), is_primary=True)
@@ -111,6 +109,11 @@ class AddAccountForm(TagsFormMixin, ModelForm):
             'class': 'mws-textinput tabbable',
             'placeholder': 'http://'
     }))
+    
+    # TODO: add e-mailadres check
+    #        if cleaned_data.get('email'):
+    #            if Account.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
+    #                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
 
     def is_valid(self):
         """

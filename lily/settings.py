@@ -33,6 +33,11 @@ if DEV: # Only use sqlite db when in dev mode, Heroku injects db settings on dep
             'PORT': '',
         }
     }
+else:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default='postgres://localhost')
+    }
 
 SITE_ID = os.environ.get('SITE_ID', 1)
 

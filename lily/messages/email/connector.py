@@ -12,20 +12,20 @@ class Connector(object):
         Initialize the connector.
 
         Args:
-            Host: a string representing the host to which a connection will be made
-            Port: an integer representing the port on which we want to connect with the host
+            Host (str)      : a string representing the host to which a connection will be made
+            Port (int)      : an integer representing the port on which we want to connect with the host
+            User (str)      : the username with which to connect to the server
+            Password (str)  : the password to use when connecting to the server
+            Connect (bool)  : decides whether or not to automatically connect on initialisation
 
         Returns:
             An instance of the connector
 
-        Raises:
-            TypeError: if port is not an int and is not convertible to an int
-
         """
-        self.host = str(host)
-        self.port = int(port)
-        self.user = str(user)
-        self.password = str(password)
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
         self.gmail = True if host == 'imap.gmail.com' else False
 
         if connect:
@@ -49,8 +49,8 @@ class Connector(object):
         Test wether the host and port are valid, meaning we can get a connection to the provider.
 
         Args:
-            Host: a string representing the host to which a connection will be tested
-            Port: an integer representing the port on which we want to test the connection with the host
+            Host (str)  : a string representing the host to which a connection will be tested
+            Port (int)  : an integer representing the port on which we want to test the connection with the host
 
         Returns:
             True or False depending on the validity of the connection
@@ -63,29 +63,25 @@ class Connector(object):
             return False
 
 
-    def get_message_list(self, limit=None):
+    def get_message_list(self, folder='INBOX', readonly=1, limit=None):
         """
         Returns a list of messages with an optional limit.
 
         Args:
-            Limit: optional argument to specify how much messages to return
+            Limit (int) : optional argument to specify how much messages to return
 
         Returns:
             A list of messages
 
-        Raises:
-            TypeError: if limit is not an int and is not convertible to an int
-
         """
         self.__login()
-        self.connection.select('INBOX', readonly=1)
+        self.connection.select(folder, readonly=readonly)
 
         result, data = self.connection.uid('search', None, "ALL") # search and return uids
         if result != 'OK':
             print 'result was: "', result, '", while the expected result was OK'
 
         if limit:
-            limit = int(limit)
             uid_string =  ','.join(data[0].split()[-limit:])
         else:
             uid_string =  ','.join(data[0].split())
@@ -139,6 +135,9 @@ class Connector(object):
     def __fetch_by_uid(self, uid_string):
         """
         Use the fetch command to get the messages in the uid_string.
+
+        Args:
+            uid_string (str)    : The string containing all uids of the messages that will be fetched
 
         """
         message_list = []

@@ -1,7 +1,7 @@
 import re, datetime, imaplib, email
 
 
-class ConnectorClass(object):
+class Connector(object):
     """
     Class that is used to connect to email services and retrieve/send messages.
 

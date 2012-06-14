@@ -9,7 +9,7 @@ from django.views.generic.list import ListView
 CONNECTORS = []
 for app in settings.MESSAGE_APPS:
     module = importlib.import_module('%s.connector' % app)
-    CONNECTORS.append(module.ConnectorClass)
+    CONNECTORS.append(module.Connector)
 
 
 class DashboardView(TemplateView):

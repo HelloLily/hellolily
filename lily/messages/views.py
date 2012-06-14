@@ -6,30 +6,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
 
-
-#class DashboardView(ListView):
-#    """
-#    Dashboard of messages, display inbox and other cool stuff.
-#    """
-#    template_name = 'messages/dashboard.html'
-#    
-#    def get_queryset(self):
-#        apps = settings.MESSAGE_APPS
-#        complete_message_list = []
-#        for app in apps:
-#            module = importlib.import_module('%s.commands' % app)
-#            message_list = module.get_message_list()
-#            
-#            complete_message_list += message_list
-#        
-#        # for every app in the message_app list we need to call the get_messages function
-#        # append the results from that function call to object list
-#        # sort the object list
-#        # return the sorted object list
-#        
-#        complete_message_list.sort(key=lambda item:item['date'], reverse=True)
-#                
-#        return complete_message_list
+CONNECTORS = []
+for app in settings.MESSAGE_APPS:
+    module = importlib.import_module('%s.connector' % app)
+    CONNECTORS.append(module.ConnectorClass)
 
 
 class DashboardView(TemplateView):
@@ -43,21 +23,17 @@ class MessageListView(ListView):
     template_name = 'messages/message_list.html'
     
     def get_queryset(self):
-        apps = settings.MESSAGE_APPS
         complete_message_list = []
-        for app in apps:
-            module = importlib.import_module('lily.messages.%s.commands' % app)
-            message_list = module.get_message_list()
-            
+
+        for conn in CONNECTORS:
+            host = 'imap.gmail.com'
+            user = 'lily@hellolily.com'
+            password = '0$mxsq=3ouhr)_iz710dj!*2$vkz'
+            message_list = conn(host=host, port=993, user=user, password=password).get_message_list(limit=10)
             complete_message_list += message_list
-        
-        # for every app in the message_app list we need to call the get_messages function
-        # append the results from that function call to object list
-        # sort the object list
-        # return the sorted object list
-        
+
         complete_message_list.sort(key=lambda item:item['date'], reverse=True)
-                
+
         return complete_message_list
 
 # Perform logic here instead of in urls.py

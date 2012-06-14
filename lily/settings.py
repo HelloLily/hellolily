@@ -164,9 +164,12 @@ INSTALLED_APPS = (
     'lily.messages',
 )
 
+# TODO: maybe make this a complement to installed apps?
+# TODO: INSTALLED_APPS += MESSAGE_APPS = (...
 MESSAGE_APPS = (
-    'email',
+    'lily.messages.email',
 )
+INSTALLED_APPS += MESSAGE_APPS
 
 # E-mail settings
 EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))

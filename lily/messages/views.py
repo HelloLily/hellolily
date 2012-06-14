@@ -19,6 +19,7 @@ class DashboardView(TemplateView):
 class MessageListView(ListView):
     """
     Dashboard of messages, display inbox and other cool stuff.
+
     """
     template_name = 'messages/message_list.html'
     

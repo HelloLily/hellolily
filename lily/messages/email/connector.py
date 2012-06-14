@@ -178,7 +178,7 @@ class Connector(object):
                 'from_email': from_str[1],
                 'message_text': messagePlainText,
                 'message_html': messageHTML,
-                'message_attachements': messageAttachments,
+                'message_attachments': messageAttachments,
                 'date': datetime.datetime(d[0], d[1], d[2], d[3], d[4], d[5]),
                 'message_uid': re.search(r'(UID) ([\d]*)', it[0]).group(2),
                 'message_flags': imaplib.ParseFlags(it[0]),

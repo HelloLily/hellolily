@@ -68,6 +68,7 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
+EMAIL_ATTACHMENT_UPLOAD_TO = 'messages/email/attachements/'
 
 # Static
 STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))

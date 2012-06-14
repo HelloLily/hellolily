@@ -165,7 +165,7 @@ INSTALLED_APPS = (
 )
 
 MESSAGE_APPS = (
-    'lily.messages.email',
+    'email',
 )
 
 # E-mail settings
@@ -224,5 +224,11 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
                 'PASSWORD': url.password,
                 'DB': 0
             }
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }

@@ -1,15 +1,33 @@
 {% extends 'base.html' %}
-{% load i18n static activelink humanize  %}
+{% load i18n static activelink %}
 
 {% block title %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'messages/css/messages.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'messages/js/messages.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-body" style="border: 1px solid #BCBCBC;">
         <div class="mws-panel-content" style="padding: 8px;">
-            <a id="quickbutton-account"  href="{% url account_add %}" class="no-decoration">
-                <button type="button" class="mws-button blue small">
-                    {% trans 'Add account' %}
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button red">
+                    {% trans 'Compose new message' %}
+                </button>
+            </a>
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button gray">
+                    {% trans 'Mark all as read' %}
+                </button>
+            </a>
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button gray">
+                    {% trans 'Refresh' %}
                 </button>
             </a>
         </div>
@@ -21,22 +39,29 @@
     </div>
     <div class="mws-panel-body">
         <div id="email-control-panel">
-            controls
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button red small">
+                    {% trans 'Compose new message' %}
+                </button>
+            </a>
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button gray small">
+                    {% trans 'Mark all as read' %}
+                </button>
+            </a>
+            <a id="quickbutton-account"  href="#" class="no-decoration">
+                <button type="button" class="mws-button gray small">
+                    {% trans 'Refresh' %}
+                </button>
+            </a>
         </div>
-        <div id="email-messages">
-            <table style="margin: 0; width: 100%;">
-                <tbody>
-                    {% for object in object_list %}
-                        <tr>
-                            <td><input type="checkbox"></td>
-                            <td>{% if '\\Seen' in object.message_flags %}seen{% endif %}</td>
-<!--                             <td>{% if object.from_name %}{{ object.from_name }}{% else %}{{ object.from_email }}{% endif %}</td> -->
-                            <td>{{ object.subject }} - {{ object.message_text|safe|truncatechars:"40" }}</td>
-                            <td title="{{ object.date|date:'l  d-m-Y  H:i:s' }}">{{ object.date|naturalday }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div id="messages-container">
+            <div id="messages-busy">
+                <div id="messages-spacer">{% trans 'Loading' %}</div>
+                <img src="{% static 'images/blue-loading.gif' %}" alt="loading" />
+            </div>
+            <div id="message-list" style="display: none;">
+            </div>
         </div>
     </div>
 </div>

@@ -4,29 +4,35 @@ date_format = "%d-%m-%Y %H:%M:%S"
 con = imaplib.IMAP4_SSL('imap.gmail.com')
 
 
-def login(connection):
-    if connection.state == 'NONAUTH':
-        connection.login('lily@hellolily.com', '0$mxsq=3ouhr)_iz710dj!*2$vkz')
-
-
-def logout(connection):
-    if connection.state == 'AUTH':
-        connection.logout()
-
-
 def get_message_list():
-    login(con)
+    __login(con)
     con.select('INBOX', readonly=1)
     
     result, data = con.uid('search', None, "ALL") # search and return uids instead
     if result != 'OK':
         print 'result was: "', result, '", while the expected result was OK'
     
-    uid_list =  ','.join(data[0].split())
-    
+    uid_string =  ','.join(data[0].split())
+    message_list = __fetch_message_list(uid_string)
+            
+    __logout(con)
+    return message_list
+
+
+def __login(connection):
+    if connection.state == 'NONAUTH':
+        connection.login('lily@hellolily.com', '0$mxsq=3ouhr)_iz710dj!*2$vkz')
+
+
+def __logout(connection):
+    if connection.state == 'AUTH':
+        connection.logout()
+
+
+def __fetch_message_list(uid_string):
     message_list = []
         
-    result, msg_data = con.uid('fetch', uid_list, '(BODY.PEEK[] FLAGS)')
+    result, msg_data = con.uid('fetch', uid_string, '(BODY.PEEK[] FLAGS)')
     if result != 'OK':
         print 'result was: "', result, '", while the expected result was OK'
         
@@ -58,11 +64,11 @@ def get_message_list():
         email_message['date'] = datetime.datetime(d[0], d[1], d[2], d[3], d[4], d[5])
         
         email_message['from_name'], email_message['from_email'] = email.Utils.parseaddr(email_message['from'])
-        
+        email_message['message_uid'] = re.search(r'(UID) ([\d]*)', it[0]).group(2)
         email_message['message_flags'] = imaplib.ParseFlags(it[0])
+        email_message['message_type'] = 'email'
         iterator.next()
         
         message_list.append(email_message)
-            
-    logout(con)
+    
     return message_list

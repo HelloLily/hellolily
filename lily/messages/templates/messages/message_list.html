@@ -1,0 +1,9 @@
+<table>
+    <tbody>
+        {% for object in object_list %}
+            {% with "messages/"|add:object.message_type|add:"/message_row.html" as template %}
+                {% include template %}
+            {% endwith %}
+        {% endfor %}
+    </tbody>
+</table>

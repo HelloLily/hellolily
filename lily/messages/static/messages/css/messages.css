@@ -1,0 +1,58 @@
+#email-control-panel {
+    padding: 8px;
+}
+
+#messages-container {
+    position: relative;
+    min-height: 200px;
+}
+
+#messages-busy {
+    text-align: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255,255,255,.85);
+}
+
+#messages-spacer {
+    margin-top: 10%;
+    
+    /*  Loading image and text not selectable  */
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#message-list table {
+    width: 100%;
+    margin: 0;
+    table-layout: fixed;
+}
+
+#message-list tr {
+    border-top: 1px solid #BCBCBC;
+}
+
+#message-list tr.message-read {
+    background-color: #E2E2E2;
+}
+
+#message-list tr.message-new {
+    background-color: white;
+}
+
+#message-list td {
+    padding: 8px 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis
+}
+
+#message-list td.message-row-options { width: 6%; }
+#message-list td.message-row-from { width: 18%; }
+#message-list td.message-row-preview { width: 62%; }
+#message-list td.message-row-date { width: 10%; }
+#message-list td.message-row-type { width: 4%; }

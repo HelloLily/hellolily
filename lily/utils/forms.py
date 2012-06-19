@@ -67,6 +67,16 @@ class AddressBaseForm(ModelForm):
         'class': 'mws-textinput chzn-select tabbable',
     }))
 
+    def __init__(self, *args, **kwargs):
+        super(AddressBaseForm, self).__init__(*args, **kwargs)
+        
+        if hasattr(self, 'exclude_address_types'):
+            choices = self.fields['type'].choices
+            for i in reversed(range(len(choices))):
+                if choices[i][0] in self.exclude_address_types:
+                    del choices[i]
+            self.fields['type'].choices = choices
+            
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
@@ -98,6 +108,14 @@ class AddressBaseForm(ModelForm):
         }
 
 
+class AccountAddressForm(AddressBaseForm):
+    exclude_address_types = ['home']
+
+
+class ContactAddressForm(AddressBaseForm):
+    exclude_address_types = ['visiting']
+
+
 class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
@@ -114,4 +132,6 @@ class NoteForm(forms.ModelForm):
 EmailAddressBaseForm = autostrip(EmailAddressBaseForm)
 PhoneNumberBaseForm = autostrip(PhoneNumberBaseForm)
 AddressBaseForm = autostrip(AddressBaseForm)
+AccountAddressForm = autostrip(AccountAddressForm)
+ContactAddressForm = autostrip(ContactAddressForm)
 NoteForm = autostrip(NoteForm)

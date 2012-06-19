@@ -129,9 +129,9 @@ class Contact(Common, TaggedObjectMixin):
         Return full name of this contact without unnecessary white space.
         """
         if self.preposition:
-            return ' '.join([self.first_name, self.preposition, self.last_name])
+            return ' '.join([self.first_name, self.preposition, self.last_name]).strip()
         
-        return ' '.join([self.first_name, self.last_name])
+        return ' '.join([self.first_name, self.last_name]).strip()
     
     def get_primary_function(self):
         try:

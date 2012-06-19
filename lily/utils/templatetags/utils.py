@@ -125,3 +125,17 @@ def has_user_in_group(object, groups):
     group_list = force_unicode(groups).split(',')
     
     return bool(object.user.filter(groups__name__in=group_list))
+
+@register.filter
+def classname(obj, arg=None):
+    """
+    Return the classname of given object or compare the classname to the given argument.
+    """
+    classname = obj.__class__.__name__.lower()
+    if arg:
+        if arg.lower() == classname:
+            return True
+        else:
+            return False
+    else:
+        return classname

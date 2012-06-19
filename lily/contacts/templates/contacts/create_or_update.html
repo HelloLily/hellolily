@@ -1,0 +1,26 @@
+{% extends 'base_create_or_update.html' %}
+
+{% load i18n static %}
+
+{% block create-page-title %}{% trans 'Add contact' %}{% endblock %}
+
+{% block update-page-title %}{% trans 'Edit contact' %}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/input-and-choice/input-and-choice.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
+    <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'plugins/input-and-choice/input-and-choice.js' %}"></script>
+{% endblock %}
+
+{% block create_or_update_form %}
+    {% include 'contacts/create_or_update_form.html' %}
+{% endblock %}

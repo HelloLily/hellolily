@@ -1,13 +1,22 @@
-{% extends 'base.html' %}
-{% load i18n static humanize utils %}
+{% extends 'base_user.html' %}
 
-{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+{% load i18n static utils %}
+
+{% block page-titel %}{% trans 'Dashboard' %} - {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{% static 'users/css/dashboard.css' %}" media="screen" />
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'users/css/dashboard.css' %}" media="screen" />
 {% endblock %}
 
-{% block content %}
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
+{% endblock %}
+
+{% block container %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
         <span>{% trans 'Welcome to the HelloLily beta!' %}</span>
@@ -21,70 +30,29 @@
             <hr />
             
             <div id="dashboard-latest" class="clearfix">
-				<div class="object-list grid_4">
-            		<h2 class="i-32 i-contacts blue">{% trans 'Latest contacts' %}</h2>
-					<div>
-						{% for contact in contact_list %}
-							<div class="object">
-								<div class="object-title">
-									<a href="{% url contact_details pk=contact.pk %}" title="{% trans 'View details for ' %} {{ contact }}">{{ contact }}</a>
-								</div>
-								<div class="object-more">
-    								<div class="object-creation-time">{{ contact.created|naturaltime }}</div>
-                                    {% if forloop.last %}
-                                    <div>
-                                        <p></p>
-                                        <a href="{% url contact_list %}">{% trans 'All contacts' %}</a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-							</div>
-						{% empty %}
-							<div>
-								No contacts created yet. <br />
-								<a href="{% url contact_add %}">Create one</a>.
-							</div>
-						{% endfor %}
-					</div>
-				</div>     
-            	<div class="object-list grid_4">
-            		<h2 class="i-32 i-accounts blue">{% trans 'Latest accounts' %}</h2>
-					<div>
-						{% for account in account_list %}
-							<div class="object">
-								<div class="object-title">
-									<a href="{% url account_details pk=account.pk %}" title="{% trans 'View details for ' %} {{ account }}">{{ account }}</a>
-								</div>
-                                <div class="object-more">
-    								<div class="object-creation-time">{{ account.created|naturaltime }}</div>
-    								{% if forloop.last %}
-                                    <div>
-                                        <p></p>
-                                        <a href="{% url account_list %}">{% trans 'All accounts' %}</a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-							</div>
-						{% empty %}
-							<div>
-								No accounts created yet. <br />
-								<a href="{% url account_add %}">Create one</a>.
-							</div>
-						{% endfor %}
-					</div>
-				</div>	       
-            </div>   
+                <div class="object-list grid_4">
+                    <h2 class="i-32 i-contacts blue">{% trans 'Latest contacts' %}</h2>
+                    <div>
+                        {% include 'base_list.html' with list=contact_list list_item_template='users/dashboard/latest_contact_list_item.html' %}
+                    </div>
+                </div>     
+                <div class="object-list grid_4">
+                    <h2 class="i-32 i-accounts blue">{% trans 'Latest accounts' %}</h2>
+                    <div>
+                        {% include 'base_list.html' with list=account_list list_item_template='users/dashboard/latest_account_list_item.html' %}
+                    </div>
+                </div>         
+            </div>     
 
             <hr />
             
             {% if user|in_group:'account_admin' %}
-            <h2>Other things you can do</h2>
-            <p>
-                <ul class="mws-summary">
-                        <li><a href="{% url invitation_send %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Send invitations to new users</span></li>
-                    
-                </ul>
-            </p>
+                <h2>Other things you can do</h2>
+                <p>
+                    <ul class="mws-summary">
+                        <li><a href="{% url invitation_invite %}">click</a><span class="things-you-can-do">Send invitations to new users</span></li>
+                    </ul>
+                </p>
             {% endif %}
         </div>
     </div>

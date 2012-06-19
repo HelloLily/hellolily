@@ -1,27 +1,15 @@
 @media only screen and (max-width: 1150px) {
-    .account_logo {
+    .details-image.account {
         padding-left: 10px !important;
     }
-    .account_logo img {
+    .details-image.account img {
         padding: 10px 2px;
     }
 }
 
-@media only screen and (max-width:920px) {
-    #account_tags, .account_tags {
-        display: none
-    }
-}
-
 @media only screen and (max-width: 650px) {
-    #account_logo {
+    .details-image.account {
         width: 30%;
         padding-left: 35px;
-    }
-    #account_name {
-        width: 30%;
-    }
-    #account_details {
-        width: 40%;
     }
 }

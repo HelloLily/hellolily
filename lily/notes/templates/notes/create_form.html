@@ -1,0 +1,20 @@
+{% load i18n %}
+
+<form class="mws-form tabthis" action="" method="post">
+    {% csrf_token %}
+    
+    <br />
+    {% if form.note.errors %}
+        <div class="mws-form-item inline note-textarea">
+            <span class="field_error">{{ form.note }}</span>
+            <div class="mws-error no_list_style_type">
+                {{ form.note.errors }}
+            </div>
+        </div>
+    {% else %}
+        <div class="mws-form-item inline note-textarea">
+            {{ form.note }}
+        </div>
+    {% endif %}
+    <input type="submit" value="{% trans 'Add note' %}" id="add-note-button" class="mws-button blue small tabbable">
+</form>

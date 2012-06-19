@@ -10,6 +10,14 @@ function trim(str) {
 }
 
 jQuery.fn.dataTableExt.oSort['date-euro-asc'] = function(a, b) {
+    a = $(a).text();
+    a = $.trim(a);
+    a = a.replace( /\s{1,}/g, ' ');
+    
+    b = $(b).text();
+    b = $.trim(b);
+    b = b.replace( /\s{1,}/g, ' ');
+    
     if (trim(a) != '') {
         var frDatea = trim(a).split(' ');
         var frTimea = frDatea[1].split(':');
@@ -32,6 +40,14 @@ jQuery.fn.dataTableExt.oSort['date-euro-asc'] = function(a, b) {
 };
 
 jQuery.fn.dataTableExt.oSort['date-euro-desc'] = function(a, b) {
+    a = $(a).text();
+    a = $.trim(a);
+    a = a.replace( /\s{1,}/g, ' ');
+    
+    b = $(b).text();
+    b = $.trim(b);
+    b = b.replace( /\s{1,}/g, ' ');
+    
     if (trim(a) != '') {
         var frDatea = trim(a).split(' ');
         var frTimea = frDatea[1].split(':');

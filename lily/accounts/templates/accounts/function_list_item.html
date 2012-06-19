@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<p>
+    <a href="{% url contact_details pk=item.contact.pk %}">{{ item.contact.full_name }}</a>
+    {% if item.title %}
+        as {{ item.title }}
+    {% endif %}
+    
+    {% if not item.is_active %}
+        ({% trans 'Inactive' %})
+    {% else %}
+        {% if not item.contact.status == 1 %}
+        ({{ item.contact.get_status_display }})
+        {% endif %}
+    {% endif %}
+</p>

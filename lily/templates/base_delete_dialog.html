@@ -1,0 +1,10 @@
+{% load i18n utils %}
+
+<div id="dialog-{% block dialog-id %}{{ item.pk }}{% endblock %}" class="dialog delete {{ item|classname }}" title="{% block dialog-title %}{% trans 'Please confirm' %}{% endblock %}">
+    <form class="mws-form" action="{% block dialog-form-url %}{% endblock %}" method="post">
+        {% csrf_token %}
+        <div class="mws-form-inline">
+            <div class="mws-form-row">{% block dialog-message %}{% blocktrans with item=item classname=item|classname %}Are you sure you want to delete the {{ classname }} for {{ item }}? This can not be undone.{% endblocktrans %}{% endblock %}</div>
+        </div>
+    </form>
+</div>

@@ -1,8 +1,7 @@
 $(document).ready(function() {
 	// add jquery dialog for adding an account
-    $('#delete-note-form-dialog').dialog({
+    $('#dialog-delete-note').dialog({
         autoOpen: false,
-        title: gettext('Delete note'),
         modal: true,
         width: 350,
         buttons: [
@@ -31,12 +30,12 @@ $(document).ready(function() {
                         } else {
                             // Everything worked, handle the success response
                             afterSuccess = function() {
-                                var link = $('.object-list-item.note a[href="' + $('#delete-note-form-dialog #delete-note-form').attr('action') + '"]');
+                                var link = $('.object-list-item.note a[href="' + $('#dialog-delete-note form').attr('action') + '"]');
                                 var div = link.closest('.object-list-item.note');
                                 div.slideUp(500, function() {
                                     div.remove(); 
                                 });
-                                $(div).find(textarea).elastic();
+                                $(div).find('textarea').elastic();
                             };
                             hideLoadingDialog(afterSuccess);
                         }
@@ -64,29 +63,26 @@ $(document).ready(function() {
     });
     
     // save note
-    $('.note .iedit_submit_button').live('click', function() {
+    $('.note .iedit_submit_button').live('click', function(event) {
     	// submit form by pressing this button/anchor
     	form = $(this).closest('.note').find('form');
     	form.submit();
     	
     	// don't follow button/anchor's href
-        return false;
-    });
-    
-    // cancel editing note
-    $('.note .object_cancel_link').live('click', function() {
-        // clearForm($(this).closest('.iedit_wrapper').find('form'));
+        event.preventDefault();
     });
     
     // delete note
-    $('.delete-note-dialog-link').live('click', function(event) {
-        $('#delete-note-form-dialog #delete-note-form').attr('action', $(this).attr('href'));
-        $('#delete-note-form-dialog').dialog('open');
+    $('.delete.note').live('click', function(event) {
+        $('#dialog-delete-note form').attr('action', $(this).attr('href'));
+        $('#dialog-delete-note').dialog('open');
+        
+        // don't follow button/anchor's href
         event.preventDefault();
     });
     
     // submit note with AJAX
-    $('.note form').live('submit', function() {
+    $('.note form').live('submit', function(event) {
     	// find the container
     	container = $(this).closest('.iedit_wrapper');
         
@@ -96,7 +92,7 @@ $(document).ready(function() {
             container.html(response.html);
             
             if( response.error === true ) {
-                // Request was successfull but the form returned with errors
+                // Request was successful but the form returned with errors
                 container.find('.iedit_content .iedit_button').click();
             } else {
                 // Everything worked, handle the success response
@@ -128,6 +124,6 @@ $(document).ready(function() {
         sendForm(container, successCallback, errorCallback, beforeSubmit);
         
         // dont follow form's action
-        return false;
+        event.preventDefault();
     });
 });

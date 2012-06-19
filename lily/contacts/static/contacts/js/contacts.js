@@ -36,38 +36,6 @@ $(document).ready(function() {
         show_or_hide_other_option($(this)[0]);
     });
 
-    // delete contact
-    $('#delete-contact-dialog-link').click(function(event) {
-    	console.log($('#delete-contact-form-dialog').html());
-        $('#delete-contact-form-dialog').dialog('open');
-        event.preventDefault();
-    });
-    // transform div into delete dialog
-    $('#delete-contact-form-dialog').dialog({
-        autoOpen: false,
-        title: gettext('Delete contact'),
-        modal: true,
-        width: 350,
-        buttons: [
-            { 
-                'class': 'mws-button red float-left',
-                text: gettext('Cancel'),
-                click: function() {
-                    // cancel form on Cancel
-                    $(this).dialog('close');
-                }
-            },
-            {
-                'class': 'mws-button green',
-                text: gettext('Continue'),
-                click: function() {
-                    // submit form on Continue
-                    $(this).find('form').submit();
-                }
-            }
-        ]
-    });
-
     // enable formsets for email addresses, phone numbers and addresses
     form_prefices = {'email_addresses': gettext('Add an e-mail address'), 'phone_numbers': gettext('Add a phone number'), 'addresses': gettext('Add an address')};
     for(form_prefix in form_prefices) {

@@ -1,0 +1,111 @@
+{% comment %}
+
+This template has an opt-out for:
+- jQuery core javascript; block jQuery-scripts
+- jQuery core UI javascript; block jQueryUI-scripts
+- jQuery core UI css; block jQueryUI-styles
+
+{% block jQueryUI-styles %}{% endblock %}
+{% block jQuery-scripts %}{% endblock %}
+{% block jQueryUI-scripts %}{% endblock %}
+{% block jQueryUI-extra-scripts %}{% endblock %}
+
+{% endcomment %}
+
+{% load static i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+        <!-- Favicon -->
+        <link href="{% static 'images/favicon.ico' %}" rel="icon" type="image/x-icon" />
+        
+        <!-- Page title -->
+        <title>{% block page-title %}{% endblock %} HelloLily</title>
+        
+        <!-- Apple iOS and Android stuff -->
+        <meta name="apple-mobile-web-app-capable" content="no" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
+        
+        {% block styles %}
+        
+            {% block jQueryUI-styles %}
+                <!-- jQuery UI core styles -->
+                <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+            {% endblock %}
+        
+            <!-- Reset styles -->
+            <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" media="screen" />
+            
+            <!-- Theme default styles -->
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/button.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/misc.css' %}" media="screen" />
+            
+            <link rel="stylesheet" type="text/css" href="{% static 'css/fonts/ptsans/stylesheet.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/fluid.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/text.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/core.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/mws.theme.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/panels.css' %}" media="screen" />
+            
+            <!-- Core form/dialog styles -->
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/form.css' %}" media="screen" />
+                
+            {% if form or formset or quickbutton_formsets %}
+                <!-- Plugin form styles -->
+                <link rel="stylesheet" type="text/css" href="{% static 'plugins/chosen/chosen.css' %}" media="screen" />
+<!--                 <link rel="stylesheet" type="text/css" href="{% static 'plugins/label-placeholder/jquery.label-placeholder.css' %}" media="screen" /> -->
+                <link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
+            {% endif %}
+            
+            <!-- Responsive styles -->
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/responsive.css' %}" media="screen" />
+        {% endblock %}
+        
+        {% block scripts %}
+            
+            {% block jQuery-scripts %}
+                <!-- jQuery core scripts -->
+                <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
+            {% endblock %}
+            
+            {% block jQueryUI-scripts %}
+                <!-- jQuery UI core scripts -->
+                <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+            {% endblock %}
+            
+            {% block jQueryUI-extra-scripts %}
+                <!-- jQuery UI additional scripts -->
+                <script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
+            {% endblock %}
+    
+            <!-- Scripts for GetSatisfaction -->
+            <script type="text/javascript" src="{% static 'js/getsatisfaction.js' %}"></script>
+            
+            {% if form or formset or quickbutton_formsets %}
+                <!-- Core form scripts -->
+                <script type="text/javascript" src="{% static 'js/send_form.js' %}"></script>
+                
+                <!-- Plugin form scripts -->
+                <script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/jqueryform/jquery.form.min.js' %}"></script>
+<!--                 <script type="text/javascript" src="{% static 'plugins/label-placeholder/jquery.label-placeholder.js' %}"></script> -->
+                <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>
+                
+                <!-- Custom form scripts -->
+                <script type="text/javascript" src="{% static 'plugins/tabthis/tabthis.jquery.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/clickfocus/clickfocus.jquery.js' %}"></script>
+                <script type="text/javascript" src="{% static 'plugins/lilyformset/lily.formset.js' %}"></script>
+            {% endif %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>

@@ -34,8 +34,8 @@ class DeleteNoteView(DeleteView):
 class EditNoteView(UpdateView):
     model = Note
     form_class = EditNoteForm
-    template_name = 'notes/note_edit.html'
-    ajax_template_name = 'notes/note.html'
+    template_name = 'notes/edit_form.html'
+    ajax_template_name = 'notes/list_item.html'
     
     def get_success_url(self):
         return reverse('dashboard')

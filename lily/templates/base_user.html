@@ -1,0 +1,145 @@
+{% extends 'base_app.html' %}
+
+{% load i18n static activelink %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_dataprovider.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <!-- Try to prevent duplicate accounts in multiple forms -->
+    <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
+    
+    <!-- Enable use of dataprovider -->
+    <script type="text/javascript" src="{% static 'accounts/js/account_dataprovider.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+
+    {% block page-header %}
+        <!-- Page header -->
+        <div id="mws-header">
+            
+            <!-- Page header container -->
+            <div id="mws-header-container" class="clearfix">
+                <!-- Logo container -->
+                <div id="mws-logo-container">
+                    <div id="mws-logo-wrap">
+                        <img src="{% static 'images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                    </div>
+                </div>
+                
+                {% block quickbuttons-container %}
+                    <!-- Quickbutton container -->
+                    <div id="mws-quickbutton-container" class="tabthis">
+                        {% block quickbuttons %}
+                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add account' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'accounts/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url contact_add %}" class="no-decoration quickbutton contact">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add contact' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'contacts/quickbutton_dialog.html' %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+                    
+                <!-- User tools container -->
+                <div id="mws-user-tools">
+                    <!-- User information section -->
+                    <div id="mws-user-info" class="mws-inset">
+                        <div id="mws-user-photo">
+                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                        </div>
+        
+                        <div id="mws-user-functions">
+                            <div id="mws-username">
+                                Hello, {{ user }}
+                            </div>
+                            <ul>
+                                <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    <!-- Start Main Wrapper -->
+    <div id="mws-wrapper">
+        
+        <!-- Sidebar -->
+        <div id="mws-sidebar-stitch"></div>
+        <div id="mws-sidebar">
+            {% block sidebar %}
+            
+                {% block navigation %}
+                    <div id="mws-navigation">
+                        <ul>
+                            <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
+                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">Dashboard</a>
+                            </li>
+                            <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
+                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">Contacts</a>
+                            </li>
+                            <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
+                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">Accounts</a>
+                            </li>
+                            {% comment %}
+                                <li>
+                                    <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
+                                </li>
+                                <li>
+                                    <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
+                                </li>
+                            {% endcomment %}
+                        </ul>
+                    </div>
+                {% endblock %}
+                    
+            {% endblock %}
+        </div>
+        
+        <!-- Main Container -->
+        <div id="mws-container" class="clearfix">
+
+            <!-- Inner Container -->
+            <div class="container">
+                {% block container %}{% endblock %}
+            </div>
+            
+            {% block page-footer %}
+                <!-- Footer -->
+                <div id="mws-footer">Copyright HelloLily 2012. All Rights Reserved.</div>
+            {% endblock %}
+        </div>
+    </div>
+    
+    <div class="hidden">
+        <div id="loadingDialog"></div>
+        <div id="successDialog">
+            <div class="mws-dialog-inner">
+                <p id="successDialogMessage"></p>
+            </div>
+        </div>
+        <div id="errorDialog">
+            <div class="mws-dialog-inner">
+                <p id="errorDialogMessage">{% trans "Something went wrong, if this keeps on happening please contact your account administrator. We're sorry for the inconvenience." %}</p>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}

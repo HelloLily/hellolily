@@ -1,0 +1,26 @@
+{% extends 'base_visitor.html' %}
+
+{% load i18n static %}
+
+{% block page-title %}{% trans 'Accept invitation' %} - {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquery.password_strength.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    {{ form.media }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
+    <script type="text/javascript" src="{% static 'users/js/registration.js' %}"></script>
+{% endblock %}
+
+{% block container %}
+    <div class="mws-panel grid_8">
+        {% include 'users/invitation/accept_form.html' %}
+    </div>
+{% endblock %}

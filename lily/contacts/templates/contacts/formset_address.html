@@ -1,0 +1,10 @@
+{% extends 'utils/formset_address.html' %}
+
+{% load i18n %}
+
+{% block address_types %}
+    <option value="home" selected="selected">{% trans 'Home address' %}</option>
+    <option value="billing">{% trans 'Billing address' %}</option>
+    <option value="shipping">{% trans 'Shipping address' %}</option>
+    <option value="other">{% trans 'Other' %}</option>
+{% endblock %}

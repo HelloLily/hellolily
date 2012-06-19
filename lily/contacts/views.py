@@ -31,7 +31,7 @@ from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditConta
     FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
-from lily.utils.forms import EmailAddressBaseForm, AddressBaseForm, PhoneNumberBaseForm, NoteForm
+from lily.utils.forms import EmailAddressBaseForm, ContactAddressForm, PhoneNumberBaseForm, NoteForm
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
@@ -43,7 +43,7 @@ class ListContactView(ListView):
     """
     Display a list of all contacts
     """
-    template_name = 'contacts/contact_list.html'
+    template_name = 'contacts/model_list.html'
     model = Contact
     sortable = ['2', '5', '6', ]
 
@@ -87,6 +87,7 @@ class ListContactView(ListView):
         kwargs.update({
             'order_by': order_by,
             'sort_order': sort_order,
+            'list_item_template': 'contacts/model_list_item.html',
         })
         return kwargs
 
@@ -95,7 +96,7 @@ class DetailContactView(DetailFormView):
     """
     Display a detail page for one contact.
     """
-    template_name = 'contacts/contact_details.html'
+    template_name = 'contacts/details.html'
     model = Contact
     form_class = NoteForm
 
@@ -118,7 +119,7 @@ class AddContactView(CreateView):
     """
 
     # Default template and form
-    template_name = 'contacts/contact_add.html'
+    template_name = 'contacts/create_or_update.html'
     form_class = AddContactForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -128,10 +129,10 @@ class AddContactView(CreateView):
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddContactMinimalForm
-            self.template_name = 'contacts/contact_add_xhr_form.html'
+            self.template_name = 'contacts/quickbutton_form.html'
         else:
             self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
-            self.AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, extra=0)
+            self.AddressFormSet = modelformset_factory(Address, form=ContactAddressForm, extra=0)
             self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
 
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
@@ -197,7 +198,10 @@ class AddContactView(CreateView):
                     messages.success(self.request, message)
 
                     do_redirect = True
-                    url = self.request.META['HTTP_REFERER']
+                    if url_obj.path.endswith(reverse('contact_list')):
+                        url = '%s?order_by=5&sort_order=desc' % reverse('contact_list')
+                    else:
+                        url = self.request.META['HTTP_REFERER']
                     notification = False
                     html_response = ''
                 else:
@@ -343,13 +347,13 @@ class EditContactView(UpdateView):
     View to edit a contact with all fields included in the template including support to add
     multiple instances of many-to-many relations with custom formsets.
     """
-    template_name = 'contacts/contact_edit.html'
+    template_name = 'contacts/create_or_update.html'
     form_class = EditContactForm
     model = Contact
 
     # Create formsets
     EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
-    AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, can_delete=True, extra=0)
+    AddressFormSet = modelformset_factory(Address, form=ContactAddressForm, can_delete=True, extra=0)
     PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
 
     def get_form(self, form_class):

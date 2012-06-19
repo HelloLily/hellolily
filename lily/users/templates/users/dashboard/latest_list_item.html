@@ -1,0 +1,16 @@
+{% load i18n humanize %}
+
+<div class="object">
+    <div class="object-title">
+        <a href="{% block item-url %}{% endblock %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
+    </div>
+    <div class="object-more">
+        <div class="object-creation-time">{{ item.created|naturaltime }}</div>
+        {% if forloop.last %}
+        <div>
+            <p></p>
+            <a href="{% block list-url%}{% endblock %}">{% block list-url-name %}{% endblock %}</a>
+        </div>
+        {% endif %}
+    </div>
+</div>

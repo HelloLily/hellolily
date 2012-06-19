@@ -140,7 +140,7 @@
                         {% endif %}
                         {% for note in contact.notes.all %}
                             <div class="object-list-item note iedit_wrapper i-32 blue i-note" id="note_{{ note.pk }}">
-                                {% include 'notes/note.html' with note=note %}
+                                {% include 'notes/list_item.html' with note=note %}
                             </div>
                         {% endfor %}
                         <div class="hidden">

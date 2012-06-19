@@ -1,0 +1,24 @@
+{% comment %}
+Use {% include 'base_model_list_item.html' with item=item %} to use this file.
+{% endcomment %}
+
+{% load i18n utils %}
+
+{% block item-row %}
+    <tr class="height_77">
+        {% block item-actions %}
+            <td class="controls">
+                <a href="{% block item-edit-url %}{% endblock %}" class="i-16 i-edit blue no-decoration inline-block" title="{% trans 'Edit' %}"></a>
+                {% if not item|has_user_in_group:'account_admin' %}
+                    <a href="{% block item-delete-url %}{% endblock %}" id="delete-{{ item.pk }}" class="i-16 i-trash-1 blue no-decoration inline-block delete_icon link delete" title="{% trans 'Delete' %}"></a>
+                {% endif %}
+            </td>
+        {% endblock %}
+        
+        {% block item-columns %}
+            <td>
+                {{ item }}
+            </td>
+        {% endblock %}
+    </tr>
+{% endblock %}

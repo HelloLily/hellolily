@@ -1,0 +1,174 @@
+{% extends 'base_details.html' %}
+
+{% load i18n static thumbnail utils %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/responsive.css' %}" media="screen"/>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+    <script type="text/javascript" src="{% static 'accounts/js/accounts.js' %}"></script>
+{% endblock %}
+
+{% block item-delete-url %}{% url account_delete pk=item.pk %}{% endblock %}
+
+{% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}
+
+{% block dialog-delete %}
+    {% include 'accounts/delete_dialog.html' %}
+{% endblock %}
+
+{% block image-left %}
+    {% if account.logo %}
+        <img class="details-image account" src="{% thumbnail account.logo 100x100 %}" alt="" />
+    {% else %}
+        <img class="details-image account" src="{% static 'images/core/unknown_account.png' %}" alt="" />
+    {% endif %}
+{% endblock %}
+
+{% block item-details %}
+    <h2>{{ item|truncatechars:"24" }}</h2>
+    <div id="contact_function">
+        {% with account.get_contacts as contacts %}
+            {% if contacts|length == 1 %}
+                {% url contact_details pk=contacts.0.pk as contact_link  %}
+                
+                {% blocktrans with contacts|first as first_contact and contact_link as link %}
+                    <a href="{{ link }}">{{ first_contact }}</a> works here
+                {% endblocktrans %}
+            {% elif contacts|length > 0 %}
+                {% with contacts|joinby:';' as contacts_csv %}
+                    {% url contact_list_filtered b36_pks=contacts_csv as contacts_link %}
+                
+                    {% with link=contacts_link count=contacts|length %}
+                        <a href="{{ link }}">{{ count }} {% trans 'contacts' %}</a>
+                    {% endwith %}
+                {% endwith %}
+            {% else %}
+                {% trans 'No known contacts' %}
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endblock %}
+
+{% block tabs %}
+    {{ block.super }}
+    
+    <li class="ui-state-default ui-corner-top"><a href="#tab-contacts">{% trans 'Contacts' %}</a></li>
+{% endblock %}
+
+{% block details-tab-content %}
+    <h2>{% trans 'Contact details' %}</h2>
+    <div class="grid_4">
+        <div id="detail-addresses" class="detail-block">
+            <h4>{% trans 'Addresses' %}</h4>            
+            {% with item.get_billing_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+            
+            {% with item.get_shipping_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+            
+            {% with item.get_visiting_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+        </div>
+        <div id="detail-websites" class="detail-block">
+            <h4>{% trans 'Websites' %}</h4>
+            
+            {% for website in account.websites.all %}
+                {% if website.is_primary %}
+                        <div class="primary website">
+                            <h6>{% trans 'Primary' %}</h6>
+                {% else %}
+                    <div class="website">
+                        <h6></h6>
+                {% endif %}
+                        <div class="inline">
+                            <a href="{{ website.website }}">{{ website.website }}</a>
+                        </div>
+                    </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="grid_4">
+        <div id="detail-phones" class="detail-block">
+            <h4>{% trans 'Phone numbers' %}</h4>
+            
+            {% for phone in item.phone_numbers.all %}
+                {% if phone.raw_input %}
+                    {% if phone.type == 'mobile' %}
+                        <div class="mobile_phone">
+                    {% else %}
+                        <div class="phone">
+                    {% endif %}
+                            <h6>{{ phone.get_type_display }}</h6>
+                            <div class="inline">
+                                <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                            </div>
+                        </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div id="detail-emails" class="detail-block">
+            <h4>{% trans 'E-mail addresses' %}</h4>
+            
+            {% for email in item.email_addresses.all %}
+                {% if email.email_address %}
+                        {% if email.is_primary %}
+                            <div class="primary email">
+                                <h6>{% trans 'Primary' %}</h6>
+                        {% else %}
+                            <div class="email">
+                                <h6></h6>
+                        {% endif %}
+                                <div class="inline">
+                                    <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                </div>
+                            </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <hr />
+    
+    <h2>{% trans 'Additional information' %}</h2>
+    <div class="grid_8">
+        <div class="detail-block">
+            <h4>{% trans 'Description' %}</h4>
+            {{ item.description|linebreaksbr }}
+        </div>
+        
+        <div class="detail-block">
+            <h4>{% trans 'Tags' %}</h4>
+            {% comment %}
+                TODO: when searching on tags is possible, change these into links
+            {% endcomment %}
+            
+            {% for tag in item.tags.all %}
+                {{ tag }}
+                {% if not forloop.last %}
+                ,
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block tabs-content %}
+    {{ block.super }}
+    <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+        <h2>{% trans 'Contacts' %}</h2>
+        <div id="detail-emails" class="detail-block">
+            {% include 'base_list.html' with list=item.functions.all list_item_template='accounts/function_list_item.html' %}
+        </div>
+    </div>
+{% endblock %}

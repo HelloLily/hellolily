@@ -1,0 +1,152 @@
+/* Add/Edit */
+
+.mws-form-row a.click-show {
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.mws-form .email_is_primary label span {
+    color: #aaa;
+    font-weight: normal;
+    cursor: auto;
+}
+
+.mws-form .email_is_primary .checked,
+.mws-form .email_is_primary .state-hover {
+    color: #1C76BC;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.mws-form .formset-delete .i-16 {
+    display: block; 
+    width: 16px;
+    height: 32px;
+}
+
+/* List */
+
+.mws-table td {
+    overflow: hidden;
+}
+
+.mws-table tbody .controls {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0 0 0 3px !important;
+    line-height: 16px;
+    text-align: left;
+}
+
+.mws-table .item-image {
+    vertical-align: middle;
+}
+
+.mws-table .controls a {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    margin-right: 4px;
+    padding: 1px;
+    background-position: 50% 50%;
+}
+
+.mws-table thead .item-image {
+    border-left: none !important;
+}
+
+.mws-table .details {
+    white-space: nowrap;
+}
+
+.mws-table .details .i-16  {
+   padding-left: 24px;
+}
+
+.mws-table thead .datetime {
+    padding-right: 9px !important;
+}
+
+.mws-table tbody .datetime {
+    white-space: nowrap;
+    text-align: right;
+}
+
+/* Detail */
+
+#details-top {
+    padding: 12px;
+}
+
+.details-image {
+    margin-right: 20px;
+    vertical-align: top;
+}
+
+#details-top-extra {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#details-top-extra h2 {
+    margin: 0;
+}
+
+#details-social {
+    margin-top: 16px;
+}
+
+#details-contact {
+    display: inline-block;
+}
+
+#details-contact span {
+    display: block;
+    text-align: right;
+    padding: 3px 0 3px 35px;
+    border-bottom: 1px solid #ccc;
+    height: 19px;
+}
+
+#details-contact .i-16 {
+    background-position: 4px 48%;
+}
+
+/* History tab */
+
+#tab-history .mws-form {
+    margin-bottom: 8px;
+}
+
+.note-textarea {
+    vertical-align: bottom;
+}
+
+#add-note-button {
+    margin-bottom: 0;
+}
+
+/* Details tab */
+
+.detail-block {
+    margin-bottom: 24px;
+}
+
+#detail-addresses h6,
+#detail-phones h6,
+#detail-emails h6,
+#detail-websites h6 {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 80px;
+    font-weight: normal;
+}
+
+#detail-addresses .address .inline,
+#detail-phones .phone .inline,
+#detail-phones .mobile_phone .inline,
+#detail-emails .email .inline,
+#detail-websites .website .inline {
+    margin-bottom: 16px;
+    margin-left: 12px;
+}

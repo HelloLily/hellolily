@@ -35,7 +35,7 @@
                 if( element ) {
                 	$(event.target).remove();
                 	$(element).show();
-                	input = $(element).find(':input:visible:first');
+                	var input = $(element).find(':input:visible:first');
                 	if( input ) {
                     	input.focus();
                     	setCaretAtEnd(input[0]);

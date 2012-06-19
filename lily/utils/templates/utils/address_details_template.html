@@ -1,0 +1,20 @@
+{% load i18n %}
+
+{% if address %}
+    <div class="address">
+        <h6>{{ address.type|capfirst }}</h6>
+        <div class="inline">
+            {% if address.street or address.street_number or address.complement %}
+                {{ address }} <br />
+            {% endif %}
+            {% if address.postal_code or address.city %}
+                {{ address.postal_code }} {{ address.city }} <br />
+            {% endif %}
+            {{ address.get_country_display }}
+        </div>
+    </div>
+{% endif %}
+
+
+
+

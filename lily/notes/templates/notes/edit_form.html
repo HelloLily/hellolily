@@ -1,0 +1,22 @@
+{% extends 'base_user.html' %}
+
+{% load i18n %} 
+
+{% block page-title %}{% trans 'Edit note' %} - {% endblock %}
+
+{% block container %}
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-header">
+            <span>{% trans 'Edit note' %}</span>
+        </div>
+        <div class="mws-panel-body">
+            <form class="mws-form tabthis" action="{% url note_edit pk=note.pk %}" method="post">
+                {% include 'notes/update_form.html' %}
+                <div class="mws-button-row">
+                    <input type="submit" value="Submit" class="mws-button red tabbable">
+                    <input type="reset" value="Reset" class="mws-button gray tabbable">
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

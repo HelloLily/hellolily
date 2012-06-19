@@ -1,0 +1,48 @@
+{% extends 'base_formset.html' %}
+
+{% load i18n %}
+
+{% block form %}
+    <div class="mws-form-cols clearfix">
+        <div class="mws-form-col-2-8 alpha">
+            {% if form.email_address.errors %}
+                <span class="field_error float-left">{{ form.email_address }}</span>
+                <span class="mws-error inline plain float-left">
+                    {% for error in form.email_address.errors %}
+                        <strong>{{ error }}</strong>
+                    {% endfor %}
+                </span>
+            {% else %}
+                {{ form.email_address }}
+            {% endif %}
+        </div>
+        <div class="mws-form-col-2-8 center email_is_primary">
+            <label>
+                <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
+                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">{% trans 'primary' %}</span>
+            </label>
+        </div>
+        <div class="mws-form-col-1-8 formset-delete">
+            <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
+        </div>
+    </div>
+{% endblock %}
+    
+{% block template %}
+    <div class="mws-form-item large">
+        <div class="mws-form-cols clearfix">
+            <div class="mws-form-col-2-8 alpha">
+                <input name="{{ formset.prefix }}-0-email_address" maxlength="255" placeholder="{% trans 'E-mail address' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset.prefix }}-0-email_address" />
+            </div>
+            <div class="mws-form-col-2-8 center email_is_primary">
+                <label>
+                    <input class="hidden" type="radio" value="{{ formset.prefix }}-0" name="{{ formset.prefix }}_primary-email" />
+                    <span class="tabbable">{% trans 'primary' %}</span>
+                </label>
+            </div>
+            <div class="mws-form-col-1-8 formset-delete">
+                <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

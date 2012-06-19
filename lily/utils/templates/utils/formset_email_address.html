@@ -3,6 +3,8 @@
 {% load i18n %}
 
 {% block form %}
+    {{ block.super }}
+    
     <div class="mws-form-cols clearfix">
         <div class="mws-form-col-2-8 alpha">
             {% if form.email_address.errors %}

@@ -6,7 +6,11 @@ from django.core.management.base import NoArgsCommand
 from django.utils.encoding import force_unicode
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
+try:
+    from lily.tenant.functions import add_tenant
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant
 from lily.users.models import CustomUser
 
 
@@ -18,7 +22,6 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options): 
         # First check if there has been created a superuser during syncdb we can use to encapsulate
         # in our own user model.
-#        superUser = User.objects.get(is_superuser=True)
         superUsers = CustomUser.objects.filter(user_ptr__is_superuser=True)
         
         if len(superUsers) == 0:
@@ -95,8 +98,17 @@ class Command(NoArgsCommand):
                 if password2 != password1:
                     self.stdout.write('Confirmation failed.\n')
         
-        account = Account.objects.create(name=accountname)
-        contact = Contact.objects.create(first_name=first_name, last_name=last_name)
+        contact = Contact(first_name=first_name, last_name=last_name)
+        contact, tenant = add_tenant(contact)
+        contact.save()
+        
+        account = Account(name=accountname)
+        add_tenant(account, tenant)
+        account.save()
+        
+        function = Function(account=account, contact=contact)
+        add_tenant(function, tenant)
+        function.save()
         
         if user is None:
             customUser = CustomUser()
@@ -111,7 +123,7 @@ class Command(NoArgsCommand):
         customUser.is_staff = True
         customUser.contact = contact
         customUser.account = account
-        
+        add_tenant(customUser, tenant)
         customUser.save()
         
         if not self.is_user_in_group(customUser):

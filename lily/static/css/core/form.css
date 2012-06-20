@@ -49,6 +49,11 @@
 	border:1px dotted #bcbcbc;
 }
 
+.mws-form .mws-form-inline /* new */
+{
+	position: relative;
+}
+
 .mws-form .mws-form-inline label
 {
 	padding-top:7px;
@@ -168,7 +173,7 @@
 .mws-form input:focus, /* new */
 .mws-form textarea:focus /* new */
 {
-    border-color:#50b3df; /* new */
+    border-color:#1C76BC; /* new */
     box-shadow:0 0 5px rgba(0, 0, 0, 0.3); /* new */
 }
 
@@ -671,25 +676,6 @@ div.mws-dualbox button:active
 }
 
 /* new from here on */
-.mws-form .mws-form-cols .mws-form-col-row {
-    padding: 0 0 2px;
-    margin: 0 5px 0 0;
-    
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -khtml-box-sizing: border-box;
-}
-
-.mws-form-col-row .mws-button {
-    margin: 0px;
-}
-
-.mws-form .float-left {
-    margin-right: 12px;
-}
-
 .mws-form .add-row,
 .mws-form .email_addresses-add-row,
 .mws-form .phone_numbers-add-row,

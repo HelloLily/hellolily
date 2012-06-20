@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% block quickbutton-dialog %}
+    <div class="hidden">
+        <div id="quickbutton-dialog{% block dialog-id %}{% endblock %}" class="quickbutton-dialog{% block dialog-class %}{% endblock %}" title="{% block dialog-title %}{% endblock %}">
+            <form class="mws-form" action="{% block dialog-form-url %}{% endblock %}" method="post">
+                {% block dialog-form %}{% endblock %}
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block quick-button-scripts %}{% endblock %}

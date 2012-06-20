@@ -1,5 +1,5 @@
-/* 
- * Password Strength (0.1.1)
+/*
+ * Password Strength (0.1.4)
  * by Sagie Maoz (n0nick.net)
  * n0nick@php.net
  *
@@ -14,6 +14,8 @@
  *
  * NOTE: This script requires jQuery to work.  Download jQuery at www.jquery.com
  *
+ * Modified by Cornelis Poppema to support an independant text container. 
+ * 
  */
 
 (function($){
@@ -24,7 +26,7 @@ var passwordStrength = new function()
 	{
 		var match = val.match(rex);
 		return match ? match.length : 0;
-	}
+	};
 	
 	this.getStrength = function(val, minLength)
 	{	
@@ -55,39 +57,35 @@ var passwordStrength = new function()
 		if (len > 10) { strength+= 1; }
 		
 		return strength;
-	}
+	};
 	
 	this.getStrengthLevel = function(val, minLength)
 	{
 		var strength = this.getStrength(val, minLength);
-		switch (true)
-		{
-			case (strength <= 0):
-				return 1;
-				break;
-			case (strength > 0 && strength <= 4):
-				return 2;
-				break;
-			case (strength > 4 && strength <= 8):
-				return 3;
-				break;
-			case (strength > 8 && strength <= 12):
-				return 4;
-				break;
-			case (strength > 12):
-				return 5;
-				break;
+
+		val = 1;
+		if (strength <= 0) {
+			val = 1;
+		} else if (strength > 0 && strength <= 4) {
+			val = 2;
+		} else if (strength > 4 && strength <= 8) {
+			val = 3;
+		} else if (strength > 8 && strength <= 12) {
+			val = 4;
+		} else if (strength > 12) {
+			val = 5;
 		}
-		
-		return 1;
-	}
-}
+
+		return val;
+	};
+};
 
 $.fn.password_strength = function(options)
 {
 	var settings = $.extend({
 		'container' : null,
-		'textContainer' : null,
+		'textContainer': null,
+		'bar': null, // thanks codemonkeyking
 		'minLength' : 6,
 		'texts' : {
 			1 : 'Too weak',
@@ -95,43 +93,72 @@ $.fn.password_strength = function(options)
 			3 : 'Normal strength',
 			4 : 'Strong password',
 			5 : 'Very strong password'
-		}
+		},
+		'onCheck': null
 	}, options);
 	
 	return this.each(function()
 	{
+		var container = null, $bar = null;
 		if (settings.container)
 		{
-			var container = $(settings.container);
-			var textContainer = $(settings.textContainer);
+			container = $(settings.container);
+			textContainer = $(settings.textContainer);
 		}
 		else
 		{
-			var container = $('<span/>').attr('class', 'password_strength');
+			container = $('<span/>').attr('class', 'password_strength');
 			$(this).after(container);
-                        var textContainer = container;
+			textContainer = $('<span/>').attr('class', 'password_strength_text');
+			$(textContainer).after(container);
+		}
+
+		if (settings.bar)
+		{
+			$bar = $(settings.bar);
 		}
 		
-		$(this).keyup(function()
+		$(this).bind('keyup.password_strength', function()
 		{
-			var val = $(this).val();
+			var val = $(this).val(),
+					level = passwordStrength.getStrengthLevel(val, settings.minLength);
+
 			if (val.length > 0)
 			{
-				var level = passwordStrength.getStrengthLevel(val, settings.minLength);
-				var _class = 'password_strength_' + level;
+				var _class = 'password_strength_' + level,
+						_barClass = 'password_bar_' + level;
 				
-				if (!container.hasClass(_class) && level in settings.texts)
+				if (!container.hasClass(_class))
 				{
-                                        container.attr('class', 'password_strength ' + _class);
-					textContainer.text(settings.texts[level]);
+				    container.attr('class', 'password_strength ' + _class);
+				}
+				if (!textContainer.hasClass(_class) && level in settings.texts)
+				{
+				    textContainer.text(settings.texts[level]);
+				}
+				if ($bar && !$bar.hasClass(_barClass))
+				{
+					$bar.attr('class', 'password_bar ' + _barClass);
 				}
 			}
 			else
 			{
-                                container.attr('class', 'password_strength')
-				textContainer.text('');
+				container.attr('class', 'password_strength');
+				if (textContainer) {
+				    textContainer.text('');
+				} 
+				if ($bar) {
+					$bar.attr('class', 'password_bar');
+				}
+			}
+			if (settings.onCheck) {
+				settings.onCheck.call(this, level);
 			}
 		});
+
+		if ($(this).val() != '') { // thanks Jason Judge
+				$(this).trigger('keyup.password_strength');
+		}
 	});
 };
 

@@ -4,7 +4,7 @@
 
 {% block plain %}
 {% url activation uidb36=uidb36 token=token as url %}
-{% blocktrans with current_site.name as site_name and user.contact.full_name as full_name and user.email as email and user.date_joined as date_joined and protocol as protocol and current_site.domain as domain and url as url %}
+{% blocktrans with current_site.name as site_name and user.contact.full_name as full_name and user.primary_email as email and user.date_joined as date_joined and protocol as protocol and current_site.domain as domain and url as url %}
 Hi {{ full_name }},
 
 You just signed up for {{ site_name }}, using:

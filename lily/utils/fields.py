@@ -1,12 +1,13 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelMultipleChoiceField
+from django.forms import MultipleChoiceField
 
 from lily.utils.functions import uniquify
 
-class MultipleInputAndChoiceField(ModelMultipleChoiceField):
+
+class MultipleInputAndChoiceField(MultipleChoiceField):
     """
-    A subclass of ModelMultipleChoiceField to not only support making relationships between models,
-    but also to create new instances of a model to create a relationship with.
+    A subclass of MultipleChoiceField to allow new values being added to the otherwise
+    fixed set of values.
     """
     empty_label = None
     

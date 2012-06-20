@@ -1,0 +1,224 @@
+{% extends 'base_create_or_update_form.html' %}
+
+{% load i18n static field_extras %}
+
+{% block create-form-title %}{% trans 'Add contact' %}{% endblock %}
+
+{% block update-form-title %}{% trans 'Edit contact' %}{% endblock %}
+
+{% block form-content %}
+    {% if form.non_field_errors %}
+        <div class="mws-form-row">
+            <div class="mws-form-message error no_list_style_type">
+                <span class="field_error">{{ form.non_field_errors }}</span>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mws-form-inline">
+        <div class="mws-form-row">
+            <label for="id_{{ form.first_name.html_name }}">{% trans 'Name' %}</label>
+            <div class="mws-form-item large">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-2-8 alpha">
+                         <div class="mws-form-item">
+                            {% if form.salutation.errors %}
+                                <span class="field_error">{{ form.salutation }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.salutation.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.salutation }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-2-8 alpha">
+                         <div class="mws-form-item">
+                            {% if form.gender.errors %}
+                                <span class="field_error">{{ form.gender }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.gender.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.gender }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mws-form-item large">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-3-8 alpha">
+                        <div class="mws-form-item">
+                            {% if form.first_name.errors %}
+                                <span class="field_error">{{ form.first_name }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.first_name.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.first_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-1-8">
+                        <div class="mws-form-item">
+                            {% if form.preposition.errors %}
+                                <span class="field_error">{{ form.preposition }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.preposition.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.preposition }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-4-8">
+                        <div class="mws-form-item">
+                            {% if form.last_name.errors %}
+                                <span class="field_error">{{ form.last_name }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.last_name.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.last_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.account.label_tag }}
+            <div class="mws-form-item large">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8 alpha">
+                        {% if form.account.errors %}
+                            <span class="field_error">{{ form.account }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.account.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.account }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="mws-form-row">
+            {{ form.description.label_tag }}
+            <div class="mws-form-item large">
+                {% if form.description|field_value %}
+                    {% if form.description.errors %}
+                        <span class="field_error">{{ form.description }}</span>
+                        <div class="mws-error no_list_style_type">
+                              {{ form.description.errors }}
+                        </div>
+                    {% else %}
+                        {{ form.description }}
+                    {% endif %}
+                {% else %}
+                    <a href="javascript:" class="click-show" data-click-show="description_wrapper">Add description</a>
+                    <div id="description_wrapper" class="hidden">
+                        {% if form.description.errors %}
+                            <span class="field_error">{{ form.description }}</span>
+                            <div class="mws-error no_list_style_type">
+                                  {{ form.description.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.description }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="mws-form-row">
+            {{ form.tags.label_tag }}
+            <div class="mws-form-cols clearfix">
+                <div class="float-left">
+                    {% if form.tags.errors %}
+                        <span class="field_error">
+                            <div class="input-and-choice">
+                                <div>
+                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
+                                    <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                </div>
+                                <div>
+                                    {{ form.tags }}
+                                    <ul class="input-and-choice-list clearfix search-field"></ul>
+                                </div>
+                            </div>
+                        </span>
+                        <div class="mws-error no_list_style_type">
+                              {{ form.tags.errors }}
+                        </div>
+                    {% else %}
+                        <div class="input-and-choice">
+                            <div>
+                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="{% trans 'Tag' %}" />
+                                <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                            </div>
+                            <div>
+                                {{ form.tags }}
+                                <ul class="input-and-choice-list clearfix search-field"></ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        
+        {% comment %}
+            TODO: Inform user when deleting a primary e-mail address and two or more options
+            are available and another was automatically selected as primary OR generate
+            an error on form submit
+        {% endcomment %}
+        <div class="mws-form-row">
+            <label for="id_{{ email_addresses_formset.prefix }}-0-email_address">{% trans 'E-mail addresses' %}</label>
+            {% for form in email_addresses_formset.forms %}
+                {% include 'utils/formset_email_address.html' with formset=email_addresses_formset form=form %}
+            {% empty %}
+                <div class="{{ email_addresses_formset.prefix }}-mws-formset"></div>
+            {% endfor %}
+            
+            {% include 'utils/formset_email_address.html' with formset=email_addresses_formset form=None %}            
+            
+            {{ email_addresses_formset.management_form }}
+        </div>
+        
+        <div class="mws-form-row">
+            <label for="id_{{ phone_numbers_formset.prefix }}-0-raw_input">{% trans 'Phone numbers' %}</label>
+            {% for form in phone_numbers_formset.forms %}
+                {% include 'utils/formset_phone_number.html' with formset=phone_numbers_formset form=form %}
+            {% empty %}
+                <div class="{{ phone_numbers_formset.prefix }}-mws-formset"></div>
+            {% endfor %}
+        
+            {% include 'utils/formset_phone_number.html' with formset=phone_numbers_formset form=None %}
+            
+            {{ phone_numbers_formset.management_form }}
+        </div>
+        
+        <div class="mws-form-row">
+            <label for="id_{{ addresses_formset.prefix }}-0-street">{% trans 'Addresses' %}</label>
+            {% for form in addresses_formset.forms %}
+                {% include 'contacts/formset_address.html' with formset=addresses_formset country_choices=countries form=form %}
+            {% empty %}
+                <div class="{{ addresses_formset.prefix }}-mws-formset"></div>
+            {% endfor %}
+            
+            {% include 'contacts/formset_address.html' with formset=addresses_formset country_choices=countries form=None %}
+            
+            {{ addresses_formset.management_form }}
+        </div>
+{% endblock %}
+
+{% block form-cancel-redirect %}{% url contact_list %}{% endblock %}
+
+{% block hidden-dialogs %}
+    {% if item.pk %}
+        {% include 'contacts/delete_dialog.html' with item=item %}
+    {% endif %}
+{% endblock %}

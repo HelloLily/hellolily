@@ -1,0 +1,39 @@
+/* 16 x 16 */
+.i-16 { background-repeat: no-repeat; background-position: left center; }
+.i-16.i-edit { background-image: url(custom/white/16/edit.png); }
+.i-16.i-mail { background-image: url(custom/white/16/mail.png); }
+.i-16.i-mobile { background-image: url(custom/white/16/imobile.png); }
+.i-16.i-phone { background-image: url(custom/white/16/phone.png); }
+.i-16.i-trash-1 { background-image: url(custom/white/16/trash-1.png); }
+
+.blue.i-16.i-edit { background-image: url(custom/blue/16/edit.png); }
+.blue.i-16.i-mail { background-image: url(custom/blue/16/mail.png); }
+.blue.i-16.i-mobile { background-image: url(custom/blue/16/imobile-white.png); }
+.blue.i-16.i-phone { background-image: url(custom/blue/16/phone.png); }
+.blue.i-16.i-trash-1 { background-image: url(custom/blue/16/trash-1.png); }
+.blue.i-16.i-twitter { background-image: url(custom/blue/16/twitter.png); }
+
+/* 32 x 32 */
+.i-32 { background-repeat: no-repeat; background-position: left center; }
+.i-32.i-accounts { background-image: url(custom/white/32/accounts.png); }
+.i-32.i-contacts { background-image: url(custom/white/32/contacts.png); }
+.i-32.i-edit { background-image: url(custom/white/32/edit.png); }
+.i-32.i-home { background-image: url(custom/white/32/home.png); }
+.i-32.i-trash-2 { background-image: url(custom/white/32/trash-2.png); }
+
+.blue.i-32.i-accounts { background-image: url(custom/blue/32/accounts.png); }
+.blue.i-32.i-contacts { background-image: url(custom/blue/32/contacts.png); }
+.blue.i-32.i-home { background-image: url(custom/blue/32/home.png); }
+.blue.i-32.i-note { background-image: url(custom/blue/32/note.png); }
+
+div#mws-navigation ul li a.i-32, 
+div#mws-navigation ul li span.i-32 {
+    padding-left: 40px;
+}
+
+.mws-panel-header a.i-32 {
+    display: inline-block;
+    height: 32px;
+    width: 32px;
+    background-position: left -4px;
+}

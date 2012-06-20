@@ -1,0 +1,22 @@
+{% block form %}
+    <div class="mws-panel-header">
+        <span>{% block form-title %}{% endblock %}</span>
+    </div>
+    <div class="mws-panel-body">
+        <form class="mws-form tabthis" action="" method="post">
+            {% csrf_token %}
+            
+            {% block form-content %}{% endblock %}
+            
+            <div class="mws-button-row">
+                {% block form-buttons %}{% endblock %}
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+<div class="hidden">
+    {% block hidden-dialogs %}{% endblock %}
+    
+    {% block hidden-formset-templates %}{% endblock %}
+</div>

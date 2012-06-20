@@ -2,9 +2,10 @@ from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.utils.encoding import smart_str
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+import types
 
 
 class CustomSingleObjectMixin(object):
@@ -267,3 +268,58 @@ class DetailFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(object=self.object, form=form))
+
+
+class MultipleModelListView(TemplateView):
+    """
+    Class for showing multiple lists of models in a template.
+    """
+    models = [] # Either a list of models or a dictionary
+    object_lists = {} # dictionary with all objects lists
+    context_name_suffix = '_list' # suffix for the context available in the template
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super.dispatch to query for object lists first.
+        """
+        self.get_objects_lists()
+        
+        return super(MultipleModelListView, self).dispatch(request, *args, **kwargs)
+    
+    def get_objects_lists(self):
+        """
+        Retrieve the queryset for all models and save them in self.object_lists.
+        """
+        if type(self.models) == types.ListType:
+            for model in self.models:
+                list_name = smart_str(model._meta.object_name.lower())
+                self.object_lists.update({
+                    list_name: self.get_model_queryset(list_name, model)
+                })
+        elif type(self.models) == types.DictType:
+            for list_name, model in self.models.items():
+                self.object_lists.update({
+                    list_name: self.get_model_queryset(list_name, model)
+                })
+    
+    def get_model_queryset(self, list_name, model):
+        """
+        Return the queryset for given model.
+        """
+        return model._default_manager.all()
+    
+    def get_context_data(self, **kwargs):
+        """
+        Put all object lists into the context data.
+        """
+        kwargs = super(MultipleModelListView, self).get_context_data(**kwargs)
+        for list_name, object_list in self.object_lists.items():
+            if type(self.models) == types.ListType:
+                list_name = '%s%s' % (list_name, self.context_name_suffix)
+                    
+            kwargs.update({
+                list_name : object_list
+            })
+        return kwargs
+    
+    

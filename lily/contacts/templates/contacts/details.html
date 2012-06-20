@@ -1,0 +1,150 @@
+{% extends 'base_details.html' %}
+
+{% load i18n static thumbnail utils %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/responsive.css' %}" media="screen"/>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
+    <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
+{% endblock %}
+
+{% block item-delete-url %}{% url contact_delete pk=item.pk %}{% endblock %}
+
+{% block item-edit-url %}{% url contact_edit pk=item.pk %}{% endblock %}
+
+{% block dialog-delete %}
+    {% include 'contacts/delete_dialog.html' %}
+{% endblock %}
+
+{% block image-left %}
+    {% if item.picture %}
+        <img class="details-image contact" src="{% thumbnail contact.picture 100x100 %}" alt="" />
+    {% else %}
+        <img class="details-image contact" src="{% static 'images/core/unknown_person_100x100.png' %}" alt="" />
+    {% endif %}
+{% endblock %}
+
+{% block item-details %}
+    <h2>{{ item|truncatechars:"24" }}</h2>
+    <div id="contact_function">
+        {% with item.get_primary_function as function %}
+            {% if function %}
+                {% if function.title %}{{ function.title }}<br />{% endif %}
+                at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endblock %}
+
+{% block tabs %}
+    {{ block.super }}
+    
+    {% comment %}
+        {% with contact.get_primary_function as function %}
+            {% if function %}
+                <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+            {% endif %}
+        {% endwith %}
+    {% endcomment %}
+{% endblock %}
+
+{% block details-tab-content %}
+    <h2>{% trans 'Contact details' %}</h2>
+    <div class="grid_4">
+        <div id="detail-addresses" class="detail-block">
+            <h4>{% trans 'Addresses' %}</h4>
+            {% with item.get_billing_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+            
+            {% with item.get_shipping_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+            
+            {% with item.get_home_address as address %}
+                {% include 'utils/address_details_template.html' %}
+            {% endwith %}
+        </div>
+    </div>
+    <div class="grid_4">
+        <div id="detail-phones" class="detail-block">
+            <h4>{% trans 'Phone numbers' %}</h4>
+            
+            {% for phone in item.phone_numbers.all %}
+                {% if phone.raw_input %}
+                    {% if phone.type == 'mobile' %}
+                        <div class="mobile_phone">
+                    {% else %}
+                        <div class="phone">
+                    {% endif %}
+                            <h6>{{ phone.get_type_display }}</h6>
+                            <div class="inline">
+                                <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                            </div>
+                        </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div id="detail-emails" class="detail-block">
+            <h4>{% trans 'E-mail addresses' %}</h4>
+            
+            {% for email in item.email_addresses.all %}
+                {% if email.email_address %}
+                        {% if email.is_primary %}
+                            <div class="primary email">
+                                <h6>{% trans 'Primary' %}</h6>
+                        {% else %}
+                            <div class="email">
+                                <h6></h6>
+                        {% endif %}
+                                <div class="inline">
+                                    <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                </div>
+                            </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <hr />
+    
+    <h2>{% trans 'Additional information' %}</h2>
+    <div class="grid_8">
+        <div class="detail-block">
+            <h4>{% trans 'Description' %}</h4>
+            {{ item.description|linebreaksbr }}
+        </div>
+        
+        <div class="detail-block">
+            <h4>{% trans 'Tags' %}</h4>
+            {% comment %}
+                TODO: when searching on tags is possible, change these into links
+            {% endcomment %}
+            
+            {% for tag in item.tags.all %}
+                {{ tag }}
+                {% if not forloop.last %}
+                ,
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block tabs-content %}
+    {{ block.super }}
+    <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
+        <h2>{% trans 'Contacts' %}</h2>
+        <div id="detail-emails" class="detail-block">
+            {% include 'base_list.html' with list=item.functions.all list_item_template='accounts/function_list_item.html' %}
+        </div>
+    </div>
+{% endblock %}

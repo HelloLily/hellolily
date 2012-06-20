@@ -1,0 +1,23 @@
+{% extends 'base_user.html' %}
+
+{% block page-title %}
+    {% if form.instance.pk %}
+        {% block update-page-title %}{% endblock %}
+    {% else %}
+        {% block create-page-title %}{% endblock %}
+    {% endif %} -
+{% endblock %}
+
+{% block container %}
+    {% with item=form.instance %}
+        <div class="mws-panel grid_8">
+            {% block create_or_update_form %}
+                {% if create_or_update_form_template %}
+                    {% include create_or_update_form_template %}
+                {% else %}
+                    {% include 'base_create_or_update_form.html' %}
+                {% endif %}
+            {% endblock %}
+        </div>
+    {% endwith %}
+{% endblock %}

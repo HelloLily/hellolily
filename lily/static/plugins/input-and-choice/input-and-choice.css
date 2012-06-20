@@ -1,3 +1,8 @@
+/**
+ * CSS from the plugin chosen to get a similar layout for more consistency
+ * has been used on several occasions.
+ */
+
 .input-and-choice-select,
 .input-and-choice-list {
     display: none;
@@ -9,6 +14,10 @@
   padding: 0;
   border: 1px solid #c5c5c5;
   border-radius: 5px;
+}
+
+.input-and-choice-button {
+    padding-bottom: 5px !important;
 }
 
 .input-and-choice .search-choice {
@@ -72,20 +81,34 @@
     -moz-border-radius-bottomright    : 4px;
     border-bottom-left-radius         : 4px;
     border-bottom-right-radius        : 4px;
+    
+    /* Chosen CSS */
+	margin: 0 4px 4px 0 !important;
+	max-height: 240px;
+	padding: 4px; !important; /* prev. 0 0 0 4px; */
+	position: relative;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
-
 .ui-autocomplete .ui-menu-item {
     background-image: none;
     border: none;   
+    
+    /* Chosen CSS */
+	/* line-height: 15px; */
+  	padding: 0; /* prev. 5px 6px */
+  	margin: 0;
+  	list-style: none;
+  	cursor: pointer;
+  	display: list-item;
+}
+.ui-autocomplete .ui-menu-item a {
+    color: black;
+  	padding: 5px 6px;
+  	line-height: 15px !important;
 }
 .ui-autocomplete .ui-menu-item .ui-state-hover {
-    background-color: #50B3DF;
+    background: #1C76BC !important;
     color: #ffffff;
     font-weight: normal;
-
-    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #50B3DF), color-stop(100%, #09aadc));*/
-    background-image: -webkit-linear-gradient(#50B3DF,#09aadc);
-    background-image: -moz-linear-gradient(#50B3DF,#09aadc);
-    background-image: -o-linear-gradient(#50B3DF,#09aadc);
-    background-image: linear-gradient(#50B3DF,#09aadc);
 }

@@ -11,7 +11,8 @@
 	background-repeat: repeat-x;
 	height:25px;
 	position:relative;
-	padding:12px 12px 10px 12px;
+	/* prev. padding:12px 12px 10px 12px; */
+    padding: 12px 12px 10px 16px; /* new */
 	/* prev. border-bottom:2px solid #35353a; */
 	font-size: 18px !important; /* prev. font-size:14px; */
 	

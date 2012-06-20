@@ -1,9 +1,13 @@
 from django import forms
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.models import get_current_site
 from django.forms import Form
 from django.forms.formsets import BaseFormSet
+from django.template import loader
+from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
@@ -25,14 +29,17 @@ class CustomAuthenticationForm(AuthenticationForm):
     }
     
     username = forms.CharField(max_length=30, widget=forms.TextInput(attrs={
-        'class': 'mws-login-email mws-textinput required',
+        'class': 'mws-login-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'mws-login-password mws-textinput required',
+        'class': 'mws-login-password mws-textinput required tabbable',
         'placeholder': _('Password')
     }))
-    remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
+    remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'tabbable'
+    }))
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -41,11 +48,24 @@ class CustomPasswordResetForm(PasswordResetForm):
     CSS classes are added and CustomUser is used for validation instead of User.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
-        'class': 'mws-reset-email mws-textinput required',
+        'class': 'mws-reset-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     
     inactive_error_message = _('You cannot request a password reset for an account that is inactive.')
+    
+    def form_valid(self, form):
+        """
+        Overloading super().form_valid to add a message telling an e-mail was sent.
+        """
+        
+        # Send e-mail
+        super(CustomPasswordResetForm, self).form_valid(form)
+        
+        # Show message
+        messages.info(self.request, _('An <nobr>e-mail</nobr> with reset instructions has been sent to %s.') % form.cleaned_data.get('email'))
+        
+        return self.get_success_url()
     
     def clean_email(self):
         """
@@ -54,8 +74,10 @@ class CustomPasswordResetForm(PasswordResetForm):
         email = self.cleaned_data["email"]
         self.users_cache = CustomUser.objects.filter(
                                 contact__email_addresses__email_address__iexact=email, 
-                                contact__email_addresses__is_primary=True
+                                contact__email_addresses__is_primary=True,
+                                is_active=True
                             )
+        
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
         else:
@@ -66,7 +88,7 @@ class CustomPasswordResetForm(PasswordResetForm):
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
-    
+        
     def save(self, domain_override=None,
              subject_template_name='registration/password_reset_subject.txt',
              email_template_name='registration/password_reset_email.html',
@@ -76,9 +98,28 @@ class CustomPasswordResetForm(PasswordResetForm):
         Overloading super().save to use a custom email_template_name.
         """
         email_template_name = 'email/password_reset.email'
-        super(CustomPasswordResetForm, self).save(domain_override, subject_template_name,
-                                                  email_template_name, use_https, token_generator,
-                                                  from_email, request)
+        from django.core.mail import send_mail
+        for user in self.users_cache:
+            if not domain_override:
+                current_site = get_current_site(request)
+                site_name = current_site.name
+                domain = current_site.domain
+            else:
+                site_name = domain = domain_override
+            c = {
+                'email': user.primary_email,
+                'domain': domain,
+                'site_name': site_name,
+                'uid': int_to_base36(user.id),
+                'user': user,
+                'token': token_generator.make_token(user),
+                'protocol': use_https and 'https' or 'http',
+            }
+            subject = loader.render_to_string(subject_template_name, c)
+            # Email subject *must not* contain newlines
+            subject = ''.join(subject.splitlines())
+            email = loader.render_to_string(email_template_name, c)
+            send_mail(subject, email, from_email, [user.primary_email])
 
 
 class CustomSetPasswordForm(SetPasswordForm):
@@ -87,18 +128,18 @@ class CustomSetPasswordForm(SetPasswordForm):
     Css classes are added and CustomUser is used for validation instead of User.
     """
     new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput(attrs={
-        'class': 'mws-reset-password mws-textinput required',
+        'class': 'mws-reset-password mws-textinput required tabbable',
         'placeholder': _('New password')
     }))
     new_password2 = forms.CharField(label=_('New password confirmation'), widget=forms.PasswordInput(attrs={
-        'class': 'mws-reset-password mws-textinput required',
+        'class': 'mws-reset-password mws-textinput required tabbable',
         'placeholder': _('New password confirmation')
     }))
 
 
 class ResendActivationForm(Form):
     email = forms.EmailField(label=_('E-mail'), max_length=255, widget=forms.TextInput(attrs={
-        'class': 'mws-reset-email mws-textinput required',
+        'class': 'mws-reset-email mws-textinput required tabbable',
         'placeholder': _('E-mail address')
     }))
     
@@ -133,43 +174,43 @@ class RegistrationForm(Form):
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-email mws-textinput required',
+            'class': 'mws-register-email mws-textinput required tabbable',
             'placeholder': _('E-mail')
         }
     ))
     password = forms.CharField(label=_('Password'), min_length=6, 
         widget=JqueryPasswordInput(attrs={
-            'class': 'mws-register-password mws-textinput required',
+            'class': 'mws-register-password mws-textinput required tabbable',
             'placeholder': _('Password')
         }
     ))
     password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6, 
         widget=forms.PasswordInput(attrs={
-            'class': 'mws-register-password mws-textinput required',
+            'class': 'mws-register-password mws-textinput required tabbable',
             'placeholder': _('Password confirmation')
         }
     ))
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-first-name mws-textinput required',
+            'class': 'mws-register-first-name mws-textinput required tabbable',
             'placeholder': _('First name')
         }
     ))
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-preposition mws-textinput',
+            'class': 'mws-register-preposition mws-textinput tabbable',
             'placeholder': _('Preposition')
         }
     ))
     last_name = forms.CharField(label=_('Last name'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-last-name mws-textinput required',
+            'class': 'mws-register-last-name mws-textinput required tabbable',
             'placeholder': _('Last name')
         }
     ))
     company = forms.CharField(label=_('Company'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-company mws-textinput required',
+            'class': 'mws-register-company mws-textinput required tabbable',
             'placeholder': _('Company')
         }
     ))
@@ -239,13 +280,13 @@ class InvitationForm(Form):
     """
     first_name = forms.CharField(label=_('First name'), max_length=255, 
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-name mws-textinput required',
+            'class': 'mws-register-name mws-textinput required tabbable',
             'placeholder': _('First name')
         }
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-email mws-textinput required',
+            'class': 'mws-register-email mws-textinput required tabbable',
             'placeholder': _('E-mail')
         }
     ))
@@ -262,6 +303,7 @@ class InvitationForm(Form):
                 pass
             
         return cleaned_data
+
 
 ## ------------------------------------------------------------------------------------------------
 ## Formsets

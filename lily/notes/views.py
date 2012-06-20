@@ -28,14 +28,14 @@ class DeleteNoteView(DeleteView):
         # Return response 
         return HttpResponse(simplejson.dumps({
             'html': _('The note was successfully deleted.'),
-        }))
+        }), mimetype='application/json')
         
 
 class EditNoteView(UpdateView):
     model = Note
     form_class = EditNoteForm
-    template_name = 'notes/note_edit.html'
-    ajax_template_name = 'notes/note.html'
+    template_name = 'notes/edit_form.html'
+    ajax_template_name = 'notes/list_item.html'
     
     def get_success_url(self):
         return reverse('dashboard')
@@ -48,7 +48,7 @@ class EditNoteView(UpdateView):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': render_to_string(self.ajax_template_name, context_instance=context),
-            }), mimetype='application/javascript')
+            }), mimetype='application/json')
         
         return HttpResponseRedirect(self.get_success_url())
     
@@ -56,9 +56,9 @@ class EditNoteView(UpdateView):
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
-                 'error': True,
-                 'html': render_to_string(self.ajax_template_name, context_instance=context)
-            }), mimetype='application/javascript')
+                'error': True,
+                'html': render_to_string(self.ajax_template_name, context_instance=context)
+            }), mimetype='application/json')
         
         return super(EditNoteView, self).form_invalid(form)
 

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
@@ -23,13 +23,18 @@ from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
-    InvitationForm, InvitationFormset, UserRegistrationForm
+    InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
+from lily.utils.views import MultipleModelListView
+try:
+    from lily.tenant.functions import add_tenant
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant
 
 
 class RegistrationView(FormView):
@@ -43,14 +48,23 @@ class RegistrationView(FormView):
         """
         Register a new user.
         """
+        
         # Create contact
-        contact = Contact.objects.create(
+        contact = Contact(
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name']
         )
+        contact, tenant = add_tenant(contact)
+        contact.save()
+        
         # Create account
-        account = Account.objects.create(name=form.cleaned_data.get('company'))
+        account = Account(name=form.cleaned_data.get('company'))
+        add_tenant(account, tenant)
+        account.save()
+        
+        # Create function
+        Function.objects.create(account=account, contact=contact)
         
         # Create and save user
         user = CustomUser()
@@ -64,6 +78,8 @@ class RegistrationView(FormView):
         
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
+        
+        add_tenant(user, tenant)
         user.save()
         
         # Add to admin group
@@ -95,8 +111,9 @@ class RegistrationView(FormView):
                 'token': token,
             }
         )
-                
-# TODO: support for Clients        user.client = form.cleaned_data['company']
+        
+        # Show registration message
+        messages.success(self.request, _('Registration completed. Check your <nobr>e-mail</nobr> to activate your account.'))
         
         return self.get_success_url()
     
@@ -104,7 +121,6 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        # TODO use messages to display registration succeeded
         return redirect(reverse_lazy('login'))
 
 
@@ -133,9 +149,8 @@ class ActivationView(TemplateView):
             return TemplateView.get(self, request, *args, **kwargs)
         
         if self.tgen.check_token(self.user, self.token):
-            # Message that user is activated
-            messages.success(request, _('Your account is now activated. You have been logged in' \
-                                        ' and can start browsing.'))
+            # Show activation message
+            messages.info(request, _('Your account is now activated and you are now logged in.'))
         else:
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
@@ -145,7 +160,7 @@ class ActivationView(TemplateView):
         self.user.save()
         
         # Log the user in
-        self.user = authenticate(username=self.user.email, no_pass=True)
+        self.user = authenticate(username=self.user.primary_email, no_pass=True)
         user_login(request, self.user)
         
         # Redirect to dashboard
@@ -156,7 +171,7 @@ class ActivationResendView(FormView):
     """
     This view is used by an user to request a new activation e-mail.
     """
-    template_name = 'users/activation_resend.html'
+    template_name = 'users/activation_resend_form.html'
     form_class = ResendActivationForm
     
     def form_valid(self, form):
@@ -195,6 +210,9 @@ class ActivationResendView(FormView):
                 }
             )
         
+        # Show registration message
+        messages.success(self.request, _('Reactivation success. Check your <nobr>e-mail</nobr> to activate your account.'))
+        
         # Redirect to success url
         return self.get_success_url()
     
@@ -209,6 +227,7 @@ class LoginView(View):
     """
     This view extends the default login view with a 'remember me' feature.
     """
+    template_name = 'users/login_form.html'
     
     def dispatch(self, request, *args, **kwargs):
         """
@@ -221,7 +240,7 @@ class LoginView(View):
             # If not using 'remember me' feature use default expiration time.
             if not request.POST.get('remember_me', False):
                 request.session.set_expiry(None)
-        return login(request, template_name='users/login.html', authentication_form=CustomAuthenticationForm, *args, **kwargs)
+        return login(request, template_name=self.template_name, authentication_form=CustomAuthenticationForm, *args, **kwargs)
 
 
 class SendInvitationView(FormSetView):
@@ -230,8 +249,8 @@ class SendInvitationView(FormSetView):
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
     form, to use ajax append ?xhr to the url.
     """
-    template_name = 'users/invitation_send.html'
-    form_template_name = 'users/invitation_send_form.html'
+    template_name = 'users/invitation/invite.html'
+    form_template_name = 'users/invitation/invite_form.html'
     form_class = InvitationForm
     formset_class = InvitationFormset
     extra = 1
@@ -286,7 +305,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
-            }))
+            }), mimetype='application/json')
         return HttpResponseRedirect(self.get_success_url())
     
     def formset_invalid(self, formset):
@@ -300,7 +319,7 @@ class SendInvitationView(FormSetView):
             return HttpResponse(simplejson.dumps({
                 'error': True,
                 'html': render_to_string(self.form_template_name, context)
-            }), mimetype='application/javascript')
+            }), mimetype='application/json')
         return self.render_to_response(self.get_context_data(formset=formset))
     
     def get_success_url(self):
@@ -316,8 +335,8 @@ class AcceptInvitationView(FormView):
     This is the view that handles the invatation link and registers the new user if everything
     goes according to plan, otherwise redirect the user to a failure template.
     """
-    template_name = "users/invitation_accept.html"
-    template_failure = "users/invitation_failed.html"
+    template_name = 'users/invitation/accept.html'
+    template_failure = 'users/invitation/accept_invalid.html'
     form_class = UserRegistrationForm
     valid_link = False
     
@@ -429,16 +448,22 @@ class AcceptInvitationView(FormView):
         try:
             contact = Contact.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
         except Contact.DoesNotExist:
-            contact = Contact.objects.create(
+            contact = Contact(
                 first_name=form.cleaned_data['first_name'],
                 preposition=form.cleaned_data['preposition'],
                 last_name=form.cleaned_data['last_name']
             )
-            email = EmailAddress.objects.create(
-                email_address=form.cleaned_data['email'],
-                is_primary=True
-            )
-            contact.email_addresses.add(email)
+            
+            if hasattr(self.account, 'tenant'):
+                add_tenant(contact, self.account.tenant)
+             
+            contact.save()
+            
+            contact.primary_email = form.cleaned_data['email']
+            contact.save()
+        
+        # Create function
+        Function.objects.create(account=self.account, contact=contact)
         
         # Create and save user
         user = CustomUser()
@@ -446,6 +471,10 @@ class AcceptInvitationView(FormView):
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
+        
+        # TODO: move this...
+        if hasattr(self.account, 'tenant'):
+            add_tenant(user, self.account.tenant)
         user.save()
         
         return self.get_success_url()
@@ -457,11 +486,82 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(TemplateView):
+class DashboardView(MultipleModelListView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
+    models = [Account, Contact]
+    
+    def get_model_queryset(self, list_name, model):
+        """
+        Return the five newest objects for given model.
+        """
+        return model._default_manager.order_by('-created').all()[:5]
+
+
+class CustomSetPasswordView(FormView):
+    """
+    View that checks the hash in a password reset link and presents a
+    form for entering a new password.
+    
+    This is a Class-based view copy based on django's default function view password_reset_confirm. 
+    """
+    form_class = CustomSetPasswordForm
+    token_generator = default_token_generator
+    template_name_invalid = 'users/password_reset/confirm_invalid.html'
+    template_name_valid = 'users/password_reset/confirm_valid.html'
+    success_url = reverse_lazy('password_reset_complete')
+    
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overload super.dispatch() to verify the reset link before rendering the response.
+        """
+        self.is_valid_link, self.user = self.check_valid_link(**kwargs)
+        
+        return super(CustomSetPasswordView, self).dispatch(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        """
+        Update the keyword arguments for instanciating the form to include the user.
+        """
+        kwargs = super(CustomSetPasswordView, self).get_form_kwargs()
+        kwargs.update({
+            'user': self.user
+        })
+        
+        return kwargs
+    
+    def check_valid_link(self, **kwargs):
+        """
+        Check the url is a valid password reset link.
+        """
+        uidb36 = kwargs.pop('uidb36')
+        token = kwargs.pop('token')
+        
+        assert uidb36 is not None and token is not None # checked by URLconf
+        try:
+            uid_int = base36_to_int(uidb36)
+            user = CustomUser.objects.get(id=uid_int)
+        except (ValueError, CustomUser.DoesNotExist):
+            user = None
+        
+        if user is not None and self.token_generator.check_token(user, token):
+            return True, user
+        
+        return False, user
+
+    def get_template_names(self):
+        """
+        Overload super.get_template_names() to conditionally return different templates.
+        """
+        if self.is_valid_link:
+            template_name = self.template_name_valid
+        else:
+            template_name = self.template_name_invalid
+        
+        return [template_name]
+
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()
@@ -470,3 +570,4 @@ activation_resend_view = ActivationResendView.as_view()
 login_view = LoginView.as_view()
 send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
 dashboard_view = login_required(DashboardView.as_view())
+password_reset_confirm_view = CustomSetPasswordView.as_view()

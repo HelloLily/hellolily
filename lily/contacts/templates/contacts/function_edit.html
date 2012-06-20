@@ -11,7 +11,6 @@
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.functions' %}"></script>
 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'contacts/js/functions.js' %}"></script>
 {% endblock %}
 
@@ -141,7 +140,7 @@
                                         </div>
                                         <div class="float-left">
                                             <div class="mws-form-col-row mws-form-item formset-delete email_address">
-                                                <a href="javascript:" class="mws-i-24 i-cross {{ form.email_addresses_formset.prefix }}-delete-row"></a>
+                                                <a href="javascript:" class="i-16 i-trash-1 blue {{ form.email_addresses_formset.prefix }}-delete-row"></a>
                                             </div>
                                         </div>
                                     </div>
@@ -203,7 +202,7 @@
                                     </div>
                                     <div class="float-left">
                                         <div class="formset-delete mws-form-col-row mws-form-item">
-                                            <a href="javascript:" class="mws-i-24 i-cross {{ form.phone_numbers_formset.prefix }}-delete-row"></a>
+                                            <a href="javascript:" class="i-16 i-trash-1 blue {{ form.phone_numbers_formset.prefix }}-delete-row"></a>
                                         </div>
                                     </div>
                                 </div>
@@ -233,7 +232,7 @@
                                 {% trans 'Back' %}
                             </button>
                         </a>
-                        <input type="submit" name="submit" value="{% trans 'Save' %}" class="mws-button blue" />
+                        <input type="submit" value="{% trans 'Save' %}" class="mws-button blue" />
                     </div>
                 </div>
             </form>

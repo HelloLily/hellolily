@@ -3,6 +3,7 @@ function set_focus(id) {
    element = document.getElementById(id);
    if(element) {
        element.focus();
+       setCaretAtEnd(element);
    }
 }
     
@@ -24,6 +25,8 @@ function show_or_hide_other_option(select, page_load) {
         other_type_input.hide();
         other_type_input.val('');
     }
+    
+    $.tabthisbody();
 }
 
 function setCaretAtEnd(elem) {

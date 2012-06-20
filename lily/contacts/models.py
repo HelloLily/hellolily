@@ -5,25 +5,37 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
+from lily.tags.models import TaggedObjectMixin
 from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress
 
+try:
+    from lily.tenant.functions import add_tenant
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant
 
-class Contact(Common):
+
+class Contact(Common, TaggedObjectMixin):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
     Function. Can be related to CustomUser.
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
+        (UNKNOWN_GENDER, _('Select gender')),
         (MALE_GENDER, _('Male')),
         (FEMALE_GENDER, _('Female')),
-        (UNKNOWN_GENDER, _('Unknown')),
     )
     
     INACTIVE_STATUS, ACTIVE_STATUS = range(2)
     CONTACT_STATUS_CHOICES = (
         (INACTIVE_STATUS, _('Inactive')),
         (ACTIVE_STATUS, _('Active')),
+    )
+    
+    FORMAL, INFORMAL = range(2)
+    SALUTATION_CHOICES = (
+        (FORMAL, _('Formal')),
+        (INFORMAL, _('Informal')),
     )
     
     first_name = models.CharField(max_length=255, verbose_name=_('first name'), blank=True)
@@ -36,33 +48,51 @@ class Contact(Common):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
-
-    def full_name(self):
-        """
-        Return full name of this contact without unnecessary white space.
-        """
-        if self.preposition:
-            return ' '.join([self.first_name, self.preposition, self.last_name])
-        
-        return ' '.join([self.first_name, self.last_name])
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
+                                 verbose_name=_('salutation'))
     
-    def get_phonenumber(self):
-        try:
-            return self.phone_numbers.all()[0].raw_input
-        except:
-            return ''
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
     
     def get_work_phone(self):
         try:
-            return self.phone_numbers.filter(type='work')[0].raw_input
+            return self.phone_numbers.filter(type='work')[0]
         except:
-            return ''
+            return None
     
     def get_mobile_phone(self):
         try:
-            return self.phone_numbers.filter(type='mobile')[0].raw_input
+            return self.phone_numbers.filter(type='mobile')[0]
         except:
-            return  ''
+            return None
+    
+    def get_phone_number(self):
+        """
+        Return a phone number for an account in the order of:
+        - a work phone
+        - mobile phone
+        - any other existing phone number (except of the type fax or data)
+        """
+        work_phone = self.get_work_phone()
+        if work_phone:
+            return work_phone
+        
+        mobile_phone = self.get_mobile_phone()
+        if mobile_phone:
+            return mobile_phone
+        
+        try:
+            return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
+        except:
+            return None
     
     def get_email(self):
         try:
@@ -70,17 +100,38 @@ class Contact(Common):
         except:
             return ''
     
-    def get_social(self):
+    def get_address(self, type=None):
         try:
-            return self.social_media.all()
+            if not type:
+                return self.addresses.all()[0]
+            else:
+                return self.addresses.filter(type=type)[0]
         except:
-            return {}
+            return None
+    
+    def get_billing_address(self):
+        return self.get_address(type='billing')
+    
+    def get_shipping_address(self):
+        return self.get_address(type='shipping')
+    
+    def get_home_address(self):
+        return self.get_address(type='home')
     
     def get_twitter(self):
         try:
             return self.social_media.filter(name='twitter')[0]
         except:
             return ''
+    
+    def full_name(self):
+        """
+        Return full name of this contact without unnecessary white space.
+        """
+        if self.preposition:
+            return ' '.join([self.first_name, self.preposition, self.last_name]).strip()
+        
+        return ' '.join([self.first_name, self.last_name]).strip()
     
     def get_primary_function(self):
         try:
@@ -141,5 +192,7 @@ def post_save_contact_handler(sender, **kwargs):
                 email.save()
             except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
-                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
+                email = EmailAddress(email_address=new_email_address, is_primary=True)
+                add_tenant(email, instance.tenant)
+                email.save()
                 instance.email_addresses.add(email)

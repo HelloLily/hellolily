@@ -1,70 +1,59 @@
-{% extends 'base.html' %}
-{% load i18n static %}
+{% extends 'base_user.html' %}
 
-{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+{% load i18n static utils %}
 
-{% block content %}
+{% block page-titel %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'users/css/dashboard.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
+{% endblock %}
+
+{% block container %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">
-        <span class="mws-i-24 i-list">Some links to get around</span>
+        <span>{% trans 'Welcome to the HelloLily beta!' %}</span>
     </div>
     <div class="mws-panel-body">
         <div class="mws-panel-content">
-            <h5 style="font-size: 22px;">Users & Usermanagement</h5>
+            <h4></h4>
             <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
-                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
-                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
-                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
-                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
+                If you find any bugs or want improvements please <a href="https://getsatisfaction.com/hellolily" target="_blank">report them</a>. We know that the mobile is not perfect yet and it's on our todo list. For a full list of known bug and features to come check out our <a href="https://trello.com/board/hellolily/4f5885b678986de1120affbb" target="_blank">page at Trello</a>.
             </p>
-            <p>
-                <ul class="mws-summary">
-                    <li><a href="{% url registration %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Registration of a new user</span></li>
-                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Activation page, test after registering (needs valid generated link)</span></li>
-                    <li><a href="{% url activation_resend %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Resend your activation mail, for when you didn't get the first one</span></li>
-                    <li><a href="{% url login %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Login</span></li>
-                    <li><a href="{% url invitation_send %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Send invitations to new users, only if you have enough permissions though</span></li>
-                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Accept invitation, test after sending yourself one (needs valid generated link)</span></li>
-                    <li><a href="{% url logout %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Logout</span></li>
-                    <li><a href="{% url password_reset %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Apply for a password reset</span></li>
-                    <li><a href="{% url password_reset_done %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Password reset e-mail is sent</span></li>
-                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Accept password reset, test after requesting new password (needs valid generated link)</span></li>
-                    <li><a href="{% url password_reset_complete %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Password is successfully reset</span></li>
-                </ul>
-            </p>
+            <hr />
             
-            <h5 style="font-size: 22px;">Accounts</h5>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
-                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
-                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
-                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
-                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
-            </p>
-            <p>
-                <ul class="mws-summary">
-                    <li><a href="{% url account_add %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Add an account</span></li>
-                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Edit and delete require an instance, so click on items in the list to be linked through</span></li>
-                    <li><a href="{% url account_list %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">List of accounts (also in menu on the left)</span></li>
-                </ul>
-            </p>
+            <div id="dashboard-latest" class="clearfix">
+                <div class="object-list grid_4">
+                    <h2 class="i-32 i-contacts blue">{% trans 'Latest contacts' %}</h2>
+                    <div>
+                        {% include 'base_list.html' with list=contact_list list_item_template='users/dashboard/latest_contact_list_item.html' %}
+                    </div>
+                </div>     
+                <div class="object-list grid_4">
+                    <h2 class="i-32 i-accounts blue">{% trans 'Latest accounts' %}</h2>
+                    <div>
+                        {% include 'base_list.html' with list=account_list list_item_template='users/dashboard/latest_account_list_item.html' %}
+                    </div>
+                </div>         
+            </div>     
+
+            <hr />
             
-            <h5 style="font-size: 22px;">Contacts</h5>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non leo convallis nibh tristique commodo. 
-                Cras tincidunt hendrerit pharetra. Etiam erat magna, egestas sed placerat at, congue sed nisi. 
-                Nullam eget varius leo. Integer at justo a velit imperdiet pulvinar. 
-                Sed magna mi, sodales sit amet aliquet ac, eleifend eget sem. Nam ipsum lectus, fringilla sed rutrum ac, tempus in orci. 
-                Pellentesque condimentum dui a elit rutrum at posuere tellus dignissim. Aliquam erat volutpat. Suspendisse potenti.
-            </p>
-            <p>
-                <ul class="mws-summary">
-                    <li><a href="{% url contact_add %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Add a contact</span></li>
-                    <li><a href="#">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">Editing of functions and contacts plus deletion: click on listitems</span></li>
-                    <li><a href="{% url contact_list %}">click</a><span style="margin-left: 20px; font-size: 20px; text-align: left;">List of contacts (also in menu on the left)</span></li>
-                </ul>
-            </p>
+            {% if user|in_group:'account_admin' %}
+                <h2>Other things you can do</h2>
+                <p>
+                    <ul class="mws-summary">
+                        <li><a href="{% url invitation_invite %}">click</a><span class="things-you-can-do">Send invitations to new users</span></li>
+                    </ul>
+                </p>
+            {% endif %}
         </div>
     </div>
 </div>

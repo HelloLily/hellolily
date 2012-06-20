@@ -34,6 +34,11 @@ if DEV: # Only use sqlite db when in dev mode, Heroku injects db settings on dep
             'PORT': '',
         }
     }
+else:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default='postgres://localhost')
+    }
 
 SITE_ID = os.environ.get('SITE_ID', 1)
 
@@ -97,12 +102,19 @@ AUTHENTICATION_BACKENDS = (
 
 # Used middleware
 MIDDLEWARE_CLASSES = (
+    # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Third party
+    'newrelicextensions.middleware.NewRelicMiddleware',
+
+    # Lily
+    'lily.tenant.middleware.TenantMiddleWare',
 )
 
 # Main urls file
@@ -121,7 +133,7 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'lily.utils.context_processors.quickbutton_forms',
 )
 
-# Disable caching in a development environment 
+# Disable caching in a development environment
 if not DEBUG:
     TEMPLATE_LOADERS = (
         ('django.template.loaders.cached.Loader', (
@@ -138,15 +150,15 @@ else:
 # Used and installed apps
 INSTALLED_APPS = (
     # Django
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.admin',
-    'django.contrib.humanize',
-    
+
     # 3rd party
     'templated_email',
     'easy_thumbnails',
@@ -154,15 +166,20 @@ INSTALLED_APPS = (
     'activelink',
     'south',
     'djcelery',
-    
+
     # Lily
+    'lily', # required for management command
     'lily.accounts',
     'lily.activities',
     'lily.contacts',
-    'lily.users',
     'lily.notes',
+    'lily.provide',
+    'lily.tags',
+    'lily.tenant',
+    'lily.users',
     'lily.utils',
     'lily.utils.templatetags.field_extras',
+    'lily.utils.templatetags.messages',
     'lily.utils.templatetags.utils',
     'lily.messages',
 )
@@ -177,7 +194,7 @@ EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.host.com')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-username')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
-EMAIL_PORT = os.environ.get('EMAIL_PORT', 25)
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
@@ -193,6 +210,11 @@ LOGGING = {
         }
     },
     'handlers': {
+        'console': {
+            'level':'DEBUG',
+            'filters': ['require_debug_false'],
+            'class':'logging.StreamHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -200,15 +222,31 @@ LOGGING = {
         }
     },
     'loggers': {
+        'django': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
             'propagate': True,
         },
     }
 }
 
+# Messaging framework
+MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
+
+# Tenant support
+TENANT_MIXIN = 'django.db.models.Model' # prevent models from breaking, use the default base model
+if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
+    TENANT_MIXIN = 'lily.tenant.models.TenantMixin'
+
 # Settings for 3rd party apps
+
+# dataprovider
+DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
 
 # easy-thumbnails
 THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
@@ -250,12 +288,29 @@ else:
     # django-celery
     INSTALLED_APPS += (
         'kombu.transport.django',
-    )
+        )
     BROKER_BACKEND = 'django'
 
     if boolean(os.environ.get('ENABLE_CACHE', 0)):
         CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-                }
-        }
+             'default': {
+                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+                 }
+         }
+
+# New relic
+NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
+NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
+NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
+    'user': {
+        'username': 'Django username',
+        'is_superuser': 'Django super user',
+        'is_staff': 'Django staff user',
+    },
+    'is_secure': 'Secure connection',
+    'is_ajax': 'Ajax request',
+    'method': 'Http Method',
+    'COOKIES': 'Http cookies',
+    'META': 'Http meta data',
+    'session': 'Http session',
+}

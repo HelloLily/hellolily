@@ -280,7 +280,7 @@ div.mws-panel-toolbar ul li span:active
 
 .hidden
 {
-    display:none !important;
+    display: none;
 }
 
 /* Alignment */

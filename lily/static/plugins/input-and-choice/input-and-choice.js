@@ -155,7 +155,7 @@
         function remove_selection(select, list, text, search_choice) {
             text = $.trim(text);
             
-            option = $(select).find('option').filter(function() { return $(this).html() == text})[0];
+            option = $(select).find('option:selected').filter(function() { return $(this).html() == text})[0];
             if( option != undefined ) {
                 // deselect option 
                 $(option).removeAttr('selected');

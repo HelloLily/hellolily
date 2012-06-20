@@ -1,0 +1,35 @@
+{% extends 'base_form.html' %}
+
+{% load i18n utils %}
+
+{% block form-title %}
+    {% with item=form.instance %}
+        {% if item.pk %}
+            {% block update-form-title %}{% endblock %}
+        {% else %}
+            {% block create-form-title %}{% endblock %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+
+{% block form-buttons %}
+    {% with item=form.instance %}
+        {% if item.pk %}
+            {% if not item|has_user_in_group:'account_admin' %}
+                <input type="button" id="delete-{{ form.instance.pk }}" class="link delete {{ item|classname }} mws-button red float-left" value="{% trans 'Delete' %}" />
+            {% endif %}
+    
+            {% comment %}
+                TODO: ask if the user is sure to cancel when the form has been changed
+            {% endcomment %}
+            <a href="{% block form-cancel-redirect %}{% endblock %}" class="no-decoration">
+                <button type="button" class="mws-button red">
+                    {% trans 'Cancel' %}
+                </button>
+            </a>
+            <input type="submit" value="{% trans 'Save' %}" class="mws-button blue tabbable" />
+        {% else %}
+            <input type="submit" value="{% trans 'Add' %}" class="mws-button blue tabbable" />
+        {% endif %}
+    {% endwith %}
+{% endblock %}

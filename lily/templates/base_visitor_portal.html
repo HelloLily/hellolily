@@ -1,0 +1,49 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block jQueryUI-styles %}{% endblock %}
+{% block jQueryUI-scripts %}{% endblock %}
+{% block jQueryUI-extra-scripts %}{% endblock %}
+
+{% block container %}
+
+    {% block form %}
+        <div id="mws-login-wrapper" class="tabthis">
+        {% block portal %}
+            <div id="mws-login">
+                <div class="mws-panel">
+                    
+                    {% block portal-header %}
+                        <div class="mws-panel-header">
+                            <span>{% block portal-title %}{% endblock %}</span>
+                        </div>
+                    {% endblock %}
+                    
+                    <form class="mws-form" action="" method="post">
+                        {% block portal-form %}
+                        
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                                <div class="mws-form-row">
+                                    <div class="mws-form-message error no_list_style_type">
+                                        <span class="field_error">{{ form.non_field_errors }}</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        {% endblock %}
+                        
+                        {% block portal-form-buttons %}{% endblock %}
+                    </form>
+                </div>
+            </div>
+            
+            {% block portal-bottom-links %}{% endblock %}
+            
+        {% endblock %}
+        </div>
+    {% endblock %}
+    
+{% endblock %}

@@ -41,7 +41,7 @@
                     deleteTriggers = forms.find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) != undefined) {
-                            $(buttonTrigger).addClass('hidden');
+                            $(buttonTrigger).parent().addClass('hidden');
                         }
                     }
                 } else { 
@@ -49,7 +49,7 @@
                     deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass);
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) !== undefined) {
-                            $(buttonTrigger).removeClass('hidden');
+                            $(buttonTrigger).parent().removeClass('hidden');
                         }
                     }
                 }
@@ -86,7 +86,7 @@
                     } else {
                         forms = $(forms).filter(':visible');
                     }
-                    console.log(forms.length);
+					
                     if( options.notEmptyFormSetAddCssClass ) {
                         addButton = $('#id_' + options.prefix + '-TOTAL_FORMS').siblings('.' + options.addCssClass)
                         if (forms.length > 0) {
@@ -176,10 +176,16 @@
                     }
                 }
                 
+                // Set what to focus on after click
+                $(addButton).data('click-focus', $('.' + options.formCssClass + ':visible:last').find(':input:first').attr('id'));
+            
                 // If a post-add callback was supplied, call it with the added form:
                 if (options.added) options.added(row);
                 return false;
             });
+            
+            // Enable focus on input after click
+            addButton.clickFocus();
             
             var forms = $('.' + options.formCssClass).not('.formset-custom-template');
             if( options.notEmptyFormSetAddCssClass ) {
@@ -206,6 +212,6 @@
         added: null,                     // Function called each time a new form is added
         removed: null,                   // Function called each time a form is deleted
         preventEmptyFormset: false,      // Boolean value whether or not to prevent empty formset
-        notEmptyFormSetAddCssClass: ''      // CSS class applied to the add link when formset is not empty
+        notEmptyFormSetAddCssClass: '',  // CSS class applied to the add link when formset is not empty
     };
 })(jQuery)

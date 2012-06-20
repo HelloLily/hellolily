@@ -8,16 +8,22 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.utils.functions import get_tenant_mixin as TenantMixin
 from lily.utils.models import EmailAddress
 
+try:
+    from lily.tenant.functions import add_tenant
+except ImportError:
+    from lily.utils.functions import dummy_function as add_tenant
 
-class CustomUser(User):
+
+class CustomUser(User, TenantMixin):
     """
     Custom user model, has relation with Contact.
     """
     objects = UserManager()
-    contact = models.ForeignKey(Contact)
-    account = models.ForeignKey(Account)
+    contact = models.ForeignKey(Contact, related_name='user')
+    account = models.ForeignKey(Account, related_name='user')
     
     def __unicode__(self):
         return unicode(self.contact)
@@ -63,10 +69,12 @@ def post_save_customuser_handler(sender, **kwargs):
                 email.save()
             except EmailAddress.DoesNotExist:
                 # Add new e-mail address as primary
-                email = EmailAddress.objects.create(email_address=new_email_address, is_primary=True)
+                email = EmailAddress(email_address=new_email_address, is_primary=True)
+                add_tenant(email, instance.tenant)
+                email.save()
                 instance.contact.email_addresses.add(email)
 
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):
     request = kwargs['request']
-    messages.info(request, _('You have succesfully logged out.'))
+    messages.info(request, _('You are now logged out.'))

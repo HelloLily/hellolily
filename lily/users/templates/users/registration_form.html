@@ -1,0 +1,142 @@
+{% extends 'base_form.html' %}
+
+{% load i18n %}
+
+{% block jQueryUI-styles %}{% endblock %}
+{% block jQueryUI-scripts %}{% endblock %}
+{% block jQueryUI-extra-scripts %}{% endblock %}
+
+{% block form-title %}{% trans 'Registration form' %}{% endblock %}
+
+{% block form-content %}
+    {% if form.non_field_errors %}
+        <div class="mws-form-row">
+            <div class="mws-form-message error no_list_style_type">
+                <span class="field_error">{{ form.non_field_errors }}</span>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mws-form-inline">
+        <div class="mws-form-row">
+            <label for="id_{{ form.first_name.html_name }}">{% trans 'Name' %}</label>
+            <div class="mws-form-item large">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-3-8 alpha">
+                        <div class="mws-form-item">                                     
+                            {% if form.first_name.errors %}
+                                <span class="field_error">{{ form.first_name }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.first_name.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.first_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-1-8">
+                        <div class="mws-form-item">                                     
+                            {% if form.preposition.errors %}
+                                <span class="field_error">{{ form.preposition }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.preposition.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.preposition }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-4-8">
+                        <div class="mws-form-item">                                    
+                            {% if form.last_name.errors %}
+                                <span class="field_error">{{ form.last_name }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.last_name.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.last_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                
+    <div class="mws-form-inline">
+        <div class="mws-form-row">
+            {{ form.email.label_tag }}
+            <div class="mws-form-item large">                                 
+                {% if form.email.errors %}
+                    <span class="field_error">{{ form.email }}</span>
+                    <div class="mws-error no_list_style_type">
+                          {{ form.email.errors }}
+                    </div>
+                {% else %}
+                       {{ form.email }}
+                {% endif %}
+            </div>
+        </div>
+    </div>               
+    <div class="mws-form-inline">
+        <div class="mws-form-row">
+            {{ form.company.label_tag }}
+            <div class="mws-form-item large">                              
+                {% if form.company.errors %}
+                    <span class="field_error">{{ form.company }}</span>
+                    <div class="mws-error no_list_style_type">
+                          {{ form.company.errors }}
+                    </div>
+                {% else %}
+                       {{ form.company }}
+                {% endif %}
+            </div>
+        </div>
+    </div>      
+     <div class="mws-form-inline">
+        <div class="mws-form-row">
+            {{ form.password.label_tag }}
+            <div class="mws-form-item large">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8 alpha">
+                        <div class="mws-form-item">                            
+                            {% if form.password.errors %}
+                                <span class="field_error">{{ form.password }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.password.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.password }}
+                            {% endif %}
+                            
+                            <div class="password_checker">
+                                <div id="password_strength" class="password_strength"></div>
+                            </div>
+                            <div id="password-text"></div>
+                        </div>
+                    </div>
+                    <div class="mws-form-col-4-8">
+                        <div class="mws-form-item">                          
+                            {% if form.password_repeat.errors %}
+                                <span class="field_error">{{ form.password_repeat }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.password_repeat.errors }}
+                                </div>
+                            {% else %}
+                                   {{ form.password_repeat }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block form-buttons %}
+    <input type="submit" value="{% trans 'Register' %}" class="mws-button blue tabbable" />
+{% endblock %}
+
+{% block hidden-dialogs %}{% endblock %}
+
+{% block hidden-formset-templates %}{% endblock %}
+

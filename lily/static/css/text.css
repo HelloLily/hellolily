@@ -29,17 +29,17 @@ hr {
 
 h1 {
   font-size: 25px;
-  color: #50B3DF;
+  color: #1C76BC;
 }
 
 h2 {
   font-size: 23px;
-  color: #50B3DF;
+  color: #1C76BC;
 }
 
 h3 {
   font-size: 21px;
-  color: #50B3DF;
+  color: #1C76BC;
 }
 
 h4 {
@@ -109,7 +109,7 @@ a {
 }
 
 a:hover { 
-    color: #50B3DF !important;
+    color: #1C76BC;
 }
 
 .no-decoration {

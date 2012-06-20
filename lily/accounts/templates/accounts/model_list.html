@@ -1,0 +1,37 @@
+{% extends 'base_model_list.html' %}
+
+{% load i18n static %}
+
+{% block styles %}
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/responsive.css' %}" media="screen" />
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    
+    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "bSearchable": false, "bSortable": false, "aTargets": [1] },
+    { "bSortable": false, "aTargets": [3] },
+    { "sType": "date-euro", "aTargets": [4] },
+    { "sType": "date-euro", "aTargets": [5] },
+    { "bSearchable": false, "bSortable": false, "aTargets": [6] }
+{% endblock %}
+
+{% block model-list-title %}{% trans 'Accounts' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="controls"></th>
+    <th class="item-image account hide_on_small_screen"></th>
+    <th class="name" title="{% trans 'Account' %}">{% trans 'Account' %}</th>
+    <th class="details" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
+    <th class="datetime created hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
+    <th class="datetime modified hide_on_small_screen" title="{% trans 'Last modified' %}">{% trans 'Last modified' %}</th>
+    <th class="tags" title="{% trans 'Tags' %}">{% trans 'Tags' %}</th>
+{% endblock %}

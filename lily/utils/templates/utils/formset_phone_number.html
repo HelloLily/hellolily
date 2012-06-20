@@ -1,0 +1,67 @@
+{% extends 'base_formset.html' %}
+
+{% load i18n %}
+
+{% block form %}
+    {{ block.super }}
+    
+    <div class="mws-form-cols clearfix">
+        <div class="mws-form-col-2-8 alpha">
+            {% if form.raw_input.errors %}
+                <span class="field_error float-left">{{ form.raw_input }}</span>
+                <span class="mws-error inline plain float-left">
+                    {% for error in form.raw_input.errors %}
+                        <strong>{{ error }}</strong>
+                    {% endfor %}
+                </span>
+            {% else %}
+                {{ form.raw_input }}
+            {% endif %}
+        </div>    
+        <div class="mws-form-col-2-8">
+            {% if form.type.errors %}
+                <span class="field_error float-left">{{ form.type }}</span>
+                <span class="mws-error inline plain float-left">
+                    {% for error in form.type.errors %}
+                        <strong>{{ error }}</strong>
+                    {% endfor %}
+                </span>
+            {% else %}
+                {{ form.type }}
+            {% endif %}
+        </div>
+        <div class="mws-form-col-2-8">
+            {{ form.other_type }}
+        </div>
+        <div class="mws-form-col-1-8 formset-delete">
+            <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block template %}
+    <div class="mws-form-item large">
+        <div class="mws-form-cols clearfix">
+            <div class="mws-form-col-2-8 alpha">
+                <input name="{{ formset.prefix }}-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput tabbable" type="text" id="id_{{ formset.prefix }}-0-raw_input" />
+            </div>    
+            <div class="mws-form-col-2-8">
+                <select id="id_{{ formset.prefix }}-0-type" class="other chzn-select-no-search tabbable" name="{{ formset.prefix }}-0-type">
+                    {% block phone_number_types %}
+                        <option value="work" selected="selected">{% trans 'Work' %}</option>
+                        <option value="mobile">{% trans 'Mobile' %}</option>
+                        <option value="other">{% trans 'Other' %}</option>
+                    {% endblock %}
+                </select>
+            </div>
+            {% block other_phone_number_type %}
+                <div class="mws-form-col-2-8">
+                    <input id="id_{{ formset.prefix }}-0-other_type" type="text" class="mws-textinput other hidden tabbable" name="{{ formset.prefix }}-0-other_type" maxlength="15" />
+                </div>
+            {% endblock %}
+            <div class="mws-form-col-1-8 formset-delete">
+                <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

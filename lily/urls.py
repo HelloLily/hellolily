@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     url(r'^contacts/', include('lily.contacts.urls')),
     url(r'^notes/', include('lily.notes.urls')),
     url(r'^messages/', include('lily.messages.urls')),
+    url(r'^provide/', include('lily.provide.urls')),
     url(r'^', include('lily.users.urls')),
     url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog', name='jsi18n'),
     

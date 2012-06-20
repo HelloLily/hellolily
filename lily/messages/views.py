@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
+from lily.messages.models import Message
+
 
 CONNECTORS = []
 for app in settings.MESSAGE_APPS:
@@ -22,6 +24,9 @@ class MessageListView(ListView):
 
     """
     template_name = 'messages/message_list.html'
+
+    messages = Message.objects.all()
+    print messages
     
     def get_queryset(self):
         complete_message_list = []
@@ -36,6 +41,7 @@ class MessageListView(ListView):
         complete_message_list.sort(key=lambda item:item['date'], reverse=True)
 
         return complete_message_list
+
 
 # Perform logic here instead of in urls.py
 dashboard_view = login_required(DashboardView.as_view())

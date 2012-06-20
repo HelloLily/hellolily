@@ -26,6 +26,7 @@ class Connector(object):
         self.port = port
         self.user = user
         self.password = password
+        self.connection = None
         self.gmail = True if host == 'imap.gmail.com' else False
 
         if connect:
@@ -41,7 +42,8 @@ class Connector(object):
             Error: if port is an int but it is invalid, meaning no connection can be established
 
         """
-        self.connection = imaplib.IMAP4_SSL(self.host, self.port)
+        if not self.connection:
+            self.connection = imaplib.IMAP4_SSL(self.host, self.port)
 
 
     def is_valid_connection(self, host, port):

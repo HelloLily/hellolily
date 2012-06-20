@@ -1,4 +1,5 @@
 import os
+import djcelery
 from urlparse import urlparse, uses_netloc
 
 import django.conf.global_settings as DEFAULT_SETTINGS
@@ -152,6 +153,7 @@ INSTALLED_APPS = (
     'gunicorn',
     'activelink',
     'south',
+    'djcelery',
     
     # Lily
     'lily.accounts',
@@ -165,8 +167,6 @@ INSTALLED_APPS = (
     'lily.messages',
 )
 
-# TODO: maybe make this a complement to installed apps?
-# TODO: INSTALLED_APPS += MESSAGE_APPS = (...
 MESSAGE_APPS = (
     'lily.messages.email',
 )
@@ -217,22 +217,45 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
-# django-redis-cache
-if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):
-    url = urlparse(os.environ['REDISTOGO_URL'])
-    CACHES = {
-        'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': "{0.hostname}:{0.port}".format(url),
-            'OPTIONS': {
-                'PASSWORD': url.password,
-                'DB': 0
+# django-celery
+djcelery.setup_loader()
+CELERY_SEND_TASK_ERROR_EMAILS = boolean(os.environ.get('CELERY_SEND_TASK_ERROR_EMAILS', 0))
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_TASK_RESULT_EXPIRES = 172800  # 48 hours.
+
+# Settings that use Redis
+redis = os.environ.get('REDISTOGO_URL', False)
+if redis:
+    # django-celery
+    BROKER_URL = redis
+    CELERY_RESULT_BACKEND = 'redis'
+    CELERY_REDIS_HOST = "localhost"
+    CELERY_REDIS_PORT = 6379
+    CELERY_REDIS_DB = 0
+
+    if boolean(os.environ.get('ENABLE_CACHE', 0)):
+        # django-redis-cache
+        url = urlparse(os.environ['REDISTOGO_URL'])
+        CACHES = {
+            'default': {
+                'BACKEND': 'redis_cache.RedisCache',
+                'LOCATION': "{0.hostname}:{0.port}".format(url),
+                'OPTIONS': {
+                    'PASSWORD': url.password,
+                    'DB': 0
+                }
             }
         }
-    }
 else:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    # django-celery
+    INSTALLED_APPS += (
+        'kombu.transport.django',
+    )
+    BROKER_BACKEND = 'django'
+
+    if boolean(os.environ.get('ENABLE_CACHE', 0)):
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+                }
         }
-    }

@@ -2,9 +2,10 @@ from django.db import models
 from django_fields.fields import EncryptedCharField, EncryptedEmailField
 from django.utils.translation import ugettext as _
 
+from lily.messages.models import Message
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO
 
-class Provider(models.Model):
+class EmailProvider(models.Model):
     """
     A provider contains the connection information for an account.
 
@@ -31,7 +32,7 @@ class EmailAccount(models.Model):
     An e-mail account which represents a single inbox.
 
     """
-    provider = models.ForeignKey(Provider, related_name='email_accounts')
+    provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     name = models.CharField(max_length=255)
     email = EncryptedEmailField(max_length=255)
 
@@ -66,7 +67,7 @@ class EmailAttachment(models.Model):
         verbose_name_plural = _('e-mail attachments')
 
 
-class EmailMessage(models.Model):
+class EmailMessage(Message):
     """
     Store an e-mail message with all possible headers.
 
@@ -80,7 +81,6 @@ class EmailMessage(models.Model):
 
     message_flags = models.CharField(max_length=255, blank=True, default='')
     subject = models.CharField(max_length=255, blank=True, default='')
-    date = models.DateTimeField(max_length=255)
 
     # The plain from string plus the parsed email and name. If provided the original sender.
     from_string = models.CharField(max_length=255)

@@ -1,7 +1,9 @@
+# Django imports
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
+# Lily imports
 from lily.messages.email.models import EmailAccount
 
 

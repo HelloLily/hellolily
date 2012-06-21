@@ -1,15 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'base_user.html' %}
 {% load i18n static activelink %}
 
 {% block title %}{% trans 'Dashboard' %} - {% endblock %}
 
 {% block styles %}
+    {{ block.super }}
 {% endblock %}
 
 {% block scripts %}
+    {{ block.super }}
 {% endblock %}
 
-{% block content %}
+{% block container %}
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
             <span class="mws-i-24 i-mail">{% trans 'e-mail' %}</span>

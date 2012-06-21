@@ -1,9 +1,12 @@
+# Django imports
 from django.db import models
 from django_fields.fields import EncryptedCharField, EncryptedEmailField
 from django.utils.translation import ugettext as _
 
-from lily.messages.models import Message
+# Lily imports
+from lily.messages.models import Message, SocialMediaAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO
+
 
 class EmailProvider(models.Model):
     """
@@ -27,7 +30,7 @@ class EmailProvider(models.Model):
         verbose_name_plural = _('e-mail providers')
 
 
-class EmailAccount(models.Model):
+class EmailAccount(SocialMediaAccount):
     """
     An e-mail account which represents a single inbox.
 
@@ -75,7 +78,6 @@ class EmailMessage(Message):
     -- Almost everything can be blank or null. You can never be certain everything is provided.
 
     """
-    account = models.ForeignKey(EmailAccount, related_name='messages')
     private = models.BooleanField(default=False)
     uid = models.IntegerField()
 
@@ -131,7 +133,6 @@ class EmailMessage(Message):
     reply_by = models.CharField(max_length=255, blank=True, default='')
     sensitivity = models.CharField(max_length=255, blank=True, default='')
     language = models.CharField(max_length=255, blank=True, default='')
-    message_type = models.CharField(max_length=255, blank=True, default='')
     list_unsubscribe = models.CharField(max_length=255, blank=True, default='')
 
     # Custom headers??

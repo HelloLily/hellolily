@@ -1,12 +1,18 @@
+# Python imports
 from datetime import datetime
+
+# Django imports
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
-from lily.messages.email.forms import CreateAccountForm
 
+# Lily imports
+from lily.messages.email.forms import CreateAccountForm
 from lily.messages.email.models import EmailProvider, EmailAccount, EmailMessage
+
 
 class CreateTestDataView(TemplateView):
     template_name = 'messages/email/message_row.html'
+
 
     def get_context_data(self, **kwargs):
         context = super(CreateTestDataView, self).get_context_data(**kwargs)

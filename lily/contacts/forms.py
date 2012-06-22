@@ -8,7 +8,7 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 
 
-class AddContactMinimalForm(ModelForm):
+class AddContactQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -33,7 +33,7 @@ class AddContactMinimalForm(ModelForm):
         kwargs.update({
             'auto_id':'id_contact_quickbutton_%s'
         })
-        super(AddContactMinimalForm, self).__init__(*args, **kwargs)
+        super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
@@ -43,7 +43,7 @@ class AddContactMinimalForm(ModelForm):
         """
         Form validation: all fields should be unique.
         """
-        cleaned_data = super(AddContactMinimalForm, self).clean()
+        cleaned_data = super(AddContactQuickbuttonForm, self).clean()
 
         # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):

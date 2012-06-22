@@ -7,7 +7,7 @@ from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 
 
-class AddAccountMinimalForm(ModelForm):
+class AddAccountQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -42,13 +42,13 @@ class AddAccountMinimalForm(ModelForm):
             'auto_id': 'id_account_quickbutton_%s',
         })
         
-        super(AddAccountMinimalForm, self).__init__(*args, **kwargs)
+        super(AddAccountQuickbuttonForm, self).__init__(*args, **kwargs)
     
     def clean(self):
         """
         Form validation: all fields should be unique.
         """
-        cleaned_data = super(AddAccountMinimalForm, self).clean()
+        cleaned_data = super(AddAccountQuickbuttonForm, self).clean()
 
         # Prevent multiple accounts with the same company name
         if cleaned_data.get('name'):

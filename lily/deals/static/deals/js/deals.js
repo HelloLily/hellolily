@@ -1,13 +1,15 @@
 $(document).ready(function() {
-    // $('.expected_closing_date.datepicker').datepicker();    
-    
-    // $.datepicker.noWeekends();
+	
+	// enable datepicker on rendered fields, hidden fields and fields retrieved with AJAX
+	$('form').on('click', '.expected_closing_date.datepicker', function(){
+		if(! $(this).hasClass('hasDatepicker')) {
+ 			$(this).datepicker({ beforeShowDay: $.datepicker.noWeekends });
+  			$(this).datepicker('show');
+ 		}   
+	});
     
     // set focus on name
-    // TODO workaround this, both elements with this id are on the full add deal page 
     set_focus('id_name');
-    
-    // $('#deal-stage').buttonset();
     
     // inner function to protect the scope for currentStage
     (function($) {
@@ -39,7 +41,7 @@ $(document).ready(function() {
                     $.jGrowl(gettext('Stage has been changed to') + ' ' + $(event.target).text(), {
                         theme: 'info mws-ic-16 ic-accept'
                     });
-                    currentStage = $(event.currentTarget.id);
+                    currentStage = radio_element.attr('id');
                 });
                 // on error
                 jqXHR.fail(function() {
@@ -47,8 +49,8 @@ $(document).ready(function() {
                         theme: 'info mws-ic-16 ic-error'
                     });
                     // reset selected stage
+                    $(radio_element).attr('checked', false);
                     $('#' + currentStage).attr('checked', true);
-                    $(radio_element).attr('checked',  false);
                     $('#deal-stage :radio').button('refresh');
                 });
                 // finally do this
@@ -57,38 +59,6 @@ $(document).ready(function() {
                     jqXHR = null;
                 });
             }
-            
-            // // do this on success
-            // var successCallback = function(response, hideLoadingDialog) {
-                // if( response.error === true ) {
-                    // // Request was successful but the form returned with errors
-                    // $.jGrowl(gettext('Stage could not be changed to') + ' ' + $(this).text(), {
-                        // theme: 'info mws-ic-16 ic-exclamation'
-                    // });
-                // } else {
-                    // $.jGrowl(gettext('Stage has been changed to') + ' ' + $(this).text(), {
-                        // theme: 'info mws-ic-16 ic-accept'
-                    // });
-                // }
-//                 
-                // // currentStage = $(this).attr('id'); 
-            // };
-//             
-            // // do this on errors
-            // var errorCallback = function() {
-                // // Show the error image at the right side of the note
-                // $.jGrowl(gettext('Stage could not be changed to') + ' ' + $(this).text(), {
-                    // theme: 'info mws-ic-16 ic-exclamation'
-                // });
-//                 
-                // // reset selected stage
-                // // $('#' + currentStage)[0].checked = true;
-                // // $(this)[0].checked = false;
-                // // $('#deal-stage :radio').refresh();
-            // };
-//             
-            // // submit form through AJAX
-            // sendForm(container, successCallback, errorCallback);
         });
     
     })($);

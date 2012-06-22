@@ -1,3 +1,5 @@
+import types
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
@@ -7,14 +9,11 @@ from django.http import Http404, HttpResponse
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+
 from lily.utils.forms import NoteForm
-import types
-
-
 
 
 class CustomSingleObjectMixin(object):

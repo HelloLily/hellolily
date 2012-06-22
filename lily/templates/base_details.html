@@ -28,7 +28,9 @@
                     <a href="{% block item-edit-url %}{% endblock %}" class="i-32 i-edit"></a>
     
                     {% if not item|has_user_in_group:'account_admin' %}
-                        {% block dialog-delete %}{% endblock %}
+                    	<div class="hidden">
+                        	{% block dialog-delete %}{% endblock %}
+                        </div>
                     {% endif %}
                 </span>
                 <span>{% block details-title %}{{ item }}{% endblock %}</span>

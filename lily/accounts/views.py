@@ -15,7 +15,7 @@ from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccountForm, \
+from lily.accounts.forms import AddAccountForm, AddAccountQuickbuttonForm, EditAccountForm, \
     WebsiteBaseForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
@@ -71,7 +71,7 @@ class AddAccountView(CreateView):
         """
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
-            self.form_class = AddAccountMinimalForm
+            self.form_class = AddAccountQuickbuttonForm
             self.template_name = 'accounts/quickbutton_form.html'
         else:
             self.WebsiteFormSet = modelformset_factory(Website, form=WebsiteBaseForm, extra=0)

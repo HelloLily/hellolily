@@ -686,3 +686,28 @@ div.mws-dualbox button:active
     display: inline-block;
     color: #4682B4;
 }
+
+.ui-datepicker .ui-datepicker-title,
+.ui-datepicker .ui-state-active  {
+	color: white !important;
+}
+
+.ui-datepicker .ui-icon-circle-triangle-e,
+.ui-datepicker .ui-icon-circle-triangle-w {
+	background-color: white !important;
+}
+
+.ui-datepicker .ui-state-hover {
+	background-color: white;
+	color: #333333 !important;
+	outline: 1px solid black;
+}
+
+.ui-datepicker .ui-state-highlight {
+	color: #333333 !important;
+	background-color: white;
+}
+
+.ui-datepicker { 
+	z-index: 9999 !important;
+}

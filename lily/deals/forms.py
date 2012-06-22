@@ -62,13 +62,29 @@ class AddDealForm(ModelForm):
                 'placeholder': _('Amount'),
             }),
             'expected_closing_date': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('YYYY-MM-DD'),
+                'class': 'mws-textinput tabbable expected_closing_date datepicker',
+                'placeholder': _('mm/dd/yyyy'),
             }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search tabbable',
             }),
         }
+
+
+class AddDealQuickbuttonForm(AddDealForm):
+    """
+    Form that is used for adding a new Deal through a quickbutton form.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Overload super().__init__ to change auto_id to prevent clashing form field id's with 
+        other forms.
+        """
+        kwargs.update({
+            'auto_id': 'id_deal_quickbutton_%s',
+        })
+        
+        super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
 
 
 class EditDealForm(ModelForm):
@@ -101,7 +117,7 @@ class EditDealForm(ModelForm):
         #
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
-        
+    
     class Meta:
         model = Deal
         exclude = ('closed_date', 'tenant')

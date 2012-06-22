@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from lily.deals.forms import AddDealForm, EditDealForm
+from lily.deals.forms import AddDealForm, AddDealQuickbuttonForm, EditDealForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.templatetags.messages import tag_mapping
@@ -64,6 +64,7 @@ class AddDealView(CreateView):
         """
         if is_ajax(request):
             self.template_name = 'deals/quickbutton_form.html'
+            self.form_class = AddDealQuickbuttonForm
         
         return super(AddDealView, self).dispatch(request, *args, **kwargs)
 
@@ -139,8 +140,12 @@ class EditDealView(UpdateView):
         """
         Overloading super().form_valid to add success message after editing.
         """
+        # Save instance
+        super(EditDealView, self).form_valid(form)
+        
+        # Show save message
         messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name);
-
+            
         return self.get_success_url()
     
     def get_success_url(self):

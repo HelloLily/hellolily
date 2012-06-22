@@ -25,7 +25,7 @@ from django.views.generic.list import ListView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditContactForm, \
+from lily.contacts.forms import AddContactForm, AddContactQuickbuttonForm, EditContactForm, \
     FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
@@ -83,7 +83,7 @@ class AddContactView(CreateView):
         """
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
-            self.form_class = AddContactMinimalForm
+            self.form_class = AddContactQuickbuttonForm
             self.template_name = 'contacts/quickbutton_form.html'
         else:
             self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)

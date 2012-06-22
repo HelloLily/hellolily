@@ -2,7 +2,6 @@ from urlparse import urlparse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
@@ -11,7 +10,6 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.html import escapejs
-from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
@@ -21,82 +19,40 @@ from lily.accounts.forms import AddAccountForm, AddAccountMinimalForm, EditAccou
     WebsiteBaseForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
-from lily.utils.forms import EmailAddressBaseForm, AccountAddressForm, PhoneNumberBaseForm, NoteForm
+from lily.utils.forms import EmailAddressBaseForm, AccountAddressForm, PhoneNumberBaseForm
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DetailFormView
+from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin
 
 
-class ListAccountView(ListView):
+class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
     template_name = 'accounts/model_list.html'
     model = Account
-    sortable = ['2', '4', '5', ]
-
-    def get_queryset(self):
-        """
-        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
-        """
-        if self.queryset is not None:
-            queryset = self.queryset
-            if hasattr(queryset, '_clone'):
-                queryset = queryset._clone()
-        elif self.model is not None:
-            # If kwarg is provided, try reducing the queryset
-            if self.kwargs.get('b36_pks', None):
-                try:
-                    # Convert base36 to int
-                    b36_pks = self.kwargs.get('b36_pks').split(';')
-                    int_pks = []
-                    for pk in b36_pks:
-                        int_pks.append(base36_to_int(pk))
-                    # Filter queryset
-                    queryset = self.model._default_manager.filter(pk__in=int_pks)
-                except:
-                    queryset = self.model._default_manager.all()
-            else:
-                queryset = self.model._default_manager.all()
-        else:
-            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
-                                       % self.__class__.__name__)
-        return queryset
+    sortable = [2, 4, 5]
+    default_order_by = 2
 
     def get_context_data(self, **kwargs):
         """
-        Overloading super().get_context_data to add formsets for template.
+        Overloading super().get_context_data to provide the list item template.
         """
         kwargs = super(ListAccountView, self).get_context_data(**kwargs)
 
-        order_by = '2' if self.request.GET.get('order_by') not in self.sortable else self.request.GET.get('order_by')
-        sort_order = 'asc' if self.request.GET.get('sort_order') == 'asc' else 'desc'
-
         kwargs.update({
-            'order_by': order_by,
-            'sort_order': sort_order,
             'list_item_template': 'accounts/model_list_item.html',
         })
+        
         return kwargs
 
 
-class DetailAccountView(DetailFormView):
+class DetailAccountView(DetailNoteFormView):
     """
-    Display a detail page for a single accoutn.
+    Display a detail page for a single account.
     """
     template_name = 'accounts/details.html'
     model = Account
-    form_class = NoteForm
-
-    def form_valid(self, form):
-        note = form.save(commit=False)
-        note.author = self.request.user
-        note.subject = self.object
-        note.save()
-
-        return super(DetailAccountView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('account_details', kwargs={'pk': self.object.pk})
+    success_url_reverse_name = 'account_details'
 
 
 class AddAccountView(CreateView):
@@ -399,7 +355,6 @@ class EditAccountView(UpdateView):
         # Save instance
         super(EditAccountView, self).form_valid(form)
 
-        # Retrieve account instance to use
         form_kwargs = self.get_form_kwargs()
 
         # Save all e-mail address, phone number and address formsets

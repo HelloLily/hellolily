@@ -6,8 +6,6 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
-from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress
 
 
 class AddContactMinimalForm(ModelForm):
@@ -364,11 +362,3 @@ class FunctionForm(ModelForm):
                  'placeholder': _('Department')
              })
         }
-
-
-# Enable autostrip input on these forms
-AddContactMinimalForm = autostrip(AddContactMinimalForm)
-AddContactForm = autostrip(AddContactForm)
-EditContactForm = autostrip(EditContactForm)
-EditFunctionForm = autostrip(EditFunctionForm)
-FunctionForm = autostrip(FunctionForm)

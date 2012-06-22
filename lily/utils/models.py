@@ -4,7 +4,6 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from lily.tags.models import TaggedObjectMixin
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 

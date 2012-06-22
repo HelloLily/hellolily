@@ -42,6 +42,10 @@
     vertical-align: middle;
 }
 
+.mws-table .controls {
+    white-space: nowrap;
+}
+
 .mws-table .controls a {
     display: inline-block;
     height: 18px;

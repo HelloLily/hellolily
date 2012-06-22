@@ -11,7 +11,6 @@ from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
-from lily.utils.functions import autostrip
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -354,12 +353,3 @@ class InvitationFormset(RequiredFirstFormFormset):
             if email and email in emails:
                 raise forms.ValidationError(_("You can't invite someone more than once (e-mail addresses must be unique)."))
             emails.append(email)
-
-
-# Enable autostrip input on these forms
-CustomAuthenticationForm = autostrip(CustomAuthenticationForm)
-CustomPasswordResetForm = autostrip(CustomPasswordResetForm)
-ResendActivationForm = autostrip(ResendActivationForm)
-RegistrationForm = autostrip(RegistrationForm)
-UserRegistrationForm = autostrip(UserRegistrationForm)
-InvitationForm = autostrip(InvitationForm)

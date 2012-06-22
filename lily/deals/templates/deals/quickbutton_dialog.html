@@ -1,0 +1,57 @@
+{% extends 'base_quickbutton_dialog.html' %}
+
+{% load i18n static %}
+
+{% block dialog-id %}-deal{% endblock %}
+
+{% block dialog-class %} deal{% endblock %}
+
+{% block dialog-title %}{% trans 'New deal' %}{% endblock %}
+
+{% block dialog-form-url %}{% url deal_add %}{% endblock %}
+
+{% block dialog-form %}{% include 'deals/quickbutton_form.html' with form=quickbutton_formsets.deal %}{% endblock %}
+
+{% block quick-button-scripts %}
+    <script type="text/javascript" src="{% url jsi18n packages='lily.deals' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // add contact dialog
+            $('#quickbutton-dialog-deal').dialog({
+                autoOpen: false,
+                modal: true,
+                width: 640,
+                open: function() {
+                    enableChosen($(this));
+                },
+                buttons: [
+                    {
+                        'class': 'mws-button red float-left',
+                        text: gettext('Cancel'),
+                        click: function() {
+                            $(this).dialog('close');
+                        }
+                    },
+                    {
+                        'class': 'mws-button green',
+                        text: gettext('Save'),
+                        click: function() {
+                            sendForm( $(this) );
+                        },
+                        name: 'submit',
+                        value: 'add'
+                    },
+                ],
+                close: function() {
+                    clearForm( $(this).find('form') );
+                }
+            });
+            
+            // show add contact dialog
+            $('.quickbutton.deal').click(function(event) {
+                $('#quickbutton-dialog-deal').dialog('open');
+                event.preventDefault();
+            });
+        });
+    </script>
+{% endblock %}

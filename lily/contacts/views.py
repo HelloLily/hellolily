@@ -7,7 +7,6 @@ import pickle
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
@@ -19,7 +18,6 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escapejs
-from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -31,85 +29,42 @@ from lily.contacts.forms import AddContactForm, AddContactMinimalForm, EditConta
     FunctionForm, EditFunctionForm
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
-from lily.utils.forms import EmailAddressBaseForm, ContactAddressForm, PhoneNumberBaseForm, NoteForm
+from lily.utils.forms import EmailAddressBaseForm, ContactAddressForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DetailFormView
+from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin
 
 
-class ListContactView(ListView):
+class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
     template_name = 'contacts/model_list.html'
     model = Contact
-    sortable = ['2', '5', '6', ]
-
-    def get_queryset(self):
-        """
-        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
-        """
-        if self.queryset is not None:
-            queryset = self.queryset
-            if hasattr(queryset, '_clone'):
-                queryset = queryset._clone()
-        elif self.model is not None:
-            # If kwarg is provided, try reducing the queryset
-            if self.kwargs.get('b36_pks', None):
-                try:
-                    # Convert base36 to int
-                    b36_pks = self.kwargs.get('b36_pks').split(';')
-                    int_pks = []
-                    for pk in b36_pks:
-                        int_pks.append(base36_to_int(pk))
-                    # Filter queryset
-                    queryset = self.model._default_manager.filter(pk__in=int_pks)
-                except:
-                    queryset = self.model._default_manager.all()
-            else:
-                queryset = self.model._default_manager.all()
-        else:
-            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
-                                       % self.__class__.__name__)
-        return queryset
+    sortable = [2, 4, 5, 6]
+    default_order_by = 2
 
     def get_context_data(self, **kwargs):
         """
-        Overloading super().get_context_data to add formsets for template.
+        Overloading super().get_context_data to provide the list item template.
         """
         kwargs = super(ListContactView, self).get_context_data(**kwargs)
 
-        order_by = '2' if self.request.GET.get('order_by') not in self.sortable else self.request.GET.get('order_by')
-        sort_order = 'asc' if self.request.GET.get('sort_order') == 'asc' else 'desc'
-
         kwargs.update({
-            'order_by': order_by,
-            'sort_order': sort_order,
             'list_item_template': 'contacts/model_list_item.html',
         })
         return kwargs
 
 
-class DetailContactView(DetailFormView):
+class DetailContactView(DetailNoteFormView):
     """
-    Display a detail page for one contact.
+    Display a detail page for a single contact.
     """
     template_name = 'contacts/details.html'
     model = Contact
-    form_class = NoteForm
-
-    def form_valid(self, form):
-        note = form.save(commit=False)
-        note.author = self.request.user
-        note.subject = self.object
-        note.save()
-
-        return super(DetailContactView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('contact_details', kwargs={'pk': self.object.pk})
+    success_url_reverse_name = 'contact_details'
 
 
 class AddContactView(CreateView):
@@ -159,7 +114,6 @@ class AddContactView(CreateView):
         # Save instance
         super(AddContactView, self).form_valid(form)
 
-        # Retrieve contact instance to use
         form_kwargs = self.get_form_kwargs()
 
         if is_ajax(self.request):
@@ -598,13 +552,6 @@ class EditContactView(UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-#        form_kwargs = self.get_form_kwargs()
-#
-#        if len(Function.objects.filter(contact=self.object)) > 0 and form_kwargs['data'].get('edit_accounts'):
-#            return redirect(reverse('function_edit', kwargs={
-#                'pk': self.object.pk,
-#            }))
-
         return redirect('%s?order_by=6&sort_order=desc' % (reverse('contact_list')))
 
 
@@ -671,7 +618,7 @@ class EditFunctionView(UpdateView):
 
     def form_valid(self, form):
         """
-        Overloading super.form_valid to save the forms in formset.
+        Overloading super().form_valid to save the forms in formset.
         """
         if self.formset.is_valid():
             for form in self.formset:

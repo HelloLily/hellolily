@@ -110,6 +110,11 @@ $(document).ready(function() {
     if($.fn.chosen) {
 	   enableChosen($('body'));
 	}
+	
+	/* Elastic (auto grow) */
+    if( $.fn.elastic ) {
+        $('textarea').elastic();
+    }
 
 	/* Tooltips */
 	// if($.fn.tipsy) {

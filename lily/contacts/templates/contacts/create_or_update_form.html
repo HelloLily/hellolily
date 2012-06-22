@@ -117,8 +117,8 @@
                         {{ form.description }}
                     {% endif %}
                 {% else %}
-                    <a href="javascript:" class="click-show" data-click-show="description_wrapper">Add description</a>
-                    <div id="description_wrapper" class="hidden">
+                    <a href="javascript:" class="click-show" data-click-show="full_form_description_wrapper">Add description</a>
+                    <div id="full_form_description_wrapper" class="hidden">
                         {% if form.description.errors %}
                             <span class="field_error">{{ form.description }}</span>
                             <div class="mws-error no_list_style_type">
@@ -213,6 +213,7 @@
             
             {{ addresses_formset.management_form }}
         </div>
+    </div>
 {% endblock %}
 
 {% block form-cancel-redirect %}{% url contact_list %}{% endblock %}

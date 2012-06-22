@@ -1,0 +1,7 @@
+{% extends 'base_delete_dialog.html' %}
+
+{% load i18n %}
+
+{% block dialog-form-url %}{% url deal_delete pk=item.pk %}{% endblock %}
+
+{% block dialog-message %}{% blocktrans %}Are you sure you want to delete this deal? This can not be undone.{% endblocktrans %}{% endblock %}

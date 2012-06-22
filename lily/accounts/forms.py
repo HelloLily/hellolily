@@ -5,8 +5,6 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
-from lily.utils.functions import autostrip
-from lily.utils.models import EmailAddress
 
 
 class AddAccountMinimalForm(ModelForm):
@@ -37,7 +35,7 @@ class AddAccountMinimalForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Overload super.__init__ to change auto_id to prevent clashing form field id's with 
+        Overload super().__init__ to change auto_id to prevent clashing form field id's with 
         other forms.
         """
         kwargs.update({
@@ -290,9 +288,3 @@ class WebsiteBaseForm(ModelForm):
     class Meta:
         model = Website
         exclude = ('account')
-
-# Enable autostrip input on these forms
-AddAccountMinimalForm = autostrip(AddAccountMinimalForm)
-AddAccountForm = autostrip(AddAccountForm)
-EditAccountForm = autostrip(EditAccountForm)
-WebsiteBaseForm = autostrip(WebsiteBaseForm)

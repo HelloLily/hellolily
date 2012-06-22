@@ -2,7 +2,6 @@ from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
-from lily.utils.functions import autostrip
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.notes.models import Note
 
@@ -126,12 +125,3 @@ class NoteForm(forms.ModelForm):
                 'placeholder': _('Write your note here'),
             })
         }
-
-
-# Enable autostrip input on these forms
-EmailAddressBaseForm = autostrip(EmailAddressBaseForm)
-PhoneNumberBaseForm = autostrip(PhoneNumberBaseForm)
-AddressBaseForm = autostrip(AddressBaseForm)
-AccountAddressForm = autostrip(AccountAddressForm)
-ContactAddressForm = autostrip(ContactAddressForm)
-NoteForm = autostrip(NoteForm)

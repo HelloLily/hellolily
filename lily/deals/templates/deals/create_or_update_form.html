@@ -1,0 +1,175 @@
+{% extends 'base_create_or_update_form.html' %}
+
+{% load i18n static field_extras utils %}
+
+{% block create-form-title %}{% trans 'Add deal' %}{% endblock %}
+
+{% block update-form-title %}{% trans 'Edit deal' %}{% endblock %}
+
+{% block form-content %}
+    {% if form.non_field_errors %}
+        <div class="mws-form-row">
+            <div class="mws-form-message error no_list_style_type">
+                <span class="field_error">{{ form.non_field_errors }}</span>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mws-form-inline">
+        <div class="mws-form-row">
+            {{ form.name.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8 alpha">
+                        {% if form.name.errors %}
+                            <span class="field_error">{{ form.name }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.name.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.name }}
+                        {% endif %}
+                    </div>
+                </div>                    
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.description.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-6-8 alpha">
+                        {% if form.description|field_value %}
+                            {% if form.description.errors %}
+                                <span class="field_error">{{ form.description }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.description.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.description }}
+                            {% endif %}
+                        {% else %}
+                            <a href="javascript:" class="click-show" data-click-show="description_wrapper">Add description</a>
+                            <div id="description_wrapper" class="hidden">
+                                {% if form.description.errors %}
+                                    <span class="field_error">{{ form.description }}</span>
+                                    <div class="mws-error no_list_style_type">
+                                          {{ form.description.errors }}
+                                    </div>
+                                {% else %}
+                                    {{ form.description }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.account.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8 alpha">
+                        {% if form.account.errors %}
+                            <span class="field_error">{{ form.account }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.account.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.account }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.amount.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-2-8 alpha">
+                         <div class="mws-form-item">
+                            {% if form.currency.errors %}
+                                <span class="field_error">{{ form.currency }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.currency.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.currency }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-2-8 alpha">
+                         <div class="mws-form-item">
+                            {% if form.amount.errors %}
+                                <span class="field_error">{{ form.amount }}</span>
+                                <div class="mws-error no_list_style_type">
+                                      {{ form.amount.errors }}
+                                </div>
+                            {% else %}
+                                {{ form.amount }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.expected_closing_date.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-2-8 alpha">                 
+                        {% if form.expected_closing_date.errors %}
+                            <span class="field_error">{{ form.expected_closing_date }}</span>
+                            <div class="mws-error no_list_style_type">
+                                  {{ form.expected_closing_date.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.expected_closing_date }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.stage.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-2-8 alpha">
+                        {% if form.stage.errors %}
+                            <span class="field_error">{{ form.stage }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.stage.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.stage }}
+                        {% endif %}
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <div class="mws-form-row">
+            {{ form.assigned_to.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8 alpha">
+                        {% if form.assigned_to.errors %}
+                            <span class="field_error">{{ form.assigned_to }}</span>
+                            <div class="mws-error no_list_style_type">
+                                {{ form.assigned_to.errors }}
+                            </div>
+                        {% else %}
+                            {{ form.assigned_to }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block form-cancel-redirect %}{% url deal_list %}{% endblock %}
+
+{% block hidden-dialogs %}
+    {% if item.pk %}
+        {% include 'deals/delete_dialog.html' with item=item %}
+    {% endif %}
+{% endblock %}

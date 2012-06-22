@@ -110,10 +110,13 @@ MIDDLEWARE_CLASSES = (
 
     # Third party
     'newrelicextensions.middleware.NewRelicMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 
     # Lily
     'lily.tenant.middleware.TenantMiddleWare',
 )
+
+INTERNAL_IPS = ('192.168.23.23',)
 
 # Main urls file
 ROOT_URLCONF = 'lily.urls'
@@ -163,11 +166,13 @@ INSTALLED_APPS = (
     'gunicorn',
     'activelink',
     'south',
+    'debug_toolbar',
 
     # Lily
     'lily', # required for management command
     'lily.accounts',
     'lily.activities',
+    'lily.deals',
     'lily.contacts',
     'lily.notes',
     'lily.provide',
@@ -175,9 +180,9 @@ INSTALLED_APPS = (
     'lily.tenant',
     'lily.users',
     'lily.utils',
-    'lily.utils.templatetags.field_extras',
-    'lily.utils.templatetags.messages',
-    'lily.utils.templatetags.utils',
+#    'lily.utils.templatetags.field_extras',
+#    'lily.utils.templatetags.messages',
+#    'lily.utils.templatetags.utils',
 )
 
 # E-mail settings

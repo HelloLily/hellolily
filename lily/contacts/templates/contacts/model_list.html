@@ -6,7 +6,7 @@
     {{ block.super }}
     
     <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/responsive.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/responsive.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
@@ -28,9 +28,9 @@
 {% block list-headings %}
     <th class="controls"></th>
     <th class="item-image contact hide_on_small_screen"></th>
-    <th class="personal" title="{% trans 'Personal' %}">{% trans 'Personal' %}</th>
-    <th class="contact" title="{% trans 'Contact' %}">{% trans 'Contact' %}</th>
-    <th class="account" title="{% trans 'Works at' %}">{% trans 'Works at' %}</th>
-    <th class="created hide_on_small_screen" title="{% trans 'Created' %}">{% trans 'Created' %}</th>
-    <th class="modified hide_on_small_screen" title="{% trans 'Last modified' %}">{% trans 'Last modified' %}</th>
+    <th class="personal">{% trans 'Personal' %}</th>
+    <th class="contact">{% trans 'Contact' %}</th>
+    <th class="account">{% trans 'Works at' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+    <th class="modified hide_on_small_screen">{% trans 'Modified' %}</th>
 {% endblock %}

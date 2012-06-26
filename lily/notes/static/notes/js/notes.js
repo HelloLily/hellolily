@@ -46,8 +46,6 @@ $(document).ready(function() {
         ]
     });
     
-    $('.note-autogrow').elastic();
-    
     var editNoteListener = function(elem) {
         note = $(elem).closest('.note');
         textarea = note.find('textarea');

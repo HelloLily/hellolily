@@ -1,0 +1,77 @@
+.ui-tabs .ui-tabs-panel {
+    border: 0;
+}
+
+#deal-stage .deal-stage-label {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+#deal-stage .deal-stage-label.ui-state-default span {
+    color: black;
+    text-shadow: none;
+}
+
+#deal-stage .deal-stage-label.ui-state-active span {
+    color: white;
+    text-shadow: 1px 1px 1px 
+    rgba(0, 0, 0, 0.4);
+}
+
+.deal-stage-label.new,
+.deal-stage-label.lost, 
+.deal-stage-label.pending {
+    -webkit-border-top-right-radius:0px;
+    -webkit-border-bottom-right-radius:0px;
+    -moz-border-radius-topright:0px;
+    -moz-border-radius-bottomright:0px;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:0px;
+    border-right: 0;
+} 
+
+.deal-stage-label.lost, 
+.deal-stage-label.pending {
+    border-left: 0;
+    border-right: 0;
+}
+
+.deal-stage-label.lost, 
+.deal-stage-label.pending,
+.deal-stage-label.won {
+    -webkit-border-top-left-radius:0px;
+    -webkit-border-bottom-left-radius:0px;
+    -moz-border-radius-topleft:0px;
+    -moz-border-radius-bottomleft:0px;
+    border-top-left-radius:0px;
+    border-bottom-left-radius:0px;
+    border-left: 0;
+} 
+
+.deal-stage-label.ui-state-default  {
+    background-color: #E6E6E6;
+}
+
+.deal-stage-label.new.ui-state-active {
+    background-color: #1C76BC;
+}
+
+.deal-stage-label.lost.ui-state-active {
+    background-color: #FF3535;
+}
+
+.deal-stage-label.pending.ui-state-active {
+    background-color: #F4CF00;
+}
+
+.deal-stage-label.won.ui-state-active {
+    background-color: #13BD3F;
+}
+
+#details-contact span {
+    display: inline;
+    text-align: left;
+    padding: 0;
+    border-bottom: none;
+    height: auto;
+}

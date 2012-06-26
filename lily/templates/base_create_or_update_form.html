@@ -15,10 +15,12 @@
 {% block form-buttons %}
     {% with item=form.instance %}
         {% if item.pk %}
-            {% if not item|has_user_in_group:'account_admin' %}
-                <input type="button" id="delete-{{ form.instance.pk }}" class="link delete {{ item|classname }} mws-button red float-left" value="{% trans 'Delete' %}" />
-            {% endif %}
-    
+            {% block delete-button %}
+                {% if not item|has_user_in_group:'account_admin' %}
+                    <input type="button" id="delete-{{ form.instance.pk }}" class="link delete {{ item|classname }} mws-button red float-left" value="{% trans 'Delete' %}" />
+                {% endif %}
+            {% endblock %}
+            
             {% comment %}
                 TODO: ask if the user is sure to cancel when the form has been changed
             {% endcomment %}

@@ -10,7 +10,7 @@
 
 {% block dialog-form-url %}{% url contact_add %}{% endblock %}
 
-{% block dialog-form %}{% include 'contacts/quickbutton_form.html'  with form=quickbutton_formsets.contact %}{% endblock %}
+{% block dialog-form %}{% include 'contacts/quickbutton_form.html' with form=quickbutton_formsets.contact %}{% endblock %}
 
 {% block quick-button-scripts %}
     <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>

@@ -52,11 +52,6 @@ $(document).ready(function() {
         });
     };
 
-    // auto grow description
-    if( $.fn.elastic ) {
-        $('#id_description').elastic();
-    }
-
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
 });

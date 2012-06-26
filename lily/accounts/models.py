@@ -169,6 +169,7 @@ class Account(Common, TaggedObjectMixin):
     class Meta:
         verbose_name = _('account')
         verbose_name_plural = _('accounts')
+        ordering = ['name']
 
 
 class Website(models.Model):

@@ -33,7 +33,8 @@
 {% endblock %}
 
 {% block item-details %}
-    <h2>{{ item|truncatechars:"24" }}</h2>
+    {{ block.super }}
+    
     <div id="contact_function">
         {% with item.get_primary_function as function %}
             {% if function %}
@@ -141,6 +142,7 @@
 
 {% block tabs-content %}
     {{ block.super }}
+    
     <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
         <h2>{% trans 'Contacts' %}</h2>
         <div id="detail-emails" class="detail-block">

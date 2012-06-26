@@ -52,6 +52,14 @@
                             </a>
                             
                             {% include 'contacts/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add deal' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'deals/quickbutton_dialog.html' %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -137,6 +145,14 @@
                             <li>
                                 <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
                             </li>
+                            <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
+                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">Deals</a>
+                            </li>
+                            {% comment %}
+                                <li>
+                                    <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
+                                </li>
+                            {% endcomment %}
                         </ul>
                     </div>
                 {% endblock %}

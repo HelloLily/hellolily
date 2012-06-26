@@ -111,6 +111,11 @@ $(document).ready(function () {
         enableChosen($('body'));
     }
 
+    /* Elastic (auto grow) */
+    if( $.fn.elastic ) {
+        $('textarea').elastic();
+    }
+
     /* Tooltips */
     // if($.fn.tipsy) {
         // var gravity = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];

@@ -34,7 +34,7 @@
                 element = document.getElementById(elementid);
                 if( element ) {
                 	$(event.target).remove();
-                	$(element).show();
+                	$(element).show().removeClass('hidden');
                 	var input = $(element).find(':input:visible:first');
                 	if( input ) {
                     	input.focus();

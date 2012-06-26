@@ -124,7 +124,10 @@ def has_user_in_group(object, groups):
     """
     group_list = force_unicode(groups).split(',')
     
-    return bool(object.user.filter(groups__name__in=group_list))
+    # Only try to filter if the object actually is linked with a user
+    if hasattr(object, 'user'):
+        return bool(object.user.filter(groups__name__in=group_list))
+    return False
 
 @register.filter
 def classname(obj, arg=None):

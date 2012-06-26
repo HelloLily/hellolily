@@ -515,7 +515,7 @@ class CustomSetPasswordView(FormView):
     
     def dispatch(self, request, *args, **kwargs):
         """
-        Overload super.dispatch() to verify the reset link before rendering the response.
+        Overload super().dispatch to verify the reset link before rendering the response.
         """
         self.is_valid_link, self.user = self.check_valid_link(**kwargs)
         
@@ -553,7 +553,7 @@ class CustomSetPasswordView(FormView):
 
     def get_template_names(self):
         """
-        Overload super.get_template_names() to conditionally return different templates.
+        Overload super().get_template_names to conditionally return different templates.
         """
         if self.is_valid_link:
             template_name = self.template_name_valid

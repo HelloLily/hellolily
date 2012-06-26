@@ -1,11 +1,20 @@
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.http import Http404
+from django.core.urlresolvers import reverse
+from django.db.models.loading import get_model
+from django.http import Http404, HttpResponse
+from django.utils import simplejson
 from django.utils.encoding import smart_str
+from django.utils.http import base36_to_int
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin
+from lily.utils.forms import NoteForm
 import types
+
+
 
 
 class CustomSingleObjectMixin(object):
@@ -236,9 +245,16 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
         return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
 
 
-class DetailFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
+class DetailNoteFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
+    """
+    DetailView for models including a NoteForm to quickly add notes.
+    """
+    form_class = NoteForm
     
     def get(self, request, *args, **kwargs):
+        """
+        Implementing the response for the http method GET.
+        """
         self.object = self.get_object()
         
         form_class = self.get_form_class()
@@ -248,6 +264,9 @@ class DetailFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
+        """
+        Implementing the response for the http method POST.
+        """
         self.object = self.get_object()
         
         form_class = self.get_form_class()
@@ -256,18 +275,26 @@ class DetailFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = kwargs
-        
-        context_object_name = self.get_context_object_name(self.object)
-        if context_object_name:
-            context[context_object_name] = self.object
-        
-        return context
+
+    def form_valid(self, form):
+        """
+        When adding a note, automatically save the related object and author.
+        """
+        note = form.save(commit=False)
+        note.author = self.request.user
+        note.subject = self.object
+        note.save()
+
+        return super(DetailNoteFormView, self).form_valid(form)
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(object=self.object, form=form))
+
+    def get_success_url(self):
+        if not hasattr(self, 'success_url_reverse_name'):
+            return super(DetailNoteFormView, self).get_success_url()
+        
+        return reverse(self.success_url_reverse_name, kwargs={ 'pk': self.object.pk })
 
 
 class MultipleModelListView(TemplateView):
@@ -280,7 +307,7 @@ class MultipleModelListView(TemplateView):
     
     def dispatch(self, request, *args, **kwargs):
         """
-        Overloading super.dispatch to query for object lists first.
+        Overloading super().dispatch to query for object lists first.
         """
         self.get_objects_lists()
         
@@ -322,4 +349,116 @@ class MultipleModelListView(TemplateView):
             })
         return kwargs
     
+    
+class FilteredListMixin(object):
+    """
+    Mixin that enables filtering objects by url, based on their primary keys. 
+    """
+    
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            # If kwarg is provided, try reducing the queryset
+            if self.kwargs.get('b36_pks', None):
+                try:
+                    # Convert base36 to int
+                    b36_pks = self.kwargs.get('b36_pks').split(';')
+                    int_pks = []
+                    for pk in b36_pks:
+                        int_pks.append(base36_to_int(pk))
+                    # Filter queryset
+                    queryset = self.model._default_manager.filter(pk__in=int_pks)
+                except:
+                    queryset = self.model._default_manager.all()
+            else:
+                queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+        return queryset
+
+
+class SortedListMixin(object):
+    """
+    Mixin that enables sorting ascending and descending on set columns.
+    """
+    ASC = 'asc'
+    DESC = 'desc'
+    sortable = [] # Columns that can be ordered
+    default_sort_order = ASC # Direction to order in
+    default_order_by = 1 # Column to order
+    
+    def __init__(self, *args, **kwargs):
+        """
+        Make sure default_order_by is in sortable or use the default regardless.
+        """
+        if hasattr(self, 'order_by') and self.order_by not in self.sortable:
+            self.order_by = self.default_order_by 
+    
+    def get_context_data(self, **kwargs):
+        """
+        Add sorting information from instance variables or request.GET.
+        """
+        
+        try:
+            if int(self.request.GET.get('order_by')) in self.sortable:
+                self.order_by = self.request.GET.get('order_by')
+            else:
+                if not hasattr(self, 'order_by'):
+                    self.order_by = self.default_order_by        
+        except:
+            self.order_by = self.default_order_by
+            
+        if self.request.GET.get('sort_order') in [self.ASC, self.DESC]:
+            self.sort_order = self.request.GET.get('sort_order')
+        else:
+            if not hasattr(self, 'sort_order'):
+                self.sort_order = self.default_sort_order
+            
+        kwargs.update({
+            'order_by': self.order_by,
+            'sort_order': self.sort_order,
+        })
+        
+        return kwargs
+
+
+class AjaxUpdateView(View):
+    """
+    View that provides an option to update models based on a url and POST data.
+    """
+    http_method_names = ['post']
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            app_name = kwargs.pop('app_name')
+            model_name = kwargs.pop('model_name').lower().capitalize()
+            object_id = kwargs.pop('object_id')
+            
+            model = get_model(app_name, model_name)
+            instance = model.objects.get(pk=object_id)
+            
+            changed = False
+            for key, value in request.POST.items():
+                if hasattr(instance, key):
+                    setattr(instance, key, value)
+                    changed = True
+            
+            if changed:
+                instance.save()
+        except:
+            raise Http404()
+        
+        # Return response
+        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+
+
+# Perform logic here instead of in urls.py
+ajax_update_view = login_required(AjaxUpdateView.as_view())
     

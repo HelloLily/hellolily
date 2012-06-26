@@ -43,6 +43,7 @@ class CustomUser(User, TenantMixin):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+        ordering = ['contact']
         permissions = (
             ("send_invitation", _("Can send invitations to invite new users")),
         )

@@ -78,7 +78,7 @@ class DataproviderView(ProvideBaseView):
     """
     View that makes an API call to Dataprovider to look up information for accounts.
     """
-    api_url = 'http://alpha.dataprovider.com/api/0.1/search.php'
+    api_url = 'http://www.dataprovider.com/api/0.1/search.php'
     api_key = settings.DATAPROVIDER_API_KEY
 
     def get_domain(self):

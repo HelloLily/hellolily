@@ -117,8 +117,6 @@ MIDDLEWARE_CLASSES = (
     'lily.tenant.middleware.TenantMiddleWare',
 )
 
-INTERNAL_IPS = ('192.168.23.23',)
-
 # Main urls file
 ROOT_URLCONF = 'lily.urls'
 
@@ -238,6 +236,12 @@ if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APP
     TENANT_MIXIN = 'lily.tenant.models.TenantMixin'
 
 # Settings for 3rd party apps
+
+# Django debug toolbar
+INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')

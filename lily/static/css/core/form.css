@@ -687,8 +687,9 @@ div.mws-dualbox button:active
     color: #4682B4;
 }
 
-.ui-datepicker .ui-datepicker-title,
-.ui-datepicker .ui-state-active  {
+/*.ui-datepicker .ui-datepicker-title,*/
+.ui-datepicker .ui-state-active  
+{
 	color: white !important;
 }
 
@@ -697,15 +698,9 @@ div.mws-dualbox button:active
 	background-color: white !important;
 }
 
-.ui-datepicker .ui-state-hover {
-	background-color: white;
-	color: #333333 !important;
-	outline: 1px solid black;
-}
-
 .ui-datepicker .ui-state-highlight {
-	color: #333333 !important;
-	background-color: white;
+	color: #333333;
+/*	background-color: white;*/
 }
 
 .ui-datepicker { 

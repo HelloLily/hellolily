@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
 
@@ -14,13 +15,19 @@ class AddDealForm(ModelForm):
     """
     account = forms.ModelChoiceField(queryset=Account.objects.none(), empty_label=_('Select an account'), 
         widget=forms.Select({
-             'class': 'chzn-select tabbable',
+            'class': 'chzn-select tabbable',
     }))
     
     assigned_to = forms.ModelChoiceField(queryset=CustomUser.objects.none(), empty_label=None, 
         widget=forms.Select({
-             'class': 'chzn-select-no-search tabbable',
+            'class': 'chzn-select-no-search tabbable',
     }))
+    
+    expected_closing_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS, 
+        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], attrs={
+            'class': 'mws-textinput tabbable expected_closing_date datepicker',
+            'placeholder': _('dd/mm/yyyy'),
+    }),)
     
     def __init__(self, *args, **kwargs):
         """
@@ -61,10 +68,6 @@ class AddDealForm(ModelForm):
                 'class': 'mws-textinput tabbable',
                 'placeholder': _('Amount'),
             }),
-            'expected_closing_date': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable expected_closing_date datepicker',
-                'placeholder': _('mm/dd/yyyy'),
-            }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search tabbable',
             }),
@@ -93,13 +96,19 @@ class EditDealForm(ModelForm):
     """
     account = forms.ModelChoiceField(queryset=Account.objects.none(), empty_label=_('Select an account'), 
         widget=forms.Select({
-             'class': 'chzn-select tabbable',
+            'class': 'chzn-select tabbable',
     }))
     
     assigned_to = forms.ModelChoiceField(queryset=CustomUser.objects.none(), empty_label=None, 
         widget=forms.Select({
-             'class': 'chzn-select-no-search tabbable',
+            'class': 'chzn-select-no-search tabbable',
     }))
+    
+    expected_closing_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS, 
+        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], attrs={
+            'class': 'mws-textinput tabbable expected_closing_date datepicker',
+            'placeholder': _('dd/mm/yyyy'),
+    }),)
     
     def __init__(self, *args, **kwargs):
         """
@@ -139,10 +148,6 @@ class EditDealForm(ModelForm):
             'amount': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
                 'placeholder': _('Amount'),
-            }),
-            'expected_closing_date': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('YYYY-MM-DD'),
             }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search tabbable',

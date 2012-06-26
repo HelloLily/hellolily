@@ -59,6 +59,23 @@ $(document).ready(function() {
 			// event.preventDefault();
 		// }
 	// });
+	
+	$.datepicker.setDefaults({
+        'dateFormat': 'dd/mm/yy'
+    });
+	
+    // enable datepicker on rendered fields, hidden fields and fields retrieved with AJAX
+    $('form').on('click', '.expected_closing_date.datepicker', function(event){
+        if(! $(this).hasClass('hasDatepicker')) {
+            $(this).datepicker({ beforeShowDay: $.datepicker.noWeekends });
+            $(this).datepicker('show');
+        }
+        
+        // prevent previously filled in dates to show up in front of the datepicker
+        $(this).attr("autocomplete", "off");
+        
+        event.preventDefault();
+    });
 
 	/* Responsive Layout Script */
 	$("div#mws-navigation").live('click', function(event) {

@@ -14,3 +14,4 @@ south>=0.7.4
 newrelic==1.2.1.265
 django-newrelic-extensions==0.0.1
 django-debug-toolbar>=0.9.4
+pytz==2012c

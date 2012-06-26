@@ -40,7 +40,11 @@
     </td>
     <td class="datetime closed hide_on_small_screen">
         <div>
-            {{ item.expected_closing_date|date:"d/m/Y" }}
+            {% if item.closed_date %}
+                {{ item.closed_date|date:"d/m/Y" }}
+            {% else %}
+                {{ item.expected_closing_date|date:"d/m/Y" }}
+            {% endif %}
         </div>
     </td>
     <td class="datetime created hide_on_small_screen">

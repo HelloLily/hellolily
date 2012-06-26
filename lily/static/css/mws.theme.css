@@ -14,7 +14,7 @@ div#mws-error-container,
 div#mws-login .mws-login-lock, */ 
 .ui-accordion .ui-accordion-header, 
 .ui-tabs .ui-tabs-nav, 
-.ui-datepicker, 
+/* prev. .ui-datepicker, */
 .fc-event-skin, 
 .ui-dialog .ui-dialog-titlebar, 
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer, 
@@ -22,6 +22,12 @@ div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box,
 div#mws-user-tools .mws-dropdown-menu.toggled a.mws-dropdown-trigger
 {
 	background-color:#1C76BC; /* prev. #35353a; */
+}
+
+/* new */
+.ui-datepicker {
+    background-color:white;
+    border:1px solid #777777;
 }
 
 div#mws-header

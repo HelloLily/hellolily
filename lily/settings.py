@@ -43,7 +43,8 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 
 # Localization
 TIME_ZONE = 'Europe/Amsterdam'
-LANGUAGE_CODE = 'EN-en'
+DATE_INPUT_FORMATS = tuple(['%d/%m/%Y'] + list(DEFAULT_SETTINGS.DATE_INPUT_FORMATS))
+LANGUAGE_CODE = 'En-en'
 USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))
@@ -180,9 +181,6 @@ INSTALLED_APPS = (
     'lily.tenant',
     'lily.users',
     'lily.utils',
-#    'lily.utils.templatetags.field_extras',
-#    'lily.utils.templatetags.messages',
-#    'lily.utils.templatetags.utils',
 )
 
 # E-mail settings

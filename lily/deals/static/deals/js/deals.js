@@ -1,21 +1,12 @@
 $(document).ready(function() {
-	
-	// enable datepicker on rendered fields, hidden fields and fields retrieved with AJAX
-	$('form').on('click', '.expected_closing_date.datepicker', function(){
-		if(! $(this).hasClass('hasDatepicker')) {
- 			$(this).datepicker({ beforeShowDay: $.datepicker.noWeekends });
-  			$(this).datepicker('show');
- 		}   
-	});
-    
-    // set focus on name
+	// set focus on name
     set_focus('id_name');
     
     // inner function to protect the scope for currentStage
     (function($) {
         var currentStage = null;
         
-        $( '#deal-stage :radio' ).button({
+        $('#deal-stage :radio').button({
             create: function(event, ui) { 
                 if( event.target.checked ) {
                     currentStage = event.target.id;
@@ -28,7 +19,7 @@ $(document).ready(function() {
             if( radio_element.attr('id') != currentStage ) {            
                 // try this
                 var jqXHR = $.ajax({
-                    url: '/ajax/deals/deal/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
+                    url: '/deals/edit/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
                     type: 'POST',
                     data: {
                         'stage': $(radio_element).val()
@@ -42,6 +33,15 @@ $(document).ready(function() {
                         theme: 'info mws-ic-16 ic-accept'
                     });
                     currentStage = radio_element.attr('id');
+                    
+                    // check for won/lost and closing date
+                    if( data.closed_date ) {
+                        $('.closed-date.actual span').text(data.closed_date);
+                        $('.closed-date.actual').removeClass('hidden');
+                    } else {
+                        $('.closed-date.actual span').text('');
+                        $('.closed-date.actual:visible').addClass('hidden');
+                    }
                 });
                 // on error
                 jqXHR.fail(function() {

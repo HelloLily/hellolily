@@ -420,11 +420,13 @@ class Common(Deleted, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    phone_numbers = models.ManyToManyField(PhoneNumber,
+    phone_numbers = models.ManyToManyField(PhoneNumber, blank=True,
                                            verbose_name=_('list of phone numbers'))
-    social_media = models.ManyToManyField(SocialMedia, verbose_name=_('list of social media'))
-    addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
-    email_addresses = models.ManyToManyField(EmailAddress,
+    social_media = models.ManyToManyField(SocialMedia, blank=True,
+                                          verbose_name=_('list of social media'))
+    addresses = models.ManyToManyField(Address, blank=True,
+                                       verbose_name=_('list of addresses'))
+    email_addresses = models.ManyToManyField(EmailAddress, blank=True,
                                              verbose_name=_('list of e-mail addresses'))
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')

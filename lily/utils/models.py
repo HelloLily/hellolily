@@ -12,6 +12,11 @@ from lily.utils.functions import get_tenant_mixin as TenantMixin
 #   source from http://djangosnippets.org/snippets/1476/
 COUNTRIES = (
     ('', _('Select a country')),
+    ('NL', _('Netherlands')),
+    ('BE', _('Belgium')),
+    ('DE', _('Germany')),
+    ('GB', _('United Kingdom')),
+    ('US', _('United States')),
     ('AF', _('Afghanistan')),
     ('AX', _('Aland Islands')),
     ('AL', _('Albania')),

@@ -62,16 +62,20 @@
     <div class="grid_4">
         <div id="detail-addresses" class="detail-block">
             <h4>{% trans 'Addresses' %}</h4>
-            {% with item.get_billing_address as address %}
-                {% include 'utils/address_details_template.html' %}
+            {% with list=item.get_billing_addresses %}
+                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
             {% endwith %}
             
-            {% with item.get_shipping_address as address %}
-                {% include 'utils/address_details_template.html' %}
+            {% with list=item.get_shipping_addresses %}
+                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
             {% endwith %}
             
-            {% with item.get_home_address as address %}
-                {% include 'utils/address_details_template.html' %}
+            {% with list=item.get_home_addresses %}
+                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
+            {% endwith %}
+            
+            {% with list=item.get_other_addresses %}
+                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
             {% endwith %}
         </div>
     </div>

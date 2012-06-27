@@ -6,6 +6,11 @@
     border: 0;
 }
 
+#deal-stage {
+    margin-top: 12px;
+    margin-right: 40px;
+}
+
 #deal-stage .deal-stage-label {
     margin-right: 0;
     margin-left: 0;

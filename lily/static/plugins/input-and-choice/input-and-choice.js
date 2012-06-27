@@ -11,10 +11,10 @@
          * to be selected and support for autocomplete suggestions based on this select element.
          */
         function input_and_choice(wrapper) {
-            input = $(wrapper).find('.input-and-choice-input')[0];
-            button = $(wrapper).find('.input-and-choice-button')[0];
-            select = $(wrapper).find('.input-and-choice-select')[0];
-            list = $(wrapper).find('.input-and-choice-list')[0];
+            var input = $(wrapper).find('.input-and-choice-input')[0];
+            var button = $(wrapper).find('.input-and-choice-button')[0];
+            var select = $(wrapper).find('.input-and-choice-select')[0];
+            var list = $(wrapper).find('.input-and-choice-list')[0];
             
             // TODO: take width changes into account when parent gets resized
             var gap = $(input).parent().width() - $(input).outerWidth() - $(button).outerWidth();
@@ -34,7 +34,7 @@
             
             // add click handler to button
             $(button).click(function(event) {
-                value = $(input).val();
+                var value = $(input).val();
                 if( value.length ) {
                     add_selection(input, select, list, $.trim(value));
                     // detect autocomplete suggestions
@@ -56,8 +56,8 @@
             
             // add click handlers to anchors in list
             $(list).find('.search-choice-close').live('click', function(event) {
-                search_choice = $(event.target).parent();
-                remove_selection(select, list, search_choice.text(), search_choice);
+                var search_choice = $(event.target).parent();
+                remove_selection(input, select, list, search_choice.text(), search_choice);
             }); 
         }
         
@@ -65,13 +65,13 @@
          * Update autocomplete suggestions for given input based on the options from a select
          * element. Already selected options won't show in the suggestions.
          */
-        function update_autocomplete_suggestions(input, select) {
+        function update_autocomplete_suggestions(input, select, list) {
             var suggestions = [];
             
             // add all option elements that are not selected
             $(select).find('option:not(:selected)').each(function() {
-                value = $.trim($(this).val());
-                text = $.trim($(this).text());
+                var value = $.trim($(this).val());
+                var text = $.trim($(this).text());
                 if( value.length ) {
                     value = text;
                     // save key-value pair
@@ -90,7 +90,7 @@
                 select: function(e, ui) {
                     add_selection(input, select, list, $.trim(ui.item.value));
                     // detect autocomplete suggestions
-                    update_autocomplete_suggestions(input, select);  
+                    update_autocomplete_suggestions(input, select, list);  
                     
                     $(this).autocomplete('search', $(this).val());
 
@@ -114,7 +114,7 @@
          * Select an existing option or add the option if it doesn't.
          */
         function add_selection(input, select, list, value, page_load) {
-            option = undefined;
+            var option = undefined;
             $(select).find('option').each(function() {
                if( $(this).val().toLowerCase() == value.toLowerCase() ) {
                    // give back the actual element instead of the wrapped jquery object
@@ -152,10 +152,10 @@
         /**
          * Deselect option for 'text'. 
          */
-        function remove_selection(select, list, text, search_choice) {
-            text = $.trim(text);
+        function remove_selection(input, select, list, text, search_choice) {
+            var text = $.trim(text);
             
-            option = $(select).find('option:selected').filter(function() { return $(this).html() == text})[0];
+            var option = $(select).find('option:selected').filter(function() { return $(this).html() == text})[0];
             if( option != undefined ) {
                 // deselect option 
                 $(option).removeAttr('selected');
@@ -165,13 +165,13 @@
             }
             
             // hide options-wrapping element if there are no selected options
-            selected = $(list).find('.search-choice');
+            var selected = $(list).find('.search-choice');
             if( selected.length == 0 ) {
                 $(list).hide();
             }
             
             // update auto suggestions
-            update_autocomplete_suggestions(input, select);
+            update_autocomplete_suggestions(input, select, list);
         }
         
         $('.input-and-choice').each(function(index, element){

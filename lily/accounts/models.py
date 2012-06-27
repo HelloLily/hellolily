@@ -101,23 +101,26 @@ class Account(Common, TaggedObjectMixin):
         except:
             return None
     
-    def get_address(self, type=None):
+    def get_addresses(self, type=None):
         try:
             if not type:
-                return self.addresses.all()[0]
+                return self.addresses.all()
             else:
-                return self.addresses.filter(type=type)[0]
+                return self.addresses.filter(type=type)
         except:
             return None
     
-    def get_billing_address(self):
-        return self.get_address(type='billing')
+    def get_billing_addresses(self):
+        return self.get_addresses(type='billing')
     
-    def get_shipping_address(self):
-        return self.get_address(type='shipping')
+    def get_shipping_addresses(self):
+        return self.get_addresses(type='shipping')
     
-    def get_visiting_address(self):
-        return self.get_address(type='visiting')
+    def get_visiting_addresses(self):
+        return self.get_addresses(type='visiting')
+    
+    def get_other_addresses(self):
+        return self.get_addresses(type='other')
     
     def get_contact_details(self):
         try:

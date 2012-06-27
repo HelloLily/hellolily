@@ -109,14 +109,26 @@ class Contact(Common, TaggedObjectMixin):
         except:
             return None
     
-    def get_billing_address(self):
-        return self.get_address(type='billing')
+    def get_addresses(self, type=None):
+        try:
+            if not type:
+                return self.addresses.all()
+            else:
+                return self.addresses.filter(type=type)
+        except:
+            return None
     
-    def get_shipping_address(self):
-        return self.get_address(type='shipping')
+    def get_billing_addresses(self):
+        return self.get_addresses(type='billing')
     
-    def get_home_address(self):
-        return self.get_address(type='home')
+    def get_shipping_addresses(self):
+        return self.get_addresses(type='shipping')
+    
+    def get_home_addresses(self):
+        return self.get_addresses(type='home')
+    
+    def get_other_addresses(self):
+        return self.get_addresses(type='other')
     
     def get_twitter(self):
         try:

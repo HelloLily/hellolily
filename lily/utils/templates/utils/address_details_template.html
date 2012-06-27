@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% if address %}
+{% with address=item %}
     <div class="address">
         <h6>{{ address.type|capfirst }}</h6>
         <div class="inline">
@@ -10,10 +10,12 @@
             {% if address.postal_code or address.city %}
                 {{ address.postal_code }} {{ address.city }} <br />
             {% endif %}
-            {{ address.get_country_display }}
+            {% if address.country %}
+                {{ address.get_country_display }}
+            {% endif %}
         </div>
     </div>
-{% endif %}
+{% endwith %}
 
 
 

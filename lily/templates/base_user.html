@@ -37,14 +37,6 @@
                     <!-- Quickbutton container -->
                     <div id="mws-quickbutton-container" class="tabthis">
                         {% block quickbuttons %}
-                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
-                                <button type="button" class="mws-button blue tabbable">
-                                    {% trans 'Add account' %}
-                                </button>
-                            </a>
-                            
-                            {% include 'accounts/quickbutton_dialog.html' %}
-                            
                             <a href="{% url contact_add %}" class="no-decoration quickbutton contact">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add contact' %}
@@ -52,6 +44,14 @@
                             </a>
                             
                             {% include 'contacts/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add account' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'accounts/quickbutton_dialog.html' %}
                             
                             <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
                                 <button type="button" class="mws-button blue tabbable">

@@ -795,8 +795,7 @@ class ConfirmContactEmailView(TemplateView):
         pk = data.get('contact_pk')
         # grab datetime to test expire date
         expire_date_pickled = data.get('expire_date')
-        import pdb
-        pdb.set_trace()
+        
         # Verify hash
         if hash != sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest():
             return False

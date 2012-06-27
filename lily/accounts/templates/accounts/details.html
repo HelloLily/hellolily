@@ -36,7 +36,7 @@
     {{ block.super }}
     
     <div id="contact_function">
-        {% with account.get_contacts as contacts %}
+        {% with item.get_contacts as contacts %}
             {% if contacts|length == 1 %}
                 {% url contact_details pk=contacts.0.pk as contact_link  %}
                 
@@ -62,6 +62,9 @@
     {{ block.super }}
     
     <li class="ui-state-default ui-corner-top"><a href="#tab-contacts">{% trans 'Contacts' %}</a></li>
+    {% if item.get_deals|length %}
+        <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{{ item.get_deals|length }} {% trans 'Deals' %}</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block details-tab-content %}
@@ -175,6 +178,34 @@
         <h2>{% trans 'Contacts' %}</h2>
         <div id="detail-emails" class="detail-block">
             {% include 'base_list.html' with list=item.functions.all list_item_template='accounts/function_list_item.html' %}
+        </div>
+    </div>
+    
+    <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
+        <h2>{% trans 'Open' %}</h2>
+        <div class="grid_8">
+            <div id="detail-emails" class="detail-block">
+                <h4>{% trans 'New' %}</h4>
+                {% include 'base_list.html' with list=item.get_deals_new list_item_template='accounts/deal_list_item.html' %}
+            </div>
+            <div id="detail-emails" class="detail-block">
+                <h4>{% trans 'Pending' %}</h4>
+                {% include 'base_list.html' with list=item.get_deals_pending  list_item_template='accounts/deal_list_item.html' %}
+            </div>
+        </div>
+        
+        <hr />
+        
+        <h2>{% trans 'Closed' %}</h2>
+        <div class="grid_8">
+            <div id="detail-emails" class="detail-block">
+                <h4>{% trans 'Won' %}</h4>
+                {% include 'base_list.html' with list=item.get_deals_won list_item_template='accounts/deal_list_item.html' %}
+            </div>
+            <div id="detail-emails" class="detail-block">
+                <h4>{% trans 'Lost' %}</h4>
+                {% include 'base_list.html' with list=item.get_deals_lost list_item_template='accounts/deal_list_item.html' %}
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -103,7 +103,7 @@ class Account(Common, TaggedObjectMixin):
     
     def get_addresses(self, type=None):
         try:
-            if not type:
+            if type is None:
                 return self.addresses.all()
             else:
                 return self.addresses.filter(type=type)
@@ -121,6 +121,27 @@ class Account(Common, TaggedObjectMixin):
     
     def get_other_addresses(self):
         return self.get_addresses(type='other')
+    
+    def get_deals(self, stage=None):
+        try:
+            if stage is None:
+                return self.deal_set.all()
+            else:
+                return self.deal_set.filter(stage=stage)
+        except:
+            return None
+    
+    def get_deals_new(self):
+        return self.get_deals(stage=0)
+    
+    def get_deals_lost(self):
+        return self.get_deals(stage=1)
+    
+    def get_deals_pending(self):
+        return self.get_deals(stage=2)
+    
+    def get_deals_won(self):
+        return self.get_deals(stage=3)
     
     def get_contact_details(self):
         try:

@@ -334,8 +334,15 @@ class EditContactView(UpdateView):
             # Save form
             super(EditContactView, self).form_valid(form)
 
-            # Handle e-mail addresses
+            # Handle e-mail addresses permission checks
             allow_edit_email = email_verify = False
+            allow_save = False
+            is_user_contact = True
+            primary_has_changed = False
+            verification_email_data = None
+            new_primary_email_address_instance = None
+            old_primary_email_address_instance = None
+            
             # TODO: move the permission logic to a decorator for this view
 
             # Permission check: users in a certain group and the contact's user can edit e-mail adresses
@@ -343,96 +350,122 @@ class EditContactView(UpdateView):
             # the contact's user changes it. Another user with permissions can change it regardless.
             try:
                 user = CustomUser.objects.get(contact=self.object)
-
-                # If it's the current logged in user's contact
-                if user == self.request.user:
-                    # Allow editing, but sent verification e-mails
-                    allow_edit_email = email_verify = True
-                else:
-                    # If the the current logged in user has the right permissions
-                    if 'account_admin' in self.request.user.groups.values_list('name', flat=True):
-                        # Allow editing
-                        allow_edit_email = True
             except CustomUser.DoesNotExist:
                 # If it's not a user's contact
                 allow_edit_email = True
+                is_user_contact = False
+            else:
+                if user == self.request.user:
+                    # If this is the case, allow editing it after verification via e-mail
+                    allow_edit_email = email_verify = True
+                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
+                    # Users in this group can always edit e-mail addresses
+                    allow_edit_email = True
 
+            # Handle saving (and sending verification e-mails for) e-mail addresses
             if allow_edit_email:
+                # Find the e-mail address marked as primary e-mail address
+                primary_email_prefix = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+                
+                # Loop through all e-mail addresses
                 for formset in self.email_addresses_formset:
-                    # Check for e-mail address selected as primary
-                    primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-
-                    # Check if existing instance has been marked for deletion
+                    # Check if formset instance should be deleted
                     if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                        self.object.email_addresses.remove(formset.instance)
-                        # Don't delete if it's the one marked as primary
-                        if formset.prefix != primary:
+                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
+                        if not is_user_contact or formset.prefix != primary_email_prefix: 
+                            self.object.email_addresses.remove(formset.instance)
                             formset.instance.delete()
+                        elif is_user_contact:
+                            # Add message
+                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
                         continue
 
-                    # Make sure only one is marked as primary
-                    if formset.prefix == primary:
+                    # Explicitly set 'is_primary' on every e-mail address to make sure only one is 
+                    # marked as primary e-mail.
+                    if formset.prefix == primary_email_prefix:
                         formset.instance.is_primary = True
                     else:
                         formset.instance.is_primary = False
 
-                    # Only save e-mail address if something else than primary/status was filled in
+                    # Only save e-mail address if something else than is_primary/status was filled in
                     if formset.instance.email_address:
-                        # Check if only the is_primary attribute has changed, if so allow the save.
-                        allow_save = False
-                        existing_email_address = None
+                        # If it's an existing e-mail address and the address itself has not changed,
+                        # allow saving it regardless of other attributes that might have changed. 
+                        # This prevents existing e-mail addresses that are no longer the primary
+                        # e-mail address from demanding verification as well as the new ones. 
                         if formset.instance.pk:
                             existing_email_address = EmailAddress.objects.get(pk=formset.instance.pk)
                             if existing_email_address.email_address == formset.instance.email_address:
                                 allow_save = True
-
-                        if not email_verify or allow_save:
+                                
+                            # Check if the attribute 'is_primary' has changed
+                            if existing_email_address.is_primary != formset.instance.is_primary:
+                                primary_has_changed = True
+                                if formset.instance.is_primary:
+                                    new_primary_email_address_instance = formset.instance
+                                else:
+                                    old_primary_email_address_instance = existing_email_address
+                        
+                        # Simply save the e-mail address if none of the permission checks is
+                        # blocking this action.
+                        if (allow_save or not email_verify) and not primary_has_changed:
                             formset.save()
                             self.object.email_addresses.add(formset.instance)
-                        else:
-                            # get old/new e-mail address
-                            old_email = self.request.user.contact.email_addresses.filter(pk=form.instance.pk).values_list('email_address', flat=True)[0]
-                            new_email = formset.instance.email_address
-                            # get contact pk
-                            pk = self.object.pk
-                            # calculate expire date
-                            expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
-                            expire_date_pickled = pickle.dumps(expire_date)
+#                        else:
+#                            # Send verification e-mails to both e-mail addresses, informing the
+#                            # user his primary e-mail address will change once the verification
+#                            # link has been clicked. This new address will then be the e-mail 
+#                            # address used at login.
+#                            
+#                            # Get old/new e-mail address (database versus form value)
+#                            old_email_address = self.request.user.contact.email_addresses.filter(pk=formset.instance.pk).values_list('email_address', flat=True)[0]
+#                            new_email_address = formset.instance.email_address
+                            
+                # Get contact pk
+                pk = self.object.pk
+                
+                # Calculate expire date
+                expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
+                expire_date_pickled = pickle.dumps(expire_date)
 
-                            # get link to site
-                            protocol = self.request.is_secure() and 'https' or 'http'
-                            site = Site.objects.get_current()
+                # Get link to site
+                protocol = self.request.is_secure() and 'https' or 'http'
+                site = Site.objects.get_current()
 
-                            # Build data dict
-                            data = base64.urlsafe_b64encode(pickle.dumps({
-                                'contact_pk': self.object.pk,
-                                'old_email': old_email,
-                                'email_address': pickle.dumps(formset.instance),
-                                'expire_date': expire_date_pickled,
-                                'hash': sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest(),
-                            })).strip('=')
+                # Build data dict
+                verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
+                    'contact_pk': self.object.pk,
+                    'old_email_address': old_primary_email_address_instance.email_address,
+                    'email_address': pickle.dumps(new_primary_email_address_instance),
+                    'expire_date': expire_date_pickled,
+                    'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
+                })).strip('=')
 
-                            # Build verification link
-                            verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
-                                'data': data
-                            }))
+                # Build verification link
+                verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
+                    'data': verification_email_data
+                }))
 
-                            # Sent an e-mail to the user current primary adress
-                            send_templated_mail(
-                                template_name='email_confirm',
-                                from_email=settings.DEFAULT_FROM_EMAIL,
-                                recipient_list=[new_email],
-                                context = {
-                                    'current_site': site,
-                                    'full_name': self.object.full_name(),
-                                    'verification_link': verification_link,
-                                    'email_address': formset.instance.email_address
-                                }
-                            )
+                # Sent an e-mail informing the user his primary e-mail address
+                # can be changed.
+                send_templated_mail(
+                    template_name='email_confirm',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
+                    context = {
+                        'current_site': site,
+                        'full_name': self.object.full_name(),
+                        'verification_link': verification_link,
+                        'email_address': new_primary_email_address_instance.email_address
+                    }
+                )
 
-                            # Add message
-                            messages.info(self.request, _('An e-mail was sent to %s with a link to verify a new e-mail address.' % formset.instance.email_address))
-
+                # Add message
+                messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
+            else:
+                # Add message
+                messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))
+                
             # Handle addresses
             for formset in self.addresses_formset:
                 # Check if existing instance has been marked for deletion
@@ -718,7 +751,7 @@ class ConfirmContactEmailView(TemplateView):
                 # throw 404
                 raise Http404
             else:
-                    # Prevent multiple primary e-mail addresses
+                # Prevent multiple primary e-mail addresses
                 if email_address.is_primary:
                     user.contact.email_addresses.all().update(is_primary=False)
 
@@ -735,6 +768,9 @@ class ConfirmContactEmailView(TemplateView):
                 # force log out
                 return redirect(reverse('logout'))
             else:
+                # Add message
+                messages.info(self.request, _('You can log in now with your new primary e-mail address.'))
+                
                 # redirect to contact edit/view page
                 return redirect(reverse('contact_details', kwargs={
                     'pk': contact_pk
@@ -750,7 +786,7 @@ class ConfirmContactEmailView(TemplateView):
         # grab hash
         hash = data.get('hash')
         # grab old/new e-mail address
-        old_email = data.get('old_email')
+        old_email = data.get('old_email_address')
 
         # Unpickle EmailAddress object
         email_address = pickle.loads(data.get('email_address'))
@@ -759,7 +795,8 @@ class ConfirmContactEmailView(TemplateView):
         pk = data.get('contact_pk')
         # grab datetime to test expire date
         expire_date_pickled = data.get('expire_date')
-
+        import pdb
+        pdb.set_trace()
         # Verify hash
         if hash != sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest():
             return False

@@ -58,90 +58,109 @@
 {% endblock %}
 
 {% block details-tab-content %}
-    <h2>{% trans 'Contact details' %}</h2>
-    <div class="grid_4">
-        <div id="detail-addresses" class="detail-block">
-            <h4>{% trans 'Addresses' %}</h4>
-            {% with list=item.get_billing_addresses %}
-                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
-            {% endwith %}
-            
-            {% with list=item.get_shipping_addresses %}
-                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
-            {% endwith %}
-            
-            {% with list=item.get_home_addresses %}
-                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
-            {% endwith %}
-            
-            {% with list=item.get_other_addresses %}
-                {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
-            {% endwith %}
+    {% if item.get_addresses|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
+        <h2>{% trans 'Contact details' %}</h2>
+        <div class="grid_4">
+            {% if item.get_addresses|length %} 
+                <div id="detail-addresses" class="detail-block">
+                    <h4>{% trans 'Addresses' %}</h4>
+                    {% with list=item.get_billing_addresses %}
+                        {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
+                    {% endwith %}
+                    
+                    {% with list=item.get_shipping_addresses %}
+                        {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
+                    {% endwith %}
+                    
+                    {% with list=item.get_home_addresses %}
+                        {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
+                    {% endwith %}
+                    
+                    {% with list=item.get_other_addresses %}
+                        {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
+                    {% endwith %}
+                </div>
+            {% endif %}
         </div>
-    </div>
-    <div class="grid_4">
-        <div id="detail-phones" class="detail-block">
-            <h4>{% trans 'Phone numbers' %}</h4>
-            
-            {% for phone in item.phone_numbers.all %}
-                {% if phone.raw_input %}
-                    {% if phone.type == 'mobile' %}
-                        <div class="mobile_phone">
-                    {% else %}
-                        <div class="phone">
-                    {% endif %}
-                            <h6>{{ phone.get_type_display }}</h6>
-                            <div class="inline">
-                                <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
-                            </div>
-                        </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <div id="detail-emails" class="detail-block">
-            <h4>{% trans 'E-mail addresses' %}</h4>
-            
-            {% for email in item.email_addresses.all %}
-                {% if email.email_address %}
-                        {% if email.is_primary %}
-                            <div class="primary email">
-                                <h6>{% trans 'Primary' %}</h6>
-                        {% else %}
-                            <div class="email">
-                                <h6></h6>
-                        {% endif %}
-                                <div class="inline">
-                                    <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+        <div class="grid_4">
+            {% if item.phone_numbers.all|length %}
+                <div id="detail-phones" class="detail-block">
+                    <h4>{% trans 'Phone numbers' %}</h4>
+                    
+                    {% for phone in item.phone_numbers.all %}
+                        {% if phone.raw_input %}
+                            {% if phone.type == 'mobile' %}
+                                <div class="mobile_phone">
+                            {% else %}
+                                <div class="phone">
+                            {% endif %}
+                                    <h6>{{ phone.get_type_display }}</h6>
+                                    <div class="inline">
+                                        <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                    </div>
                                 </div>
-                            </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-    
-    <hr />
-    
-    <h2>{% trans 'Additional information' %}</h2>
-    <div class="grid_8">
-        <div class="detail-block">
-            <h4>{% trans 'Description' %}</h4>
-            {{ item.description|linebreaksbr }}
-        </div>
-        
-        <div class="detail-block">
-            <h4>{% trans 'Tags' %}</h4>
-            {% comment %}
-                TODO: when searching on tags is possible, change these into links
-            {% endcomment %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
             
-            {% for tag in item.tags.all %}
-                {{ tag }}
-                {% if not forloop.last %}
-                ,
-                {% endif %}
-            {% endfor %}
+            {% if item.email_addresses.all|length %}
+                <div id="detail-emails" class="detail-block">
+                    <h4>{% trans 'E-mail addresses' %}</h4>
+                    
+                    {% for email in item.email_addresses.all %}
+                        {% if email.email_address %}
+                                {% if email.is_primary %}
+                                    <div class="primary email">
+                                        <h6>{% trans 'Primary' %}</h6>
+                                {% else %}
+                                    <div class="email">
+                                        <h6></h6>
+                                {% endif %}
+                                        <div class="inline">
+                                            <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                        </div>
+                                    </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-    </div>
+    {% endif %}
+    
+    {% if item.get_addresses|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
+        {% if item.description or item.tags.all|length %}
+            <hr />
+        {% endif %}
+    {% endif %}
+        
+    {% if item.description or item.tags.all|length %}
+        <h2>{% trans 'Additional information' %}</h2>
+        <div class="grid_8">
+            {% if item.description %}
+                <div class="detail-block">
+                    <h4>{% trans 'Description' %}</h4>
+                    {{ item.description|linebreaksbr }}
+                </div>
+            {% endif %}
+            
+            {% if item.tags.all|length %}
+                <div class="detail-block">
+                    <h4>{% trans 'Tags' %}</h4>
+                    {% comment %}
+                        TODO: when searching on tags is possible, change these into links
+                    {% endcomment %}
+                    
+                    {% for tag in item.tags.all %}
+                        {{ tag }}
+                        {% if not forloop.last %}
+                        ,
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block tabs-content %}

@@ -411,57 +411,49 @@ class EditContactView(UpdateView):
                         if (allow_save or not email_verify) and not primary_has_changed:
                             formset.save()
                             self.object.email_addresses.add(formset.instance)
-#                        else:
-#                            # Send verification e-mails to both e-mail addresses, informing the
-#                            # user his primary e-mail address will change once the verification
-#                            # link has been clicked. This new address will then be the e-mail 
-#                            # address used at login.
-#                            
-#                            # Get old/new e-mail address (database versus form value)
-#                            old_email_address = self.request.user.contact.email_addresses.filter(pk=formset.instance.pk).values_list('email_address', flat=True)[0]
-#                            new_email_address = formset.instance.email_address
-                            
-                # Get contact pk
-                pk = self.object.pk
                 
-                # Calculate expire date
-                expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
-                expire_date_pickled = pickle.dumps(expire_date)
-
-                # Get link to site
-                protocol = self.request.is_secure() and 'https' or 'http'
-                site = Site.objects.get_current()
-
-                # Build data dict
-                verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
-                    'contact_pk': self.object.pk,
-                    'old_email_address': old_primary_email_address_instance.email_address,
-                    'email_address': pickle.dumps(new_primary_email_address_instance),
-                    'expire_date': expire_date_pickled,
-                    'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
-                })).strip('=')
-
-                # Build verification link
-                verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
-                    'data': verification_email_data
-                }))
-
-                # Sent an e-mail informing the user his primary e-mail address
-                # can be changed.
-                send_templated_mail(
-                    template_name='email_confirm',
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
-                    context = {
-                        'current_site': site,
-                        'full_name': self.object.full_name(),
-                        'verification_link': verification_link,
-                        'email_address': new_primary_email_address_instance.email_address
-                    }
-                )
-
-                # Add message
-                messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
+                if not allow_save and email_verify or primary_has_changed:          
+                    # Get contact pk
+                    pk = self.object.pk
+                    
+                    # Calculate expire date
+                    expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
+                    expire_date_pickled = pickle.dumps(expire_date)
+    
+                    # Get link to site
+                    protocol = self.request.is_secure() and 'https' or 'http'
+                    site = Site.objects.get_current()
+    
+                    # Build data dict
+                    verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
+                        'contact_pk': self.object.pk,
+                        'old_email_address': old_primary_email_address_instance.email_address,
+                        'email_address': pickle.dumps(new_primary_email_address_instance),
+                        'expire_date': expire_date_pickled,
+                        'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
+                    })).strip('=')
+    
+                    # Build verification link
+                    verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
+                        'data': verification_email_data
+                    }))
+    
+                    # Sent an e-mail informing the user his primary e-mail address
+                    # can be changed.
+                    send_templated_mail(
+                        template_name='email_confirm',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
+                        context = {
+                            'current_site': site,
+                            'full_name': self.object.full_name(),
+                            'verification_link': verification_link,
+                            'email_address': new_primary_email_address_instance.email_address
+                        }
+                    )
+    
+                    # Add message
+                    messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
             else:
                 # Add message
                 messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))

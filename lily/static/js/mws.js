@@ -60,9 +60,11 @@ $(document).ready(function() {
 		// }
 	// });
 	
-	$.datepicker.setDefaults({
-        'dateFormat': 'dd/mm/yy'
-    });
+	if( $.datepicker ) {
+    	$.datepicker.setDefaults({
+            'dateFormat': 'dd/mm/yy'
+        });
+    }
 	
     // enable datepicker on rendered fields, hidden fields and fields retrieved with AJAX
     $('form').on('click', '.expected_closing_date.datepicker', function(event){

@@ -6,13 +6,15 @@
 {% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
 Hello {{ name }},
 
-You tried to change the primary e-mail address of your contact information. Since this e-mail address is to login into {{ site_name }}, you'll need to click on the following link below to verify your e-mail address. This link will expire after seven days.
+You tried to change the primary e-mail address of your contact information. Since this e-mail address is also your login into {{ site_name }}, you'll need to click on the following link below to verify your e-mail address. This link will expire after seven days.
 {{ verification_link }}
 
 Please remember to use {{ email_address }} to log in once you've verified this e-mail adress.
 
 
-If the link doesn't work, you can copy and paste it into the address bar of your browser. 
+If the link doesn't work, you can copy and paste the link below into the address bar of your browser.
+
+{{ verification_link }} 
 
 Sincerely,
 The {{ site_name }} team
@@ -24,7 +26,7 @@ The {{ site_name }} team
 <p>Hello {{ name }},</p>
 
 <p>
-You tried to change the primary e-mail address of your contact information. Since this e-mail address is to login into {{ site_name }}, you'll need to click on <a href="{{ verification_link }}">this link</a> to verify your e-mail address. This link will expire after seven days.
+You tried to change the primary e-mail address of your contact information. Since this e-mail address is also your login into {{ site_name }}, you'll need to click on <a href="{{ verification_link }}">this link</a> to verify your e-mail address. This link will expire after seven days.
 </p>
 
 <p>
@@ -32,8 +34,9 @@ Please remember to use {{ email_address }} to log in once you've verified this e
 </p>
 
 <p>
-If the link doesn't work, you can copy and paste it into the address bar of your browser. 
+If the link doesn't work, you can copy and paste the link below into the address bar of your browser. 
 </p>
+{{ verification_link }}
 
 <p>
 Sincerely, <br />

@@ -1,0 +1,4 @@
+worker: redis-server /usr/local/etc/redis.conf
+web: python manage.py runserver
+celeryd: python manage.py celeryd -E -B --loglevel=INFO
+worker: python manage.py celerycam

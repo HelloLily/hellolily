@@ -562,6 +562,13 @@ class CustomSetPasswordView(FormView):
         
         return [template_name]
 
+    def form_valid(self, form):
+        """
+        Overload super().form_valid to save the password change.
+        """
+        form.save()
+        return super(CustomSetPasswordView, self).form_valid(form)
+
 
 # Perform logic here instead of in urls.py
 registration_view = RegistrationView.as_view()

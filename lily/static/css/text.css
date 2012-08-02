@@ -29,32 +29,26 @@ hr {
 
 h1 {
   font-size: 25px;
-  color: #1C76BC;
 }
 
 h2 {
   font-size: 23px;
-  color: #1C76BC;
 }
 
 h3 {
   font-size: 21px;
-  color: #1C76BC;
 }
 
 h4 {
   font-size: 19px;
-  color: #777777;
 }
 
 h5 {
   font-size: 17px;
-  color: #777777;
 }
 
 h6 {
   font-size: 15px;
-  color: #777777;
 }
 
 /* `Spacing
@@ -88,30 +82,5 @@ table,
 address,
 fieldset,
 figure {
-  margin-bottom: 16px;
-}
-
-/* `Borders
-----------------------------------------------------------------------------------------------------*/
-.no-bottom-radius {
-  -webkit-border-bottom-left-radius : 0px !important;
-  -webkit-border-bottom-right-radius: 0px !important;
-  -moz-border-radius-bottomleft     : 0px !important;
-  -moz-border-radius-bottomright    : 0px !important;
-  border-bottom-left-radius         : 0px !important;
-  border-bottom-right-radius        : 0px !important;
-}
-
-/* `Anchors
-----------------------------------------------------------------------------------------------------*/
-a {
-    color: #4682B4;
-}
-
-a:hover { 
-    color: #1C76BC;
-}
-
-.no-decoration {
-	text-decoration: none;
+  margin-bottom: 20px;
 }

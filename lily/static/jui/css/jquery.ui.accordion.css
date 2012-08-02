@@ -12,7 +12,7 @@
 .ui-accordion .ui-accordion-header {
 	cursor: pointer; position: relative; zoom: 1;
 	font-weight:normal;
-	background:url(../../../images/core/mws-panel-header-bg.png) repeat-x;
+	background:url(../../images/core/mws-panel-header-bg.png) repeat-x;
 	height:25px;
 	position:relative;
 	padding:12px 20px;

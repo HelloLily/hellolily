@@ -7,6 +7,5 @@
  *
  * http://docs.jquery.com/UI/Theming
  */
-@import "styles/jquery.ui.base.css";
-@import "styles/jquery.ui.theme.css";
-@import "styles/jquery.ui.autocomplete.css";
+@import "jquery.ui.base.css";
+@import "jquery.ui.theme.css";

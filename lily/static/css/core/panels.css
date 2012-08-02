@@ -1,135 +1,155 @@
-/* Panel Header */
+/*
+ * MWS Admin v1.5 - Panel Stylesheet
+ * This file is part of MWS Admin, an Admin template build for sale at ThemeForest.
+ * All copyright to this file is hold by Mairel Theafila <maimairel@yahoo.com> a.k.a nagaemas on ThemeForest.
+ * Last Updated:
+ * April 29, 2012
+ *
+ * Table of Contents
+ * ==================================================
+ *
+ * 1. Panel
+ * 2. Panel Header
+ * 3. Panel Body
+ * 4. Panel elFinder
+ *
+ */
+
+/* (1) Panel
+================================================== */
 
 .mws-panel
 {
-	margin-bottom:32px;
+    margin-bottom:32px;
 }
+
+/* (2) Panel Header
+================================================== */
 
 .mws-panel .mws-panel-header
 {
-	background-image:url(../../images/core/mws-panel-header-bg.png);
-	background-repeat: repeat-x;
-	height:25px;
-	position:relative;
-	/* prev. padding:12px 12px 10px 12px; */
-    padding: 12px 12px 10px 16px; /* new */
-	/* prev. border-bottom:2px solid #35353a; */
-	font-size: 18px !important; /* prev. font-size:14px; */
-	
-	/* CSS 3 */
-	
-	/* prev.
-	-webkit-border-radius:4px;
-	-moz-border-radius:4px;
-	-o-border-radius:4px;
-	-khtml-border-radius:4px;
-	border-radius:4px;
-	*/
+    background-image:url(../../images/core/mws-panel-header-bg.png);
+    background-repeat: repeat-x;
+    height:25px;
+    position:relative;
+    padding:12px 12px 10px 12px;
+    border-bottom:2px solid #35353a;
+    font-size:14px;
+    
+    /* CSS 3 */
+    
+    -webkit-border-radius:4px;
+    -moz-border-radius:4px;
+    -o-border-radius:4px;
+    -khtml-border-radius:4px;
+    border-radius:4px;
 }
 
 .mws-panel .mws-panel-header span
 {
-	line-height:24px;
-	overflow:hidden;
-	text-overflow:ellipsis;
-	display:block;
-	white-space:nowrap;
+    line-height:24px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:block;
+    white-space:nowrap;
 }
 
 .mws-panel .mws-panel-header span.mws-ic
 {
-	padding-left:40px;
-	background-position:4px center;
+    padding-left:40px;
+    background-position:4px center;
 }
 
 .mws-panel .mws-panel-header span.mws-i-16
 {
-	padding-left:32px;
-	background-position:8px center;
+    padding-left:32px;
+    background-position:8px center;
 }
 
 .mws-panel .mws-panel-header span.mws-i-24
 {
-	padding-left:40px;
-	background-position:8px center;
+    padding-left:40px;
+    background-position:8px center;
 }
 
 .mws-panel .mws-panel-header .mws-collapse-button
 {
-	width:22px; height:22px;
-	display:block;
-	padding:0;
-	position:absolute;
-	right:10px;
-	top:50%;
-	margin-top:-11px;
+    width:22px; height:22px;
+    display:block;
+    padding:0;
+    position:absolute;
+    right:10px;
+    top:50%;
+    margin-top:-11px;
 }
 
 .mws-panel .mws-panel-header .mws-collapse-button span
 {
-	display:block;
-	padding:0;
-	margin:3px;
-	width:16px; height:16px;
-	cursor:pointer;
-	background-repeat:no-repeat;
-	background-position:center center;
-	
-	/* CSS 3 */
-	
-	-webkit-border-radius:2px;
-	-moz-border-radius:2px;
-	-o-border-radius:2px;
-	-khtml-border-radius:2px;	
-	border-radius:2px;
+    display:block;
+    padding:0;
+    margin:3px;
+    width:16px; height:16px;
+    cursor:pointer;
+    background-repeat:no-repeat;
+    background-position:center center;
+    
+    /* CSS 3 */
+    
+    -webkit-border-radius:2px;
+    -moz-border-radius:2px;
+    -o-border-radius:2px;
+    -khtml-border-radius:2px;   
+    border-radius:2px;
 }
 
 .mws-panel.mws-collapsed .mws-panel-header .mws-collapse-button span
 {
-	background-image:url(../../images/core/mws-panel-button-icon-plus.png);
+    background-image:url(../../images/core/mws-panel-button-icon-plus.png);
 }
 
 .mws-panel .mws-panel-header .mws-collapse-button span
 {
-	background-image:url(../../images/core/mws-panel-button-icon-min.png);
+    background-image:url(../../images/core/mws-panel-button-icon-min.png);
 }
+
+/* (3) Panel Body
+================================================== */
 
 .mws-panel .mws-panel-body
 {
-	background-color:white; /* prev. #f8f8f8; */
-	margin:0; /* prev. 0 2px; */
-	border:1px solid #bcbcbc;
-	border-top:0;
-	
-	/* CSS 3 */
-	
-	-webkit-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);	
-	-moz-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);	
-	-o-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
-	-khtml-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);		
-	box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
+    background-color:#f8f8f8;
+    margin:0 2px;
+    border:1px solid #bcbcbc;
+    border-top:0;
+    
+    /* CSS 3 */
+    
+    -webkit-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);    
+    -moz-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);   
+    -o-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
+    -khtml-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);     
+    box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
 }
-
-/* General Body */
 
 .mws-panel .mws-panel-content
 {
-	padding:24px;
+    padding:24px;
 }
 
-/* elFinder */
+/* (4) Panel elFinder
+================================================== */
 
 .mws-panel .el-finder
 {
-	margin:0 2px;
-	width:auto;
-	border-top:0;
-	
-	/* CSS 3 */
-	
-	-webkit-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);	
-	-moz-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);	
-	-o-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
-	-khtml-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
-	box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
+    margin:0 2px;
+    width:auto;
+    border-top:0;
+    
+    /* CSS 3 */
+    
+    -webkit-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);    
+    -moz-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);   
+    -o-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
+    -khtml-box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
+    box-shadow:0px 3px 3px -2px rgba(0, 0, 0, 0.15);
 }

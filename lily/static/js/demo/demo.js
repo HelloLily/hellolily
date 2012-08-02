@@ -265,4 +265,25 @@ $(document).ready(function() {
 	$("#mws-growl-btn-2").bind("click", function(event) {
 		$.jGrowl("Message with Header", {header: "Important!", position: "bottom-right"});
 	});
+	
+	/* Smart Wizard */
+	
+	if($.fn.smartWizard) {
+		$("#smart-wizard").smartWizard({
+			onShowStep: function(obj) {
+				obj.parents("ul").children("li").each(function() {
+					var el = $(this).removeClass("current done disabled");
+					el.children("span, a").each(function() {
+						if($(this).hasClass("disabled")) {
+							el.addClass("disabled");
+						} else if($(this).hasClass("done")) {
+							el.addClass("done");
+						} else {
+							el.addClass("current");
+						}
+					});
+				});
+			}
+		});
+	}
 });

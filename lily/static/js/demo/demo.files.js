@@ -8,7 +8,7 @@ $(document).ready(function() {
 	
 	$("#uploader").pluploadQueue({
 		// General settings
-		runtimes : 'html4, html5', 
+		runtimes : 'html5, html4', 
 		url : '../upload.html',
 		max_file_size : '1000mb',
 		max_file_count: 20, // user can add no more then 20 files at a time

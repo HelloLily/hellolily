@@ -1,236 +1,282 @@
+/*
+ * MWS Admin v1.5 - Plugin Stylesheet
+ * This file is part of MWS Admin, an Admin template build for sale at ThemeForest.
+ * All copyright to this file is hold by Mairel Theafila <maimairel@yahoo.com> a.k.a nagaemas on ThemeForest.
+ * Last Updated:
+ * April 29, 2012
+ *
+ * Table of Contents
+ * ==================================================
+ *
+ * 1. elFinder
+ * 2. elRTE
+ * 3. jGrowl
+ * 4. Smart Wizard
+ * 5. Colorpicker
+ *
+ */
 
-/* ----------------------------------------- elFinder
------------------------------------------------------ */
+/* (1) elFinder
+================================================== */
 
 .el-finder
 {
-	min-width:0 !important;
-
-	/* CSS 3 */
-
-	-webkit-border-radius:0 !important;
-	-moz-border-radius:0 !important;
-	border-radius:0 !important;
+    min-width:0 !important;
+    
+    -webkit-border-radius:0 !important;
+    -moz-border-radius:0 !important;
+    border-radius:0 !important;
 }
 
-.el-finder-dialog {
-	font-size:100%;
+.el-finder-dialog
+{
+    font-size:100%;
 }
-.el-finder-dialog .ui-dialog-titlebar {
-	padding:12px !important;
+
+.el-finder-dialog .ui-dialog-titlebar
+{ 
+    padding:12px !important;
 }
-.el-finder-dialog .ui-dialog-buttonpane {
-	padding:5px !important;
-	font-size:100% !important;
+
+.el-finder-dialog .ui-dialog-buttonpane
+{
+    padding:5px !important;
+    font-size:100% !important;
 }
 
 .el-finder-dialog .ui-dialog-content
 {
-	font-size:0.9em !important;
+    font-size:0.9em !important;
 }
 
-.el-finder-dialog .ui-tabs {
-	font-size:100%;
+.el-finder-dialog .ui-tabs
+{ 
+    font-size:100%;
 }
 
-.el-finder-dialog .ui-tabs div {
-	padding:1em 2.2em !important;
-}
-.el-finder-dialog .ui-tabs-nav li a {
-	padding:4px 1em 13px 1em !important;
-	line-height:19px !important;
+.el-finder-dialog .ui-tabs div
+{
+    padding:1em 2.2em !important;
 }
 
-/* ------------------------------------- End elFinder
------------------------------------------------------ */
+.el-finder-dialog .ui-tabs-nav li a
+{
+    padding:4px 1em 13px 1em !important;
+    line-height:19px !important;
+}
 
+/* (2) elRTE
+================================================== */
 
-
-
-/* -------------------------------------------- elRTE
------------------------------------------------------ */
-/*
 .ui-widget
 {
-	font-size:1em !important;
+    font-size:1em !important;
 }
 
 .ui-widget .el-dialogform
 {
-	padding:1em 1.4em !important;
-	height:auto !important;
+    padding:1em 1.4em !important;
+    height:auto !important;
 }
 
 .ui-widget .el-dialogform .ui-tabs .ui-tabs-panel
 {
-	-webkit-box-shadow:none !important;
-	-moz-box-shadow:none !important;
-	-o-box-shadow:none !important;
-	-khtml-box-shadow:none !important;
-	box-shadow:none !important;
+    -webkit-box-shadow:none !important;
+    -moz-box-shadow:none !important;
+    -o-box-shadow:none !important;
+    -khtml-box-shadow:none !important;
+    box-shadow:none !important;
 }
 
 .ui-dialog .ui-dialog-buttonpane button
 {
-	padding:6px 9px !important;
-	margin:.5em .4em .5em 0 !important;
+    padding:6px 9px !important;
+    margin:.5em .4em .5em 0 !important;
 }
 
 .ui-dialog .ui-dialog-title
 {
-	font-size:14px !important;
-	color: white;
+    font-size:14px !important;
 }
 
 .ui-dialog .ui-dialog-content.el-dialog-form
 {
-	font-size:0.9em !important;
+    font-size:0.9em !important;
 }
 
 .ui-dialog .ui-dialog-titlebar
 {
-	padding:12px !important;
+    padding:12px !important;
 }
 
 .ui-tabs .ui-tabs-nav li a
 {
-	padding: 4px 1em 13px 1em !important;
+    padding: 4px 1em 13px 1em !important;
 }
-*/
+
 .elrte-image-preview
 {
-	font-size:1em !important;
-	width: auto !important;
+    font-size:1em !important;
+    width: auto !important;
 }
 
 .el-rte-smiley
 {
-	cursor:pointer;
+    cursor:pointer;
 }
 
-/* ---------------------------------------- End elRTE
------------------------------------------------------ */
+/* (3) jGrowl
+================================================== */
 
-
-
-
-/* -------------------------------------------- jCrop
------------------------------------------------------ */
-
-.jcrop-holder img {
-	max-width:none;
-}
-
-/* ---------------------------------------- End jCrop
------------------------------------------------------ */
-
-
-
-
-/* ------------------------------------------- jGrowl
------------------------------------------------------ */
-
-/* prev.
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
 {
-	opacity:1 !important;
+    opacity:1 !important;
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
-    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important;
-
-	background-image:url(../../images/core/mws-dark-bg.png);
-	border:1px solid #666666;
-	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
-}*/
-
-div.jGrowl div.jGrowl-closer {
-    padding-left: 23px;
-    padding-right: 23px;
-    border: 1px solid;
-    border-color: #789FCC;
-    background-color: #1C76BC;
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important; 
+    
+    /*prev. background-image:url(../../images/core/mws-dark-bg.png);*/
+    border:1px solid #666666;
+    font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
 }
 
-div.jGrowl div.jGrowl-notification {
-    border: 1px solid;
-    padding-left: 36px;
-    background-repeat: no-repeat;
-    background-position: 10px 11px;
-    min-height: 0 !important;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
-}
-
-/** Theme 'info' **/
-div.jGrowl div.jGrowl-notification.info {
-    border-color: #789FCC !important;
-    background-color: #1C76BC;
-}
-
-/** Theme 'success' **/
-div.jGrowl div.jGrowl-notification.success {
-    border-color: #789FCC !important;
-    background-color: #1C76BC !important;
-}
-
-/** Theme 'warning' **/
-div.jGrowl div.jGrowl-notification.warning {
-    border-color: #789FCC !important;
-    background-color: #1C76BC !important;
-}
-
-/** Theme 'error' **/
-div.jGrowl div.jGrowl-notification.error {
-    color: #FBE3E4 !important;
-    border-color: #FBC2C4 !important;
-    background-color: #8A1F11 !important;
-    opacity: 1!important;
-}
-
-
-/* --------------------------------------- End jGrowl
------------------------------------------------------ */
-
-
-
-
-/* ------------------------------------ Full Calendar
------------------------------------------------------ */
-
+/* (4) Fullcalendar
+================================================== */
+    
 .fc-event-skin
 {
-	border-color: #000000 !important;
-	background-image:url(../../images/core/mws-dark-bg.png);
+    border-color: #000000 !important;
+    background-image:url(../../images/core/mws-dark-bg.png);
 }
 
 .fc-state-highlight
 {
-	opacity: 0.9;
-	filter: alpha(opacity=90);
+    opacity: 0.9;
+    filter: alpha(opacity=90);
 }
 
-/* -------------------------------- End Full Calendar
------------------------------------------------------ */
+/* (4) Smart Wizard
+================================================== */
 
-
-
-
-
-/* ------------------------------------ Chosen
------------------------------------------------------ */
-
-.chzn-container-single .chzn-single {
-	height: 23px !important;
-  	line-height: 25px !important;
-  	border: 1px solid #C5C5C5;
+.stepContainer
+{
+    height:auto !important;
 }
 
-.chzn-container .chzn-results .highlighted {
- 	background: #1C76BC !important;
-}
- 
-#id_contact_quickbutton_account_chzn.chzn-container .chzn-results {
-    max-height: 90px !important;
+.actionBar:after {
+    clear: both;
+    content: ' ';
+    display: block;
+    font-size: 0;
+    line-height: 0;
+    visibility: hidden;
+    width: 0;
+    height: 0;
 }
 
-/* -------------------------------- End Chosen
------------------------------------------------------ */
+.actionBar {
+    display: inline-block;
+}
 
+* html .actionBar {
+    height: 1%;
+}
+
+.actionBar {
+    display: block;
+}
+
+.actionBar
+{
+    padding:16px 24px;
+    border-top:1px solid #bcbcbc;
+    text-align:right;
+    background:url(../../images/core/mws-inset.png);
+}
+
+.actionBar .loader
+{
+    display:none;
+}
+
+.actionBar .buttonFinish, 
+.actionBar .buttonNext, 
+.actionBar .buttonPrevious
+{
+    float:right;
+    outline:none;
+    padding:6px 9px;
+    margin:2px;
+    text-decoration:none;
+    cursor:pointer;
+    
+    /* CSS 3 */
+    
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    -o-border-radius:3px;
+    -khtml-border-radius:3px;
+    border-radius:3px;
+    
+    -webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
+    -o-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
+    -khtml-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.actionBar .buttonFinish, 
+.actionBar .buttonPrevious
+{
+    float:left;
+    background-color:#e0e0e0;
+    color:#666666;
+    text-shadow:none;
+    border:1px solid #ababab;
+    
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e8e5e5), color-stop(100%, #e0e0e0));
+    background-image: -webkit-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: -moz-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: -o-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: linear-gradient(#e8e5e5,#e0e0e0);
+}
+
+.actionBar .buttonFinish
+{
+    float:right;
+}
+
+.actionBar .buttonDisabled
+{
+    background-color:#e0e0e0;
+    background-image:none;
+    color:#aaaaaa;
+    cursor:auto;
+    text-shadow:none;
+    border:1px solid #a0a0a0;
+    
+    -webkit-box-shadow:none !important;
+    -moz-box-shadow:none !important;
+    -o-box-shadow:none !important;
+    box-shadow:none !important;
+}
+
+.actionBar .buttonNext
+{
+    background-color:#96c742;
+    color:#ffffff;
+    border:1px solid #507E0C;
+    
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #addf58), color-stop(100%, #96c742));
+    background-image: -webkit-linear-gradient(#addf58,#96c742);
+    background-image: -moz-linear-gradient(#addf58,#96c742);
+    background-image: -o-linear-gradient(#addf58,#96c742);
+    background-image: linear-gradient(#addf58,#96c742);
+}
+
+/* (5) Colorpicker
+================================================== */
+
+.colorpicker
+{
+    z-index:4;
+}

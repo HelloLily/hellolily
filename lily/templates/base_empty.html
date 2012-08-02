@@ -19,7 +19,7 @@ This template has an opt-out for:
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         
         <!-- Favicon -->
-        <link href="{% static 'images/favicon.ico' %}" rel="icon" type="image/x-icon" />
+        <link href="{% static 'extra/images/favicon.ico' %}" rel="icon" type="image/x-icon" />
         
         <!-- Page title -->
         <title>{% block page-title %}{% endblock %} HelloLily</title>
@@ -34,7 +34,7 @@ This template has an opt-out for:
         
             {% block jQueryUI-styles %}
                 <!-- jQuery UI core styles -->
-                <link rel="stylesheet" type="text/css" href="{% static 'css/jui/jquery.ui.css' %}" media="screen" />
+                <link rel="stylesheet" type="text/css" href="{% static 'jui/css/jquery.ui.all.css' %}" media="screen" />
             {% endblock %}
         
             <!-- Reset styles -->
@@ -43,6 +43,7 @@ This template has an opt-out for:
             <!-- Theme default styles -->
             <link rel="stylesheet" type="text/css" href="{% static 'css/core/button.css' %}" media="screen" />
             <link rel="stylesheet" type="text/css" href="{% static 'css/core/misc.css' %}" media="screen" />
+            <link rel="stylesheet" type="text/css" href="{% static 'css/core/shared.css' %}" media="screen" />
             
             <link rel="stylesheet" type="text/css" href="{% static 'css/fonts/ptsans/stylesheet.css' %}" media="screen" />
             <link rel="stylesheet" type="text/css" href="{% static 'css/fluid.css' %}" media="screen" />
@@ -63,23 +64,26 @@ This template has an opt-out for:
             
             <!-- Responsive styles -->
             <link rel="stylesheet" type="text/css" href="{% static 'css/core/responsive.css' %}" media="screen" />
+            
         {% endblock %}
+        <!-- Changes to the default styles -->
+        <link rel="stylesheet" type="text/css" href="{% static 'extra/css/extra.css' %}" media="screen" />
         
         {% block scripts %}
             
             {% block jQuery-scripts %}
                 <!-- jQuery core scripts -->
-                <script type="text/javascript" src="{% static 'js/jquery-1.7.1.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'js/jquery-1.7.2.min.js' %}"></script>
             {% endblock %}
             
             {% block jQueryUI-scripts %}
                 <!-- jQuery UI core scripts -->
-                <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'jui/js/jquery-ui.js' %}"></script>
             {% endblock %}
             
             {% block jQueryUI-extra-scripts %}
                 <!-- jQuery UI additional scripts -->
-                <script type="text/javascript" src="{% static 'js/jquery-ui-effects.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'jui/js/jquery-ui-effects.min.js' %}"></script>
             {% endblock %}
     
             <!-- Scripts for GetSatisfaction -->
@@ -93,7 +97,7 @@ This template has an opt-out for:
                 <script type="text/javascript" src="{% static 'plugins/chosen/chosen.jquery.min.js' %}"></script>
                 <script type="text/javascript" src="{% static 'plugins/elastic/jquery.elastic.source.js' %}"></script>
                 <script type="text/javascript" src="{% static 'plugins/jqueryform/jquery.form.min.js' %}"></script>
-<!--                 <script type="text/javascript" src="{% static 'plugins/label-placeholder/jquery.label-placeholder.js' %}"></script> -->
+                <!-- <script type="text/javascript" src="{% static 'plugins/label-placeholder/jquery.label-placeholder.js' %}"></script> -->
                 <script type="text/javascript" src="{% static 'plugins/placeholder/jquery.placeholder-min.js' %}"></script>
                 <script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
                 <script type="text/javascript" src="{% static 'plugins/validate/jquery.validate-min.js' %}"></script>

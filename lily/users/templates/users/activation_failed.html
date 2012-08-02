@@ -4,7 +4,10 @@
 {% block title %}{% trans 'Account activation failed' %} - {% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" type="text/css" href="{% static 'users/css/activation.css' %}" media="screen" />
+    {{ block.super }}
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'css/core/login.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'users/css/activation.css' %}" media="screen" />
 {% endblock %}
 
 {% block body %}

@@ -1,0 +1,13 @@
+.i-16 { background-repeat: no-repeat; background-position: left center; }
+.i-16.i-edit { background-image: url(white/16/edit.png); }
+.i-16.i-mail { background-image: url(white/16/mail.png); }
+.i-16.i-mobile { background-image: url(white/16/mobile.png); }
+.i-16.i-phone { background-image: url(white/16/phone.png); }
+.i-16.i-trash-1 { background-image: url(white/16/trash-1.png); }
+
+.blue.i-16.i-edit { background-image: url(blue/16/edit.png); }
+.blue.i-16.i-mail { background-image: url(blue/16/mail.png); }
+.blue.i-16.i-mobile { background-image: url(blue/16/mobile.png); }
+.blue.i-16.i-phone { background-image: url(blue/16/phone.png); }
+.blue.i-16.i-trash-1 { background-image: url(blue/16/trash-1.png); }
+.blue.i-16.i-twitter { background-image: url(blue/16/twitter.png); }

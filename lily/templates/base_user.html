@@ -29,7 +29,28 @@
                 <!-- Logo container -->
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
-                        <img src="{% static 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                        <a href="{% url dashboard %}">
+                            <img src="{% static 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                        </a>
+                    </div>
+                </div>
+                    
+                <!-- User tools container -->
+                <div id="mws-user-tools" class="clearfix">
+                    <!-- User information section -->
+                    <div id="mws-user-info" class="mws-inset">
+                        <div id="mws-user-photo">
+                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                        </div>
+        
+                        <div id="mws-user-functions">
+                            <div id="mws-username">
+                                Hello, {{ user }}
+                            </div>
+                            <ul>
+                                <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 
@@ -63,25 +84,6 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-                    
-                <!-- User tools container -->
-                <div id="mws-user-tools">
-                    <!-- User information section -->
-                    <div id="mws-user-info" class="mws-inset">
-                        <div id="mws-user-photo">
-                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
-                        </div>
-        
-                        <div id="mws-user-functions">
-                            <div id="mws-username">
-                                Hello, {{ user }}
-                            </div>
-                            <ul>
-                                <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     {% endblock %}
@@ -125,7 +127,7 @@
         <div id="mws-container" class="clearfix">
 
             <!-- Inner Container -->
-            <div class="container">
+            <div class="container clearfix">
                 {% block container %}{% endblock %}
             </div>
             

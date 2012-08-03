@@ -258,7 +258,7 @@ div#mws-quickbutton-container
     float:left;
     height:53px;
     padding:5px 0 0;
-    margin:0 9px 0 53px;
+    margin:0 9px 0 52px;
 }
 
 div#mws-quickbutton-container button
@@ -686,9 +686,44 @@ div.jGrowl div.jGrowl-notification.error
  */
 @media only screen and (min-width: 600px) and (max-width : 1024px) /* @media only screen and (min-width: 600px) and (max-width : 1024px) */
 {
+    div#mws-header-container
+    {
+        height:96px;
+    }
+    
+    div#mws-logo-container
+    {
+        width:100px;
+    }
+    
+    div#mws-user-tools
+    {
+        margin-left:128px;
+        float:none;
+        padding:9px 0 0;
+    }
+    
+    div#mws-quickbutton-container
+    {
+        margin-left:134px;
+        float:none;
+        padding-top:0;
+    }
+    
+    div#mws-quickbutton-container button
+    {
+        margin-top:0;
+    }
+    
     div#mws-container /* div#mws-container */
     {
         margin-left:100px;
+    }
+    
+    div#mws-container,
+    div#mws-sidebar
+    {
+        padding-top:138px;
     }
     
     div#mws-sidebar-stitch /* div#mws-sidebar-stitch */
@@ -699,7 +734,7 @@ div.jGrowl div.jGrowl-notification.error
     div#mws-navigation ul li a.mws-i-24,    /* div#mws-navigation ul li a.mws-i-24, */
     div#mws-navigation ul li span.mws-i-24, /* div#mws-navigation ul li span.mws-i-24, */ 
     div#mws-navigation ul li a.mws-ic,      /* div#mws-navigation ul li a.mws-ic, */ 
-    div#mws-navigation ul li span.mws-ic,    /* div#mws-navigation ul li span.mws-ic */
+    div#mws-navigation ul li span.mws-ic,   /* div#mws-navigation ul li span.mws-ic */
     div#mws-navigation ul li a.i-32,
     div#mws-navigation ul li span.i-32
     {
@@ -714,18 +749,22 @@ div.jGrowl div.jGrowl-notification.error
         margin:0; right:3px;
         left:60%; top:2px;
     }
-}
-
-@media only screen and (max-width: 745px)
-{
+    
+    div#mws-wrapper
+    {
+        margin-right:36px;
+    }
+    
+    div#mws-container .container
+    {
+        float:none;
+    }
+    
     .hide_on_small_screen
     {
         display:none;
     }
-}
-
-@media only screen and (max-width: 840px)
-{
+    
     .hide_on_small_screen_img
     {
         display:none !important;
@@ -734,9 +773,102 @@ div.jGrowl div.jGrowl-notification.error
 
 @media only screen and (max-width : 599px) /* @media only screen and (max-width : 599px) */
 {
+    
+    .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_full
+    {
+        margin-left:auto !important;
+    }
+    
+    div#mws-header-container
+    {
+        height:96px;
+    }
+    
+    div#mws-logo-container /* div#mws-logo-container */
+    {
+        display:none;
+    }
+    
+    div#mws-header /* div#mws-header */
+    {
+        border-top:none;
+    }
+    
+    div#mws-header #mws-user-tools /* div#mws-header #mws-user-tools */
+    {
+        padding: 9px 0;
+    }
+    
     div#mws-header #mws-user-info
     {
-        margin-left:90px;
+        margin-left:12px;
+    }
+    
+    div#mws-quickbutton-container
+    {
+        margin-left:12px;
+        float:none;
+        padding-top:0;
+        height:38px;
+    }
+    
+    div#mws-quickbutton-container button
+    {
+        margin-top:0;
+    }
+    
+    div#mws-wrapper
+    {
+        margin-right:36px;
+    }
+    
+    div#mws-sidebar /* div#mws-sidebar */
+    {
+        width:auto;
+        padding-top:96px;
+        margin:0 12px;
+    }
+    
+    div#mws-navigation /* div#mws-navigation */
+    {
+        background-color:#ffffff;
+        background-image:url(icons/blue/24/bended-arrow-down.png);
+        background-position-y:8px;
+    }
+    
+    div#mws-navigation.toggled /* div#mws-navigation.toggled */
+    {
+        padding-bottom:0px;
+        background-image:url(icons/blue/24/bended-arrow-up.png);
+    }
+    
+    div#mws-navigation.toggled > ul
+    {
+        border-left:none !important;
+        border-bottom:none !important;
+    }
+    
+    div#mws-container .container /* div#mws-container .container */
+    {
+        float:none;
+        margin:0 12px;
+        width:auto;
+    }
+    
+    div.dataTables_wrapper .dataTables_length, /* div.dataTables_wrapper .dataTables_length, */
+    div.dataTables_wrapper .dataTables_filter  /* div.dataTables_wrapper .dataTables_filter */
+    {
+        background:none;
+    }
+    
+    .hide_on_small_screen
+    {
+        display:none;
+    }
+    
+    .hide_on_small_screen_img
+    {
+        display:none !important;
     }
 }
 

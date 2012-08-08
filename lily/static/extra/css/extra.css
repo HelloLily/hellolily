@@ -176,7 +176,7 @@ form#mws-searchbox .mws-search-submit /* div#mws-searchbox .mws-search-submit */
     margin-top:-12px;
     border:none;
     cursor:pointer;
-    background:#1C76BC url(../images/core/mws-search-icon.png) no-repeat center center;
+    background:#1C76BC url(../../images/core/mws-search-icon.png) no-repeat center center;
     
     /* CSS 3 */
     
@@ -1270,7 +1270,7 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
 .ui-dialog .ui-dialog-titlebar /* .ui-dialog .ui-dialog-titlebar */
 {
     margin:0;
-    background:url(../../extra/images/core/mws-panel-header-bg.png);
+    background:url(../images/core/mws-panel-header-bg.png);
     
     -webkit-border-radius:0;
     -moz-border-radius:0;

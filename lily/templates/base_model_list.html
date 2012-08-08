@@ -4,19 +4,13 @@
 Use {% include 'base_model_list.html' with list=list list_item_template=path_to_item_template (optional) %} to use this file.
 {% endcomment %}
 
-{% load i18n static thumbnail utils %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/table.css' %}" media="screen" />
-{% endblock %}
+{% load i18n media thumbnail utils %}
 
 {% block scripts %}
     {{ block.super }}
+    
+	{% include_media 'tables.js' %}
 
-    <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables-min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'plugins/datatables/jquery.dataTables.date.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $(".mws-datatable-fn").dataTable({

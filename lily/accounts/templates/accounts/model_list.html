@@ -1,12 +1,11 @@
 {% extends 'base_model_list.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.accounts.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/accounts.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/responsive.css' %}" media="screen" />
+    {{ block.super }}
 {% endblock %}
 
 {% block scripts %}

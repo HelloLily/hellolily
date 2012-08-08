@@ -1,6 +1,6 @@
 {% extends 'base_app.html' %}
 
-{% load static %}
+{% load media %}
 
 {% block body %}
 
@@ -13,7 +13,7 @@
                 <!-- Logo container -->
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
-                        <img src="{% static 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                        <img src="{% media_url 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
                     </div>
                 </div>
             </div>

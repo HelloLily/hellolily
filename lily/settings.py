@@ -1,8 +1,10 @@
 import os
 from urlparse import urlparse, uses_netloc
 
-import django.conf.global_settings as DEFAULT_SETTINGS
 from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import gettext_noop
+import django.conf.global_settings as DEFAULT_SETTINGS
+
 
 # Register database scheme and redis caching in URLs
 uses_netloc.append('postgres')
@@ -44,7 +46,11 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 # Localization
 TIME_ZONE = 'Europe/Amsterdam'
 DATE_INPUT_FORMATS = tuple(['%d/%m/%Y'] + list(DEFAULT_SETTINGS.DATE_INPUT_FORMATS))
-LANGUAGE_CODE = 'En-en'
+LANGUAGE_CODE = 'en'
+LANGUAGES = (
+    ('nl', gettext_noop('Dutch')),
+    ('en', gettext_noop('English')),
+)
 USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))
@@ -75,19 +81,6 @@ FILE_UPLOAD_HANDLERS = (
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
 
-# Static
-STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))
-STATIC_URL = os.environ.get('STATIC_URL', '/static/')
-
-STATICFILES_DIRS = (
-    local_path('static/'),
-)
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
-
 # Login settings
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
@@ -101,6 +94,9 @@ AUTHENTICATION_BACKENDS = (
 
 # Used middleware
 MIDDLEWARE_CLASSES = (
+    # Mediagenerator (needs to be first)
+    'mediagenerator.middleware.MediaMiddleware', # only used in dev mode
+    
     # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -115,6 +111,7 @@ MIDDLEWARE_CLASSES = (
 
     # Lily
     'lily.tenant.middleware.TenantMiddleWare',
+#    'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
 )
 
 # Main urls file
@@ -128,8 +125,14 @@ TEMPLATE_DIRS = (
     local_path('templates/')
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+# overwriting defaults, to leave out media and static context processors
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.tz',
     'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
     'lily.utils.context_processors.quickbutton_forms',
 )
 
@@ -157,7 +160,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 
     # 3rd party
     'templated_email',
@@ -166,6 +168,7 @@ INSTALLED_APPS = (
     'activelink',
     'south',
     'debug_toolbar',
+    'mediagenerator',
 
     # Lily
     'lily', # required for management command
@@ -204,7 +207,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'level':'DEBUG',
-            'filters': ['require_debug_false'],
+#            'filters': ['require_debug_false'],
             'class':'logging.StreamHandler',
         },
         'mail_admins': {
@@ -220,8 +223,13 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'console'],
+            'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': True,
         },
     }
@@ -282,3 +290,34 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
             }
         }
     }
+
+# django-mediagenerator
+MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
+IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
+
+DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
+PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
+STATIC_URL = '/static/' # required to server static files for django-admin
+#
+#YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
+#ROOT_MEDIA_FILTERS = {
+#    'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
+#    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+#}
+
+try:
+    import mediagenerator
+    MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
+except ImportError:
+    raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
+
+# If not testing with a webserver for static files, fall back to django devserver (in debug mode only)
+#if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:
+#    STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('.'))
+#
+#    STATIC_URL = os.environ.get('STATIC_URL', '/static/')
+#    STATICFILES_DIRS = (
+#        '_generated_media/',
+#    )
+#    
+#    INSTALLED_APPS += ('django.contrib.staticfiles',)

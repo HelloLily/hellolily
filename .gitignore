@@ -5,6 +5,7 @@
 .env
 .project
 .pydevproject
+.settings/
 .DS_Store
 lily/media/
 lily/files/

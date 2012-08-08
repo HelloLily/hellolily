@@ -1,21 +1,19 @@
 {% extends 'base_visitor_portal.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block page-title %}{% trans 'Reset password' %} - {% endblock %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.users.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/login.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/password_reset.css' %}" media="screen" />
+    {{ block.super }}
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
     
     <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-    <script type="text/javascript" src="{% static 'users/js/password_reset.js' %}"></script>
 {% endblock %}
 
 {% block portal-title %}{% trans 'Reset password' %}{% endblock %}

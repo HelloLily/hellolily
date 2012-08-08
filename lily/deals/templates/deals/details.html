@@ -1,18 +1,11 @@
 {% extends 'base_details.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.deals.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'deals/css/deals.css' %}" media="screen"/>
-{% endblock %}
-
-{% block scripts %}
     {{ block.super }}
-    
-    <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
-    <script type="text/javascript" src="{% static 'deals/js/deals.js' %}"></script>
 {% endblock %}
 
 {% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}

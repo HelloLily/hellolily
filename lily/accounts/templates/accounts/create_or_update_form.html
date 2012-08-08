@@ -1,6 +1,6 @@
 {% extends 'base_create_or_update_form.html' %}
 
-{% load i18n static field_extras %}
+{% load i18n media field_extras %}
 
 {% block create-form-title %}{% trans 'Add account' %}{% endblock %}
 
@@ -26,7 +26,7 @@
         {% if not item.pk %}
             <div id="enrich-busy" style="display: none;">
                 <div id="enrich-busy-message"></div>
-                <img src="{% static 'extra/images/blue-loading.gif' %}" alt="" />
+                <img src="{% media_url 'extra/images/blue-loading.gif' %}" alt="" />
                 <p>
                     <a href="javascript:" id="enrich-account-cancel">{% trans 'Cancel' %}</a>
                 </p>

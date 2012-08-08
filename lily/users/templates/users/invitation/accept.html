@@ -1,13 +1,13 @@
 {% extends 'base_visitor.html' %}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block page-title %}{% trans 'Accept invitation' %} - {% endblock %}
 
 {% block styles %}
+    {% include_media 'lily.users.css' %}
+    
     {{ block.super }}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquery.password_strength.css' %}" media="screen" />
 {% endblock %}
 
 {% block scripts %}
@@ -16,7 +16,6 @@
     {{ form.media }}
     
     <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-    <script type="text/javascript" src="{% static 'users/js/registration.js' %}"></script>
 {% endblock %}
 
 {% block container %}

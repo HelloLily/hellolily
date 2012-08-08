@@ -19,14 +19,14 @@
 .grid_4		{ width:48%; }
 .grid_5		{ width:60.5%; }
 .grid_6		{ width:73%; }
-.grid_7		{ width: 85.5%;; }
+.grid_7		{ width: 85.5%; }
 .grid_8,
 .grid_full	{ width:98.0%; }
 .grid_right	{ float:right }
 
 /* Use as necessary for nested content. Also use percents here for fluidity. */
 .content-pad-right { margin-right: 4%; }
-.content-pad-left: { margin-left: 4%; }
+.content-pad-left { margin-left: 4%; }
 
 audio,
 img,

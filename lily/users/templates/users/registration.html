@@ -1,11 +1,11 @@
 {% extends 'base_visitor.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.users.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquery.password_strength.css' %}" media="screen" />
+    {{ block.super }}
 {% endblock %}
 
 {% block scripts %}
@@ -14,7 +14,6 @@
     {{ form.media }}
     
     <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-    <script type="text/javascript" src="{% static 'users/js/registration.js' %}"></script>
 {% endblock %}
 
 {% block page-title %}{% trans 'Registration' %} - {% endblock %}

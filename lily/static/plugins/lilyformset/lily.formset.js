@@ -214,4 +214,4 @@
         preventEmptyFormset: false,      // Boolean value whether or not to prevent empty formset
         notEmptyFormSetAddCssClass: '',  // CSS class applied to the add link when formset is not empty
     };
-})(jQuery)
+})(jQuery);

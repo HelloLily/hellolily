@@ -1,6 +1,6 @@
 {% extends 'base_model_list_item.html' %}
 
-{% load i18n static thumbnail utils %}
+{% load i18n media thumbnail utils %}
 
 {% block item-edit-url %}{% url contact_edit pk=item.pk %}{% endblock %}
 
@@ -11,14 +11,14 @@
         {% if item.picture %}
             <img src="{% thumbnail item.picture 36x36 %}" alt="" />
         {% else %}
-            <img src="{% static 'extra/images/core/unknown_person_36x36.png' %}" alt="" />
+            <img src="{% media_url 'extra/images/core/unknown_person_36x36.png' %}" alt="" />
         {% endif %}
     </td>
     <td class="personal">
         <div class="name"><a href="{% url contact_details pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a></div>
         <span class="social">
             {% for sm in item.get_social %}
-                <a href="{{ sm.profile_url }}"><img src="{% static 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
+                <a href="{{ sm.profile_url }}"><img src="{% media_url 'images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
             {% endfor %}
         </span>
     </td>

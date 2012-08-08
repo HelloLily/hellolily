@@ -1,38 +1,9 @@
 {% extends 'base_empty.html' %}
 
-{% load static messages %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <!-- Plugin styles -->
-    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jgrowl/jquery.jgrowl.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/plugins.css' %}" media="screen" />
-    
-    <!-- Icon styles -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/icons/16x16.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/icons/24x24.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/icons/32x32.css' %}" media="screen" />
-    
-    <!-- Additional icon styles -->
-    <link rel="stylesheet" type="text/css" href="{% static 'extra/css/icons/extra.16x16.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'extra/css/icons/extra.32x32.css' %}" media="screen" />
-    
-    <!-- Extra styles -->
-    <link rel="stylesheet" type="text/css" href="{% static 'extra/css/views.css' %}" media="screen" />
-{% endblock %}
+{% load messages %}
 
 {% block scripts %}
     {{ block.super }}
-    
-    <!-- Core scripts -->
-    <script type="text/javascript" src="{% static 'utils/js/utils.js' %}"></script>
-    
-    <!-- Plugin scripts -->
-    <script type="text/javascript" src="{% static 'plugins/jgrowl/jquery.jgrowl-min.js' %}"></script>
-    
-    <!-- Theme-defined configuration script, load after plugin scripts -->
-    <script type="text/javascript" src="{% static 'js/core/mws.js' %}"></script>
     
     {% if messages %}
         <!-- Generate jGrowl notifications based on messages middleware -->

@@ -1,6 +1,6 @@
 {% extends 'base_model_list_item.html' %}
 
-{% load i18n static thumbnail utils %}
+{% load i18n media thumbnail utils %}
 
 {% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}
 
@@ -11,7 +11,7 @@
         {% if item.logo %}
             <img src="{% thumbnail item.logo 36x36 %}" alt="" />
         {% else %}
-            <img src="{% static 'extra/images/core/unknown_account.png' %}" alt="" />
+            <img src="{% media_url 'extra/images/core/unknown_account.png' %}" alt="" />
         {% endif %}
     </td>
     <td class="name">

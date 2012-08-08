@@ -1,6 +1,9 @@
-from django.conf.urls import patterns, include, url
+import os
+
 from django.conf import settings
+from django.conf.urls import patterns, include, url
 from django.contrib import admin
+
 
 admin.autodiscover()
 
@@ -18,7 +21,11 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     
-    # Static files and media
-    (r'^static/(.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 )
+
+# Works only in debug mode
+if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:
+    urlpatterns += patterns('',
+       (r'^static/(.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+    )

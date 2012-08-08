@@ -1,19 +1,11 @@
 {% extends 'base_details.html' %}
 
-{% load i18n static thumbnail utils %}
+{% load i18n media thumbnail utils %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.contacts.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'contacts/css/responsive.css' %}" media="screen"/>
-{% endblock %}
-
-{% block scripts %}
     {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
-    <script type="text/javascript" src="{% static 'contacts/js/contacts.js' %}"></script>
 {% endblock %}
 
 {% block item-delete-url %}{% url contact_delete pk=item.pk %}{% endblock %}
@@ -28,7 +20,7 @@
     {% if item.picture %}
         <img class="details-image contact" src="{% thumbnail contact.picture 100x100 %}" alt="" />
     {% else %}
-        <img class="details-image contact" src="{% static 'extra/images/core/unknown_person_100x100.png' %}" alt="" />
+        <img class="details-image contact" src="{% media_url 'extra/images/core/unknown_person_100x100.png' %}" alt="" />
     {% endif %}
 {% endblock %}
 

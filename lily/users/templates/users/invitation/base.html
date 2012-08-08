@@ -1,13 +1,13 @@
 {% extends 'base_user.html' %}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block page-title %}{% trans 'Invitations' %} - {% endblock %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.users.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/invitation.css' %}" media="screen" />
+    {{ block.super }}
 {% endblock %}
 
 {% block scripts %}

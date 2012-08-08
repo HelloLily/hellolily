@@ -11,3 +11,9 @@
 .blue.i-16.i-phone { background-image: url(blue/16/phone.png); }
 .blue.i-16.i-trash-1 { background-image: url(blue/16/trash-1.png); }
 .blue.i-16.i-twitter { background-image: url(blue/16/twitter.png); }
+
+div.jGrowl div.jGrowl-notification.mws-ic-16 { background-repeat:no-repeat; }
+div.jGrowl div.jGrowl-notification.mws-ic-16.ic-accept { background-image:url(../../../css/icons/16/accept.png); }
+div.jGrowl div.jGrowl-notification.mws-ic-16.ic-error { background-image:url(../../../css/icons/16/error.png); }
+div.jGrowl div.jGrowl-notification.mws-ic-16.ic-exclamation { background-image:url(../../../css/icons/16/exclamation.png); }
+div.jGrowl div.jGrowl-notification.mws-ic-16.ic-cross { background-image:url(../../../css/icons/16/cross.png); }

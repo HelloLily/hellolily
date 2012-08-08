@@ -134,7 +134,7 @@ div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)" !important;
     filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100) !important; 
     
-    /*prev. background-image:url(../../images/core/mws-dark-bg.png);*/
+    background-image:url(../../images/core/mws-dark-bg.png);
     border:1px solid #666666;
     font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
 }

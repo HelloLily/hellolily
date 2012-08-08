@@ -1,12 +1,6 @@
 {% extends 'users/password_reset/base.html' %}
 
-{% load i18n static %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquery.password_strength.css' %}" media="screen" />
-{% endblock %}
+{% load i18n %}
 
 {% block scripts %}
     {{ block.super }}

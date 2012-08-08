@@ -1,17 +1,11 @@
 {% extends 'base.html' %}
-{% load i18n static field_extras %} 
+{% load i18n media field_extras %} 
 
 {% block title %}{% trans 'Edit functions' %} - {% endblock %}
 
-{% block styles %}
-<link rel="stylesheet" type="text/css" href="{% static 'plugins/screwdefaultbuttons/css/styles.css' %}" media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'contacts/css/contacts.css' %}" media="screen" />
-{% endblock %}
-
 {% block scripts %}
 <script type="text/javascript" src="{% url jsi18n packages='lily.functions' %}"></script>
-<script type="text/javascript" src="{% static 'plugins/screwdefaultbuttons/js/jquery.screwdefaultbuttons.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'contacts/js/functions.js' %}"></script>
+<script type="text/javascript" src="{% media_url 'contacts/js/functions.js' %}"></script>
 {% endblock %}
 
 {% block content %}

@@ -1,22 +1,6 @@
 {% extends 'base_app.html' %}
 
-{% load i18n static activelink %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_dataprovider.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    
-    <!-- Try to prevent duplicate accounts in multiple forms -->
-    <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
-    
-    <!-- Enable use of dataprovider -->
-    <script type="text/javascript" src="{% static 'accounts/js/account_dataprovider.js' %}"></script>
-{% endblock %}
+{% load i18n media activelink %}
 
 {% block body %}
 
@@ -30,7 +14,7 @@
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
                         <a href="{% url dashboard %}">
-                            <img src="{% static 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                            <img src="{% media_url 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
                         </a>
                     </div>
                 </div>
@@ -40,7 +24,7 @@
                     <!-- User information section -->
                     <div id="mws-user-info" class="mws-inset">
                         <div id="mws-user-photo">
-                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
         
                         <div id="mws-user-functions">

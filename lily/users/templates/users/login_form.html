@@ -1,27 +1,20 @@
 {% extends 'base_visitor_portal.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block page-title %}{% trans 'Log in' %} - {% endblock %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'lily.users.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/login.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
     {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-    <script type="text/javascript" src="{% static 'users/js/login.js' %}"></script>
 {% endblock %}
 
 {% block portal-header %}
     <div class="mws-panel-header">
         <span>{% block portal-title %}HelloLily {% trans 'Log in' %}{% endblock %}</span>
     </div>
-    <img src="{% static 'extra/images/logo-hellolily-login.png' %}" id="login-logo" class="hide_on_small_screen" />
+    <img src="{% media_url 'extra/images/logo-hellolily-login.png' %}" id="login-logo" class="hide_on_small_screen" />
 {% endblock %}
                 
 {% block portal-form %}

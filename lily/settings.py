@@ -298,26 +298,15 @@ IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
 DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
 PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
 STATIC_URL = '/static/' # required to server static files for django-admin
-#
-#YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
-#ROOT_MEDIA_FILTERS = {
-#    'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
-#    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
-#}
+
+YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
+ROOT_MEDIA_FILTERS = {
+    'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
+    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+}
 
 try:
     import mediagenerator
     MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
 except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
-
-# If not testing with a webserver for static files, fall back to django devserver (in debug mode only)
-#if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:
-#    STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('.'))
-#
-#    STATIC_URL = os.environ.get('STATIC_URL', '/static/')
-#    STATICFILES_DIRS = (
-#        '_generated_media/',
-#    )
-#    
-#    INSTALLED_APPS += ('django.contrib.staticfiles',)

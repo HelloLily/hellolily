@@ -686,6 +686,12 @@ div.jGrowl div.jGrowl-notification.error
  */
 @media only screen and (min-width: 600px) and (max-width : 1024px) /* @media only screen and (min-width: 600px) and (max-width : 1024px) */
 {
+    
+    .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_full
+    {
+        float: left !important;
+    }
+    
     div#mws-header-container
     {
         height:96px;

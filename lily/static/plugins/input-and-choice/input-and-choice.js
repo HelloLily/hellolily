@@ -30,7 +30,7 @@
             });
             
             // detect autocomplete suggestions
-            update_autocomplete_suggestions(input, select);    
+            update_autocomplete_suggestions(input, select, list);    
             
             // add click handler to button
             $(button).click(function(event) {
@@ -38,7 +38,7 @@
                 if( value.length ) {
                     add_selection(input, select, list, $.trim(value));
                     // detect autocomplete suggestions
-                    update_autocomplete_suggestions(input, select);  
+                    update_autocomplete_suggestions(input, select, list);  
                         
                     // clear text input
                     $(input).val('');
@@ -116,10 +116,10 @@
         function add_selection(input, select, list, value, page_load) {
             var option = undefined;
             $(select).find('option').each(function() {
-               if( $(this).val().toLowerCase() == value.toLowerCase() ) {
-                   // give back the actual element instead of the wrapped jquery object
-                   option = $(this)[0];
-               } 
+                if( $(this).val().toLowerCase() == value.toLowerCase() ) {
+                    // give back the actual element instead of the wrapped jquery object
+                    option = $(this)[0];
+                } 
             });
             
             if( option == undefined ) {

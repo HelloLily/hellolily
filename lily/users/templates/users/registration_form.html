@@ -8,6 +8,7 @@
 
 {% block form-title %}{% trans 'Registration form' %}{% endblock %}
 
+{% comment %}
 {% block form-content %}
     {% if form.non_field_errors %}
         <div class="mws-form-row">
@@ -135,6 +136,7 @@
 {% block form-buttons %}
     <input type="submit" value="{% trans 'Register' %}" class="mws-button blue tabbable" />
 {% endblock %}
+{% endcomment %}
 
 {% block hidden-dialogs %}{% endblock %}
 

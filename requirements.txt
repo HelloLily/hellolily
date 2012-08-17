@@ -4,6 +4,7 @@ gunicorn>=0.14.2
 gevent>=0.13.7
 psycopg2>=2.4.4
 dj-database-url==0.2.0
+https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms
 django-extensions>=0.8
 django-templated-email>=0.4.1
 django-extra-views>=0.2.4

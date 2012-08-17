@@ -167,7 +167,7 @@
                             <div class="mws-form-item">
                                 <select name="{{ formset.prefix }}-0-country" id="id_{{ formset.prefix }}-0-country" class="chzn-select tabbable">
                                     {% block countries %}
-                                        {% for value, text in country_choices %}
+                                        {% for value, text in countries %}
                                             <option value="{{ value }}">{{ text }}</option>
                                         {% endfor %}
                                     {% endblock %}

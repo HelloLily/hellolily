@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import types
 
 from django.contrib.auth.decorators import login_required
@@ -5,15 +6,21 @@ from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
 from django.core.urlresolvers import reverse
 from django.db.models.loading import get_model
+from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
+from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 
-from lily.utils.forms import NoteForm
+from lily.accounts.forms import WebsiteBaseForm
+from lily.accounts.models import Website
+from lily.utils.forms import NoteForm, EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm
+from lily.utils.functions import is_ajax
+from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 
 
 class CustomSingleObjectMixin(object):
@@ -348,7 +355,10 @@ class MultipleModelListView(TemplateView):
             })
         return kwargs
     
-    
+
+#===================================================================================================
+# Mixins
+#===================================================================================================
 class FilteredListMixin(object):
     """
     Mixin that enables filtering objects by url, based on their primary keys. 
@@ -428,6 +438,345 @@ class SortedListMixin(object):
         return kwargs
 
 
+class DeleteBackAddSaveFormViewMixin(object):
+    """
+    Add support for four buttons with their respective intended form actions.
+        delete
+        back
+        add or save
+    """
+    def post(self, request, *args, **kwargs):
+        if not is_ajax(request):
+            if request.POST.get('submit-delete', None):
+                pass # TODO: get delete url
+            if request.POST.get('submit-back', None):
+                return self.get_success_url() # TODO: ask if the user is sure to cancel when the form has been changed
+        
+        # continue for other options (add or save)
+        return super(DeleteBackAddSaveFormViewMixin, self).post(request, *args, **kwargs)
+    
+    def get_form(self, form_class):
+        """
+        Pass formset instances to the FormHelper. It's a workaround to get these available in the
+        context available to the TEMPLATE_PACK templates when rendered.
+        """
+        form = super(DeleteBackAddSaveFormViewMixin, self).get_form(form_class)
+        
+        # Make all 'regular' context data available in crispy forms templates as well
+        if hasattr(form, 'helper'):
+            form.helper.__dict__.update(self.get_context_data())
+        
+        return form
+
+
+class ValidateFormSetViewMixin(object):
+    """
+    Mixin to include formsets when validating POST data.
+    """
+    def post(self, request, *args, **kwargs):
+        if isinstance(self, BaseCreateView):
+            # Copied from BaseCreateView.post()
+            self.object = None
+        elif isinstance(self, BaseUpdateView):
+            # Copied from BaseUpdateView.post()
+            self.object = self.get_object()
+        
+        # Copied from ProcessFormView to add formset validation
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        
+        formset_is_valid = True
+        if not is_ajax(self.request) and hasattr(self, 'formsets'):
+            for name, formset in self.formsets.items():
+                for formset_form in formset:
+                    if not formset_form.is_valid():
+                        formset_is_valid = False
+        
+        if form.is_valid() and formset_is_valid:
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+class ModelFormSetViewMixin(object):
+    """
+    Mixin base class to add a formset to a FormView in an easier fashion.
+    
+    Create a new subclass with the following init method.
+    def __init__(self, *args, **kwargs):
+        context_name = 'formset'
+        model = Model
+        form = ModelBaseForm
+        prefix = 'formset_prefix'
+        
+        self.add_formset(context_name, model=model, form=form, prefix=prefix)
+        super(ModelFormSetViewMixinSubClass, self).__init__(*args, **kwargs)
+    """
+    formset_data = {}
+    formset_classes = OrderedDict()
+    formsets = OrderedDict()
+    
+    def get_form(self, form_class):
+        """
+        Instantiate formsets for non-ajax requests.
+        """
+        form = super(ModelFormSetViewMixin, self).get_form(form_class)
+        
+        if not is_ajax(self.request):
+            for context_name, formset_class in self.formset_classes.items():
+                model = self.formset_data[context_name]['model']
+                prefix = self.formset_data[context_name]['prefix']
+                
+                try:
+                    formset_instance = formset_class(self.request.POST or None, queryset=getattr(form.instance, self.formset_data[context_name]['related_name']).all(), prefix=prefix)
+                except:
+                    formset_instance = formset_class(self.request.POST or None, queryset=model._default_manager.none(), prefix=prefix)
+                self.add_formset_instance(context_name, formset_instance)
+        
+        return super(ModelFormSetViewMixin, self).get_form(form_class)
+    
+    def get_formset(self, context_name):
+        """
+        Return the formset instance for context_name.
+        """
+        return self.formsets[context_name]
+    
+    def add_formset(self, context_name, model, related_name, form, label, template, prefix, extra=0, **form_attrs):
+        """
+        Create a formset class for context_name.
+        """
+        self.formset_data.update({
+            context_name: {
+                'model': model,
+                'related_name': related_name,
+                'form': form,
+                'extra': extra,
+                'label': label,
+                'template': template,
+                'prefix': prefix,
+            }
+        })
+        
+        for attr, value in form_attrs.items():
+            setattr(form, attr, value)
+        
+        formset_class = modelformset_factory(model, form=form, can_delete=True, extra=extra)
+        self.add_formset_class(context_name, formset_class)
+    
+    def add_formset_class(self, context_name, formset_class):
+        """
+        Set a formset class for context_name.
+        """
+        self.formset_classes.update({
+            context_name: formset_class
+        })
+    
+    def add_formset_instance(self, context_name, formset_instance):
+        """
+        Set a formset instance for context_name.
+        """
+        self.formsets[context_name] = formset_instance
+    
+    def get_context_data(self, **kwargs):
+        """
+        Pass all formsets to the context.
+        """
+        kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
+        if not kwargs.has_key('formsets'):
+            kwargs['formsets'] = OrderedDict()
+
+        for context_name, instance in self.formsets.items():
+            kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}
+        
+        return kwargs
+
+
+class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
+    """
+    FormMixin for adding an e-mail address formset to a form.
+    """
+    def __init__(self, *args, **kwargs):
+        context_name = 'email_addresses_formset'
+        model = EmailAddress
+        related_name = 'email_addresses'
+        form = EmailAddressBaseForm
+        prefix = 'email_addresses'
+        label = _('E-mail addresses')
+        template = 'utils/formset_email_address.html'
+        
+        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
+        super(EmailAddressFormSetViewMixin, self).__init__(*args, **kwargs)
+    
+    def form_valid(self, form):
+        context_name = 'email_addresses_formset'
+        formset = self.get_formset(context_name)
+        
+        form_kwargs = self.get_form_kwargs()
+        for formset_form in formset:
+            # Check if existing instance has been marked for deletion
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                self.object.email_addresses.remove(formset_form.instance)
+                formset_form.instance.delete()
+                continue
+                
+            # Check for e-mail address selected as primary
+            primary = form_kwargs['data'].get(formset.prefix + '_primary-email')
+            if formset_form.prefix == primary:
+                formset_form.instance.is_primary = True
+            else:
+                formset_form.instance.is_primary = False
+
+            # Save e-mail address if an email address is filled in
+            if formset_form.instance.email_address:
+                formset_form.save()
+                self.object.email_addresses.add(formset_form.instance)
+        
+        return super(EmailAddressFormSetViewMixin, self).form_valid(form)
+    
+    def form_invalid(self, form):
+        context_name = 'email_addresses_formset'
+        formset = self.get_formset(context_name)
+        
+        form_kwargs = self.get_form_kwargs()
+        primary = form_kwargs['data'].get(formset.prefix + '_primary-email')
+        for formset_form in formset:
+            if formset_form.prefix == primary:
+                # Mark as selected
+                formset_form.instance.is_primary = True
+                # TODO: try making the field selected to prevent double if statements in templates
+#                formset_form.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+#                formset_form.basefields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
+#                formset_form.fields['is_primary'].widget.__dict__['attrs'].update({ 'selected': 'selected' })
+#                formset_form.basefields['is_primary'].widget.__dict__['attrs'].update({ 'selected': 'selected' })
+        
+        return super(EmailAddressFormSetViewMixin, self).form_invalid(form)
+
+
+class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
+    """
+    FormMixin for adding a phone number formset to a form.
+    """
+    def __init__(self, *args, **kwargs):
+        context_name = 'phone_numbers_formset'
+        model = PhoneNumber
+        related_name = 'phone_numbers'
+        form = PhoneNumberBaseForm
+        prefix = 'phone_numbers'
+        label = _('Phone numbers')
+        template = 'utils/formset_phone_number.html'
+        
+        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
+        super(PhoneNumberFormSetViewMixin, self).__init__(*args, **kwargs)
+        
+    def form_valid(self, form):
+        context_name = 'phone_numbers_formset'
+        formset = self.get_formset(context_name)
+        
+        form_kwargs = self.get_form_kwargs()
+        for formset_form in formset:
+            # Check if existing instance has been marked for deletion
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                self.object.phone_numbers.remove(formset_form.instance)
+                formset_form.instance.delete()
+                continue
+
+            # Save number if raw_input is filled in
+            if formset_form.instance.raw_input:
+                formset_form.save()
+                self.object.phone_numbers.add(formset_form.instance)
+        
+        return self.get_success_url()
+
+
+class AddressFormSetViewMixin(ModelFormSetViewMixin):
+    """
+    FormMixin for adding an address formset to a form.
+    """
+    def __init__(self, *args, **kwargs):
+        context_name = 'addresses_formset'
+        model = Address
+        related_name = 'addresses'
+        form = AddressBaseForm
+        prefix = 'addresses'
+        label = _('Addresses')
+        template = 'utils/formset_address.html'
+        
+        if hasattr(self, 'exclude_address_types'):
+            form_attrs = {'exclude_address_types': self.exclude_address_types}
+        
+        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix, **form_attrs)
+        super(AddressFormSetViewMixin, self).__init__(*args, **kwargs)
+    
+    def form_valid(self, form):
+        context_name = 'addresses_formset'
+        formset = self.get_formset(context_name)
+        
+        form_kwargs = self.get_form_kwargs()
+        for formset_form in formset:
+            # Check if existing instance has been marked for deletion
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                self.object.addresses.remove(formset_form.instance)
+                formset.instance.delete()
+                continue
+                
+            # Save address if something else than complement or type is filled in
+            if any([formset_form.instance.street,
+                    formset_form.instance.street_number,
+                    formset_form.instance.postal_code,
+                    formset_form.instance.city,
+                    formset_form.instance.state_province,
+                    formset_form.instance.country]):
+                formset_form.save()
+                self.object.addresses.add(formset_form.instance)
+        
+        return self.get_success_url()
+
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to add a list of countries for address fields.
+        """
+        kwargs = super(AddressFormSetViewMixin, self).get_context_data(**kwargs)
+        kwargs.update({
+            'countries': COUNTRIES,
+        })
+        return kwargs
+
+
+class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
+    """
+    FormMixin for adding a website formset to a form.
+    """
+    def __init__(self, *args, **kwargs):
+        context_name = 'websites_formset'
+        model = Website
+        related_name = 'websites'
+        form = WebsiteBaseForm
+        prefix = 'websites'
+        label = _('Websites')
+        template = 'accounts/formset_website.html'
+        
+        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
+        super(WebsiteFormSetViewMixin, self).__init__(*args, **kwargs)
+    
+    def form_valid(self, form):
+        context_name = 'websites_formset'
+        formset = self.get_formset(context_name)
+        
+        form_kwargs = self.get_form_kwargs()
+        for formset_form in formset:
+            # Check if existing instance has been marked for deletion
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                formset_form.instance.delete()
+                continue
+                
+            # Save website if the initial value was overwritten
+            if formset_form.instance.website and not formset_form.instance.website == formset_form.fields['website'].initial:
+                formset_form.instance.account = self.object
+                formset_form.save()
+        
+        return self.get_success_url()
+        
+
 class AjaxUpdateView(View):
     """
     View that provides an option to update models based on a url and POST data.
@@ -460,4 +809,3 @@ class AjaxUpdateView(View):
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
-    

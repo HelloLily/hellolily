@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'activelink',
     'south',
     'debug_toolbar',
+    'crispy_forms',
 
     # Lily
     'lily', # required for management command
@@ -238,7 +239,7 @@ if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APP
 # Settings for 3rd party apps
 
 # Django debug toolbar
-INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])
+INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)]) if DEBUG else []
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
@@ -282,3 +283,10 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
             }
         }
     }
+
+# cripsy-forms
+CRISPY_TEMPLATE_PACK = 'mws-admin'
+
+from crispy_forms.layout import Button, MultiField
+Button.template = 'mws-admin/layout/baseinput.html'
+MultiField.template = 'mws-admin/layout/multifield.html'

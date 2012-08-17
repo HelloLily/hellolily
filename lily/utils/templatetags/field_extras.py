@@ -47,4 +47,10 @@ def display_value(field):
                 return desc 
     return value
 
+@register.filter('widget_type')
+def widget_type(field):
+    """
+    Return the widget class name of given field in lowercase for easy comparison.
+    """
+    return field.field.widget.__class__.__name__.lower()
 

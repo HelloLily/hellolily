@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
-from django.forms.models import modelformset_factory, inlineformset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
@@ -25,16 +24,16 @@ from django.views.generic.list import ListView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
-from lily.contacts.forms import AddContactForm, AddContactQuickbuttonForm, EditContactForm, \
-    FunctionForm, EditFunctionForm
+from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
-from lily.utils.forms import EmailAddressBaseForm, ContactAddressForm, PhoneNumberBaseForm
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import SocialMedia, EmailAddress, Address, PhoneNumber, COUNTRIES
+from lily.utils.models import EmailAddress, PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin
+from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin,\
+    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
+    AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
@@ -67,56 +66,72 @@ class DetailContactView(DetailNoteFormView):
     success_url_reverse_name = 'contact_details'
 
 
-class AddContactView(CreateView):
+class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
     """
-    View to add a contact with all fields included in the template including support to add
-    multiple instances of many-to-many relations with custom formsets.
+    Base class for AddAContactView and EditContactView.
     """
 
     # Default template and form
     template_name = 'contacts/create_or_update.html'
-    form_class = AddContactForm
+    form_class = CreateUpdateContactForm
+    
+    exclude_address_types = ['visiting']
+    
+    def __init__(self, *args, **kwargs):
+        super(CreateUpdateContactView, self).__init__(*args, **kwargs)
+        
+        # Override default formset template to adjust choices for address_type
+        self.formset_data['addresses_formset']['template'] = 'contacts/formset_address.html'
 
+    def form_valid(self, form):
+        # Copied from ModelFormMixin
+        self.object = form.save()
+        
+        if not is_ajax(self.request):
+            form_kwargs = self.get_form_kwargs()
+            
+            # Save selected account
+            if form_kwargs['data'].get('account'):
+                pk = form_kwargs['data'].get('account')
+                account = Account.objects.get(pk=pk)
+                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+    
+                functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
+                functions.delete()
+            else:
+                # No account selected
+                functions = Function.objects.filter(contact=self.object)
+                functions.delete()
+                
+        return super(CreateUpdateContactView, self).form_valid(form)
+
+
+class AddContactView(CreateUpdateContactView, CreateView):
+    """
+    View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
+    """
     def dispatch(self, request, *args, **kwargs):
         """
-        Overloading super().dispatch to change the template to be rendered.
+        Overloading super().dispatch to change the template to be rendered for ajax requests.
         """
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddContactQuickbuttonForm
             self.template_name = 'contacts/quickbutton_form.html'
-        else:
-            self.EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, extra=0)
-            self.AddressFormSet = modelformset_factory(Address, form=ContactAddressForm, extra=0)
-            self.PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, extra=0)
-
+        
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
-
-    def get_form(self, form_class):
-        """
-        Overloading super().get_form to instantiate formsets while instantiating the form.
-        """
-        form = super(AddContactView, self).get_form(form_class)
-
-        # Instantiate the formsets for the normal form
-        if not is_ajax(self.request):
-            self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=EmailAddress.objects.none(), prefix='email_addresses')
-            self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=Address.objects.none(), prefix='addresses')
-            self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=PhoneNumber.objects.none(), prefix='phone_numbers')
-
-        return form
 
     def form_valid(self, form):
         """
-        Add m2m relations to newly created contact (i.e. Phone numbers, E-mail addresses
-        and Addresses).
+        Handle form submission via AJAX or show custom save message.
         """
         # Save instance
         super(AddContactView, self).form_valid(form)
-
-        form_kwargs = self.get_form_kwargs()
+        message = _('%s (Contact) has been saved.') % self.object.full_name()
 
         if is_ajax(self.request):
+            form_kwargs = self.get_form_kwargs()
+            
             # Add e-mail address to account as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
@@ -132,7 +147,6 @@ class AddContactView(CreateView):
                 account = Account.objects.get(pk=pk)
                 Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
 
-
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
@@ -143,8 +157,6 @@ class AddContactView(CreateView):
                 notification = False
                 html_response = ''
             else:
-                message = _('%s (Contact) has been saved.') % self.object.full_name()
-
                 # Redirect if in the list view or dashboard
                 url_obj = urlparse(self.request.META['HTTP_REFERER'])
                 if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
@@ -172,81 +184,10 @@ class AddContactView(CreateView):
                 'notification': notification,
                 'url': url
             }), mimetype='application/json')
-        else: # Deal with all the extra fields on the normal form which are not in the ajax request
-            # Save all e-mail address, phone number and address formsets
-            if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
-                # Handle e-mail addresses
-                for formset in self.email_addresses_formset:
-                    primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-                    if formset.prefix == primary:
-                        formset.instance.is_primary = True
-
-                    # Only save e-mail address if something else than primary/status was filled in
-                    if formset.instance.email_address:
-                        formset.save()
-                        self.object.email_addresses.add(formset.instance)
-
-                # Handle addresses
-                for formset in self.addresses_formset:
-                    # Only save address if something else than complement and/or type is filled in
-                    if any([formset.instance.street,
-                            formset.instance.street_number,
-                            formset.instance.postal_code,
-                            formset.instance.city,
-                            formset.instance.state_province,
-                            formset.instance.country]):
-                        formset.save()
-                        self.object.addresses.add(formset.instance)
-
-                # Handle phone numbers
-                for formset in self.phone_numbers_formset:
-                    # Only save address if something was filled other than type
-                    if formset.instance.raw_input:
-                        formset.save()
-                        self.object.phone_numbers.add(formset.instance)
-
-            # Save any selected accounts
-#            if form_kwargs['data'].getlist('accounts'):
-#                pks = form_kwargs['data'].getlist('accounts')
-#                for pk in pks:
-#                    account = Account.objects.get(pk=pk)
-#                    Function.objects.create(account=account, contact=self.object, manager=self.object)
-
-            # Show save message
-            messages.success(self.request, _('%s (Contact) has been saved.') % self.object.full_name());
-
-        # Save selected account
-        if form_kwargs['data'].get('account'):
-            pk = form_kwargs['data'].get('account')
-            account = Account.objects.get(pk=pk)
-            Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
-
-#        # Add relation to Facebook
-#        if form_kwargs['data'].get('facebook'):
-#            facebook = SocialMedia.objects.create(
-#                name='facebook',
-#                username=form_kwargs['data'].get('facebook'),
-#                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-#            self.object.social_media.add(facebook)
-#
-#        # Add relation to Twitter
-#        if form_kwargs['data'].get('twitter'):
-#            username = form_kwargs['data'].get('twitter')
-#            if username[:1] == '@':
-#                username = username[1:]
-#            twitter = SocialMedia.objects.create(
-#                name='twitter',
-#                username=username,
-#                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-#            self.object.social_media.add(twitter)
-#
-#        # Add relation to LinkedIn
-#        if form_kwargs['data'].get('linkedin'):
-#            linkedin = SocialMedia.objects.create(
-#                name='linkedin',
-#                profile_url=form_kwargs['data'].get('linkedin'))
-#            self.object.social_media.add(linkedin)
-
+                
+        # Show save message
+        messages.success(self.request, message);
+        
         return self.get_success_url()
 
     def form_invalid(self, form):
@@ -260,34 +201,8 @@ class AddContactView(CreateView):
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
-        else:
-            # Check for the e-mail address to select as primary
-            form_kwargs = self.get_form_kwargs()
-            primary = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-
-            for formset in self.email_addresses_formset:
-                if formset.prefix == primary:
-                    # Mark as selected
-                    formset.instance.is_primary = True
-                    # TODO: try making the field selected to prevent double if statements in templates
-#                    formset.fields['is_primary'].widget.__dict__['attrs'].update({ 'checked': 'checked' })
-
+        
         return super(AddContactView, self).form_invalid(form)
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to add formsets for template.
-        """
-        kwargs = super(AddContactView, self).get_context_data(**kwargs)
-        # Add formsets to context for the normal form
-        if not is_ajax(self.request):
-            kwargs.update({
-                'email_addresses_formset': self.email_addresses_formset,
-                'addresses_formset': self.addresses_formset,
-                'phone_numbers_formset': self.phone_numbers_formset,
-                'countries': COUNTRIES,
-            })
-        return kwargs
 
     def get_success_url(self):
         """
@@ -296,289 +211,190 @@ class AddContactView(CreateView):
         return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
 
 
-class EditContactView(UpdateView):
+class EditContactView(CreateUpdateContactView, UpdateView):
     """
-    View to edit a contact with all fields included in the template including support to add
-    multiple instances of many-to-many relations with custom formsets.
+    View to edit a contact.
     """
-    template_name = 'contacts/create_or_update.html'
-    form_class = EditContactForm
     model = Contact
-
-    # Create formsets
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
-    AddressFormSet = modelformset_factory(Address, form=ContactAddressForm, can_delete=True, extra=0)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
-
-    def get_form(self, form_class):
-        """
-        Overloading super().get_form to instantiate formsets while instantiating the form.
-        """
-        form = super(EditContactView, self).get_form(form_class)
-
-        # Also link formsets to form to allow validation
-        self.email_addresses_formset = form.email_addresses_formset = self.EmailAddressFormSet(self.request.POST or None, queryset=self.object.email_addresses.all(), prefix='email_addresses')
-        self.addresses_formset = form.addresses_formset = self.AddressFormSet(self.request.POST or None,  queryset=self.object.addresses.all(), prefix='addresses')
-        self.phone_numbers_formset = form.phone_numbers_formset = self.PhoneNumberFormSet(self.request.POST or None,  queryset=self.object.phone_numbers.all(), prefix='phone_numbers')
-
-        return form
 
     def form_valid(self, form):
         """
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        form_kwargs = self.get_form_kwargs()
+        super(EditContactView, self).form_valid(form)
 
-        # Save all e-mail address, phone number and address formsets
-        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
-            # Save form
-            super(EditContactView, self).form_valid(form)
-
-            # Handle e-mail addresses permission checks
-            allow_edit_email = email_verify = False
-            allow_save = False
-            is_user_contact = True
-            primary_has_changed = False
-            verification_email_data = None
-            new_primary_email_address_instance = None
-            old_primary_email_address_instance = None
-            
-            # TODO: move the permission logic to a decorator for this view
-
-            # Permission check: users in a certain group and the contact's user can edit e-mail adresses
-            # For e-mailaddresses a confirmation e-mail is sent to the new e-mail adres when
-            # the contact's user changes it. Another user with permissions can change it regardless.
-            try:
-                user = CustomUser.objects.get(contact=self.object)
-            except CustomUser.DoesNotExist:
-                # If it's not a user's contact
-                allow_edit_email = True
-                is_user_contact = False
-            else:
-                if user == self.request.user:
-                    # If this is the case, allow editing it after verification via e-mail
-                    allow_edit_email = email_verify = True
-                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
-                    # Users in this group can always edit e-mail addresses
-                    allow_edit_email = True
-
-            # Handle saving (and sending verification e-mails for) e-mail addresses
-            if allow_edit_email:
-                # Find the e-mail address marked as primary e-mail address
-                primary_email_prefix = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-                
-                # Loop through all e-mail addresses
-                for formset in self.email_addresses_formset:
-                    # Check if formset instance should be deleted
-                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
-                        if not is_user_contact or formset.prefix != primary_email_prefix: 
-                            self.object.email_addresses.remove(formset.instance)
-                            formset.instance.delete()
-                        elif is_user_contact:
-                            # Add message
-                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
-                        continue
-
-                    # Explicitly set 'is_primary' on every e-mail address to make sure only one is 
-                    # marked as primary e-mail.
-                    if formset.prefix == primary_email_prefix:
-                        formset.instance.is_primary = True
-                    else:
-                        formset.instance.is_primary = False
-
-                    # Only save e-mail address if something else than is_primary/status was filled in
-                    if formset.instance.email_address:
-                        # If it's an existing e-mail address and the address itself has not changed,
-                        # allow saving it regardless of other attributes that might have changed. 
-                        # This prevents existing e-mail addresses that are no longer the primary
-                        # e-mail address from demanding verification as well as the new ones. 
-                        if formset.instance.pk:
-                            existing_email_address = EmailAddress.objects.get(pk=formset.instance.pk)
-                            if existing_email_address.email_address == formset.instance.email_address:
-                                allow_save = True
-                                
-                            # Check if the attribute 'is_primary' has changed or if the e-mail address itself has been modified
-                            if existing_email_address.is_primary != formset.instance.is_primary:
-                                primary_has_changed = True
-                                if formset.instance.is_primary:
-                                    new_primary_email_address_instance = formset.instance
-                                else:
-                                    old_primary_email_address_instance = existing_email_address
-                            elif existing_email_address.email_address != formset.instance.email_address:
-                                primary_has_changed = True
-                                new_primary_email_address_instance = formset.instance
-                                old_primary_email_address_instance = existing_email_address
-                        
-                        # Simply save the e-mail address if none of the permission checks is
-                        # blocking this action.
-                        if allow_save or not email_verify:
-                            if not primary_has_changed:
-                                formset.save()
-                                self.object.email_addresses.add(formset.instance)
-                
-                if old_primary_email_address_instance != None:
-                    if not allow_save and email_verify or primary_has_changed:
-                        print 
-                        # Get contact pk
-                        pk = self.object.pk
-                        
-                        # Calculate expire date
-                        expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
-                        expire_date_pickled = pickle.dumps(expire_date)
-        
-                        # Get link to site
-                        protocol = self.request.is_secure() and 'https' or 'http'
-                        site = Site.objects.get_current()
-        
-                        # Build data dict
-                        verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
-                            'contact_pk': self.object.pk,
-                            'old_email_address': old_primary_email_address_instance.email_address,
-                            'email_address': pickle.dumps(new_primary_email_address_instance),
-                            'expire_date': expire_date_pickled,
-                            'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
-                        })).strip('=')
-        
-                        # Build verification link
-                        verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
-                            'data': verification_email_data
-                        }))
-        
-                        # Sent an e-mail informing the user his primary e-mail address
-                        # can be changed.
-                        send_templated_mail(
-                            template_name='email_confirm',
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
-                            context = {
-                                'current_site': site,
-                                'full_name': self.object.full_name(),
-                                'verification_link': verification_link,
-                                'email_address': new_primary_email_address_instance.email_address
-                            }
-                        )
-        
-                        # Add message
-                        messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
-            else:
-                # Add message
-                messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))
-                
-            # Handle addresses
-            for formset in self.addresses_formset:
-                # Check if existing instance has been marked for deletion
-                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    self.object.addresses.remove(formset.instance)
-                    formset.instance.delete()
-                    continue
-
-                # Only save address if something else than complement and/or type is filled in
-                if any([formset.instance.street,
-                        formset.instance.street_number,
-                        formset.instance.postal_code,
-                        formset.instance.city,
-                        formset.instance.state_province,
-                        formset.instance.country]):
-                    formset.save()
-                    self.object.addresses.add(formset.instance)
-
-            # Handle phone numbers
-            for formset in self.phone_numbers_formset:
-                # Check if existing instance has been marked for deletion
-                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                    self.object.phone_numbers.remove(formset.instance)
-                    formset.instance.delete()
-                    continue
-
-                # Only save address if something was filled other than type
-                if formset.instance.raw_input:
-                    formset.save()
-                    self.object.phone_numbers.add(formset.instance)
-
-        # Save any selected accounts
-#        if form_kwargs['data'].getlist('accounts'):
-#            pks = form_kwargs['data'].getlist('accounts')
-#            for pk in pks:
-#                account = Account.objects.get(pk=pk)
-#                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
-#            functions = Function.objects.filter(~Q(account_id__in=pks), Q(contact=self.object))
-#            functions.delete()
-#        else:
-#            functions = Function.objects.filter(contact=self.object)
-#            functions.delete()
-
-        # Save selected account
-        if form_kwargs['data'].get('account'):
-            pk = form_kwargs['data'].get('account')
-            account = Account.objects.get(pk=pk)
-            Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
-
-            functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
-            functions.delete()
-        else:
-            # No account selected
-            functions = Function.objects.filter(contact=self.object)
-            functions.delete()
-
-#        # Add relation to Facebook
-#        if form_kwargs['data'].get('facebook'):
-#            # Prevent re-creating
-#            facebook, created = SocialMedia.objects.get_or_create(
-#                name='facebook',
-#                username=form_kwargs['data'].get('facebook'),
-#                profile_url='http://www.facebook.com/%s' % form_kwargs['data'].get('facebook'))
-#            if created:
-#                self.object.social_media.add(facebook)
-#        else:
-#            # Remove possible Facebook relations
-#            self.object.social_media.filter(name='facebook').delete()
+        # TODO: make this work with the new way of using formsets
+#        # Save all e-mail address, phone number and address formsets
+#        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
+#            form_kwargs = self.get_form_kwargs()
+#            # Save form
+#            super(EditContactView, self).form_valid(form)
 #
-#        # Add relation to Twitter
-#        if form_kwargs['data'].get('twitter'):
-#            # Prevent re-creating
-#            username = form_kwargs['data'].get('twitter')
-#            if username[:1] == '@':
-#                username = username[1:]
-#            twitter, created = SocialMedia.objects.get_or_create(
-#                name='twitter',
-#                username=username,
-#                profile_url='http://twitter.com/%s' % form_kwargs['data'].get('twitter'))
-#            if created:
-#                self.object.social_media.add(twitter)
-#        else:
-#            # Remove possible Twitter relations
-#            self.object.social_media.filter(name='twitter').delete()
+#            # Handle e-mail addresses permission checks
+#            allow_edit_email = email_verify = False
+#            allow_save = False
+#            is_user_contact = True
+#            primary_has_changed = False
+#            verification_email_data = None
+#            new_primary_email_address_instance = None
+#            old_primary_email_address_instance = None
+#            
+#            # TODO: move the permission logic to a decorator for this view
 #
-#        # Add relation to LinkedIn
-#        if form_kwargs['data'].get('linkedin'):
-#            # Prevent re-creating
-#            linkedin, created = SocialMedia.objects.get_or_create(
-#                name='linkedin',
-#                profile_url=form_kwargs['data'].get('linkedin'))
-#            if created:
-#                self.object.social_media.add(linkedin)
-#        else:
-#            # Remove possible LinkedIn relations
-#            self.object.social_media.filter(name='linkedin').delete()
+#            # Permission check: users in a certain group and the contact's user can edit e-mail adresses
+#            # For e-mailaddresses a confirmation e-mail is sent to the new e-mail adres when
+#            # the contact's user changes it. Another user with permissions can change it regardless.
+#            try:
+#                user = CustomUser.objects.get(contact=self.object)
+#            except CustomUser.DoesNotExist:
+#                # If it's not a user's contact
+#                allow_edit_email = True
+#                is_user_contact = False
+#            else:
+#                if user == self.request.user:
+#                    # If this is the case, allow editing it after verification via e-mail
+#                    allow_edit_email = email_verify = True
+#                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
+#                    # Users in this group can always edit e-mail addresses
+#                    allow_edit_email = True
+#
+#            # Handle saving (and sending verification e-mails for) e-mail addresses
+#            if allow_edit_email:
+#                # Find the e-mail address marked as primary e-mail address
+#                primary_email_prefix = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
+#                
+#                # Loop through all e-mail addresses
+#                for formset in self.email_addresses_formset:
+#                    # Check if formset instance should be deleted
+#                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+#                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
+#                        if not is_user_contact or formset.prefix != primary_email_prefix: 
+#                            self.object.email_addresses.remove(formset.instance)
+#                            formset.instance.delete()
+#                        elif is_user_contact:
+#                            # Add message
+#                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
+#                        continue
+#
+#                    # Explicitly set 'is_primary' on every e-mail address to make sure only one is 
+#                    # marked as primary e-mail.
+#                    if formset.prefix == primary_email_prefix:
+#                        formset.instance.is_primary = True
+#                    else:
+#                        formset.instance.is_primary = False
+#
+#                    # Only save e-mail address if something else than is_primary/status was filled in
+#                    if formset.instance.email_address:
+#                        # If it's an existing e-mail address and the address itself has not changed,
+#                        # allow saving it regardless of other attributes that might have changed. 
+#                        # This prevents existing e-mail addresses that are no longer the primary
+#                        # e-mail address from demanding verification as well as the new ones. 
+#                        if formset.instance.pk:
+#                            existing_email_address = EmailAddress.objects.get(pk=formset.instance.pk)
+#                            if existing_email_address.email_address == formset.instance.email_address:
+#                                allow_save = True
+#                                
+#                            # Check if the attribute 'is_primary' has changed or if the e-mail address itself has been modified
+#                            if existing_email_address.is_primary != formset.instance.is_primary:
+#                                primary_has_changed = True
+#                                if formset.instance.is_primary:
+#                                    new_primary_email_address_instance = formset.instance
+#                                else:
+#                                    old_primary_email_address_instance = existing_email_address
+#                            elif existing_email_address.email_address != formset.instance.email_address:
+#                                primary_has_changed = True
+#                                new_primary_email_address_instance = formset.instance
+#                                old_primary_email_address_instance = existing_email_address
+#                        
+#                        # Simply save the e-mail address if none of the permission checks is
+#                        # blocking this action.
+#                        if allow_save or not email_verify:
+#                            if not primary_has_changed:
+#                                formset.save()
+#                                self.object.email_addresses.add(formset.instance)
+#                
+#                if old_primary_email_address_instance != None:
+#                    if not allow_save and email_verify or primary_has_changed:
+#                        # Get contact pk
+#                        pk = self.object.pk
+#                        
+#                        # Calculate expire date
+#                        expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
+#                        expire_date_pickled = pickle.dumps(expire_date)
+#        
+#                        # Get link to site
+#                        protocol = self.request.is_secure() and 'https' or 'http'
+#                        site = Site.objects.get_current()
+#        
+#                        # Build data dict
+#                        verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
+#                            'contact_pk': self.object.pk,
+#                            'old_email_address': old_primary_email_address_instance.email_address,
+#                            'email_address': pickle.dumps(new_primary_email_address_instance),
+#                            'expire_date': expire_date_pickled,
+#                            'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
+#                        })).strip('=')
+#        
+#                        # Build verification link
+#                        verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
+#                            'data': verification_email_data
+#                        }))
+#        
+#                        # Sent an e-mail informing the user his primary e-mail address
+#                        # can be changed.
+#                        send_templated_mail(
+#                            template_name='email_confirm',
+#                            from_email=settings.DEFAULT_FROM_EMAIL,
+#                            recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
+#                            context = {
+#                                'current_site': site,
+#                                'full_name': self.object.full_name(),
+#                                'verification_link': verification_link,
+#                                'email_address': new_primary_email_address_instance.email_address
+#                            }
+#                        )
+#        
+#                        # Add message
+#                        messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
+#            else:
+#                # Add message
+#                messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))
+#                
+#            # Handle addresses
+#            for formset in self.addresses_formset:
+#                # Check if existing instance has been marked for deletion
+#                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+#                    self.object.addresses.remove(formset.instance)
+#                    formset.instance.delete()
+#                    continue
+#
+#                # Only save address if something else than complement and/or type is filled in
+#                if any([formset.instance.street,
+#                        formset.instance.street_number,
+#                        formset.instance.postal_code,
+#                        formset.instance.city,
+#                        formset.instance.state_province,
+#                        formset.instance.country]):
+#                    formset.save()
+#                    self.object.addresses.add(formset.instance)
+#
+#            # Handle phone numbers
+#            for formset in self.phone_numbers_formset:
+#                # Check if existing instance has been marked for deletion
+#                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+#                    self.object.phone_numbers.remove(formset.instance)
+#                    formset.instance.delete()
+#                    continue
+#
+#                # Only save address if something was filled other than type
+#                if formset.instance.raw_input:
+#                    formset.save()
+#                    self.object.phone_numbers.add(formset.instance)
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());
 
         return self.get_success_url()
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to add formsets for template.
-        """
-        kwargs = super(EditContactView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'email_addresses_formset': self.email_addresses_formset,
-            'addresses_formset': self.addresses_formset,
-            'phone_numbers_formset': self.phone_numbers_formset,
-            'countries': COUNTRIES,
-        })
-        return kwargs
 
     def get_success_url(self):
         """
@@ -618,104 +434,6 @@ class DeleteContactView(DeleteView):
         self.object.delete()
 
         return redirect(reverse('contact_list'))
-
-
-class EditFunctionView(UpdateView):
-    """
-    View to edit functions a contact has.
-    """
-    template_name = 'contacts/function_edit.html'
-    form_class = EditFunctionForm
-    model = Contact
-
-    FunctionFormSet = inlineformset_factory(Contact, Function, fk_name='contact', form=FunctionForm, extra=0)
-    EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, can_delete=True, extra=0)
-    PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, can_delete=True, extra=0)
-
-    def get_form(self, form_class):
-        """
-        Overloading super().get_form to instantiate formsets while instantiating the form.
-        """
-        form = super(EditFunctionView, self).get_form(form_class)
-
-        # Create function formset with all existing functions for current contact
-        self.formset = form.formset = self.FunctionFormSet(self.request.POST or None, instance=self.object)
-
-        # Add e-mail address and phone number formsets to each function form, each with a unique prefix
-        for _form in self.formset.forms:
-            _form.email_addresses_formset = self.EmailAddressFormSet(data=self.request.POST or None, queryset=_form.instance.email_addresses.all(), prefix='email_addresses_%s' % _form.instance.pk)
-            _form.phone_numbers_formset = self.PhoneNumberFormSet(data=self.request.POST or None, queryset=_form.instance.phone_numbers.all(), prefix='phone_numbers_%s' % _form.instance.pk)
-
-        return form
-
-    def form_valid(self, form):
-        """
-        Overloading super().form_valid to save the forms in formset.
-        """
-        if self.formset.is_valid():
-            for form in self.formset:
-                # Save all e-mail address, phone number and address formsets
-                if form.email_addresses_formset.is_valid() and form.phone_numbers_formset.is_valid():
-
-                    # Save form
-                    form.save()
-
-                    form_kwargs = self.get_form_kwargs()
-
-                    # Handle e-mail addresses
-                    for formset in form.email_addresses_formset:
-                        # Check if existing instance has been marked for deletion
-                        if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                            form.instance.email_addresses.remove(formset.instance)
-                            formset.instance.delete()
-                            continue
-
-                        # Check for e-mail address selected as primary
-                        primary = form_kwargs['data'].get(form.email_addresses_formset.prefix + '_primary-email')
-                        if formset.prefix == primary:
-                            formset.instance.is_primary = True
-                        else:
-                            formset.instance.is_primary = False
-
-                        # Only save e-mail address if something else than primary/status was filled in
-                        if formset.instance.email_address:
-                            formset.save()
-                            form.instance.email_addresses.add(formset.instance)
-
-                    # Handle phone numbers
-                    for formset in form.phone_numbers_formset:
-                        # Check if existing instance has been marked for deletion
-                        if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-                            form.instance.phone_numbers.remove(formset.instance)
-                            formset.instance.delete()
-                            continue
-
-                        # Only save address if something was filled other than type
-                        if formset.instance.raw_input:
-                            formset.save()
-                            form.instance.phone_numbers.add(formset.instance)
-
-        # Immediately return the success url, no need to save a non-edited Contact instance.
-        return self.get_success_url()
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to add formset to context.
-        """
-        kwargs = super(EditFunctionView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'formset': self.formset,
-        })
-        return kwargs
-
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted.
-        """
-        return redirect(reverse('contact_list'))
-
-    class Meta:
-        fields = ()
 
 
 class ConfirmContactEmailView(TemplateView):
@@ -820,6 +538,5 @@ class ConfirmContactEmailView(TemplateView):
 add_contact_view = login_required(AddContactView.as_view())
 detail_contact_view = login_required(DetailContactView.as_view())
 delete_contact_view = login_required(DeleteContactView.as_view())
-edit_function_view = login_required(EditFunctionView.as_view())
 edit_contact_view = login_required(EditContactView.as_view())
 list_contact_view = login_required(ListContactView.as_view())

@@ -64,26 +64,3 @@ class EditNoteView(UpdateView):
 
 delete_note_view = login_required(DeleteNoteView.as_view())
 edit_note_view = login_required(EditNoteView.as_view())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -12,12 +12,12 @@
             {% trans 'Your password has been reset. You can go ahead and log in now.' %}
         </div>
     </div>
-{% endblock %}
-
-{% block portal-form-buttons %}
-    <a href="{% url login %}" class="mws-link-button">
-        <button type="button" class="mws-button blue mws-reset-button tabbable">
-            {% trans 'Go to log in' %}
-        </button>
-    </a>
+    
+    <div class="mws-button-row">
+        <a href="{% url login %}">
+            <button type="button" class="mws-button blue mws-reset-button">
+                {% trans 'Back to log in' %}
+            </button>
+        </a>
+    </div>
 {% endblock %}

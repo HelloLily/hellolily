@@ -1,5 +1,5 @@
-import datetime
 from urlparse import urlparse
+import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -17,11 +17,12 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from pytz import timezone
 
-from lily.deals.forms import AddDealForm, AddDealQuickbuttonForm, EditDealForm
+from lily.deals.forms import CreateUpdateDealForm, AddDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.templatetags.messages import tag_mapping
-from lily.utils.views import DetailNoteFormView, SortedListMixin, AjaxUpdateView
+from lily.utils.views import DetailNoteFormView, SortedListMixin, AjaxUpdateView,\
+    DeleteBackAddSaveFormViewMixin
 
 
 class ListDealView(SortedListMixin, ListView):
@@ -55,90 +56,12 @@ class DetailDealView(DetailNoteFormView):
     success_url_reverse_name = 'deal_details'
     
 
-class AddDealView(CreateView):
+class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
     """
-    View to add a deal.
-    """
-    template_name = 'deals/create_or_update.html'
-    form_class = AddDealForm
-    
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overloading super().dispatch to change the template to be rendered.
-        """
-        if is_ajax(request):
-            self.template_name = 'deals/quickbutton_form.html'
-            self.form_class = AddDealQuickbuttonForm
-        
-        return super(AddDealView, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        """
-        Overloading super().form_valid to return json for an ajax request.
-        """
-        # Save instance
-        super(AddDealView, self).form_valid(form)
-        
-        if is_ajax(self.request):
-            message = _('%s (Deal) has been saved.') % self.object.name
-            
-            # Redirect if in the list view
-            url_obj = urlparse(self.request.META['HTTP_REFERER'])
-            if url_obj.path.endswith(reverse('deal_list')):
-                # Show save message
-                messages.success(self.request, message)
-
-                do_redirect = True
-                url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
-                notification = False
-                html_response = ''
-            else:
-                do_redirect = False
-                url = ''
-                html_response = ''
-                notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-            
-            # Return response
-            return HttpResponse(simplejson.dumps({
-                'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
-        else:
-            # Show save message
-            messages.success(self.request, _('%s (Deal) has been saved.') % self.object.name)
-        
-        return self.get_success_url()
-
-    def form_invalid(self, form):
-        """
-        Overloading super().form_invalid to return json for an ajax request.
-        """
-        if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
-                'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
-        
-        return super(AddDealView, self).form_invalid(form)
-
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted.
-        """
-        return redirect('%s?order_by=7&sort_order=desc' % (reverse('deal_list')))
-
-
-class EditDealView(UpdateView):
-    """
-    View to edit a deal.
+    Base class for AddDealView and EditDealView.
     """
     template_name = 'deals/create_or_update.html'
-    form_class = EditDealForm
-    model = Deal
+    form_class = CreateUpdateDealForm
     
     def form_valid(self, form):
         """
@@ -164,6 +87,80 @@ class EditDealView(UpdateView):
         Get the url to redirect to after this form has succesfully been submitted.
         """
         return redirect('%s?order_by=7&sort_order=desc' % (reverse('deal_list')))
+    
+class AddDealView(CreateUpdateDealView, CreateView):
+    """
+    View to add a deal.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to change the template to be rendered.
+        """
+        if is_ajax(request):
+            self.template_name = 'deals/quickbutton_form.html'
+            self.form_class = AddDealQuickbuttonForm
+        
+        return super(AddDealView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """
+        Overloading super().form_valid to return json for an ajax request.
+        """
+        # Save instance
+        super(AddDealView, self).form_valid(form)
+        
+        message = _('%s (Deal) has been saved.') % self.object.name
+        
+        if is_ajax(self.request):
+            # Redirect if in the list view
+            url_obj = urlparse(self.request.META['HTTP_REFERER'])
+            if url_obj.path.endswith(reverse('deal_list')):
+                # Show save message
+                messages.success(self.request, message)
+
+                do_redirect = True
+                url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
+                notification = False
+                html_response = ''
+            else:
+                do_redirect = False
+                url = ''
+                html_response = ''
+                notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
+            
+            # Return response
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'html': html_response,
+                'redirect': do_redirect,
+                'notification': notification,
+                'url': url
+            }), mimetype='application/json')
+
+        # Show save message
+        messages.success(self.request, message)
+        
+        return self.get_success_url()
+
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to return json for an ajax request.
+        """
+        if is_ajax(self.request):
+            context = RequestContext(self.request, self.get_context_data(form=form))
+            return HttpResponse(simplejson.dumps({
+                'error': True,
+                'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/json')
+        
+        return super(AddDealView, self).form_invalid(form)
+
+
+class EditDealView(CreateUpdateDealView, UpdateView):
+    """
+    View to edit a deal.
+    """
+    model = Deal
 
 
 class DeleteDealView(DeleteView):

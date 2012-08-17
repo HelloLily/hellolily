@@ -1,3 +1,5 @@
+{% load crispy_forms_tags %}
+
 {% block form %}
     <div class="mws-panel-header">
         <span>{% block form-title %}{% endblock %}</span>
@@ -6,7 +8,11 @@
         <form class="mws-form tabthis" action="" method="post">
             {% csrf_token %}
             
-            {% block form-content %}{% endblock %}
+            {% block form-content %}
+                {% if form and form.helper %}
+                    {% crispy form %}
+                {% endif %}
+            {% endblock %}
             
             <div class="mws-button-row">
                 {% block form-buttons %}{% endblock %}

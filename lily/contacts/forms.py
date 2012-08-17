@@ -1,44 +1,40 @@
+from crispy_forms.layout import Layout, MultiField
 from django import forms
 from django.forms import ModelForm
-from django.forms.util import ErrorList
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
+from lily.utils.forms import FieldInitFormMixin
+from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
+from lily.utils.layout import Row, Column, ColumnedRow, InlineRow
 
 
-class AddContactQuickbuttonForm(ModelForm):
+class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
     """
     Form to add an account with the absolute minimum of information.
     """
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
                                      queryset=Account.objects.none(),
-                                     empty_label=_('Select an account'),
-                                     widget=forms.Select(attrs={'class': 'chzn-select'}))
-
-    email = forms.EmailField(label=_('E-mail'), max_length=255, required=False,
-        widget=forms.TextInput(attrs={
-        'class': 'mws-textinput',
-        'placeholder': _('E-mail address')
-    }))
-
-    phone = forms.CharField(max_length=40, required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-textinput',
-            'placeholder': _('Phone number')
-    }))
+                                     empty_label=_('Select an account'))
+    email = forms.EmailField(label=_('E-mail address'), max_length=255, required=False)
+    phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
     def __init__(self, *args, **kwargs):
+        """
+        Overload super().__init__ to change auto_id to prevent clashing form field id's with 
+        other forms.
+        """
         kwargs.update({
             'auto_id':'id_contact_quickbutton_%s'
         })
+        
         super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
         
-
     def clean(self):
         """
         Form validation: all fields should be unique.
@@ -58,49 +54,81 @@ class AddContactQuickbuttonForm(ModelForm):
 
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'email', 'phone')
+        fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
 
-        widgets = {
-            'first_name': forms.TextInput(attrs={
-                'class': 'mws-textinput required',
-                'placeholder': _('First name'),
-            }),
-            'preposition': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Preposition'),
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Last name'),
-            }),
-        }
 
-class AddContactForm(TagsFormMixin, ModelForm):
+class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
     """
     Form to add a contact which all fields available.
     """
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
                                      queryset=Account.objects.none(),
-                                     empty_label=_('Select an account'),
-                                     widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
+                                     empty_label=_('Select an account'))
     
     def __init__(self, *args, **kwargs):
-        super(AddContactForm, self).__init__(*args, **kwargs)
+        super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
+        
+        # Customize form layout
+        self.helper = DeleteBackAddSaveFormHelper(form=self)
+        self.helper.layout.pop(0) # salutation
+        self.helper.layout.pop(0) # gender
+        self.helper.layout.pop(0) # first name
+        self.helper.layout.pop(0) # preposition
+        self.helper.layout.pop(0) # last name
+        self.helper.layout.insert(0, Layout(
+            MultiField(
+                _('Name'),
+                    InlineRow(
+                        ColumnedRow(
+                            Column('salutation', size=2, first=True),
+                            Column('gender', size=2),
+                        ),
+                    ),
+                    InlineRow(
+                        ColumnedRow(
+                            Column('first_name', size=3, first=True),
+                            Column('preposition', size=1),
+                            Column('last_name', size=3)
+                        ),
+                    ),
+            ),
+        ))
+        self.helper.replace('account',
+            MultiField(
+                self.fields['account'].label,
+                InlineRow(
+                    ColumnedRow(
+                        Column('account', size=3, first=True)
+                    ),
+                ),
+            ),
+        )
+        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        
+        # Prevent rendering labels twice
+        self.fields['salutation'].label = ''
+        self.fields['gender'].label = ''
+        self.fields['first_name'].label = ''
+        self.fields['preposition'].label = ''
+        self.fields['last_name'].label = ''
+        self.fields['account'].label = ''
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
-
-    # TODO: add e-mailadres check
-    #        # Prevent multiple contacts with the same e-mailadress when adding
-    #        if cleaned_data.get('email'):
-    #            if Contact.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
-    #                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-    
+        
+        # Try providing initial account info
+        try:
+            is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
+            if len(is_working_at) == 1:
+                self.fields['account'].initial = is_working_at[0]
+        except:
+            pass        
+        
     def clean(self):
         """
         Form validation: fill in at least first or last name.
         """
-        cleaned_data = super(AddContactForm, self).clean()
+        cleaned_data = super(CreateUpdateContactForm, self).clean()
 
         # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
@@ -108,257 +136,18 @@ class AddContactForm(TagsFormMixin, ModelForm):
 
         return cleaned_data
 
-    def is_valid(self):
-        """
-        Overloading super().is_valid to also validate all formsets.
-        """
-        is_valid = super(AddContactForm, self).is_valid()
-
-        # Check e-mail addresses
-        for form in self.email_addresses_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        # Check phone numbers
-        for form in self.phone_numbers_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        # Check addresses
-        for form in self.addresses_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        return is_valid
-
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description', 'salutation')
+        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description', 'tags')
 
         widgets = {
-            'first_name': forms.TextInput(attrs={
-                'class': 'mws-textinput required tabbable',
-                'placeholder': _('First name'),
-            }),
-            'preposition': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Preposition'),
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Last name'),
+            'salutation': forms.Select(attrs={
+                'class': 'chzn-select-no-search',
             }),
             'gender': forms.Select(attrs={
-                'class': 'mws-textinput chzn-select-no-search tabbable',
-            }),
-            'title': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Title'),
+                'class': 'chzn-select-no-search',
             }),
             'description': forms.Textarea(attrs={
-                'cols': '60',
-                'rows': '3',
-                'class': 'tabbable',
-                'placeholder': _('Description'),
+                'click_show_text': _('Add description')
             }),
-            'salutation': forms.Select(attrs={
-                'class': 'mws-textinput chzn-select-no-search tabbable',
-            })
-        }
-
-
-class EditContactForm(TagsFormMixin, ModelForm):
-    """
-    Form for editing an existing contact which includes all fields available.
-    """
-#    edit_accounts = forms.BooleanField(required=False, label=_('Edit these next to provide more information'),
-#        widget=forms.CheckboxInput())
-
-#    twitter = forms.CharField(label=_('Twitter'), required=False, max_length=100,
-#        widget=forms.TextInput(attrs={
-#            'class': 'mws-textinput',
-#            'placeholder': _('Twitter username')
-#    }))
-#
-#    linkedin = forms.URLField(label=_('Facebook'), required=False,
-#        widget=forms.TextInput(attrs={
-#            'class': 'mws-textinput',
-#            'placeholder': _('LinkedIn profile link')
-#    }))
-#
-#    facebook = forms.CharField(label=_('LinkedIn'), required=False, max_length=100,
-#        widget=forms.TextInput(attrs={
-#            'class': 'mws-textinput',
-#            'placeholder': _('Facebook username')
-#    }))
-
-    def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-                 initial=None, error_class=ErrorList, label_suffix=':',
-                 empty_permitted=False, instance=None):
-
-        super(EditContactForm, self).__init__(data, files, auto_id, prefix, initial, error_class,
-                                              label_suffix, empty_permitted, instance)
-
-        # Add field to select accounts where this contact works or has worked at.
-#        self.fields['accounts'] = forms.ModelMultipleChoiceField(required=False,
-#            queryset=Account.objects.all(),
-#            initial=Account.objects.filter(pk__in=Function.objects.filter(contact=instance).values('account_id')),
-#            widget=forms.SelectMultiple(attrs={ 'class': 'chzn-select' })
-#        )
-
-        # Try providing initial account info
-        is_working_at = Function.objects.filter(contact=instance).values_list('account_id', flat=True)
-        if len(is_working_at) == 1:
-            # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
-                queryset=Account.objects.all(), initial=is_working_at[0],
-                empty_label=_('Select an account'),
-                widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
-        else:
-            # Add field to select account where this contact is working at.
-            self.fields['account'] = forms.ModelChoiceField(label=_('Works at'), required=False,
-                queryset=Account.objects.all(), empty_label=_('Select an account'),
-                widget=forms.Select(attrs={'class': 'chzn-select tabbable'}))
-#        # Try providing initial social media
-#        try:
-#            self.fields['twitter'].initial = self.instance.social_media.filter(name='twitter')[0].username
-#        except Exception:
-#            pass
-#        try:
-#            self.fields['linkedin'].initial = self.instance.social_media.filter(name='linkedin')[0].profile_url
-#        except:
-#            pass
-#        try:
-#            self.fields['facebook'].initial = self.instance.social_media.filter(name='facebook')[0].username
-#        except:
-#            pass
-
-    def is_valid(self):
-        """
-        Overloading super().is_valid to also validate all formsets.
-        """
-        is_valid = super(EditContactForm, self).is_valid()
-
-        # Check e-mail addresses
-        for form in self.email_addresses_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        # Check phone numbers
-        for form in self.phone_numbers_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        # Check addresses
-        for form in self.addresses_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        return is_valid
-
-    def clean(self):
-        """
-        Form validation: fill in at least first or last name.
-        """
-        cleaned_data = super(EditContactForm, self).clean()
-
-        # check if at least first or last name has been provided.
-        if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
-            self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
-
-        return cleaned_data
-
-    class Meta:
-        model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'gender', 'title', 'description', 'salutation')
-
-        widgets = {
-            'first_name': forms.TextInput(attrs={
-                'class': 'mws-textinput required tabbable',
-                'placeholder': _('First name'),
-            }),
-            'preposition': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Preposition'),
-            }),
-            'last_name': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Last name'),
-            }),
-            'gender': forms.Select(attrs={
-                'class': ' tabbable chzn-select-no-search'
-            }),
-            'title': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Title'),
-            }),
-            'description': forms.Textarea(attrs={
-                'cols': '60',
-                'rows': '3',
-                'class': 'tabbable',
-                'placeholder': _('Description'),
-            }),
-            'salutation': forms.Select(attrs={
-                'class': 'tabbable chzn-select-no-search'
-            }),
-        }
-
-
-class EditFunctionForm(ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(EditFunctionForm, self).__init__(*args, **kwargs)
-
-        # Make all fields not required
-        for key, field in self.fields.iteritems():
-            self.fields[key].required = False
-
-    def is_valid(self):
-        """
-        Overloading super().is_valid to validate all functions.
-        """
-        is_valid = super(EditFunctionForm, self).is_valid()
-
-        # Validate formset
-        for form in self.formset:
-            if not form.is_valid():
-                is_valid = False
-
-        return is_valid
-
-
-class FunctionForm(ModelForm):
-    """
-    Form to link contacts with accounts through functions.
-    """
-
-    def is_valid(self):
-        """
-        Overloading super().is_valid to also validate all formsets.
-        """
-        is_valid = super(FunctionForm, self).is_valid()
-
-        # Check e-mail addresses
-        for form in self.email_addresses_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        # Check phone numbers
-        for form in self.phone_numbers_formset:
-            if not form.is_valid():
-                is_valid = False
-
-        return is_valid
-
-    class Meta:
-        exclude = ('is_deleted', 'contact', 'email_addresses', 'phone_numbers')
-        widgets = {
-             'title': forms.TextInput(attrs={
-                 'class': 'mws-textinput',
-                 'placeholder': _('Function title')
-             }),
-             'department': forms.TextInput(attrs={
-                 'class': 'mws-textinput',
-                 'placeholder': _('Department')
-             })
         }

@@ -81,6 +81,19 @@ FILE_UPLOAD_HANDLERS = (
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
 
+# Static
+STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))
+STATIC_URL = os.environ.get('STATIC_URL', '/static/')
+
+STATICFILES_DIRS = (
+    local_path('static/'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
+
 # Login settings
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
@@ -126,13 +139,23 @@ TEMPLATE_DIRS = (
 )
 
 # overwriting defaults, to leave out media and static context processors
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.tz',
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+                                                                              
+#    'django.contrib.auth.context_processors.auth',
+#    'django.core.context_processors.debug',
+#    'django.core.context_processors.i18n',
+#    'django.core.context_processors.media',
+#    'django.core.context_processors.static',
+#    'django.core.context_processors.tz',
+##    'django.core.context_processors.request',
+#    'django.contrib.messages.context_processors.messages',
+    
+#    'django.contrib.auth.context_processors.auth',
+#    'django.core.context_processors.debug',
+#    'django.core.context_processors.i18n',
+#    'django.core.context_processors.tz',
     'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
+#    'django.contrib.messages.context_processors.messages',
     'lily.utils.context_processors.quickbutton_forms',
 )
 
@@ -159,6 +182,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
     'django.contrib.messages',
 
     # 3rd party
@@ -169,6 +193,7 @@ INSTALLED_APPS = (
     'south',
     'debug_toolbar',
     'mediagenerator',
+    'storages',
 
     # Lily
     'lily', # required for management command
@@ -207,7 +232,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'level':'DEBUG',
-#            'filters': ['require_debug_false'],
+            'filters': ['require_debug_false'],
             'class':'logging.StreamHandler',
         },
         'mail_admins': {
@@ -310,3 +335,10 @@ try:
     MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
 except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
+
+# django-storages
+#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') 
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY') 
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')

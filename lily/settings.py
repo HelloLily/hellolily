@@ -3,6 +3,7 @@ from urlparse import urlparse, uses_netloc
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import gettext_noop
+from datetime import datetime, timedelta
 import django.conf.global_settings as DEFAULT_SETTINGS
 
 
@@ -140,22 +141,7 @@ TEMPLATE_DIRS = (
 
 # overwriting defaults, to leave out media and static context processors
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-                                                                              
-#    'django.contrib.auth.context_processors.auth',
-#    'django.core.context_processors.debug',
-#    'django.core.context_processors.i18n',
-#    'django.core.context_processors.media',
-#    'django.core.context_processors.static',
-#    'django.core.context_processors.tz',
-##    'django.core.context_processors.request',
-#    'django.contrib.messages.context_processors.messages',
-    
-#    'django.contrib.auth.context_processors.auth',
-#    'django.core.context_processors.debug',
-#    'django.core.context_processors.i18n',
-#    'django.core.context_processors.tz',
     'django.core.context_processors.request',
-#    'django.contrib.messages.context_processors.messages',
     'lily.utils.context_processors.quickbutton_forms',
 )
 
@@ -319,10 +305,11 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
 # django-mediagenerator
 MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
 IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
+GENERATED_MEDIA_DIR = local_path('generated_media_dir/static')
+GENERATED_MEDIA_DIRS = (local_path('generated_media_dir'),)
 
 DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
 PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
-STATIC_URL = '/static/' # required to server static files for django-admin
 
 YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
 ROOT_MEDIA_FILTERS = {
@@ -337,8 +324,16 @@ except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
 
 # django-storages
-#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') 
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY') 
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+# custom headers for files uploaded to amazon
+expires = datetime.utcnow() + timedelta(days=(25 * 365))
+expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+AWS_HEADERS = {
+    'Cache-Control': 'max-age=1314000',
+    'Expires': expires,
+}

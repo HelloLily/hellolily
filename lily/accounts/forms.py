@@ -1,11 +1,11 @@
-from crispy_forms.layout import Button
+from crispy_forms.layout import Button, Hidden, Layout
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
+from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Anchor, Column, Row, InlineRow, ColumnedRow, MultiField
 
@@ -14,8 +14,8 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
     """
     Form to add an account with the absolute minimum of information.
     """
-    website = forms.URLField(max_length=30, initial='http://', required=False)    
-    name = forms.CharField(max_length=255, label=_('Company name'))
+    website = forms.URLField(label=_('Website'), max_length=30, initial='http://', required=False)    
+    name = forms.CharField(label=_('Company name'), max_length=255)
     email = forms.EmailField(label=_('E-mail address'), max_length=255)
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
@@ -29,6 +29,49 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
         })
         
         super(AddAccountQuickbuttonForm, self).__init__(*args, **kwargs)
+        
+        # Customize form layout
+        self.helper = LilyFormHelper(self)
+        self.helper.add_layout(Layout(
+            Hidden('submit_button', 'add', css_id='add-account-submit'),
+            MultiField(
+                self.fields['website'].label,
+                InlineRow(
+                    ColumnedRow(
+                        Column('website', size=7, first=True),
+                        Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=1)
+                    ),
+                ),
+            ),
+            MultiField(
+                self.fields['name'].label,
+                InlineRow(
+                    ColumnedRow(
+                        Column('name', size=4, first=True),
+                        Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=4),
+                    ),
+                ),
+            ),
+            MultiField(
+                self.fields['email'].label,
+                InlineRow(
+                        'email'
+                ),
+            ),
+            MultiField(
+                self.fields['phone'].label,
+                InlineRow(
+                        'phone'
+                ),
+            ),
+        ))
+        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        
+        # Prevent rendering labels twice
+        self.fields['website'].label = ''
+        self.fields['name'].label = ''
+        self.fields['email'].label = ''
+        self.fields['phone'].label = ''
     
     def clean(self):
         """
@@ -100,8 +143,8 @@ class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
         
         # Prevent rendering labels twice
-        self.fields['name'].label = ''
         self.fields['primary_website'].label = ''
+        self.fields['name'].label = ''
         
         # Provide initial data for primary website
         try:

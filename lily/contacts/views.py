@@ -1,13 +1,10 @@
-from datetime import date, timedelta
 from hashlib import sha256
 from urlparse import urlparse
 import base64
 import pickle
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -21,19 +18,19 @@ from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
+from lily.notes.views import NoteDetailViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import EmailAddress, PhoneNumber
+from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin,\
+from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
@@ -57,7 +54,7 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
         return kwargs
 
 
-class DetailContactView(DetailNoteFormView):
+class DetailContactView(NoteDetailViewMixin):
     """
     Display a detail page for a single contact.
     """

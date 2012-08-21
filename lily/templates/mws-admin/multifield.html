@@ -1,9 +1,9 @@
-{% load crispy_forms_field %}
+{% load crispy_forms_field field_extras %}
 
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    <div id="div_{{ field.auto_id }}" class="ctrlHolder {% if field|is_checkbox %}checkbox{% endif %} ">
+    <div id="div_{{ field.auto_id }}" class="ctrlHolder {% if field|is_checkbox %}checkbox{% endif %} {{ field|field_classes }}">
         {% if field.label %}
             <label for="{{ field.id_for_label }}" {% if field.field.required %}class="requiredField"{% endif %}>
                 {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}

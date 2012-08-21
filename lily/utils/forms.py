@@ -190,15 +190,3 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
-
-
-class NoteForm(forms.ModelForm):
-    class Meta:
-        model = Note
-        exclude = ('author', 'object_id', 'content_type')
-        widgets = {
-            'note': forms.Textarea(attrs={
-                'class': 'tabbable',
-                'placeholder': _('Write your note here'),
-            })
-        }

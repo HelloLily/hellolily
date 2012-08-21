@@ -19,9 +19,10 @@ from pytz import timezone
 
 from lily.deals.forms import CreateUpdateDealForm, AddDealQuickbuttonForm
 from lily.deals.models import Deal
+from lily.notes.views import NoteDetailViewMixin
 from lily.utils.functions import is_ajax
 from lily.utils.templatetags.messages import tag_mapping
-from lily.utils.views import DetailNoteFormView, SortedListMixin, AjaxUpdateView,\
+from lily.utils.views import SortedListMixin, AjaxUpdateView,\
     DeleteBackAddSaveFormViewMixin
 
 
@@ -47,7 +48,7 @@ class ListDealView(SortedListMixin, ListView):
         return kwargs
 
 
-class DetailDealView(DetailNoteFormView):
+class DetailDealView(NoteDetailViewMixin):
     """
     Display a detail page for a single deal.
     """

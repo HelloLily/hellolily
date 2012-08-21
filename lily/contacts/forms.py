@@ -1,4 +1,4 @@
-from crispy_forms.layout import Layout, MultiField
+from crispy_forms.layout import Layout
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
@@ -8,7 +8,7 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
-from lily.utils.layout import Row, Column, ColumnedRow, InlineRow
+from lily.utils.layout import Row, Column, ColumnedRow, InlineRow, MultiField
 
 
 class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):

@@ -1,4 +1,4 @@
-from crispy_forms.layout import Button, MultiField
+from crispy_forms.layout import Button
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
@@ -7,7 +7,7 @@ from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Anchor, Column, Row, InlineRow, ColumnedRow
+from lily.utils.layout import Anchor, Column, Row, InlineRow, ColumnedRow, MultiField
 
 
 class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):

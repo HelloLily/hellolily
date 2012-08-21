@@ -167,6 +167,7 @@ INSTALLED_APPS = (
     'south',
     'debug_toolbar',
     'crispy_forms',
+#    'template_debug', in-template tags for debugging purposes
 
     # Lily
     'lily', # required for management command
@@ -287,6 +288,7 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
 # cripsy-forms
 CRISPY_TEMPLATE_PACK = 'mws-admin'
 
-from crispy_forms.layout import Button, MultiField
+from crispy_forms.layout import Button, ButtonHolder, MultiField 
 Button.template = 'mws-admin/layout/baseinput.html'
+ButtonHolder.template = 'mws-admin/layout/buttonholder.html'
 MultiField.template = 'mws-admin/layout/multifield.html'

@@ -17,11 +17,12 @@ from django.views.generic.list import ListView
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
+from lily.notes.views import NoteDetailViewMixin
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DetailNoteFormView, SortedListMixin, FilteredListMixin,\
+from lily.utils.views import SortedListMixin, FilteredListMixin,\
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin,\
     AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin
   
@@ -45,7 +46,7 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
         return kwargs
 
 
-class DetailAccountView(DetailNoteFormView):
+class DetailAccountView(NoteDetailViewMixin):
     """
     Display a detail page for a single account.
     """

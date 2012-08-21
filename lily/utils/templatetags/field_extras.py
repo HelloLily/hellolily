@@ -54,3 +54,9 @@ def widget_type(field):
     """
     return field.field.widget.__class__.__name__.lower()
 
+@register.filter('field_classes')
+def field_classes(field):
+    """
+    Return the __dict__ value for 'field_classes' of the widget of the given field.
+    """
+    return field.field.widget.__dict__.get('attrs', {}).get('field_classes', '')

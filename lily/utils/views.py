@@ -4,7 +4,6 @@ import types
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.core.urlresolvers import reverse
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
@@ -13,12 +12,11 @@ from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
-from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
-from lily.utils.forms import NoteForm, EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm
+from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 
@@ -249,58 +247,6 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
-
-
-class DetailNoteFormView(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
-    """
-    DetailView for models including a NoteForm to quickly add notes.
-    """
-    form_class = NoteForm
-    
-    def get(self, request, *args, **kwargs):
-        """
-        Implementing the response for the http method GET.
-        """
-        self.object = self.get_object()
-        
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-                
-        context = self.get_context_data(object=self.object, form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Implementing the response for the http method POST.
-        """
-        self.object = self.get_object()
-        
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        """
-        When adding a note, automatically save the related object and author.
-        """
-        note = form.save(commit=False)
-        note.author = self.request.user
-        note.subject = self.object
-        note.save()
-
-        return super(DetailNoteFormView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(object=self.object, form=form))
-
-    def get_success_url(self):
-        if not hasattr(self, 'success_url_reverse_name'):
-            return super(DetailNoteFormView, self).get_success_url()
-        
-        return reverse(self.success_url_reverse_name, kwargs={ 'pk': self.object.pk })
 
 
 class MultipleModelListView(TemplateView):

@@ -1,4 +1,4 @@
-from crispy_forms.layout import Submit, HTML, MultiField, Layout
+from crispy_forms.layout import Submit, Layout
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
@@ -15,7 +15,7 @@ from lily.users.models import CustomUser
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column, \
-  ColumnedRow
+  ColumnedRow, MultiField
 from lily.utils.widgets import JqueryPasswordInput
 
 

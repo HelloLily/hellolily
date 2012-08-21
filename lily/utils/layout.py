@@ -1,7 +1,11 @@
 """
 This file contains multiple new layout objects for django-app crispy-forms.
 """
-from crispy_forms.layout import Div, HTML
+from crispy_forms.layout import Div, HTML, MultiField
+from crispy_forms.utils import render_field
+from django.conf import settings
+from django.template.context import Context
+from django.template.loader import render_to_string
 
 
 class Anchor(HTML):
@@ -74,4 +78,21 @@ class PasswordStrengthIndicator(HTML):
                 </div> \
                 <div id="password-text"></div></div>'
         super(PasswordStrengthIndicator, self).__init__(html)
-    
+
+
+class MultiField(MultiField):
+    """
+    Render multiple fields with custom templates.
+    """
+    def render(self, form, form_style, context):
+        if form.errors:
+            self.css_class += " error"
+
+        # We need to render fields using django-uni-form render_field so that MultiField can
+        # hold other Layout objects inside itself
+        fields_output = u''
+        self.bound_fields = []
+        for field in self.fields:
+            fields_output += render_field(field, form, form_style, context, '%s/multifield.html' % settings.CRISPY_TEMPLATE_PACK, self.label_class, layout_object=self)
+
+        return render_to_string(self.template, Context({'multifield': self, 'fields_output': fields_output}))

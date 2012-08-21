@@ -17,7 +17,7 @@
 
         {% if not field|is_checkbox %}
             {% if field|widget_type == "textarea" %}
-                {% if field|field_value %}
+                {% if field|field_value or not field.click_and_show %}
                     {% if field.errors %}
                         <span class="field_error">{% crispy_field field %}</span>
                         <div class="mws-error no_list_style_type">
@@ -73,22 +73,14 @@
                     </div>
                 </div>
             {% else %}
-                <!-- <div class="mws-form-item">
-                    <div class="mws-form-cols clearfix">
-                        <div class="mws-form-col-4-8 alpha">
-                            <div class="mws-form-item">  -->
-                                {% if form_show_errors and field.errors %}
-                                    <span class="field_error">{% crispy_field field %}</span>
-                                    <div class="mws-error no_list_style_type">
-                                        {{ field.errors }}
-                                    </div>
-                                {% else %}
-                                    {% crispy_field field %}
-                                {% endif %}
-                           <!--  </div>
-                        </div>
+                {% if form_show_errors and field.errors %}
+                    <span class="field_error">{% crispy_field field %}</span>
+                    <div class="mws-error no_list_style_type">
+                        {{ field.errors }}
                     </div>
-                </div> -->
+                {% else %}
+                    {% crispy_field field %}
+                {% endif %}
             {% endif %}
         {% endif %}
 

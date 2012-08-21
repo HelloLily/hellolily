@@ -7,5 +7,5 @@ class Command(management.base.NoArgsCommand):
     """
     def handle_noargs(self, **options):
         management.call_command('generatemedia', verbosity=0, interactive=False)
-        management.call_command('uploadawsstatic', verbosity=0, interactive=False)
+        management.call_command('uploadawsstatic', verbosity=2, interactive=False)
         

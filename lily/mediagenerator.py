@@ -87,9 +87,11 @@ extra_theme_bundle_js = (
     'js/send_form.js',
     
     # js from apps
+    'extra/js/apps.js',
+    
     'accounts/js/account_dataprovider.js',
     'accounts/js/account_exists.js',
-    ## TODO, extract common app js into single js, code now is executed more than once
+    
     'accounts/js/accounts.js',
     
     'contacts/js/contacts.js',

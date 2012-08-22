@@ -2,12 +2,6 @@
 
 {% load i18n thumbnail utils media %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.notes' %}"></script>
-{% endblock %}
-
 {% block container %}
     {% with item=object %}
         <div class="mws-panel grid_6">

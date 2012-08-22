@@ -8,12 +8,6 @@
     {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
-{% endblock %}
-
 {% block item-delete-url %}{% url account_delete pk=item.pk %}{% endblock %}
 
 {% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}

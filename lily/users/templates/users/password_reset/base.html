@@ -10,10 +10,4 @@
     {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-{% endblock %}
-
 {% block portal-title %}{% trans 'Reset password' %}{% endblock %}

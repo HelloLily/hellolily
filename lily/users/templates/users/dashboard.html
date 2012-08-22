@@ -4,12 +4,6 @@
 
 {% block page-titel %}{% trans 'Dashboard' %} - {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-{% endblock %}
-
 {% block container %}
 <div class="mws-panel grid_8">
     <div class="mws-panel-header">

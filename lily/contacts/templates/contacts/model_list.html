@@ -8,12 +8,6 @@
     {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
-{% endblock %}
-
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
     { "bSearchable": false, "bSortable": false, "aTargets": [1] },

@@ -12,12 +12,6 @@
     {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
-{% endblock %}
-
 {% block create_or_update_form %}
     {% include 'contacts/create_or_update_form.html' %}
 {% endblock %}

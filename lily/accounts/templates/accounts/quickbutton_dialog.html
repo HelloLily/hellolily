@@ -13,7 +13,6 @@
 {% block dialog-form %}{% include 'accounts/quickbutton_form.html' with form=quickbutton_formsets.account %}{% endblock %}
 
 {% block quick-button-scripts %}
-    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             // add account dialog

@@ -95,7 +95,7 @@ extra_theme_bundle_js = (
     'contacts/js/contacts.js',
     
     'deals/js/deals.js',
-    ##
+
     'notes/js/notes.js',
     
     'provide/js/dataprovider.js',
@@ -134,7 +134,8 @@ MEDIA_BUNDLES = (
 #        {'filter': 'mediagenerator.filters.media_url.MediaURL'}, makes +/- 430 KB difference
     )   + jquery_bundle_js
         + theme_bundle_js
-        + extra_theme_bundle_js,
+        + extra_theme_bundle_js
+        + ({'filter': 'mediagenerator.filters.i18n.I18N'},),
     ('tables.js',
         'plugins/datatables/jquery.dataTables-min.js',
         'plugins/datatables/jquery.dataTables.date.js',
@@ -146,7 +147,7 @@ MEDIA_BUNDLES = (
         'users/js/password_reset.js',
         'users/js/registration.js',
     ),
-    ('translations.js',
-         {'filter': 'mediagenerator.filters.i18n.I18N'},
-    ),
+#    ('translations.js',
+#         {'filter': 'mediagenerator.filters.i18n.I18N'},
+#    ),
 )

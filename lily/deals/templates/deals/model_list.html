@@ -8,12 +8,6 @@
     {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.deals' %}"></script>
-{% endblock %}
-
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
     { "sType": "date-euro", "aTargets": [6] },

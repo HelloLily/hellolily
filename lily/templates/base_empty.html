@@ -21,8 +21,8 @@
         {% endblock %}
         
         {% block scripts %}
-        	{% include_media 'main.js' %}
-        	{% include_media 'translations.js' language=LANGUAGE_CODE %}
+        	{% include_media 'main.js' language='en' %}
+        	{% comment %}{% include_media 'translations.js' language=LANGUAGE_CODE %}{% endcomment %}
         {% endblock %}
     </head>
     <body>

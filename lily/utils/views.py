@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import types
 
 from django.contrib.auth.decorators import login_required
@@ -8,6 +7,7 @@ from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
@@ -459,8 +459,8 @@ class ModelFormSetViewMixin(object):
         super(ModelFormSetViewMixinSubClass, self).__init__(*args, **kwargs)
     """
     formset_data = {}
-    formset_classes = OrderedDict()
-    formsets = OrderedDict()
+    formset_classes = SortedDict()
+    formsets = SortedDict()
     
     def get_form(self, form_class):
         """
@@ -529,7 +529,7 @@ class ModelFormSetViewMixin(object):
         """
         kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
         if not kwargs.has_key('formsets'):
-            kwargs['formsets'] = OrderedDict()
+            kwargs['formsets'] = SortedDict()
 
         for context_name, instance in self.formsets.items():
             kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}

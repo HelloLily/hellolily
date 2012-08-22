@@ -4,7 +4,6 @@ from django.forms import ModelForm
 from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
-from lily.notes.models import Note
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
 

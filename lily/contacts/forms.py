@@ -1,4 +1,4 @@
-from crispy_forms.layout import Layout
+from crispy_forms.layout import Layout, Hidden
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
@@ -7,7 +7,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
+from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.layout import Row, Column, ColumnedRow, InlineRow, MultiField
 
 
@@ -31,6 +31,51 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         })
         
         super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
+        
+        # Customize form layout
+        self.helper = LilyFormHelper(self)
+        self.helper.add_layout(Layout(
+            Hidden('submit_button', 'add', css_id='add-contact-submit'),
+            MultiField(
+                _('Name'),
+                InlineRow(
+                    ColumnedRow(
+                        Column('first_name', size=3, first=True),
+                        Column('preposition', size=1),
+                        Column('last_name', size=4)
+                    ),
+                ),
+            ),
+            MultiField(
+                self.fields['account'].label,
+                InlineRow(
+                    ColumnedRow(
+                        Column('account', size=4, first=True),
+                    ),
+                ),
+            ),
+            MultiField(
+                self.fields['email'].label,
+                InlineRow(
+                        'email'
+                ),
+            ),
+            MultiField(
+                self.fields['phone'].label,
+                InlineRow(
+                        'phone'
+                ),
+            ),
+        ))
+        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        
+        # Prevent rendering labels twice
+        self.fields['first_name'].label = ''
+        self.fields['preposition'].label = ''
+        self.fields['last_name'].label = ''
+        self.fields['account'].label = ''
+        self.fields['email'].label = ''
+        self.fields['phone'].label = ''
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()

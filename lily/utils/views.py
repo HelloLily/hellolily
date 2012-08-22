@@ -485,7 +485,7 @@ class ModelFormSetViewMixin(object):
         """
         Return the formset instance for context_name.
         """
-        return self.formsets[context_name]
+        return self.formsets.get(context_name, [])
     
     def add_formset(self, context_name, model, related_name, form, label, template, prefix, extra=0, **form_attrs):
         """

@@ -69,7 +69,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         Overloading super().form_valid to add success message after editing.
         """
         # Save instance
-        super(EditDealView, self).form_valid(form)
+        super(CreateUpdateDealView, self).form_valid(form)
         
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
         if self.object.stage in [1,3]:

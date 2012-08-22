@@ -140,3 +140,4 @@ class AddDealQuickbuttonForm(CreateUpdateDealForm):
         })
         
         super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
+        self.helper.inputs = []

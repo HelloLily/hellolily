@@ -15,7 +15,7 @@ from lily.users.models import CustomUser
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column, \
-  ColumnedRow, MultiField
+  ColumnedRow, MultiField, Anchor
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -227,7 +227,7 @@ class ResendActivationForm(Form, FieldInitFormMixin):
 
 class RegistrationForm(Form, FieldInitFormMixin):
     """
-    This is the registration form, which is used to register a new user.
+    This form allows new user registration.
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
@@ -267,6 +267,8 @@ class RegistrationForm(Form, FieldInitFormMixin):
     
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
+        
+        # Customize layout
         self.helper = LilyFormHelper(self)
         self.helper.add_layout(Layout(
             MultiField(
@@ -344,10 +346,13 @@ class RegistrationForm(Form, FieldInitFormMixin):
 
 
 class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
+    """
+    Form for accepting invitations.
+    """
     email = forms.EmailField(label=_('E-mail'), max_length=255, 
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email disabled',
-            'readonly': 'readonly'
+            'readonly': 'readonly',
         }
     ))
     company = forms.CharField(label=_('Company'), max_length=255,
@@ -356,6 +361,11 @@ class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
             'readonly': 'readonly'
         }
     ))
+    
+    def __init__(self, *args, **kwargs):
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        self.helper.inputs = []
+        self.helper.add_input(Submit('submit', _('Accept')))
     
     def clean(self):
         initial_email = self.initial['email']

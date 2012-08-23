@@ -337,6 +337,7 @@ div#mws-quickbutton-container button
 .mws-form .mws-textinput.disabled /* .mws-form .mws-textinput.disabled */
 {
     color: #868686;
+    background-color: #F0F0F0;
 }
 
 .mws-form select:focus,

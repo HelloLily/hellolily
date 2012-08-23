@@ -6,7 +6,7 @@ from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextIn
 from django.utils.translation import ugettext as _
 
 from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.layout import MultiField, ColumnedRow, Column, Anchor, InlineRow, Row
+from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
 

@@ -397,6 +397,14 @@ div#mws-quickbutton-container button
     color:#4682B4;
 }
 
+.mws-form .mws-form-item .mws-error,
+.mws-form .mws-form-item label.error,
+.mws-form .mws-form-item span.error,
+.mws-form .mws-form-item div.error
+{
+    margin: -4px 0 4px 0 !important;
+}
+
 /**
  *     Login Form Stylesheet
  */

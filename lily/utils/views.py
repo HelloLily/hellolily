@@ -450,12 +450,16 @@ class ModelFormSetViewMixin(object):
     
     Create a new subclass with the following init method.
     def __init__(self, *args, **kwargs):
-        context_name = 'formset'
+        context_name = 'context_name'
         model = Model
-        form = ModelBaseForm
-        prefix = 'formset_prefix'
+        related_name = 'related_name'
+        form = Form
+        label = 'label'
+        template = 'template'
+        prefix = 'prefix'
+        extra = 0
         
-        self.add_formset(context_name, model=model, form=form, prefix=prefix)
+        self.add_formset(context_name, model, related_name, form, label, template, prefix, extra)
         super(ModelFormSetViewMixinSubClass, self).__init__(*args, **kwargs)
     """
     formset_data = {}
@@ -477,6 +481,7 @@ class ModelFormSetViewMixin(object):
                     formset_instance = formset_class(self.request.POST or None, queryset=getattr(form.instance, self.formset_data[context_name]['related_name']).all(), prefix=prefix)
                 except:
                     formset_instance = formset_class(self.request.POST or None, queryset=model._default_manager.none(), prefix=prefix)
+                
                 self.add_formset_instance(context_name, formset_instance)
         
         return super(ModelFormSetViewMixin, self).get_form(form_class)
@@ -631,7 +636,7 @@ class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.save()
                 self.object.phone_numbers.add(formset_form.instance)
         
-        return self.get_success_url()
+        return super(PhoneNumberFormSetViewMixin, self).form_valid(form)
 
 
 class AddressFormSetViewMixin(ModelFormSetViewMixin):
@@ -675,7 +680,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.save()
                 self.object.addresses.add(formset_form.instance)
         
-        return self.get_success_url()
+        return super(AddressFormSetViewMixin, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         """
@@ -720,7 +725,7 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.instance.account = self.object
                 formset_form.save()
         
-        return self.get_success_url()
+        return super(WebsiteFormSetViewMixin, self).form_valid(form)
         
 
 class AjaxUpdateView(View):

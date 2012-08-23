@@ -174,8 +174,29 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
     """
     Base form for adding multiple websites to an account.
     """
-    website = forms.URLField(max_length=30, initial='http://')
+    website = forms.URLField(max_length=30, initial='http://', required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(WebsiteBaseForm, self).__init__(*args, **kwargs)
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                ColumnedRow(
+                    Column('website', size=4, first=True),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                        size=1,
+                        css_class='formset-delete'
+                    ),
+                )
+            )
+        ))
+        
+        self.fields['website'].label = ''
+    
     class Meta:
         model = Website
+        fields = ('website',)
         exclude = ('account')

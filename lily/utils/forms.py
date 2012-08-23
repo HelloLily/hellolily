@@ -1,9 +1,12 @@
-from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, HTML
 from django import forms
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, Textarea, HiddenInput
+from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, \
+    Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
+from lily.utils.formhelpers import LilyFormHelper
+from lily.utils.layout import MultiField, ColumnedRow, Column, Anchor, InlineRow, Row
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
 
@@ -118,9 +121,34 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
     def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        
         super(EmailAddressBaseForm, self).__init__(*args, **kwargs)
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                ColumnedRow(
+                    Column('email_address', size=2, first=True),
+                    Column(
+                        HTML('''
+                            <label>
+                                <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
+                                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">''' + _('primary') + '''</span>
+                            </label>'''
+                        ),
+                        size=2,
+                        css_class='center email_is_primary'),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                        size=1,
+                        css_class='formset-delete'
+                    ),
+                )
+            )
+        ))
+        
+        self.fields['email_address'].label = ''
+        self.fields['is_primary'].label = ''
         
     class Meta:
         model = EmailAddress
@@ -134,11 +162,11 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
         }
 
  
-class PhoneNumberBaseForm(ModelForm):
+class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
-    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work',
+    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', required=False,
         widget=forms.Select(attrs={
             'class': 'other chzn-select-no-search tabbable'
         }
@@ -146,10 +174,31 @@ class PhoneNumberBaseForm(ModelForm):
 
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
-    raw_input = forms.CharField(required=False, widget=forms.TextInput(attrs={
-        'class': 'mws-textinput tabbable',
-        'placeholder': _('Phone number'),
-    }));
+    raw_input = forms.CharField(label=_('Phone number'), required=False);
+    
+    def __init__(self, *args, **kwargs):
+        super(PhoneNumberBaseForm, self).__init__(*args, **kwargs)
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                ColumnedRow(
+                    Column('raw_input', size=2, first=True),
+                    Column('type', size=2),
+                    Column('other_type', size=2),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                        size=1,
+                        css_class='formset-delete'
+                    ),
+                )
+            )
+        ))
+        
+        self.fields['raw_input'].label = ''
+        self.fields['type'].label = ''
+        self.fields['other_type'].label = ''
 
     class Meta:
         model = PhoneNumber
@@ -157,11 +206,8 @@ class PhoneNumberBaseForm(ModelForm):
         exclude = ('status')
         widgets = {
             'other_type': forms.TextInput(attrs={
-                'class': 'mws-textinput other hidden tabbable',
+                'class': 'other hidden',
             }),
-            'type': forms.Select(attrs={
-                'class': 'tabbable'
-            })
         }
 
 
@@ -174,7 +220,7 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
             'class': 'chzn-select-no-search',
         })
     )
-    country = forms.ChoiceField(choices=COUNTRIES, required=False, widget=forms.Select())
+    country = forms.ChoiceField(choices=COUNTRIES, required=False)
 
     def __init__(self, *args, **kwargs):
         super(AddressBaseForm, self).__init__(*args, **kwargs)
@@ -185,7 +231,56 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
                 if choices[i][0] in self.exclude_address_types:
                     del choices[i]
             self.fields['type'].choices = choices
+        
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                ColumnedRow(
+                    Column(
+                        MultiField(
+                            None,
+                            InlineRow(ColumnedRow(
+                                Column('street', size=3, first=True),
+                                Column('street_number', size=2),
+                                Column('complement', size=2),
+                                Column(
+                                    Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                                    size=1,
+                                    css_class='formset-delete'
+                                ),
+                            )),
+                            InlineRow(ColumnedRow(
+                                Column('postal_code', size=3, first=True),
+                                Column('city', size=4),
+                            )),     
+                            InlineRow(ColumnedRow(
+                                Column('country', size=4, first=True),
+                                Column('type', size=3),
+                            )),
+                        ),
+                        size=7,
+                        first=True
+                    ),
+                    Column(
+                        HTML('<br /><hr />'), 
+                        size=6, 
+                        first=True,
+                    ),
+                ),
+            )
+        ))
+        
+        self.fields['street'].label = ''
+        self.fields['street_number'].label = ''
+        self.fields['complement'].label = ''
+        self.fields['postal_code'].label = ''
+        self.fields['city'].label = ''
+        self.fields['country'].label = ''
+        self.fields['type'].label = ''
             
     class Meta:
         model = Address
-        fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'state_province', 'country', 'type')
+        fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
+        exclude = ('state_provice',)

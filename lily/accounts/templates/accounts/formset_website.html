@@ -2,28 +2,6 @@
 
 {% load i18n %}
 
-{% block form %}
-    {{ block.super }}
-    
-    <div class="mws-form-cols clearfix">
-        <div class="mws-form-col-4-8 alpha">
-            {% if form.website.errors %}
-                <span class="field_error float-left">{{ form.website }}</span>
-                <div class="mws-error inline plain float-left">
-                    {% for error in form.website.errors %}
-                        <strong>{{ error }}</strong>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ form.website }}
-            {% endif %}
-        </div>
-        <div class="mws-form-col-1-8 formset-delete">
-            <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
-        </div>
-    </div>
-{% endblock %}
-
 {% block template %}
     <div class="mws-form-item large">
         <div class="mws-form-cols clearfix">

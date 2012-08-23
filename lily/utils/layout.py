@@ -12,7 +12,7 @@ class Anchor(HTML):
     """ 
     Crispy forms layout object. Add an anchor via the HTML class. 
     """
-    def __init__(self, href, text, title='', css_id='', css_class=''):
+    def __init__(self, href='', text='', title='', css_id='', css_class=''):
         html = '<a href="%s" id="%s" class="%s" title="%s">%s</a>' % (href, css_id, css_class, title, text)
         super(Anchor, self).__init__(html)
 
@@ -27,8 +27,10 @@ class Column(Div):
     def __init__(self, *fields, **kwargs):
         size = kwargs.pop('size')
         first = kwargs.pop('first', False)
+        css_class = kwargs.pop('css_class', '')
         if size > 0 and size < 9:
             self.css_class = 'mws-form-col-%s-8' % size
+            self.css_class += ' %s' % css_class
         if first:
             self.css_class += ' alpha'
         super(Column, self).__init__(*fields, **kwargs)
@@ -85,8 +87,8 @@ class MultiField(MultiField):
     Render multiple fields with custom templates.
     """
     def render(self, form, form_style, context):
-        if form.errors:
-            self.css_class += " error"
+#        if form.errors:
+#            self.css_class += " error"
 
         # We need to render fields using django-uni-form render_field so that MultiField can
         # hold other Layout objects inside itself

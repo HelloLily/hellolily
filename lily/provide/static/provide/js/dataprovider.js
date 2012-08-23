@@ -40,7 +40,7 @@ function dataprovider_json_to_form(json, form) {
     if( json.name ) {
         var name = $(form).find('[name="name"]');
         var set_name = function() { $(name).val(json.name); }
-        if( $(name).val().length > 0 && $(popup_phonenumber).val() != $(popup_phonenumber).attr('placeholder')) {
+        if( $(name).val().length > 0 && $(name).val() != $(name).attr('placeholder')) {
             if( $.trim($(name).val()) != json.name) {
                 var result = dataprovider_ask_overwrite('Do you want to overwrite the account\'s name with "' + json.name + '"?', set_name);
             }
@@ -54,7 +54,7 @@ function dataprovider_json_to_form(json, form) {
         var description = $(form).find('[name="description"]');
         if (description.val() !== undefined ){
             var set_description = function() { $(description).val(json.description); link = $(form).find('a.click-show[data-click-show="description_wrapper"]'); link.click(); }
-            if( $(description).val().length > 0 && $(popup_phonenumber).val() != $(popup_phonenumber).attr('placeholder')) {
+            if( $(description).val().length > 0 && $(description).val() != $(description).attr('placeholder')) {
                 if( $.trim($(description).val()) != json.description) {
                     var result = dataprovider_ask_overwrite('Do you want to overwrite the account\'s description with "' + json.description + '"?', set_description);
                 }

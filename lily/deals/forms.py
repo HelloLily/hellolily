@@ -141,3 +141,20 @@ class AddDealQuickbuttonForm(CreateUpdateDealForm):
         
         super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
         self.helper.inputs = []
+    
+    class Meta:
+        model = Deal
+        fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
+        exclude = ('is_deleted', 'closed_date', 'tenant')
+        
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'click_and_show': False,
+            }),
+            'currency': forms.Select(attrs={
+                'class': 'chzn-select-no-search',
+            }),
+            'stage': forms.Select(attrs={
+                'class': 'chzn-select-no-search',
+            }),
+        }

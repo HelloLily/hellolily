@@ -94,7 +94,9 @@ class FieldInitFormMixin(forms.BaseForm):
                 if w.attrs.get('click_show_text', False):
                     w.click_show_text = w.attrs['click_show_text']
                 else:
-                    w.click_show_text = _('Add')  
+                    w.click_show_text = _('Add')
+                w.click_and_show = w.attrs.get('click_and_show', True)
+                    
             
             # append certain default attributes
             attrs = self.default_widget_attrs.get(w.__class__, [])

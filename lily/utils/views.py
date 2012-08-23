@@ -461,6 +461,10 @@ class ModelFormSetViewMixin(object):
         
         self.add_formset(context_name, model, related_name, form, label, template, prefix, extra)
         super(ModelFormSetViewMixinSubClass, self).__init__(*args, **kwargs)
+        
+        Custom queryset based on instances are possible using
+        def get_%prefix%_queryset(self, instance):
+            return instance.%related_name%.filter(filters)
     """
     formset_data = {}
     formset_classes = SortedDict()
@@ -477,10 +481,16 @@ class ModelFormSetViewMixin(object):
                 model = self.formset_data[context_name]['model']
                 prefix = self.formset_data[context_name]['prefix']
                 
-                try:
-                    formset_instance = formset_class(self.request.POST or None, queryset=getattr(form.instance, self.formset_data[context_name]['related_name']).all(), prefix=prefix)
-                except:
-                    formset_instance = formset_class(self.request.POST or None, queryset=model._default_manager.none(), prefix=prefix)
+                queryset = model._default_manager.none()
+                if hasattr(self, 'get_%s_queryset' % prefix) and callable(getattr(self, 'get_%s_queryset' % prefix)):
+                    queryset = getattr(self, 'get_%s_queryset' % prefix)(form.instance)
+                else:
+                    try:
+                        queryset = getattr(form.instance, self.formset_data[context_name]['related_name']).all()
+                    except:
+                        pass
+                
+                formset_instance = formset_class(self.request.POST or None, queryset=queryset, prefix=prefix)
                 
                 self.add_formset_instance(context_name, formset_instance)
         
@@ -726,6 +736,9 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.save()
         
         return super(WebsiteFormSetViewMixin, self).form_valid(form)
+    
+    def get_websites_queryset(self, instance):
+        return instance.websites.filter(is_primary=False)
         
 
 class AjaxUpdateView(View):

@@ -17,7 +17,7 @@
 
         {% if not field|is_checkbox %}
             {% if field|widget_type == "textarea" %}
-                {% if field|field_value or not field.click_and_show %}
+                {% if field|field_value or not field.field.widget.click_and_show %}
                     {% if field.errors %}
                         <span class="field_error">{% crispy_field field %}</span>
                         <div class="mws-error no_list_style_type">

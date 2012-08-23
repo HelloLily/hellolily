@@ -183,8 +183,9 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = Contact
-        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description', 'tags')
-
+        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description')
+        exclude = ('tags',)
+        
         widgets = {
             'salutation': forms.Select(attrs={
                 'class': 'chzn-select-no-search',

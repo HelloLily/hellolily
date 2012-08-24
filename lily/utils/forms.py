@@ -86,7 +86,7 @@ class FieldInitFormMixin(forms.BaseForm):
                 if isinstance(w, TextInput) and field.initial is not None:
                     w.attrs['placeholder'] = field.initial
                 elif field.label is not None:
-                    if w.__class__ in [JqueryPasswordInput, PasswordInput, DateInput, TextInput, Textarea]:
+                    if w.__class__ in [JqueryPasswordInput, PasswordInput, TextInput, Textarea]:
                         w.attrs['placeholder'] = field.label
             
             if w.__class__ is Textarea:

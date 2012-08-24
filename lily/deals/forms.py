@@ -10,7 +10,7 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
-from lily.utils.layout import Column, Row, InlineRow, ColumnedRow, MultiField
+from lily.utils.layout import Column, Row
 
 
 class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
@@ -34,68 +34,28 @@ class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
         """
         super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
         self.helper = DeleteBackAddSaveFormHelper(self)
-        self.helper.add_layout(Layout(
-            MultiField(
-                self.fields['name'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('name', size=4, first=True),
-                    ),
-                ),
-            ),
-            'description',
-            MultiField(
-                self.fields['account'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('account', size=4, first=True),
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['amount'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('currency', size=2, first=True),
-                        Column('amount', size=2),
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['expected_closing_date'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('expected_closing_date', size=2, first=True),
-                        ),
-                    ),
-            ),
-            MultiField(
-                self.fields['stage'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('stage', size=2, first=True),
-                        ),
-                    ),
-            ),
-            MultiField(
-                self.fields['assigned_to'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('assigned_to', size=4, first=True),
-                        ),
-                    ),
-            ),
-        ))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        # Prevent rendering labels twice
-        self.fields['name'].label = ''
-        self.fields['account'].label = ''
-        self.fields['currency'].label = ''
-        self.fields['amount'].label = ''
-        self.fields['expected_closing_date'].label = ''
-        self.fields['stage'].label = ''
-        self.fields['assigned_to'].label = ''
+        self.helper.layout = Layout()
+        self.helper.add_columns(
+            Column('name', first=True),
+        )
+        self.helper.layout.append(Row('description')),
+        self.helper.add_columns(
+            Column('account', first=True),
+        )
+        self.helper.add_columns(
+            Column('currency', size=2, first=True),
+            Column('amount', size=2),
+            label = self.fields['amount'].label,
+        )
+        self.helper.add_columns(
+            Column('expected_closing_date', size=2, first=True)
+        )
+        self.helper.add_columns(
+            Column('stage', size=2, first=True),
+        )
+        self.helper.add_columns(
+            Column('assigned_to', first=True)
+        )
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()

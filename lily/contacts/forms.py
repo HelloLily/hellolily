@@ -8,7 +8,7 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.layout import Row, Column, ColumnedRow, InlineRow, MultiField
+from lily.utils.layout import Row, Column
 
 
 class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
@@ -34,48 +34,18 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         
         # Customize form layout
         self.helper = LilyFormHelper(self)
-        self.helper.add_layout(Layout(
-            Hidden('submit_button', 'add', css_id='add-contact-submit'),
-            MultiField(
-                _('Name'),
-                InlineRow(
-                    ColumnedRow(
-                        Column('first_name', size=3, first=True),
-                        Column('preposition', size=1),
-                        Column('last_name', size=4)
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['account'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('account', size=4, first=True),
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['email'].label,
-                InlineRow(
-                        'email'
-                ),
-            ),
-            MultiField(
-                self.fields['phone'].label,
-                InlineRow(
-                        'phone'
-                ),
-            ),
-        ))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        # Prevent rendering labels twice
-        self.fields['first_name'].label = ''
-        self.fields['preposition'].label = ''
-        self.fields['last_name'].label = ''
-        self.fields['account'].label = ''
-        self.fields['email'].label = ''
-        self.fields['phone'].label = ''
+        self.helper.layout = Layout()
+        self.helper.layout.insert(0, Hidden('submit_button', 'add', css_id='add-contact-submit'))
+        self.helper.add_columns(
+            Column('first_name', size=3, first=True),
+            Column('preposition', size=1),
+            Column('last_name', size=4),
+            label=_('Name'),
+        )
+        self.helper.add_columns(
+            Column('account', size=4, first=True),
+        )
+        self.helper.add_large_fields('email', 'phone')
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
@@ -120,43 +90,26 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
         self.helper.layout.pop(0) # first name
         self.helper.layout.pop(0) # preposition
         self.helper.layout.pop(0) # last name
-        self.helper.layout.insert(0, Layout(
-            MultiField(
-                _('Name'),
-                    InlineRow(
-                        ColumnedRow(
-                            Column('salutation', size=2, first=True),
-                            Column('gender', size=2),
-                        ),
-                    ),
-                    InlineRow(
-                        ColumnedRow(
-                            Column('first_name', size=3, first=True),
-                            Column('preposition', size=1),
-                            Column('last_name', size=3)
-                        ),
-                    ),
-            ),
-        ))
-        self.helper.replace('account',
-            MultiField(
-                self.fields['account'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('account', size=3, first=True)
-                    ),
+        self.helper.layout.insert(0, 
+            self.helper.create_multi_row(
+                (
+                    Column('salutation', size=2, first=True),
+                    Column('gender', size=2),
                 ),
+                (
+                    Column('first_name', size=3, first=True),
+                    Column('preposition', size=1),
+                    Column('last_name'),
+                ),
+                label=_('Name'),
+            )
+        )
+        self.helper.replace('account',
+            self.helper.create_columns(
+                Column('account', first=True),
             ),
         )
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        # Prevent rendering labels twice
-        self.fields['salutation'].label = ''
-        self.fields['gender'].label = ''
-        self.fields['first_name'].label = ''
-        self.fields['preposition'].label = ''
-        self.fields['last_name'].label = ''
-        self.fields['account'].label = ''
+        self.helper.wrap_by_names(Row, 'description', 'tags')
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()

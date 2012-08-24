@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from lily.notes.models import Note
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Row, InlineRow, MultiField
+from lily.utils.layout import MultiField
 
 
 class NoteForm(forms.ModelForm, FieldInitFormMixin):
@@ -14,13 +14,11 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
         self.helper = LilyFormHelper(self)
         self.helper.replace('note',
            MultiField(
-                '',
+                None,
                 'note',
                 Submit('submit', _('Add note'), css_id='add-note-button', css_class='small')
            )
         )
-        
-        self.fields['note'].label = ''
         
     class Meta:
         model = Note
@@ -40,15 +38,8 @@ class EditNoteForm(forms.ModelForm, FieldInitFormMixin):
         super(EditNoteForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
         self.helper.replace('note',
-            Row(
-                MultiField(
-                    self.fields['note'].label,
-                    InlineRow('note'),
-               ),
-            ) 
+            self.helper.create_large_field('note')
         )
-        
-        self.fields['note'].label = ''
         
         self.helper.add_input(Submit('submit', _('Save'), css_class='red'))
         self.helper.add_input(Reset('reset', _('Reset'), css_class='gray'))

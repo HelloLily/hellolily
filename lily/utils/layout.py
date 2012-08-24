@@ -25,7 +25,7 @@ class Column(Div):
     css_class = 'mws-form-col-4-8'
     
     def __init__(self, *fields, **kwargs):
-        size = kwargs.pop('size')
+        size = kwargs.pop('size', 4)
         first = kwargs.pop('first', False)
         css_class = kwargs.pop('css_class', '')
         if size > 0 and size < 9:

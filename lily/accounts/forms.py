@@ -7,7 +7,7 @@ from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Anchor, Column, Row, InlineRow, ColumnedRow, MultiField
+from lily.utils.layout import Anchor, Column, Row
 
 
 class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
@@ -32,46 +32,17 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
         
         # Customize form layout
         self.helper = LilyFormHelper(self)
-        self.helper.add_layout(Layout(
-            Hidden('submit_button', 'add', css_id='add-account-submit'),
-            MultiField(
-                self.fields['website'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('website', size=7, first=True),
-                        Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=1)
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['name'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('name', size=4, first=True),
-                        Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=4),
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['email'].label,
-                InlineRow(
-                        'email'
-                ),
-            ),
-            MultiField(
-                self.fields['phone'].label,
-                InlineRow(
-                        'phone'
-                ),
-            ),
-        ))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        # Prevent rendering labels twice
-        self.fields['website'].label = ''
-        self.fields['name'].label = ''
-        self.fields['email'].label = ''
-        self.fields['phone'].label = ''
+        self.helper.layout = Layout()
+        self.helper.layout.insert(0, Hidden('submit_button', 'add', css_id='add-account-submit'))
+        self.helper.add_columns(
+            Column('website', size=7, first=True),
+            Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=1),
+        )
+        self.helper.add_columns(
+            Column('name', size=4, first=True),
+            Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=4),
+        )
+        self.helper.add_large_fields('email', 'phone')
     
     def clean(self):
         """
@@ -122,29 +93,19 @@ class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
         
         # Customize form layout
         self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.replace('primary_website', MultiField(
-            self.fields['primary_website'].label,
-            InlineRow(
-                ColumnedRow(
-                    Column('primary_website', size=4, first=True),
-                    Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=2)
-                ),
-            ),
-        ))
-        self.helper.replace('name', MultiField(
-            self.fields['name'].label,
-            InlineRow(
-                ColumnedRow(
-                    Column('name', size=4, first=True),
-                    Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=2),
-                ),
-            ),
-        ))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        # Prevent rendering labels twice
-        self.fields['primary_website'].label = ''
-        self.fields['name'].label = ''
+        self.helper.replace('primary_website', 
+            self.helper.create_columns(
+                Column('primary_website', size=4, first=True),
+                Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=2),
+            )
+        )
+        self.helper.replace('name',  
+            self.helper.create_columns(
+                Column('name', size=4, first=True),
+                Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=2),
+            )
+        )
+        self.helper.wrap_by_names(Row, 'description', 'tags')
         
         # Provide initial data for primary website
         try:
@@ -180,21 +141,16 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
         super(WebsiteBaseForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = False
-        self.helper.add_layout(Layout(
-            MultiField(
-                None,
-                ColumnedRow(
-                    Column('website', size=4, first=True),
-                    Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-                        size=1,
-                        css_class='formset-delete'
-                    ),
-                )
-            )
+        self.helper.replace('website', self.helper.create_columns(
+            Column('website', size=4, first=True),
+            Column(
+                Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                size=1,
+                css_class='formset-delete'
+            ),
+            label=None,
+            inline=True,
         ))
-        
-        self.fields['website'].label = ''
     
     class Meta:
         model = Website

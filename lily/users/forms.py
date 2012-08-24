@@ -14,8 +14,7 @@ from django.utils.translation import ugettext as _
 from lily.users.models import CustomUser
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column, \
-  ColumnedRow, MultiField, Anchor
+from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -44,13 +43,12 @@ class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(CustomAuthenticationForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
-        self.helper.add_input(Submit('submit', _('Log in')))
         self.helper.form_style = 'default'
+        self.helper.add_input(Submit('submit', _('Log in')))
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
         
-        self.fields['username'].label = ''
-        self.fields['password'].label = ''
+        self.helper.delete_label_for('username', 'password')
 
 
 class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
@@ -68,15 +66,15 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(CustomPasswordResetForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
+        self.helper.form_style = 'default'
         self.helper.layout.insert(0,
             FormMessage(_('Forgotten your password? Enter your e-mail address below, and we\'ll e-mail instructions for setting a new one.'))
         )
         self.helper.add_input(Submit('submit', _('Reset my password')))
-        self.helper.form_style = 'default'
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
         
-        self.fields['email'].label = ''
+        self.helper.delete_label_for('email')
     
     def form_valid(self, form):
         """
@@ -163,6 +161,7 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(CustomSetPasswordForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
+        self.helper.form_style = 'default'
         self.helper.layout.insert(0,
             FormMessage(_('Please enter your new password twice so we can verify you typed it in correctly.'))
         )
@@ -170,12 +169,10 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
             PasswordStrengthIndicator()
         )
         self.helper.add_input(Submit('submit', _('Change my password')))
-        self.helper.form_style = 'default'
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
         
-        self.fields['new_password1'].label = ''
-        self.fields['new_password2'].label = ''
+        self.helper.delete_label_for('new_password1', 'new_password2')
 
 
 class ResendActivationForm(Form, FieldInitFormMixin):
@@ -197,15 +194,15 @@ class ResendActivationForm(Form, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(ResendActivationForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
+        self.helper.form_style = 'default'
         self.helper.layout.insert(0,
             FormMessage(_('Didn\'t receive your activation e-mail? Enter your e-mail address below, and we\'ll e-mail it again, free of charge!'))
         )
         self.helper.add_input(Submit('submit', _('Resend activation e-mail')))
-        self.helper.form_style = 'default'
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
         self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
         
-        self.fields['email'].label = ''
+        self.helper.delete_label_for('email')
     
     def clean_email(self):
         """
@@ -270,52 +267,24 @@ class RegistrationForm(Form, FieldInitFormMixin):
         
         # Customize layout
         self.helper = LilyFormHelper(self)
-        self.helper.add_layout(Layout(
-            MultiField(
-                _('Name'),
-                InlineRow(
-                    ColumnedRow(
-                        Column('first_name', size=3, first=True),
-                        Column('preposition', size=2),
-                        Column('last_name', size=3),
-                    ),
-                ),
-            ),
-            MultiField(
-                self.fields['email'].label,
-                InlineRow(
-                    'email',
-                ),
-            ),
-            MultiField(
-                self.fields['company'].label,
-                InlineRow(
-                    'company',
-                ),
-            ),
-            MultiField(
-                self.fields['password'].label,
-                InlineRow(
-                    ColumnedRow(
-                        Column('password', size=3, first=True),
-                        Column('password_repeat', size=3),
-                    ),
-                ),
-            ),
+        self.helper.layout = Layout()
+        self.helper.add_columns(
+            Column('first_name', size=3, first=True),
+            Column('preposition', size=2),
+            Column('last_name', size=3),
+            label=_('Name'),
+        )
+        self.helper.add_large_fields('email', 'company')
+        self.helper.add_columns(
+            Column('password', size=3, first=True),
+            Column('password_repeat', size=3),
+        )
+        self.helper.layout.append(
             InlineRow(
                 PasswordStrengthIndicator()
             ),
-        ))
+        )
         self.helper.add_input(Submit('submit', _('Register')))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
-        
-        self.fields['first_name'].label = ''
-        self.fields['preposition'].label = ''
-        self.fields['last_name'].label = ''
-        self.fields['company'].label = ''
-        self.fields['email'].label = ''
-        self.fields['password'].label = ''
-        self.fields['password_repeat'].label = ''
     
     def clean(self):
         """

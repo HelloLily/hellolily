@@ -1,6 +1,6 @@
 {% extends 'base_form.html' %}
 
-{% load i18n %}
+{% load i18n crispy_forms_tags %}
 
 {% block form %}
     {% csrf_token %}
@@ -14,6 +14,8 @@
     {% endif %}
     
     <div class="mws-form-inline">
-        {% block form-content %}{% endblock %}
+        {% block form-content %}
+            {% crispy form %}
+        {% endblock %}
     </div>
 {% endblock %}

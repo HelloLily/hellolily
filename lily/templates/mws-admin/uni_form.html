@@ -1,0 +1,13 @@
+{% if form_show_errors %}
+    {% include "mws-admin/errors.html" %}
+{% endif %}
+
+{% for field in form %}
+    {% if not field.is_hidden %}
+        <div class="mws-form-row">
+    {% endif %}
+        {% include "mws-admin/field.html" %}
+    {% if not field.is_hidden %}
+        </div>
+    {% endif %}
+{% endfor %}

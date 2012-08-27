@@ -4,7 +4,7 @@
 
 {% block plain %}
 {% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
-Hello {{ name }},
+Hello {{ full_name }},
 
 You tried to change the primary e-mail address of your contact information. Since this e-mail address is also your login into {{ site_name }}, you'll need to click on the following link below to verify your e-mail address. This link will expire after seven days.
 {{ verification_link }}
@@ -23,7 +23,7 @@ The {{ site_name }} team
 
 {% block html %}
 {% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
-<p>Hello {{ name }},</p>
+<p>Hello {{ full_name }},</p>
 
 <p>
 You tried to change the primary e-mail address of your contact information. Since this e-mail address is also your login into {{ site_name }}, you'll need to click on <a href="{{ verification_link }}">this link</a> to verify your e-mail address. This link will expire after seven days.

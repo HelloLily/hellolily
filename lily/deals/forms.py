@@ -1,3 +1,4 @@
+from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.forms.models import ModelForm
@@ -7,33 +8,54 @@ from lily.accounts.models import Account
 from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
+from lily.utils.forms import FieldInitFormMixin
+from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
+from lily.utils.layout import Column, Row
 
 
-class AddDealForm(ModelForm):
+class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
     """
-    Form for adding a deal which includes all fields available.
+    Form for adding or editing a deal.
     """
-    account = forms.ModelChoiceField(queryset=Account.objects.none(), empty_label=_('Select an account'), 
-        widget=forms.Select({
-            'class': 'chzn-select tabbable',
-    }))
+    account = forms.ModelChoiceField(label=_('Account'), queryset=Account.objects.none(), 
+        empty_label=_('Select an account'), widget=forms.Select())
     
-    assigned_to = forms.ModelChoiceField(queryset=CustomUser.objects.none(), empty_label=None, 
-        widget=forms.Select({
-            'class': 'chzn-select-no-search tabbable',
-    }))
+    assigned_to = forms.ModelChoiceField(label=_('Assigned to'), queryset=CustomUser.objects.none(),
+        empty_label=None, widget=forms.Select())
     
-    expected_closing_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS, 
-        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], attrs={
-            'class': 'mws-textinput tabbable expected_closing_date datepicker',
-            'placeholder': _('dd/mm/yyyy'),
-    }),)
+    expected_closing_date = forms.DateField(label=_('Expected closing date'), input_formats=settings.DATE_INPUT_FORMATS, 
+        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], 
+            attrs={'class': 'expected_closing_date'}))
     
     def __init__(self, *args, **kwargs):
         """
-        Overloading super().__init__() to make accounts available as assignees.
+        Overloading super().__init__() to make accounts available as assignees and add a form
+        helper.
         """
-        super(AddDealForm, self).__init__(*args, **kwargs)
+        super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
+        self.helper = DeleteBackAddSaveFormHelper(self)
+        self.helper.layout = Layout()
+        self.helper.add_columns(
+            Column('name', first=True),
+        )
+        self.helper.layout.append(Row('description')),
+        self.helper.add_columns(
+            Column('account', first=True),
+        )
+        self.helper.add_columns(
+            Column('currency', size=2, first=True),
+            Column('amount', size=2),
+            label = self.fields['amount'].label,
+        )
+        self.helper.add_columns(
+            Column('expected_closing_date', size=2, first=True)
+        )
+        self.helper.add_columns(
+            Column('stage', size=2, first=True),
+        )
+        self.helper.add_columns(
+            Column('assigned_to', first=True)
+        )
         
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
@@ -48,33 +70,23 @@ class AddDealForm(ModelForm):
         
     class Meta:
         model = Deal
-        exclude = ('closed_date', 'tenant')
+        fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
+        exclude = ('is_deleted', 'closed_date', 'tenant')
         
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Name'),
-            }),
             'description': forms.Textarea(attrs={
-                'cols': '60',
-                'rows': '3',
-                'class': 'tabbable',
-                'placeholder': _('Description'),
+                'click_show_text': _('Add description'),
             }),
             'currency': forms.Select(attrs={
-                'class': 'chzn-select-no-search tabbable',
-            }),
-            'amount': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Amount'),
+                'class': 'chzn-select-no-search',
             }),
             'stage': forms.Select(attrs={
-                'class': 'chzn-select-no-search tabbable',
+                'class': 'chzn-select-no-search',
             }),
         }
 
 
-class AddDealQuickbuttonForm(AddDealForm):
+class AddDealQuickbuttonForm(CreateUpdateDealForm):
     """
     Form that is used for adding a new Deal through a quickbutton form.
     """
@@ -88,68 +100,21 @@ class AddDealQuickbuttonForm(AddDealForm):
         })
         
         super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
-
-
-class EditDealForm(ModelForm):
-    """
-    Form for editing an existing deal which includes all fields available.
-    """
-    account = forms.ModelChoiceField(queryset=Account.objects.none(), empty_label=_('Select an account'), 
-        widget=forms.Select({
-            'class': 'chzn-select tabbable',
-    }))
-    
-    assigned_to = forms.ModelChoiceField(queryset=CustomUser.objects.none(), empty_label=None, 
-        widget=forms.Select({
-            'class': 'chzn-select-no-search tabbable',
-    }))
-    
-    expected_closing_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS, 
-        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], attrs={
-            'class': 'mws-textinput tabbable expected_closing_date datepicker',
-            'placeholder': _('dd/mm/yyyy'),
-    }),)
-    
-    def __init__(self, *args, **kwargs):
-        """
-        Overloading super().__init__() to make accounts available as assignees.
-        """
-        super(EditDealForm, self).__init__(*args, **kwargs)
-        
-        # Provide filtered query set
-        self.fields['account'].queryset = Account.objects.all()
-        # FIXME: WORKAROUND FOR TENANT FILTER.
-        # An error will occur when using CustomUser.objects.all(), most likely because
-        # the foreign key to contact (and maybe account) is filtered and executed before
-        # the filter for the CustomUser. This way it's possible contacts (and maybe accounts)
-        # won't be found for a user. But since it's a required field, an exception is raised.
-        #
-        self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
-        self.fields['assigned_to'].initial = get_current_user()
+        self.helper.inputs = []
     
     class Meta:
         model = Deal
-        exclude = ('closed_date', 'tenant')
+        fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
+        exclude = ('is_deleted', 'closed_date', 'tenant')
         
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Name'),
-            }),
             'description': forms.Textarea(attrs={
-                'cols': '60',
-                'rows': '3',
-                'class': 'tabbable',
-                'placeholder': _('Description'),
+                'click_and_show': False,
             }),
             'currency': forms.Select(attrs={
-                'class': 'chzn-select-no-search tabbable',
-            }),
-            'amount': forms.TextInput(attrs={
-                'class': 'mws-textinput tabbable',
-                'placeholder': _('Amount'),
+                'class': 'chzn-select-no-search',
             }),
             'stage': forms.Select(attrs={
-                'class': 'chzn-select-no-search tabbable',
+                'class': 'chzn-select-no-search',
             }),
         }

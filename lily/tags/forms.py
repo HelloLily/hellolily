@@ -53,4 +53,4 @@ class TagsFormMixin(forms.ModelForm):
         return instance
     
     class Meta:
-        fields = ('tags')
+        fields = ('tags',)

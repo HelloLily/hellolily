@@ -320,10 +320,11 @@ class PhoneNumber(TenantMixin):
         if self.number[:1] == '0':
             self.number = self.number.replace('0', '31', 1)
         
-        self.number = '+' + self.number
+        if len(self.number) > 0:
+            self.number = '+' + self.number
         
-        # Overwrite user input
-        self.raw_input = self.number # reserved field for future display based on locale
+            # Overwrite user input
+            self.raw_input = self.number # reserved field for future display based on locale
         
         return super(PhoneNumber, self).save(*args, **kwargs)
 

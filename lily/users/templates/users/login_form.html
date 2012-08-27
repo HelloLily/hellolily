@@ -1,6 +1,6 @@
 {% extends 'base_visitor_portal.html' %}
 
-{% load i18n media %}
+{% load i18n media crispy_forms_tags %}
 
 {% block page-title %}{% trans 'Log in' %} - {% endblock %}
 
@@ -15,28 +15,6 @@
         <span>{% block portal-title %}HelloLily {% trans 'Log in' %}{% endblock %}</span>
     </div>
     <img src="{% media_url 'extra/images/logo-hellolily-login.png' %}" id="login-logo" class="hide_on_small_screen" />
-{% endblock %}
-                
-{% block portal-form %}
-    {{ block.super }}
-    
-    <div class="mws-form-row">
-        <div class="mws-form-item large">
-            {{ form.username }}
-        </div>
-        <div class="mws-form-item large">
-            {{ form.password }}
-        </div>
-    </div>
-    <div class="mws-form-row" id="remember-me">
-        {{ form.remember_me }} {{ form.remember_me.label_tag }}
-    </div>
-{% endblock %}
-
-{% block portal-form-buttons %}
-    <div class="mws-form-row">
-        <input type="submit" value="{% trans 'Log in' %}" class="mws-button blue mws-login-button tabbable" />
-    </div>
 {% endblock %}
 
 {% block portal-bottom-links %}

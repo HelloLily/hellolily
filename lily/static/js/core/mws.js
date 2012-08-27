@@ -1,6 +1,6 @@
 function enableChosen(elem) {
 	/* Chosen Select Box Plugin */
-	$(elem).find("select.chzn-select:visible").chosen();
+	$(elem).find("select.chzn-select:visible").not('.chzn-select-no-search').chosen();
 	$(elem).find("select.chzn-select-no-search:visible").chosen({disable_search_threshold: 999999});
 }
 

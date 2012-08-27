@@ -24,36 +24,19 @@ class LilyFormHelper(FormHelper):
         self.helper.wrap_by_names(Row, 'description', 'tags')
         """
         layout_field_names = self.layout.get_field_names()
-        
-        retrieve_index = lambda L: isinstance(L, list) and retrieve_index(L[0]) or not isinstance(L, list) and L
-        retrieve_name = lambda L: isinstance(L[0], list) and len(L[0]) > 1 and retrieve_name(L[0]) or isinstance(L[0], list) and L[1]
-
-        # Let's filter by names
-        filtered_fields = []
-        if len(layout_field_names) > 1 and isinstance(layout_field_names[1], basestring):
-            i = 0
-            while i < len(layout_field_names):
-                try:
-                    index = layout_field_names[i][0]
-                    field_name = layout_field_names[i+1]
-                    if field_name in field_names:
-                        filtered_fields.append(index)
-                except:
-                    pass
-                i += 2
-        else:
-            for pointer in layout_field_names:
-                try:
-                    field_name = retrieve_name(pointer)
-                    _index = retrieve_index(pointer)
-                    index = int(_index) if not type(_index) is int else _index
-                    if field_name in field_names:
-                        filtered_fields.append(index)
-                except:
-                    pass
-        
-        fields = LayoutSlice(self.layout, filtered_fields)
-        fields.wrap(layoutObject)
+        for pointer in layout_field_names:
+            pos = pointer[0]
+            layout_object = self.layout.fields[pos[0]]
+            for i in pointer[0][1:-1]:
+                layout_object = layout_object.fields[i]
+            
+            # If layout object has no fields attribute, then it's a basestring (a field name)
+            if not hasattr(layout_object, 'fields'):
+                if layout_object in field_names:
+                    self.layout.fields[pos[0]] = layoutObject(layout_object)
+            else:
+                if layout_object.fields[pos[-1]] in field_names:
+                    layout_object.fields[pos[-1]] = layoutObject(layout_object.fields[pos[-1]])
     
     def get_field_name_in_object(self, layoutObject):
         """
@@ -206,43 +189,6 @@ class LilyFormHelper(FormHelper):
         self.layout.insert(field_index, field)
         
         self.delete_label_for('note')
-    
-    def exclude_by_widgets(self, widget_types):
-        """
-        Returns a LayoutSlice pointing to fields with widgets not like `widget_types`
-        """
-        assert(self.layout is not None and self.form is not None)
-        layout_field_names = self.layout.get_field_names()
-        
-        retrieve_index = lambda L: isinstance(L, list) and retrieve_index(L[0]) or not isinstance(L, list) and L
-        retrieve_name = lambda L: isinstance(L[0], list) and len(L[0]) > 1 and retrieve_name(L[0]) or isinstance(L[0], list) and L[1]
-
-        # Let's filter all fields with widgets not like widget_types
-        filtered_fields = []
-        if len(layout_field_names) > 1 and type(layout_field_names[1]) is str:
-            i = 0
-            while i < len(layout_field_names):
-                try:
-                    index = layout_field_names[i][0]
-                    name = layout_field_names[i+1]
-                    field = self.form.fields[name]
-                    if not type(field.widget) in widget_types:
-                        filtered_fields.append(index)
-                except:
-                    pass
-                i += 2
-        else:
-            for pointer in layout_field_names:
-                try:
-                    name = retrieve_name(pointer)
-                    _index = retrieve_index(pointer)
-                    index = int(_index) if not type(_index) is int else _index
-                    field = self.form.fields[name]
-                    if not type(field.widget) in widget_types:
-                        filtered_fields.append(index)
-                except:
-                    pass
-        return LayoutSlice(self.layout, filtered_fields)
 
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):

@@ -45,8 +45,8 @@ class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
         self.helper = LilyFormHelper(form=self)
         self.helper.form_style = 'default'
         self.helper.add_input(Submit('submit', _('Log in')))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
+        self.helper.wrap_by_names(Row, 'username', 'password')
         
         self.helper.delete_label_for('username', 'password')
 
@@ -71,8 +71,8 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
             FormMessage(_('Forgotten your password? Enter your e-mail address below, and we\'ll e-mail instructions for setting a new one.'))
         )
         self.helper.add_input(Submit('submit', _('Reset my password')))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
         
         self.helper.delete_label_for('email')
     
@@ -169,8 +169,8 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
             PasswordStrengthIndicator()
         )
         self.helper.add_input(Submit('submit', _('Change my password')))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
         
         self.helper.delete_label_for('new_password1', 'new_password2')
 
@@ -199,8 +199,8 @@ class ResendActivationForm(Form, FieldInitFormMixin):
             FormMessage(_('Didn\'t receive your activation e-mail? Enter your e-mail address below, and we\'ll e-mail it again, free of charge!'))
         )
         self.helper.add_input(Submit('submit', _('Resend activation e-mail')))
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(InlineRow)
-        self.helper.exclude_by_widgets([forms.HiddenInput]).wrap(Row)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
+        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
         
         self.helper.delete_label_for('email')
     

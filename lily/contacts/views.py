@@ -1,3 +1,4 @@
+from datetime import date
 from hashlib import sha256
 from urlparse import urlparse
 import base64
@@ -30,7 +31,7 @@ from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
@@ -63,7 +64,7 @@ class DetailContactView(NoteDetailViewMixin):
     success_url_reverse_name = 'contact_details'
 
 
-class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
+class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
     """
     Base class for AddAContactView and EditContactView.
     """
@@ -103,7 +104,7 @@ class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
         return super(CreateUpdateContactView, self).form_valid(form)
 
 
-class AddContactView(CreateUpdateContactView, CreateView):
+class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, CreateView):
     """
     View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
     """
@@ -208,7 +209,7 @@ class AddContactView(CreateUpdateContactView, CreateView):
         return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
 
 
-class EditContactView(CreateUpdateContactView, UpdateView):
+class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
     """
     View to edit a contact.
     """
@@ -241,19 +242,19 @@ class EditContactView(CreateUpdateContactView, UpdateView):
 #            # Permission check: users in a certain group and the contact's user can edit e-mail adresses
 #            # For e-mailaddresses a confirmation e-mail is sent to the new e-mail adres when
 #            # the contact's user changes it. Another user with permissions can change it regardless.
-#            try:
-#                user = CustomUser.objects.get(contact=self.object)
-#            except CustomUser.DoesNotExist:
-#                # If it's not a user's contact
-#                allow_edit_email = True
-#                is_user_contact = False
-#            else:
-#                if user == self.request.user:
-#                    # If this is the case, allow editing it after verification via e-mail
-#                    allow_edit_email = email_verify = True
-#                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
-#                    # Users in this group can always edit e-mail addresses
-#                    allow_edit_email = True
+####            try:
+####                user = CustomUser.objects.get(contact=self.object)
+####            except CustomUser.DoesNotExist:
+####                # If it's not a user's contact
+####                allow_edit_email = True
+####                is_user_contact = False
+####            else:
+####                if user == self.request.user:
+####                    # If this is the case, allow editing it after verification via e-mail
+####                    allow_edit_email = email_verify = True
+####                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
+####                    # Users in this group can always edit e-mail addresses
+####                    allow_edit_email = True
 #
 #            # Handle saving (and sending verification e-mails for) e-mail addresses
 #            if allow_edit_email:
@@ -263,15 +264,15 @@ class EditContactView(CreateUpdateContactView, UpdateView):
 #                # Loop through all e-mail addresses
 #                for formset in self.email_addresses_formset:
 #                    # Check if formset instance should be deleted
-#                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-#                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
-#                        if not is_user_contact or formset.prefix != primary_email_prefix: 
-#                            self.object.email_addresses.remove(formset.instance)
-#                            formset.instance.delete()
-#                        elif is_user_contact:
-#                            # Add message
-#                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
-#                        continue
+####                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
+####                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
+####                        if not is_user_contact or formset.prefix != primary_email_prefix: 
+####                            self.object.email_addresses.remove(formset.instance)
+####                            formset.instance.delete()
+####                        elif is_user_contact:
+####                            # Add message
+####                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
+####                        continue
 #
 #                    # Explicitly set 'is_primary' on every e-mail address to make sure only one is 
 #                    # marked as primary e-mail.
@@ -356,37 +357,6 @@ class EditContactView(CreateUpdateContactView, UpdateView):
 #            else:
 #                # Add message
 #                messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))
-#                
-#            # Handle addresses
-#            for formset in self.addresses_formset:
-#                # Check if existing instance has been marked for deletion
-#                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-#                    self.object.addresses.remove(formset.instance)
-#                    formset.instance.delete()
-#                    continue
-#
-#                # Only save address if something else than complement and/or type is filled in
-#                if any([formset.instance.street,
-#                        formset.instance.street_number,
-#                        formset.instance.postal_code,
-#                        formset.instance.city,
-#                        formset.instance.state_province,
-#                        formset.instance.country]):
-#                    formset.save()
-#                    self.object.addresses.add(formset.instance)
-#
-#            # Handle phone numbers
-#            for formset in self.phone_numbers_formset:
-#                # Check if existing instance has been marked for deletion
-#                if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-#                    self.object.phone_numbers.remove(formset.instance)
-#                    formset.instance.delete()
-#                    continue
-#
-#                # Only save address if something was filled other than type
-#                if formset.instance.raw_input:
-#                    formset.save()
-#                    self.object.phone_numbers.add(formset.instance)
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());

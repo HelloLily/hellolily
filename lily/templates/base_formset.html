@@ -9,6 +9,14 @@ Two usages:
 {% if form %}
     <div class="mws-form-item large {{ formset.prefix }}-mws-formset">
         {% block form %}
+            {% if form.instance.pk %}
+                {{ form.id }}
+                {% if formset.can_delete %}
+                    <div class="hidden">
+                        {{ form.DELETE }}
+                    </div>
+                {% endif %}
+            {% endif %}
             {% crispy form %}
         {% endblock %}
     </div>

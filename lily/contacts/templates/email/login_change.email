@@ -1,0 +1,29 @@
+{% load i18n %}
+
+{% block subject %}{{ current_site.name }} | {% trans 'Your login information has changed' %}{% endblock %}
+
+{% block plain %}
+{% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
+Hello {{ full_name }},
+
+The e-mail address you're currently using to log in at {{ current_site.name }} has been changed by one of your colleagues. As of now please remember to use {{ email_address }} to log in instead.
+
+Sincerely,
+The {{ site_name }} team
+{% endblocktrans %}
+{% endblock %}
+
+{% block html %}
+{% blocktrans with current_site.name as site_name and full_name as full_name and verification_link as verification_link and email_address as email_address %}
+<p>Hello {{ full_name }},</p>
+
+<p>
+The e-mail address you're currently using to log in at {{ current_site.name }} has been changed by one of your colleagues. As of now please remember to use {{ email_address }} to log in instead.
+</p>
+
+<p>
+Sincerely, <br />
+The {{ site_name }} team
+</p>
+{% endblocktrans %}
+{% endblock %}

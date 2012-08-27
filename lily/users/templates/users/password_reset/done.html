@@ -12,12 +12,12 @@
             {% trans "We've e-mailed you instructions for setting your password to the e-mail address you submitted. You should be receiving it shortly." %}
         </div>
     </div>
-{% endblock %}
-                
-{% block portal-form-buttons %}
-    <a href="{% url login %}" class="mws-link-button">
-        <button type="button" class="mws-button blue mws-reset-button">
-            {% trans 'Back to log in' %}
-        </button>
-    </a>
+    
+    <div class="mws-button-row">
+        <a href="{% url login %}">
+            <button type="button" class="mws-button blue mws-reset-button">
+                {% trans 'Back to log in' %}
+            </button>
+        </a>
+    </div>
 {% endblock %}

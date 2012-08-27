@@ -29,7 +29,6 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
     InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
-from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
 try:
     from lily.tenant.functions import add_tenant
@@ -150,7 +149,7 @@ class ActivationView(TemplateView):
         
         if self.tgen.check_token(self.user, self.token):
             # Show activation message
-            messages.info(request, _('Your account is now activated and you are now logged in.'))
+            messages.info(request, _('Your account has been activated and you are now logged in.'))
         else:
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)

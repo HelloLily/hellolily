@@ -1,0 +1,91 @@
+{% load field_extras crispy_forms_field %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field|is_checkbox %} checkbox{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+        
+        {% if field.label %}
+            {% if field|is_checkbox %}
+                {% crispy_field field %}
+            {% endif %}
+
+            <label for="{{ field.id_for_label }}" {% if field.field.required %}class="requiredField"{% endif %}>
+                {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            </label>
+        {% endif %}
+
+        {% if not field|is_checkbox %}
+            {% if field|widget_type == "textarea" %}
+                {% if field|field_value or not field.field.widget.click_and_show %}
+                    {% if field.errors %}
+                        <span class="field_error">{% crispy_field field %}</span>
+                        <div class="mws-error no_list_style_type">
+                              {{ field.errors }}
+                        </div>
+                    {% else %}
+                        {% crispy_field field %}
+                    {% endif %}
+                {% else %}
+                    <a href="javascript:" class="click-show" data-click-show="full_form_description_wrapper">{{ field.field.widget.click_show_text }}</a>
+                    <div id="full_form_description_wrapper" class="hidden">
+                        {% if form.description.errors %}
+                            <span class="field_error">{% crispy_field field %}</span>
+                            <div class="mws-error no_list_style_type">
+                                  {{ field.errors }}
+                            </div>
+                        {% else %}
+                            {% crispy_field field %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% elif field|widget_type == "inputandselectmultiple" %}
+                <div class="mws-form-col-row">
+                    <div class="float-left">
+                        {% if field.errors %}
+                            <span class="field_error">
+                                <div class="input-and-choice">
+                                    <div>
+                                        <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="Tag" />
+                                        <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                    </div>
+                                    <div>
+                                        {{ field }}
+                                        <ul class="input-and-choice-list clearfix search-field"></ul>
+                                    </div>
+                                </div>
+                            </span>
+                            <div class="mws-error no_list_style_type">
+                                  {{ field.errors }}
+                            </div>
+                        {% else %}
+                            <div class="input-and-choice">
+                                <div>
+                                    <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable" placeholder="Tag" />
+                                    <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" />
+                                </div>
+                                <div>
+                                    {{ field }}
+                                    <ul class="input-and-choice-list clearfix chzn-results search-field"></ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                {% if form_show_errors and field.errors %}
+                    <span class="field_error">{% crispy_field field %}</span>
+                    <div class="mws-error no_list_style_type">
+                        {{ field.errors }}
+                    </div>
+                {% else %}
+                    {% crispy_field field %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {% if field.help_text %}
+            <div id="hint_{{ field.auto_id }}" class="formHint">{{ field.help_text|safe }}</div>
+        {% endif %}
+    </div>
+{% endif %}

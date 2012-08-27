@@ -30,9 +30,9 @@ class Deal(TenantMixin, Deleted):
         (WON_STAGE, _('Won')),
     )
     
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, verbose_name=_('account'))
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='EUR',
                                 verbose_name=_('currency'))
     amount = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('amount'))

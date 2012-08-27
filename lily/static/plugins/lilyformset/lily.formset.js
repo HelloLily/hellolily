@@ -112,6 +112,7 @@
                 del.before('<input type="hidden" name="' + del.attr('name') +'" id="' + del.attr('id') +'" />');
                 del.remove();
             }
+            row.find('label[for $= "-DELETE"]').parent().remove();
             if (hasChildElements(row)) {
                 insertDeleteLink(row);
                 row.addClass(options.formCssClass);

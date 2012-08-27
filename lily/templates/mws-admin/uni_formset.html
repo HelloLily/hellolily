@@ -1,0 +1,16 @@
+{% if forloop.first %}
+    <hr />
+{% endif %}
+
+<div class="mws-form-row">
+    <label>{{ formset.label }}</label>
+    {% for form in formset.instance.forms %}
+        {% include formset.template with formset=formset.instance form=form %}
+    {% empty %}
+        <div class="{{ formset.instance.prefix }}-mws-formset"></div>
+    {% endfor %}
+    
+    {% include formset.template with formset=formset.instance form=None %}            
+    
+    {{ formset.instance.management_form }}
+</div>

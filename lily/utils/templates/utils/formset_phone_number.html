@@ -1,43 +1,6 @@
 {% extends 'base_formset.html' %}
 
-{% load i18n %}
-
-{% block form %}
-    {{ block.super }}
-    
-    <div class="mws-form-cols clearfix">
-        <div class="mws-form-col-2-8 alpha">
-            {% if form.raw_input.errors %}
-                <span class="field_error float-left">{{ form.raw_input }}</span>
-                <span class="mws-error inline plain float-left">
-                    {% for error in form.raw_input.errors %}
-                        <strong>{{ error }}</strong>
-                    {% endfor %}
-                </span>
-            {% else %}
-                {{ form.raw_input }}
-            {% endif %}
-        </div>    
-        <div class="mws-form-col-2-8">
-            {% if form.type.errors %}
-                <span class="field_error float-left">{{ form.type }}</span>
-                <span class="mws-error inline plain float-left">
-                    {% for error in form.type.errors %}
-                        <strong>{{ error }}</strong>
-                    {% endfor %}
-                </span>
-            {% else %}
-                {{ form.type }}
-            {% endif %}
-        </div>
-        <div class="mws-form-col-2-8">
-            {{ form.other_type }}
-        </div>
-        <div class="mws-form-col-1-8 formset-delete">
-            <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
-        </div>
-    </div>
-{% endblock %}
+{% load i18n crispy_forms_tags %}
 
 {% block template %}
     <div class="mws-form-item large">

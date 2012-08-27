@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_visitor_portal.html' %}
+
 
 {% load i18n media %}
 
@@ -10,35 +11,23 @@
     {{ block.super }}
 {% endblock %}
 
-{% block body %}
-    <div id="mws-login-wrapper">
-        <div id="mws-login">
-            <div class="mws-panel">
-                <div class="mws-panel-header">
-                    <span class="mws-i-24 i-refresh-4">{% trans 'Account activation failed' %}</span>
-                </div>
-                <div id="mws-login-form">
-                    <div class="mws-form">
-                        <div class="mws-form-row mws-message-container" >
-                            <div class="mws-form-row mws-activate-message">
-                                {% trans 'Activation failed. This happened because either the link is invalid, the activation period expired or the associated account has already been activated. You can apply for a new activation link or try to log in.' %}
-                            </div>
-                        </div>
-                        
-                        
-                        <a href="{% url login %}" class="mws-link-button">
-                            <button type="button" class="mws-button blue mws-login-button">
-                                {% trans 'Log in' %}
-                            </button>
-                        </a>                        
-                        <a href="{% url activation_resend %}" class="mws-link-button">
-                            <button type="button" class="mws-button blue mws-reset-button">
-                                {% trans 'Resend activation e-mail' %}
-                            </button>
-                        </a>
-                    </div>
-                </div>
-               </div>
+{% block portal-title %}{% trans 'Account activation failed' %}{% endblock %}
+
+{% block portal-form %}
+    <div class="mws-form-row mws-message-container" >
+        <div class="mws-form-row mws-activate-message">
+            {% trans 'Activation failed. This happened because either the link is invalid, the activation period expired or the associated account has already been activated. You can apply for a new activation link or try to log in.' %}
         </div>
+    </div>
+    
+    <div class="mws-button-row">
+        <a href="{% url activation_resend %}">
+            <button type="button" class="mws-button blue">
+                {% trans 'Try again' %}
+            </button></a>
+        <a href="{% url login %}">
+            <button type="button" class="mws-button blue">
+                {% trans 'Back to Log in' %}
+            </button></a>
     </div>
 {% endblock %}

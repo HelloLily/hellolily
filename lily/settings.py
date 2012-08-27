@@ -180,6 +180,8 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'mediagenerator',
     'storages',
+    'crispy_forms',
+#    'template_debug', in-template tags for debugging purposes
 
     # Lily
     'lily', # required for management command
@@ -256,8 +258,8 @@ if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APP
 
 # Settings for 3rd party apps
 
-# Django debug toolbar
-INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])
+# django debug toolbar
+INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)]) if DEBUG else []
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
@@ -337,3 +339,6 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age=1314000',
     'Expires': expires,
 }
+
+# cripsy-forms
+CRISPY_TEMPLATE_PACK = 'mws-admin'

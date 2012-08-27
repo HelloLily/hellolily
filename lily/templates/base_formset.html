@@ -4,7 +4,7 @@ Two usages:
 {% include 'utils/base_formset.html' with formset=formset form=None %} to use this file as a formset template.
 {% endcomment %}
 
-{% load i18n %}
+{% load i18n crispy_forms_tags %}
 
 {% if form %}
     <div class="mws-form-item large {{ formset.prefix }}-mws-formset">
@@ -17,6 +17,7 @@ Two usages:
                     </div>
                 {% endif %}
             {% endif %}
+            {% crispy form %}
         {% endblock %}
     </div>
 {% else %}

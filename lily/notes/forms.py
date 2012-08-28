@@ -16,7 +16,7 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
            MultiField(
                 None,
                 'note',
-                Submit('submit', _('Add note'), css_id='add-note-button', css_class='small')
+                Submit('note-submit', _('Add note'), css_id='add-note-button', css_class='small')
            )
         )
         

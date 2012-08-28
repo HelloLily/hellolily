@@ -3,7 +3,7 @@ jquery_bundle_css = (
     'jui/css/jquery.ui.core.css',
     'jui/css/jquery.ui.resizable.css',
 #    'jui/css/jquery.ui.accordion.css',
-#    'jui/css/jquery.ui.autocomplete.css',
+    'jui/css/jquery.ui.autocomplete.css',
     'jui/css/jquery.ui.dialog.css',
 #    'jui/css/jquery.ui.slider.css',
     'jui/css/jquery.ui.tabs.css',

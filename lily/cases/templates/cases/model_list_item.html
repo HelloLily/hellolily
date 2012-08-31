@@ -9,10 +9,12 @@
 {% block item-actions %}
     {{ block.super }}
     
-    <div class="i-32 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"></div>
 {% endblock %}
 
 {% block item-columns %}
+	<td class="priority">
+    	<div class="i-16 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"><span>{{ item.priority }}</span></div>
+	</td>
     <td class="subject">
         <a href="{% url case_details pk=item.pk %}">
             {{ item.subject }}

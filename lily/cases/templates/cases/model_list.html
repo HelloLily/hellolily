@@ -10,13 +10,14 @@
 
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-    { "sType": "date-euro", "aTargets": [5] }
+    { "sType": "date-euro", "aTargets": [6] }
 {% endblock %}
 
 {% block model-list-title %}{% trans 'Cases' %}{% endblock %}
 
 {% block list-headings %}
     <th class="controls"></th>
+    <th class="priority">{% trans 'Priority' %}</th>
     <th class="subject">{% trans 'Subject' %}</th>
     <th class="account_contact">{% trans 'Account/contact' %}</th>
     <th class="status">{% trans 'Status' %}</th>

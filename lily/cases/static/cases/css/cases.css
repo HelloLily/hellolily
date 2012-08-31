@@ -18,6 +18,22 @@ li.i-16.i-tag
 	background-position: 4px center !important; 
 	background-repeat: no-repeat !important;
 }
+
+.mws-table .i-16.i-tag,
+.mws-table .i-16.i-tag.green,
+.mws-table .i-16.i-tag.yellow,
+.mws-table .i-16.i-tag.orange,
+.mws-table .i-16.i-tag.red
+{
+	width: 24px;
+	height: 24px;
+}
+
+.mws-table td.priority span
+{
+	display: none;
+}
+
 .i-16.i-tag.green {	background-image:url(../../extra/css/icons/color/16/tag_green.png) !important; }
 .i-16.i-tag.orange { background-image:url(../../extra/css/icons/color/16/tag_orange.png) !important; }
 .i-16.i-tag.red { background-image:url(../../extra/css/icons/color/16/tag_red.png) !important; }
@@ -35,14 +51,7 @@ li.i-16.i-tag
 	width: 32px;
 	height: 32px;
 }
-.mws-table .i-32.i-tag,
-.mws-table .i-32.i-tag.green,
-.mws-table .i-32.i-tag.yellow,
-.mws-table .i-32.i-tag.orange,
-.mws-table .i-32.i-tag.red
-{
-	margin-left: 12px;
-}
+
 .i-32.i-tag.green {	background-image:url(../../extra/css/icons/color/32/tag_green.png) !important; }
 .i-32.i-tag.yellow { background-image:url(../../extra/css/icons/color/32/tag_yellow.png) !important; }
 .i-32.i-tag.orange { background-image:url(../../extra/css/icons/color/32/tag_orange.png) !important; }

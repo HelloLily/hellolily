@@ -7,6 +7,7 @@ from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
+from lily.contacts.widgets import ContactAccountSelect
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
@@ -24,7 +25,7 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
     }))
     
     contact = forms.ModelChoiceField(label=_('Contact'), queryset=Account.objects.none(), 
-        empty_label=_('a contact'), required=False, widget=forms.Select(attrs={
+        empty_label=_('a contact'), required=False, widget=ContactAccountSelect(attrs={
         'class': 'contact_account',
     }))
     
@@ -51,7 +52,7 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         self.helper.add_columns(
             Column(Div(HTML(_('Select')), css_class='text-in-row'), size=1, first=True),
             Column('contact', size=3),
-            Column(Div(HTML(_('or')), css_class='text-in-row center'), size=1),
+            Column(Div(HTML(_('and/or')), css_class='text-in-row center'), size=1),
             Column('account', size=3),
             label=_('Client'),
         )
@@ -83,9 +84,12 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         if not cleaned_data.get('contact') and not cleaned_data.get('account'):
             self._errors['contact'] = self._errors['account'] = self.error_class([_('Client can\'t be empty')])
 
-        # Check if not both contact or an account have been selected
+        # Check if not both contact or an account have been selected or verify that an account the contact works at
         if cleaned_data.get('contact') and cleaned_data.get('account'):
-            self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
+            contact = Contact.objects.get(cleaned_data.get('contact'))
+            account = contact.get_primary_function().account
+            if account != cleaned_data.get('account'):
+                self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
 
         return cleaned_data
     
@@ -96,7 +100,7 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         
         widgets = {
             'priority': PrioritySelect(attrs={ 
-                'class': 'chzn-select-no-search priority-select',
+                'class': 'chzn-select-no-search',
             }),
             'description': forms.Textarea(attrs={
                 'click_show_text': _('Add description'),
@@ -129,7 +133,7 @@ class AddCaseQuickbuttonForm(CreateUpdateCaseForm):
         exclude = ('is_deleted', 'closed_date', 'tenant')
         
         widgets = {
-            'priority': forms.Select(attrs={
+            'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
             }),
             'description': forms.Textarea(attrs={

@@ -77,9 +77,6 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         elif self.object.stage in [0,2]:
             self.object.closed_date = None
         self.object.save()
-        
-        # Show save message
-        messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name);
             
         return self.get_success_url()
     
@@ -162,6 +159,19 @@ class EditDealView(CreateUpdateDealView, UpdateView):
     View to edit a deal.
     """
     model = Deal
+    
+    
+    def form_valid(self, form):
+        """
+        Overloading super().form_valid to show success message on edit.
+        """
+        # Save instance
+        super(EditDealView, self).form_valid(form)
+        
+        # Show save message
+        messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name);
+        
+        return self.get_success_url()
 
 
 class DeleteDealView(DeleteView):

@@ -97,7 +97,6 @@ class FieldInitFormMixin(forms.BaseForm):
                     w.click_show_text = _('Add')
                 w.click_and_show = w.attrs.get('click_and_show', True)
                     
-            
             # append certain default attributes
             attrs = self.default_widget_attrs.get(w.__class__, [])
             for attr in attrs:
@@ -111,7 +110,7 @@ class FieldInitFormMixin(forms.BaseForm):
             # add class for required fields
             if field.required:
                 w.attrs['class'] = (w.attrs.get('class', '') + ' required').strip()
-                
+            
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
 
 

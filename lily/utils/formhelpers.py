@@ -1,5 +1,6 @@
+import collections
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, LayoutSlice
+from crispy_forms.layout import Submit
 from django.utils.translation import ugettext as _
 
 from lily.utils.layout import MultiField, InlineRow, ColumnedRow, Row
@@ -38,16 +39,52 @@ class LilyFormHelper(FormHelper):
                 if layout_object.fields[pos[-1]] in field_names:
                     layout_object.fields[pos[-1]] = layoutObject(layout_object.fields[pos[-1]])
     
-    def get_field_name_in_object(self, layoutObject):
+    def insert_after(self, layoutObject, *field_names):
         """
-        Get the field_name from a field wrapped inside a layoutObject.
+        Insert layoutObject after all field_names in the layout.
+        
+        Example:
+        self.helper.insert_after(Divider, 'field_3', 'field6')
         """
-        if isinstance(layoutObject, list):
-            return self.get_field_name_in_object(layoutObject[0])
+        layout_field_names = self.layout.get_field_names()
+        for pointer in layout_field_names:
+            field_name, index = self.get_field_name_from_pointer(pointer)
+            if field_name in field_names:
+                # Insert after field_name
+                field_index = index + 1
+                self.layout.insert(field_index, layoutObject())
+    
+    def get_field_name_from_pointer(self, pointer):
+        """
+        Return  the field_name and index for this field from a pointer.
+        """
+        pos = pointer[0]
+        layout_object = self.layout.fields[pos[0]]
+        for i in pointer[0][1:-1]:
+            if hasattr(layout_object, 'fields'):
+                layout_object = layout_object.fields[i]
+                
+        # If layout object has no fields attribute, then it's a basestring (a field name)
+        if not hasattr(layout_object, 'fields'):
+            return layout_object, pos[0]
         else:
-            if isinstance(layoutObject[0], basestring):
-                return layoutObject[0]
-            
+            return layout_object.fields[pos[-1]], pos[0]
+                
+    
+    def get_field_name_from_layout(self, layout_object):
+        """
+        Get the first field_name wrapped inside one or more layout_objects.
+        """
+        if hasattr(layout_object, 'fields'):
+            for field in layout_object.fields:
+                if isinstance(field, basestring):
+                    return field
+        elif isinstance(layout_object, collections.Iterable):
+            for object in layout_object:
+                field_name = self.get_field_name_from_layout(object)
+                if isinstance(field_name, basestring):
+                    return field_name
+        
         return None
     
     def delete_label_for(self, *field_names):
@@ -68,7 +105,7 @@ class LilyFormHelper(FormHelper):
         """
         Create a MultiField which contains given columns. 
         """
-        label = kwargs.pop('label', self.form.fields[self.get_field_name_in_object(columns[0])].label)
+        label = kwargs.pop('label', self.form.fields[self.get_field_name_from_layout(columns)].label)
         inline = kwargs.pop('inline', False)
         if inline:
             layout =  MultiField(
@@ -84,7 +121,7 @@ class LilyFormHelper(FormHelper):
             )
         
         for column in columns:
-            field_name = self.get_field_name_in_object(column)
+            field_name = self.get_field_name_from_layout(column)
             if field_name is not None:
                 self.delete_label_for(field_name)
                 
@@ -103,12 +140,21 @@ class LilyFormHelper(FormHelper):
         Create a simple layout for a field that expands to the width of the container (form).
         """
         label = kwargs.pop('label', self.form.fields[field_name].label)
-        layout = Row(
-            MultiField(
+        inline = kwargs.pop('inline', False)
+        if inline:
+            layout = MultiField(
                 label,
                 InlineRow(field_name),
             )
-        )
+        else:
+            layout = Row(
+                MultiField(
+                    label,
+                    InlineRow(field_name),
+                )
+            )
+        
+        self.delete_label_for(field_name)
         
         return layout
     
@@ -119,8 +165,6 @@ class LilyFormHelper(FormHelper):
         self.layout.append(
             self.create_large_field(field_name, **kwargs)
         )
-        
-        self.delete_label_for(field_name)
     
     def add_large_fields(self, *field_names, **kwargs):
         """
@@ -159,7 +203,7 @@ class LilyFormHelper(FormHelper):
         
         for row in rows:
             for column in row:
-                field_name = self.get_field_name_in_object(column)
+                field_name = self.get_field_name_from_layout(column)
                 if field_name is not None:
                     self.delete_label_for(field_name)
         
@@ -173,9 +217,9 @@ class LilyFormHelper(FormHelper):
             self.create_multi_row(*rows, **kwargs)
         )
     
-    def replace(self, field_name, field):
+    def replace(self, field, layoutObject):
         """
-        Replace default generated layout for fields, for a custom one.
+        Replace default generated layout for field, for a custom one.
         
         Example:
         self.helper.replace('account',
@@ -184,11 +228,14 @@ class LilyFormHelper(FormHelper):
             ),
         )
         """
-        field_index = self.layout.fields.index(field_name)
-        self.layout.pop(field_index)
-        self.layout.insert(field_index, field)
-        
-        self.delete_label_for('note')
+        layout_field_names = self.layout.get_field_names()
+        for pointer in layout_field_names:
+            field_name, index = self.get_field_name_from_pointer(pointer)
+            if field_name == field:
+                self.layout.pop(index)
+                self.layout.insert(index, layoutObject)
+                
+                self.delete_label_for('note')
 
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):

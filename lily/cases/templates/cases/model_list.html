@@ -1,0 +1,25 @@
+{% extends 'base_model_list.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {% comment %}{% include_media 'lily.cases.css' %}{% endcomment %}
+    
+    {{ block.super }}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "sType": "date-euro", "aTargets": [5] }
+{% endblock %}
+
+{% block model-list-title %}{% trans 'Cases' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="controls"></th>
+    <th class="subject">{% trans 'Subject' %}</th>
+    <th class="account_contact">{% trans 'Account/contact' %}</th>
+    <th class="status">{% trans 'Status' %}</th>
+    <th class="assigned-to">{% trans 'Assigned to' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+{% endblock %}

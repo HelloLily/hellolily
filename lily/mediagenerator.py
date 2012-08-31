@@ -51,6 +51,8 @@ extra_theme_bundle_css = (
     'extra/css/icons/extra.16x16.css',
     'extra/css/icons/extra.32x32.css',
     'extra/css/views.css',
+    
+    'cases/css/cases.css',
 )
 
 # jquery + jquery ui
@@ -95,6 +97,8 @@ extra_theme_bundle_js = (
     'accounts/js/accounts.js',
     
     'contacts/js/contacts.js',
+    
+    'cases/js/cases.js',
     
     'deals/js/deals.js',
 

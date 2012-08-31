@@ -82,6 +82,16 @@ class PasswordStrengthIndicator(HTML):
         super(PasswordStrengthIndicator, self).__init__(html)
 
 
+class Divider(HTML):
+    """
+    Displays a line across the form to help separate different parts in a form.
+    """
+#    css_class = 'mws-form-divider'
+    def __init__(self):
+        html = '<div class="mws-form-divider"></div>'
+        super(Divider, self).__init__(html)
+
+
 class MultiField(MultiField):
     """
     Render multiple fields with custom templates.

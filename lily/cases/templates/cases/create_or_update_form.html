@@ -1,0 +1,13 @@
+{% extends 'base_create_or_update_form.html' %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block create-form-title %}{% trans 'Add case' %}{% endblock %}
+
+{% block update-form-title %}{% trans 'Edit case' %}{% endblock %}
+
+{% block hidden-dialogs %}
+    {% if item.pk %}
+        {% include 'cases/delete_dialog.html' with item=item %}
+    {% endif %}
+{% endblock %}

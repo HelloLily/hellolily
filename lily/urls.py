@@ -10,6 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^accounts/', include('lily.accounts.urls')),
     url(r'^contacts/', include('lily.contacts.urls')),
+    url(r'^cases/', include('lily.cases.urls')),
     url(r'^deals/', include('lily.deals.urls')),
     url(r'^notes/', include('lily.notes.urls')),
     url(r'^provide/', include('lily.provide.urls')),

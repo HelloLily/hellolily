@@ -1,0 +1,49 @@
+.text-in-row {
+	min-height: 34px;
+	line-height: 34px;
+}
+
+li.i-16.i-tag
+{
+	height: 19px; 
+	line-height: 19px !important; 
+}
+.i-16.i-tag,
+.i-16.i-tag.green,
+.i-16.i-tag.yellow,
+.i-16.i-tag.orange,
+.i-16.i-tag.red
+{ 
+	padding-left: 24px !important;
+	background-position: 4px center !important; 
+	background-repeat: no-repeat !important;
+}
+.i-16.i-tag.green {	background-image:url(../../extra/css/icons/color/16/tag_green.png) !important; }
+.i-16.i-tag.orange { background-image:url(../../extra/css/icons/color/16/tag_orange.png) !important; }
+.i-16.i-tag.red { background-image:url(../../extra/css/icons/color/16/tag_red.png) !important; }
+.i-16.i-tag.yellow { background-image:url(../../extra/css/icons/color/16/tag_yellow.png) !important; }
+
+.i-32.i-tag,
+.i-32.i-tag.green,
+.i-32.i-tag.yellow,
+.i-32.i-tag.orange,
+.i-32.i-tag.red
+{ 
+	background-repeat: no-repeat !important;
+	display: inline-block;
+	vertical-align: bottom;
+	width: 32px;
+	height: 32px;
+}
+.mws-table .i-32.i-tag,
+.mws-table .i-32.i-tag.green,
+.mws-table .i-32.i-tag.yellow,
+.mws-table .i-32.i-tag.orange,
+.mws-table .i-32.i-tag.red
+{
+	margin-left: 12px;
+}
+.i-32.i-tag.green {	background-image:url(../../extra/css/icons/color/32/tag_green.png) !important; }
+.i-32.i-tag.yellow { background-image:url(../../extra/css/icons/color/32/tag_yellow.png) !important; }
+.i-32.i-tag.orange { background-image:url(../../extra/css/icons/color/32/tag_orange.png) !important; }
+.i-32.i-tag.red { background-image:url(../../extra/css/icons/color/32/tag_red.png) !important; }

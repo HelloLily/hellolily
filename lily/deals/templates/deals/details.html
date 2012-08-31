@@ -33,7 +33,7 @@
     </div>
     <div>
         <strong>{% trans 'Assigned to' %}:</strong>
-         <a href="{% url contact_details pk=item.assigned_to.pk %}">
+         <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>  
     </div>

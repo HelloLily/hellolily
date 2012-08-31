@@ -406,6 +406,13 @@ div#mws-quickbutton-container button
     margin: -4px 0 4px 0 !important;
 }
 
+.mws-form-divider
+{
+	border-top: 1px solid #BCBCBC;
+	padding: 0;
+	margin: 12px 0;
+}
+
 /**
  *     Login Form Stylesheet
  */
@@ -501,6 +508,11 @@ div#mws-login input.mws-login-password /* div#mws-login input.mws-login-password
 div#mws-login #remember-me
 {
     padding:4px;
+}
+
+div#mws-login .mws-button-row
+{
+	background-color: transparent !important;
 }
 
 div#mws-login input.mws-login-button /* div#mws-login input.mws-login-button */
@@ -611,59 +623,59 @@ div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer /* div.jGrowl d
 }
 
 div.jGrowl div.jGrowl-closer {
-    padding-left: 23px;
-    padding-right: 23px;
-    border: 1px solid;
-    border-color: #789FCC;
-    background-color: #1C76BC;
+    padding-left:23px;
+    padding-right:23px;
+    border:1px solid;
+    border-color:#789FCC;
+    background-color:#1C76BC;
 }
 
 div.jGrowl div.jGrowl-notification
 {
-    border: 1px solid;
-    padding-left: 36px;
-    background-repeat: no-repeat;
-    background-position: 10px 11px;
-    min-height: 0 !important;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+    border:1px solid;
+    padding-left:36px;
+    background-repeat:no-repeat;
+    background-position:10px 11px;
+    min-height:0 !important;
+    text-shadow:1px 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 div.jGrowl div.jGrowl-notification.info
 {
-    border-color: #789FCC !important;
-    background-color: #1C76BC;
+    border-color:#789FCC !important;
+    background-color:#1C76BC;
 }
 
 div.jGrowl div.jGrowl-notification.success
 {
-    border-color: #789FCC !important;
-    background-color: #1C76BC !important;
+    border-color:#789FCC !important;
+    background-color:#1C76BC !important;
 }
 
 div.jGrowl div.jGrowl-notification.warning
 {
-    border-color: #789FCC !important;
-    background-color: #1C76BC !important;
+    border-color:#789FCC !important;
+    background-color:#1C76BC !important;
 }
 
 div.jGrowl div.jGrowl-notification.error
 {
-    color: #FBE3E4 !important;
-    border-color: #FBC2C4 !important;
-    background-color: #8A1F11 !important;
-    opacity: 1!important;
+    color:#FBE3E4 !important;
+    border-color:#FBC2C4 !important;
+    background-color:#8A1F11 !important;
+    opacity:1!important;
 }
 
 .chzn-container-single .chzn-single
 {
-    height: 23px !important;
-    line-height: 25px !important;
-    border: 1px solid #C5C5C5;
+    height:23px !important;
+    line-height:25px !important;
+    border:1px solid #C5C5C5;
 }
 
 .chzn-container .chzn-results .highlighted
 {
-    background: #1C76BC !important;
+    background:#1C76BC !important;
 }
 
 .chzn-container-active
@@ -687,7 +699,7 @@ div.jGrowl div.jGrowl-notification.error
  
 #id_contact_quickbutton_account_chzn.chzn-container .chzn-results
 {
-    max-height: 90px !important;
+    max-height:90px !important;
 }
 
 /**
@@ -698,7 +710,7 @@ div.jGrowl div.jGrowl-notification.error
     
     .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_full
     {
-        float: left !important;
+        float:left !important;
     }
     
     div#mws-header-container

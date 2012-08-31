@@ -1,0 +1,50 @@
+{% extends 'base_model_list_item.html' %}
+
+{% load i18n utils %}
+
+{% block item-edit-url %}{% url case_edit pk=item.pk %}{% endblock %}
+
+{% block item-delete-url %}{% url case_delete pk=item.pk %}{% endblock %}
+
+{% block item-actions %}
+    {{ block.super }}
+    
+    <div class="i-32 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"></div>
+{% endblock %}
+
+{% block item-columns %}
+    <td class="subject">
+        <a href="{% url case_details pk=item.pk %}">
+            {{ item.subject }}
+        </a>
+    </td>
+    <td class="contact_account">
+        <div>
+        	{% if item.contact %}
+            	<a href="{% url contact_details pk=item.contact.pk %}">
+                	{{ item.contact.full_name }}
+            	</a>
+           	{% elif item.account %}
+            	<a href="{% url account_details pk=item.account.pk %}">
+                	{{ item.account.name }}
+            	</a>
+           	{% endif %}
+        </div>
+    </td>
+    <td class="status">
+        {{ item.get_status_display }}
+    </td>
+    <td class="assigned-to">
+        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+            {{ item.assigned_to }}
+        </a>
+    </td>
+    <td class="datetime created hide_on_small_screen">
+        <div>
+            {{ item.created|date:"d/m/Y" }}
+        </div>
+        <div>
+            {{ item.created|date:"H:i:s" }}
+        </div>
+    </td>
+{% endblock %}

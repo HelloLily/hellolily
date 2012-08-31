@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     'lily', # required for management command
     'lily.accounts',
     'lily.activities',
+    'lily.cases',
     'lily.deals',
     'lily.contacts',
     'lily.notes',

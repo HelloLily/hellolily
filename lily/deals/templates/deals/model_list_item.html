@@ -34,7 +34,7 @@
         {{ item.currency }}&nbsp;{{ item.amount }}
     </td>
     <td class="assigned-to">
-        <a href="{% url contact_details pk=item.assigned_to.pk %}">
+        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>
     </td>

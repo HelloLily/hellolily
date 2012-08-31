@@ -190,6 +190,7 @@ INSTALLED_APPS = (
     'lily.cases',
     'lily.deals',
     'lily.contacts',
+    'lily.microblog',
     'lily.notes',
     'lily.provide',
     'lily.tags',

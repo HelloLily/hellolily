@@ -92,7 +92,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
             if form_kwargs['data'].get('account'):
                 pk = form_kwargs['data'].get('account')
                 account = Account.objects.get(pk=pk)
-                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+                Function.objects.get_or_create(account=account, contact=self.object)
     
                 functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
                 functions.delete()
@@ -143,7 +143,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
             if form_kwargs['data'].get('account'):
                 pk = form_kwargs['data'].get('account')
                 account = Account.objects.get(pk=pk)
-                Function.objects.get_or_create(account=account, contact=self.object, manager=self.object)
+                Function.objects.get_or_create(account=account, contact=self.object)
 
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)

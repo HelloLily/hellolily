@@ -13,15 +13,22 @@
 {% block details-title %}{{ item|truncatechars:24 }}{% endblock %}
 
 {% block item-details %}
-    <div class="i-32 i-tag {{ item|priority }}"></div> <h2 class="inline">{{ item }}</h2>
+    <div class="i-32 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"></div> <h2 class="inline">{{ item }}</h2>
     <div>
     	{% if item.contact %}
 	        <strong>{% trans 'Contact' %}:</strong>
 	        <a href="{% url contact_details pk=item.contact.pk %}">
 	            {{ item.contact.full_name }}
 	        </a>
-        {% else %}
+	    {% endif %}
+	   
+	   	{% if item.contact and item.account %}
+	   		at 
+	   	{% elif item.account %}
 	        <strong>{% trans 'Account' %}:</strong>
+	   	{% endif %}
+	    
+        {% if item.account %}
 	        <a href="{% url account_details pk=item.account.pk %}">
 	            {{ item.account.name }}
 	        </a>

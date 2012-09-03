@@ -6,15 +6,14 @@ from django.utils.translation import ugettext as _
 from lily.settings import ACCOUNT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.functions import flatten
-from lily.utils.models import Common, EmailAddress
-
+from lily.utils.models import Common, EmailAddress, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
     from lily.utils.functions import dummy_function as add_tenant
 
 
-class Account(Common, TaggedObjectMixin):
+class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """

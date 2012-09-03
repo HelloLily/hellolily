@@ -1,10 +1,12 @@
 from crispy_forms.layout import Layout, HTML
 from django import forms
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, \
-    Textarea, HiddenInput
+from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, \
+    TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
+from lily.cases.widgets import PrioritySelect
+from lily.contacts.widgets import ContactAccountSelect
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
@@ -25,6 +27,12 @@ class FieldInitFormMixin(forms.BaseForm):
                 'value': 'tabbable',
             },
         },
+        ContactAccountSelect: {
+            'class': {
+                'append': True,
+                'value': 'chzn-select tabbable',
+            },
+        },
         DateInput: {
             'class': {
                 'append': True,
@@ -39,11 +47,17 @@ class FieldInitFormMixin(forms.BaseForm):
                 'append': True,
                 'value': 'mws-textinput tabbable',
             },
-        },                  
+        },
         PasswordInput: {
             'class': {
                 'append': True,
                 'value': 'mws-textinput tabbable',
+            },
+        },              
+        PrioritySelect: {
+            'class': {
+                'append': True,
+                'value': 'priority-select tabbable',
             },
         },
         Select: {

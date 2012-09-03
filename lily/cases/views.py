@@ -26,8 +26,9 @@ class ListCaseView(SortedListMixin, ListView):
     """
     template_name = 'cases/model_list.html'
     model = Case
-    sortable = [1, 2, 3, 4, 5]
+    sortable = [1, 2, 3, 4, 5, 6]
     default_order_by = 1
+    default_sort_order = SortedListMixin.DESC
 
     def get_context_data(self, **kwargs):
         """
@@ -58,23 +59,11 @@ class CreateUpdateCaseView(DeleteBackAddSaveFormViewMixin):
     template_name = 'cases/create_or_update.html'
     form_class = CreateUpdateCaseForm
     
-    def form_valid(self, form):
-        """
-        Overloading super().form_valid to add success message after editing.
-        """
-        # Save instance
-        super(CreateUpdateCaseView, self).form_valid(form)
-        
-        # Show save message
-        messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject);
-            
-        return self.get_success_url()
-    
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=5&sort_order=desc' % (reverse('case_list')))
+        return redirect('%s?order_by=6&sort_order=desc' % (reverse('case_list')))
 
 
 class AddCaseView(CreateUpdateCaseView, CreateView):
@@ -108,7 +97,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
                 messages.success(self.request, message)
 
                 do_redirect = True
-                url = '%s?order_by=5&sort_order=desc' % reverse('case_list')
+                url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
                 notification = False
                 html_response = ''
             else:
@@ -150,6 +139,18 @@ class EditCaseView(CreateUpdateCaseView, UpdateView):
     View to edit a case.
     """
     model = Case
+    
+    def form_valid(self, form):
+        """
+        Overloading super().form_valid to add success message after editing.
+        """
+        # Save instance
+        super(CreateUpdateCaseView, self).form_valid(form)
+        
+        # Show save message
+        messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject);
+            
+        return self.get_success_url()
 
 
 class DeleteCaseView(DeleteView):

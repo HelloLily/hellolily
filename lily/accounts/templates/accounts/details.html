@@ -60,6 +60,10 @@
     {% if item.get_deals|length %}
         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% blocktrans count counter=item.get_deals|length %}1 Deal{% plural %}{{ counter }} Deals{% endblocktrans %}</a></li>
     {% endif %}
+    
+    {% if item.get_cases|length %}
+        <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% blocktrans count counter=item.get_cases|length %}1 Case{% plural %}{{ counter }} Cases{% endblocktrans %}</a></li>
+    {% endif %}
 {% endblock %}
 
 {% block details-tab-content %}
@@ -247,4 +251,105 @@
             {% endif %}
         </div>
     {% endif %}
+    
+    {% if item.get_cases|length %}
+	    <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
+	    	<div id="cases-priority" class="mws-collapsible mws-collapsed">
+				<div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display cases sorted by priority' %}</span></div>
+				<div class="mws-collapsible-body clearfix" style="display: none;">
+				    {% if item.get_cases_critical|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_critical|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Critical' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_critical list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				            
+				    {% if item.get_cases_high|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_high|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'High' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_high  list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				    
+				    {% if item.get_cases_medium|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_medium|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Medium' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_medium list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				            
+				    {% if item.get_cases_low|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_low|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Low' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_low list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				</div>
+			</div>
+			<div id="cases-status" class="mws-collapsible mws-collapsed">
+				<div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display cases sorted by status' %}</span></div>
+				<div class="mws-collapsible-body clearfix" style="display: none;">
+				    {% if item.get_cases_open|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_open|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Open' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_open list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				            
+				    {% if item.get_cases_progress|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_progress|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'In progress' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_progress  list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				    
+				    {% if item.get_cases_pending|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_pending|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Pending' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_pending list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				            
+				    {% if item.get_cases_closed|length %}
+				        <div class="grid_8">
+				            {% if item.get_cases_closed|length %}
+				                <div id="detail-emails" class="detail-block">
+				                    <h2>{% trans 'Closed' %}</h2>
+				                    {% include 'base_list.html' with list=item.get_cases_closed list_item_template='cases/case_list_item.html' %}
+				                </div>
+				            {% endif %}
+				        </div>
+				    {% endif %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
 {% endblock %}

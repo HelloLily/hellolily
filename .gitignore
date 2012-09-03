@@ -12,3 +12,4 @@ lily/files/
 lily/site_settings.py
 generated_media_dir/
 .idea/
+celeryev.pid

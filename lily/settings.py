@@ -260,7 +260,7 @@ if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APP
 # Settings for 3rd party apps
 
 # django debug toolbar
-INTERNAL_IPS = (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)]) if DEBUG else []
+INTERNAL_IPS = (['127.0.0.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }

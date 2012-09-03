@@ -142,3 +142,11 @@ def classname(obj, arg=None):
             return False
     else:
         return classname
+    
+@register.filter
+def priority(obj):
+    """
+    Return the appropriate css class for given priority.
+    """
+    css_classes = ['green', 'yellow', 'orange', 'red']
+    return css_classes[obj.priority]

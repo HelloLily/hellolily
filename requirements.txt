@@ -4,6 +4,7 @@ gunicorn>=0.14.2
 gevent>=0.13.7
 psycopg2>=2.4.4
 dj-database-url==0.2.0
+https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms
 django-extensions>=0.8
 django-fields>=0.2.0
 django-templated-email>=0.4.1
@@ -20,5 +21,10 @@ kombu>=2.1.8
 ordereddict>=1.1
 python-dateutil>=1.5
 django-celery>=2.5.5
-newrelic>=1.2.1.265
-django-newrelic-extensions>=0.0.1
+newrelic==1.2.1.265
+django-newrelic-extensions==0.0.1
+django-debug-toolbar>=0.9.4
+pytz==2012c
+https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip
+django-storages==1.1.5
+boto==2.5.2

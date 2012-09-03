@@ -2,8 +2,11 @@ import os
 import djcelery
 from urlparse import urlparse, uses_netloc
 
-import django.conf.global_settings as DEFAULT_SETTINGS
 from django.core.urlresolvers import reverse_lazy
+from django.utils.translation import gettext_noop
+from datetime import datetime, timedelta
+import django.conf.global_settings as DEFAULT_SETTINGS
+
 
 # Register database scheme and redis caching in URLs
 uses_netloc.append('postgres')
@@ -44,7 +47,12 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 
 # Localization
 TIME_ZONE = 'Europe/Amsterdam'
-LANGUAGE_CODE = 'EN-en'
+DATE_INPUT_FORMATS = tuple(['%d/%m/%Y'] + list(DEFAULT_SETTINGS.DATE_INPUT_FORMATS))
+LANGUAGE_CODE = 'en'
+LANGUAGES = (
+    ('nl', gettext_noop('Dutch')),
+    ('en', gettext_noop('English')),
+)
 USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))
@@ -102,6 +110,9 @@ AUTHENTICATION_BACKENDS = (
 
 # Used middleware
 MIDDLEWARE_CLASSES = (
+    # Mediagenerator (needs to be first)
+    'mediagenerator.middleware.MediaMiddleware', # only used in dev mode
+    
     # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -116,9 +127,8 @@ MIDDLEWARE_CLASSES = (
 
     # Lily
     'lily.tenant.middleware.TenantMiddleWare',
+#    'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
 )
-
-INTERNAL_IPS = ('192.168.23.23',)
 
 # Main urls file
 ROOT_URLCONF = 'lily.urls'
@@ -131,6 +141,7 @@ TEMPLATE_DIRS = (
     local_path('templates/')
 )
 
+# overwriting defaults, to leave out media and static context processors
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
     'lily.utils.context_processors.quickbutton_forms',
@@ -159,8 +170,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
 
     # 3rd party
     'templated_email',
@@ -170,11 +181,16 @@ INSTALLED_APPS = (
     'south',
     'djcelery',
     'debug_toolbar',
+    'mediagenerator',
+    'storages',
+    'crispy_forms',
+#    'template_debug', # in-template tags for debugging purposes
 
     # Lily
     'lily', # required for management command
     'lily.accounts',
     'lily.activities',
+    'lily.cases',
     'lily.deals',
     'lily.contacts',
     'lily.notes',
@@ -230,8 +246,13 @@ LOGGING = {
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'console'],
+            'handlers': ['mail_admins'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': True,
         },
     }
@@ -246,6 +267,12 @@ if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APP
     TENANT_MIXIN = 'lily.tenant.models.TenantMixin'
 
 # Settings for 3rd party apps
+
+# django debug toolbar
+INTERNAL_IPS = (['127.0.0.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
@@ -316,3 +343,56 @@ NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
     'META': 'Http meta data',
     'session': 'Http session',
 }
+
+# django-redis-cache
+if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):
+    url = urlparse(os.environ['REDISTOGO_URL'])
+    CACHES = {
+        'default': {
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': "{0.hostname}:{0.port}".format(url),
+            'OPTIONS': {
+                'PASSWORD': url.password,
+                'DB': 0
+            }
+        }
+    }
+
+# django-mediagenerator
+MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
+IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
+GENERATED_MEDIA_DIR = local_path('generated_media_dir/static')
+GENERATED_MEDIA_DIRS = (local_path('generated_media_dir'),)
+
+DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
+PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
+
+YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
+ROOT_MEDIA_FILTERS = {
+    'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
+    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+}
+
+try:
+    import mediagenerator
+    MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
+except ImportError:
+    raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
+
+# django-storages
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') 
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY') 
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+# custom headers for files uploaded to amazon
+expires = datetime.utcnow() + timedelta(days=(25 * 365))
+expires = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+AWS_HEADERS = {
+    'Cache-Control': 'max-age=1314000',
+    'Expires': expires,
+}
+
+# cripsy-forms
+CRISPY_TEMPLATE_PACK = 'mws-admin'

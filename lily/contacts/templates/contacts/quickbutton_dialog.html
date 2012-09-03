@@ -1,6 +1,6 @@
 {% extends 'base_quickbutton_dialog.html' %}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block dialog-id %}-contact{% endblock %}
 
@@ -13,7 +13,6 @@
 {% block dialog-form %}{% include 'contacts/quickbutton_form.html' with form=quickbutton_formsets.contact %}{% endblock %}
 
 {% block quick-button-scripts %}
-    <script type="text/javascript" src="{% url jsi18n packages='lily.contacts' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             // add contact dialog

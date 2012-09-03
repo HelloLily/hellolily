@@ -1,76 +1,109 @@
-.mws-form
+/*
+ * MWS Admin v1.5 - Form Stylesheet
+ * This file is part of MWS Admin, an Admin template build for sale at ThemeForest.
+ * All copyright to this file is hold by Mairel Theafila <maimairel@yahoo.com> a.k.a nagaemas on ThemeForest.
+ * Last Updated:
+ * April 29, 2012
+ *
+ * Table of Contents
+ * ==================================================
+ *
+ *  1. Form Style
+ *  2. Button Row
+ *  3. Form Item
+ *  4. Fieldset
+ *  5. Form Labels
+ *  6. Form Inputs
+ *  7. Column Form Layout
+ *  8. Inline Form Layout
+ *  9. Block Form Layout
+ * 10. Form List
+ * 11. Placeholder Text
+ * 12. Form Clearfix
+ * 13. Form Messages
+ * 14. Colorpicker Input
+ * 15. Dual List Box
+ * 16. Customfile Input
+ *
+ */
+   
+/* (1) Form Style
+================================================== */
+ 
+ .mws-form
 {
-	clear:both;
-	display:block;
+    clear:both;
+    display:block;
 }
 
 .mws-form .mws-form-row
 {
-	padding:12px 24px;
+    padding:12px 24px;
+}
+
+/* (2) Button Row
+================================================== */
+
+.mws-form .mws-button-row
+{
+    padding:16px 24px;
+    border-top:1px solid #bcbcbc;
+    text-align:right;
+    background:url(../../images/core/mws-inset.png);
 }
 
 .mws-form .mws-button-row.left
 {
-	text-align:left;
+    text-align:left;
 }
 
-.mws-form .mws-button-row
-{
-	padding:16px 24px;
-	border-top:1px solid #bcbcbc;
-	text-align:right;
-	background:#f8f8f8; /* prev. url(../../images/core/mws-inset.png); */
-}
+/* (3) Form Item
+================================================== */
 
 .mws-form .mws-form-item
 {
-	min-height:34px;
-	height:34px;
-	height:auto !important;
+    min-height:34px;
+    height:34px;
+    height:auto !important
 }
 
-.mws-form ul.mws-form-list, 
-.mws-form ul.mws-form-list li
-{
-	margin:0;
-	list-style:none;
-}
+/* (4) Fieldset
+================================================== */
 
 .mws-form fieldset
 {
-	margin:0;
-	border-top:1px dotted #bcbcbc;
+    margin:0;
+    border-top:1px dotted #bcbcbc;
 }
 
 .mws-form fieldset legend
 {
-	margin-left:24px;
-	padding:0 4px;
-	border:1px dotted #bcbcbc;
+    margin-left:24px;
+    padding:0 4px;
+    border:1px dotted #bcbcbc;
 }
 
-.mws-form .mws-form-inline /* new */
-{
-	position: relative;
-}
+/* (5) Form Labels
+================================================== */
 
 .mws-form .mws-form-inline label
 {
-	padding-top:7px;
+    padding-top:7px;
 }
 
 .mws-form label
 {
-	padding-bottom:7px;
-	cursor:pointer;
+    padding-bottom:7px;
+    cursor:pointer;
 }
 
 .mws-form label span.required
 {
-	color:#FF0000;
+    color:#FF0000;
 }
 
-/* Input Styles */
+/* (6) Form Inputs
+================================================== */
 
 .mws-form .mws-form-item select, 
 .mws-form .mws-form-item textarea, 
@@ -83,7 +116,7 @@
 .mws-form .mws-form-item.large .customfile, 
 .mws-form .mws-form-item.large .ui-spinner
 {
-	width:100%;
+    width:100%;
 }
 
 .mws-form .mws-form-item.medium select, 
@@ -92,7 +125,7 @@
 .mws-form .mws-form-item.medium .customfile, 
 .mws-form .mws-form-item.medium .ui-spinner
 {
-	width:75%;
+    width:75%;
 }
 
 .mws-form .mws-form-item.small select, 
@@ -101,92 +134,73 @@
 .mws-form .mws-form-item.small .customfile, 
 .mws-form .mws-form-item.small .ui-spinner
 {
-	width:55%;
+    width:55%;
 }
 
 .mws-form select, 
 .mws-form textarea, 
-.mws-form .mws-textinput,
-.mws-form .mws-search-input
+.mws-form .mws-textinput
 {
-	border:1px solid #c5c5c5;
-	padding:6px 7px;
-	color:#323232;
-	margin:0;
-	
-	background-color:#ffffff;
-	outline:none;
-	
-	/* CSS 3 */
-	
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
-	-o-border-radius:4px;
-	-khtml-border-radius:4px;
-	border-radius:4px;
-	
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-khtml-box-sizing: border-box;
-	
-	-moz-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
-	-o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);	
-	-webkit-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
-	-khtml-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
-	box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    border:1px solid #c5c5c5;
+    padding:6px 7px;
+    color:#323232;
+    margin:0;
+    
+    background-color:#ffffff;
+    outline:none;
+    
+    /* CSS 3 */
+    
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    -o-border-radius:4px;
+    -khtml-border-radius:4px;
+    border-radius:4px;
+    
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
+    
+    -moz-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    -o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);   
+    -webkit-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    -khtml-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
 }
 
-/* Firefox's color for placeholders is close to the color used in textfields, so brighten it up */
-:-moz-placeholder { /* new */
-    color: #b3a9b3 !important; /* new */
-}
-
-.mws-form select {
-    padding:5px 7px;
+.mws-form textarea
+{
+    height:10em;
+    resize:none;
 }
 
 .mws-form select:disabled, 
 .mws-form textarea:disabled, 
 .mws-form .mws-textinput:disabled
 {
-	background:#f0f0f0;
-}
-
-.mws-form select.disabled, 
-.mws-form textarea.disabled, 
-.mws-form .mws-textinput.disabled
-{
     background:#f0f0f0;
-    color: #868686;
 }
 
 .mws-form select.error, 
 .mws-form textarea.error, 
 .mws-form .mws-textinput.error
 {
-	border-color:#eb979b;
+    border-color:#eb979b;
 }
 
-.mws-form select:focus, /* new */
-.mws-form input:focus, /* new */
-.mws-form textarea:focus /* new */
-{
-    border-color:#1C76BC; /* new */
-    box-shadow:0 0 5px rgba(0, 0, 0, 0.3); /* new */
-}
-
-/* Form Columns */
+/* (7) Column Form Layout
+================================================== */
 
 .mws-form-cols
 {
-	padding:0 24px;
+    padding:0 24px;
 }
 
 .mws-form-item .mws-form-cols
 {
-	padding:0;
+    padding:0;
 }
 
 .mws-form-item .mws-form-cols .mws-form-col-1-8, 
@@ -198,8 +212,8 @@
 .mws-form-item .mws-form-cols .mws-form-col-7-8, 
 .mws-form-item .mws-form-cols .mws-form-col-8-8
 {
-	padding-top:0;
-	padding-bottom:0;
+    padding-top:0;
+    padding-bottom:0;
 }
 
 .mws-form-col-1-8, 
@@ -211,29 +225,14 @@
 .mws-form-col-7-8, 
 .mws-form-col-8-8
 {
-	float:left;
-	padding:12px 6px;
-	
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-khtml-box-sizing: border-box;
-}
-
-.mws-form-col-1-8 label, .mws-form-col-1-8 .mws-form-item, 
-.mws-form-col-2-8 label, .mws-form-col-2-8 .mws-form-item, 
-.mws-form-col-3-8 label, .mws-form-col-3-8 .mws-form-item, 
-.mws-form-col-4-8 label, .mws-form-col-4-8 .mws-form-item, 
-.mws-form-col-5-8 label, .mws-form-col-5-8 .mws-form-item, 
-.mws-form-col-6-8 label, .mws-form-col-6-8 .mws-form-item, 
-.mws-form-col-7-8 label, .mws-form-col-7-8 .mws-form-item, 
-.mws-form-col-8-8 label, .mws-form-col-8-8 .mws-form-item
-{
-	display:block !important;
-	width:100% !important;
-	margin:0 !important;
-	float:none !important;
+    float:left;
+    padding:12px 6px;
+    
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
 }
 
 .mws-form-col-1-8 label, 
@@ -245,232 +244,261 @@
 .mws-form-col-7-8 label, 
 .mws-form-col-8-8 label
 {
-	overflow:hidden;
-	white-space:nowrap;
-	text-overflow:ellipsis;
+    float:none;
+    width:auto;
+    display:block;
+}
+
+.mws-form-col-1-8 .mws-form-item, 
+.mws-form-col-2-8 .mws-form-item, 
+.mws-form-col-3-8 .mws-form-item, 
+.mws-form-col-4-8 .mws-form-item, 
+.mws-form-col-5-8 .mws-form-item, 
+.mws-form-col-6-8 .mws-form-item, 
+.mws-form-col-7-8 .mws-form-item, 
+.mws-form-col-8-8 .mws-form-item
+{
+    margin-left:0 !important;
+}
+
+.mws-form-col-1-8 label, 
+.mws-form-col-2-8 label, 
+.mws-form-col-3-8 label, 
+.mws-form-col-4-8 label, 
+.mws-form-col-5-8 label, 
+.mws-form-col-6-8 label, 
+.mws-form-col-7-8 label, 
+.mws-form-col-8-8 label
+{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
 }
 
 .mws-form-cols .alpha
 {
-	padding-left:0;
+    padding-left:0;
 }
 
 .mws-form-cols .omega
 {
-	padding-right:0;
+    padding-right:0;
 }
 
 .mws-form-col-1-8
 {
-	width:12.5%;
+    width:12.5%;
 }
 
 .mws-form-col-2-8
 {
-	width:25%;
+    width:25%;
 }
 
 .mws-form-col-3-8
 {
-	width:37.5%;
+    width:37.5%;
 }
 
 .mws-form-col-4-8
 {
-	width:50%;
+    width:50%;
 }
 
 .mws-form-col-5-8
 {
-	width:62.5%;
+    width:62.5%;
 }
 
 .mws-form-col-6-8
 {
-	width:75%;
+    width:75%;
 }
 
 .mws-form-col-7-8
 {
-	width:87.5%;
+    width:87.5%;
 }
 
 .mws-form-col-8-8
 {
-	width:100%;
+    width:100%;
 }
 
+/* (8) Inline Form Layout
+================================================== */
 
-/* Placeholder Text */
+.mws-form .mws-form-inline .mws-form-item
+{
+    margin-left:136px;
+}
+
+.mws-form .mws-form-inline label
+{
+    width:120px;
+    display:inline-block;
+    float:left;
+    margin-right:16px;
+}
+
+/* (9) Block Form Layout
+================================================== */
+
+.mws-form .mws-form-block label, 
+.mws-form .mws-form-block .mws-form-item
+{
+    display:block;
+    width:100%;
+    margin:0;
+    float:none;
+}
+
+/* (10) Form List
+================================================== */
+
+.mws-form ul.mws-form-list, 
+.mws-form ul.mws-form-list li
+{
+    margin:0;
+    list-style:none;
+}
+
+.mws-form .mws-form-inline ul.mws-form-list
+{
+    float:left;
+    width:68%;
+    margin-top:4px;
+}
+
+.mws-form .mws-form-inline .mws-form-item ul.mws-form-list
+{
+    width:100%;
+}
+
+.mws-form ul.mws-form-list, 
+.mws-form .mws-form-block ul.mws-form-list
+{
+    display:block;
+    width:100%;
+}
+
+.mws-form ul.mws-form-list.inline li
+{
+    float:left;
+    margin-right:10px;
+}
+
+.mws-form ul.mws-form-list li label
+{
+    width:auto;
+    float:none;
+    margin:0;
+    padding:0;
+    display:inline !important;
+    vertical-align:middle;
+}
+
+.mws-form ul.mws-form-list li input
+{
+    vertical-align:middle;
+}
+
+/* (11) Placeholder Text
+================================================== */
 
 .mws-form .placeholder
 {
   color: #aaa;
 }
 
-/* Inline Form Elements */
-
-.mws-form .mws-form-inline .mws-form-item
-{
-	margin-left:136px;
-}
-
-.mws-form .mws-form-inline label
-{
-	width:120px;
-	display:inline-block;
-	float:left;
-	margin-right:16px;
-}
-
-/* Block Form Elements */
-
-.mws-form .mws-form-block label, 
-.mws-form .mws-form-block .mws-form-item
-{
-	display:block;
-	width:100%;
-	margin:0;
-	float:none;
-}
-
-/* Form List */
-
-.mws-form .mws-form-inline ul.mws-form-list
-{
-	float:left;
-	width:68%;
-	margin-top:4px;
-}
-
-.mws-form .mws-form-inline .mws-form-item ul.mws-form-list
-{
-	width:100%;
-}
-
-.mws-form ul.mws-form-list, 
-.mws-form .mws-form-block ul.mws-form-list
-{
-	display:block;
-	width:100%;
-}
-
-.mws-form ul.mws-form-list.inline li
-{
-	float:left;
-	margin-right:10px;
-}
-
-.mws-form ul.mws-form-list li label
-{
-	width:auto;
-	float:none;
-	margin:0;
-	padding:0;
-	display:inline;
-	vertical-align:middle;
-}
-
-.mws-form ul.mws-form-list li input
-{
-	vertical-align:middle;
-}
-
-/* Textarea */
-
-.mws-form textarea
-{
-	height:6em;
-	resize:none;
-	font: 13px/1.5 'PTSansRegular', Arial, Helvetica, sans-serif;
-}
-
-/* Form Clearfix */
+/* (12) Form Clearfix
+================================================== */
 
 .mws-form .mws-form-row:before,
 .mws-form .mws-form-row:after
 {
-	content: '.';
-	display: block;
-	overflow: hidden;
-	visibility: hidden;
-	font-size: 0;
-	line-height: 0;
-	width: 0;
-	height: 0;
+    content: '.';
+    display: block;
+    overflow: hidden;
+    visibility: hidden;
+    font-size: 0;
+    line-height: 0;
+    width: 0;
+    height: 0;
 }
 
 .mws-form .mws-form-row:after
 {
-	clear: both;
+    clear: both;
 }
 
 .mws-form .mws-form-row
 {
-	zoom: 1;
+    zoom: 1;
 }
 
-/* Messages */
+/* (13) Form Messages
+================================================== */
 
 .mws-form-message
-{	
-	font-size:12px;
-	cursor:pointer;
-	border-bottom:1px solid #d2d2d2;
-	padding:15px 8px 15px 45px;
-	position:relative;
-	vertical-align:middle;
-	
-	background-color:#f8f8f8;
-	background-position:12px 12px;
-	background-repeat:no-repeat;
+{   
+    font-size:12px;
+    cursor:pointer;
+    border-bottom:1px solid #d2d2d2;
+    padding:15px 8px 15px 45px;
+    position:relative;
+    vertical-align:middle;
+    
+    background-color:#f8f8f8;
+    background-position:12px 12px;
+    background-repeat:no-repeat;
 }
 
 .mws-form-message p, 
 .mws-form-message ul, 
 .mws-form-message ol
 {
-	margin:0;
+    margin:0;
 }
 
 .mws-form-message ul li, 
 .mws-form-message ol li
 {
-	list-style-position:inside;
-	list-style-type:inherit;
-	margin:0;
+    list-style-position:inside;
+    list-style-type:inherit;
+    margin:0;
 }
 
 .mws-form-message.error
 {
-	background-color:#ffcbca;
-	background-image:url(../../images/core/message-error.png);
-	border-color:#eb979b;
-	color:#9b4449;
+    background-color:#ffcbca;
+    background-image:url(../../images/core/message-error.png);
+    border-color:#eb979b;
+    color:#9b4449;
 }
 
 .mws-form-message.success
 {
-	background-color:#e1f1c0;
-	background-image:url(../../images/core/message-success.png);
-	border-color:#b5d56d;
-	color:#62a426;
+    background-color:#e1f1c0;
+    background-image:url(../../images/core/message-success.png);
+    border-color:#b5d56d;
+    color:#62a426;
 }
 
 .mws-form-message.warning
 {
-	background-color:#fef0b1;
-	background-image:url(../../images/core/message-warning.png);
-	border-color:#ddca76;
-	color:#a98b15;
+    background-color:#fef0b1;
+    background-image:url(../../images/core/message-warning.png);
+    border-color:#ddca76;
+    color:#a98b15;
 }
 
 .mws-form-message.info
 {
-	background-color:#bce5f7;
-	background-image:url(../../images/core/message-info.png);
-	border-color:#a6d3e8;
-	color:#11689E;
+    background-color:#bce5f7;
+    background-image:url(../../images/core/message-info.png);
+    border-color:#a6d3e8;
+    color:#11689E;
 }
 
 .mws-form .mws-form-item.large .mws-error, 
@@ -478,7 +506,7 @@
 .mws-form .mws-form-item.large span.error, 
 .mws-form .mws-form-item.large div.error
 {
-	width:100%;
+    width:100%;
 }
 
 .mws-form .mws-form-item.medium .mws-error, 
@@ -486,7 +514,7 @@
 .mws-form .mws-form-item.medium span.error, 
 .mws-form .mws-form-item.medium div.error
 {
-	width:75%;
+    width:75%;
 }
 
 .mws-form .mws-form-item.small .mws-error, 
@@ -494,7 +522,7 @@
 .mws-form .mws-form-item.small span.error, 
 .mws-form .mws-form-item.small div.error
 {
-	width:55%;
+    width:55%;
 }
 
 .mws-form .mws-form-item .mws-error, 
@@ -502,41 +530,31 @@
 .mws-form .mws-form-item span.error, 
 .mws-form .mws-form-item div.error
 {
-	width:100%;
-	font-size:11px;
-	display:block;
-	width:auto;
-	float:none;
-	margin:-4px 0 0 0;
-	padding:10px 8px 6px 8px;
-	cursor:default;
-	background:#c83139;
-	color:#ffffff;
-	
-	/* CSS 3 */
-	
-	
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	-khtml-box-sizing: border-box;
-	
-	-moz-border-radius:0 0 4px 4px;
-	-webkit-border-radius:0 0 4px 4px;
-	-o-border-radius:0 0 4px 4px;
-	-khtml-border-radius:0 0 4px 4px;
-	border-radius:0 0 4px 4px;
-}
-
-.mws-form .mws-form-item .mws-error ul.errorlist {
-    margin-bottom:0px;
-}
-
-.mws-form .mws-form-item span.field_error input,
-.mws-form .mws-form-item span.field_error textarea,
-.mws-form .mws-form-item span.field_error select {
-    border-color:#eb979b !important;
+    width:100%;
+    font-size:11px;
+    display:block;
+    width:auto;
+    float:none;
+    margin:-4px 0 0 0 !important;
+    padding:10px 8px 6px 8px;
+    cursor:default;
+    background:#c83139;
+    color:#ffffff;
+    
+    /* CSS 3 */
+    
+    
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
+    
+    -moz-border-radius:0 0 4px 4px;
+    -webkit-border-radius:0 0 4px 4px;
+    -o-border-radius:0 0 4px 4px;
+    -khtml-border-radius:0 0 4px 4px;
+    border-radius:0 0 4px 4px;
 }
 
 .mws-form .mws-form-item .mws-error.plain, 
@@ -544,145 +562,222 @@
 .mws-form .mws-form-item span.error.plain, 
 .mws-form .mws-form-item div.error.plain
 {
-	background:none;
-	color:#c83139;
-	margin:0;
-	display:inline-block;
-	padding:10px 0;
-	width:auto;
+    background:none;
+    color:#c83139;
+    margin:0;
+    display:inline-block;
+    padding:10px 0;
 }
 
-.mws-form .mws-form-item .mws-error.plain {
-    margin-left:10px;
-    cursor:auto;
-}
-
-/* Color Picker */
+/* (14) Colorpicker Input
+================================================== */
 
 .mws-colorpicker
 {
-	background-image:url(../../images/core/cpicker.png);
-	background-repeat:no-repeat;
-	background-position:right center;
-	
-	width:150px !important;
-	padding-right:32px !important;
+    background-image:url(../../images/core/cpicker.png);
+    background-repeat:no-repeat;
+    background-position:right center;
+    
+    width:150px !important;
+    padding-right:32px !important;
 }
 
-/* Dual List Box */
+/* (15) Dual List Box
+================================================== */
 
 div.mws-dualbox
 {
-	position:relative;
+    position:relative;
 }
 
 div.mws-dualbox .countLabel
 {
-	margin-top:4px;
-	display:block;
+    margin-top:4px;
+    display:block;
 }
 
 div.mws-dualbox .mws-dualbox-col1, 
 div.mws-dualbox .mws-dualbox-col2,  
 div.mws-dualbox .mws-dualbox-col3
 {
-	width:40%;
-	float:left;
+    width:40%;
+    float:left;
 }
 
 div.mws-dualbox .mws-dualbox-col2
 {
-	width:20%;
-	text-align:center;
-	position:relative;
-	margin-top:150px;
+    width:20%;
+    text-align:center;
+    position:relative;
+    margin-top:150px;
 }
 
 div.mws-dualbox .mws-dualbox-col2 button
 {
-	width:32px;
-	height:32px;
+    width:32px;
+    height:32px;
 }
 
 div.mws-dualbox .mws-dualbox-filter
 {
-	margin-bottom:10px;
+    margin-bottom:10px;
 }
 
 div.mws-dualbox .mws-dualbox-filter label
 {
-	display:block;
+    display:block;
 }
 
 div.mws-dualbox .mws-dualbox-filter .mws-textinput
 {
-	float:left;
-	margin-right:-32px;
-	padding-right:36px;
+    float:left;
+    margin-right:-32px;
+    padding-right:36px;
 }
 
 div.mws-dualbox .mws-dualbox-filter button
 {
-	float:left;
-	margin:0;
-	width:32px;
-	
-	/* CSS 3 */
-	
-	-webkit-border-radius:0 3px 3px 0;
-	-moz-border-radius:0 3px 3px 0;
-	-o-border-radius:0 3px 3px 0;
-	-khtml-border-radius:0 3px 3px 0;
-	border-radius:0 3px 3px 0;
+    float:left;
+    margin:0;
+    width:32px;
+    
+    /* CSS 3 */
+    
+    -webkit-border-radius:0 3px 3px 0;
+    -moz-border-radius:0 3px 3px 0;
+    -o-border-radius:0 3px 3px 0;
+    -khtml-border-radius:0 3px 3px 0;
+    border-radius:0 3px 3px 0;
 }
 
 div.mws-dualbox button
 {
-	outline:none;
-	font-size:11px;
-	margin:2px;
-	height:30px;
-	text-align:center;
-	line-height:16px;
-	cursor:pointer;
-	
-	background-color:#e0e0e0;
-	color:#666666;
-	border:1px solid #ababab;
-	font-family:Tahoma, Arial, Helvetica, sans-serif;
-	
-	/* CSS 3 */
-	
-	-webkit-border-radius:3px;
-	-moz-border-radius:3px;
-	-o-border-radius:3px;
-	-khtml-border-radius:3px;
-	border-radius:3px;
-	
-	-webkit-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
-	-moz-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
-	-o-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
-	-khtml-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
-	box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
+    outline:none;
+    font-size:11px;
+    margin:2px;
+    height:30px;
+    text-align:center;
+    line-height:16px;
+    cursor:pointer;
+    
+    background-color:#e0e0e0;
+    color:#666666;
+    border:1px solid #ababab;
+    font-family:Tahoma, Arial, Helvetica, sans-serif;
+    
+    /* CSS 3 */
+    
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    -o-border-radius:3px;
+    -khtml-border-radius:3px;
+    border-radius:3px;
+    
+    -webkit-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
+    -moz-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
+    -o-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
+    -khtml-box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
+    box-shadow:inset 0px 1px 0px rgba(255, 255, 255, 0.3);
 }
 
 div.mws-dualbox button:active
 {
-	-webkit-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
-	-moz-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
-	-o-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
-	-khtml-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
-	box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+    -webkit-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+    -moz-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+    -o-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+    -khtml-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
+    box-shadow:0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 0px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* new from here on */
-.mws-form .add-row,
-.mws-form .email_addresses-add-row,
-.mws-form .phone_numbers-add-row,
-.mws-form .addresses-add-row,
-.mws-form .websites-add-row {
-    margin: 5px 0 0 0;
-    padding-top: 0 !important;
-    display: inline-block;
-    color: #4682B4;
+/* (16) Customfile Input
+================================================== */
+
+.customfile-input
+{
+    position: absolute;
+    height: 100px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    opacity: 0;
+    -moz-opacity: 0;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+    z-index: 999999;
+}
+
+.customfile
+{
+    border:1px solid #c5c5c5;
+    padding:6px 7px;
+    color:#323232;
+    margin:0;
+    background-color:#ffffff;
+    outline:none;
+    overflow:hidden;
+    position:relative;
+    
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    -o-border-radius:4px;
+    -khtml-border-radius:4px;
+    border-radius:4px;
+    
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
+    
+    -moz-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    -o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);   
+    -webkit-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    -khtml-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+    box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
+}
+
+.customfile-disabled { opacity: .5; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50); cursor: default;  }
+
+.customfile-feedback { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.customfile-feedback-populated { }
+
+.customfile-button
+{
+    outline:none;
+    float:right;
+    padding:6px 9px;
+    margin:-7px -8px -7px 2px;
+    cursor:pointer;
+    z-index:9999;
+    font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
+    
+    background-color:#e0e0e0;
+    color:#666666;
+    border:1px solid #ababab;
+    
+    -webkit-border-radius:0 3px 3px 0;
+    -moz-border-radius:0 3px 3px 0;
+    -o-border-radius:0 3px 3px 0;
+    -khtml-border-radius:0 3px 3px 0;
+    border-radius:0 3px 3px 0;
+    
+    -webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    -moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    -o-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    -khtml-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e8e5e5), color-stop(100%, #e0e0e0));
+    background-image: -webkit-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: -moz-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: -o-linear-gradient(#e8e5e5,#e0e0e0);
+    background-image: linear-gradient(#e8e5e5,#e0e0e0);
+}
+
+.customfile:not(.customfile-disabled):active .customfile-button
+{   
+    -webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+    -moz-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+    -o-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+    -khtml-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
+    box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
 }

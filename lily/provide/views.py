@@ -78,7 +78,7 @@ class DataproviderView(ProvideBaseView):
     """
     View that makes an API call to Dataprovider to look up information for accounts.
     """
-    api_url = 'http://alpha.dataprovider.com/api/0.1/search.php'
+    api_url = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
     api_key = settings.DATAPROVIDER_API_KEY
 
     def get_domain(self):
@@ -96,36 +96,28 @@ class DataproviderView(ProvideBaseView):
 
     def get_query_kwargs(self):
         kwargs = {'api_key': self.api_key,
-                       'q_field': 'hostname',
-                       'q_value': self.domain,
-#                       'q_operator': 5 # filter: ends with
+                       'name': self.domain,
         }
         return kwargs
 
-    def set_view_output(self, retry=False):
+    def set_view_output(self):
         """
         Create a generic json format for account information based on the json from dataprovider.
         """
         # Expected api output is json
         self.api_output = simplejson.loads(self.api_output)
 
-        # Return 404 when nothing was found
-        if self.api_output.get('found') == 0:
-            if not retry:
-                # No luck without leading www., try with www.:
-                self.domain = 'www.' + self.domain
-                # Retry
-                self.api_output = self.do_request_to_api(self.get_url())
-                self.set_view_output(retry=True)
-            else:
-                raise Http404()
 
         # Raise exception when the api returned an error
         if self.api_output.get('error'):
             raise Exception(self.api_output.get('error').get('message'))
+        
+        # Return 404 when nothing was found
+        if self.api_output.get('size') == 0:
+            raise Http404()
 
         # Filter useful data
-        result = self.api_output['results'][0]
+        result = self.api_output['data'][0]
 
 
         company = result.get('company').replace('\\', '') if result.get('company') else None

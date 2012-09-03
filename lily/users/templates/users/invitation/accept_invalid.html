@@ -1,20 +1,18 @@
 {% extends 'base_visitor_portal.html' %}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block page-title %}{% trans 'Invitations' %} - {% endblock %}
 
 {% block styles %}
+    {% include_media 'lily.users.css' %}
+    
     {{ block.super }}
-
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/invitation.css' %}" media="screen" />
 {% endblock %}
 
 {% block portal-title %}{% trans 'Verifying invitation unsuccessful' %}{% endblock %}
 
 {% block portal-form %}
-    {{ block.super }}
-
     <div class="mws-form-row mws-message-container" >
         <div class="mws-form-row mws-invitation-message">
             {% trans 'The invitation could not be accepted.' %}

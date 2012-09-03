@@ -1,15 +1,8 @@
 {% extends 'users/invitation/base.html'%}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block page-title %}{% trans 'Invite others' %} - {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-    <script type="text/javascript" src="{% static 'users/js/invitation.js' %}"></script>
-{% endblock %}
 
 {% block container %}
     <div class="mws-panel grid_8">

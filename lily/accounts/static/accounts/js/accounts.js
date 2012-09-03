@@ -29,29 +29,6 @@ $(document).ready(function() {
         $(this).addClass('checked');
     })
 
-    // show or hide 'other'-options on page load or when the value changes
-    // TODO: currently not working
-    // $('select.other:visible').each(function() {
-        // show_or_hide_other_option($(this)[0], true);
-    // }).live('change', function() {
-        // show_or_hide_other_option($(this)[0]);
-    // });
-
-    // enable formsets for email addresses, phone numbers and addresses
-    form_prefices = {'websites': gettext('Add a website'), 'email_addresses': gettext('Add an e-mail address'), 'phone_numbers': gettext('Add a phone number'), 'addresses': gettext('Add an address')};
-    for(form_prefix in form_prefices) {
-        $('.' + form_prefix + '-mws-formset').formset( {
-            formTemplate: $('#' + form_prefix + '-form-template'), // needs to be unique per formset
-            prefix: form_prefix, // needs to be unique per formset
-            addText: form_prefices[form_prefix],
-            formCssClass: form_prefix, // needs to be unique per formset
-            addCssClass: form_prefix + '-add-row', // needs to be unique per formset
-            added: function(row) { $.tabthisbody(); enableChosen(row); },
-            deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
-            notEmptyFormSetAddCssClass: 'mws-form-item',
-        });
-    };
-
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
 });

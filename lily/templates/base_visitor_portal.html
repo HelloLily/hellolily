@@ -1,13 +1,18 @@
 {% extends 'base_app.html' %}
 
-{% load static %}
-
-{% block jQueryUI-styles %}{% endblock %}
-{% block jQueryUI-scripts %}{% endblock %}
-{% block jQueryUI-extra-scripts %}{% endblock %}
+{% load crispy_forms_tags %}
 
 {% block container %}
-
+    <style type="text/css">
+        .password_checker {
+            margin: 4px 12px 0 0;   
+        }
+        
+        #password-text {
+            margin-top: 0px;
+        }
+    </style>
+    
     {% block form %}
         <div id="mws-login-wrapper" class="tabthis">
         {% block portal %}
@@ -20,23 +25,15 @@
                         </div>
                     {% endblock %}
                     
-                    <form class="mws-form" action="" method="post">
-                        {% block portal-form %}
-                        
-                            {% csrf_token %}
-                            
-                            {% if form.non_field_errors %}
-                                <div class="mws-form-row">
-                                    <div class="mws-form-message error no_list_style_type">
-                                        <span class="field_error">{{ form.non_field_errors }}</span>
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                        {% endblock %}
-                        
-                        {% block portal-form-buttons %}{% endblock %}
-                    </form>
+                    <div class="mws-panel-body">
+                        <div class="mws-panel-content">
+                            <form class="mws-form" action="" method="post">
+                                {% block portal-form %}
+                                    {% crispy form %}
+                                {% endblock %}
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
             

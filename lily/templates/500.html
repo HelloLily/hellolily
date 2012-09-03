@@ -1,20 +1,13 @@
 {% extends 'base_empty.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block styles %}
-    {{ block.super }}
+    {% include_media 'error.css' %}
     
-    <link rel="stylesheet" type="text/css" href="{% static 'css/core/error.css' %}" media="screen" />
+    {{ block.super }}
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    
-    <!-- Scripts for GetSatisfaction -->
-    <script type="text/javascript" src="{% static 'js/getsatisfaction.js' %}"></script>
-{% endblock %}
-    
 {% block body %}
     <div class="container">
         <div id="mws-error-container">
@@ -23,7 +16,7 @@
             </div>
             <p id="mws-error-message">
                 {% blocktrans %}Something went wrong!{% endblocktrans %}<br />
-                {% blocktrans %}Tell us about what you were trying to do via the feedback tab on the left the and we'll try to fix it as soon as we can!{% endblocktrans %}
+                {% blocktrans %}Tell us about what you were trying to do via the feedback tab on the right the and we'll try to fix it as soon as we can!{% endblocktrans %}
             </p>
         </div>
     </div>

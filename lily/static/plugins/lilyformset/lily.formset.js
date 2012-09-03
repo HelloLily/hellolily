@@ -112,6 +112,7 @@
                 del.before('<input type="hidden" name="' + del.attr('name') +'" id="' + del.attr('id') +'" />');
                 del.remove();
             }
+            row.find('label[for $= "-DELETE"]').parent().remove();
             if (hasChildElements(row)) {
                 insertDeleteLink(row);
                 row.addClass(options.formCssClass);
@@ -214,4 +215,4 @@
         preventEmptyFormset: false,      // Boolean value whether or not to prevent empty formset
         notEmptyFormSetAddCssClass: '',  // CSS class applied to the add link when formset is not empty
     };
-})(jQuery)
+})(jQuery);

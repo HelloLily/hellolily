@@ -21,6 +21,9 @@ class TenantManager(models.Manager):
 class Tenant(models.Model):
     pass
 
+    def __unicode__(self):
+        return unicode("%s %s" % (self._meta.verbose_name.title(), self.pk))
+
 
 class TenantMixin(models.Model):
     # Automatically filter any queryset by tenant if logged in

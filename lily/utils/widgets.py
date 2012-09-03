@@ -1,15 +1,11 @@
-from itertools import chain
-
 from django import forms
 from django.forms.widgets import SelectMultiple
 from django.utils.encoding import force_unicode
-from django.utils.html import escape, conditional_escape
+from django.utils.html import conditional_escape
+from mediagenerator.utils import media_url
 
 
 class JqueryPasswordInput(forms.PasswordInput):
-    class Media:
-        js = ('plugins/jquerypasswordstrength/jquery.password_strength.js',)
-
     def render(self, name, value, attrs=None):
         if value is None:
             value = ''

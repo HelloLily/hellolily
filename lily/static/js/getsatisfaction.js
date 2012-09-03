@@ -12,7 +12,7 @@ var loadGsTab = function()
     
     feedback_widget_options.display = "overlay";  
     feedback_widget_options.company = "hellolily";
-    feedback_widget_options.placement = "left";
+    feedback_widget_options.placement = "right";
     feedback_widget_options.color = "#1c76bc";
     feedback_widget_options.style = "idea";
 

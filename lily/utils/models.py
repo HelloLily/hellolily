@@ -12,6 +12,11 @@ from lily.utils.functions import get_tenant_mixin as TenantMixin
 #   source from http://djangosnippets.org/snippets/1476/
 COUNTRIES = (
     ('', _('Select a country')),
+    ('NL', _('Netherlands')),
+    ('BE', _('Belgium')),
+    ('DE', _('Germany')),
+    ('GB', _('United Kingdom')),
+    ('US', _('United States')),
     ('AF', _('Afghanistan')),
     ('AX', _('Aland Islands')),
     ('AL', _('Albania')),
@@ -315,10 +320,11 @@ class PhoneNumber(TenantMixin):
         if self.number[:1] == '0':
             self.number = self.number.replace('0', '31', 1)
         
-        self.number = '+' + self.number
+        if len(self.number) > 0:
+            self.number = '+' + self.number
         
-        # Overwrite user input
-        self.raw_input = self.number # reserved field for future display based on locale
+            # Overwrite user input
+            self.raw_input = self.number # reserved field for future display based on locale
         
         return super(PhoneNumber, self).save(*args, **kwargs)
 
@@ -415,14 +421,60 @@ class Common(Deleted, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    phone_numbers = models.ManyToManyField(PhoneNumber,
+    phone_numbers = models.ManyToManyField(PhoneNumber, blank=True,
                                            verbose_name=_('list of phone numbers'))
-    social_media = models.ManyToManyField(SocialMedia, verbose_name=_('list of social media'))
-    addresses = models.ManyToManyField(Address, verbose_name=_('list of addresses'))
-    email_addresses = models.ManyToManyField(EmailAddress,
+    social_media = models.ManyToManyField(SocialMedia, blank=True,
+                                          verbose_name=_('list of social media'))
+    addresses = models.ManyToManyField(Address, blank=True,
+                                       verbose_name=_('list of addresses'))
+    email_addresses = models.ManyToManyField(EmailAddress, blank=True,
                                              verbose_name=_('list of e-mail addresses'))
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
 
     class Meta:
         abstract = True
+
+
+class CaseClientModelMixin(object):
+    """
+    Contains helper functions for retrieving cases based on priority or status.
+    """
+    def get_cases(self, priority=None, status=None):
+        try:
+            if None not in [priority, status]:
+                return self.case_set.filter(priority=priority, status=status)
+            
+            if priority is not None:
+                return self.case_set.filter(priority=priority)
+            
+            if status is not None:
+                return self.case_set.filter(status=status)
+
+            return self.case_set.all()
+        except:
+            return None
+    
+    def get_cases_critical(self):
+        return self.get_cases(priority=3)
+    
+    def get_cases_high(self):
+        return self.get_cases(priority=2)
+    
+    def get_cases_medium(self):
+        return self.get_cases(priority=1)
+    
+    def get_cases_low(self):
+        return self.get_cases(priority=0)
+    
+    def get_cases_open(self):
+        return self.get_cases(status=0)
+    
+    def get_cases_progress(self):
+        return self.get_cases(status=1)
+    
+    def get_cases_pending(self):
+        return self.get_cases(status=2)
+    
+    def get_cases_closed(self):
+        return self.get_cases(status=3)

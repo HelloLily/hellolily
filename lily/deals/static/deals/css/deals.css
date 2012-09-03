@@ -1,10 +1,20 @@
+#details-top-extra h2 {
+    max-width: 300px;
+}
+
 .ui-tabs .ui-tabs-panel {
     border: 0;
+}
+
+#deal-stage {
+    margin-top: 12px;
+    margin-right: 40px;
 }
 
 #deal-stage .deal-stage-label {
     margin-right: 0;
     margin-left: 0;
+    font-weight: normal;
 }
 
 #deal-stage .deal-stage-label.ui-state-default span {
@@ -14,8 +24,7 @@
 
 #deal-stage .deal-stage-label.ui-state-active span {
     color: white;
-    text-shadow: 1px 1px 1px 
-    rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 .deal-stage-label.new,
@@ -57,11 +66,11 @@
 }
 
 .deal-stage-label.lost.ui-state-active {
-    background-color: #FF3535;
+    background-color: #DF0404;
 }
 
 .deal-stage-label.pending.ui-state-active {
-    background-color: #F4CF00;
+    background-color: #F0CB00; /*#F4CF00;*/
 }
 
 .deal-stage-label.won.ui-state-active {

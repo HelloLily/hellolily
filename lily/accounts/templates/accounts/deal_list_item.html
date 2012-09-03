@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<div>
+    <a href="{% url deal_details pk=item.pk %}">{{ item }}</a>
+    <div><strong>Amount:</strong> {{ item.amount }} {{ item.currency }}</div>
+    {% if item.stage == 0 or item.stage == 2 %}
+        <div><strong>Expected closing date:</strong> {{ item.expected_closing_date|date:"d/m/Y" }}</div>
+    {% else %}
+        <div><strong>Closed date:</strong> {{ item.closed_date|date:"d/m/Y H:i" }}</div>
+    {% endif %}
+    <p></p>
+</div>

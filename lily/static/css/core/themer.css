@@ -1,3 +1,23 @@
+/*
+ * MWS Admin v1.5 - Themer Stylesheet
+ * This file is part of MWS Admin, an Admin template build for sale at ThemeForest.
+ * All copyright to this file is hold by Mairel Theafila <maimairel@yahoo.com> a.k.a nagaemas on ThemeForest.
+ * Last Updated:
+ * April 29, 2012
+ *
+ * Table of Contents
+ * ==================================================
+ *
+ * 1. Themer Wrapper
+ * 2. Themer Toggler
+ * 3. Themer Dialog
+ * 4. Themer Content
+ *
+ */
+
+/* (1) Themer Wrapper
+================================================== */
+
 div#mws-themer
 {
 	position:fixed;
@@ -7,10 +27,8 @@ div#mws-themer
 	z-index:3;
 }
 
-.colorpicker
-{
-	z-index:4;
-}
+/* (2) Themer Toggler
+================================================== */
 
 div#mws-themer #mws-themer-toggle
 {
@@ -27,6 +45,9 @@ div#mws-themer #mws-themer-toggle.opened
 	background-image:url(../icons/24/bended-arrow-right.png);
 }
 
+/* (3) Themer Dialog
+================================================== */
+
 div#mws-themer #mws-themer-css-dialog
 {
 	display:none;
@@ -37,6 +58,9 @@ div#mws-themer #mws-themer-css-dialog
 	height:20em !important;
 	font-family:"Courier New", Courier, monospace;
 }
+
+/* (4) Themer Content
+================================================== */
 
 div#mws-themer #mws-themer-content
 {

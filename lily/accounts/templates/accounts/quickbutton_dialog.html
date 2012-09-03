@@ -1,6 +1,6 @@
 {% extends 'base_quickbutton_dialog.html' %}
 
-{% load i18n static %}
+{% load i18n %}
 
 {% block dialog-id %}-account{% endblock %}
 
@@ -13,9 +13,6 @@
 {% block dialog-form %}{% include 'accounts/quickbutton_form.html' with form=quickbutton_formsets.account %}{% endblock %}
 
 {% block quick-button-scripts %}
-    <script type="text/javascript" src="{% static 'provide/js/dataprovider.js' %}"></script>
-    <script type="text/javascript" src="{% url jsi18n packages='lily.accounts' %}"></script>
-<!--     <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script> -->
     <script type="text/javascript">
         $(document).ready(function() {
             // add account dialog

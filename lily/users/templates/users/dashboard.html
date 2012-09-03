@@ -1,20 +1,8 @@
 {% extends 'base_user.html' %}
 
-{% load i18n static utils %}
+{% load i18n utils %}
 
 {% block page-titel %}{% trans 'Dashboard' %} - {% endblock %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/dashboard.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    
-    <script type="text/javascript" src="{% url jsi18n packages='lily.users' %}"></script>
-{% endblock %}
 
 {% block container %}
 <div class="mws-panel grid_8">
@@ -23,9 +11,8 @@
     </div>
     <div class="mws-panel-body">
         <div class="mws-panel-content">
-            <h4></h4>
             <p>
-                If you find any bugs or want improvements please <a href="https://getsatisfaction.com/hellolily" target="_blank">report them</a>. We know that the mobile is not perfect yet and it's on our todo list. For a full list of known bug and features to come check out our <a href="https://trello.com/board/hellolily/4f5885b678986de1120affbb" target="_blank">page at Trello</a>.
+            	Lily no longer uses Trello for her issue management and migrated to a closed environment. We're sorry if this causes any inconveniences for you, but this way her issue tracking and planning is a lot more organized! If you find any bugs or want improvements please <a href="https://getsatisfaction.com/hellolily" target="_blank">report them</a>.
             </p>
             <hr />
             

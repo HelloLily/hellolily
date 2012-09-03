@@ -1,22 +1,6 @@
 {% extends 'base_app.html' %}
 
-{% load i18n static activelink %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'accounts/css/account_dataprovider.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    
-    <!-- Try to prevent duplicate accounts in multiple forms -->
-    <script type="text/javascript" src="{% static 'accounts/js/account_exists.js' %}"></script>
-    
-    <!-- Enable use of dataprovider -->
-    <script type="text/javascript" src="{% static 'accounts/js/account_dataprovider.js' %}"></script>
-{% endblock %}
+{% load i18n media activelink %}
 
 {% block body %}
 
@@ -29,47 +13,18 @@
                 <!-- Logo container -->
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
-                        <img src="{% static 'images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                        <a href="{% url dashboard %}">
+                            <img src="{% media_url 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                        </a>
                     </div>
                 </div>
-                
-                {% block quickbuttons-container %}
-                    <!-- Quickbutton container -->
-                    <div id="mws-quickbutton-container" class="tabthis">
-                        {% block quickbuttons %}
-                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
-                                <button type="button" class="mws-button blue tabbable">
-                                    {% trans 'Add account' %}
-                                </button>
-                            </a>
-                            
-                            {% include 'accounts/quickbutton_dialog.html' %}
-                            
-                            <a href="{% url contact_add %}" class="no-decoration quickbutton contact">
-                                <button type="button" class="mws-button blue tabbable">
-                                    {% trans 'Add contact' %}
-                                </button>
-                            </a>
-                            
-                            {% include 'contacts/quickbutton_dialog.html' %}
-                            
-                            <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
-                                <button type="button" class="mws-button blue tabbable">
-                                    {% trans 'Add deal' %}
-                                </button>
-                            </a>
-                            
-                            {% include 'deals/quickbutton_dialog.html' %}
-                        {% endblock %}
-                    </div>
-                {% endblock %}
                     
                 <!-- User tools container -->
-                <div id="mws-user-tools">
+                <div id="mws-user-tools" class="clearfix">
                     <!-- User information section -->
                     <div id="mws-user-info" class="mws-inset">
                         <div id="mws-user-photo">
-                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% static 'images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
         
                         <div id="mws-user-functions">
@@ -82,6 +37,45 @@
                         </div>
                     </div>
                 </div>
+                
+                {% block quickbuttons-container %}
+                    <!-- Quickbutton container -->
+                    <div id="mws-quickbutton-container" class="tabthis">
+                        {% block quickbuttons %}
+                            <a href="{% url contact_add %}" class="no-decoration quickbutton contact">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add contact' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'contacts/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add account' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'accounts/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add deal' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'deals/quickbutton_dialog.html' %}
+                            
+                            <a href="{% url case_add %}" class="no-decoration quickbutton case">
+                                <button type="button" class="mws-button blue tabbable">
+                                    {% trans 'Add case' %}
+                                </button>
+                            </a>
+                            
+                            {% include 'cases/quickbutton_dialog.html' %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             </div>
         </div>
     {% endblock %}
@@ -148,11 +142,9 @@
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
                                 <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">Deals</a>
                             </li>
-                            {% comment %}
-                                <li>
-                                    <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
-                                </li>
-                            {% endcomment %}
+                            <li {% ifstartswith "case_list" %}class="active"{% endifstartswith %}>
+                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">Cases</a>
+                            </li>
                         </ul>
                     </div>
                 {% endblock %}
@@ -164,7 +156,7 @@
         <div id="mws-container" class="clearfix">
 
             <!-- Inner Container -->
-            <div class="container">
+            <div class="container clearfix">
                 {% block container %}{% endblock %}
             </div>
             

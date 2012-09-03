@@ -1,52 +1,16 @@
 {% extends 'base_visitor_portal.html' %}
 
-{% load i18n static %}
+{% load i18n media %}
 
 {% block page-title %}{% trans 'Resend activation e-mail' %} - {% endblock %}
 
 {% block styles %}
+    {% include_media 'lily.users.css' %}
+    
     {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/activation.css' %}" media="screen" />
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    
-    {% block jQueryUI-scripts %}{% endblock %}
-    
-    <script type="text/javascript" src="{% static 'users/js/activation.js' %}"></script>    
 {% endblock %}
 
 {% block portal-title %}{% trans 'Resend activation e-mail' %}{% endblock %}
-
-{% block portal-form %}
-    {{ block.super }}
-    
-    <div class="mws-form-row mws-message-container">
-        <div class="mws-form-row mws-activate-message">
-            {% trans "Didn't receive your activation e-mail? Enter your e-mail address below, and we'll e-mail it again, free of charge!" %}
-        </div>
-    </div>
-    <div class="mws-form-row">
-        <div class="mws-form-item large">
-            {% if form.email.errors %}
-                <span class="field_error">{{ form.email }}</span>
-                <div class="mws-error no_list_style_type">
-                    {{ form.email.errors }}
-                </div>
-            {% else %}
-                {{ form.email }}
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
-
-{% block portal-form-buttons %}
-    <div class="mws-form-row">
-        <input type="submit" value="{% trans 'Resend activation e-mail' %}" class="mws-button blue mws-reset-button tabbable" />
-    </div>
-{% endblock %}
 
 {% block portal-bottom-links %}
     <a href="{% url login %}" class="float-right" id="sub-panel-link">{% trans 'Go to log in' %}</a>

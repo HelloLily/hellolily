@@ -57,10 +57,10 @@
             </div>
         </div>
     {% endfor %}
-{% endblock %}
-
-{% block form-buttons %}
-    <input type="submit" value="{% trans 'Send invitation(s)' %}" class="mws-button blue tabbable" />
+    
+    <div class="mws-button-row">
+        <input type="submit" value="{% trans 'Send invitation(s)' %}" class="mws-button blue tabbable" />
+    </div>
 {% endblock %}
 
 {% block hidden-formset-templates %}

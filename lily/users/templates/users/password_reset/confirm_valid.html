@@ -1,13 +1,6 @@
 {% extends 'users/password_reset/base.html' %}
 
-{% load i18n static %}
-
-{% block styles %}
-    {{ block.super }}
-    
-    <link rel="stylesheet" type="text/css" href="{% static 'plugins/jquerypasswordstrength/jquery.password_strength.css' %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static 'users/css/password_reset.css' %}" media="screen" />
-{% endblock %}
+{% load i18n %}
 
 {% block scripts %}
     {{ block.super }}
@@ -16,47 +9,3 @@
 {% endblock %}
 
 {% block portal-title %}{% trans 'Enter your new password' %}{% endblock %}
-
-{% block portal-form %}
-    {{ block.super }}
-    
-    <div class="mws-form-row mws-message-container">
-        <div class="mws-form-row mws-reset-message">
-            {% trans 'Please enter your new password twice so we can verify you typed it in correctly.' %}
-        </div>
-    </div>
-    <div class="mws-form-row">
-        <div class="mws-form-item large">
-            {% if form.new_password1.errors %}
-                <span class="field_error">{{ form.new_password1 }}</span>
-                <div class="mws-error no_list_style_type">
-                    {{ form.new_password1.errors }}
-                </div>
-            {% else %}
-                {{ form.new_password1 }}
-            {% endif %}
-        </div>
-        <div class="mws-form-item large">
-            {% if form.new_password2.errors %}
-                <span class="field_error">{{ form.new_password2 }}</span>
-                <div class="mws-error no_list_style_type">
-                    {{ form.new_password2.errors }}
-                </div>
-            {% else %}
-                {{ form.new_password2 }}
-            {% endif %}
-        </div>
-        <div class="mws-form-item large">
-            <div class="password_checker">
-                <div id="password_strength" class="password_strength"></div>
-            </div>
-            <div id="password-text"></div>
-        </div>
-    </div>
-{% endblock %}
-    
-{% block portal-form-buttons %}
-    <div class="mws-form-row">
-        <input type="submit" value="{% trans 'Change my password' %}" class="mws-button blue mws-reset-button" />
-    </div>
-{% endblock %}

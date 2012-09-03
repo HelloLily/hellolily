@@ -56,3 +56,47 @@ li.i-16.i-tag
 .i-32.i-tag.yellow { background-image:url(../../extra/css/icons/color/32/tag_yellow.png) !important; }
 .i-32.i-tag.orange { background-image:url(../../extra/css/icons/color/32/tag_orange.png) !important; }
 .i-32.i-tag.red { background-image:url(../../extra/css/icons/color/32/tag_red.png) !important; }
+
+
+#tab-cases .mws-collapsible
+{
+	display: block;
+	width: 100%;
+	padding: 6px 5px;
+}
+
+#tab-cases .mws-collapsible .mws-collapse-button
+{
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+#tab-cases .mws-collapsible .mws-collapse-button span
+{
+	display: block;
+	padding: 0;
+	margin: 3px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	-o-border-radius: 2px;
+	-khtml-border-radius: 2px;
+	border-radius: 2px;
+	background-color: #1C76BC;
+	background-image: url(../../extra/images/core/mws-panel-button-icon-min.png);
+}
+
+#tab-cases .mws-collapsible.mws-collapsed .mws-collapse-button span
+{
+	background-color: #1C76BC;
+	background-image: url(../../extra/images/core/mws-panel-button-icon-plus.png);
+}
+
+#tab-cases .mws-collapsible.mws-collapsed .mws-collapsible-body
+{
+	display: none;
+}

@@ -28,6 +28,7 @@ class ListCaseView(SortedListMixin, ListView):
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
     default_order_by = 1
+    default_sort_order = SortedListMixin.DESC
 
     def get_context_data(self, **kwargs):
         """

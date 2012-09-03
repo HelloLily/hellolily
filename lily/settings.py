@@ -181,7 +181,7 @@ INSTALLED_APPS = (
     'mediagenerator',
     'storages',
     'crispy_forms',
-#    'template_debug', in-template tags for debugging purposes
+    'template_debug', # in-template tags for debugging purposes
 
     # Lily
     'lily', # required for management command

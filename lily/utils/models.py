@@ -434,3 +434,47 @@ class Common(Deleted, TenantMixin):
 
     class Meta:
         abstract = True
+
+
+class CaseClientModelMixin(object):
+    """
+    Contains helper functions for retrieving cases based on priority or status.
+    """
+    def get_cases(self, priority=None, status=None):
+        try:
+            if None not in [priority, status]:
+                return self.case_set.filter(priority=priority, status=status)
+            
+            if priority is not None:
+                return self.case_set.filter(priority=priority)
+            
+            if status is not None:
+                return self.case_set.filter(status=status)
+
+            return self.case_set.all()
+        except:
+            return None
+    
+    def get_cases_critical(self):
+        return self.get_cases(priority=3)
+    
+    def get_cases_high(self):
+        return self.get_cases(priority=2)
+    
+    def get_cases_medium(self):
+        return self.get_cases(priority=1)
+    
+    def get_cases_low(self):
+        return self.get_cases(priority=0)
+    
+    def get_cases_open(self):
+        return self.get_cases(status=0)
+    
+    def get_cases_progress(self):
+        return self.get_cases(status=1)
+    
+    def get_cases_pending(self):
+        return self.get_cases(status=2)
+    
+    def get_cases_closed(self):
+        return self.get_cases(status=3)

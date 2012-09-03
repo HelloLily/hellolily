@@ -25,4 +25,21 @@ $(document).ready(function() {
 		}
 		$(this).next('.chzn-container').find('.chzn-single').addClass(prio_classes[$(this)[0].selectedIndex]);
 	});
+	
+	$('#tab-cases .mws-collapsible-header').find('.mws-collapse-button span').live('click', function(event) {
+		// hide visible siblings
+		$(this)
+			.closest('.mws-collapsible').siblings('.mws-collapsible')
+			.find('.mws-collapsible-body:visible')
+			.slideToggle('fast')
+			.closest('.mws-collapsible')
+			.toggleClass('mws-collapsed');
+		// show invisible self
+		$(this)
+			.closest('.mws-collapsible')
+			.find('.mws-collapsible-body:not(visible)')
+			.slideToggle('fast')
+			.closest('.mws-collapsible')
+			.toggleClass('mws-collapsed');
+	});
 });

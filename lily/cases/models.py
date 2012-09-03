@@ -22,7 +22,7 @@ class Case(TenantMixin, Deleted):
     OPEN_STATUS, ASSIGNED_STATUS, PENDING_STATUS, CLOSED_STATUS = range(4)
     STATUS_CHOICES = (
         (OPEN_STATUS, _('Open')),
-        (ASSIGNED_STATUS, _('Assigned')),
+        (ASSIGNED_STATUS, _('In progress')),
         (PENDING_STATUS, _('Pending input')),
         (CLOSED_STATUS, _('Closed')),
     )

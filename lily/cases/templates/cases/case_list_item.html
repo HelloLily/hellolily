@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<div>
+	<a href="{% url case_details pk=item.pk %}">{{ item.subject }}</a>
+    <div><strong>{% trans 'Status' %}:</strong> {{ item.get_status_display }}</div>
+    <div><strong>{% trans 'Priority' %}:</strong> {{ item.get_priority_display }}</div>
+    <div><strong>{% trans 'Client' %}:</strong>
+    	{% if item.contact %}
+	        <a href="{% url contact_details pk=item.contact.pk %}">
+	            {{ item.contact.full_name }}
+	        </a> ({% trans 'Contact' %})
+	    {% endif %}
+	   
+	   	{% if item.contact and item.account %}
+	   		at 
+	   	{% endif %}
+	    
+        {% if item.account %}
+	        <a href="{% url account_details pk=item.account.pk %}">
+	            {{ item.account.name }}
+	        </a> ({% trans 'Account' %})
+        {% endif %}    
+    </div>
+    <div><strong>{% trans 'Assigned to' %}:</strong>
+    	<a href="{% url contact_details pk=item.assigned_to.contact.pk %}">{{ item.assigned_to.contact.full_name }}</a>
+    </div>
+    <div><strong>{% trans 'Created' %}:</strong> {{ item.created|date:"F d, H:i (Y)" }}</div>
+    <p></p>
+</div>

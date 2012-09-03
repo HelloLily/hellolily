@@ -86,9 +86,8 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
 
         # Check if not both contact or an account have been selected or verify that an account the contact works at
         if cleaned_data.get('contact') and cleaned_data.get('account'):
-            contact = Contact.objects.get(cleaned_data.get('contact'))
-            account = contact.get_primary_function().account
-            if account != cleaned_data.get('account'):
+            linked_account = existing_contact.get_primary_function().account
+            if linked_account != cleaned_data.get('account'):
                 self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
 
         return cleaned_data

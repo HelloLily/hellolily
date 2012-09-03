@@ -23,6 +23,10 @@
                 height: 710, // TODO don't use a fixed height, but rather find a elegant solution using z-index to fix the not visible dropdown menu options 
                 open: function() {
                     enableChosen($(this));
+                    var prio_classes = ['', 'green', 'yellow', 'orange', 'red'];
+					$(this).find('.priority-select').each(function(index, element) {
+						$(element).next('.chzn-container').find('.chzn-single').addClass('i-16 i-tag').addClass(prio_classes[$(element)[0].selectedIndex]);
+					});
                 },
                 buttons: [
                     {

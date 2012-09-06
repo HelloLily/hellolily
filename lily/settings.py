@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'lily.provide',
     'lily.tags',
     'lily.tenant',
+    'lily.updates',
     'lily.users',
     'lily.utils',
 )

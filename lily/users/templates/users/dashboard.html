@@ -1,8 +1,14 @@
 {% extends 'base_user.html' %}
 
-{% load i18n utils %}
+{% load i18n utils crispy_forms_tags media %}
 
 {% block page-titel %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+	
+	{% include_media 'lily.dashboard.js' %}
+{% endblock %}
 
 {% block container %}
 <div class="mws-panel grid_8">
@@ -30,7 +36,74 @@
                     </div>
                 </div>         
             </div>     
-
+            
+            <hr />
+            
+			<div id="microblog">
+	            <h2 class="i-32 i-microblog blue">Microblog</h2>
+	
+	            <div id="microblog-form">
+	            	{% crispy blogentry_form %}
+	            	<hr />
+	            </div>
+	            
+            	{% if has_tag_filter %}
+		            <p>
+		            	{% trans 'Filtered by' %} '#{{ tag }}',	
+	            		<a href="{% url dashboard %}">{% trans 'remove filter' %}</a>
+	            	</p>
+            	{% endif %}
+	            {% if blogentry_list|length %}
+		            <ul id="microblog-paginator">
+		            	<li class="paginator previous {% if not page.has_previous %}disabled{% endif %}">
+		            		{% if page.has_previous %}
+		            			{% if has_tag_filter %}
+		            				<a href="{% url dashboard_tag page=page.previous_page_number tag=tag %}">
+		            			{% else %}
+		            				<a href="{% url dashboard page=page.previous_page_number %}">
+		            			{% endif %}
+		            		{% endif %}
+		            			&laquo; Previous
+		            		{% if page.has_previous %}</a>{% endif %}
+		            	</li>
+		            	<li class="paginator page current mws-form">
+	            			<form action="{% url dashboard %}" method="post" autocomplete="off">
+		            			{% csrf_token %}
+		            			
+		            			{% if has_tag_filter %}
+		            				<input type="hidden" name="tag" value="{{ tag }}"/>
+		            			{% endif %}
+		            			
+		            			{% trans 'Page' %} <input type="text" name="page" class="page-number mws-textinput" value="{{ page.number }}" /> {% trans 'of' %} {{ paginator.num_pages }}
+		            			<input type="submit" class="hidden submit" value=""/>
+		            		</form>
+		            	</li>
+		            	<li class="paginator next {% if not page.has_next %}disabled{% endif %}">
+		            		{% if page.has_next %}
+		            			{% if has_tag_filter %}
+		            				<a href="{% url dashboard_tag page=page.next_page_number tag=tag %}">
+								{% else %}
+		            				<a href="{% url dashboard page=page.next_page_number %}">
+		            			{% endif %}
+		            		{% endif %}
+		            			Next &raquo; 
+		            		{% if page.has_next %}</a>{% endif %}
+		            	</li>
+		            </ul>
+	            	<ul id="blogentries">
+	            		{% include 'base_list.html' with list=blogentry_list list_item_template='updates/parent_list_item.html' %}
+	            	</ul>
+	           	{% else %}
+	           		<p>
+		           		{% if has_tag_filter %}
+		           			{% blocktrans with tag=tag %}No entries found for #{{ tag }}.{% endblocktrans %} <a href="{% url dashboard %}">{% trans 'Show everything' %}</a>.
+		           		{% else %}
+		           			{% trans 'There are no entries in the microblog yet.' %}
+		           		{% endif %}
+	           		</p>
+	           	{% endif %}
+			</div>
+			
             <hr />
             
             {% if user|in_group:'account_admin' %}

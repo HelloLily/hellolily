@@ -259,7 +259,7 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
         return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
 
 
-class MultipleModelListView(TemplateView):
+class MultipleModelListView(object):
     """
     Class for showing multiple lists of models in a template.
     """

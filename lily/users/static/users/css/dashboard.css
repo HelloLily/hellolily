@@ -32,3 +32,160 @@ ul.mws-summary .things-you-can-do {
     font-size: 20px;
     text-align: left;
 }
+
+#microblog h2.i-32
+{
+	padding-left: 40px;
+}
+
+#microblog-form
+{
+	max-width: 450px;
+}
+
+#microblog .blogentry-textarea
+{
+	vertical-align: bottom;
+	margin-top: 4px;
+}
+
+#microblog .blogentry-textarea textarea
+{
+	height: 31px;
+}
+
+#microblog-paginator
+{
+	padding-left: 0;
+	margin: 0;
+	width: 370px;
+	text-align: center;
+}
+
+#microblog-paginator li
+{
+	display: inline-block;
+	min-width: 16px;
+	text-align: center;
+	margin-left: 0;
+}
+
+#microblog-paginator li a 
+{
+	display: inline-block;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#microblog-paginator .paginator.page
+{
+	margin: 0 5px;
+}
+
+#microblog-paginator li a,
+#microblog-paginator .paginator.previous a,
+#microblog-paginator .paginator.previous.disabled,
+#microblog-paginator .paginator.next a,
+#microblog-paginator .paginator.next.disabled
+{
+	padding: 3px 4px;
+}
+
+#microblog-paginator .paginator.disabled
+{
+	color: gray;
+}
+
+#microblog-paginator li a:hover,
+#microblog-paginator .paginator.current a
+{
+	color: white;
+	background: #1C76BC;
+}
+
+#microblog-paginator .paginator.current
+{
+	border: none;
+}
+#microblog-paginator .page.current input
+{
+	padding: 3px 4px;
+	margin: 0 4px;
+	text-align: center !important;
+	width: 70px;
+}
+
+#microblog .blogentry.child textarea,
+#microblog .blogentry.inline-child textarea
+{
+	width: 330px;
+}
+
+#microblog .blogentry-submit
+{
+	margin-bottom: 0;
+}
+
+#microblog-form hr
+{
+	margin-top: 8px;
+}
+
+#blogentries
+{
+	max-width: 450px;
+	list-style-type: none;
+	margin-top: 16px;
+}
+
+#blogentries li 
+{
+	margin-left: 0;
+	margin-bottom: 5px;
+	border-bottom: 1px dashed #CCC
+}
+
+#microblog .blogentry-content .content,
+#microblog .blogentry .date.created
+{
+	font-size: 90%;
+	word-wrap: break-word;
+}
+
+#microblog .blogentry-content .controls
+{
+	float: right;
+	max-width: 90px;
+	margin-right: 45px;
+}
+
+#microblog .blogentry
+{
+	padding: 2px 0 0 4px;
+	margin-bottom: 6px;
+}
+
+#microblog .blogentry.parent
+{
+	margin-left: 0px;
+}
+
+#microblog .blogentry.child,
+#microblog .blogentry.inline-child
+{
+	margin-left: 30px;
+	border-left: 5px solid #ccc;
+}
+
+#microblog .blogentry.child:hover,
+#microblog .blogentry.inline-child:hover,
+#microblog .blogentry.origin
+{
+	border-left: 5px solid #1C76BC;
+}
+
+#blogentries .blogentry.marked,
+#blogentries .blogentry.perma-marked
+{
+	background-color: #BAD6EB;
+}

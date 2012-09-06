@@ -10,20 +10,24 @@ from django.contrib.auth.tokens import default_token_generator, PasswordResetTok
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils import simplejson
-from django.utils.http import base36_to_int, int_to_base36
-from django.utils.translation import ugettext as _
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View, TemplateView, FormView
+from django.utils import simplejson
+from django.utils.http import base36_to_int, int_to_base36, urlunquote
+from django.utils.translation import ugettext as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
+from lily.updates.forms import CreateBlogEntryForm
+from lily.updates.models import BlogEntry
+from lily.updates.views import AddBlogEntryView
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
@@ -485,18 +489,79 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(MultipleModelListView):
+class DashboardView(MultipleModelListView, AddBlogEntryView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
-    models = [Account, Contact]
+    models = [Account, Contact, BlogEntry]
+    page_size = 10
+    
+    def post(self, request, *args, **kwargs):
+        """
+        Redirect to display a certain page when jumping towards one.
+        """
+        if self.request.POST.has_key('page'):
+            try:
+                location = 'dashboard'
+                kwargs = {
+                    'page': int(self.request.POST.get('page'))
+                }
+                if self.request.POST.has_key('tag'):
+                    kwargs.update({'tag': self.request.POST.get('tag')})
+                    location += '_tag'
+            
+                return redirect(reverse(location, kwargs=kwargs))
+            except:
+                return redirect(self.request.META['HTTP_REFERER'])
+        
+        return super(DashboardView, self).post(request, *args, **kwargs)
     
     def get_model_queryset(self, list_name, model):
         """
-        Return the five newest objects for given model.
+        Return the five newest objects for Accounts and Contacts. Paginate objects for BlogEntry later.
         """
+        if model is BlogEntry:
+            return model._default_manager.order_by('-created').all().filter(reply_to=None)
+        
         return model._default_manager.order_by('-created').all()[:5]
+    
+    def get_context_data(self, **kwargs):
+        """
+        Paginate the BlogEntry queryset and search for a certain tag when provided.
+        """
+        context = super(DashboardView, self).get_context_data()
+        context.update(kwargs)
+        
+        # Paginate BlogEntry
+        blogentry_list = context.pop('blogentry_list')
+        
+        # Filter by tag?
+        if self.kwargs.get('tag', False):
+            blogentry_list = BlogEntry.objects.filter(content__contains=urlunquote(self.kwargs.get('tag'))).order_by('-created')
+        
+        paginator = Paginator(blogentry_list, self.page_size)
+
+        current_page = self.kwargs.get('page')
+        try:
+            page = paginator.page(current_page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page = paginator.page(paginator.num_pages)
+        
+        context.update({
+            'paginator': paginator,
+            'page': page,
+            'blogentry_list': page.object_list,
+            'blogentry_form': CreateBlogEntryForm,
+            'has_tag_filter': self.kwargs.has_key('tag'),
+            'tag': self.kwargs.get('tag', None),
+        })
+        
+        return context
 
 
 class CustomSetPasswordView(FormView):

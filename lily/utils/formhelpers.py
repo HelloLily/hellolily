@@ -235,7 +235,7 @@ class LilyFormHelper(FormHelper):
                 self.layout.pop(index)
                 self.layout.insert(index, layoutObject)
                 
-                self.delete_label_for('note')
+                self.delete_label_for(field_name)
 
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):

@@ -35,6 +35,11 @@
                 if( element ) {
                 	$(event.target).remove();
                 	$(element).show().removeClass('hidden');
+                	
+    				if( $.fn.elastic ) {
+                		$(element).find('textarea').elastic();
+            		}
+                	
                 	var input = $(element).find(':input:visible:first');
                 	if( input ) {
                     	input.focus();

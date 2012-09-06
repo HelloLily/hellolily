@@ -25,6 +25,9 @@ urlpatterns = patterns('',
     url(r'^invitation/accept/(?P<account_name>.+)/(?P<first_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
     
     # Dashboard and other user specific views, which require a logged in user
+    url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', dashboard_view, name='dashboard_tag'), # including tags and paging for microblog
+    url(r'^tag/(?P<tag>.+)/$', dashboard_view, name='dashboard_tag'), # including tags for microblog
+    url(r'^(?P<page>[0-9]+)/$', dashboard_view, name='dashboard'), # including paging for microblog
     url(r'^$', dashboard_view, name='dashboard'),
 )
 

@@ -9,3 +9,9 @@ class BlogEntry(TenantMixin, TimeStampedModel):
     author = models.ForeignKey(CustomUser)
     content = models.CharField(max_length=255)
     reply_to = models.ForeignKey('self', blank=True, null=True)
+    
+    def __unicode__(self):
+        return unicode(self.content)
+    
+    def get_replies(self):
+        return self.blogentry_set.all().order_by('-created')

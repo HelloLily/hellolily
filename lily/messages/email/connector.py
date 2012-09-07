@@ -65,6 +65,24 @@ class Connector(object):
             return False
 
 
+    def get_new_messages(self, account_list, blocking=False):
+
+        # start a task for each account that will fetch uids of new messages
+            # fetching is done by latest_message_datetime of current account
+
+            # start a task that will get all new messages for current account
+                # take datetime of latest message and put in latest_message_datetime of current account
+
+            # once group of tasks is complete send signal
+
+        # if blocking: wait for result and return it, else return None
+
+        pass
+
+    def import_account(self, account):
+        pass
+
+
     def get_message_list(self, folder='INBOX', readonly=1, limit=None):
         """
         Returns a list of messages with an optional limit.

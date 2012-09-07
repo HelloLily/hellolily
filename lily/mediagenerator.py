@@ -49,6 +49,7 @@ extra_theme_bundle_css = (
     
     'extra/css/extra.css',
     'extra/css/icons/extra.16x16.css',
+    'extra/css/icons/extra.20x20.css',
     'extra/css/icons/extra.32x32.css',
     'extra/css/views.css',
     
@@ -152,6 +153,12 @@ MEDIA_BUNDLES = (
         'users/js/login.js',
         'users/js/password_reset.js',
         'users/js/registration.js',
+    ),
+    ('lily.messages.css',
+        'messages/css/messages.css',
+    ),
+    ('lily.messages.js',
+        'messages/js/messages.js'
     ),
 #    ('translations.js',
 #         {'filter': 'mediagenerator.filters.i18n.I18N'},

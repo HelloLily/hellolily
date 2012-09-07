@@ -1,16 +1,16 @@
 {% extends 'base_user.html' %}
-{% load i18n static activelink %}
+{% load i18n media activelink %}
 
 {% block title %}{% trans 'Dashboard' %} - {% endblock %}
 
 {% block styles %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'messages/css/messages.css' %}" media="screen" />
+    {% include_media 'lily.messages.css' %}
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static 'messages/js/messages.js' %}"></script>
+    {% include_media 'lily.messages.js' %}
 {% endblock %}
 
 {% block container %}
@@ -58,11 +58,13 @@
             </a>
         </div>
         <div id="messages-container">
-            <div id="messages-busy">
+            <div id="messages-busy" style="display: none;">
                 <div id="messages-spacer">{% trans 'Loading' %}</div>
-                <img src="{% static 'images/blue-loading.gif' %}" alt="loading" />
+                <img src="{% media_url 'extra/images/blue-loading.gif' %}" alt="loading" />
             </div>
-            <div id="message-list" style="display: none;">
+            <div id="message-list">
+
+                {% include 'messages/message_list.html' %}
             </div>
         </div>
     </div>

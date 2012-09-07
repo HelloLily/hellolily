@@ -1,7 +1,7 @@
 function enableChosen(elem) {
-	/* Chosen Select Box Plugin */
-	$(elem).find("select.chzn-select:visible").not('.chzn-select-no-search').chosen();
-	$(elem).find("select.chzn-select-no-search:visible").chosen({disable_search_threshold: 999999});
+    /* Chosen Select Box Plugin */
+    $(elem).find("select.chzn-select:visible").not('.chzn-select-no-search').chosen();
+    $(elem).find("select.chzn-select-no-search:visible").chosen({disable_search_threshold: 999999});
 }
 
 function enableValidate(elem) {
@@ -50,23 +50,22 @@ $(document).ready(function () {
     // .slideToggle("fast");
     // });
 
-	/* Side dropdown menu */
-	// $("div#mws-navigation ul li a, div#mws-navigation ul li span")
-	// .bind('click', function(event) {
-		// if($(this).next('ul').size() !== 0) {
-			// $(this).next('ul').slideToggle('fast', function() {
-				// $(this).toggleClass('closed');
-			// });
-			// event.preventDefault();
-		// }
-	// });
-	
-	if( $.datepicker ) {
-    	$.datepicker.setDefaults({
+    /* Side dropdown menu */
+    $("div#mws-navigation ul li a, div#mws-navigation ul li span").bind('click', function(event) {
+        if($(this).next('ul').size() !== 0) {
+            $(this).next('ul').slideToggle('fast', function() {
+                $(this).toggleClass('closed');
+            });
+            event.preventDefault();
+        }
+    });
+
+    if( $.datepicker ) {
+        $.datepicker.setDefaults({
             'dateFormat': 'dd/mm/yy'
         });
     }
-	
+
     // enable datepicker on rendered fields, hidden fields and fields retrieved with AJAX
     $('form').on('click', '.expected_closing_date.datepicker', function(event){
         if(! $(this).hasClass('hasDatepicker')) {
@@ -80,12 +79,12 @@ $(document).ready(function () {
         event.preventDefault();
     });
 
-	/* Responsive Layout Script */
-	$("div#mws-navigation").live('click', function(event) {
-		if(event.target === this) {
-			$(this).toggleClass('toggled');
-		}
-	});
+    /* Responsive Layout Script */
+    $("div#mws-navigation").live('click', function(event) {
+        if(event.target === this) {
+            $(this).toggleClass('toggled');
+        }
+    });
 
     /* Form Messages */
     // $(".mws-form-message").live("click", function() {

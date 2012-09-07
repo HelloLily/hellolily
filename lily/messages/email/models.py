@@ -44,6 +44,23 @@ class EmailAccount(SocialMediaAccount):
     password = EncryptedCharField(max_length=255)
 
 
+    def sync(self, blocking=False):
+        from lily.messages.email.tasks import import_account
+        result = import_account.delay(self)
+
+        if blocking:
+            return result.get()
+        return
+
+    def update(self, blocking=False):
+        from lily.messages.email.tasks import update_account
+        result = update_account.delay(self)
+
+        if blocking:
+            return result.get()
+        return
+
+
     def __unicode__(self):
         return self.name if self.name else self.email
 
@@ -166,6 +183,10 @@ class EmailMessage(Message):
     x_facebook_notify = models.CharField(max_length=255, blank=True, default='')
     x_facebook_priority = models.CharField(max_length=255, blank=True, default='')
     x_facebook = models.CharField(max_length=255, blank=True, default='')
+
+
+    def get_template(self):
+        return 'messages/email/message_row.html'
 
 
     def __unicode__(self):

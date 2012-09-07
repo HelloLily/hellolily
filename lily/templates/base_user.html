@@ -100,8 +100,8 @@
                             <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
                                 <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">Accounts</a>
                             </li>
-                            <li class="mws-dropdown-menu">
-                                <a href="#messaging" class="blue mws-i-24 i-message mws-dropdown-trigger">
+                            <li class="mws-dropdown-menu {% ifstartswith "messages_dashboard" %}active{% endifstartswith %}">
+                                <a href="#messaging" class="{% ifstartswith "messages_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
                                     Messages
                                     <!-- Unread messages count -->
                                     <span class="mws-nav-tooltip mws-inset">13</span>
@@ -109,35 +109,29 @@
 
                                 <ul {% ifstartswith "messages_dashboard" %}class="open"{% else %}class="closed"{% endifstartswith%}>
                                     <li>
-                                        <a href="{% url messages_dashboard %}" class="mws-i-20 i-archive">
+                                        <a href="{% url messages_dashboard %}" class="i-20 i-archive">
                                             {% trans 'Inbox' %}
                                             <span class="mws-nav-tooltip mws-inset" >146</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="{% url messages_sent %}" class="mws-i-20 i-bended-arrow-left">
+                                        <a href="{% url messages_sent %}" class="i-20 i-bended-arrow-left">
                                             {% trans 'Sent' %}
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="{% url messages_drafts %}" class="mws-i-20 i-create">
+                                        <a href="{% url messages_drafts %}" class="i-20 i-create">
                                             {% trans 'Drafts' %}
                                             <span class="mws-nav-tooltip mws-inset">11</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="{% url messages_archived %}" class="mws-i-20 i-folder">
+                                        <a href="{% url messages_archived %}" class="i-20 i-folder">
                                             {% trans 'Archived' %}
                                             <span class="mws-nav-tooltip mws-inset">32</span>
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
-                            <li>
-                                <a href="#deals" class="blue mws-i-24 i-folder">Deals</a>
-                            </li>
-                            <li>
-                                <a href="#contacts" class="blue mws-i-24 i-archive">Cases</a>
                             </li>
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
                                 <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">Deals</a>

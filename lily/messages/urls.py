@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
 
-from lily.messages.views import dashboard_view, message_list_view
+from lily.messages.views import dashboard_view
 
 
 urlpatterns = patterns('',
@@ -9,7 +9,6 @@ urlpatterns = patterns('',
     url(r'^sent/$', dashboard_view, name='messages_sent'),
     url(r'^drafts/$', dashboard_view, name='messages_drafts'),
     url(r'^archived/$', dashboard_view, name='messages_archived'),
-    url(r'^get-message-list/$', message_list_view, name='messages_get_list'),
 )
 
 for app in settings.MESSAGE_APPS:

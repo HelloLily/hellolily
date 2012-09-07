@@ -1,48 +1,31 @@
-import importlib
-
-from django.conf import settings
+# Django imports
 from django.contrib.auth.decorators import login_required
-from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
-from lily.messages.models import Message
+# Lily imports
+from lily.messages.models import Message, SocialMediaAccount
 
 
-CONNECTORS = []
-for app in settings.MESSAGE_APPS:
-    module = importlib.import_module('%s.connector' % app)
-    CONNECTORS.append(module.Connector)
-
-
-class DashboardView(TemplateView):
-    template_name = 'messages/dashboard.html'
-
-
-class MessageListView(ListView):
+class DashboardView(ListView):
     """
     Dashboard of messages, display inbox and other cool stuff.
 
     """
-    template_name = 'messages/message_list.html'
+    template_name = 'messages/dashboard.html'
 
-    messages = Message.objects.all()
-    print messages
     
     def get_queryset(self):
-        complete_message_list = []
+        account_list = SocialMediaAccount.objects.filter(user_group=self.request.user)
 
-        for conn in CONNECTORS:
-            host = 'imap.gmail.com'
-            user = 'lily@hellolily.com'
-            password = '0$mxsq=3ouhr)_iz710dj!*2$vkz'
-            message_list = conn(host=host, port=993, user=user, password=password).get_message_list(limit=10)
-            complete_message_list += message_list
+        # pass the account list to a task which will look for new messages
+        for account in account_list:
+            result = account.sync(blocking=True)
+#            print result
 
-        complete_message_list.sort(key=lambda item:item['date'], reverse=True)
+        message_list = Message.objects.filter(account__in=account_list).order_by('-datetime')[:20]
 
-        return complete_message_list
+        return message_list
 
 
 # Perform logic here instead of in urls.py
 dashboard_view = login_required(DashboardView.as_view())
-message_list_view = login_required(MessageListView.as_view())

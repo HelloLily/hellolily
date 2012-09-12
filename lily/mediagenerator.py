@@ -49,7 +49,7 @@ extra_theme_bundle_css = (
     
     'extra/css/extra.css',
     'extra/css/icons/extra.16x16.css',
-    'extra/css/icons/extra.20x20.css',
+#    'extra/css/icons/extra.20x20.css',
     'extra/css/icons/extra.32x32.css',
     'extra/css/views.css',
     

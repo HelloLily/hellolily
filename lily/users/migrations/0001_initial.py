@@ -7,6 +7,12 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+        ('activities', '0001_initial'),
+        ('cases', '0001_initial'),
+        ('deals', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'CustomUser'
         db.create_table('users_customuser', (

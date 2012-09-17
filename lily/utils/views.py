@@ -579,6 +579,9 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
         super(EmailAddressFormSetViewMixin, self).__init__(*args, **kwargs)
     
     def form_valid(self, form):
+        # Save object and get success url
+        success_url = super(EmailAddressFormSetViewMixin, self).form_valid(form)
+        
         context_name = 'email_addresses_formset'
         formset = self.get_formset(context_name)
         
@@ -602,7 +605,7 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.save()
                 self.object.email_addresses.add(formset_form.instance)
         
-        return super(EmailAddressFormSetViewMixin, self).form_valid(form)
+        return success_url
     
     def form_invalid(self, form):
         context_name = 'email_addresses_formset'
@@ -626,6 +629,9 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
     """
     
     def form_valid(self, form):
+        # Save object and get success url
+        success_url = super(ValidateEmailAddressFormSetViewMixin, self).form_valid(form)
+        
         context_name = 'email_addresses_formset'
         formset = self.get_formset(context_name)
 
@@ -774,7 +780,7 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
                 }
             )
         
-        return super(EmailAddressFormSetViewMixin, self).form_valid(form)
+        return success_url
 
 
 class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):

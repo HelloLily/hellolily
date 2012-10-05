@@ -30,16 +30,16 @@ class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
                         "enabled. Cookies are required for logging in."),
         'inactive': _("This account is inactive."),
     }
-    
-    username = forms.CharField(label=_('E-mail address'), max_length=30, 
+
+    username = forms.CharField(label=_('E-mail address'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-login-email', 
+            'class': 'mws-login-email',
     }))
     password = forms.CharField(label=_('Password'), widget=forms.PasswordInput(attrs={
         'class': 'mws-login-password',
     }))
     remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
-    
+
     def __init__(self, *args, **kwargs):
         super(CustomAuthenticationForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
@@ -47,7 +47,7 @@ class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
         self.helper.add_input(Submit('submit', _('Log in')))
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
         self.helper.wrap_by_names(Row, 'username', 'password')
-        
+
         self.helper.delete_label_for('username', 'password')
 
 
@@ -57,12 +57,12 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
     CustomUser is used for validation instead of User.
     """
     inactive_error_message = _('You cannot request a password reset for an account that is inactive.')
-    
+
     email = forms.EmailField(label=_('E-mail address'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-reset-email',
     }))
-    
+
     def __init__(self, *args, **kwargs):
         super(CustomPasswordResetForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
@@ -73,44 +73,44 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
         self.helper.add_input(Submit('submit', _('Reset my password')))
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-        
+
         self.helper.delete_label_for('email')
-    
+
     def form_valid(self, form):
         """
         Overloading super().form_valid to add a message telling an e-mail was sent.
         """
-        
+
         # Send e-mail
         super(CustomPasswordResetForm, self).form_valid(form)
-        
+
         # Show message
         messages.info(self.request, _('An <nobr>e-mail</nobr> with reset instructions has been sent to %s.') % form.cleaned_data.get('email'))
-        
+
         return self.get_success_url()
-    
+
     def clean_email(self):
         """
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data["email"]
         self.users_cache = CustomUser.objects.filter(
-                                contact__email_addresses__email_address__iexact=email, 
+                                contact__email_addresses__email_address__iexact=email,
                                 contact__email_addresses__is_primary=True,
                                 is_active=True
                             )
-        
+
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
         else:
-            for user in self.users_cache:       
+            for user in self.users_cache:
                 if not user.is_active:
                     raise forms.ValidationError(self.inactive_error_message)
         if any((user.password == UNUSABLE_PASSWORD)
                for user in self.users_cache):
             raise forms.ValidationError(self.error_messages['unusable'])
         return email
-        
+
     def save(self, domain_override=None,
              subject_template_name='registration/password_reset_subject.txt',
              email_template_name='registration/password_reset_email.html',
@@ -157,7 +157,7 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
         widget=forms.PasswordInput(attrs={
             'class': 'mws-reset-password',
     }))
-    
+
     def __init__(self, *args, **kwargs):
         super(CustomSetPasswordForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
@@ -171,7 +171,7 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
         self.helper.add_input(Submit('submit', _('Change my password')))
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-        
+
         self.helper.delete_label_for('new_password1', 'new_password2')
 
 
@@ -185,12 +185,12 @@ class ResendActivationForm(Form, FieldInitFormMixin):
         'active': _("You cannot request a new activation e-mail for an "
                     "account that is already active."),
     }
-    
+
     email = forms.EmailField(label=_('E-mail address'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-reset-email',
     }))
-    
+
     def __init__(self, *args, **kwargs):
         super(ResendActivationForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(form=self)
@@ -201,22 +201,22 @@ class ResendActivationForm(Form, FieldInitFormMixin):
         self.helper.add_input(Submit('submit', _('Resend activation e-mail')))
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
         self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-        
+
         self.helper.delete_label_for('email')
-    
+
     def clean_email(self):
         """
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data['email']
         self.users_cache = CustomUser.objects.filter(
-                                contact__email_addresses__email_address__iexact=email, 
+                                contact__email_addresses__email_address__iexact=email,
                                 contact__email_addresses__is_primary=True
                             )
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
         else:
-            for user in self.users_cache:       
+            for user in self.users_cache:
                 if user.is_active:
                     raise forms.ValidationError(self.error_messages['active'])
         return email
@@ -226,27 +226,27 @@ class RegistrationForm(Form, FieldInitFormMixin):
     """
     This form allows new user registration.
     """
-    email = forms.EmailField(label=_('E-mail'), max_length=255, 
+    email = forms.EmailField(label=_('E-mail'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email',
         }
     ))
-    password = forms.CharField(label=_('Password'), min_length=6, 
+    password = forms.CharField(label=_('Password'), min_length=6,
         widget=JqueryPasswordInput(attrs={
             'class': 'mws-register-password',
         }
     ))
-    password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6, 
+    password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6,
         widget=forms.PasswordInput(attrs={
             'class': 'mws-register-password',
         }
     ))
-    first_name = forms.CharField(label=_('First name'), max_length=255, 
+    first_name = forms.CharField(label=_('First name'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-first-name',
         }
     ))
-    preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False, 
+    preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-preposition',
         }
@@ -261,10 +261,10 @@ class RegistrationForm(Form, FieldInitFormMixin):
             'class': 'mws-register-company',
         }
     ))
-    
+
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        
+
         # Customize layout
         self.helper = LilyFormHelper(self)
         self.helper.layout = Layout()
@@ -285,32 +285,32 @@ class RegistrationForm(Form, FieldInitFormMixin):
             ),
         )
         self.helper.add_input(Submit('submit', _('Register')))
-    
+
     def clean(self):
         """
         Form validation: passwords should match and email should be unique.
         """
         cleaned_data = super(RegistrationForm, self).clean()
-        
+
         password = cleaned_data.get('password')
         password_repeat = cleaned_data.get('password_repeat')
-        
+
         if password != password_repeat:
             self._errors['password'] = self.error_class([_('The two password fields didn\'t match.')])
-        
+
         if cleaned_data.get('username'):
             try:
                 CustomUser.objects.get(username=cleaned_data.get('username'))
                 self._errors['username'] = self.error_class([_('Username already exists.')])
             except CustomUser.DoesNotExist:
                 pass
-        
+
         if cleaned_data.get('email'):
             if CustomUser.objects.filter(
                 contact__email_addresses__email_address__iexact=cleaned_data.get('email')
             ).exists():
                 self._errors['email'] = self.error_class([_('E-mail address already in use.')])
-        
+
         return cleaned_data
 
 
@@ -318,7 +318,7 @@ class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
     """
     Form for accepting invitations.
     """
-    email = forms.EmailField(label=_('E-mail'), max_length=255, 
+    email = forms.EmailField(label=_('E-mail'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email disabled',
             'readonly': 'readonly',
@@ -330,24 +330,24 @@ class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
             'readonly': 'readonly'
         }
     ))
-    
+
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
         self.helper.inputs = []
         self.helper.add_input(Submit('submit', _('Accept')))
-    
+
     def clean(self):
         initial_email = self.initial['email']
         initial_company = self.initial['company']
-        
+
         cleaned_data = super(UserRegistrationForm, self).clean()
-        
+
         if cleaned_data.get('email') and cleaned_data.get('email') != initial_email:
             self._errors['email'] = self.error_class([_('You can\'t change the e-mail address of the invitation.')])
-        
+
         if cleaned_data.get('company') and cleaned_data.get('company') != initial_company:
             self._errors['company'] = self.error_class([_('You can\'t change the company name of the invitation.')])
-        
+
         return cleaned_data
 
 
@@ -355,7 +355,7 @@ class InvitationForm(Form, FieldInitFormMixin):
     """
     This is the invitation form, it is used to invite new users to join an account.
     """
-    first_name = forms.CharField(label=_('First name'), max_length=255, 
+    first_name = forms.CharField(label=_('First name'), max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-name',
         }
@@ -365,18 +365,18 @@ class InvitationForm(Form, FieldInitFormMixin):
             'class': 'mws-register-email',
         }
     ))
-    
+
     def clean(self):
         cleaned_data = super(InvitationForm, self).clean()
         email = cleaned_data.get('email')
-        
+
         if email:
             try:
                 CustomUser.objects.get(contact__email_addresses__email_address__iexact=email)
                 self._errors['email'] = self.error_class([_('This e-mail address is already linked to a user.')])
             except CustomUser.DoesNotExist:
                 pass
-            
+
         return cleaned_data
 
 
@@ -389,12 +389,12 @@ class RequiredFirstFormFormset(BaseFormSet):
     """
     def __init__(self, *args, **kwargs):
         super(RequiredFirstFormFormset, self).__init__(*args, **kwargs)
-        
+
         try:
             self.forms[0].empty_permitted = False
         except IndexError:
             print "index error bij de init van required first form formset"
-    
+
     def clean(self):
         if self.total_form_count() < 1:
             raise forms.ValidationError(_("We need some data before we can proceed. Fill out at least one form."))
@@ -410,7 +410,7 @@ class RequiredFormset(BaseFormSet):
         for form in self.forms:
             form.empty_permitted = False
 
- 
+
 class InvitationFormset(RequiredFirstFormFormset):
     """
     This formset is sending invitations to users based on e-mail addresses.
@@ -418,7 +418,7 @@ class InvitationFormset(RequiredFirstFormFormset):
     def clean(self):
         """Checks that no two email addresses are the same."""
         super(InvitationFormset, self).clean()
-        
+
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own
             return

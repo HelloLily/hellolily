@@ -155,4 +155,4 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
     class Meta:
         model = Website
         fields = ('website',)
-        exclude = ('account')
+        exclude = ('account', )

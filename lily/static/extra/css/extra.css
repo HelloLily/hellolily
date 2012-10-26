@@ -1407,3 +1407,8 @@ div#mws-navigation ul li span.i-32 {
     width: 32px;
     background-position: left -4px;
 }
+
+textarea.single-line,
+.single-line textarea {
+    height: 31px;
+}

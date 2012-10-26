@@ -171,7 +171,7 @@ class LilyFormHelper(FormHelper):
         Append multiple fields to the current layout using a MultiField layout.
         """
         for field_name in field_names:
-            self.add_large_field(field_name)
+            self.add_large_field(field_name, **kwargs)
     
     def create_multi_row(self, *rows, **kwargs):
         """
@@ -235,7 +235,7 @@ class LilyFormHelper(FormHelper):
                 self.layout.pop(index)
                 self.layout.insert(index, layoutObject)
                 
-                self.delete_label_for('note')
+                self.delete_label_for(field_name)
 
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):

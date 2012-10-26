@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 # Lily imports
 from lily.messages.models import Message, SocialMediaAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO
+from lily.tenant.models import Tenant, TenantMixin
 
 
 class EmailProvider(models.Model):
@@ -194,5 +195,48 @@ class EmailMessage(Message):
 
 
     class Meta:
-        verbose_name = _('-email message')
+        verbose_name = _('e-mail message')
         verbose_name_plural = _('e-mail messages')
+
+
+class EmailTemplate(TenantMixin):
+    """
+    Emails can be composed using templates.
+    A template is a predefined email in which parameters can be dynamically inserted.
+
+    """
+    name = models.CharField(verbose_name=_('template name'), max_length=255)
+    body = models.TextField(verbose_name=_('message body'))
+
+
+    def __unicode__(self):
+        return u'%s' % self.name
+
+
+    class Meta:
+        verbose_name = _('e-mail template')
+        verbose_name_plural = _('e-mail templates')
+
+
+class EmailTemplateParameters(models.Model):
+    """
+    All template parameters are stored in the database, a parameter is a dynamically filled part of a template.
+    This models contains those parameters and, if set, the default value of that parameter.
+
+    Default values can be static or dynamic, which one it is is stored in the default_value syntax:
+        static  = 'static:value'
+        dynamic = 'dynamic:model/pk/field'
+
+    """
+    template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='parameters')
+    name = models.CharField(verbose_name=_('parameter name'), max_length=255)
+    default_value = models.CharField(verbose_name=_('default parameter value'), max_length=255, blank=True)
+
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.name, self.default_value)
+
+
+    class Meta:
+        verbose_name = _('e-mail template parameter')
+        verbose_name_plural = _('e-mail template parameters')

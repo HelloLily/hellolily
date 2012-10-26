@@ -87,14 +87,19 @@ class FieldInitFormMixin(forms.BaseForm):
             },
         },
     }
-    
+
+
     def __init__(self, *args, **kwargs):
+        self.update_fields()
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
+
+
+    def update_fields(self):
         for name, field in self.base_fields.items():
             w = field.widget
             if issubclass(w.__class__, HiddenInput):
                 continue # ignore
-            
+
             # set placeholder if not already and field has an initial value or label
             if not 'placeholder' in w.attrs:
                 if isinstance(w, TextInput) and field.initial is not None:
@@ -102,7 +107,7 @@ class FieldInitFormMixin(forms.BaseForm):
                 elif field.label is not None:
                     if w.__class__ in [JqueryPasswordInput, PasswordInput, TextInput, Textarea]:
                         w.attrs['placeholder'] = field.label
-            
+
             if w.__class__ is Textarea:
                 # Text for click-show plugin
                 if w.attrs.get('click_show_text', False):
@@ -110,7 +115,7 @@ class FieldInitFormMixin(forms.BaseForm):
                 else:
                     w.click_show_text = _('Add')
                 w.click_and_show = w.attrs.get('click_and_show', True)
-                    
+
             # append certain default attributes
             attrs = self.default_widget_attrs.get(w.__class__, [])
             for attr in attrs:
@@ -120,12 +125,10 @@ class FieldInitFormMixin(forms.BaseForm):
                     w.attrs[attr] = attrs[attr]['value']
                 else:
                     w.attrs[attr] = w.attrs.get(attr, attrs[attr]['value'])
-            
+
             # add class for required fields
             if field.required:
                 w.attrs['class'] = (w.attrs.get('class', '') + ' required').strip()
-            
-        super(FieldInitFormMixin, self).__init__(*args, **kwargs)
 
 
 #===================================================================================================

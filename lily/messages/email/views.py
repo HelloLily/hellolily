@@ -1,12 +1,15 @@
 # Python imports
-from datetime import datetime
+import re
 
 # Django imports
+from django.template import VARIABLE_TAG_START, VARIABLE_TAG_END, RequestContext
+from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, FormView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.shortcuts import render_to_response
 
 # Lily imports
-from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, DynamicParameterForm
+from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm
 from lily.messages.email.models import EmailAccount, EmailTemplate
 
 
@@ -67,48 +70,103 @@ class DetailEmailComposeView(TemplateView):
 
 
 class AddEmailAccountView(CreateView):
+    """
+    Create a new e-mail account that can be used for sending and retreiving emails.
+    """
     template_name = 'messages/email/account_create.html'
     model = EmailAccount
     form_class = CreateUpdateEmailAccountForm
 
 
 class EditEmailAccountView(TemplateView):
+    """
+    Edit an existing e-mail account.
+    """
     template_name = 'messages/email/account_create.html'
 
 
 class DetailEmailAccountView(TemplateView):
+    """
+    Show the details of an existing e-mail account.
+    """
     template_name = 'messages/email/account_create.html'
 
 
 class AddEmailTemplateView(CreateView):
     """
-    Create a new template that can be used for sending emails.
-
+    Create a new e-mail template that can be used for sending emails.
     """
     template_name = 'messages/email/template_create_or_update.html'
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
+    def get_success_url(self):
+        """
+        Redirect to the edit view, so the default values of parameters can be filled in.
+        """
+        return reverse('messages_email_template_edit', kwargs={
+            'pk': self.object.pk,
+        })
 
-class EditEmailTemplateView(TemplateView):
-    """
-    Edit an existing e-mail template
 
+class EditEmailTemplateView(UpdateView):
     """
-    template_name = 'messages/email/account_create.html'
+    Parse an uploaded template for variables and return a generated form/
+    """
+    template_name = 'messages/email/template_create_or_update.html'
+    model = EmailTemplate
+    form_class = CreateUpdateEmailTemplateForm
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instanciating the form.
+        """
+        kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
+        kwargs.update({'parameters': ['1', '2']})
+        return kwargs
 
 
 class DetailEmailTemplateView(TemplateView):
     """
-    Show the details of an existing e-mail template
-
+    Show the details of an existing e-mail template.
     """
     template_name = 'messages/email/account_create.html'
 
 
 class ParseEmailTemplateView(FormView):
+    """
+    Parse an uploaded template for variables and return a generated form/
+    """
     template_name = 'messages/email/template_create_or_update.html'
-    form_class = DynamicParameterForm
+    form_class = CreateUpdateEmailTemplateForm
+
+    def get_form_kwargs(self):
+        kwargs = super(ParseEmailTemplateView, self).get_form_kwargs()
+
+        if hasattr(self, 'parameters'):
+            kwargs.update({
+                'parameters': self.parameters,
+            })
+
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        Return parsed form with rendered parameter fields
+        """
+        body = form.cleaned_data.get('body').read()
+        tag_re = (re.compile('(%s.*?%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
+        parameter_list = []
+
+        for bit in tag_re.split(body):
+            if bit.startswith(VARIABLE_TAG_START) and bit.endswith(VARIABLE_TAG_END):
+                parameter = bit[2:-2].strip()
+                if re.match("^[A-Za-z0-9_.]*$", parameter):
+                    parameter_list.append(parameter)
+
+        self.parameters = parameter_list
+
+        return self.get(self.request)
 
 
 # Testing views

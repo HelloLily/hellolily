@@ -1,0 +1,72 @@
+{% extends 'base_user.html' %}
+{% load i18n media activelink %}
+
+{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% include_media 'lily.messages.css' %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_media 'lily.messages.js' %}
+{% endblock %}
+
+{% block container %}
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-body" style="border: 1px solid #BCBCBC;">
+            <div class="mws-panel-content" style="padding: 8px;">
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button red">
+                        {% trans 'Compose new message' %}
+                    </button>
+                </a>
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button gray">
+                        {% trans 'Mark all as read' %}
+                    </button>
+                </a>
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button gray">
+                        {% trans 'Refresh' %}
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="mws-panel grid_8">
+        <div class="mws-panel-header">
+            <span class="mws-i-24 i-mail">{% trans 'e-mail' %}</span>
+        </div>
+        <div class="mws-panel-body">
+            <div id="email-control-panel">
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button red small">
+                        {% trans 'Compose new message' %} {{ task_value }}
+                    </button>
+                </a>
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button gray small">
+                        {% trans 'Mark all as read' %}
+                    </button>
+                </a>
+                <a id="quickbutton-account"  href="#" class="no-decoration">
+                    <button type="button" class="mws-button gray small">
+                        {% trans 'Refresh' %}
+                    </button>
+                </a>
+            </div>
+            <div id="messages-container">
+                <div id="messages-busy" style="display: none;">
+                    <div id="messages-spacer">{% trans 'Loading' %}</div>
+                    <img src="{% media_url 'extra/images/blue-loading.gif' %}" alt="loading" />
+                </div>
+                <div id="message-list">
+
+                    {% include 'messages/message_list.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

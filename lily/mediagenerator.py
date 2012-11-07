@@ -135,14 +135,15 @@ MEDIA_BUNDLES = (
         'users/css/password_reset.css',
     ),
     ('error.css', 
-        'css/core/error.css'
+        'css/core/error.css',
     ),
     ('main.js',
 #        {'filter': 'mediagenerator.filters.media_url.MediaURL'}, makes +/- 430 KB difference
     )   + jquery_bundle_js
         + theme_bundle_js
         + extra_theme_bundle_js
-        + ({'filter': 'mediagenerator.filters.i18n.I18N'},),
+        + ({'filter': 'mediagenerator.filters.i18n.I18N'},
+           'js/jquery.fileinput.js',),
     ('tables.js',
         'plugins/datatables/jquery.dataTables-min.js',
         'plugins/datatables/jquery.dataTables.date.js',
@@ -158,7 +159,7 @@ MEDIA_BUNDLES = (
         'messages/css/messages.css',
     ),
     ('lily.messages.js',
-        'messages/js/messages.js'
+        'messages/js/messages.js',
     ),
 #    ('translations.js',
 #         {'filter': 'mediagenerator.filters.i18n.I18N'},

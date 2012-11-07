@@ -218,7 +218,7 @@ class EmailTemplate(TenantMixin):
         verbose_name_plural = _('e-mail templates')
 
 
-class EmailTemplateParameters(models.Model):
+class EmailTemplateParameter(models.Model):
     """
     All template parameters are stored in the database, a parameter is a dynamically filled part of a template.
     This models contains those parameters and, if set, the default value of that parameter.

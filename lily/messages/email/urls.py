@@ -19,12 +19,12 @@ urlpatterns = patterns('',
 
     # E-mail account views
     url(r'^account/add/$', add_email_account_view, name='messages_email_account_add'),
-    url(r'^account/edit/$', edit_email_account_view, name='messages_email_account_edit'),
+    url(r'^account/edit/(?P<pk>[\w-]+)/$', edit_email_account_view, name='messages_email_account_edit'),
     url(r'^account/details/(?P<pk>[\w-]+)/$', detail_email_account_view, name='messages_email_account_details'),
 
     # E-mail template views
     url(r'^template/new/$', add_email_template_view, name='messages_email_template_add'),
-    url(r'^template/edit/$', edit_email_template_view, name='messages_email_template_edit'),
+    url(r'^template/edit/(?P<pk>[\w-]+)/$', edit_email_template_view, name='messages_email_template_edit'),
     url(r'^template/details/(?P<pk>[\w-]+)/$', detail_email_template_view, name='messages_email_template_details'),
     url(r'^template/parse/$', parse_email_template_view, name='messages_email_template_parse'),
 

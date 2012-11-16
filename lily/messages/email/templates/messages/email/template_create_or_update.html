@@ -17,7 +17,62 @@
     
     <script type="text/javascript">
         $(document).ready(function() {
-            console.log('TODO: via ajax het bestand uploaden, waarna het geparsed wordt en het parameter gedeelte van het formulier getoond kan worden.');
+            var animation_time = 650;
+            var divider = $('.mws-form-divider');
+            var submit_btn = $('#submit-id-submit-add').attr('disabled', 'disabled');
+            var parameter_form;
+
+            $('#id_body').live('change', function() {
+                var form = $(this).closest('form');
+
+                var insert_parameter_form = function(html) {
+                    parameter_form = $(html).insertAfter(form.find('.mws-form-row:last')).hide().slideDown(animation_time);
+                    var parameter_inputs = parameter_form.find('textarea');
+
+                    if( $.fn.elastic )
+                        parameter_inputs.elastic();
+
+                    submit_btn.removeAttr('disabled');
+
+                    enableChosen(parameter_form);
+                    parameter_form.find('.chzn-select').change(function(event) {
+                        var value_textarea = $(this).closest('.mws-form-cols').find('textarea');
+                        if ($(this).val() == '') {
+                            value_textarea.show();
+                            value_textarea.val('');
+                        } else {
+                            value_textarea.hide();
+                            value_textarea.val($(this).val());
+                        }
+                    });
+                };
+
+                $(form).ajaxSubmit({
+                    type: 'post',
+                    dataType: 'json',
+                    url: '{% url messages_email_template_parse %}',
+                    data: {
+                        'csrfmiddlewaretoken': form.find('input[name="csrfmiddlewaretoken"]').val()
+                    }, beforeSubmit: function() {
+                        submit_btn.attr('disabled', 'disabled');
+                    }, success: function(response) {
+                        if( parameter_form !== undefined ){
+                            parameter_form.slideUp(animation_time, function() {
+                                parameter_form.remove();
+                                insert_parameter_form(response.html);
+                            });
+                        } else {
+                            insert_parameter_form(response.html);
+                        }
+                    }, error: function(){
+                        console.log('something went wrong');
+                    }
+                });
+            });
+
+            $('.mws-panel-body .mws-form').live('submit', function(event) {
+                {# Do some validation, so we don't lose all progress on accidental submit #}
+            });
         });
     </script>
 

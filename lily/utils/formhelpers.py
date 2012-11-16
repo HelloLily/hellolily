@@ -12,6 +12,8 @@ class LilyFormHelper(FormHelper):
     Simple FormHelper with extra functionality to simply replace a field in a layout to prevent
     redefining it completely.
     """
+    form_tag = False
+
     def __init__(self, form=None):
         super(LilyFormHelper, self).__init__(form=form)
         # set the default to inline
@@ -251,6 +253,16 @@ class LilyFormHelper(FormHelper):
                 self.layout.insert(index, layoutObject)
                 
                 self.delete_label_for(field_name)
+
+    def remove(self, *fields):
+        """
+        Remove fields from global layout.
+        """
+        layout_field_names = self.layout.get_field_names()
+        for pointer in reversed(layout_field_names):
+            field_name, index = self.get_field_name_from_pointer(pointer)
+            if field_name in fields:
+                self.layout.pop(index)
 
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):

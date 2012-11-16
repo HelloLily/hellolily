@@ -1,5 +1,6 @@
 # Django imports
 from django.db import models
+from django_extensions.db.models import TimeStampedModel
 from django_fields.fields import EncryptedCharField, EncryptedEmailField
 from django.utils.translation import ugettext as _
 
@@ -199,7 +200,7 @@ class EmailMessage(Message):
         verbose_name_plural = _('e-mail messages')
 
 
-class EmailTemplate(TenantMixin):
+class EmailTemplate(TenantMixin, TimeStampedModel):
     """
     Emails can be composed using templates.
     A template is a predefined email in which parameters can be dynamically inserted.
@@ -218,25 +219,54 @@ class EmailTemplate(TenantMixin):
         verbose_name_plural = _('e-mail templates')
 
 
-class EmailTemplateParameter(models.Model):
+class EmailTemplateParameter(TimeStampedModel):
     """
     All template parameters are stored in the database, a parameter is a dynamically filled part of a template.
-    This models contains those parameters and, if set, the default value of that parameter.
+    This models contains those parameters and the default value of that parameter (can be overwritten during e-mail composing).
 
-    Default values can be static or dynamic, which one it is is stored in the default_value syntax:
-        static  = 'static:value'
-        dynamic = 'dynamic:model/pk/field'
+    Default values can be static or dynamic, which one it is is stored in the is_dynamic field:
+        static  = 'value'
+        dynamic = 'model/pk/field'
+
+    The is_dynamic part should be in sync with the is_dynamic set in parameter choice.
+    There is no foreign key to the choice since the values are copied to this model.
 
     """
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='parameters')
     name = models.CharField(verbose_name=_('parameter name'), max_length=255)
-    default_value = models.CharField(verbose_name=_('default parameter value'), max_length=255, blank=True)
+    value = models.CharField(verbose_name=_('parameter value'), max_length=255, blank=True)
+    is_dynamic = models.BooleanField(_('parameter is dynamic'), default=False)
+
+
+    @property
+    def get_display_value(self):
+        # TODO: check if dynamic and parse that shit up!
+        return self.value
 
 
     def __unicode__(self):
-        return u'%s - %s' % (self.name, self.default_value)
+        return u'%s - %s' % (self.name, self.value)
 
 
     class Meta:
         verbose_name = _('e-mail template parameter')
         verbose_name_plural = _('e-mail template parameters')
+
+
+class EmailTemplateParameterChoice(TenantMixin, models.Model):
+    """
+    These are default value choices for parameters that are displayed in the choices dropdown.
+
+    """
+    label = models.CharField(_('choice label'), max_length="255")
+    value = models.CharField(_('choice value'), max_length="255")
+    is_dynamic = models.BooleanField(_('choice is dynamic'), default=False)
+
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.label, self.value)
+
+
+    class Meta:
+        verbose_name = _('e-mail template parameter choice')
+        verbose_name_plural = _('e-mail template parameter choices')

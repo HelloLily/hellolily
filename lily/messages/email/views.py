@@ -1,16 +1,19 @@
 # Python imports
+from collections import OrderedDict
+import anyjson
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 import re
 
 # Django imports
-from django.template import VARIABLE_TAG_START, VARIABLE_TAG_END, RequestContext
 from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
-from django.shortcuts import render_to_response
 
 # Lily imports
-from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm
-from lily.messages.email.models import EmailAccount, EmailTemplate
+from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, TemplateParameterForm, TemplateParameterParseForm
+from lily.messages.email.models import EmailAccount, EmailTemplate, EmailTemplateParameter
+from lily.messages.email.utils import parse
 
 
 class CreateTestDataView(TemplateView):
@@ -100,6 +103,39 @@ class AddEmailTemplateView(CreateView):
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
+
+    def post(self, request, *args, **kwargs):
+        known_fields = ['name', 'body', 'csrfmiddlewaretoken', 'submit-add']
+        post_keys = set(request.POST.keys())
+        parameter_list = [x for x in post_keys if x not in known_fields]
+        self.parameter_list = parameter_list
+
+        return super(AddEmailTemplateView, self).post(request, *args, **kwargs)
+
+
+    def get_form_kwargs(self):
+        kwargs =  super(AddEmailTemplateView, self).get_form_kwargs()
+
+        if hasattr(self, 'parameter_list'):
+            kwargs.update({
+                'parameters': self.parameter_list,
+            })
+
+        return kwargs
+
+
+    def form_valid(self, form):
+        redirect = super(AddEmailTemplateView, self).form_valid(form)
+
+        for parameter in form.parameter_list:
+            EmailTemplateParameter.objects.create(
+                template=self.object,
+                name=parameter,
+                default_value=form.cleaned_data.get(parameter)
+            )
+        return redirect
+
+
     def get_success_url(self):
         """
         Redirect to the edit view, so the default values of parameters can be filled in.
@@ -117,14 +153,20 @@ class EditEmailTemplateView(UpdateView):
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
-    def get_form_kwargs(self):
-        """
-        Returns the keyword arguments for instanciating the form.
-        """
-        kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
-        kwargs.update({'parameters': ['1', '2']})
-        return kwargs
 
+    def get_form_kwargs(self):
+        kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
+        self.parameter_list = EmailTemplateParameter.objects.filter(template=self.object).order_by('pk')
+
+        parameters = OrderedDict()
+        for param in self.parameter_list:
+            parameters['%s' % param.name] = param.default_value
+
+        kwargs.update({
+            'parameters': parameters,
+        })
+
+        return kwargs
 
 class DetailEmailTemplateView(TemplateView):
     """
@@ -137,36 +179,30 @@ class ParseEmailTemplateView(FormView):
     """
     Parse an uploaded template for variables and return a generated form/
     """
-    template_name = 'messages/email/template_create_or_update.html'
-    form_class = CreateUpdateEmailTemplateForm
-
-    def get_form_kwargs(self):
-        kwargs = super(ParseEmailTemplateView, self).get_form_kwargs()
-
-        if hasattr(self, 'parameters'):
-            kwargs.update({
-                'parameters': self.parameters,
-            })
-
-        return kwargs
+    template_name = 'messages/email/template_create_or_update_base_form.html'
+    form_class = TemplateParameterParseForm
+    param_form_class = TemplateParameterForm
 
     def form_valid(self, form):
         """
         Return parsed form with rendered parameter fields
         """
         body = form.cleaned_data.get('body').read()
-        tag_re = (re.compile('(%s.*?%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
-        parameter_list = []
+        parameter_list = parse(body)
 
-        for bit in tag_re.split(body):
-            if bit.startswith(VARIABLE_TAG_START) and bit.endswith(VARIABLE_TAG_END):
-                parameter = bit[2:-2].strip()
-                if re.match("^[A-Za-z0-9_.]*$", parameter):
-                    parameter_list.append(parameter)
+        return HttpResponse(anyjson.dumps({
+            'valid': True,
+            'html': render_to_string(self.template_name, {
+                'form': self.param_form_class(parameters=parameter_list, **self.get_form_kwargs())
+            })
+        }), mimetype="application/json")
 
-        self.parameters = parameter_list
+    def form_invalid(self, form):
+        return HttpResponse(anyjson.dumps({
+            'valid': False,
+            'errors': form.errors,
+        }), mimetype="application/json")
 
-        return self.get(self.request)
 
 
 # Testing views

@@ -19,10 +19,31 @@
         $(document).ready(function() {
             var animation_time = 650;
             var divider = $('.mws-form-divider');
+            var body_input = $('#id_body');
             var submit_btn = $('#submit-id-submit-add').attr('disabled', 'disabled');
             var parameter_form;
 
-            $('#id_body').live('change', function() {
+            if( body_input.val() !== '' )
+                body_input.trigger('change');
+
+            $('#id_name').live('change', function() {
+                if( $('#id_body').val() !== '' ) {
+                    submit_btn.removeAttr('disabled');
+                }
+            });
+
+            $('.mws-panel-body form').find('.chzn-select').live('change', function(event) {
+                var value_textarea = $(this).closest('.mws-form-cols').find('textarea');
+                if ($(this).val() == '') {
+                    value_textarea.show();
+                    value_textarea.val('');
+                } else {
+                    value_textarea.hide();
+                    value_textarea.val($(this).val());
+                }
+            });
+
+            body_input.live('change', function() {
                 var form = $(this).closest('form');
 
                 var insert_parameter_form = function(html) {
@@ -32,19 +53,10 @@
                     if( $.fn.elastic )
                         parameter_inputs.elastic();
 
-                    submit_btn.removeAttr('disabled');
+                    if( $('#id_name').val() !== '' )
+                        submit_btn.removeAttr('disabled');
 
                     enableChosen(parameter_form);
-                    parameter_form.find('.chzn-select').change(function(event) {
-                        var value_textarea = $(this).closest('.mws-form-cols').find('textarea');
-                        if ($(this).val() == '') {
-                            value_textarea.show();
-                            value_textarea.val('');
-                        } else {
-                            value_textarea.hide();
-                            value_textarea.val($(this).val());
-                        }
-                    });
                 };
 
                 $(form).ajaxSubmit({
@@ -68,10 +80,6 @@
                         console.log('something went wrong');
                     }
                 });
-            });
-
-            $('.mws-panel-body .mws-form').live('submit', function(event) {
-                {# Do some validation, so we don't lose all progress on accidental submit #}
             });
         });
     </script>

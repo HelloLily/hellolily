@@ -235,6 +235,7 @@ class EmailTemplateParameter(TimeStampedModel):
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='parameters')
     name = models.CharField(verbose_name=_('parameter name'), max_length=255)
     value = models.CharField(verbose_name=_('parameter value'), max_length=255, blank=True)
+    label = models.CharField(_('choice label'), max_length="255", blank=True)
     is_dynamic = models.BooleanField(_('parameter is dynamic'), default=False)
 
 

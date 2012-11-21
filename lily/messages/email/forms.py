@@ -1,6 +1,7 @@
 # Django imports
 from crispy_forms.layout import Submit
 from django import forms
+from django.db.models.query import QuerySet
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
@@ -52,23 +53,24 @@ class TemplateParameterMixin(FieldInitFormMixin):
         if not any(choice[0] == '' for choice in choice_list):
             choice_list.insert(0, ['', _('Static value')])
 
-        if isinstance(parameters, dict):
+        if isinstance(parameters, QuerySet):
             for param in parameters:
-                self.fields['%s_select' % param] = forms.ChoiceField(
+                self.fields['%s_select' % param.name] = forms.ChoiceField(
                     required=False,
                     choices=choice_list,
-                    default='',
+                    initial=param.label,
                     widget=forms.Select(attrs={
                         'class': 'param-select',
                     })
                 )
-                self.fields['%s_input' % param] = forms.CharField(
+                self.fields['%s' % param.name] = forms.CharField(
                     label=_('default value for %s' % param),
-                    max_length=255, required=False,
-                    initial=parameters[param],
+                    max_length=255,
+                    required=False,
+                    initial=param.value,
                     widget=forms.Textarea(attrs={
                         'click_and_show': False,
-                        'class': 'single-line',
+                        'class': 'single-line hidden' if param.label else 'single-line',
                     })
                 )
         else:
@@ -80,7 +82,7 @@ class TemplateParameterMixin(FieldInitFormMixin):
                         'class': 'param-select',
                     })
                 )
-                self.fields['%s_input' % param] = forms.CharField(
+                self.fields['%s' % param] = forms.CharField(
                     label=_('default value for %s' % param),
                     max_length=255,
                     required=False,
@@ -95,15 +97,26 @@ class TemplateParameterMixin(FieldInitFormMixin):
 
 
     def wrap_parameter_fields(self, parameters, helper):
-        for param in parameters:
-            helper.remove('%s_select' % param)
-            helper.replace('%s_input' % param,
-                helper.create_columns(
-                    Column('%s_select' % param, size=4, first=True),
-                    Column('%s_input' % param, size=4, first=False),
-                    label=_('%s' % param)
+        if isinstance(parameters, QuerySet):
+            for param in parameters:
+                helper.remove('%s_select' % param.name)
+                helper.replace('%s' % param.name,
+                    helper.create_columns(
+                        Column('%s_select' % param.name, size=4, first=True),
+                        Column('%s' % param.name, size=4, first=False),
+                        label=_('%s' % param.name)
+                    )
                 )
-            )
+        else:
+            for param in parameters:
+                helper.remove('%s_select' % param)
+                helper.replace('%s' % param,
+                    helper.create_columns(
+                        Column('%s_select' % param, size=4, first=True),
+                        Column('%s' % param, size=4, first=False),
+                        label=_('%s' % param)
+                    )
+                )
 
 
 class TemplateParameterForm(ModelForm, TemplateParameterMixin):
@@ -116,7 +129,7 @@ class TemplateParameterForm(ModelForm, TemplateParameterMixin):
         """
         super(TemplateParameterForm, self).__init__(*args, **kwargs)
 
-        choice_list = [[choice.value, choice.label] for choice in EmailTemplateParameterChoice.objects.all()]
+        choice_list = [[choice.label, choice.label] for choice in EmailTemplateParameterChoice.objects.all()]
         self.add_parameter_fields(parameters, choice_list)
 
         self.helper = LilyFormHelper(form=self)
@@ -171,7 +184,7 @@ class CreateUpdateEmailTemplateForm(TemplateParameterParseForm, TemplateParamete
         super(CreateUpdateEmailTemplateForm, self).__init__(*args, **kwargs)
 
         if parameters:
-            choice_list = [[choice.value, choice.label] for choice in EmailTemplateParameterChoice.objects.all()]
+            choice_list = [[choice.label, choice.label] for choice in EmailTemplateParameterChoice.objects.all()]
             self.add_parameter_fields(parameters, choice_list)
 
         # Customize form layout
@@ -200,10 +213,17 @@ class CreateUpdateEmailTemplateForm(TemplateParameterParseForm, TemplateParamete
 
         if body:
             self.parameter_list = parse(body.read())
-
+            select_list = ['%s_select' % param for param in self.parameter_list]
             for key in cleaned_data.keys():
-                if key not in self.base_fields.keys() and key not in self.parameter_list:
-                    del cleaned_data[key]
+                if key not in self.base_fields.keys():
+                    if key not in self.parameter_list and key not in select_list:
+                        del cleaned_data[key]
+                    if key in self.parameter_list:
+                        label = cleaned_data.get('%s_select' % key)
+                        if label:
+                            if not EmailTemplateParameterChoice.objects.filter(label=label).exists():
+                                self._errors['%s_select' % key] = self.fields['%s_select' % key].default_error_messages.get('invalid_choice')
+                                del cleaned_data['%s_select' % key]
 
         return cleaned_data
 

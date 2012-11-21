@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import anyjson
 from django.http import HttpResponse
+from django.template import RequestContext
 from django.template.loader import render_to_string
 import re
 
@@ -12,7 +13,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 
 # Lily imports
 from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, TemplateParameterForm, TemplateParameterParseForm
-from lily.messages.email.models import EmailAccount, EmailTemplate, EmailTemplateParameter
+from lily.messages.email.models import EmailAccount, EmailTemplate, EmailTemplateParameter, EmailTemplateParameterChoice
 from lily.messages.email.utils import parse
 
 
@@ -105,9 +106,19 @@ class AddEmailTemplateView(CreateView):
 
 
     def post(self, request, *args, **kwargs):
+        # Fields that we know should be in the post parameters
         known_fields = ['name', 'body', 'csrfmiddlewaretoken', 'submit-add']
+        # Keys of the post parameters
         post_keys = set(request.POST.keys())
-        parameter_list = [x for x in post_keys if x not in known_fields]
+        # Filter keys of known fields
+        # Exclude keys ending with _select, which are added in the form, unless actual template var ends with select
+        parameter_list = [x for x in post_keys if x not in known_fields and (not x.endswith('_select') or x.endswith('select_select'))]
+
+        for index, param in enumerate(parameter_list):
+            # If any of the keys ends with double select, trim the last select
+            if parameter_list[index].endswith('select_select'):
+                parameter_list[index] = parameter_list[index][:-7]
+
         self.parameter_list = parameter_list
 
         return super(AddEmailTemplateView, self).post(request, *args, **kwargs)
@@ -115,7 +126,6 @@ class AddEmailTemplateView(CreateView):
 
     def get_form_kwargs(self):
         kwargs =  super(AddEmailTemplateView, self).get_form_kwargs()
-
         if hasattr(self, 'parameter_list'):
             kwargs.update({
                 'parameters': self.parameter_list,
@@ -125,15 +135,30 @@ class AddEmailTemplateView(CreateView):
 
 
     def form_valid(self, form):
-        redirect = super(AddEmailTemplateView, self).form_valid(form)
+        success_url = super(AddEmailTemplateView, self).form_valid(form)
 
         for parameter in form.parameter_list:
-            EmailTemplateParameter.objects.create(
-                template=self.object,
-                name=parameter,
-                default_value=form.cleaned_data.get(parameter)
-            )
-        return redirect
+            label = form.cleaned_data.get('%s_select' % parameter)
+            if label:
+                # select value != empty so we look for value in db
+                choice = EmailTemplateParameterChoice.objects.get(label='%s' % label)
+                EmailTemplateParameter.objects.create(
+                    template=self.object,
+                    name=parameter,
+                    value=choice.value,
+                    label=choice.label,
+                    is_dynamic=choice.is_dynamic
+                )
+            else:
+                EmailTemplateParameter.objects.create(
+                    template=self.object,
+                    name=parameter,
+                    value=form.cleaned_data.get(parameter),
+                    label='',
+                    is_dynamic=False
+                )
+
+        return success_url
 
 
     def get_success_url(self):
@@ -160,10 +185,10 @@ class EditEmailTemplateView(UpdateView):
 
         parameters = OrderedDict()
         for param in self.parameter_list:
-            parameters['%s' % param.name] = param.default_value
+            parameters['%s' % param.name] = param.value
 
         kwargs.update({
-            'parameters': parameters,
+            'parameters': self.parameter_list,
         })
 
         return kwargs
@@ -194,7 +219,7 @@ class ParseEmailTemplateView(FormView):
             'valid': True,
             'html': render_to_string(self.template_name, {
                 'form': self.param_form_class(parameters=parameter_list, **self.get_form_kwargs())
-            })
+            }, context_instance=RequestContext(self.request))
         }), mimetype="application/json")
 
     def form_invalid(self, form):

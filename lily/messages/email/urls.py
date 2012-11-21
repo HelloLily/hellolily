@@ -24,7 +24,7 @@ urlpatterns = patterns('',
 
     # E-mail template views
     url(r'^template/new/$', add_email_template_view, name='messages_email_template_add'),
-    url(r'^template/edit/(?P<pk>[\w-]+)/$', edit_email_template_view, name='messages_email_template_edit'),
+    url(r'^template/edit/(?P<pk>[\d-]+)/$', edit_email_template_view, name='messages_email_template_edit'),
     url(r'^template/details/(?P<pk>[\w-]+)/$', detail_email_template_view, name='messages_email_template_details'),
     url(r'^template/parse/$', parse_email_template_view, name='messages_email_template_parse'),
 

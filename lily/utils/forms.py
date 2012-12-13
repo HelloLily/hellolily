@@ -1,8 +1,8 @@
 from crispy_forms.layout import Layout, HTML
 from django import forms
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, \
-    TextInput, Select, Textarea, HiddenInput
+from django.forms.widgets import CheckboxInput, PasswordInput, DateInput
+from django.forms.widgets import TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
 from lily.cases.widgets import PrioritySelect
@@ -90,12 +90,11 @@ class FieldInitFormMixin(forms.BaseForm):
 
 
     def __init__(self, *args, **kwargs):
-        self.update_fields()
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
-
+        self.update_fields()
 
     def update_fields(self):
-        for name, field in self.base_fields.items():
+        for name, field in self.fields.items():
             w = field.widget
             if issubclass(w.__class__, HiddenInput):
                 continue # ignore

@@ -1,0 +1,91 @@
+{% extends 'base_create_or_update.html' %}
+
+{% load i18n media %}
+
+{% block create-page-title %}{% trans 'Add template' %}{% endblock %}
+
+{% block update-page-title %}{% trans 'Edit template' %}{% endblock %}
+
+{% block styles %}
+    {% include_media 'lily.accounts.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block scripts %}
+    {{  block.super }}
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var animation_time = 650;
+            var divider = $('.mws-form-divider');
+            var body_input = $('#id_body');
+            var submit_btn = $('#submit-id-submit-add').attr('disabled', 'disabled');
+            var parameter_form;
+
+            if( body_input.val() !== '' )
+                body_input.trigger('change');
+
+            $('#id_name').live('change', function() {
+                if( $('#id_body').val() !== '' ) {
+                    submit_btn.removeAttr('disabled');
+                }
+            });
+
+            $('.mws-panel-body form').find('.chzn-select').live('change', function(event) {
+                var value_textarea = $(this).closest('.mws-form-cols').find('textarea');
+                if ($(this).val() == '') {
+                    value_textarea.show();
+                    value_textarea.val('');
+                } else {
+                    value_textarea.hide();
+                    value_textarea.val($(this).val());
+                }
+            });
+
+            body_input.live('change', function() {
+                var form = $(this).closest('form');
+
+                var insert_parameter_form = function(html) {
+                    parameter_form = $(html).insertAfter(form.find('.mws-form-row:last')).hide().slideDown(animation_time);
+                    var parameter_inputs = parameter_form.find('textarea');
+
+                    if( $.fn.elastic )
+                        parameter_inputs.elastic();
+
+                    if( $('#id_name').val() !== '' )
+                        submit_btn.removeAttr('disabled');
+
+                    enableChosen(parameter_form);
+                };
+
+                $(form).ajaxSubmit({
+                    type: 'post',
+                    dataType: 'json',
+                    url: '{% url messages_email_template_parse %}',
+                    data: {
+                        'csrfmiddlewaretoken': form.find('input[name="csrfmiddlewaretoken"]').val()
+                    }, beforeSubmit: function() {
+                        submit_btn.attr('disabled', 'disabled');
+                    }, success: function(response) {
+                        if( parameter_form !== undefined ){
+                            parameter_form.slideUp(animation_time, function() {
+                                parameter_form.remove();
+                                insert_parameter_form(response.html);
+                            });
+                        } else {
+                            insert_parameter_form(response.html);
+                        }
+                    }, error: function(){
+                        console.log('something went wrong');
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block create_or_update_form %}
+    {% include 'messages/email/template_create_or_update_form.html' %}
+{% endblock %}

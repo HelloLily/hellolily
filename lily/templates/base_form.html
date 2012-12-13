@@ -5,7 +5,7 @@
         <span>{% block form-title %}{% endblock %}</span>
     </div>
     <div class="mws-panel-body">
-        <form class="mws-form tabthis" action="" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+        <form class="mws-form tabthis" action="{{ form_action_url }}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
             {% csrf_token %}
             
             {% block form-content %}

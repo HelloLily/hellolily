@@ -12,6 +12,8 @@ class LilyFormHelper(FormHelper):
     Simple FormHelper with extra functionality to simply replace a field in a layout to prevent
     redefining it completely.
     """
+    form_tag = False
+
     def __init__(self, form=None):
         super(LilyFormHelper, self).__init__(form=form)
         # set the default to inline
@@ -38,7 +40,22 @@ class LilyFormHelper(FormHelper):
             else:
                 if layout_object.fields[pos[-1]] in field_names:
                     layout_object.fields[pos[-1]] = layoutObject(layout_object.fields[pos[-1]])
-    
+
+    def insert_before(self, layoutObject, *field_names):
+        """
+        Insert layoutObject before all field_names in the layout.
+
+        Example:
+        self.helper.insert_before(Divider, 'field_3', 'field6')
+        """
+        layout_field_names = self.layout.get_field_names()
+        for pointer in layout_field_names:
+            field_name, index = self.get_field_name_from_pointer(pointer)
+            if field_name in field_names:
+                # Insert before field_name
+                field_index = index
+                self.layout.insert(field_index, layoutObject())
+
     def insert_after(self, layoutObject, *field_names):
         """
         Insert layoutObject after all field_names in the layout.
@@ -237,6 +254,16 @@ class LilyFormHelper(FormHelper):
                 
                 self.delete_label_for(field_name)
 
+    def remove(self, *fields):
+        """
+        Remove fields from global layout.
+        """
+        layout_field_names = self.layout.get_field_names()
+        for pointer in reversed(layout_field_names):
+            field_name, index = self.get_field_name_from_pointer(pointer)
+            if field_name in fields:
+                self.layout.pop(index)
+
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):
     """
@@ -248,7 +275,7 @@ class DeleteBackAddSaveFormHelper(LilyFormHelper):
     def __init__(self, form=None):
         super(DeleteBackAddSaveFormHelper, self).__init__(form=form)
         
-        if form.instance.pk is not None:
+        if hasattr(form, 'instance') and form.instance.pk is not None:
             if not has_user_in_group(form.instance, 'account_admin'):
                 self.add_input(Submit('delete', _('Delete'), 
                    css_id='delete-%s' % form.instance.pk, 
@@ -256,7 +283,7 @@ class DeleteBackAddSaveFormHelper(LilyFormHelper):
                 )
         
         self.add_input(Submit('submit-back', _('Back'), css_class='red'))
-        if form.instance.pk is not None: 
+        if hasattr(form, 'instance') and form.instance.pk is not None:
             self.add_input(Submit('submit-save', _('Save')))
         else:
             self.add_input(Submit('submit-add', _('Add')))

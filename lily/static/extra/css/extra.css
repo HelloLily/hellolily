@@ -1418,3 +1418,7 @@ textarea.single-line,
 .single-line textarea {
     height: 31px;
 }
+
+.customfile {
+    padding: 4px 7px;
+}

@@ -1,202 +1,242 @@
-# Django imports
+import copy
+import email
+
+from BeautifulSoup import BeautifulSoup, Comment, Declaration
 from django.db import models
-from django_fields.fields import EncryptedCharField, EncryptedEmailField
+from django.template.defaultfilters import truncatechars
 from django.utils.translation import ugettext as _
+from django_fields.fields import EncryptedCharField, EncryptedEmailField
 
-# Lily imports
-from lily.messages.models import Message, SocialMediaAccount
+from lily.messages.email.emailclient import DRAFTS, TRASH
+from lily.messages.models import Message, MessagesAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO
-from lily.tenant.models import Tenant, TenantMixin
+from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 
-class EmailProvider(models.Model):
+class EmailProvider(TenantMixin):
     """
     A provider contains the connection information for an account.
-
     """
+    name = models.CharField(max_length=30, blank=True, null=True)  # named providers are defaults.
     retrieve_host = models.CharField(max_length=32)
-    retrieve_port = models.IntegerField(default=993)
+    retrieve_port = models.IntegerField()
 
     send_host = models.CharField(max_length=32)
-    send_port = models.IntegerField(default=587)
-    send_use_tls = models.BooleanField(default=True)
-
+    send_port = models.IntegerField()
+    send_use_tls = models.BooleanField()
 
     def __unicode__(self):
-        return self.retrieve_host
-
+        return self.retrieve_host if len(self.name.strip()) == 0 else self.name
 
     class Meta:
-        verbose_name = _('-email provider')
+        verbose_name = _('e-mail provider')
         verbose_name_plural = _('e-mail providers')
 
 
-class EmailAccount(SocialMediaAccount):
+class EmailAccount(MessagesAccount):
     """
-    An e-mail account which represents a single inbox.
-
+    An e-mail account.
     """
-    provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     name = models.CharField(max_length=255)
     email = EncryptedEmailField(max_length=255)
-
-    # Login credentials
     username = EncryptedCharField(max_length=255)
     password = EncryptedCharField(max_length=255)
-
-
-    def sync(self, blocking=False):
-        from lily.messages.email.tasks import import_account
-        result = import_account.delay(self)
-
-        if blocking:
-            return result.get()
-        return
-
-    def update(self, blocking=False):
-        from lily.messages.email.tasks import update_account
-        result = update_account.delay(self)
-
-        if blocking:
-            return result.get()
-        return
-
+    provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
+    last_sync_date = models.DateTimeField()
 
     def __unicode__(self):
         return self.name if self.name else self.email
-
 
     class Meta:
         verbose_name = _('e-mail account')
         verbose_name_plural = _('e-mail accounts')
 
 
-class EmailAttachment(models.Model):
+class EmailMessage(Message):
     """
-    An attachment that can come with an e-mail message.
-
+    A single e-mail message.
     """
-    attachment = models.FileField(upload_to=EMAIL_ATTACHMENT_UPLOAD_TO)
+    uid = models.IntegerField()  # unique id on the server
+    flags = models.TextField(blank=True, null=True)
+    body = models.TextField(blank=True, null=True)
+    size = models.IntegerField(default=0, null=True)  # size in bytes
+    folder_name = models.CharField(max_length=255)
+    is_private = models.BooleanField(default=False)
 
+    def has_attachments(self):
+        return self.attachments.count() > 0
+
+    # def get_conversation(self):
+    #     """
+    #     Return the entire conversation this message is a part of.
+    #     """
+    #     messages = []
+    #     message = self.headers.filter(name='In-Reply-To')
+    #     while message != None:
+    #         messages.append(message)
+    #         try:
+    #             message_id = message.headers.filter(name='In-Reply-To')
+    #             message = EmailMessage.objects.get(header__name='MSG-ID', header_value=message_id)
+    #         except EmailMessage.DoesNotExist:
+    #             message = None
+
+    #     return messages
+
+    @property
+    def flat_body(self):
+        if self.body:
+            soup = BeautifulSoup(self.body)
+
+            # Remove html comments
+            comments = soup.findAll(text=lambda text: isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+            flat_soup = copy.deepcopy(soup)
+
+            # Remove doctype tag from flat_soup
+            for child in flat_soup.contents:
+                if isinstance(child, Declaration):
+                    declaration_type = child.string.split()[0]
+                    if declaration_type.upper() == 'DOCTYPE':
+                        del flat_soup.contents[flat_soup.contents.index(child)]
+
+            # Remove several tags from flat_soup
+            extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
+            for elem in flat_soup.findAll(extract_tags):
+                elem.extract()
+
+            return ''.join(flat_soup.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+        return ''
+
+    @property
+    def subject(self):
+        header = None
+        if getattr(self, '_subject_header', False):
+            header = self._subject_header
+        else:
+            header = self.headers.filter(name='Subject')
+            self._subject_header = header
+        if header:
+            return header[0].value
+        return None
+
+    @property
+    def to_name(self):
+        header = None
+        if getattr(self, '_to_header', False):
+            header = self._to_header
+        else:
+            header = self.headers.filter(name='To')
+            self._to_header = header
+        if header:
+            return email.utils.parseaddr(header[0].value)[0]
+        return ''
+
+    @property
+    def to_email(self):
+        header = None
+        if getattr(self, '_to_header', False):
+            header = self._to_header
+        else:
+            header = self.headers.filter(name='To')
+            self._to_header = header
+        if header:
+            return email.utils.parseaddr(header[0].value)[1]
+        return ''
+
+    @property
+    def from_name(self):
+        header = None
+        if getattr(self, '_from_header', False):
+            header = self._from_header
+        else:
+            header = self.headers.filter(name='From')
+            self._from_header = header
+        if header:
+            return email.utils.parseaddr(header[0].value)[0]
+        return ''
+
+    @property
+    def from_email(self):
+        header = None
+        if getattr(self, '_from_header', False):
+            header = self._from_header
+        else:
+            header = self.headers.filter(name='From')
+            self._from_header = header
+        if header:
+            return email.utils.parseaddr(header[0].value)[1]
+        return ''
+
+    @property
+    def is_plain(self):
+        header = self.headers.filter(name='Content-Type')
+        if header:
+            return header[0].value.startswith('text/plain')
+        return False
+
+    @property
+    def is_draft(self):
+        return DRAFTS in self.flags
+
+    @property
+    def is_deleted(self):
+        return TRASH in self.flags
 
     def __unicode__(self):
-        return self.name if self.name else self.email
+        return u'%s - %s'.strip() % (email.utils.parseaddr(self.from_email), truncatechars(self.subject, 130))
 
+    class Meta:
+        verbose_name = _('e-mail message')
+        verbose_name_plural = _('e-mail messages')
+        unique_together = ('uid', 'folder_name', 'account')
+
+
+class EmailAttachment(TenantMixin):
+    """
+    A single attachment linked to an e-mail message.
+    """
+    attachment = models.FileField(upload_to=EMAIL_ATTACHMENT_UPLOAD_TO)  # also contains filename
+    size = models.PositiveIntegerField(default=0)  # size in bytes
+    message = models.ForeignKey(EmailMessage, related_name='attachments')
 
     class Meta:
         verbose_name = _('e-mail attachment')
         verbose_name_plural = _('e-mail attachments')
 
 
-class EmailMessage(Message):
+class EmailHeader(models.Model):
     """
-    Store an e-mail message with all possible headers.
-
-    -- Beware --
-    -- Almost everything can be blank or null. You can never be certain everything is provided.
-
+    A single e-mail header linked to an e-mail message.
+    Most common are: 'to', 'from' and 'content-type'.
     """
-    private = models.BooleanField(default=False)
-    uid = models.IntegerField()
-
-    message_flags = models.CharField(max_length=255, blank=True, default='')
-    subject = models.CharField(max_length=255, blank=True, default='')
-
-    # The plain from string plus the parsed email and name. If provided the original sender.
-    from_string = models.CharField(max_length=255)
-    from_email = models.CharField(max_length=255)
-    from_name = models.CharField(max_length=255)
-    sender = models.CharField(max_length=255, blank=True, default='')
-
-    # Gmail specific message info.
-    message_id = models.CharField(max_length=255, blank=True, default='')
-    thread_id = models.CharField(max_length=255, blank=True, default='')
-
-    # Delivery details.
-    delivered_to = models.CharField(max_length=255, blank=True, default='')
-    to = models.CharField(max_length=255, blank=True, default='')
-    cc = models.CharField(max_length=255, blank=True, default='')
-    bcc = models.CharField(max_length=255, blank=True, default='')
-
-    # Details on received stuff.
-    received = models.CharField(max_length=255, blank=True, default='')
-    received_spf = models.CharField(max_length=255, blank=True, default='')
-
-    # The message itself.
-    content_type = models.CharField(max_length=255)
-    content_length = models.CharField(max_length=255, blank=True, default='')
-    message_html = models.TextField(blank=True, default='')
-    message_text = models.TextField(blank=True, default='')
-
-    # Message attachements.
-    mime_version = models.CharField(max_length=255, blank=True, default='')
-    message_attachements = models.ManyToManyField(EmailAttachment)
-
-    # Random headers from e-mail message.
-    return_path = models.CharField(max_length=255, blank=True, default='')
-    authentication_results = models.CharField(max_length=255, blank=True, default='')
-    content_transfer_encoding = models.CharField(max_length=255, blank=True, default='')
-    domainkey_signature = models.CharField(max_length=255, blank=True, default='')
-    dkim_signature = models.CharField(max_length=255, blank=True, default='')
-    precedence = models.CharField(max_length=255, blank=True, default='')
-    references = models.CharField(max_length=255, blank=True, default='')
-    user_agent = models.CharField(max_length=255, blank=True, default='')
-    in_reply_to = models.CharField(max_length=255, blank=True, default='')
-    bounces_to = models.CharField(max_length=255, blank=True, default='')
-    errors_to = models.CharField(max_length=255, blank=True, default='')
-    keywords = models.CharField(max_length=255, blank=True, default='')
-    comments = models.CharField(max_length=255, blank=True, default='')
-    encrypted = models.CharField(max_length=255, blank=True, default='')
-    priority = models.CharField(max_length=255, blank=True, default='')
-    reply_by = models.CharField(max_length=255, blank=True, default='')
-    sensitivity = models.CharField(max_length=255, blank=True, default='')
-    language = models.CharField(max_length=255, blank=True, default='')
-    list_unsubscribe = models.CharField(max_length=255, blank=True, default='')
-
-    # Custom headers??
-    x_originating_ip = models.CharField(max_length=255, blank=True, default='')
-    x_dsncontext = models.CharField(max_length=255, blank=True, default='')
-    x_linkedin_fbl = models.CharField(max_length=255, blank=True, default='')
-    x_linkedin_class = models.CharField(max_length=255, blank=True, default='')
-    x_linkedin_template = models.CharField(max_length=255, blank=True, default='')
-    x_virus_scanned = models.CharField(max_length=255, blank=True, default='')
-    x_php_originating_script = models.CharField(max_length=255, blank=True, default='')
-    x_priority = models.CharField(max_length=255, blank=True, default='')
-    x_destination_id = models.CharField(max_length=255, blank=True, default='')
-    x_mailingid = models.CharField(max_length=255, blank=True, default='')
-    x_smfbl = models.CharField(max_length=255, blank=True, default='')
-    x_report_abuse = models.CharField(max_length=255, blank=True, default='')
-    x_virtualservergroup = models.CharField(max_length=255, blank=True, default='')
-    x_virtualserver = models.CharField(max_length=255, blank=True, default='')
-    x_mailer = models.CharField(max_length=255, blank=True, default='')
-    x_smheadermap = models.CharField(max_length=255, blank=True, default='')
-    x_sendgrid_eid = models.CharField(max_length=255, blank=True, default='')
-    x_google_dkim_signature = models.CharField(max_length=255, blank=True, default='')
-    x_sfdc_interface = models.CharField(max_length=255, blank=True, default='')
-    x_sfdc_binding = models.CharField(max_length=255, blank=True, default='')
-    x_sfdc_user = models.CharField(max_length=255, blank=True, default='')
-    x_sfdc_tls_norelay = models.CharField(max_length=255, blank=True, default='')
-    x_sender = models.CharField(max_length=255, blank=True, default='')
-    x_mail_abuse_inquiries = models.CharField(max_length=255, blank=True, default='')
-    x_sfdc_lk = models.CharField(max_length=255, blank=True, default='')
-    x_twitterimpressionid = models.CharField(max_length=255, blank=True, default='')
-    x_dkim = models.CharField(max_length=255, blank=True, default='')
-    x_facebook_notify = models.CharField(max_length=255, blank=True, default='')
-    x_facebook_priority = models.CharField(max_length=255, blank=True, default='')
-    x_facebook = models.CharField(max_length=255, blank=True, default='')
+    name = models.CharField(max_length=255)
+    value = models.TextField(null=True)
+    message = models.ForeignKey(EmailMessage, related_name='headers')
 
 
-    def get_template(self):
-        return 'messages/email/message_row.html'
+class EmailLabel(models.Model):
+    """
+    A single label in which an e-mail message can be linked to.
+    """
+    name = models.CharField(max_length=50)
+    message = models.ForeignKey(EmailMessage, related_name='labels')
 
 
-    def __unicode__(self):
-        return u'%s %s %s'.strip() % (self.uid, self.from_string, self.subject)
-
-
-    class Meta:
-        verbose_name = _('e-mail message')
-        verbose_name_plural = _('e-mail messages')
+class ActionStep(TenantMixin):
+    """
+    ActionStep helping decide the order in which to process e-mail messages.
+    """
+    LOW, NORMAL, HIGH = range(3)
+    ACTION_STEP_PRIO = (
+        (LOW, _('Low priority')),
+        (NORMAL, _('Normal priority')),
+        (HIGH, _('High priority'))
+    )
+    priority = models.IntegerField()
+    done = models.BooleanField(default=False)
+    message = models.ForeignKey(EmailMessage)
 
 
 class EmailTemplate(TenantMixin):
@@ -208,17 +248,15 @@ class EmailTemplate(TenantMixin):
     name = models.CharField(verbose_name=_('template name'), max_length=255)
     body = models.TextField(verbose_name=_('message body'))
 
-
     def __unicode__(self):
         return u'%s' % self.name
-
 
     class Meta:
         verbose_name = _('e-mail template')
         verbose_name_plural = _('e-mail templates')
 
 
-class EmailTemplateParameters(models.Model):
+class EmailTemplateParameters(TenantMixin):
     """
     All template parameters are stored in the database, a parameter is a dynamically filled part of a template.
     This models contains those parameters and, if set, the default value of that parameter.
@@ -232,10 +270,8 @@ class EmailTemplateParameters(models.Model):
     name = models.CharField(verbose_name=_('parameter name'), max_length=255)
     default_value = models.CharField(verbose_name=_('default parameter value'), max_length=255, blank=True)
 
-
     def __unicode__(self):
         return u'%s - %s' % (self.name, self.default_value)
-
 
     class Meta:
         verbose_name = _('e-mail template parameter')

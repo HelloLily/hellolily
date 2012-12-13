@@ -1,3 +1,5 @@
 web: python manage.py runserver
-celeryd: python manage.py celeryd -E -B --loglevel=INFO
+#celeryd: python manage.py celeryd -E -B --loglevel=INFO --concurrency=2
+celeryd: python manage.py celeryd -E --loglevel=INFO --concurrency=2
 worker: python manage.py celerycam
+

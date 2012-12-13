@@ -6,9 +6,9 @@ from lily.messages.views import dashboard_view
 
 urlpatterns = patterns('',
     url(r'^$', dashboard_view, name='messages_dashboard'),
-    url(r'^sent/$', dashboard_view, name='messages_sent'),
-    url(r'^drafts/$', dashboard_view, name='messages_drafts'),
-    url(r'^archived/$', dashboard_view, name='messages_archived'),
+#     url(r'^sent/$', dashboard_view, name='messages_sent'),
+#     url(r'^drafts/$', dashboard_view, name='messages_drafts'),
+#     url(r'^archived/$', dashboard_view, name='messages_archived'),
 )
 
 for app in settings.MESSAGE_APPS:

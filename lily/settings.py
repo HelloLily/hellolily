@@ -26,7 +26,7 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
 
-if DEV: # Only use sqlite db when in dev mode, Heroku injects db settings on deployment
+if DEV:  # Only use sqlite db when in dev mode, Heroku injects db settings on deployment
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -62,12 +62,12 @@ FIRST_DAY_OF_WEEK = os.environ.get('FIRST_DAY_OF_WEEK', 1)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 
 # Security parameters
-CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0)) # For production this needs to be set to True
+CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))  # For production this needs to be set to True
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
-SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0)) # For production this needs to be set to True
-SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0)) # For production this needs to be set to True
+SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))  # For production this needs to be set to True
+SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0))  # For production this needs to be set to True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 0))
-X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN') # For production this needs to be set to DENY
+X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')  # For production this needs to be set to DENY
 
 # Media and static file locations
 
@@ -101,7 +101,7 @@ STATICFILES_FINDERS = (
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
 LOGOUT_URL = reverse_lazy('logout')
-PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) # Also used as timeout for activation link
+PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 CUSTOM_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = (
@@ -111,8 +111,8 @@ AUTHENTICATION_BACKENDS = (
 # Used middleware
 MIDDLEWARE_CLASSES = (
     # Mediagenerator (needs to be first)
-    'mediagenerator.middleware.MediaMiddleware', # only used in dev mode
-    
+    'mediagenerator.middleware.MediaMiddleware',  # only used in dev mode
+
     # Django
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -184,22 +184,23 @@ INSTALLED_APPS = (
     'mediagenerator',
     'storages',
     'crispy_forms',
+    'django_extensions',
 #    'template_debug', # in-template tags for debugging purposes
 
     # Lily
-    'lily', # required for management command
+    'lily',  # required for management command
     'lily.accounts',
     'lily.activities',
     'lily.cases',
     'lily.deals',
     'lily.contacts',
+    'lily.messages',
     'lily.notes',
     'lily.provide',
     'lily.tags',
     'lily.tenant',
     'lily.users',
     'lily.utils',
-    'lily.messages',
 )
 
 MESSAGE_APPS = (
@@ -229,9 +230,9 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level':'DEBUG',
+            'level': 'DEBUG',
             'filters': ['require_debug_false'],
-            'class':'logging.StreamHandler',
+            'class': 'logging.StreamHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -253,6 +254,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['console'],
             'level': 'WARNING',
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -262,7 +264,7 @@ LOGGING = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Tenant support
-TENANT_MIXIN = 'django.db.models.Model' # prevent models from breaking, use the default base model
+TENANT_MIXIN = 'django.db.models.Model'  # prevent models from breaking, use the default base model
 if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
     TENANT_MIXIN = 'lily.tenant.models.TenantMixin'
 
@@ -360,11 +362,11 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
 
 # django-mediagenerator
 MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
-IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
+IGNORE_APP_MEDIA_DIRS = ()  # empty to include admin media
 GENERATED_MEDIA_DIR = local_path('generated_media_dir/static')
 GENERATED_MEDIA_DIRS = (local_path('generated_media_dir'),)
 
-DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
+DEV_MEDIA_URL = os.environ.get('DEV_MEDIA_URL', '/static/')
 PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
 
 YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
@@ -382,8 +384,8 @@ except ImportError:
 # django-storages
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID') 
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY') 
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
 # custom headers for files uploaded to amazon

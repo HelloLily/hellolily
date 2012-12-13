@@ -1,5 +1,5 @@
 /**
- *     CSS for HelloLily which overrides the MWS admin (v1.5). 
+ *     CSS for HelloLily which overrides the MWS admin (v1.5).
  */
 
 /**
@@ -14,22 +14,22 @@
     margin:2px;
     cursor:pointer;
     font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
-    
+
     /* CSS 3 */
-    
+
     -webkit-border-radius:3px;
     -moz-border-radius:3px;
     -o-border-radius:3px;
     -khtml-border-radius:3px;
     border-radius:3px;
-    
+
     text-shadow:1px 1px 1px rgba(0, 0, 0, 0.4) !important;
-    
+
     -webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
     -moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
     -o-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
     -khtml-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
-    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);   
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
 .mws-link-button, .mws-link-button button
@@ -40,9 +40,9 @@
 }
 
 .ui-button.ui-state-active /* .mws-button:active */
-{   
+{
     /* CSS 3 */
-    
+
     -webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
     -moz-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
     -o-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
@@ -56,7 +56,7 @@
     background-color:#1C76BC;
     color:#ffffff;
     border:1px solid #416b8b;
-    
+
     background-image:none;
 }
 
@@ -68,7 +68,7 @@
     cursor:auto;
     text-shadow:none;
     border:1px solid #a0a0a0;
-    
+
     -webkit-box-shadow:none !important;
     -moz-box-shadow:none !important;
     -o-box-shadow:none !important;
@@ -142,13 +142,13 @@ form#mws-searchbox /* div#mws-searchbox */
     padding:0;
     position:relative;
     clear:none;
-    
+
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -ms-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -khtml-box-sizing: border-box;
-    
+
     -moz-border-radius:4px;
     -webkit-border-radius:4px;
     -o-border-radius:4px;
@@ -159,7 +159,7 @@ form#mws-searchbox /* div#mws-searchbox */
 form#mws-searchbox .mws-search-input /* div#mws-searchbox .mws-search-input */
 {
     /*background:none;*/
-    padding:6px 38px 6px 7px; 
+    padding:6px 38px 6px 7px;
     width:100%;
     height:40px;
     color:#323232;
@@ -171,15 +171,15 @@ form#mws-searchbox .mws-search-submit /* div#mws-searchbox .mws-search-submit */
     text-transform:capitalize;
     width:24px; height:24px;
     position:absolute;
-    top:50%; 
+    top:50%;
     right:7px;
     margin-top:-12px;
     border:none;
     cursor:pointer;
     background:#1C76BC url(../../images/core/mws-search-icon.png) no-repeat center center;
-    
+
     /* CSS 3 */
-    
+
     -webkit-border-radius:4px;
     -moz-border-radius:4px;
     -o-border-radius:4px;
@@ -210,19 +210,25 @@ div#mws-navigation ul li.mws-dropdown-menu
     background:none;
 }
 
+div#mws-navigation ul li ul li:hover, /* div#mws-navigation ul li ul li:hover */
+div#mws-navigation ul li ul li.active
+{
+    background:url(../../images/core/mws-sub-nav-bg.png);
+}
+
 div#mws-navigation ul li a,   /* div#mws-navigation ul li a,  */
 div#mws-navigation ul li span /* div#mws-navigation ul li span */
 {
     color:#000000;
 }
 
-div#mws-navigation ul li.active
+div#mws-navigation > ul > li.active
 {
     background:#1C76BC !important;
 }
 
-div#mws-navigation ul li.active > a,
-div#mws-navigation ul li.active > a:hover
+div#mws-navigation > ul > li.active > a,
+div#mws-navigation > ul > li.active > a:hover
 {
     color:#ffffff !important;
 }
@@ -290,26 +296,26 @@ div#mws-quickbutton-container button
     padding:6px 7px;
     color:#323232;
     margin:0;
-    
+
     background-color:#ffffff;
     outline:none;
-    
+
     /* CSS 3 */
-    
+
     -moz-border-radius:4px;
     -webkit-border-radius:4px;
     -o-border-radius:4px;
     -khtml-border-radius:4px;
     border-radius:4px;
-    
+
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -ms-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -khtml-box-sizing: border-box;
-    
+
     -moz-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
-    -o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);   
+    -o-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
     -webkit-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
     -khtml-box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
     box-shadow:inset 0px 1px 3px rgba(128, 128, 128, 0.1);
@@ -333,7 +339,7 @@ div#mws-quickbutton-container button
 }
 
 .mws-form select.disabled,        /* .mws-form select.disabled, */
-.mws-form textarea.disabled,      /* .mws-form textarea.disabled, */  
+.mws-form textarea.disabled,      /* .mws-form textarea.disabled, */
 .mws-form .mws-textinput.disabled /* .mws-form .mws-textinput.disabled */
 {
     color: #868686;
@@ -348,13 +354,13 @@ div#mws-quickbutton-container button
     box-shadow:0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-.mws-form-col-1-8 label, .mws-form-col-1-8 .mws-form-item, 
-.mws-form-col-2-8 label, .mws-form-col-2-8 .mws-form-item, 
-.mws-form-col-3-8 label, .mws-form-col-3-8 .mws-form-item, 
-.mws-form-col-4-8 label, .mws-form-col-4-8 .mws-form-item, 
-.mws-form-col-5-8 label, .mws-form-col-5-8 .mws-form-item, 
-.mws-form-col-6-8 label, .mws-form-col-6-8 .mws-form-item, 
-.mws-form-col-7-8 label, .mws-form-col-7-8 .mws-form-item, 
+.mws-form-col-1-8 label, .mws-form-col-1-8 .mws-form-item,
+.mws-form-col-2-8 label, .mws-form-col-2-8 .mws-form-item,
+.mws-form-col-3-8 label, .mws-form-col-3-8 .mws-form-item,
+.mws-form-col-4-8 label, .mws-form-col-4-8 .mws-form-item,
+.mws-form-col-5-8 label, .mws-form-col-5-8 .mws-form-item,
+.mws-form-col-6-8 label, .mws-form-col-6-8 .mws-form-item,
+.mws-form-col-7-8 label, .mws-form-col-7-8 .mws-form-item,
 .mws-form-col-8-8 label, .mws-form-col-8-8 .mws-form-item
 {
     display:block !important;
@@ -373,9 +379,9 @@ div#mws-quickbutton-container button
     border-color:#eb979b !important;
 }
 
-.mws-form .mws-form-item .mws-error.plain, 
-.mws-form .mws-form-item label.error.plain, 
-.mws-form .mws-form-item span.error.plain, 
+.mws-form .mws-form-item .mws-error.plain,
+.mws-form .mws-form-item label.error.plain,
+.mws-form .mws-form-item span.error.plain,
 .mws-form .mws-form-item div.error.plain
 {
     width:auto;
@@ -421,15 +427,15 @@ div#mws-login /* div#mws-login */
     /*background-image:none;*/
     /*background-color:white;*/
     padding:0;
-    
+
     border:none;
-    
+
     -webkit-border-radius:0px;
     -moz-border-radius:0px;
     -o-border-radius:0px;
     -khtml-border-radius:0px;
     border-radius:0px;
-    
+
     -webkit-box-shadow:none;
     -moz-box-shadow:none;
     -o-box-shadow:none;
@@ -439,7 +445,7 @@ div#mws-login /* div#mws-login */
 
 div#mws-login #login-logo
 {
-    position:absolute; 
+    position:absolute;
     left:247px;
     top:-126px;
 }
@@ -596,7 +602,7 @@ div#mws-login input.mws-login-button /* div#mws-login input.mws-login-button */
     padding:12px 12px 10px 16px;
     border-bottom:none;
     font-size:18px;
-    
+
     -webkit-border-radius:0px;
     -moz-border-radius:0px;
     -o-border-radius:0px;
@@ -617,7 +623,7 @@ div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer /* div.jGrowl d
 {
     -ms-filter:none;
     filter:none;
-    
+
     border:none;
     font-family:inherit;
 }
@@ -696,7 +702,7 @@ div.jGrowl div.jGrowl-notification.error
 {
     background-color:rgba(28, 118, 188, 0.30);
 }
- 
+
 #id_contact_quickbutton_account_chzn.chzn-container .chzn-results
 {
     max-height:90px !important;
@@ -707,60 +713,60 @@ div.jGrowl div.jGrowl-notification.error
  */
 @media only screen and (min-width: 600px) and (max-width : 1024px) /* @media only screen and (min-width: 600px) and (max-width : 1024px) */
 {
-    
+
     .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_full
     {
         float:left !important;
     }
-    
+
     div#mws-header-container
     {
         height:96px;
     }
-    
+
     div#mws-logo-container
     {
         width:100px;
     }
-    
+
     div#mws-user-tools
     {
         margin-left:128px;
         float:none;
         padding:9px 0 0;
     }
-    
+
     div#mws-quickbutton-container
     {
         margin-left:134px;
         float:none;
         padding-top:0;
     }
-    
+
     div#mws-quickbutton-container button
     {
         margin-top:0;
     }
-    
+
     div#mws-container /* div#mws-container */
     {
         margin-left:100px;
     }
-    
+
     div#mws-container,
     div#mws-sidebar
     {
         padding-top:138px;
     }
-    
+
     div#mws-sidebar-stitch /* div#mws-sidebar-stitch */
     {
         left:91px;
     }
-    
+
     div#mws-navigation ul li a.mws-i-24,    /* div#mws-navigation ul li a.mws-i-24, */
-    div#mws-navigation ul li span.mws-i-24, /* div#mws-navigation ul li span.mws-i-24, */ 
-    div#mws-navigation ul li a.mws-ic,      /* div#mws-navigation ul li a.mws-ic, */ 
+    div#mws-navigation ul li span.mws-i-24, /* div#mws-navigation ul li span.mws-i-24, */
+    div#mws-navigation ul li a.mws-ic,      /* div#mws-navigation ul li a.mws-ic, */
     div#mws-navigation ul li span.mws-ic,   /* div#mws-navigation ul li span.mws-ic */
     div#mws-navigation ul li a.i-32,
     div#mws-navigation ul li span.i-32
@@ -770,28 +776,28 @@ div.jGrowl div.jGrowl-notification.error
         padding-bottom:6px !important;
         background-position:center 8px;
     }
-    
+
     div#mws-navigation ul li span.mws-nav-tooltip /* div#mws-navigation ul li span.mws-nav-tooltip */
     {
         margin:0; right:3px;
         left:60%; top:2px;
     }
-    
+
     div#mws-wrapper
     {
         margin-right:36px;
     }
-    
+
     div#mws-container .container
     {
         float:none;
     }
-    
+
     .hide_on_small_screen
     {
         display:none;
     }
-    
+
     .hide_on_small_screen_img
     {
         display:none !important;
@@ -808,37 +814,37 @@ div.jGrowl div.jGrowl-notification.error
 
 @media only screen and (max-width : 599px) /* @media only screen and (max-width : 599px) */
 {
-    
+
     .grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_full
     {
         margin-left:auto !important;
     }
-    
+
     div#mws-header-container
     {
         height:96px;
     }
-    
+
     div#mws-logo-container /* div#mws-logo-container */
     {
         display:none;
     }
-    
+
     div#mws-header /* div#mws-header */
     {
         border-top:none;
     }
-    
+
     div#mws-header #mws-user-tools /* div#mws-header #mws-user-tools */
     {
         padding: 9px 0;
     }
-    
+
     div#mws-header #mws-user-info
     {
         margin-left:12px;
     }
-    
+
     div#mws-quickbutton-container
     {
         margin-left:12px;
@@ -846,61 +852,61 @@ div.jGrowl div.jGrowl-notification.error
         padding-top:0;
         height:38px;
     }
-    
+
     div#mws-quickbutton-container button
     {
         margin-top:0;
     }
-    
+
     div#mws-wrapper
     {
         margin-right:36px;
     }
-    
+
     div#mws-sidebar /* div#mws-sidebar */
     {
         width:auto;
         padding-top:96px;
         margin:0 12px;
     }
-    
+
     div#mws-navigation /* div#mws-navigation */
     {
         background-color:#ffffff;
         background-image:url(icons/blue/24/bended-arrow-down.png);
         background-position-y:8px;
     }
-    
+
     div#mws-navigation.toggled /* div#mws-navigation.toggled */
     {
         padding-bottom:0px;
         background-image:url(icons/blue/24/bended-arrow-up.png);
     }
-    
+
     div#mws-navigation.toggled > ul
     {
         border-left:none !important;
         border-bottom:none !important;
     }
-    
+
     div#mws-container .container /* div#mws-container .container */
     {
         float:none;
         margin:0 12px;
         width:auto;
     }
-    
+
     div.dataTables_wrapper .dataTables_length, /* div.dataTables_wrapper .dataTables_length, */
     div.dataTables_wrapper .dataTables_filter  /* div.dataTables_wrapper .dataTables_filter */
     {
         background:none;
     }
-    
+
     .hide_on_small_screen
     {
         display:none;
     }
-    
+
     .hide_on_small_screen_img
     {
         display:none !important;
@@ -962,7 +968,7 @@ table.mws-table tbody tr.height_77
 
 table.mws-table tbody tr.odd td.sorting_1 /* table.mws-table tbody tr.odd td.sorting_1 */
 {
-    background-color:inherit; 
+    background-color:inherit;
 }
 
 table.mws-table tbody tr.even td.sorting_1 /* table.mws-table tbody tr.odd td.sorting_1 */
@@ -975,8 +981,8 @@ div.dataTables_wrapper /* div.dataTables_wrapper */
     background:#d8d8d8;
 }
 
-.dataTables_wrapper table thead th.sorting_asc,  /* .dataTables_wrapper table thead th.sorting_asc, */ 
-.dataTables_wrapper table thead th.sorting_desc, /* .dataTables_wrapper table thead th.sorting_desc, */ 
+.dataTables_wrapper table thead th.sorting_asc,  /* .dataTables_wrapper table thead th.sorting_asc, */
+.dataTables_wrapper table thead th.sorting_desc, /* .dataTables_wrapper table thead th.sorting_desc, */
 .dataTables_wrapper table thead th.sorting       /* .dataTables_wrapper table thead th.sorting */
 {
     background-position:right center;
@@ -1013,9 +1019,9 @@ div.dataTables_wrapper .dataTables_paginate /* div.dataTables_wrapper .dataTable
     padding:0;
     margin:8px;
     border:1px solid #333333;
-    
+
     background:none;
-    
+
     -webkit-box-shadow:none;
     -moz-box-shadow:none;
     -o-box-shadow:none;
@@ -1031,7 +1037,7 @@ div.dataTables_wrapper .dataTables_paginate /* div.dataTables_wrapper .dataTable
     cursor:pointer;
 }*/
 
-div.dataTables_wrapper .dataTables_paginate .paginate_button, /* div.dataTables_wrapper .dataTables_paginate .paginate_button, */ 
+div.dataTables_wrapper .dataTables_paginate .paginate_button, /* div.dataTables_wrapper .dataTables_paginate .paginate_button, */
 div.dataTables_wrapper .dataTables_paginate .paginate_active  /* div.dataTables_wrapper .dataTables_paginate .paginate_active */
 {
     padding:1px 15px;
@@ -1050,7 +1056,7 @@ div.dataTables_wrapper .dataTables_paginate .paginate_active /* div.dataTables_w
     border-left:1px solid #666;
     border-left:1px solid rgba(255, 255, 255, 0.15);
     background-image:none;
-    
+
     -webkit-box-shadow:none;
     -moz-box-shadow:none;
     -o-box-shadow:none;
@@ -1079,7 +1085,7 @@ div#mws-login .mws-login-lock,                                       /* div#mws-
 .fc-event-skin,                                                      /* .fc-event-skin, */
 .ui-dialog .ui-dialog-titlebar,                                      /* .ui-dialog .ui-dialog-titlebar, */
 div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer,    /* div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer, */
-div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box,             /* div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box, */ 
+div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box,             /* div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box, */
 div#mws-user-tools .mws-dropdown-menu.toggled a.mws-dropdown-trigger /* div#mws-user-tools .mws-dropdown-menu.toggled a.mws-dropdown-trigger */
 {
     background-color:#1C76BC;
@@ -1090,7 +1096,7 @@ div#mws-sidebar-bg
     background-color:#ffffff;
 }
 
-div#mws-login, 
+div#mws-login,
 div#mws-login .mws-login-lock
 {
     background-color:transparent;
@@ -1102,14 +1108,14 @@ div#mws-header /* div#mws-header */
     border-color:#1C76BC;
 }
 
-.mws-panel .mws-panel-header span,                                   /* .mws-panel .mws-panel-header span, */ 
+.mws-panel .mws-panel-header span,                                   /* .mws-panel .mws-panel-header span, */
 div#mws-navigation ul li.active a,                                   /* div#mws-navigation ul li.active a, */
-div#mws-navigation ul li.active span,                                /* div#mws-navigation ul li.active span, */ 
-div#mws-user-tools #mws-username,                                    /* div#mws-user-tools #mws-username, */ 
-div#mws-navigation ul li span.mws-nav-tooltip,                       /* div#mws-navigation ul li span.mws-nav-tooltip, */ 
-div#mws-user-tools #mws-user-info #mws-user-functions #mws-username, /* div#mws-user-tools #mws-user-info #mws-user-functions #mws-username, */ 
+div#mws-navigation ul li.active span,                                /* div#mws-navigation ul li.active span, */
+div#mws-user-tools #mws-username,                                    /* div#mws-user-tools #mws-username, */
+div#mws-navigation ul li span.mws-nav-tooltip,                       /* div#mws-navigation ul li span.mws-nav-tooltip, */
+div#mws-user-tools #mws-user-info #mws-user-functions #mws-username, /* div#mws-user-tools #mws-user-info #mws-user-functions #mws-username, */
 .ui-dialog .ui-dialog-title,                                         /* .ui-dialog .ui-dialog-title, */
-.ui-state-default,                                                   /* .ui-state-default, */ 
+.ui-state-default,                                                   /* .ui-state-default, */
 .ui-state-active,                                                    /* .ui-state-active, */
 .ui-state-hover,                                                     /* .ui-state-hover, */
 .ui-state-focus,                                                     /* .ui-state-focus, */
@@ -1134,17 +1140,17 @@ div#mws-user-tools #mws-user-info #mws-user-functions #mws-username, /* div#mws-
     color:white !important;
 }
 
-div#mws-searchbox input.mws-search-submit,                               /* div#mws-searchbox input.mws-search-submit, */ 
+div#mws-searchbox input.mws-search-submit,                               /* div#mws-searchbox input.mws-search-submit, */
 .mws-panel .mws-panel-header .mws-collapse-button span,                  /* .mws-panel .mws-panel-header .mws-collapse-button span, */
-div.dataTables_wrapper .dataTables_paginate .paginate_disabled_previous, /* div.dataTables_wrapper .dataTables_paginate .paginate_disabled_previous, */ 
-div.dataTables_wrapper .dataTables_paginate .paginate_enabled_previous,  /* div.dataTables_wrapper .dataTables_paginate .paginate_enabled_previous,  */ 
+div.dataTables_wrapper .dataTables_paginate .paginate_disabled_previous, /* div.dataTables_wrapper .dataTables_paginate .paginate_disabled_previous, */
+div.dataTables_wrapper .dataTables_paginate .paginate_enabled_previous,  /* div.dataTables_wrapper .dataTables_paginate .paginate_enabled_previous,  */
 div.dataTables_wrapper .dataTables_paginate .paginate_disabled_next,     /* div.dataTables_wrapper .dataTables_paginate .paginate_disabled_next, */
 div.dataTables_wrapper .dataTables_paginate .paginate_enabled_next,      /* div.dataTables_wrapper .dataTables_paginate .paginate_enabled_next, */
 div.dataTables_wrapper .dataTables_paginate .paginate_active,            /* div.dataTables_wrapper .dataTables_paginate .paginate_active, */
-.mws-table tbody tr.odd:hover td,                                        /* .mws-table tbody tr.odd:hover td, */ 
+.mws-table tbody tr.odd:hover td,                                        /* .mws-table tbody tr.odd:hover td, */
 .mws-table tbody tr.even:hover td,                                       /* .mws-table tbody tr.even:hover td, */
-.mws-table tbody tr.odd:hover td a, 
-.mws-table tbody tr.even:hover td a, 
+.mws-table tbody tr.odd:hover td a,
+.mws-table tbody tr.even:hover td a,
 .fc-state-highlight,                                                     /* .fc-state-highlight,*/
 .ui-slider-horizontal .ui-slider-range,                                  /* .ui-slider-horizontal .ui-slider-range, */
 .ui-slider-vertical .ui-slider-range,                                    /* .ui-slider-vertical .ui-slider-range, */
@@ -1203,7 +1209,7 @@ a
 }
 
 a:hover
-{ 
+{
     color:#1C76BC;
 }
 
@@ -1249,11 +1255,11 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
 {
     background:#1C76BC;
     color:#ffffff;
-    
-    -webkit-box-shadow:none; 
-    -moz-box-shadow:none; 
-    -o-box-shadow:none; 
-    -khtml-box-shadow:none; 
+
+    -webkit-box-shadow:none;
+    -moz-box-shadow:none;
+    -o-box-shadow:none;
+    -khtml-box-shadow:none;
     box-shadow:none;
 }
 
@@ -1302,7 +1308,7 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
     filter:Alpha(35);
 }
 
-.ui-datepicker .ui-state-active  
+.ui-datepicker .ui-state-active
 {
     color:#ffffff !important;
 }
@@ -1316,7 +1322,7 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
     background-color:#ffffff !important;
 }
 
-.ui-datepicker { 
+.ui-datepicker {
     z-index:9999 !important;
 }
 
@@ -1327,7 +1333,7 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
 {
     margin:0;
     background:url(../images/core/mws-panel-header-bg.png);
-    
+
     -webkit-border-radius:0;
     -moz-border-radius:0;
     -o-border-radius:0;
@@ -1396,7 +1402,7 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
 /**
  *     Other
  */
-div#mws-navigation ul li a.i-32, 
+div#mws-navigation ul li a.i-32,
 div#mws-navigation ul li span.i-32 {
     padding-left: 40px;
 }

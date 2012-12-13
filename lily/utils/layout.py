@@ -9,8 +9,8 @@ from django.template.loader import render_to_string
 
 
 class Anchor(HTML):
-    """ 
-    Crispy forms layout object. Add an anchor via the HTML class. 
+    """
+    Crispy forms layout object. Add an anchor via the HTML class.
     """
     def __init__(self, href='', text='', title='', css_id='', css_class=''):
         html = '<a href="%s" id="%s" class="%s" title="%s">%s</a>' % (href, css_id, css_class, title, text)
@@ -23,7 +23,7 @@ class Column(Div):
     detailed html.
     """
     css_class = 'mws-form-col-4-8'
-    
+
     def __init__(self, *fields, **kwargs):
         size = kwargs.pop('size', 4)
         first = kwargs.pop('first', False)
@@ -34,17 +34,17 @@ class Column(Div):
         if first:
             self.css_class += ' alpha'
         super(Column, self).__init__(*fields, **kwargs)
-            
+
 
 class Row(Div):
-    """ 
+    """
     Wrap multiple fields in a single form row.
     """
     css_class = 'mws-form-row'
 
 
 class InlineRow(Div):
-    """ 
+    """
     Wrap multiple fields in a single form row.
     """
     css_class = 'mws-form-item'
@@ -54,7 +54,7 @@ class ColumnedRow(Div):
     """
     Wrapper for columned rows.
     """
-    css_class="mws-form-cols clearfix"
+    css_class = "mws-form-cols clearfix"
 
 
 class FormMessage(HTML):
@@ -97,6 +97,7 @@ class MultiField(MultiField):
     Render multiple fields with custom templates.
     """
     template = 'mws-admin/layout/multifield.html'
+
     def render(self, form, form_style, context):
 #        if form.errors:
 #            self.css_class += " error"

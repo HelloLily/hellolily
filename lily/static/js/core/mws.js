@@ -72,10 +72,10 @@ $(document).ready(function () {
             $(this).datepicker({ beforeShowDay: $.datepicker.noWeekends });
             $(this).datepicker('show');
         }
-        
+
         // prevent previously filled in dates to show up in front of the datepicker
         $(this).attr("autocomplete", "off");
-        
+
         event.preventDefault();
     });
 

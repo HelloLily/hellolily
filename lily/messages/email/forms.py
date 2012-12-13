@@ -1,13 +1,11 @@
-# Django imports
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
-# Lily imports
 from lily.messages.email.models import EmailAccount, EmailTemplate
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Row, Divider, Column
+from lily.utils.layout import Row
 
 
 class CreateUpdateEmailAccountForm(ModelForm):
@@ -59,7 +57,6 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
         self.helper = DeleteBackAddSaveFormHelper(form=self)
         self.helper.wrap_by_names(Row, 'name', 'body')
 
-
     def clean(self):
         """
         Form validation: message body should be a valid html file.
@@ -69,7 +66,6 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
         #TODO: validate it is a html file that is uploaded.
 
         return cleaned_data
-
 
     class Meta:
         model = EmailTemplate

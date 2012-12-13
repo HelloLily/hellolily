@@ -11,6 +11,7 @@ class Migration(SchemaMigration):
          ('accounts', '0001_initial'),
          ('cases', '0001_initial'),
          ('contacts', '0001_initial'),
+         ('messages.email', '0001_initial'),
          ('tags', '0001_initial'),
          ('users', '0001_initial'),
          ('utils', '0001_initial'),

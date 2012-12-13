@@ -1,4 +1,7 @@
-import re, datetime, imaplib, email
+import email
+import datetime
+import imaplib
+import re
 
 
 class Connector(object):

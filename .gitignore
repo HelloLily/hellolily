@@ -3,6 +3,7 @@
 *.pyc
 *.pyo
 
+.ropeproject/
 .env
 .project
 .pydevproject

@@ -1,22 +1,22 @@
 $(document).ready(function() {
 	// set focus on name
     set_focus('id_name');
-    
+
     // inner function to protect the scope for currentStage
     (function($) {
         var currentStage = null;
-        
+
         $('#deal-stage :radio').button({
-            create: function(event, ui) { 
+            create: function(event, ui) {
                 if( event.target.checked ) {
                     currentStage = event.target.id;
                 }
             }
         });
-        
+
         $('#deal-stage .ui-button').click(function(event) {
             var radio_element = $('#' + $(event.target).closest('label').attr('for'));
-            if( radio_element.attr('id') != currentStage ) {            
+            if( radio_element.attr('id') != currentStage ) {
                 // try this
                 var jqXHR = $.ajax({
                     url: '/deals/edit/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
@@ -33,7 +33,7 @@ $(document).ready(function() {
                         theme: 'info mws-ic-16 ic-accept'
                     });
                     currentStage = radio_element.attr('id');
-                    
+
                     // check for won/lost and closing date
                     if( data.closed_date ) {
                         $('.closed-date.actual span').text(data.closed_date);
@@ -46,6 +46,7 @@ $(document).ready(function() {
                 // on error
                 jqXHR.fail(function() {
                     $.jGrowl(gettext('Stage could not be changed to') + ' ' + $(event.target).text(), {
+                        sticky: true,
                         theme: 'info mws-ic-16 ic-error'
                     });
                     // reset selected stage
@@ -60,6 +61,6 @@ $(document).ready(function() {
                 });
             }
         });
-    
+
     })($);
 });

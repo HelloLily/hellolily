@@ -18,10 +18,11 @@ class TenantMiddleWare(object):
     """
     def process_request(self, request):
         """
-        Save a reference to the user in local threading. When in Django admin, don't save it to 
-        prevent the Middleware from filtering the QuerySets to the user's tenant. 
+        Save a reference to the user in local threading. When in Django admin,
+        make sure to it to prevent the Middleware from filtering the QuerySets
+        to the user's tenant.
         """
         if request.path.startswith(reverse('admin:index')):
-            return None
-        
-        _thread_locals.user = getattr(request, 'user', None)
+            _thread_locals.user = None
+        else:
+            _thread_locals.user = getattr(request, 'user', None)

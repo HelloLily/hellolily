@@ -39,7 +39,7 @@ class ListCaseView(SortedListMixin, ListView):
         kwargs.update({
             'list_item_template': 'cases/model_list_item.html',
         })
-        
+
         return kwargs
 
 
@@ -58,7 +58,7 @@ class CreateUpdateCaseView(DeleteBackAddSaveFormViewMixin):
     """
     template_name = 'cases/create_or_update.html'
     form_class = CreateUpdateCaseForm
-    
+
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
@@ -77,7 +77,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
         if is_ajax(request):
             self.template_name = 'cases/quickbutton_form.html'
             self.form_class = AddCaseQuickbuttonForm
-        
+
         return super(AddCaseView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -86,9 +86,9 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
         """
         # Save instance
         super(AddCaseView, self).form_valid(form)
-        
+
         message = _('%s (Case) has been saved.') % self.object.subject
-        
+
         if is_ajax(self.request):
             # Redirect if in the list view
             url_obj = urlparse(self.request.META['HTTP_REFERER'])
@@ -105,7 +105,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
                 url = ''
                 html_response = ''
                 notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-            
+
             # Return response
             return HttpResponse(simplejson.dumps({
                 'error': False,
@@ -114,10 +114,10 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
                 'notification': notification,
                 'url': url
             }), mimetype='application/json')
-            
+
         # Show save message
         messages.success(self.request, message)
-        
+
         return self.get_success_url()
 
     def form_invalid(self, form):
@@ -130,7 +130,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
-        
+
         return super(AddCaseView, self).form_invalid(form)
 
 
@@ -139,17 +139,17 @@ class EditCaseView(CreateUpdateCaseView, UpdateView):
     View to edit a case.
     """
     model = Case
-    
+
     def form_valid(self, form):
         """
         Overloading super().form_valid to add success message after editing.
         """
         # Save instance
         super(CreateUpdateCaseView, self).form_valid(form)
-        
+
         # Show save message
-        messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject);
-            
+        messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject)
+
         return self.get_success_url()
 
 
@@ -165,9 +165,9 @@ class DeleteCaseView(DeleteView):
         Overloading super().delete to add a message of successful removal of this instance.
         """
         self.object = self.get_object()
-        
+
         # Show delete message
-        messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject);
+        messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
         self.object.delete()
 

@@ -24,10 +24,10 @@ class CustomUser(User, TenantMixin):
     objects = UserManager()
     contact = models.ForeignKey(Contact, related_name='user')
     account = models.ForeignKey(Account, related_name='user')
-    
+
     def __unicode__(self):
         return unicode(self.contact)
-    
+
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:
@@ -53,15 +53,16 @@ class CustomUser(User, TenantMixin):
 ## Signal listeners
 ## ------------------------------------------------------------------------------------------------
 
+
 @receiver(pre_save, sender=CustomUser)
 def post_save_customuser_handler(sender, **kwargs):
     """
-    If an e-mail attribute was set on an instance of CustomUser, add a primary e-mail address or 
+    If an e-mail attribute was set on an instance of CustomUser, add a primary e-mail address or
     overwrite the existing one.
     """
     instance = kwargs['instance']
     if instance.__dict__.has_key('primary_email'):
-        new_email_address = instance.__dict__['primary_email'];
+        new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
             try:
                 # Overwrite existing primary e-mail address
@@ -74,6 +75,7 @@ def post_save_customuser_handler(sender, **kwargs):
                 add_tenant(email, instance.tenant)
                 email.save()
                 instance.contact.email_addresses.add(email)
+
 
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):

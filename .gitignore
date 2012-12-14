@@ -5,6 +5,7 @@
 .env
 .project
 .pydevproject
+.ropeproject/
 .settings/
 .DS_Store
 lily/media/

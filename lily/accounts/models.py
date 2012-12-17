@@ -25,11 +25,11 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         # # actieve klant | active customer
         # # klant met betalingsachterstand | arrears
         # # failliet | bankrupt
-        # # oud klant | previous customer.  
+        # # oud klant | previous customer.
         ('bankrupt', _('bankrupt')),
         ('prev_customer', _('previous customer')),
     )
-    
+
     ACCOUNT_SIZE_CHOICES = (
         ('1', u'1'),
         ('2', u'2-10'),
@@ -40,23 +40,23 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         ('5001', u'5001-10000'),
         ('10001', u'10001+'),
     )
-    
+
     customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
     name = models.CharField(max_length=255, verbose_name=_('company name'))
     flatname = models.CharField(max_length=255, blank=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
                               blank=True)
     company_size = models.CharField(max_length=15, choices=ACCOUNT_SIZE_CHOICES,
-                                    verbose_name=_('company size'), blank=True)  
+                                    verbose_name=_('company size'), blank=True)
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
-    description = models.TextField(verbose_name=_('description'), blank=True)    
+    description = models.TextField(verbose_name=_('description'), blank=True)
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
     taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)
     bankaccountnumber = models.CharField(max_length=20, verbose_name=_('bank account number'), blank=True)
     cocnumber = models.CharField(max_length=10, verbose_name=_('coc number'), blank=True)
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
-    
+
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:
@@ -67,19 +67,19 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
             return None
         else:
             return object.__getattribute__(self, name)
-    
+
     def get_work_phone(self):
         try:
             return self.phone_numbers.filter(type='work')[0]
         except:
             return None
-    
+
     def get_mobile_phone(self):
         try:
             return self.phone_numbers.filter(type='mobile')[0]
         except:
             return None
-    
+
     def get_phone_number(self):
         """
         Return a phone number for an account in the order of:
@@ -90,16 +90,16 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         work_phone = self.get_work_phone()
         if work_phone:
             return work_phone
-        
+
         mobile_phone = self.get_mobile_phone()
         if mobile_phone:
             return mobile_phone
-        
+
         try:
             return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
         except:
             return None
-    
+
     def get_addresses(self, type=None):
         try:
             if type is None:
@@ -108,19 +108,19 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
                 return self.addresses.filter(type=type)
         except:
             return None
-    
+
     def get_billing_addresses(self):
         return self.get_addresses(type='billing')
-    
+
     def get_shipping_addresses(self):
         return self.get_addresses(type='shipping')
-    
+
     def get_visiting_addresses(self):
         return self.get_addresses(type='visiting')
-    
+
     def get_other_addresses(self):
         return self.get_addresses(type='other')
-    
+
     def get_deals(self, stage=None):
         try:
             if stage is None:
@@ -129,66 +129,66 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
                 return self.deal_set.filter(stage=stage)
         except:
             return None
-    
+
     def get_deals_new(self):
         return self.get_deals(stage=0)
-    
+
     def get_deals_lost(self):
         return self.get_deals(stage=1)
-    
+
     def get_deals_pending(self):
         return self.get_deals(stage=2)
-    
+
     def get_deals_won(self):
         return self.get_deals(stage=3)
-    
+
     def get_contact_details(self):
         try:
             phone = self.phone_numbers.filter(status=1)[0]
             phone = phone.number
         except:
-            phone = None   
-        
+            phone = None
+
         try:
             email = self.primary_email
         except:
             email = None
-        
+
         return {
             'phone': phone,
             'mail': email,
         }
-    
+
     def get_twitter(self):
         try:
             return self.social_media.filter(name='twitter')[0]
         except:
             return ''
-    
+
     def get_tags(self):
         try:
             tags = self.tags.all()[:3]
         except:
             tags = ('',)
         return tags
-    
+
     def get_contacts(self):
         functions = self.functions.all()
         contacts = []
         for function in functions:
             contacts.append(function.contact)
-        
+
         return contacts
-    
+
     def __unicode__(self):
         return self.name
-    
+
     def save(self, *args, **kwargs):
         # Save account name in flatname
         self.flatname = flatten(self.name)
-        
+
         return super(Account, self).save(*args, **kwargs)
-    
+
     class Meta:
         verbose_name = _('account')
         verbose_name_plural = _('accounts')
@@ -202,14 +202,14 @@ class Website(models.Model):
     website = models.URLField(max_length=255, verbose_name=_('website'))
     account = models.ForeignKey(Account, related_name='websites')
     is_primary = models.BooleanField(default=False, verbose_name=_('primary website'))
-    
+
     def __unicode__(self):
         return self.website
-    
+
     class Meta:
         verbose_name = _('website')
         verbose_name_plural = _('websites')
-        
+
 
 ## ------------------------------------------------------------------------------------------------
 ## Signal listeners
@@ -218,12 +218,12 @@ class Website(models.Model):
 @receiver(pre_save, sender=Account)
 def post_save_account_handler(sender, **kwargs):
     """
-    If an e-mail attribute was set on an instance of Account, add a primary e-mail address or 
+    If an e-mail attribute was set on an instance of Account, add a primary e-mail address or
     overwrite the existing one.
     """
     instance = kwargs['instance']
     if instance.__dict__.has_key('primary_email'):
-        new_email_address = instance.__dict__['primary_email'];
+        new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
             try:
                 # Overwrite existing primary e-mail address

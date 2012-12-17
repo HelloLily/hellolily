@@ -72,35 +72,34 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
     # Default template and form
     template_name = 'contacts/create_or_update.html'
     form_class = CreateUpdateContactForm
-    
+
     exclude_address_types = ['visiting']
-    
+
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactView, self).__init__(*args, **kwargs)
-        
+
         # Override default formset template to adjust choices for address_type
         self.formset_data['addresses_formset']['template'] = 'contacts/formset_address.html'
 
     def form_valid(self, form):
-        # Copied from ModelFormMixin
-        self.object = form.save()
-        
+        self.object = form.save()  # copied from ModelFormMixin
+
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
-            
+
             # Save selected account
             if form_kwargs['data'].get('account'):
                 pk = form_kwargs['data'].get('account')
                 account = Account.objects.get(pk=pk)
                 Function.objects.get_or_create(account=account, contact=self.object)
-    
+
                 functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
                 functions.delete()
             else:
                 # No account selected
                 functions = Function.objects.filter(contact=self.object)
                 functions.delete()
-                
+
         return super(CreateUpdateContactView, self).form_valid(form)
 
 
@@ -116,20 +115,20 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         if is_ajax(request):
             self.form_class = AddContactQuickbuttonForm
             self.template_name = 'contacts/quickbutton_form.html'
-        
+
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         """
         Handle form submission via AJAX or show custom save message.
         """
-        # Save instance
-        super(AddContactView, self).form_valid(form)
+        self.object = form.save()  # copied from ModelFormMixin
+
         message = _('%s (Contact) has been saved.') % self.object.full_name()
 
         if is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
-            
+
             # Add e-mail address to account as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
@@ -182,11 +181,11 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
                 'notification': notification,
                 'url': url
             }), mimetype='application/json')
-                
+
         # Show save message
-        messages.success(self.request, message);
-        
-        return self.get_success_url()
+        messages.success(self.request, message)
+
+        return super(AddContactView, self).form_valid(form)
 
     def form_invalid(self, form):
         """
@@ -199,14 +198,14 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
-        
+
         return super(AddContactView, self).form_invalid(form)
 
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
+        return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
 class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
@@ -219,155 +218,18 @@ class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSe
         """
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        super(EditContactView, self).form_valid(form)
-
-        # TODO: make this work with the new way of using formsets
-#        # Save all e-mail address, phone number and address formsets
-#        if self.email_addresses_formset.is_valid() and self.addresses_formset.is_valid() and self.phone_numbers_formset.is_valid():
-#            form_kwargs = self.get_form_kwargs()
-#            # Save form
-#            super(EditContactView, self).form_valid(form)
-#
-#            # Handle e-mail addresses permission checks
-#            allow_edit_email = email_verify = False
-#            allow_save = False
-#            is_user_contact = True
-#            primary_has_changed = False
-#            verification_email_data = None
-#            new_primary_email_address_instance = None
-#            old_primary_email_address_instance = None
-#            
-#            # TODO: move the permission logic to a decorator for this view
-#
-#            # Permission check: users in a certain group and the contact's user can edit e-mail adresses
-#            # For e-mailaddresses a confirmation e-mail is sent to the new e-mail adres when
-#            # the contact's user changes it. Another user with permissions can change it regardless.
-####            try:
-####                user = CustomUser.objects.get(contact=self.object)
-####            except CustomUser.DoesNotExist:
-####                # If it's not a user's contact
-####                allow_edit_email = True
-####                is_user_contact = False
-####            else:
-####                if user == self.request.user:
-####                    # If this is the case, allow editing it after verification via e-mail
-####                    allow_edit_email = email_verify = True
-####                elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):
-####                    # Users in this group can always edit e-mail addresses
-####                    allow_edit_email = True
-#
-#            # Handle saving (and sending verification e-mails for) e-mail addresses
-#            if allow_edit_email:
-#                # Find the e-mail address marked as primary e-mail address
-#                primary_email_prefix = form_kwargs['data'].get(self.email_addresses_formset.prefix + '_primary-email')
-#                
-#                # Loop through all e-mail addresses
-#                for formset in self.email_addresses_formset:
-#                    # Check if formset instance should be deleted
-####                    if form_kwargs['data'].get(formset.prefix + '-DELETE'):
-####                        # Only delete if it's not a user's contact or if it's not marked as primary e-mail when it is a user's contact
-####                        if not is_user_contact or formset.prefix != primary_email_prefix: 
-####                            self.object.email_addresses.remove(formset.instance)
-####                            formset.instance.delete()
-####                        elif is_user_contact:
-####                            # Add message
-####                            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % formset.instance.email_address))
-####                        continue
-#
-#                    # Explicitly set 'is_primary' on every e-mail address to make sure only one is 
-#                    # marked as primary e-mail.
-#                    if formset.prefix == primary_email_prefix:
-#                        formset.instance.is_primary = True
-#                    else:
-#                        formset.instance.is_primary = False
-#
-#                    # Only save e-mail address if something else than is_primary/status was filled in
-#                    if formset.instance.email_address:
-#                        # If it's an existing e-mail address and the address itself has not changed,
-#                        # allow saving it regardless of other attributes that might have changed. 
-#                        # This prevents existing e-mail addresses that are no longer the primary
-#                        # e-mail address from demanding verification as well as the new ones. 
-#                        if formset.instance.pk:
-#                            existing_email_address = EmailAddress.objects.get(pk=formset.instance.pk)
-#                            if existing_email_address.email_address == formset.instance.email_address:
-#                                allow_save = True
-#                                
-#                            # Check if the attribute 'is_primary' has changed or if the e-mail address itself has been modified
-#                            if existing_email_address.is_primary != formset.instance.is_primary:
-#                                primary_has_changed = True
-#                                if formset.instance.is_primary:
-#                                    new_primary_email_address_instance = formset.instance
-#                                else:
-#                                    old_primary_email_address_instance = existing_email_address
-#                            elif existing_email_address.email_address != formset.instance.email_address:
-#                                primary_has_changed = True
-#                                new_primary_email_address_instance = formset.instance
-#                                old_primary_email_address_instance = existing_email_address
-#                        
-#                        # Simply save the e-mail address if none of the permission checks is
-#                        # blocking this action.
-#                        if allow_save or not email_verify:
-#                            if not primary_has_changed:
-#                                formset.save()
-#                                self.object.email_addresses.add(formset.instance)
-#                
-#                if old_primary_email_address_instance != None:
-#                    if not allow_save and email_verify or primary_has_changed:
-#                        # Get contact pk
-#                        pk = self.object.pk
-#                        
-#                        # Calculate expire date
-#                        expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
-#                        expire_date_pickled = pickle.dumps(expire_date)
-#        
-#                        # Get link to site
-#                        protocol = self.request.is_secure() and 'https' or 'http'
-#                        site = Site.objects.get_current()
-#        
-#                        # Build data dict
-#                        verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
-#                            'contact_pk': self.object.pk,
-#                            'old_email_address': old_primary_email_address_instance.email_address,
-#                            'email_address': pickle.dumps(new_primary_email_address_instance),
-#                            'expire_date': expire_date_pickled,
-#                            'hash': sha256('%s%s%d%s' % (old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address, pk, expire_date_pickled)).hexdigest(),
-#                        })).strip('=')
-#        
-#                        # Build verification link
-#                        verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
-#                            'data': verification_email_data
-#                        }))
-#        
-#                        # Sent an e-mail informing the user his primary e-mail address
-#                        # can be changed.
-#                        send_templated_mail(
-#                            template_name='email_confirm',
-#                            from_email=settings.DEFAULT_FROM_EMAIL,
-#                            recipient_list=[old_primary_email_address_instance.email_address, new_primary_email_address_instance.email_address],
-#                            context = {
-#                                'current_site': site,
-#                                'full_name': self.object.full_name(),
-#                                'verification_link': verification_link,
-#                                'email_address': new_primary_email_address_instance.email_address
-#                            }
-#                        )
-#        
-#                        # Add message
-#                        messages.info(self.request, _('An e-mail was sent to %s with a link to verify your new primary e-mail address.' % formset.instance.email_address))
-#            else:
-#                # Add message
-#                messages.error(self.request, _('You don\'t have enough permissions to change the e-mail addresses for %.' % self.object.full_name()))
+        self.object = form.save()  # copied from ModelFormMixin
 
         # Show save message
-        messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name());
+        messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name())
 
-        return self.get_success_url()
+        return super(EditContactView, self).form_valid(form)
 
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=6&sort_order=desc' % (reverse('contact_list')))
+        return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
 
 
 class DeleteContactView(DeleteView):
@@ -382,11 +244,11 @@ class DeleteContactView(DeleteView):
         Overloading super().delete to remove the related models and the instance itself.
         """
         self.object = self.get_object()
-        
+
         # Check this contact isn't linked to a user in an admin group.
         if has_user_in_group(self.object, 'account_admin'):
             raise Http404()
-        
+
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()
@@ -396,7 +258,7 @@ class DeleteContactView(DeleteView):
         functions.delete()
 
         # Show delete message
-        messages.success(self.request, _('%s (Contact) has been deleted.') % self.object.full_name());
+        messages.success(self.request, _('%s (Contact) has been deleted.') % self.object.full_name())
 
         self.object.delete()
 
@@ -425,7 +287,7 @@ class ConfirmContactEmailView(TemplateView):
             except:
                 # throw 404
                 raise Http404
-           
+
             # Get user by contact
             contact_pk = data.get('contact_pk')
             user = CustomUser.objects.get(contact_id=contact_pk)
@@ -454,7 +316,7 @@ class ConfirmContactEmailView(TemplateView):
             else:
                 # Add message
                 messages.info(self.request, _('You can log in now with your new primary e-mail address.'))
-                
+
                 # redirect to contact edit/view page
                 return redirect(reverse('contact_details', kwargs={
                     'pk': contact_pk
@@ -479,7 +341,7 @@ class ConfirmContactEmailView(TemplateView):
         pk = data.get('contact_pk')
         # grab datetime to test expire date
         expire_date_pickled = data.get('expire_date')
-        
+
         # Verify hash
         if hash != sha256('%s%s%d%s' % (old_email, new_email, pk, expire_date_pickled)).hexdigest():
             return False

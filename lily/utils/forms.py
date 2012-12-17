@@ -11,11 +11,10 @@ from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
+from lily.users.models import CustomUser
 
 
-#===================================================================================================
 # Mixins
-#===================================================================================================
 class FieldInitFormMixin(forms.BaseForm):
     """
     FormMixin to set default widget attributes
@@ -53,7 +52,7 @@ class FieldInitFormMixin(forms.BaseForm):
                 'append': True,
                 'value': 'mws-textinput tabbable',
             },
-        },              
+        },
         PrioritySelect: {
             'class': {
                 'append': True,
@@ -97,7 +96,7 @@ class FieldInitFormMixin(forms.BaseForm):
         for name, field in self.fields.items():
             w = field.widget
             if issubclass(w.__class__, HiddenInput):
-                continue # ignore
+                continue  # ignore
 
             # set placeholder if not already and field has an initial value or label
             if not 'placeholder' in w.attrs:
@@ -130,9 +129,7 @@ class FieldInitFormMixin(forms.BaseForm):
                 w.attrs['class'] = (w.attrs.get('class', '') + ' required').strip()
 
 
-#===================================================================================================
 # Forms
-#===================================================================================================
 class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
@@ -163,10 +160,10 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
                 )
             )
         ))
-        
+
         self.fields['email_address'].label = ''
         self.fields['is_primary'].label = ''
-        
+
     class Meta:
         model = EmailAddress
         fields = ('email_address', 'is_primary')
@@ -178,7 +175,7 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
             }),
         }
 
- 
+
 class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding a phone number, only including the number and type/other type fields.
@@ -191,8 +188,8 @@ class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
 
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
-    raw_input = forms.CharField(label=_('Phone number'), required=False);
-    
+    raw_input = forms.CharField(label=_('Phone number'), required=False)
+
     def __init__(self, *args, **kwargs):
         super(PhoneNumberBaseForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
@@ -212,7 +209,7 @@ class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
                 )
             )
         ))
-        
+
         self.fields['raw_input'].label = ''
         self.fields['type'].label = ''
         self.fields['other_type'].label = ''
@@ -241,14 +238,14 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(AddressBaseForm, self).__init__(*args, **kwargs)
-        
+
         if hasattr(self, 'exclude_address_types'):
             choices = self.fields['type'].choices
             for i in reversed(range(len(choices))):
                 if choices[i][0] in self.exclude_address_types:
                     del choices[i]
             self.fields['type'].choices = choices
-        
+
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = False
         self.helper.add_layout(Layout(
@@ -271,7 +268,7 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
                             InlineRow(ColumnedRow(
                                 Column('postal_code', size=3, first=True),
                                 Column('city', size=4),
-                            )),     
+                            )),
                             InlineRow(ColumnedRow(
                                 Column('country', size=4, first=True),
                                 Column('type', size=3),
@@ -281,14 +278,14 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
                         first=True
                     ),
                     Column(
-                        HTML('<br /><hr />'), 
-                        size=6, 
+                        HTML('<br /><hr />'),
+                        size=6,
                         first=True,
                     ),
                 ),
             )
         ))
-        
+
         self.fields['street'].label = ''
         self.fields['street_number'].label = ''
         self.fields['complement'].label = ''
@@ -296,7 +293,7 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
         self.fields['city'].label = ''
         self.fields['country'].label = ''
         self.fields['type'].label = ''
-            
+
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')

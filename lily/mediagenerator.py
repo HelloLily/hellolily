@@ -109,6 +109,7 @@ extra_theme_bundle_js = (
     'provide/js/dataprovider.js',
 
     'utils/js/utils.js',
+
 )
 
 MEDIA_BUNDLES = (
@@ -148,6 +149,9 @@ MEDIA_BUNDLES = (
     ('tables.js',
         'plugins/datatables/jquery.dataTables-min.js',
         'plugins/datatables/jquery.dataTables.date.js',
+    ),
+    ('lily.dashboard.js',
+        'users/js/dashboard.js',
     ),
     ('lily.users.js',
         'users/js/activation.js',

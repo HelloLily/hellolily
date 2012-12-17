@@ -132,7 +132,7 @@ $(document).ready(function () {
 
     /* Elastic (auto grow) */
     if( $.fn.elastic ) {
-        $('textarea').elastic();
+        $('textarea:visible').elastic();
     }
 
     /* Tooltips */

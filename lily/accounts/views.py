@@ -59,12 +59,12 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     """
     Base class for AddAccountView and EditAccountView.
     """
-
+    
     # Default template and form
     template_name = 'accounts/create_or_update.html'
     form_class = CreateUpdateAccountForm
 
-    # option for address formset
+    # Option for address formset
     exclude_address_types = ['home']
 
     def __init__(self, *args, **kwargs):
@@ -91,8 +91,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
         return super(CreateUpdateAccountView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Copied from ModelFormMixin
-        self.object = form.save()
+        self.object = form.save()  # copied from ModelFormMixin
 
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -105,7 +104,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
                     website.save()
                 except Website.DoesNotExist:
                     Website.objects.create(account=self.object, is_primary=True,
-                                           website = form_kwargs['data'].get('primary_website'))
+                                           website=form_kwargs['data'].get('primary_website'))
             # Remove possible primary website
             else:
                 try:
@@ -136,7 +135,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         """
         Handle form submission via AJAX or show custom save message.
         """
-        super(AddAccountView, self).form_valid(form)
+        self.object = form.save()  # copied from ModelFormMixin
         message = _('%s (Account) has been saved.') % self.object.name
 
         if is_ajax(self.request):
@@ -165,7 +164,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                 })
                 notification = False
                 html_response = ''
-            else:# Redirect if in the list view or dashboard
+            else:  # redirect if in the list view or dashboard
                 url_obj = urlparse(self.request.META['HTTP_REFERER'])
                 if url_obj.path.endswith(reverse('account_list')) or url_obj.path == reverse('dashboard'):
                     # Show save message
@@ -182,7 +181,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                     do_redirect = False
                     url = ''
                     html_response = ''
-                    notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
+                    notification = [{'message': escapejs(message), 'tags': tag_mapping.get('success')}]
 
             # Return response
             return HttpResponse(simplejson.dumps({
@@ -194,9 +193,9 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
             }), mimetype='application/json')
 
         # Show save message
-        messages.success(self.request, message);
+        messages.success(self.request, message)
 
-        return self.get_success_url()
+        return super(AddAccountView, self).form_valid(form)
 
     def form_invalid(self, form):
         """
@@ -216,7 +215,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         """
         Redirect to the list view, ordered by created
         """
-        return redirect('%s?order_by=4&sort_order=desc' % (reverse('account_list')))
+        return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
 
 
 class EditAccountView(CreateUpdateAccountView, UpdateView):
@@ -229,16 +228,16 @@ class EditAccountView(CreateUpdateAccountView, UpdateView):
         """
         Show custom success message.
         """
-        super(EditAccountView, self).form_valid(form)
-        messages.success(self.request, _('%s (Account) has been edited.') % self.object.name);
+        success_url = super(EditAccountView, self).form_valid(form)
+        messages.success(self.request, _('%s (Account) has been edited.') % self.object.name)
 
-        return self.get_success_url()
+        return success_url
 
     def get_success_url(self):
         """
         Redirect to the list view, ordered by last modified.
         """
-        return redirect('%s?order_by=5&sort_order=desc' % (reverse('account_list')))
+        return '%s?order_by=5&sort_order=desc' % (reverse('account_list'))
 
 
 class DeleteAccountView(DeleteView):
@@ -267,7 +266,7 @@ class DeleteAccountView(DeleteView):
         functions.delete()
 
         # Show delete message
-        messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name);
+        messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name)
 
         self.object.delete()
 
@@ -293,7 +292,7 @@ class ExistsAccountView(View):
         if accounts.exists():
             account = accounts[0]
             exists = True
-            edit_url = reverse('account_edit', kwargs={ 'pk': account.pk })
+            edit_url = reverse('account_edit', kwargs={'pk': account.pk})
         else:
             raise Http404()
 

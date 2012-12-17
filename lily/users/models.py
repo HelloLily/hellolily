@@ -53,6 +53,7 @@ class CustomUser(User, TenantMixin):
 ## Signal listeners
 ## ------------------------------------------------------------------------------------------------
 
+
 @receiver(pre_save, sender=CustomUser)
 def post_save_customuser_handler(sender, **kwargs):
     """
@@ -61,7 +62,7 @@ def post_save_customuser_handler(sender, **kwargs):
     """
     instance = kwargs['instance']
     if instance.__dict__.has_key('primary_email'):
-        new_email_address = instance.__dict__['primary_email'];
+        new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
             try:
                 # Overwrite existing primary e-mail address
@@ -74,6 +75,7 @@ def post_save_customuser_handler(sender, **kwargs):
                 add_tenant(email, instance.tenant)
                 email.save()
                 instance.contact.email_addresses.add(email)
+
 
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):

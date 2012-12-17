@@ -19,7 +19,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
-from django.views.generic.base import TemplateResponseMixin, View, TemplateView
+from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 from templated_email import send_templated_mail
 
@@ -196,7 +196,6 @@ class CustomMultipleObjectMixin(object):
 
 
 class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjectMixin, TemplateResponseMixin, View):
-
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object_list = self.get_list_queryset()
@@ -263,9 +262,9 @@ class MultipleModelListView(object):
     """
     Class for showing multiple lists of models in a template.
     """
-    models = [] # Either a list of models or a dictionary
-    object_lists = {} # dictionary with all objects lists
-    context_name_suffix = '_list' # suffix for the context available in the template
+    models = []  # Either a list of models or a dictionary
+    object_lists = {}  # dictionary with all objects lists
+    context_name_suffix = '_list'  # suffix for the context available in the template
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -307,7 +306,7 @@ class MultipleModelListView(object):
                 list_name = '%s%s' % (list_name, self.context_name_suffix)
 
             kwargs.update({
-                list_name : object_list
+                list_name: object_list
             })
         return kwargs
 
@@ -319,7 +318,6 @@ class FilteredListMixin(object):
     """
     Mixin that enables filtering objects by url, based on their primary keys.
     """
-
     def get_queryset(self):
         """
         Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
@@ -355,9 +353,9 @@ class SortedListMixin(object):
     """
     ASC = 'asc'
     DESC = 'desc'
-    sortable = [] # Columns that can be ordered
-    default_sort_order = ASC # Direction to order in
-    default_order_by = 1 # Column to order
+    sortable = []  # Columns that can be ordered
+    default_sort_order = ASC  # Direction to order in
+    default_order_by = 1  # Column to order
 
     def __init__(self, *args, **kwargs):
         """
@@ -553,11 +551,12 @@ class ModelFormSetViewMixin(object):
         Pass all formsets to the context.
         """
         kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
-        if not kwargs.has_key('formsets'):
-            kwargs['formsets'] = SortedDict()
+        if not is_ajax(self.request):  # filter formsets from ajax requests
+            if not kwargs.has_key('formsets'):
+                kwargs['formsets'] = SortedDict()
 
-        for context_name, instance in self.formsets.items():
-            kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}
+            for context_name, instance in self.formsets.items():
+                kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}
 
         return kwargs
 
@@ -579,9 +578,6 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
         super(EmailAddressFormSetViewMixin, self).__init__(*args, **kwargs)
 
     def form_valid(self, form):
-        # Save object and get success url
-        success_url = super(EmailAddressFormSetViewMixin, self).form_valid(form)
-
         context_name = 'email_addresses_formset'
         formset = self.get_formset(context_name)
 
@@ -590,7 +586,8 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
             # Check if existing instance has been marked for deletion
             if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
                 self.object.email_addresses.remove(formset_form.instance)
-                formset_form.instance.delete()
+                if formset_form.instance.pk:
+                    formset_form.instance.delete()
                 continue
 
             # Check for e-mail address selected as primary
@@ -605,7 +602,7 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
                 formset_form.save()
                 self.object.email_addresses.add(formset_form.instance)
 
-        return success_url
+        return super(EmailAddressFormSetViewMixin, self).form_valid(form)
 
     def form_invalid(self, form):
         context_name = 'email_addresses_formset'
@@ -627,18 +624,11 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
     Under certain conditions the user may need to validate an e-mail address
     before changes will be saved. It manages this by sending an e-mail to both e-mail addresses.
     """
-
     def form_valid(self, form):
-        # Save object and get success url
-        success_url = super(ValidateEmailAddressFormSetViewMixin, self).form_valid(form)
-
         context_name = 'email_addresses_formset'
         formset = self.get_formset(context_name)
 
-        #=======================================================================================
         # Check conditions for validating changed primary e-mail address
-        #=======================================================================================
-
         form_kwargs = self.get_form_kwargs()
 
         # First, retrieve e-mail addresses.
@@ -654,23 +644,23 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
             else:
                 formset_form.instance.is_primary = False
 
-        linked_to_user = False # If the contact is linked to a user
-        allow_change = False # Whether changes are allowed at all
-        validate_on_change = False # When changing primary e-mail address needs to be validated by e-mail
-        send_validation_emails = False # E-mails for confirming and saving primary e-mail change
-        send_notification_email = False # E-mails for notifying a user of his primary/login e-mail change
+        linked_to_user = False  # If the contact is linked to a user
+        allow_change = False  # Whether changes are allowed at all
+        validate_on_change = False  # When changing primary e-mail address needs to be validated by e-mail
+        send_validation_emails = False  # E-mails for confirming and saving primary e-mail change
+        send_notification_email = False  # E-mails for notifying a user of his primary/login e-mail change
 
-        # Third, check if the user is allowed to change e-mail addressess is allowed in the first place
+        # Third, check if the user is allowed to change e-mail addressess in the first place
         try:
             user = CustomUser.objects.get(contact=form.instance)
             linked_to_user = True
         except CustomUser.DoesNotExist:
             allow_change = True
         else:
-            if user == self.request.user: # User is allowed to change it's own address
+            if user == self.request.user:  # User is allowed to change it's own address
                 allow_change = True
                 validate_on_change = True
-            elif 'account_admin' in self.request.user.groups.values_list('name', flat=True): # Users in this group can change other users e-mail addresses without validation
+            elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):  # Users in this group can change other users e-mail addresses without validation
                 allow_change = True
 
         # Fourth, check for primary e-mail addresses
@@ -701,13 +691,14 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
                 send_notification_email = True
 
         # Fifth, process information
-        if allow_change: # Changes are allowed at this time
+        if allow_change:  # Changes are allowed at this time
             for formset_form in formset.forms:
                 if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
                     # Delete primary e-mail address only for this contact when it's not linked to a user (deletes non-primary e-mail addresses regardless)
                     if not (linked_to_user and formset_form.instance.is_primary):
                         form.instance.email_addresses.remove(formset_form.instance)
-                        formset_form.instance.delete()
+                        if formset_form.instance.pk:
+                            formset_form.instance.delete()
                 # Save e-mail address if an address was provided
                 elif formset_form.instance.email_address:
                     # Allow saving, when:
@@ -718,10 +709,10 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
                         if not (send_validation_emails and formset_form.instance.is_primary and formset_form.instance.pk is not None and current_primary_email_address == posted_primary_email_address):
                             formset_form.save()
                             form.instance.email_addresses.add(formset_form.instance)
-        else: # Changes are not allowed
+        else:  # Changes are not allowed
             pass
 
-        if send_validation_emails: # Changes will be made after validation
+        if send_validation_emails:  # Changes will be made after validation
             # Get contact pk
             pk = self.object.pk
 
@@ -752,7 +743,7 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
                 template_name='email_confirm',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[current_primary_email_address.email_address, posted_primary_email_address.email_address],
-                context = {
+                context={
                     'current_site': site,
                     'full_name': self.object.full_name(),
                     'verification_link': verification_link,
@@ -763,7 +754,7 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
             # Add message
             messages.info(self.request, _('An e-mail was sent to %s and %s with a link to verify your new primary e-mail address.' % (current_primary_email_address.email_address, posted_primary_email_address.email_address)))
 
-        if allow_change and send_notification_email: # Changes were made and the user will be notified on both e-mail addresses
+        if allow_change and send_notification_email:  # Changes were made and the user will be notified on both e-mail addresses
             # Get link to site
             protocol = self.request.is_secure() and 'https' or 'http'
             site = Site.objects.get_current()
@@ -773,14 +764,14 @@ class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
                 template_name='login_change',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[current_primary_email_address.email_address, posted_primary_email_address.email_address],
-                context = {
+                context={
                     'current_site': site,
                     'full_name': self.object.full_name(),
                     'email_address': posted_primary_email_address.email_address,
                 }
             )
 
-        return success_url
+        return super(ValidateEmailAddressFormSetViewMixin, self).form_valid(form)
 
 
 class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
@@ -808,7 +799,8 @@ class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
             # Check if existing instance has been marked for deletion
             if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
                 self.object.phone_numbers.remove(formset_form.instance)
-                formset_form.instance.delete()
+                if formset_form.instance.pk:
+                    formset_form.instance.delete()
                 continue
 
             # Save number if raw_input is filled in
@@ -847,7 +839,9 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
             # Check if existing instance has been marked for deletion
             if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
                 self.object.addresses.remove(formset_form.instance)
-                formset.instance.delete()
+                if hasattr(formset, 'instance'):
+                    if formset.instance.pk:
+                        formset.instance.delete()
                 continue
 
             # Save address if something else than complement or type is filled in
@@ -897,7 +891,8 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
         for formset_form in formset:
             # Check if existing instance has been marked for deletion
             if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
-                formset_form.instance.delete()
+                if formset_form.instance.pk:
+                    formset_form.instance.delete()
                 continue
 
             # Save website if the initial value was overwritten

@@ -33,7 +33,7 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
         # Customize form layout
         self.helper = LilyFormHelper(self)
         self.helper.layout = Layout()
-        self.helper.layout.insert(0, Hidden('submit_button', 'add', css_id='add-account-submit'))
+        self.helper.layout.insert(0, Hidden('submit_button', 'add', id='add-account-submit'))
         self.helper.add_columns(
             Column('website', size=7, first=True),
             Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=1),

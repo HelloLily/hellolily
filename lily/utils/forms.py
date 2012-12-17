@@ -11,11 +11,10 @@ from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
+from lily.users.models import CustomUser
 
 
-#===================================================================================================
 # Mixins
-#===================================================================================================
 class FieldInitFormMixin(forms.BaseForm):
     """
     FormMixin to set default widget attributes
@@ -93,7 +92,7 @@ class FieldInitFormMixin(forms.BaseForm):
         for name, field in self.base_fields.items():
             w = field.widget
             if issubclass(w.__class__, HiddenInput):
-                continue # ignore
+                continue  # ignore
 
             # set placeholder if not already and field has an initial value or label
             if not 'placeholder' in w.attrs:
@@ -128,9 +127,7 @@ class FieldInitFormMixin(forms.BaseForm):
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
 
 
-#===================================================================================================
 # Forms
-#===================================================================================================
 class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.

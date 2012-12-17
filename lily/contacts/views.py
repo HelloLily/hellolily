@@ -82,8 +82,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
         self.formset_data['addresses_formset']['template'] = 'contacts/formset_address.html'
 
     def form_valid(self, form):
-        # Copied from ModelFormMixin
-        self.object = form.save()
+        self.object = form.save()  # copied from ModelFormMixin
 
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -101,7 +100,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
                 functions = Function.objects.filter(contact=self.object)
                 functions.delete()
 
-        return self.get_success_url()
+        return super(CreateUpdateContactView, self).form_valid(form)
 
 
 class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, CreateView):
@@ -123,8 +122,8 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         """
         Handle form submission via AJAX or show custom save message.
         """
-        # Save instance
-        super(AddContactView, self).form_valid(form)
+        self.object = form.save()  # copied from ModelFormMixin
+
         message = _('%s (Contact) has been saved.') % self.object.full_name()
 
         if is_ajax(self.request):
@@ -186,7 +185,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         # Show save message
         messages.success(self.request, message)
 
-        return self.get_success_url()
+        return super(AddContactView, self).form_valid(form)
 
     def form_invalid(self, form):
         """
@@ -206,7 +205,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=5&sort_order=desc' % (reverse('contact_list')))
+        return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
 class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
@@ -219,18 +218,18 @@ class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSe
         """
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        super(EditContactView, self).form_valid(form)
+        self.object = form.save()  # copied from ModelFormMixin
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name())
 
-        return self.get_success_url()
+        return super(EditContactView, self).form_valid(form)
 
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=6&sort_order=desc' % (reverse('contact_list')))
+        return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
 
 
 class DeleteContactView(DeleteView):

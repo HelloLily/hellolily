@@ -23,5 +23,5 @@ class TenantMiddleWare(object):
         """
         if request.path.startswith(reverse('admin:index')):
             return None
-        
+
         _thread_locals.user = getattr(request, 'user', None)

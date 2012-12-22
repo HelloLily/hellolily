@@ -80,9 +80,10 @@ FILE_UPLOAD_HANDLERS = (
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 
-ACCOUNT_UPLOAD_TO = 'images/profile/account'
-CONTACT_UPLOAD_TO = 'images/profile/contact'
-EMAIL_ATTACHMENT_UPLOAD_TO = 'messages/email/attachements/'
+ACCOUNT_UPLOAD_TO = os.environ.get('ACCOUNT_UPLOAD_TO', 'images/profile/account')
+CONTACT_UPLOAD_TO = os.environ.get('CONTACT_UPLOAD_TO', 'images/profile/contact')
+EMAIL_ATTACHMENT_UPLOAD_TO = os.environ.get('EMAIL_ATTACHMENT_UPLOAD_TO', 'messages/email/attachements/')
+EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = os.environ.get('EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO', 'messages/email/template_attachements/')
 
 # Static
 STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))

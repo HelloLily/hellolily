@@ -78,7 +78,7 @@ class AddEmailTemplateView(CreateView):
         context = super(AddEmailTemplateView, self).get_context_data(**kwargs)
 
         # add context to template for parameter inserter javascript
-        print get_email_parameter_choices()
+#        print get_email_parameter_choices()
 
         return context
 

@@ -10,7 +10,7 @@ from django_fields.fields import EncryptedCharField, EncryptedEmailField
 
 from lily.messages.email.emailclient import DRAFTS, TRASH
 from lily.messages.models import Message, MessagesAccount
-from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO
+from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 

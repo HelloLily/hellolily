@@ -1,0 +1,30 @@
+[
+    {
+        "pk": 1,
+        "model": "email.emailprovider",
+        "fields": {
+            "retrieve_host": "imap.gmail.com",
+            "name": "GMail",
+            "send_port": 587,
+            "send_use_tls": true,
+            "send_host": "smtp.gmail.com",
+            "retrieve_port": 993,
+            "tenant": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "email.emailaccount",
+        "fields": {
+            "username": "lily@hellolily.com",
+            "name": "lily@hellolily.com",
+            "user_group": [
+                1
+            ],
+            "provider": 1,
+            "password": "0$mxsq=3ouhr)_iz710dj!*2$vkz",
+            "email": "lily@hellolily.com",
+            "last_sync_date": "1970-01-01"
+        }
+    }
+]

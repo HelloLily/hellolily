@@ -1,30 +1,29 @@
-# Django imports
+# # Django imports
 from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 
-# Lily imports
-from lily.messages.models import Message, SocialMediaAccount
+# # Lily imports
+# from lily.messages.models import Message, MessagesAccount
 
 
 class DashboardView(ListView):
     """
     Dashboard of messages, display inbox and other cool stuff.
-
     """
-    template_name = 'messages/dashboard.html'
+#     template_name = 'messages/dashboard.html'
 
-    
-    def get_queryset(self):
-        account_list = SocialMediaAccount.objects.filter(user_group=self.request.user)
 
-        # pass the account list to a task which will look for new messages
-        for account in account_list:
-            result = account.sync(blocking=True)
-#            print result
+#     def get_queryset(self):
+#         account_list = MessagesAccount.objects.filter(user_group=self.request.user)
 
-        message_list = Message.objects.filter(account__in=account_list).order_by('-datetime')[:20]
+#         # pass the account list to a task which will look for new messages
+#         for account in account_list:
+#             result = account.sync(blocking=True)
+# #            print result
 
-        return message_list
+#         message_list = Message.objects.filter(account__in=account_list).order_by('-datetime')[:20]
+
+#         return message_list
 
 
 # Perform logic here instead of in urls.py

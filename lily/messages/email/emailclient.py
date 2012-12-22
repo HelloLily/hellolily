@@ -1,11 +1,17 @@
-import collections
 import email
+import traceback
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 
+from BeautifulSoup import BeautifulSoup, Comment
+from dateutil.parser import parse
+from dateutil.tz import tzutc
+from django.utils.datastructures import SortedDict
+from django.utils.encoding import force_unicode
 from imapclient.imapclient import IMAPClient, SEEN
+import chardet
 
 
 INBOX = '\\Inbox'
@@ -95,10 +101,19 @@ class Folder(object):
 class LilyIMAP(object):
     folders = None
     server = None
+    account = None
 
-    def __init__(self, username, password, host, port=None, use_uid=True, ssl=True):
-        self._server = IMAPClient(host, port, use_uid, ssl)
-        self._server.login(username, password)
+    def __init__(self, provider=None, account=None, use_uid=True, ssl=True, **kwargs):
+        if provider is not None and account is not None:
+            # Use these instance to connect to an IMAP server
+            self._server = IMAPClient(provider.retrieve_host, provider.retrieve_port, use_uid, ssl)
+            self._server.login(account.username, account.password)
+        else:
+            # Use kwargs for setup
+            self._server = IMAPClient(kwargs['host'], kwargs['port'], use_uid, ssl)
+            self._server.login(kwargs['username'], kwargs['password'])
+
+        self.account = account
         self.retrieve_and_map_folders()
 
     def retrieve_and_map_folders(self):
@@ -121,18 +136,15 @@ class LilyIMAP(object):
                 name_server = None
                 name_locale = identifier[2]
                 folder_identifier = None
-                # Test if a flag represents a default identifier name
 
-                overlap = list((
-                                collections.Counter(flags) &
-                                collections.Counter(IMAP_XFOLDER_FLAGS)
-                          ).elements())
+                # Test if a flag represents a default identifier name
+                overlap = list(set(flags).intersection(set(IMAP_XFOLDER_FLAGS)))
 
                 if len(overlap) == 1:
                     folder_identifier = overlap[0].lstrip('\\')
                     if '\\%s' % folder_identifier == INBOX:
-                        # XXX: special case, can only read from the server by
-                        #      using INBOX as identifier
+                        # NOTE: special case, can only read from the server by
+                        # using INBOX as identifier
                         name_server = folder_identifier
                     else:
                         name_server = name_locale
@@ -159,16 +171,27 @@ class LilyIMAP(object):
         '''
         self.folders = folders
 
-    def get_folders(self, all=False):
+    def get_folders(self, exclude=[], all=False):
         '''
         Return a list of Folder objects representing all folders on the current
         connected server. If all is True, folders that cannot be selected will
-        be returned also.
+        be returned also. Folders in exclude are not returned (i.e. Trash/Drafts).
         '''
         folders = []
-        for identifier in self.folders:
-            if identifier.can_select() or not identifier.can_select() and all:
-                folders.append(identifier)
+        for folder in self.folders:
+            # Test exclude
+            include = True
+            for identifier in exclude:
+                if isinstance(identifier, Folder) and identifier.identifier == folder.identifier:
+                    include = False
+                elif identifier.lstrip('\\') == folder.identifier:
+                    include = False
+                elif self.get_server_name_for_folder(identifier) == folder.get_server_name():
+                    include = False
+
+            if include:
+                if folder.can_select() or not folder.can_select() and all:
+                    folders.append(folder)
         return folders
 
     def get_server_name_for_folder(self, identifier):
@@ -194,25 +217,97 @@ class LilyIMAP(object):
         response from the imap server.
         # TODO, check server capabilities and add [X-GM-THRID, X-GM-MSGID, X-GM-LABELS]
         '''
-        # Check if only headers were retrieved
-        headers_only = raw_data.has_key('BODY[HEADER]')
+        headers = None
+        is_plain = False
+        flags = None
+        from_email = None
+        to_email = None
+        subject = None
+        size = None
+        sent_date = None
+        attachments = None
+        has_attachments = False
+        html_body = None
+        plain_body = None
 
-        message = email.message_from_string(raw_data.get('BODY[]', raw_data.get('BODY[HEADER]')))
-        headers = dict(message.items())
-        body = ''
+        # Find key for header
+        header_key = [key for key in raw_data.keys() if key.startswith('BODY[HEADER')] or None
+        if header_key is not None:
+            header_key = header_key[0]
 
-        # Check for text/plain
-        is_plain = headers.get('Content-Type', '').startswith('text/plain')
+        if 'FLAGS' in raw_data:
+            flags = raw_data.get('FLAGS', ())
 
-        # Check for attachments
-        if headers_only:
-            has_attachments = headers.get('Content-Type', '').startswith('multipart/mixed')
-        else:
-            has_attachments = headers.get('Content-Type', '').startswith('multipart/mixed') and message.is_multipart()
+        # Parse headers
+        if 'BODY[]' in raw_data or header_key is not None:
+            # Read payload
+            message = email.message_from_string(raw_data.get('BODY[]', raw_data.get(header_key)))
 
-        attachments = []
-        if not headers_only:
+            headers = dict(message.items())
+            for name, value in headers.items():
+                encoding = chardet.detect(value)['encoding']
+
+                if encoding is not None:
+                    try:
+                        value = value.decode(encoding)
+                    except Exception, e:
+                        traceback.format_exc(e)
+                        print encoding
+                        print value
+
+                headers[name] = value
+
+            is_plain = headers.get('Content-Type', '').startswith('text/plain')
+            from_email = message.get('From')
+            to_email = message.get('To')
+            subject = message.get('Subject')
+            size = raw_data.get('RFC822.SIZE', 0)
+
+            if message.get('Received') is not None or message.get('Date') is not None:
+                # Convert header to UTC
+                if message.get('Received') is not None:
+                    origin_time = message.get('Received').replace('\r\n', '').replace('\n', '').split(';')[-1].strip()
+                else:
+                    origin_time = message.get('Date').strip()
+
+                parsed_time = parse(origin_time)
+                parsed_time.tzinfo._name = None  # clear tzname to rely solely on the offset (not all tznames are supported)
+                sent_date = parsed_time.astimezone(tzutc())
+
+            # Check for attachments
+            if header_key is not None:
+                has_attachments = headers.get('Content-Type', '').startswith('multipart/mixed')
+            else:
+                has_attachments = headers.get('Content-Type', '').startswith('multipart/mixed') and message.is_multipart()
+
+        if 'BODY[]' in raw_data:
+            html_body = plain_body = ''
+            attachments = []
             for part in message.walk():
+                if str(part.get_content_type()) == 'text/plain':
+                    content = part.get_payload(decode=True)
+                    encoding = chardet.detect(content)['encoding']
+                    # TODO check charset with content-type or BODYSTRUCTURE header
+                    if encoding is not None:
+                        try:
+                            content = content.decode(encoding)
+                        except Exception, e:
+                            print traceback.format_exc(e)
+                            print encoding
+                            print content[:100]
+                    plain_body += content
+                if str(part.get_content_type()) == 'text/html':
+                    content = part.get_payload(decode=True)
+                    encoding = chardet.detect(content)['encoding']
+                    if encoding is not None:
+                        try:
+                            content = content.decode(encoding)
+                        except Exception, e:
+                            print traceback.format_exc(e)
+                            print encoding
+                            print content[:100]
+                    html_body += content
+
                 if part.get_content_maintype() == 'multipart':
                     continue
 
@@ -222,45 +317,180 @@ class LilyIMAP(object):
                 if part.get_filename():
                     payload = StringIO.StringIO()
                     payload.write(part.get_payload(decode=True))
-                    payload.close()
                     attachments.append({
                         'filename': part.get_filename(),
                         'payload': payload,
+                        'size': payload.tell(),  # size in bytes
                     })
+                    payload.close()
+                    continue
+
+            # Create soup from body to alter html tags
+            soup = BeautifulSoup(html_body)
+
+            # Remove html comments
+            comments = soup.findAll(text=lambda text: isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+            # Make all anchors open outside the iframe
+            for anchor in soup.findAll('a'):
+                attrs = list(anchor.attrs)
+                if 'target' in anchor.attrs:
+                    del attrs['target']
+                attrs.append(('target', '_blank'))
+                anchor.attrs = tuple(attrs)
+
+            html_body = soup.renderContents()
 
         # Return useful data
         return {
-            'flags': raw_data.get('Flags', ()),
+            'flags': flags,
             'headers': headers,
-            'body': body,
+            'from': from_email,
+            'to': to_email,
+            'subject': subject,
+            'size': size,
+            'sent_date': sent_date,
             'is_plain': is_plain,
             'has_attachments': has_attachments,
+            'html_body': html_body,
+            'plain_body': plain_body,
             'attachments': attachments,
-            'from': email.utils.parseaddr(message.get('From')),
-            'to': email.utils.parseaddr(message.get('To')),
-            'subject': message.get('Subject'),
-            'size': raw_data.get('RFC822.SIZE', 0),  # in bytes
         }
 
-    def messages_in_folder(self, identifier, readonly=False):
-        '''
-        Return all messsages in given identifier. Folder can be either a string
-        representing a identifier name or a 'Folder' object.
-        '''
+    def get_modifiers_for_uid(self, uid, modifiers, folder=None):
+        """
+        Return modifiers for uid in a folder. Providing folder is
+        recommended. As a uid only needs be unique per folder, it's possible
+        that not the intended message is found and returned.
+        """
+        try:
+            if not isinstance(uid, list):
+                uid = [uid]
+
+            # Fastest case
+            if folder:
+                folder_name = self.get_server_name_for_folder(folder)
+                if self._server.folder_exists(folder_name):
+                    self._server.select_folder(folder_name)
+                    response = self._server.fetch(uid, modifiers)
+
+                    if len(response.items()) > 0:
+                        msgid, data = response.items()[0]
+                        message = self.get_message_from_raw(data)
+                        self._server.close_folder()
+                        message['folder_name'] = folder_name
+                        return message
+                    # Not found in given folder, return nothing
+                    return {}
+
+            # From here on, we're just guessing which message it is.
+            # It's in no way reliable, since it just returns the first
+            # message it finds with the uid.
+            #
+            # Look for common case: INBOX
+            folder_name = self.get_server_name_for_folder(INBOX)
+            if self.get_server_name_for_folder(folder) != folder_name:
+                self._server.select_folder(folder_name)
+                response = self._server.fetch(uid, modifiers)
+
+                if len(response.items()) > 0:
+                    msgid, data = response.items()[0]
+                    message = self.get_message_from_raw(data)
+                    self._server.close_folder()
+                    message['folder_name'] = folder_name
+                    return message
+
+            # Look into other folders
+            for identifier in self.get_folders(exclude=[INBOX, ALLMAIL, folder]):
+                folder_name = self.get_server_name_for_folder(identifier)
+                if self._server.folder_exists(folder_name):
+                    # Open folder
+                    self._server.select_folder(folder_name)
+                    response = self._server.fetch(uid, modifiers)
+
+                    if len(response.items()) > 0:
+                        msgid, data = response.items()[0]
+                        message = self.get_message_from_raw(data)
+                        self._server.close_folder()
+                        message['folder_name'] = folder_name
+                        return message
+        except Exception, e:
+            print traceback.format_exc(e)
+
+        return {}
+
+    def search_in_folder(self, identifier=None, criteria=['ALL'], readonly=True, paginate=False, page=1, page_size=10, close=True):
+        """
+        Return all message uids in given identifier filtered by
+        criteria and the total count of messages in identifier.
+        A single identifier can be either a string representing an
+        identifier name or a 'Folder' object.
+        """
         folder_name = self.get_server_name_for_folder(identifier)
-        messages = {}
         if self._server.folder_exists(folder_name):
-            # Read non-deleted messages in folder
-            self._server.select_folder(folder_name, readonly)
-            message_uids = self._server.search(['NOT DELETED'])
-            response = self._server.fetch(message_uids, ['BODY.PEEK[HEADER]', 'FLAGS', 'RFC822.SIZE'])
+            # Open folder
+            select_info = self._server.select_folder(folder_name, readonly)
+            try:
+                # Get total message count in folder
+                folder_count = select_info['EXISTS']
+
+                # Search messages in folder
+                message_uids = self._server.search(criteria)
+
+                if paginate:
+                    # Slice resultset
+                    start = (page - 1) * page_size
+                    end = start + page_size
+                    message_uids = message_uids[start:end]
+
+                return folder_count, message_uids
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                if close:
+                    # Close after reading
+                    self._server.close_folder()
+        return 0, {}
+
+    def fetch_from_folder(self, identifier=None, message_uids=None, modifiers=[], close=True):
+        """
+        Fetch messages by UIDs from an already selected folder.
+        """
+        try:
+            messages = {}
+            response = self._server.fetch(message_uids, modifiers)
 
             for msgid, data in response.items():
-                messages[msgid] = self.get_message_from_raw(data)
+                try:
+                    messages[msgid] = self.get_message_from_raw(data)
+                    messages[msgid]['folder_name'] = self.get_server_name_for_folder(identifier)
+                except Exception, e:
+                    print traceback.format_exc(e)
+        except Exception, e:
+            print traceback.format_exc(e)
+        finally:
+            if close:
+                # Close after reading
+                self._server.close_folder()
+            return messages
 
-            # Close after reading
-            self._server.close_folder()
-        return messages
+    def get_messages_in_folders(self, identifiers=[], criteria=['ALL'], modifiers=[], readonly=True, paginate=False, page=1, page_size=10):
+        '''
+        Return messsages in given identifiers filtered by criteria and
+        the total count of messages in identifiers. A single
+        identifier can be either a string representing an identifier
+        name or a 'Folder' object.
+        '''
+        messages = SortedDict()
+        for identifier in identifiers:
+            # Opens folder, but don't close it yet
+            folder_count, message_uids = self.search_in_folder(identifier=identifier, criteria=criteria, readonly=readonly, paginate=paginate, page=page, page_size=page_size, close=False)
+
+            # Fetch modifiers from folder
+            messages.update(self.fetch_from_folder(identifier=identifier, message_uids=message_uids, modifiers=modifiers))
+        return page, page_size, folder_count, messages
 
     def get_folder_status(self, status, identifier=ALLMAIL):
         '''
@@ -276,27 +506,24 @@ class LilyIMAP(object):
         '''
         return self.get_folder_status('UNSEEN', identifier)
 
-    # def send_email(self, sender, recipients, subject, template, **kwargs):
-    #     '''
-    #     Send a templated e-mail using kwargs to decide the contents. If 'body'
-    #     is in kwargs, this will be used in the template's stead.
-    #     '''
-    #     use_template = not 'body' in kwargs.keys()
-    #     # TODO
+    def mark_as_read(self, uids):
+        '''
+        Mark message as read.  uids can be one or more.
+        '''
+        if isinstance(uids, list):
+            uids = ','.join([str(val) for val in uids])
+        else:
+            uids = [uids]
 
-    def mark_as_read(self, msgids):
-        '''
-        Mark message as read. msgids can be one or more uids
-        '''
-        if isinstance(msgids, list):
-            msgids = ','.join([str(val) for val in msgids])
+        self._server.add_flags(uids, [SEEN])
 
-        self._server.add_flags(msgids, [SEEN])
+    def mark_as_unread(self, uids):
+        '''
+        Mark message as unread. uids can be one or more.
+        '''
+        if isinstance(uids, list):
+            uids = ','.join([str(val) for val in uids])
+        else:
+            uids = [uids]
 
-    def mark_as_unread(self, msgids):
-        '''
-        Mark message as unread. msgids can be one or more uids.
-        '''
-        if isinstance(msgids, list):
-            msgids = ','.join([str(val) for val in msgids])
-        self._server.remove_flags(msgids, [SEEN])
+        self._server.remove_flags(uids, [SEEN])

@@ -1,0 +1,490 @@
+{% extends 'base_model_div_list.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {{ block.super }}
+
+    <style type="text/css">
+        html, body {
+            height: 100%; }
+
+        #mws-wrapper {
+            height: auto;
+            height: 100% !important;
+            min-height: 100%;
+            position: relative;
+        }
+
+        #mws-container {
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        .container {
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+            margin-bottom: -62px !important;
+            padding-bottom: 124px !important;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+
+            float: none !important;
+        }
+
+        .container > div {
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+        }
+
+        .container .mws-panel-body {
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+        }
+
+        #mws-footer {
+            margin: 10px 29px 0 !important;
+            position: static !important;
+            left: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            top: auto !important;
+        }
+
+        #emailbox-header {
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            margin-right: -100px;
+            margin-right: -136px;
+            overflow: hidden;
+            padding-right: 170px;
+            padding-right: 18   0px;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .email-toolbar.paginator {
+            position: absolute;
+            right: 12px;
+        }
+        .email-toolbar.paginator a {
+            width: 16px;
+            display: inline-block;
+            height: 24px;
+            position: relative;
+        }
+        .email-toolbar.paginator .mws-i-24 {
+            height: 100%;
+            width: 100%;
+            display: block;
+            padding-left: 0 !important;
+        }
+        .email-toolbar.paginator .next-page {
+            margin-left: 16px;
+        }
+        .email-toolbar.paginator .next-page.jump {
+            margin-left: 7px;
+        }
+        .email-toolbar.paginator .jump span {
+            display: inline-block;
+            width: 5px;
+        }
+        .email-toolbar.paginator .prev-page.jump span {
+            background-position: -3px center;
+        }
+        .email-toolbar.paginator .next-page .mws-i-24 {
+            background-position: -16px center !important;
+        }
+        .email-toolbar.paginator .refresh {
+            width: 24px;
+        }
+        .email-toolbar.paginator .refresh .mws-i-24 {
+            background-position: 0px center !important;
+        }
+
+        .mws-email-list {
+            float: left;
+            width: 310px;
+            padding-left: 3px;
+            padding-right: 3px;
+            margin-right: -1px;
+
+            height: 100%;
+        }
+        .mws-email-list.small {
+            border-right: 1px solid #808080;
+        }
+        .mws-email-list .action {
+            width: 24px;
+        }
+        .mws-email-list .action.no-width,
+        .mws-email-list .action.no-width .priority {
+            width: 0px;
+        }
+
+        .mws-email-list .mws-inset .action {
+            width: 24px !important;
+        }
+        .mws-inset .action .priority {
+            width: 17px !important;
+        }
+
+        .action .priority {
+            width: 17px;
+            height: 17px;
+            margin-bottom: 2px;
+        }
+        .action .priority:hover {
+            cursor: pointer;
+        }
+        .action .high {
+            background-color: steelblue;
+            background-color: rgba(28,118,188, .9);
+        }
+        .action .medium {
+            background-color: skyblue;
+            background-color: rgba(28,118,188, .6);
+        }
+        .action .low {
+            background-color: lightblue;
+            background-color: rgba(28,118,188, .3);
+        }
+        .action .priority:hover {
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wLCAwWIUKnM+cAAAAIdEVYdENvbW1lbnQA9syWvwAAAChJREFUOMtjYBgFJANFRcX/hNQwUcOiwWMIIzlhcP/+fcbRgB0FpAIAoOYG0sWTENQAAAAASUVORK5CYII=);
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAAXNSR0IArs4c6QAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wLCA0DCthsRoQAAAAoSURBVDjLY2AYBSSD/////yekhokaFg0eQxjJCQNGRkbG0YAdBaQCAAgxDAYkiUYnAAAAAElFTkSuQmCC);
+        }
+
+        .mws-email-list {
+            overflow: auto;
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+        }
+        .mws-email-list .divider {
+            height: 3px;
+        }
+        .mws-email-list .divider hr {
+            margin: 0;
+        }
+
+        .single-message {
+            height: 59px;
+            padding: 14px 0 10px;
+            width: 100%;
+            white-space: nowrap;
+            border-radius: 4px 4px 4px 4px;
+        }
+        .single-message {
+            background-color: #e7e7e7;
+        }
+        .single-message.mws-inset,
+        .single-message.unread {
+            background-color: #ffffff;
+        }
+        .single-message.unread .sender,
+        .single-message.unread .subject {
+            font-weight: 700;
+        }
+        .single-message .controls,
+        .single-message .action {
+            float: left;
+        }
+        .sender-time-email {
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .single-message .controls {
+            vertical-align: top;
+            padding-right: 3px;
+        }
+        .single-message .email {
+            padding: 0 10px 0 3px;
+            margin-left: 20px;
+            height: 100%;
+        }
+        .single-message .email:hover {
+            cursor: pointer;
+        }
+        .single-message .email .sender,
+        .single-message .email .subject,
+        .single-message .email .body.preview {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            height: 17px;
+        }
+        .single-message .email .sender {
+            margin-right: 65px;
+        }
+        .single-message .email .time {
+            color: #777777;
+            text-align: right;
+            float: right;
+            width: 65px;
+        }
+        .single-message .email .body.preview {
+            max-width: 200px
+            height: 13px;
+            color: #777777;
+        }
+
+        .email-content {
+            margin-left: 226px;
+            border-left: 1px solid #808080;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            padding: 0 0 0 3px;
+            width: auto;
+        }
+        .email-content .container-busy {
+            padding-top: 46px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, .95);
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+        .email-content .wrapper {
+            margin: 0 auto;
+        }
+
+        #email-wrapper {
+            width: 100%;
+            border: none;
+            overflow: auto;
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+            padding-top: 40px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+        #email {
+            width: 100%;
+            border: none;
+            overflow: auto;
+            height: auto;
+            height: 100%;
+            min-height: 100%;
+            position: relative;
+            margin-top: -38px;
+        }
+
+        @media only screen and (min-width: 900px)
+        {
+            .mws-panel-toolbar .back-button {
+                display: none;
+            }
+        }
+        @media only screen and (max-width: 899px)
+        {
+            .mws-email-list.small {
+                display: none;
+            }
+            .mws-email-list {
+                float: none;
+                width: auto;
+            }
+            .email-content {
+                border-left: none;
+                margin-left: 0;
+                padding-left: 0;
+            }
+        }
+    </style>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var jqXHR = null;
+            var hide_action_timeout = null;
+            $('.mws-email-list .single-message').hover(
+                function(event) {
+                    $('.mws-email-list .action:not(.no-width)').addClass('no-width');
+                    clearTimeout(hide_action_timeout);
+                    $(event.target).closest('.single-message').find('.action').removeClass('no-width');
+                },
+                function(event) {
+                    hide_action_timeout = setTimeout(function() {
+                        $(event.target).closest('.single-message').find('.action').addClass('no-width');
+                    }, 1000);
+                }
+            );
+
+            $('.email-content .mws-panel-toolbar .back-button a').click(function(event) {
+                $('.mws-email-list').removeClass('small').css('width', '');
+                $('.email-content').hide();
+
+                event.preventDefault();
+            });
+
+            $('.mws-email-list .email').click(function(event) {
+                if(jqXHR==null) {
+                    var table = $('.mws-email-list');
+                    var width = 220;
+
+                    // if not small already, animate to a smaller list
+                    if (!$(table).hasClass('small')) {
+                        $(table).addClass('small');
+                        $(table).animate({
+                            'width': width
+                        }, 800);
+                    }
+
+                    // highlight selected message
+                    $('.single-message.mws-inset').removeClass('mws-inset');
+                    $(event.target).closest('.single-message').addClass('mws-inset');
+
+                    // show we're busy
+                    $('.email-content').show().find('.container-busy').show();
+
+                    // try this
+                    jqXHR = $.ajax({
+                        url: '/messages/email/json/' + $(this).closest('.single-message').data('id'),
+                        type: 'GET',
+                        dataType: 'json',
+                    })
+                    // on success
+                    jqXHR.done(function(data, status, xhr) {
+                        $(event.target).closest('.single-message').removeClass('unread').find('.body.preview').html(data.flat_body);
+
+                        var html = data.body;
+                        if(data.is_plain) {
+                            html.replace('<pre>', '');
+                            html.replace('</pre>', '');
+
+                            html = '<pre>' + html + '</pre>';
+                        }
+
+                        $('#email').contents()
+                            .scrollTop(0)
+                            .scrollLeft(0)
+                            .find('html').html(html);
+                    });
+                    // on error
+                    jqXHR.fail(function() {
+                        $.jGrowl(gettext('E-mail message not found on the server.'), {
+                            sticky: true,
+                            theme: 'error mws-ic-16 ic-cross'
+                        });
+                    });
+                    // finally do this
+                    jqXHR.always(function() {
+                        setTimeout(function() {
+                            // hide overlay
+                            $('.email-content .container-busy').hide();
+                            // remove request object
+                            jqXHR = null;
+                        }, 800);
+                    });
+                }
+                event.preventDefault();
+            });
+
+            $('.mws-email-list .action .priority').click(function(event) {
+                var priority = $(event.target).attr('class');
+
+            });
+
+            $('.email-content .container-cancel.email').click(function(event) {
+
+                event.preventDefault();
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block before-list %}
+
+{% endblock %}
+
+{% block model-list-title %}
+    <div id="emailbox-header" class="inline"  title="{{ accounts }}">
+        {{ page_obj.start_index }}-{{ page_obj.end_index }} {% blocktrans with total_count=page_obj.paginator.count %}of {{ total_count }}  e-mails{% endblocktrans %} in {{ accounts }}
+    </div>
+    <div class="inline email-toolbar paginator">
+        {% if page_obj.has_previous %}
+            <a href="{% url messages_email_inbox %}?page=1" title="{% trans 'Show first page' %}" class="prev-page jump"><span class="mws-i-24 i-arrow-left"></span><span class="mws-i-24 i-arrow-left"></span></a>
+        {% endif %}
+
+        {% if page_obj.has_previous %}
+            <a href="{% url messages_email_inbox %}?page={{ page_obj.previous_page_number }}" title="{% trans 'Show previous page' %}" class="prev-page"><span class="mws-i-24 i-arrow-left"></span></a>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <a href="{% url messages_email_inbox %}?page={{ page_obj.next_page_number }}" title="{% trans 'Show next page' %}" class="next-page"><span class="mws-i-24 i-arrow-right"></span></a>
+        {% else %}
+            <span style="width: 32px; display: inline-block"></span>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <a href="{% url messages_email_inbox %}?page=last" title="{% trans 'Show last page' %}" class="next-page jump"><span class="mws-i-24 i-arrow-right"></span><span class="mws-i-24 i-arrow-right"></span></a>
+        {% else %}
+            <span style="width: 23px; display: inline-block"></span>
+        {% endif %}
+        <a href="{% url messages_email_inbox %}?page={{ page_obj.number }}" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
+    </div>
+{% endblock %}
+
+{% block list-head %}
+<div class="mws-email-list">{% endblock %}
+
+{% block list %}
+    {% if empty_template %}
+        {% for message in object_list %}
+            {% include list_item_template with item=message %}
+        {% empty %}
+            {% include empty_template with list=object_list %}
+        {% endfor %}
+    {% else %}
+        {% for message in object_list %}
+            {% include list_item_template with item=message %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block list-foot %}{% endblock %}
+
+{% block after-list %}
+    <div class="email-content hidden">
+        <div class="container-busy email" style="display: none;">
+            <img src="{% media_url 'extra/images/blue-loading.gif' %}" alt="" />
+            <p>
+                <a href="javascript:" class="container-cancel email">{% trans 'Cancel' %}</a>
+            </p>
+        </div>
+        <div class="mws-panel-toolbar top clearfix">
+            <ul>
+                <li class="back-button"><a href="#">Back</a></li>
+                <li class=""><a href="#">Mark as unread</a></li>
+                <li class=""><a href="#">Mark as read</a></li>
+                <li class=""><a href="#">Move to trash</a></li>
+                <li class=""><a href="#">Reply</a></li>
+            </ul>
+        </div>
+        <div id="email-wrapper">
+            <iframe id="email"></iframe>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{# based on 'base_model_list_item.html' #}
+{% load i18n email media %}
+
+{% block item-row %}
+    {% if forloop.first %}
+        <div class="divider">
+        </div>
+    {% endif %}
+    {% if item.is_seen %}
+    <div class="single-message clearfix" data-uid="{{ item.uid }}" data-id="{{ item.id }}">
+    {% else %}
+    <div class="single-message unread clearfix" data-uid="{{ item.uid }}" data-id="{{ item.id }}">
+    {% endif %}
+        {% block controls %}
+            <div class="controls">
+                {% block item-actions %}
+                    <input type="checkbox" name="item[]" value="{{ item.uid }}" />
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block item-columns %}
+            <div class="action no-width">
+                <div class="high priority" title="{% trans 'Mark as a high priority item' %}"></div>
+                <div class="medium priority" title="{% trans 'Mark as a medium priority item' %}"></div>
+                <div class="low priority" title="{% trans 'Mark as a low priority item' %}"></div>
+            </div>
+            <div class="message email">
+                <div class="sender-time-email">
+                    <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }}</div>
+                    <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+                </div>
+                <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
+                <div class="body preview">{{ item.flat_body|truncatechars:"200"|safe }}</div>
+            </div>
+        {% endblock %}
+    </div>
+    <div class="divider">
+    </div>
+    {% if not forloop.last %}
+    <div class="divider">
+        <hr />
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,4 +1,5 @@
 {% load utiltags %}
+
 <tr class="{% if '\\Seen' in object.message_flags %}message-read{% else %}message-new{% endif %}">
     <td class="message-row-options"><input type="checkbox"></td>
     <td class="message-row-from">{% if object.from_name %}{{ object.from_name }}{% else %}{{ object.from_email }}{% endif %}</td>

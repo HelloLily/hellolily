@@ -7,7 +7,7 @@
     {% block page-header %}
         <!-- Page header -->
         <div id="mws-header">
-            
+
             <!-- Page header container -->
             <div id="mws-header-container" class="clearfix">
                 <!-- Logo container -->
@@ -18,7 +18,7 @@
                         </a>
                     </div>
                 </div>
-                    
+
                 <!-- User tools container -->
                 <div id="mws-user-tools" class="clearfix">
                     <!-- User information section -->
@@ -26,7 +26,7 @@
                         <div id="mws-user-photo">
                             <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
-        
+
                         <div id="mws-user-functions">
                             <div id="mws-username">
                                 Hello, {{ user }}
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 {% block quickbuttons-container %}
                     <!-- Quickbutton container -->
                     <div id="mws-quickbutton-container" class="tabthis">
@@ -47,31 +47,31 @@
                                     {% trans 'Add contact' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'contacts/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url account_add %}" class="no-decoration quickbutton account">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add account' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'accounts/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add deal' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'deals/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url case_add %}" class="no-decoration quickbutton case">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add case' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'cases/quickbutton_dialog.html' %}
                         {% endblock %}
                     </div>
@@ -82,12 +82,12 @@
 
     <!-- Start Main Wrapper -->
     <div id="mws-wrapper">
-        
+
         <!-- Sidebar -->
         <div id="mws-sidebar-stitch"></div>
         <div id="mws-sidebar">
             {% block sidebar %}
-            
+
                 {% block navigation %}
                     <div id="mws-navigation">
                         <ul>
@@ -103,31 +103,43 @@
                             <li class="mws-dropdown-menu {% ifstartswith "messages_dashboard" %}active{% endifstartswith %}">
                                 <a href="#messaging" class="{% ifstartswith "messages_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
                                     Messages
-                                    <!-- Unread messages count -->
-                                    <span class="mws-nav-tooltip mws-inset">13</span>
                                 </a>
 
                                 <ul {% ifstartswith "messages_dashboard" %}class="open"{% else %}class="closed"{% endifstartswith%}>
-                                    <li>
-                                        <a href="{% url messages_dashboard %}" class="i-20 i-archive">
+                                    <li {% ifactive "messages_email_inbox" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_inbox %}" class="i-20 i-archive">
                                             {% trans 'Inbox' %}
                                             <span class="mws-nav-tooltip mws-inset" >146</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="{% url messages_sent %}" class="i-20 i-bended-arrow-left">
+                                    <li {% ifactive "messages_email_next_steps" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_next_steps %}" class="i-20 i-bended-arrow-left">
+                                            {% trans 'Next Steps' %}
+                                        </a>
+                                    </li>
+                                    <li {% ifactive "messages_email_sent" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_sent %}" class="i-20 i-bended-arrow-left">
                                             {% trans 'Sent' %}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="{% url messages_drafts %}" class="i-20 i-create">
+                                    <li {% ifactive "messages_email_drafts" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_drafts %}" class="i-20 i-create">
                                             {% trans 'Drafts' %}
                                             <span class="mws-nav-tooltip mws-inset">11</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="{% url messages_archived %}" class="i-20 i-folder">
+                                    <li style="background: #ffffff;">
+                                        <a href="#"></a>
+                                    </li>
+                                    <li {% ifactive "messages_email_archived" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_archived %}" class="i-20 i-folder">
                                             {% trans 'Archived' %}
+                                            <span class="mws-nav-tooltip mws-inset">32</span>
+                                        </a>
+                                    </li>
+                                    <li {% ifactive "messages_email_trash" %}class="active"{% endifactive %}>
+                                        <a href="{% url messages_email_trash %}" class="i-20 i-trash">
+                                            {% trans 'Trash' %}
                                             <span class="mws-nav-tooltip mws-inset">32</span>
                                         </a>
                                     </li>
@@ -142,10 +154,10 @@
                         </ul>
                     </div>
                 {% endblock %}
-                    
+
             {% endblock %}
         </div>
-        
+
         <!-- Main Container -->
         <div id="mws-container" class="clearfix">
 
@@ -153,14 +165,14 @@
             <div class="container clearfix">
                 {% block container %}{% endblock %}
             </div>
-            
+
             {% block page-footer %}
                 <!-- Footer -->
                 <div id="mws-footer">Copyright HelloLily 2012. All Rights Reserved.</div>
             {% endblock %}
         </div>
     </div>
-    
+
     <div class="hidden">
         <div id="loadingDialog"></div>
         <div id="successDialog">
@@ -174,5 +186,5 @@
             </div>
         </div>
     </div>
-    
+
 {% endblock %}

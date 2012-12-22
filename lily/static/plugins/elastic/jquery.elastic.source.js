@@ -56,7 +56,7 @@
 					'white-space'	:'pre-wrap'
 				}),
 				lineHeight	= parseInt($textarea.css('line-height'),10) || parseInt($textarea.css('font-size'),'10'),
-				minheight	= parseInt($textarea.css('height'),10) || lineHeight*3,
+				minheight	= (parseInt($textarea.css('height'),10) ? (parseInt($textarea.css('height'),10) - parseInt($textarea.css('paddingTop'),10) - parseInt($textarea.css('paddingBottom'),10)) : lineHeight*3);
 				maxheight	= parseInt($textarea.css('max-height'),10) || Number.MAX_VALUE,
 				goalheight	= 0;
 				
@@ -108,9 +108,9 @@
 						$twin.html(textareaContent+'&nbsp;');
 						
 						// Change textarea height if twin plus the height of one line differs more than 3 pixel from textarea height
-						if(Math.abs($twin.height() + lineHeight - $textarea.height()) > 3){
+						if(Math.abs($twin.innerHeight() + lineHeight - $textarea.innerHeight()) > 3){
 							
-							var goalheight = $twin.height()+lineHeight;
+							var goalheight = $twin.innerHeight();
 							if(goalheight >= maxheight) {
 								setHeightAndOverflow(maxheight,'auto');
 							} else if(goalheight <= minheight) {
@@ -140,9 +140,9 @@
 				
 				// Compact textarea on blur
 				$textarea.bind('blur',function(){
-					if($twin.height() < maxheight){
+					if($twin.innerHeight() < maxheight){
 						if($twin.height() > minheight) {
-							$textarea.height($twin.height());
+							$textarea.height($twin.innerHeight());
 						} else {
 							$textarea.height(minheight);
 						}

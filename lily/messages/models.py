@@ -1,49 +1,38 @@
-# Django imports
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
-
-# Lily imports
-from lily.users.models import CustomUser
-
-# 3rd party imports
 from polymorphic import PolymorphicModel
 
+from lily.users.models import CustomUser
+from lily.utils.functions import get_tenant_mixin as TenantMixin
 
-class SocialMediaAccount(PolymorphicModel, TimeStampedModel):
+
+class MessagesAccount(PolymorphicModel, TimeStampedModel, TenantMixin):
     """
     A social media account base class, all accounts are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
-
     """
-    user_group = models.ManyToManyField(CustomUser, related_name='social_media_accounts')
+    user_group = models.ManyToManyField(CustomUser, related_name='messages_accounts')
     account_type = models.CharField(max_length=255)
 
-
     def __unicode__(self):
-        return u'social media account'
-
+        return u'%s account' % self.account_type
 
     class Meta:
-        verbose_name = _('social media account')
-        verbose_name_plural = _('social media accounts')
+        verbose_name = _('messages account')
+        verbose_name_plural = _('messages accounts')
 
 
-class Message(PolymorphicModel, TimeStampedModel):
+class Message(PolymorphicModel, TimeStampedModel, TenantMixin):
     """
     A message base class, all messages are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
-
     """
-    datetime = models.DateTimeField()
+    sent_date = models.DateTimeField(null=True)  # time sent in UTC
     is_seen = models.BooleanField(default=False)
-    account = models.ForeignKey(SocialMediaAccount, related_name='messages')
-
-
-    def __unicode__(self):
-        return u'message'
-
+    account = models.ForeignKey(MessagesAccount, related_name='messages')
 
     class Meta:
+        abstract = True
         verbose_name = _('message')
         verbose_name_plural = _('messages')

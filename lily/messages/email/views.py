@@ -9,6 +9,7 @@ from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import truncatechars
+from django.template.loader import render_to_string
 from django.utils import simplejson
 
 from lily.messages.email.emailclient import LilyIMAP

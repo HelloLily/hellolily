@@ -17,7 +17,7 @@ from django.views.generic.list import ListView
 from lily.messages.email.emailclient import LilyIMAP
 from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, TemplateParameterForm, TemplateParameterParseForm
 from lily.messages.email.models import EmailAccount, EmailTemplate, EmailMessage, EmailTemplateParameters, EmailTemplateParameterChoice
-from lily.messages.email.tasks import get_unread_emails, save_email_messages
+from lily.messages.email.tasks import save_email_messages, mark_messages
 from lily.messages.email.utils import parse
 
 
@@ -210,7 +210,6 @@ class ListEmailView(ListView):
             page = int(page)
         except:
             page = 1
-        get_unread_emails(self.messages_accounts)
 
         self.queryset = EmailMessage.objects.filter(account__in=self.messages_accounts).order_by('-sent_date')
 
@@ -234,6 +233,7 @@ class EmailMessageJSONView(View):
     Show most attributes of an EmailMessage in JSON format.
     """
     http_method_names = ['get']
+    template_name = 'messages/email/email_heading.html'
 
     def get(self, request, *args, **kwargs):
         """
@@ -251,31 +251,24 @@ class EmailMessageJSONView(View):
         # Find account
         ctype = ContentType.objects.get_for_model(EmailAccount)
         self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
-
         server = None
         try:
-            instance = EmailMessage.objects.get(id=kwargs.get('id'))
-
+            instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             # See if the user has access to this message
             if instance.account not in self.messages_accounts:
                 raise Http404()
 
-            server = LilyIMAP(provider=instance.account.provider, account=instance.account)
-
             if instance.body is None or len(instance.body.strip()) == 0:
-                # Retrieve directly from IMAP
+                # Retrieve directly from IMAP (marks as read automatically)
+                server = LilyIMAP(provider=instance.account.provider, account=instance.account)
                 message = server.get_modifiers_for_uid(instance.uid, modifiers=['BODY[]', 'FLAGS', 'RFC822.SIZE'], folder=instance.folder_name)
                 if len(message):
                     save_email_messages({instance.uid: message}, instance.account, message.get('folder_name'))
 
-                instance = EmailMessage.objects.get(id=kwargs.get('id'))
+                instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             else:
                 # Mark as read manually
-                if server._server.folder_exists(instance.folder_name):
-                    server._server.select_folder(instance.folder_name)
-                    server.mark_as_read(instance.uid)
-                    server._server.close_folder()
-
+                mark_messages.delay(instance.id, read=True)
             instance.is_seen = True
             instance.save()
 
@@ -284,26 +277,96 @@ class EmailMessageJSONView(View):
             message['sent_date'] = unix_time_millis(instance.sent_date)
             message['flags'] = instance.flags
             message['uid'] = instance.uid
-            message['body'] = instance.body.encode('utf-8')
             message['flat_body'] = truncatechars(instance.flat_body, 200).encode('utf-8')
+            message['subject'] = instance.subject.encode('utf-8')
             message['size'] = instance.size
             message['is_private'] = instance.is_private
             message['is_read'] = instance.is_seen
             message['is_plain'] = instance.is_plain
             message['folder_name'] = instance.folder_name
 
+            # Replace body with a more richer version of an e-mail view
+            message['body'] = render_to_string(self.template_name, {'object': instance})
             return HttpResponse(simplejson.dumps(message), mimetype='application/json; charset=utf-8')
         except EmailMessage.DoesNotExist:
             raise Http404()
         finally:
             if server:
-                server._server.logout()
+                server.logout()
+
+
+class EmailMessageHTMLView(View):
+    """
+    Return the HTML for single e-mail message.
+    """
+    http_method_names = ['get']
+    template_name = 'messages/email/email_body.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            instance = EmailMessage.objects.get(id=kwargs.get('pk'))
+            body = render_to_string(self.template_name, {'is_plain': instance.is_plain, 'body': instance.body.encode('utf-8')})
+            return HttpResponse(body, mimetype='text/html; charset=utf-8')
+        except EmailMessage.DoesNotExist:
+            raise Http404()
+
+
+class MessageUpdateView(View):
+    """
+    Handle various AJAX calls for n messages.
+    """
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        try:
+            message_ids = request.POST.getlist('ids[]')
+            if not isinstance(message_ids, list):
+                message_ids = [message_ids]
+            if len(message_ids) > 0:
+                self.handle_message_update(message_ids)
+        except:
+            raise Http404()
+
+        # Return response
+        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+
+    def handle_message_update(self, message_ids):
+        raise NotImplementedError("Implement by sublcassing MessageUpdateView")
+
+
+class MarkReadAjaxView(MessageUpdateView):
+    """
+    Mark messages as read.
+    """
+    def handle_message_update(self, message_ids):
+        mark_messages.delay(message_ids, read=True)
+
+
+class MarkUnreadAjaxView(MessageUpdateView):
+    """
+    Mark messages as unread.
+    """
+    def handle_message_update(self, message_ids):
+        mark_messages.delay(message_ids, read=False)
+
+
+class MoveTrashAjaxView(MessageUpdateView):
+    """
+    Move messages to trash.
+    """
+    def handle_message_update(self, message_ids):
+        # EmailMessage.objects.filter(id__in=self.message_ids).
+        pass
 
 
 # E-mail views
 # detail_email_inbox_view = DetailEmailInboxView.as_view()
 email_inbox_view = login_required(ListEmailView.as_view())
+email_html_view = login_required(EmailMessageHTMLView.as_view())
 email_json_view = login_required(EmailMessageJSONView.as_view())
+mark_read_view = login_required(MarkReadAjaxView.as_view())
+mark_unread_view = login_required(MarkUnreadAjaxView.as_view())
+move_trash_view = login_required(MoveTrashAjaxView.as_view())
 
 detail_email_sent_view = DetailEmailSentView.as_view()
 detail_email_draft_view = DetailEmailDraftView.as_view()

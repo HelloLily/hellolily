@@ -1,0 +1,14 @@
+{% load media %}
+
+{% if is_plain %}
+    <html>
+        <head>
+            {% include_media 'typography.css' %}
+        </head>
+        <body>
+            {{ body|safe }}
+        </body>
+    </html>
+{% else %}
+    {{ body|safe }}
+{% endif %}

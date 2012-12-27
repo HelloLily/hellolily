@@ -63,7 +63,7 @@ class CreateUpdateCaseView(DeleteBackAddSaveFormViewMixin):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return redirect('%s?order_by=6&sort_order=desc' % (reverse('case_list')))
+        return '%s?order_by=6&sort_order=desc' % (reverse('case_list'))
 
 
 class AddCaseView(CreateUpdateCaseView, CreateView):

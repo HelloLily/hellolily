@@ -93,22 +93,19 @@ class EmailMessage(Message):
             for comment in comments:
                 comment.extract()
 
-            flat_soup = copy.deepcopy(soup)
-
-            # Remove doctype tag from flat_soup
-            for child in flat_soup.contents:
-                if isinstance(child, Declaration):
-                    declaration_type = child.string.split()[0]
-                    if declaration_type.upper() == 'DOCTYPE':
-                        del flat_soup.contents[flat_soup.contents.index(child)]
-
             # Remove several tags from flat_soup
             extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
-            for elem in flat_soup.findAll(extract_tags):
+            for elem in soup.findAll(extract_tags):
                 elem.extract()
 
-            return ''.join(flat_soup.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
-        return ''
+            if soup.body:
+                flat_body = soup.body
+            else:
+                flat_body = soup
+
+            # Strip tags and whitespace
+            return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+        return u''
 
     @property
     def subject(self):
@@ -120,7 +117,7 @@ class EmailMessage(Message):
             self._subject_header = header
         if header:
             return header[0].value
-        return None
+        return u'<%s>' % _(u'No subject')
 
     @property
     def to_name(self):
@@ -132,7 +129,7 @@ class EmailMessage(Message):
             self._to_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[0]
-        return ''
+        return u''
 
     @property
     def to_email(self):
@@ -144,7 +141,7 @@ class EmailMessage(Message):
             self._to_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return ''
+        return u''
 
     @property
     def from_name(self):
@@ -156,7 +153,7 @@ class EmailMessage(Message):
             self._from_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[0]
-        return ''
+        return u''
 
     @property
     def from_email(self):
@@ -168,7 +165,7 @@ class EmailMessage(Message):
             self._from_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return ''
+        return u''
 
     @property
     def is_plain(self):
@@ -276,7 +273,6 @@ class EmailTemplateParameters(TenantMixin, TimeStampedModel):
     label = models.CharField(_('choice label'), max_length="255", blank=True)
     is_dynamic = models.BooleanField(_('parameter is dynamic'), default=False)
 
-
     @property
     def get_display_value(self):
         # TODO: check if dynamic and parse that shit up!
@@ -299,10 +295,8 @@ class EmailTemplateParameterChoice(TenantMixin, models.Model):
     value = models.CharField(_('choice value'), max_length="255")
     is_dynamic = models.BooleanField(_('choice is dynamic'), default=False)
 
-
     def __unicode__(self):
         return u'%s - %s' % (self.label, self.value)
-
 
     class Meta:
         verbose_name = _('e-mail template parameter choice')

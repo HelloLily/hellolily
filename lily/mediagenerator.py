@@ -113,6 +113,11 @@ extra_theme_bundle_js = (
 )
 
 MEDIA_BUNDLES = (
+    # typography css
+    ('typography.css',
+        'css/reset.css',
+        'css/text.css',
+    ),
     # app css
     ('main.css',
     )   + jquery_bundle_css

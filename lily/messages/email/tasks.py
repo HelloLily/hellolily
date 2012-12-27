@@ -9,6 +9,7 @@ from imapclient import SEEN
 
 from lily.messages.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
 from lily.messages.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
+from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 
 
@@ -82,32 +83,35 @@ def save_email_messages(messages, account, folder_name, new_messages=False):
                 #     new_email_attachments.update({uid: email_attachments})
 
             # Save new_email_messages
-            EmailMessage.objects.bulk_create(new_message_obj_list, batch_size=query_batch_size)
+            if len(new_message_obj_list):
+                for i in range(0, len(new_message_obj_list), query_batch_size):
+                    EmailMessage.objects.bulk_create(new_message_obj_list[i:i + query_batch_size])
 
-            # Fetch message ids
-            email_messages = EmailMessage.objects.filter(account=account, uid__in=messages.keys(), folder_name=folder_name).values_list('id', 'uid')
+                # Fetch message ids
+                email_messages = EmailMessage.objects.filter(account=account, uid__in=messages.keys(), folder_name=folder_name).values_list('id', 'uid')
 
-            # Link message ids to headers and attachments
-            for id, uid in email_messages:
-                header_obj_list = new_email_headers.get(uid)
-                if header_obj_list:
-                    for header_obj in header_obj_list:
-                        header_obj.message_id = id
+                # Link message ids to headers and attachments
+                for id, uid in email_messages:
+                    header_obj_list = new_email_headers.get(uid)
+                    if header_obj_list:
+                        for header_obj in header_obj_list:
+                            header_obj.message_id = id
 
-                # attachment_obj_list = new_email_attachments.get(uid)
-                # if attachment_obj_list:
-                #     for attachment_obj in attachment_obj_list:
-                #         attachment_obj.message_id = id
+                    # attachment_obj_list = new_email_attachments.get(uid)
+                    # if attachment_obj_list:
+                    #     for attachment_obj in attachment_obj_list:
+                    #         attachment_obj.message_id = id
 
-            # Save new_email_headers
-            if len(new_email_headers):
-                new_header_obj_list = []
-                # Add header to object list
-                for uid, headers in new_email_headers.items():
-                    for header in headers:
-                        new_header_obj_list.append(header)
+                # Save new_email_headers
+                if len(new_email_headers):
+                    new_header_obj_list = []
+                    # Add header to object list
+                    for uid, headers in new_email_headers.items():
+                        for header in headers:
+                            new_header_obj_list.append(header)
 
-                EmailHeader.objects.bulk_create(new_header_obj_list, batch_size=query_batch_size)
+                    for i in range(0, len(new_header_obj_list), query_batch_size):
+                        EmailHeader.objects.bulk_create(new_header_obj_list[i:i + query_batch_size])
 
             # Save new_email_attachments
             # TODO
@@ -174,7 +178,7 @@ def save_email_messages(messages, account, folder_name, new_messages=False):
                     query_count = 0  # reset counter
 
             # Execute leftover queries
-            if query_count < query_batch_size:
+            if query_count and query_count < query_batch_size:
                 cursor = connection.cursor()
                 cursor.execute(total_query_string, param_list)
 
@@ -224,7 +228,7 @@ def save_email_messages(messages, account, folder_name, new_messages=False):
                         query_count = 0  # reset counter
 
                 # Execute leftover queries
-                if query_count < query_batch_size:
+                if query_count and query_count < query_batch_size:
                     cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
 
@@ -239,7 +243,6 @@ def get_unread_emails(accounts, page=1):
     """
     Retrieve unread messages for accounts.
     """
-    accounts = accounts[2:3]
     for account in accounts:
         last_sync_date = account.last_sync_date
         if not last_sync_date:
@@ -263,16 +266,23 @@ def get_unread_emails(accounts, page=1):
                 account.last_sync_date = new_sync_date
                 account.save()
             finally:
-                server._server.logout()
+                server.logout()
 
 
-def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS'], modifiers_new=['BODY.PEEK[HEADER]', 'BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']):
+def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
     # Find already known uids
-    known_uids = set(EmailMessage.objects.filter(account=server.account, folder_name=server.get_server_name_for_folder(folder_name)).values_list('uid', flat=True))
+    known_uids_qs = EmailMessage.objects.filter(account=server.account, folder_name=server.get_server_name_for_folder(folder_name))
+    if 'SEEN' in criteria:
+        known_uids_qs = known_uids_qs.filter(is_seen=True)
+
+    if 'UNSEEN' in criteria:
+        known_uids_qs = known_uids_qs.filter(is_seen=False)
+
+    known_uids = set(known_uids_qs.values_list('uid', flat=True))
 
     try:
         folder_count, remote_uids = server.search_in_folder(criteria=criteria, identifier=server.get_server_name_for_folder(folder_name), close=False)
@@ -307,7 +317,7 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
     except Exception, e:
         print traceback.format_exc(e)
     finally:
-        server._server.close_folder()
+        server.close_folder()
 
 
 @celery.task
@@ -368,10 +378,11 @@ def synchronize_email_for_account(account_id):
             else:
                 transaction.commit()
             finally:
-                server._server.logout()
+                server.logout()
 
 
-@celery.task
+# @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), expires=60)
+# @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), options={"expires": 60.0})
 def synchronize_email():
     """
     Synchronize e-mail messages for all e-mail accounts.
@@ -380,3 +391,48 @@ def synchronize_email():
 
     for account in accounts:
         synchronize_email_for_account(account.id)
+
+
+@celery.task
+def mark_messages(message_ids, read=True):
+    """
+    Mark n messages as (un)read in the background.
+    """
+    if not isinstance(message_ids, list):
+        message_ids = [message_ids]
+
+    # Determine folder_names per account
+    folder_name_qs = EmailMessage.objects.filter(id__in=message_ids).values_list('account_id', 'folder_name', 'uid')
+    len(folder_name_qs)
+
+    # Mark in database first for immediate effect
+    EmailMessage.objects.filter(id__in=message_ids).update(is_seen=read)
+
+    # Create a more sensible dict with this information
+    account_folders = {}
+    for account_id, folder_name, message_uid in folder_name_qs:
+        if not account_folders.get(account_id, False):
+            account_folders[account_id] = {}
+        folder_names = account_folders.get(account_id)
+        if not account_folders[account_id].get(folder_name, False):
+            account_folders[account_id][folder_name] = []
+        folder_names[folder_name].append(message_uid)
+
+    # Mark messages read in every appropriate account/folder
+    for account_id, folders in account_folders.items():
+        account_qs = EmailAccount.objects.filter(pk=account_id)
+        if len(account_qs) > 0:
+            account = account_qs[0]
+            # Connect
+            server = LilyIMAP(provider=account.provider, account=account)
+            for folder_name, message_uids in folders.items():
+                if server._server.folder_exists(folder_name):
+                    server._server.select_folder(folder_name)
+                    if read:
+                        # Mark as read
+                        server.mark_as_read(message_uids)
+                    else:
+                        # Mark as unread
+                        server.mark_as_unread(message_uids)
+
+                    server.close_folder()

@@ -27,8 +27,8 @@
                         {% crispy_field field %}
                     {% endif %}
                 {% else %}
-                    <a href="javascript:" class="click-show" data-click-show="full_form_description_wrapper">{{ field.field.widget.click_show_text }}</a>
-                    <div id="full_form_description_wrapper" class="hidden">
+                    <a href="javascript:" class="click-show" data-click-show="{{ field.auto_id }}_full_form_wrapper">{{ field.field.widget.click_show_text }}</a>
+                    <div id="{{ field.auto_id }}_full_form_wrapper" class="hidden">
                         {% if form.description.errors %}
                             <span class="field_error">{% crispy_field field %}</span>
                             <div class="mws-error no_list_style_type">

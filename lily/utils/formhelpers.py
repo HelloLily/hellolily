@@ -46,31 +46,33 @@ class LilyFormHelper(FormHelper):
         Insert layoutObject before all field_names in the layout.
 
         Example:
-        self.helper.insert_before(Divider, 'field_3', 'field6')
+        self.helper.insert_before(Divider(), 'field_3', 'field6')
         """
-        layout_field_names = self.layout.get_field_names()
-        for pointer in layout_field_names:
-            field_name, index = self.get_field_name_from_pointer(pointer)
-            if field_name in field_names:
-                # Insert before field_name
-                field_index = index
-                self.layout.insert(field_index, layoutObject())
+        for field_name in field_names:
+            layout_field_names = reversed(self.layout.get_field_names())
+            for pointer in layout_field_names:
+                pointer_field_name, index = self.get_field_name_from_pointer(pointer)
+                if field_name == pointer_field_name:
+                    # Insert before field_name
+                    field_index = index
+                    self.layout.insert(field_index, layoutObject)
 
     def insert_after(self, layoutObject, *field_names):
         """
         Insert layoutObject after all field_names in the layout.
         
         Example:
-        self.helper.insert_after(Divider, 'field_3', 'field6')
+        self.helper.insert_after(Divider(), 'field_3', 'field6')
         """
-        layout_field_names = self.layout.get_field_names()
-        for pointer in layout_field_names:
-            field_name, index = self.get_field_name_from_pointer(pointer)
-            if field_name in field_names:
-                # Insert after field_name
-                field_index = index + 1
-                self.layout.insert(field_index, layoutObject())
-    
+        for field_name in field_names:
+            layout_field_names = self.layout.get_field_names()
+            for pointer in layout_field_names:
+                pointer_field_name, index = self.get_field_name_from_pointer(pointer)
+                if field_name == pointer_field_name:
+                    # Insert after field_name
+                    field_index = index + 1
+                    self.layout.insert(field_index, layoutObject)
+
     def get_field_name_from_pointer(self, pointer):
         """
         Return  the field_name and index for this field from a pointer.
@@ -86,8 +88,7 @@ class LilyFormHelper(FormHelper):
             return layout_object, pos[0]
         else:
             return layout_object.fields[pos[-1]], pos[0]
-                
-    
+
     def get_field_name_from_layout(self, layout_object):
         """
         Get the first field_name wrapped inside one or more layout_objects.
@@ -117,13 +118,21 @@ class LilyFormHelper(FormHelper):
         Create a layoutObject which contains given columns.
         """
         return ColumnedRow(*columns)
-    
+
     def create_columns(self, *columns, **kwargs):
         """
-        Create a MultiField which contains given columns. 
+        Create a MultiField which contains given columns.
         """
-        label = kwargs.pop('label', self.form.fields[self.get_field_name_from_layout(columns)].label)
-        inline = kwargs.pop('inline', False)
+        if 'label' in kwargs:
+            label = kwargs['label']
+        else:
+            label = self.form.fields[self.get_field_name_from_layout(columns)].label
+
+        if 'inline' in kwargs:
+            inline = kwargs['inline']
+        else:
+            inline = False
+
         if inline:
             layout =  MultiField(
                 label,
@@ -136,7 +145,7 @@ class LilyFormHelper(FormHelper):
                     InlineRow(self.create_only_columns(*columns)),
                 )
             )
-        
+
         for column in columns:
             field_name = self.get_field_name_from_layout(column)
             if field_name is not None:
@@ -253,6 +262,14 @@ class LilyFormHelper(FormHelper):
                 self.layout.insert(index, layoutObject)
                 
                 self.delete_label_for(field_name)
+
+    def replace_fields(self, field_dict, layoutObject, size):
+        for name in field_dict:
+            self.replace(name,
+                self.create_columns(
+                    layoutObject(name, size=size, first=True), label=field_dict.get(name, '')
+                )
+            )
 
     def remove(self, *fields):
         """

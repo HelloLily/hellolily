@@ -19,15 +19,15 @@
         $(document).ready(function() {
             var animation_time = 650;
             var divider = $('.mws-form-divider');
-            var body_input = $('#id_body');
-            var submit_btn = $('#submit-id-submit-add').attr('disabled', 'disabled');
+            var body_file_input = $('#id_body_file');
+            var submit_btn = $('#submit-id-submit-add'); // .attr('disabled', 'disabled')
             var parameter_form;
 
-            if( body_input.val() !== '' )
-                body_input.trigger('change');
+            if( body_file_input.val() !== '' )
+                body_file_input.trigger('change');
 
             $('#id_name').live('change', function() {
-                if( $('#id_body').val() !== '' ) {
+                if( $('#id_body_file').val() !== '' ) {
                     submit_btn.removeAttr('disabled');
                 }
             });
@@ -43,7 +43,7 @@
                 }
             });
 
-            body_input.live('change', function() {
+            body_file_input.live('change', function() {
                 var form = $(this).closest('form');
 
                 var insert_parameter_form = function(html) {

@@ -1,24 +1,21 @@
 import anyjson
 import datetime
-from collections import OrderedDict
 
+from django.http import HttpResponse, Http404
+from django.core.urlresolvers import reverse
+from django.views.generic.base import View, TemplateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse
 from django.template.defaultfilters import truncatechars
-from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.utils import simplejson
-from django.views.generic.base import TemplateView, View
-from django.views.generic.edit import FormView, CreateView, UpdateView
-from django.views.generic.list import ListView
 
 from lily.messages.email.emailclient import LilyIMAP
-from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, TemplateParameterForm, TemplateParameterParseForm
-from lily.messages.email.models import EmailAccount, EmailTemplate, EmailMessage, EmailTemplateParameters, EmailTemplateParameterChoice
+from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
 from lily.messages.email.tasks import save_email_messages, mark_messages
-from lily.messages.email.utils import parse
+from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, EmailTemplateFileForm
+from lily.messages.email.utils import get_email_parameter_dict, get_param_vals, get_email_parameter_choices
 
 
 class DetailEmailInboxView(TemplateView):
@@ -64,6 +61,11 @@ class DetailEmailAccountView(TemplateView):
     template_name = 'messages/email/account_create.html'
 
 
+class TempTestClass:
+    def __init__(self, html=None, text=None):
+        self.html = html
+        self.text = text
+
 class AddEmailTemplateView(CreateView):
     """
     Create a new e-mail template that can be used for sending emails.
@@ -72,58 +74,26 @@ class AddEmailTemplateView(CreateView):
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
-    def post(self, request, *args, **kwargs):
-        # Fields that we know should be in the post parameters
-        known_fields = ['name', 'body', 'csrfmiddlewaretoken', 'submit-add']
-        # Keys of the post parameters
-        post_keys = set(request.POST.keys())
-        # Filter keys of known fields
-        # Exclude keys ending with _select, which are added in the form, unless actual template var ends with select
-        parameter_list = [x for x in post_keys if x not in known_fields and (not x.endswith('_select') or x.endswith('select_select'))]
+    def get_context_data(self, **kwargs):
+        context = super(AddEmailTemplateView, self).get_context_data(**kwargs)
 
-        for index, param in enumerate(parameter_list):
-            # If any of the keys ends with double select, trim the last select
-            if parameter_list[index].endswith('select_select'):
-                parameter_list[index] = parameter_list[index][:-7]
+        # add context to template for parameter inserter javascript
+#        print get_email_parameter_choices()
 
-        self.parameter_list = parameter_list
+        return context
 
-        return super(AddEmailTemplateView, self).post(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super(AddEmailTemplateView, self).get_form_kwargs()
-        if hasattr(self, 'parameter_list'):
-            kwargs.update({
-                'parameters': self.parameter_list,
-            })
+    def form_invalid(self, form):
+        lst =  get_email_parameter_dict()
 
-        return kwargs
+        fake_template_object = TempTestClass(
+            html = form.data.get('body_html'),
+            text = form.data.get('body_text')
+        )
 
-    def form_valid(self, form):
-        success_url = super(AddEmailTemplateView, self).form_valid(form)
+        param_list = get_param_vals(self.request, fake_template_object)
 
-        for parameter in form.parameter_list:
-            label = form.cleaned_data.get('%s_select' % parameter)
-            if label:
-                # select value != empty so we look for value in db
-                choice = EmailTemplateParameterChoice.objects.get(label='%s' % label)
-                EmailTemplateParameters.objects.create(
-                    template=self.object,
-                    name=parameter,
-                    value=choice.value,
-                    label=choice.label,
-                    is_dynamic=choice.is_dynamic
-                )
-            else:
-                EmailTemplateParameters.objects.create(
-                    template=self.object,
-                    name=parameter,
-                    value=form.cleaned_data.get(parameter),
-                    label='',
-                    is_dynamic=False
-                )
-
-        return success_url
+        return super(AddEmailTemplateView, self).form_invalid(form)
 
     def get_success_url(self):
         """
@@ -142,20 +112,6 @@ class EditEmailTemplateView(UpdateView):
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
-    def get_form_kwargs(self):
-        kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
-        self.parameter_list = EmailTemplateParameters.objects.filter(template=self.object).order_by('pk')
-
-        parameters = OrderedDict()
-        for param in self.parameter_list:
-            parameters['%s' % param.name] = param.value
-
-        kwargs.update({
-            'parameters': self.parameter_list,
-        })
-
-        return kwargs
-
 
 class DetailEmailTemplateView(TemplateView):
     """
@@ -169,21 +125,18 @@ class ParseEmailTemplateView(FormView):
     Parse an uploaded template for variables and return a generated form/
     """
     template_name = 'messages/email/template_create_or_update_base_form.html'
-    form_class = TemplateParameterParseForm
-    param_form_class = TemplateParameterForm
+    form_class = EmailTemplateFileForm
 
     def form_valid(self, form):
         """
         Return parsed form with rendered parameter fields
         """
-        body = form.cleaned_data.get('body').read()
-        parameter_list = parse(body)
+        body_file = form.cleaned_data.get('body_file').read()
 
         return HttpResponse(anyjson.dumps({
             'valid': True,
-            'html': render_to_string(self.template_name, {
-                'form': self.param_form_class(parameters=parameter_list, **self.get_form_kwargs())
-            }, context_instance=RequestContext(self.request))
+            'html': '',
+            'text': '',
         }), mimetype="application/json")
 
     def form_invalid(self, form):

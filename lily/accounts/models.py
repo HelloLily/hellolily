@@ -57,6 +57,9 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
 
+    email_template_parameters = [name, ]
+    email_template_lookup = 'request.user.account'
+
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:

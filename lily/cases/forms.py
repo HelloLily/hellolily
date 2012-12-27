@@ -59,7 +59,7 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         self.helper.add_columns(
             Column('assigned_to', first=True)
         )
-        self.helper.insert_after(Divider, 'status', 'contact')
+        self.helper.insert_after(Divider(), 'status', 'contact')
         
         # Provide filtered query set for account/contact/assigned_to
         self.fields['account'].queryset = Account.objects.all()        

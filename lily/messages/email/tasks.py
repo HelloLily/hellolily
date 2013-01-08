@@ -252,12 +252,11 @@ def get_unread_emails(accounts, page=1):
 
         # Check for new messages
         delta = new_sync_date - last_sync_date
-
         if delta.total_seconds() > 0:
-            # Built check for last_sync_date vs datetime.datetime.now()
-            server = LilyIMAP(provider=account.provider, account=account)
-
+            server = None
             try:
+                server = LilyIMAP(provider=account.provider, account=account)
+
                 synchronize_folder(server, folder_name=server.get_server_name_for_folder(ALLMAIL), criteria=['UNSEEN'])
             except Exception, e:
                 print traceback.format_exc(e)
@@ -266,7 +265,8 @@ def get_unread_emails(accounts, page=1):
                 account.last_sync_date = new_sync_date
                 account.save()
             finally:
-                server.logout()
+                if server:
+                    server.logout()
 
 
 def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
@@ -357,6 +357,7 @@ def synchronize_email_for_account(account_id):
 
         last_sync_delta = now_utc_date - last_sync_date
         if last_sync_delta.total_seconds() > 0:
+            server = None
             try:
                 # Built check for last_sync_date vs current datetime
                 server = LilyIMAP(provider=account.provider, account=account)
@@ -378,11 +379,13 @@ def synchronize_email_for_account(account_id):
             else:
                 transaction.commit()
             finally:
-                server.logout()
+                if server:
+                    server.logout()
 
 
 # @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), expires=60)
 # @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), options={"expires": 60.0})
+@celery.task
 def synchronize_email():
     """
     Synchronize e-mail messages for all e-mail accounts.
@@ -425,14 +428,18 @@ def mark_messages(message_ids, read=True):
             account = account_qs[0]
             # Connect
             server = LilyIMAP(provider=account.provider, account=account)
-            for folder_name, message_uids in folders.items():
-                if server._server.folder_exists(folder_name):
-                    server._server.select_folder(folder_name)
-                    if read:
-                        # Mark as read
-                        server.mark_as_read(message_uids)
-                    else:
-                        # Mark as unread
-                        server.mark_as_unread(message_uids)
+            try:
+                for folder_name, message_uids in folders.items():
+                    if server.get_imap_server().folder_exists(folder_name):
+                        server.get_imap_server().select_folder(folder_name)
+                        if read:
+                            # Mark as read
+                            server.mark_as_read(message_uids)
+                        else:
+                            # Mark as unread
+                            server.mark_as_unread(message_uids)
 
-                    server.close_folder()
+                        server.close_folder()
+            finally:
+                if server:
+                    server.logout()

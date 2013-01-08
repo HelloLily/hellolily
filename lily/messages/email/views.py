@@ -1,22 +1,26 @@
 import anyjson
 import datetime
 
-from django.http import HttpResponse, Http404
-from django.core.urlresolvers import reverse
-from django.views.generic.base import View, TemplateView
-from django.views.generic.edit import CreateView, FormView, UpdateView
-from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.views.generic.base import View, TemplateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.list import ListView
 
+from lily.contacts.models import Contact
 from lily.messages.email.emailclient import LilyIMAP
 from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
 from lily.messages.email.tasks import save_email_messages, mark_messages
-from lily.messages.email.forms import CreateUpdateEmailAccountForm, CreateUpdateEmailTemplateForm, EmailTemplateFileForm
-from lily.messages.email.utils import get_email_parameter_dict, get_param_vals, get_email_parameter_choices
+from lily.messages.email.forms import CreateUpdateEmailAccountForm, \
+ CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
+from lily.messages.email.utils import get_email_parameter_dict, get_param_vals, get_email_parameter_choices, flatten_html_to_text
+from lily.utils.models import EmailAddress
 
 
 class DetailEmailInboxView(TemplateView):
@@ -259,7 +263,9 @@ class EmailMessageHTMLView(View):
     def get(self, request, *args, **kwargs):
         try:
             instance = EmailMessage.objects.get(id=kwargs.get('pk'))
-            body = render_to_string(self.template_name, {'is_plain': instance.is_plain, 'body': instance.body.encode('utf-8')})
+            body = u''
+            if instance.body:
+                body = render_to_string(self.template_name, {'is_plain': instance.is_plain, 'body': instance.body.encode('utf-8')})
             return HttpResponse(body, mimetype='text/html; charset=utf-8')
         except EmailMessage.DoesNotExist:
             raise Http404()
@@ -313,6 +319,90 @@ class MoveTrashAjaxView(MessageUpdateView):
         pass
 
 
+class EmailComposeView(FormView):
+    template_name = 'messages/email/email_compose.html'
+    form_class = ComposeEmailForm
+
+    def form_valid(self, form):
+        """
+        Check to save or sent an e-mail message.
+        """
+        sucess_url = super(EmailComposeView, self).form_valid(form)
+        instance = form.save(commit=False)
+
+        if 'submit-save' in self.request.POST:
+            # Prepare text version of e-mail
+            text_body = flatten_html_to_text(instance.body)
+
+            # Generate email message source
+            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
+            email_message.attach_alternative(instance.body, 'text/html')
+            message_string = unicode(email_message.message())
+
+            # TODO: support attachments
+
+            # Save draft
+            server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+            server.save_draft(message_string)
+        elif 'submit-send' in self.request.POST:
+            # send e-mail (smtp)
+            # server.get_smtp_server().send_email(message_string) ?
+            pass
+
+        if 'submit-discard' in self.request.POST or 'submit-sent' in self.request.POST:
+            if instance.uid:
+            # if instance.email_message:
+                # remove remotely
+                pass
+
+            if instance.pk:
+                # remote locally
+                instance.remove()
+            pass
+
+        return sucess_url
+
+    def get_context_data(self, **kwargs):
+        """
+        Allow autocomplete for email addresses.
+        """
+        kwargs = super(EmailComposeView, self).get_context_data(**kwargs)
+
+        # Query for all contacts which have e-mail addresses
+        contacts_addresses_qs = Contact.objects.filter(email_addresses__in=EmailAddress.objects.all()).prefetch_related('email_addresses')
+
+        known_contact_addresses = []
+        for contact in contacts_addresses_qs:
+            for email_address in contact.email_addresses.all():
+                contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
+                known_contact_addresses.append(contact_address)
+
+        kwargs.update({
+            'known_contact_addresses': simplejson.dumps(known_contact_addresses)
+        })
+
+        return kwargs
+
+    def get_success_url(self):
+        """
+        Return to inbox after sending e-mail.
+        """
+        return reverse('messages_email_inbox')
+
+
+class EmailDraftTemplateView(TemplateView):
+    template_name = 'messages/email/email_compose_frame.html'  # default for non-templated e-mails
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(EmailDraftTemplateView, self).get_context_data(**kwargs)
+        kwargs.update({
+            # TODO get draft or user signature
+            # 'draft': get_user_sig(),
+        })
+
+        return kwargs
+
+
 # E-mail views
 # detail_email_inbox_view = DetailEmailInboxView.as_view()
 email_inbox_view = login_required(ListEmailView.as_view())
@@ -321,6 +411,9 @@ email_json_view = login_required(EmailMessageJSONView.as_view())
 mark_read_view = login_required(MarkReadAjaxView.as_view())
 mark_unread_view = login_required(MarkUnreadAjaxView.as_view())
 move_trash_view = login_required(MoveTrashAjaxView.as_view())
+
+email_compose_view = login_required(EmailComposeView.as_view())
+email_compose_template_view = login_required(EmailDraftTemplateView.as_view())
 
 detail_email_sent_view = DetailEmailSentView.as_view()
 detail_email_draft_view = DetailEmailDraftView.as_view()

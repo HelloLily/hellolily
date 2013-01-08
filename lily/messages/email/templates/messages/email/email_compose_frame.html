@@ -1,0 +1,20 @@
+{% extends 'base_empty.html' %}
+
+{% load media %}
+
+{% block styles %}
+    {% include_media 'theme.css' %}
+    {% include_media 'hallojs.css' %}
+    <!--[if lt IE 9]> {% include_media 'hallojs-ie7.css' %} <![endif]-->
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block body %}
+    <div style="padding: 7px; background: white;">
+        <div id="email-content" style="min-height: 8em; outline: none;">
+            {{ draft|safe }}
+        </div>
+    </div>
+{% endblock %}

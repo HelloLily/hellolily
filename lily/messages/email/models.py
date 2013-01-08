@@ -1,7 +1,5 @@
-import copy
 import email
 
-from BeautifulSoup import BeautifulSoup, Comment, Declaration
 from django.db import models
 from django.template.defaultfilters import truncatechars
 from django_extensions.db.models import TimeStampedModel
@@ -9,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django_fields.fields import EncryptedCharField, EncryptedEmailField
 
 from lily.messages.email.emailclient import DRAFTS, TRASH
+from lily.messages.email.utils import flatten_html_to_text
 from lily.messages.models import Message, MessagesAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
@@ -86,25 +85,7 @@ class EmailMessage(Message):
     @property
     def flat_body(self):
         if self.body:
-            soup = BeautifulSoup(self.body)
-
-            # Remove html comments
-            comments = soup.findAll(text=lambda text: isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-
-            # Remove several tags from flat_soup
-            extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
-            for elem in soup.findAll(extract_tags):
-                elem.extract()
-
-            if soup.body:
-                flat_body = soup.body
-            else:
-                flat_body = soup
-
-            # Strip tags and whitespace
-            return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+            return flatten_html_to_text(self.body)
         return u''
 
     @property
@@ -255,10 +236,8 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     body_html = models.TextField(verbose_name=_('html message body'), blank=True)
     body_text = models.TextField(verbose_name=_('plain text message body'), blank=True)
 
-
     def __unicode__(self):
         return u'%s' % self.name
-
 
     class Meta:
         verbose_name = _('e-mail template')
@@ -282,3 +261,19 @@ class EmailTemplateAttachment(models.Model):
     class Meta:
         verbose_name = _('e-mail template attachment')
         verbose_name_plural = _('e-mail template attachments')
+
+
+class EmailDraft(TimeStampedModel):
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')  # or simple charfield with modelchoices?
+    send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('To'))
+    send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
+    send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
+    body = models.TextField(null=True, blank=True, verbose_name=_('Body'))
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.send_from, self.subject)
+
+    class Meta:
+        verbose_name = _('e-mail draft')
+        verbose_name_plural = _('e-mail drafts')

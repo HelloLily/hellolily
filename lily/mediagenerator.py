@@ -118,6 +118,11 @@ MEDIA_BUNDLES = (
         'css/reset.css',
         'css/text.css',
     ),
+    # iframe base
+    ('theme.css',
+    )   + jquery_bundle_css
+        # + theme_bundle_css
+        + extra_theme_bundle_css,
     # app css
     ('main.css',
     )   + jquery_bundle_css
@@ -170,6 +175,18 @@ MEDIA_BUNDLES = (
     ),
     ('lily.messages.js',
         'messages/js/messages.js',
+    ),
+    ('hallojs.css',
+        'plugins/hallojs/hallo.css',
+        # 'plugins/hallojs/image.css',
+        'plugins/fontawesome/css/font-awesome.css',
+    ),
+    ('hallojs-ie7.css',
+        'plugins/fontawesome/css/font-awesome-ie7.css',
+    ),
+    ('hallojs.js',
+        'plugins/rangy/rangy-core.js',
+        'plugins/hallojs/hallo.js',
     ),
 #    ('translations.js',
 #         {'filter': 'mediagenerator.filters.i18n.I18N'},

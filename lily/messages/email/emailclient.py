@@ -1,4 +1,6 @@
+import datetime
 import email
+import imapclient
 import StringIO  # can't always use cStringIO
 import traceback
 
@@ -6,7 +8,7 @@ from BeautifulSoup import BeautifulSoup, Comment
 from dateutil.parser import parse
 from dateutil.tz import tzutc
 from django.utils.datastructures import SortedDict
-from imapclient.imapclient import IMAPClient, SEEN
+from imapclient.imapclient import IMAPClient, SEEN, DRAFT
 import chardet
 import pytz
 
@@ -96,22 +98,42 @@ class Folder(object):
 
 
 class LilyIMAP(object):
+    _servers = {}
+    _conn_kwargs = {}
     folders = None
-    server = None
-    account = None
 
     def __init__(self, provider=None, account=None, use_uid=True, ssl=True, **kwargs):
-        if provider is not None and account is not None:
-            # Use these instance to connect to an IMAP server
-            self._server = IMAPClient(provider.retrieve_host, provider.retrieve_port, use_uid, ssl)
-            self._server.login(account.username, account.password)
-        else:
-            # Use kwargs for setup
-            self._server = IMAPClient(kwargs['host'], kwargs['port'], use_uid, ssl)
-            self._server.login(kwargs['username'], kwargs['password'])
+        # Save these arguments for later use
+        self._conn_kwargs.update(provider=provider, account=account, use_uid=use_uid, ssl=ssl, **kwargs)
 
-        self.account = account
+        # Create folder mapping
         self.retrieve_and_map_folders()
+
+    @property
+    def account(self):
+        return self._conn_kwargs.get('account')
+
+    def get_imap_server(self):
+        server = self._servers.get('imap', False) or False
+        if not server or server._imap.state in ['NONAUTH', 'LOGOUT']:
+            provider = self._conn_kwargs.get('provider')
+            account = self._conn_kwargs.get('account')
+            use_uid = self._conn_kwargs.get('use_uid')
+            ssl = self._conn_kwargs.get('ssl')
+
+            if not any([provider, account]) is None:
+                server = IMAPClient(provider.retrieve_host, provider.retrieve_port, use_uid, ssl)
+                server.login(account.username, account.password)
+            else:
+                host = self._conn_kwargs.get('host')
+                port = self._conn_kwargs.get('port')
+                server = IMAPClient(host, port, use_uid, ssl)
+
+                username = self._conn_kwargs.get('username')
+                password = self._conn_kwargs.get('password')
+                server.login(username, password)
+        self._servers['imap'] = server
+        return server
 
     def retrieve_and_map_folders(self):
         '''
@@ -123,7 +145,7 @@ class LilyIMAP(object):
         mapping = {}
 
         # Get identifier .list from server
-        out = self._server.xlist_folders()
+        out = self.get_imap_server().xlist_folders()
 
         # If there are folderes, map them
         if not len(out) == 1 and out[0] is not None:
@@ -149,7 +171,9 @@ class LilyIMAP(object):
                     # There is no separate identifier name on the server
                     name_server = name_locale
 
-                folders.append(Folder(name_server, flags, name_locale, folder_identifier))
+                folder = Folder(name_server, flags, name_locale, folder_identifier)
+                folders.append(folder)
+                mapping[folder_identifier] = folder.get_server_name()
 
         # Store identifier list and mapping
         self.set_folders(folders)
@@ -449,14 +473,14 @@ class LilyIMAP(object):
             # Fastest case
             if folder:
                 folder_name = self.get_server_name_for_folder(folder)
-                if self._server.folder_exists(folder_name):
-                    self._server.select_folder(folder_name)
-                    response = self._server.fetch(uid, modifiers)
+                if self.get_imap_server().folder_exists(folder_name):
+                    self.get_imap_server().select_folder(folder_name)
+                    response = self.get_imap_server().fetch(uid, modifiers)
 
                     if len(response.items()) > 0:
                         msgid, data = response.items()[0]
                         message = self.get_message_from_raw(data)
-                        self._server.close_folder()
+                        self.get_imap_server().close_folder()
                         message['folder_name'] = folder_name
                         return message
                     # Not found in given folder, return nothing
@@ -469,28 +493,28 @@ class LilyIMAP(object):
             # Look for common case: INBOX
             folder_name = self.get_server_name_for_folder(INBOX)
             if self.get_server_name_for_folder(folder) != folder_name:
-                self._server.select_folder(folder_name)
-                response = self._server.fetch(uid, modifiers)
+                self.get_imap_server().select_folder(folder_name)
+                response = self.get_imap_server().fetch(uid, modifiers)
 
                 if len(response.items()) > 0:
                     msgid, data = response.items()[0]
                     message = self.get_message_from_raw(data)
-                    self._server.close_folder()
+                    self.get_imap_server().close_folder()
                     message['folder_name'] = folder_name
                     return message
 
             # Look into other folders
             for identifier in self.get_folders(exclude=[INBOX, ALLMAIL, folder]):
                 folder_name = self.get_server_name_for_folder(identifier)
-                if self._server.folder_exists(folder_name):
+                if self.get_imap_server().folder_exists(folder_name):
                     # Open folder
-                    self._server.select_folder(folder_name)
-                    response = self._server.fetch(uid, modifiers)
+                    self.get_imap_server().select_folder(folder_name)
+                    response = self.get_imap_server().fetch(uid, modifiers)
 
                     if len(response.items()) > 0:
                         msgid, data = response.items()[0]
                         message = self.get_message_from_raw(data)
-                        self._server.close_folder()
+                        self.get_imap_server().close_folder()
                         message['folder_name'] = folder_name
                         return message
         except Exception, e:
@@ -506,15 +530,15 @@ class LilyIMAP(object):
         identifier name or a 'Folder' object.
         """
         folder_name = self.get_server_name_for_folder(identifier)
-        if self._server.folder_exists(folder_name):
+        if self.get_imap_server().folder_exists(folder_name):
             # Open folder
-            select_info = self._server.select_folder(folder_name, readonly)
+            select_info = self.get_imap_server().select_folder(folder_name, readonly)
             try:
                 # Get total message count in folder
                 folder_count = select_info['EXISTS']
 
                 # Search messages in folder
-                message_uids = self._server.search(criteria)
+                message_uids = self.get_imap_server().search(criteria)
 
                 if paginate:
                     # Slice resultset
@@ -528,7 +552,7 @@ class LilyIMAP(object):
             finally:
                 if close:
                     # Close after reading
-                    self._server.close_folder()
+                    self.get_imap_server().close_folder()
         return 0, {}
 
     def fetch_from_folder(self, identifier=None, message_uids=None, modifiers=[], close=True):
@@ -537,7 +561,7 @@ class LilyIMAP(object):
         """
         try:
             messages = {}
-            response = self._server.fetch(message_uids, modifiers)
+            response = self.get_imap_server().fetch(message_uids, modifiers)
 
             for msgid, data in response.items():
                 try:
@@ -550,7 +574,7 @@ class LilyIMAP(object):
         finally:
             if close:
                 # Close after reading
-                self._server.close_folder()
+                self.get_imap_server().close_folder()
             return messages
 
     def get_messages_in_folders(self, identifiers=[], criteria=['ALL'], modifiers=[], readonly=True, paginate=False, page=1, page_size=10):
@@ -575,7 +599,7 @@ class LilyIMAP(object):
         ['MESSAGES', 'RECENT', 'UIDNEXT', 'UIDVALIDITY', 'UNSEEN'].
         '''
         folder_name = self.get_server_name_for_folder(identifier)
-        return self._server.folder_status(folder_name, status)
+        return self.get_imap_server().folder_status(folder_name, status)
 
     def get_folder_unread(self, identifier=ALLMAIL):
         '''
@@ -592,7 +616,7 @@ class LilyIMAP(object):
         else:
             uids = [uids]
 
-        self._server.add_flags(uids, [SEEN])
+        self.get_imap_server().add_flags(uids, [SEEN])
 
     def mark_as_unread(self, uids):
         '''
@@ -603,16 +627,32 @@ class LilyIMAP(object):
         else:
             uids = [uids]
 
-        self._server.remove_flags(uids, [SEEN])
+        self.get_imap_server().remove_flags(uids, [SEEN])
 
     def logout(self):
         try:
-            self._server.logout()
+            self.get_imap_server().logout()
+            del self._servers['imap']
         except Exception, e:
             print traceback.format_exc(e)
 
     def close_folder(self):
         try:
-            self._server.close_folder()
+            self.get_imap_server().close_folder()
         except Exception, e:
             print traceback.format_exc(e)
+
+    def save_draft(self, message):
+        """
+        Create a draft. Returns the UID for e-mail message in the DRAFTS folder.
+        """
+        if isinstance(message, basestring):
+            message = unicode(email.message_from_string(message))
+
+        folder_name = self.get_server_name_for_folder(DRAFTS)
+        self.get_imap_server().select_folder(folder_name)
+        response = self.get_imap_server().append(folder_name, message, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
+        self.get_imap_server().close_folder()
+        command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]
+
+        return uid

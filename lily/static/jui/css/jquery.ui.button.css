@@ -14,25 +14,25 @@
 	padding:6px 9px;
 	margin:2px;
 	cursor:pointer;
-	
+
 	display:inline-block;
 	position:relative;
-	
+
 	background-color:#96c742;
 	color:#ffffff !important;
 	border:1px solid #507E0C;
 	font-family:'PTSansRegular', Arial, Helvetica, sans-serif;
-	
+
 	/* CSS 3 */
-	
+
 	text-shadow:1px 1px 1px rgba(0, 0, 0, 0.4);
-	
+
 	-webkit-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
 	-moz-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
 	-o-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
 	-khtml-box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
 	box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.15);
-	
+
 	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #addf58), color-stop(100%, #96c742));
 	background-image: -webkit-linear-gradient(#addf58,#96c742);
 	background-image: -moz-linear-gradient(#addf58,#96c742);
@@ -43,7 +43,7 @@
 .ui-button.ui-state-active
 {
 	/* CSS 3 */
-	
+
 	-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
 	-moz-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;
 	-o-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.2) !important;

@@ -46,12 +46,12 @@ class RegistrationView(FormView):
     """
     template_name = 'users/registration.html'
     form_class = RegistrationForm
-    
+
     def form_valid(self, form):
         """
         Register a new user.
         """
-        
+
         # Create contact
         contact = Contact(
             first_name=form.cleaned_data['first_name'],
@@ -60,46 +60,46 @@ class RegistrationView(FormView):
         )
         contact, tenant = add_tenant(contact)
         contact.save()
-        
+
         # Create account
         account = Account(name=form.cleaned_data.get('company'))
         add_tenant(account, tenant)
         account.save()
-        
+
         # Create function
         Function.objects.create(account=account, contact=contact)
-        
+
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
         user.primary_email = form.cleaned_data['email']
-        
+
         # Store random unique data in username
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
-        
+
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
-        
+
         add_tenant(user, tenant)
         user.save()
-        
+
         # Add to admin group
         group, created = Group.objects.get_or_create(name='account_admin')
         user.groups.add(group)
-    
+
         # Get the current site
         try:
             current_site = Site.objects.get_current()
         except Site.DoesNotExist:
             current_site = ''
-        
+
         # Generate uidb36 and token for the activation link
         uidb36 = int_to_base36(user.pk)
         tgen = PasswordResetTokenGenerator()
         token = tgen.make_token(user)
-    
+
         # Send an activation mail
         # TODO: only create/save contact when e-mail sent succesfully
         send_templated_mail(
@@ -114,12 +114,12 @@ class RegistrationView(FormView):
                 'token': token,
             }
         )
-        
+
         # Show registration message
         messages.success(self.request, _('Registration completed. Check your <nobr>e-mail</nobr> to activate your account.'))
-        
+
         return self.get_success_url()
-    
+
     def get_success_url(self):
         """
         Redirect to the success url.
@@ -134,7 +134,7 @@ class ActivationView(TemplateView):
     # Template is only shown when something went wrong
     template_name = 'users/activation_failed.html'
     tgen = PasswordResetTokenGenerator()
-    
+
     def get(self, request, *args, **kwargs):
         """
         Check whether the activation link is valid, for this both the user id and the token should
@@ -150,22 +150,22 @@ class ActivationView(TemplateView):
         except (ValueError, CustomUser.DoesNotExist):
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
-        
+
         if self.tgen.check_token(self.user, self.token):
             # Show activation message
             messages.info(request, _('Your account has been activated and you are now logged in.'))
         else:
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
-        
+
         # Set is_active to True and save the user
         self.user.is_active = True
         self.user.save()
-        
+
         # Log the user in
         self.user = authenticate(username=self.user.primary_email, no_pass=True)
         user_login(request, self.user)
-        
+
         # Redirect to dashboard
         return redirect(reverse_lazy('dashboard'))
 
@@ -176,28 +176,28 @@ class ActivationResendView(FormView):
     """
     template_name = 'users/activation_resend_form.html'
     form_class = ResendActivationForm
-    
+
     def form_valid(self, form):
         """
         If ResendActivationForm passed the validation, generate new token and send an e-mail.
         """
         self.TGen = PasswordResetTokenGenerator()
         self.users = CustomUser.objects.filter(
-                                contact__email_addresses__email_address__iexact=form.cleaned_data['email'], 
+                                contact__email_addresses__email_address__iexact=form.cleaned_data['email'],
                                 contact__email_addresses__is_primary=True
                             )
-        
+
         # Get the current site or empty string
         try:
             self.current_site = Site.objects.get_current()
         except Site.DoesNotExist:
             self.current_site = ''
-        
+
         for user in self.users:
             # Generate uidb36 and token for the activation link
             self.uidb36 = int_to_base36(user.pk)
             self.token = self.TGen.make_token(user)
-            
+
             # E-mail to the user
             send_templated_mail(
                 template_name='activation',
@@ -212,17 +212,17 @@ class ActivationResendView(FormView):
                     'token': self.token,
                 }
             )
-        
+
         # Show registration message
         messages.success(self.request, _('Reactivation success. Check your <nobr>e-mail</nobr> to activate your account.'))
-        
+
         # Redirect to success url
         return self.get_success_url()
-    
+
     def get_success_url(self):
         """
         Redirect to the success url.
-        """        
+        """
         return redirect(reverse_lazy('login'))
 
 
@@ -231,14 +231,14 @@ class LoginView(View):
     This view extends the default login view with a 'remember me' feature.
     """
     template_name = 'users/login_form.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         """
         Check if the user wants to be remembered and return the default login view.
         """
         if request.user.is_authenticated():
             return(redirect(reverse_lazy('dashboard')))
-        
+
         if request.method == 'POST':
             # If not using 'remember me' feature use default expiration time.
             if not request.POST.get('remember_me', False):
@@ -257,7 +257,7 @@ class SendInvitationView(FormSetView):
     form_class = InvitationForm
     formset_class = InvitationFormset
     extra = 1
-    
+
     def formset_valid(self, formset):
         """
         This function is called when the formset is deemed valid.
@@ -269,13 +269,13 @@ class SendInvitationView(FormSetView):
         self.account = self.request.user.account
         self.b36accountpk = int_to_base36(self.account.pk)
         self.date = date.today().strftime('%d%m%Y')
-        
+
         # Get the current site or empty string
         try:
             self.current_site = Site.objects.get_current()
         except Site.DoesNotExist:
             self.current_site = ''
-        
+
         for form in formset:
             first_name = form.cleaned_data.get('first_name')
             email = form.cleaned_data.get('email')
@@ -289,7 +289,7 @@ class SendInvitationView(FormSetView):
                     'aidb36': self.b36accountpk,
                     'hash': self.hash,
                 }))
-                
+
                 # E-mail to the user
                 send_templated_mail(
                     template_name='invitation',
@@ -303,18 +303,18 @@ class SendInvitationView(FormSetView):
                         'company_name': self.account.name,
                     }
                 )
-        
+
         if is_ajax(self.request):
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
             }), mimetype='application/json')
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def formset_invalid(self, formset):
         """
         This function is called when the formset didn't pass validation.
-        If the request is done via ajax, send back a json object with the error set to true and 
+        If the request is done via ajax, send back a json object with the error set to true and
         the form rendered into a string.
         """
         if is_ajax(self.request):
@@ -324,7 +324,7 @@ class SendInvitationView(FormSetView):
                 'html': render_to_string(self.form_template_name, context)
             }), mimetype='application/json')
         return self.render_to_response(self.get_context_data(formset=formset))
-    
+
     def get_success_url(self):
         """
         return the success url and set a succes message.
@@ -342,7 +342,7 @@ class AcceptInvitationView(FormView):
     template_failure = 'users/invitation/accept_invalid.html'
     form_class = UserRegistrationForm
     valid_link = False
-    
+
     def dispatch(self, request, *args, **kwargs):
         """
         Set the variables needed and call super.
@@ -354,9 +354,9 @@ class AcceptInvitationView(FormView):
         self.datestring = kwargs.get('date')
         self.aidb36 = kwargs.get('aidb36')
         self.hash = kwargs.get('hash')
-        
+
         return super(AcceptInvitationView, self).dispatch(request, *args, **kwargs)
-    
+
     def get_template_names(self):
         """
         This method checks if the link is deemed valid, serves appropriate templates.
@@ -364,12 +364,12 @@ class AcceptInvitationView(FormView):
         if not self.valid_link:
             return [self.template_failure]
         return super(AcceptInvitationView, self).get_template_names()
-    
+
     def get(self, request, *args, **kwargs):
         """
-        This function is called on normal page load. The function link_is_valid is called to 
+        This function is called on normal page load. The function link_is_valid is called to
         determine wheter the link is valid. If so load all the necesary data for the form etc.
-        otherwise render the failure template (which get_template_names will return since link is 
+        otherwise render the failure template (which get_template_names will return since link is
         invalid.
         """
         if self.link_is_valid():
@@ -379,15 +379,15 @@ class AcceptInvitationView(FormView):
                 'company': self.account_name,
             }
             return super(AcceptInvitationView, self).get(request, *args, **kwargs)
-        
+
         self.object = None
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         """
-        This function is called on a form submit. The function link_is_valid is called to 
+        This function is called on a form submit. The function link_is_valid is called to
         determine wheter the link is valid. If so load all the necesary data for the form etc.
-        otherwise render the failure template (which get_template_names will return since link is 
+        otherwise render the failure template (which get_template_names will return since link is
         invalid.
         """
         if self.link_is_valid():
@@ -397,10 +397,10 @@ class AcceptInvitationView(FormView):
                 'company': self.account_name,
             }
             return super(AcceptInvitationView, self).post(request, *args, **kwargs)
-        
+
         self.object = None
         return self.render_to_response(self.get_context_data())
-    
+
     def link_is_valid(self):
         """
         This functions performs all checks to verify the url is correct.
@@ -408,10 +408,10 @@ class AcceptInvitationView(FormView):
         """
         # Default value is false, only set to true if all checks have passed
         self.valid_link = False
-            
+
         if CustomUser.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
             return self.valid_link
-        
+
         try:
             # Check if it's a valid pk and try to retrieve the corresponding account
             self.account = Account.objects.get(pk=base36_to_int(self.aidb36))
@@ -424,12 +424,12 @@ class AcceptInvitationView(FormView):
             elif not self.hash == sha256('%s-%s-%s-%s' % (self.account.name, self.email, self.datestring, settings.SECRET_KEY)).hexdigest():
                 # hash should be correct
                 return self.valid_link
-        
+
         if not len(self.datestring) == 8:
             # Date should always be a string with a length of 8 characters
             return self.valid_link
         else:
-            today = date.today()        
+            today = date.today()
             try:
                 # Check if it is a valid date
                 dateobj = date(int(self.datestring[4:8]), int(self.datestring[2:4]), int(self.datestring[:2]))
@@ -439,10 +439,10 @@ class AcceptInvitationView(FormView):
                 if (today < dateobj) or ((today - timedelta(days=settings.USER_INVITATION_TIMEOUT_DAYS)) > dateobj):
                     # Check if the link is not too old and not in the future
                     return self.valid_link
-        
+
         self.valid_link = True
         return self.valid_link
-    
+
     def form_valid(self, form):
         """
         This function is called when the form is deemed valid. The new user is created and the
@@ -456,32 +456,32 @@ class AcceptInvitationView(FormView):
                 preposition=form.cleaned_data['preposition'],
                 last_name=form.cleaned_data['last_name']
             )
-            
+
             if hasattr(self.account, 'tenant'):
                 add_tenant(contact, self.account.tenant)
-             
+
             contact.save()
-            
+
             contact.primary_email = form.cleaned_data['email']
             contact.save()
-        
+
         # Create function
         Function.objects.create(account=self.account, contact=contact)
-        
+
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
-        
+
         # TODO: move this...
         if hasattr(self.account, 'tenant'):
             add_tenant(user, self.account.tenant)
         user.save()
-        
+
         return self.get_success_url()
-    
+
     def get_success_url(self):
         """
         Redirect to the success page.
@@ -496,7 +496,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
     template_name = 'users/dashboard.html'
     models = [Account, Contact, BlogEntry]
     page_size = 10
-    
+
     def post(self, request, *args, **kwargs):
         """
         Redirect to display a certain page when jumping towards one.
@@ -510,36 +510,36 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
                 if self.request.POST.has_key('tag'):
                     kwargs.update({'tag': self.request.POST.get('tag')})
                     location += '_tag'
-            
+
                 return redirect(reverse(location, kwargs=kwargs))
             except:
                 return redirect(self.request.META['HTTP_REFERER'])
-        
+
         return super(DashboardView, self).post(request, *args, **kwargs)
-    
+
     def get_model_queryset(self, list_name, model):
         """
         Return the five newest objects for Accounts and Contacts. Paginate objects for BlogEntry later.
         """
         if model is BlogEntry:
             return model._default_manager.order_by('-created').all().filter(reply_to=None)
-        
+
         return model._default_manager.order_by('-created').all()[:5]
-    
+
     def get_context_data(self, **kwargs):
         """
         Paginate the BlogEntry queryset and search for a certain tag when provided.
         """
         context = super(DashboardView, self).get_context_data()
         context.update(kwargs)
-        
+
         # Paginate BlogEntry
         blogentry_list = context.pop('blogentry_list')
-        
+
         # Filter by tag?
         if self.kwargs.get('tag', False):
             blogentry_list = BlogEntry.objects.filter(content__contains=urlunquote(self.kwargs.get('tag'))).order_by('-created')
-        
+
         paginator = Paginator(blogentry_list, self.page_size)
 
         current_page = self.kwargs.get('page')
@@ -551,7 +551,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             page = paginator.page(paginator.num_pages)
-        
+
         context.update({
             'paginator': paginator,
             'page': page,
@@ -560,7 +560,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
             'has_tag_filter': self.kwargs.has_key('tag'),
             'tag': self.kwargs.get('tag', None),
         })
-        
+
         return context
 
 
@@ -568,23 +568,23 @@ class CustomSetPasswordView(FormView):
     """
     View that checks the hash in a password reset link and presents a
     form for entering a new password.
-    
-    This is a Class-based view copy based on django's default function view password_reset_confirm. 
+
+    This is a Class-based view copy based on django's default function view password_reset_confirm.
     """
     form_class = CustomSetPasswordForm
     token_generator = default_token_generator
     template_name_invalid = 'users/password_reset/confirm_invalid.html'
     template_name_valid = 'users/password_reset/confirm_valid.html'
     success_url = reverse_lazy('password_reset_complete')
-    
+
     def dispatch(self, request, *args, **kwargs):
         """
         Overload super().dispatch to verify the reset link before rendering the response.
         """
         self.is_valid_link, self.user = self.check_valid_link(**kwargs)
-        
+
         return super(CustomSetPasswordView, self).dispatch(request, *args, **kwargs)
-    
+
     def get_form_kwargs(self):
         """
         Update the keyword arguments for instanciating the form to include the user.
@@ -593,26 +593,26 @@ class CustomSetPasswordView(FormView):
         kwargs.update({
             'user': self.user
         })
-        
+
         return kwargs
-    
+
     def check_valid_link(self, **kwargs):
         """
         Check the url is a valid password reset link.
         """
         uidb36 = kwargs.pop('uidb36')
         token = kwargs.pop('token')
-        
+
         assert uidb36 is not None and token is not None # checked by URLconf
         try:
             uid_int = base36_to_int(uidb36)
             user = CustomUser.objects.get(id=uid_int)
         except (ValueError, CustomUser.DoesNotExist):
             user = None
-        
+
         if user is not None and self.token_generator.check_token(user, token):
             return True, user
-        
+
         return False, user
 
     def get_template_names(self):
@@ -623,7 +623,7 @@ class CustomSetPasswordView(FormView):
             template_name = self.template_name_valid
         else:
             template_name = self.template_name_invalid
-        
+
         return [template_name]
 
     def form_valid(self, form):

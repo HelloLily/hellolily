@@ -3,6 +3,7 @@ from lily.cases.forms import AddCaseQuickbuttonForm
 from lily.contacts.forms import AddContactQuickbuttonForm
 from lily.deals.forms import AddDealQuickbuttonForm
 
+
 def quickbutton_forms(request):
     return {
         'quickbutton_formsets': {

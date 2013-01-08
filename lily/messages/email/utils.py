@@ -1,6 +1,9 @@
 import re
+
+from BeautifulSoup import BeautifulSoup, Comment
 from django.template import VARIABLE_TAG_END, VARIABLE_TAG_START
 from django.db import models
+
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
@@ -101,3 +104,28 @@ def get_param_vals(request, template):
         })
 
     return filled_param_dict
+
+
+def flatten_html_to_text(html):
+    """
+    Strip html and unwanted whitespace to preserve text only.
+    """
+    soup = BeautifulSoup(html)
+
+    # Remove html comments
+    comments = soup.findAll(text=lambda text: isinstance(text, Comment))
+    for comment in comments:
+        comment.extract()
+
+    # Remove several tags from flat_soup
+    extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
+    for elem in soup.findAll(extract_tags):
+        elem.extract()
+
+    if soup.body:
+        flat_body = soup.body
+    else:
+        flat_body = soup
+
+    # Strip tags and whitespace
+    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also

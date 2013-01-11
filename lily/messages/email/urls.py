@@ -6,21 +6,23 @@ from lily.messages.email.views import email_inbox_view, detail_email_sent_view, 
  detail_email_account_view, add_email_template_view, edit_email_template_view, \
  detail_email_template_view, parse_email_template_view, email_html_view, \
  mark_read_view, mark_unread_view, move_trash_view, email_compose_view, \
- email_compose_template_view
+ email_compose_template_view, email_drafts_view
 
 
 urlpatterns = patterns('',
     # folders/labels
     url(r'^$', email_inbox_view, name='messages_email_inbox'),
     url(r'^sent/$', detail_email_sent_view, name='messages_email_sent'),
-    url(r'^drafts/$', detail_email_draft_view, name='messages_email_drafts'),
+    url(r'^drafts/$', email_drafts_view, name='messages_email_drafts'),
     url(r'^archived/$', detail_email_archive_view, name='messages_email_archived'),
     url(r'^trash/$', detail_email_archive_view, name='messages_email_trash'),
     url(r'^nextsteps/$', detail_email_compose_view, name='messages_email_next_steps'),
 
     # compose view
     url(r'^compose/$', email_compose_view, name='messages_email_compose'),
+    url(r'^compose/(?P<pk>[\d-]+)/$', email_compose_view, name='messages_email_compose'),
     url(r'^compose/template/$', email_compose_template_view, name='messages_email_compose_template'),
+    url(r'^compose/template/(?P<pk>[\d-]+)/$', email_compose_template_view, name='messages_email_compose_template'),
 
     # AJAX views
     url(r'^json/(?P<pk>[\w-]+)/$', email_json_view, name='messages_email_json'),

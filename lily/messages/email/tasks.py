@@ -50,7 +50,6 @@ def save_email_messages(messages, account, folder_name, new_messages=False):
                 # Check for headers
                 if message.get('headers') is not None:
                     headers = message.get('headers')
-
                     # Remove certain headers that are stored in the model instead
                     if 'Received' in headers:
                         del headers['Received']
@@ -368,7 +367,7 @@ def synchronize_email_for_account(account_id):
                     synchronize_folder(server, folder.get_server_name())
 
                 modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
-                modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                modifiers_new = modifiers_old
                 synchronize_folder(server, server.get_server_name_for_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                 account.last_sync_date = now_utc_date
@@ -427,8 +426,10 @@ def mark_messages(message_ids, read=True):
         if len(account_qs) > 0:
             account = account_qs[0]
             # Connect
-            server = LilyIMAP(provider=account.provider, account=account)
+            server = None
             try:
+                server = LilyIMAP(provider=account.provider, account=account)
+
                 for folder_name, message_uids in folders.items():
                     if server.get_imap_server().folder_exists(folder_name):
                         server.get_imap_server().select_folder(folder_name)

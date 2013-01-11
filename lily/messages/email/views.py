@@ -1,10 +1,12 @@
 import anyjson
 import datetime
+import traceback
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
@@ -14,11 +16,11 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from lily.contacts.models import Contact
-from lily.messages.email.emailclient import LilyIMAP
-from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
-from lily.messages.email.tasks import save_email_messages, mark_messages
+from lily.messages.email.emailclient import LilyIMAP, DRAFTS
 from lily.messages.email.forms import CreateUpdateEmailAccountForm, \
  CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
+from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
+from lily.messages.email.tasks import save_email_messages, mark_messages
 from lily.messages.email.utils import get_email_parameter_dict, get_param_vals, get_email_parameter_choices, flatten_html_to_text
 from lily.utils.models import EmailAddress
 
@@ -151,7 +153,7 @@ class ParseEmailTemplateView(FormView):
         }), mimetype="application/json")
 
 
-class ListEmailView(ListView):
+class EmailInboxView(ListView):
     """
     Show a list of e-mail messages.
     """
@@ -169,21 +171,32 @@ class ListEmailView(ListView):
         except:
             page = 1
 
-        self.queryset = EmailMessage.objects.filter(account__in=self.messages_accounts).order_by('-sent_date')
+        self.queryset = self.get_queryset()
 
-        return super(ListEmailView, self).get(request, *args, **kwargs)
+        return super(EmailInboxView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return EmailMessage.objects.filter(~Q(flags__icontains='draft'), account__in=self.messages_accounts).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to provide the list item template.
         """
-        kwargs = super(ListEmailView, self).get_context_data(**kwargs)
+        kwargs = super(EmailInboxView, self).get_context_data(**kwargs)
         kwargs.update({
             'list_item_template': 'messages/email/model_list_item.html',
             'accounts': ', '.join([message_account.email for message_account in self.messages_accounts]),
         })
 
         return kwargs
+
+
+class EmailDraftListView(EmailInboxView):
+    """
+    Show a list of e-mail message drafts.
+    """
+    def get_queryset(self):
+        return EmailMessage.objects.filter(flags__icontains='draft', account__in=self.messages_accounts).order_by('-sent_date')
 
 
 class EmailMessageJSONView(View):
@@ -291,7 +304,7 @@ class MessageUpdateView(View):
         return HttpResponse(simplejson.dumps({}), mimetype='application/json')
 
     def handle_message_update(self, message_ids):
-        raise NotImplementedError("Implement by sublcassing MessageUpdateView")
+        raise NotImplementedError("Implement by subclassing MessageUpdateView")
 
 
 class MarkReadAjaxView(MessageUpdateView):
@@ -323,11 +336,38 @@ class EmailComposeView(FormView):
     template_name = 'messages/email/email_compose.html'
     form_class = ComposeEmailForm
 
+    def dispatch(self, request, *args, **kwargs):
+        self.draft_id = kwargs.get('pk')
+
+        if self.draft_id:
+            try:
+                self.draft = EmailMessage.objects.get(flags__icontains='draft', pk=self.draft_id)
+            except EmailMessage.DoesNotExist:
+                raise Http404()
+
+        return super(EmailComposeView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        # Set initial values
+
+        kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
+        kwargs.update({
+            'draft_id': self.draft_id,
+            'initial': {
+                'send_from': self.draft.from_email,
+                'subject': self.draft.subject,
+                'send_to_normal': self.draft.to_email,
+                'send_to_cc': ', '.join(self.draft.headers.filter(name='cc', ).values_list('value', flat=True)),
+                'send_to_bcc': ', '.join(self.draft.headers.filter(name='bcc', ).values_list('value', flat=True)),
+            }
+        })
+
+        return kwargs
+
     def form_valid(self, form):
         """
         Check to save or sent an e-mail message.
         """
-        sucess_url = super(EmailComposeView, self).form_valid(form)
         instance = form.save(commit=False)
 
         if 'submit-save' in self.request.POST:
@@ -337,30 +377,56 @@ class EmailComposeView(FormView):
             # Generate email message source
             email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
             email_message.attach_alternative(instance.body, 'text/html')
-            message_string = unicode(email_message.message())
+            message_string = unicode(email_message.message().as_string(unixfrom=False))
 
-            # TODO: support attachments
+            # TODO support attachments
 
-            # Save draft
-            server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
-            server.save_draft(message_string)
+            # Save draft remotely and sync this specific message
+            server = None
+            try:
+                server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+
+                uid = int(server.save_draft(message_string))
+                message = server.get_modifiers_for_uid(uid, modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'], folder=DRAFTS)
+                save_email_messages({uid: message}, instance.send_from, server.get_server_name_for_folder(DRAFTS), new_messages=True)
+
+                try:
+                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=server.get_server_name_for_folder(DRAFTS))
+                except EmailMessage.DoesNotExist, e:
+                    print traceback.format_exc(e)
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                if server:
+                    server.logout()
+
+            # TODO redirect after submit to compose with new id in url
+
         elif 'submit-send' in self.request.POST:
             # send e-mail (smtp)
             # server.get_smtp_server().send_email(message_string) ?
+
+            # remove as draft
             pass
 
-        if 'submit-discard' in self.request.POST or 'submit-sent' in self.request.POST:
-            if instance.uid:
-            # if instance.email_message:
-                # remove remotely
-                pass
+        if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+            server = None
+            try:
+                server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+                if self.draft.uid:
+                    # remove remotely
+                    server.delete_from_folder(identifier=DRAFTS, message_uids=[self.draft.uid], trash_only=False)
 
-            if instance.pk:
-                # remote locally
-                instance.remove()
-            pass
+                if self.draft.pk:
+                    # remote locally
+                    self.draft.delete()
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                if server:
+                    server.logout()
 
-        return sucess_url
+        return super(EmailComposeView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         """
@@ -378,7 +444,7 @@ class EmailComposeView(FormView):
                 known_contact_addresses.append(contact_address)
 
         kwargs.update({
-            'known_contact_addresses': simplejson.dumps(known_contact_addresses)
+            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
         })
 
         return kwargs
@@ -387,17 +453,52 @@ class EmailComposeView(FormView):
         """
         Return to inbox after sending e-mail.
         """
+
+        # Redirect to url with draft id
+        if 'submit-save' in self.request.POST:
+            return reverse('messages_email_compose', kwargs={'pk': self.new_draft.pk})
+
+        if 'submit-send' in self.request.POST:
+            return reverse('messages_email_inbox')
+
+        if 'submit-back' in self.request.POST:
+            return reverse('messages_email_drafts')
+
         return reverse('messages_email_inbox')
 
 
 class EmailDraftTemplateView(TemplateView):
     template_name = 'messages/email/email_compose_frame.html'  # default for non-templated e-mails
 
+    def dispatch(self, request, *args, **kwargs):
+        self.draft_id = kwargs.get('pk')
+
+        return super(EmailDraftTemplateView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         kwargs = super(EmailDraftTemplateView, self).get_context_data(**kwargs)
+
+        if self.draft_id:
+            try:
+                self.draft = EmailMessage.objects.get(flags__icontains='draft', pk=self.draft_id)
+            except EmailMessage.DoesNotExist:
+                raise Http404()
+
+        body = u''
+
+        # Check for existing draft
+        if self.draft_id:
+            body = self.draft.body
+
+        if not len(body.strip('</>brdiv ')):
+            # Get user's signature
+            # get_user_sig()
+            pass
+
         kwargs.update({
             # TODO get draft or user signature
             # 'draft': get_user_sig(),
+            'draft': body
         })
 
         return kwargs
@@ -405,7 +506,8 @@ class EmailDraftTemplateView(TemplateView):
 
 # E-mail views
 # detail_email_inbox_view = DetailEmailInboxView.as_view()
-email_inbox_view = login_required(ListEmailView.as_view())
+email_inbox_view = login_required(EmailInboxView.as_view())
+email_drafts_view = login_required(EmailDraftListView.as_view())
 email_html_view = login_required(EmailMessageHTMLView.as_view())
 email_json_view = login_required(EmailMessageJSONView.as_view())
 mark_read_view = login_required(MarkReadAjaxView.as_view())

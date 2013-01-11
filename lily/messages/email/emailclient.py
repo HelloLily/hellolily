@@ -577,6 +577,35 @@ class LilyIMAP(object):
                 self.get_imap_server().close_folder()
             return messages
 
+    def delete_from_folder(self, identifier=None, message_uids=None, trash_only=True):
+        """
+        Delete messages by UIDs from from given identifier. Messages are moved
+        to trash by default.
+        """
+        try:
+            folder_name = self.get_server_name_for_folder(identifier)
+            self.get_imap_server().select_folder(folder_name, readonly=False)
+            if self.get_imap_server().folder_exists(folder_name):
+                response = self.get_imap_server().delete_messages(message_uids)
+                self.get_imap_server().close_folder()
+
+                # TODO, remove from trash, seems to have no effect in Gmail - needs testing on a separate IMAP server
+                # if not trash_only:
+                #     uids_in_trash = []
+                #     for msgid, data in response.items():
+                #         uids_in_trash.append(msgid)
+
+                #     folder_name = self.get_server_name_for_folder(TRASH)
+                #     if self.get_imap_server().folder_exists(folder_name):
+                #         self.get_imap_server().select_folder(folder_name, readonly=False)
+                #         self.get_imap_server().delete_messages(uids_in_trash)
+
+                #         self.get_imap_server().expunge()
+                #         self.get_imap_server().close_folder()
+
+        except Exception, e:
+            print traceback.format_exc(e)
+
     def get_messages_in_folders(self, identifiers=[], criteria=['ALL'], modifiers=[], readonly=True, paginate=False, page=1, page_size=10):
         '''
         Return messsages in given identifiers filtered by criteria and

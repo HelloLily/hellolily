@@ -180,6 +180,7 @@ MEDIA_BUNDLES = (
         'plugins/hallojs/hallo.css',
         # 'plugins/hallojs/image.css',
         'plugins/fontawesome/css/font-awesome.css',
+        'plugins/hallojs/hallo-extra.css',
     ),
     ('hallojs-ie7.css',
         'plugins/fontawesome/css/font-awesome-ie7.css',

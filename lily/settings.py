@@ -124,7 +124,7 @@ MIDDLEWARE_CLASSES = (
 
     # Third party
     'newrelicextensions.middleware.NewRelicMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
     # Lily
     'lily.tenant.middleware.TenantMiddleWare',

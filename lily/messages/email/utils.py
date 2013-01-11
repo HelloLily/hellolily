@@ -122,6 +122,10 @@ def flatten_html_to_text(html):
     for elem in soup.findAll(extract_tags):
         elem.extract()
 
+    # Replace html line breaks with spaces to prevent lines appended after one another
+    for linebreak in soup.findAll('br'):
+        linebreak.replaceWith(' ')
+
     if soup.body:
         flat_body = soup.body
     else:

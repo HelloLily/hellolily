@@ -185,7 +185,6 @@
         }
 
         .single-message {
-            height: 59px;
             padding: 14px 0 10px;
             width: 100%;
             white-space: nowrap;
@@ -221,6 +220,10 @@
         }
         .single-message .email:hover {
             cursor: pointer;
+        }
+        .single-message .email .message-draft-link {
+            color: #323232;
+            text-decoration: none;
         }
         .single-message .email .sender,
         .single-message .email .subject,
@@ -425,7 +428,7 @@
                 event.preventDefault();
             });
 
-            $('.mws-email-list .email').click(function(event) {
+            $('.mws-email-list .email:not(.draft)').click(function(event) {
                 if(jqXHR==null) {
                     var table = $('.mws-email-list');
                     if (!$(table).hasClass('small')) {
@@ -520,25 +523,25 @@
             </div>
             <div class="inline email-toolbar paginator">
                 {% if page_obj.has_previous %}
-                    <a href="{% url messages_email_inbox %}?page=1" title="{% trans 'Show first page' %}" class="prev-page jump"><span class="mws-i-24 i-arrow-left"></span><span class="mws-i-24 i-arrow-left"></span></a>
+                    <a href="{{ request.path }}?page=1" title="{% trans 'Show first page' %}" class="prev-page jump"><span class="mws-i-24 i-arrow-left"></span><span class="mws-i-24 i-arrow-left"></span></a>
                 {% endif %}
 
                 {% if page_obj.has_previous %}
-                    <a href="{% url messages_email_inbox %}?page={{ page_obj.previous_page_number }}" title="{% trans 'Show previous page' %}" class="prev-page"><span class="mws-i-24 i-arrow-left"></span></a>
+                    <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}" title="{% trans 'Show previous page' %}" class="prev-page"><span class="mws-i-24 i-arrow-left"></span></a>
                 {% endif %}
 
                 {% if page_obj.has_next %}
-                    <a href="{% url messages_email_inbox %}?page={{ page_obj.next_page_number }}" title="{% trans 'Show next page' %}" class="next-page"><span class="mws-i-24 i-arrow-right"></span></a>
+                    <a href="{{ request.path }}?page={{ page_obj.next_page_number }}" title="{% trans 'Show next page' %}" class="next-page"><span class="mws-i-24 i-arrow-right"></span></a>
                 {% else %}
                     <span style="width: 32px; display: inline-block"></span>
                 {% endif %}
 
                 {% if page_obj.has_next %}
-                    <a href="{% url messages_email_inbox %}?page=last" title="{% trans 'Show last page' %}" class="next-page jump"><span class="mws-i-24 i-arrow-right"></span><span class="mws-i-24 i-arrow-right"></span></a>
+                    <a href="{{ request.path }}?page=last" title="{% trans 'Show last page' %}" class="next-page jump"><span class="mws-i-24 i-arrow-right"></span><span class="mws-i-24 i-arrow-right"></span></a>
                 {% else %}
                     <span style="width: 23px; display: inline-block"></span>
                 {% endif %}
-                <a href="{% url messages_email_inbox %}?page={{ page_obj.number }}" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
+                <a href="{{ request.path }}?page={{ page_obj.number }}" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
             </div>
         </div>
         <div id="emailbox-top-subject" class="hidden"></div>

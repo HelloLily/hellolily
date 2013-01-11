@@ -131,6 +131,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         """
         Overload super().__init__ to change the appearance of the form.
         """
+        self.draft_id = kwargs.pop('draft_id')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         # Customize form layout
@@ -163,14 +164,20 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
                 Column('send_to_bcc', size=6, first=True),
             ),
         )
+
+        if self.draft_id:
+            email_template_url = reverse('messages_email_compose_template', kwargs={'pk': self.draft_id})
+        else:
+            email_template_url = reverse('messages_email_compose_template')
+
         self.helper.layout.append(
-            Row(HTML('<iframe id="email-body" src="%s"></iframe>' % reverse('messages_email_compose_template')))
+            Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
         )
 
         self.helper.add_input(Submit('submit-back', _('Back')))
         self.helper.add_input(Submit('submit-discard', _('Discard')))
         self.helper.add_input(Submit('submit-save', _('Save')))
-        self.helper.add_input(Submit('submit-sent', _('Send')))
+        self.helper.add_input(Submit('submit-send', _('Send')))
 
         user = get_current_user()
         email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
@@ -189,12 +196,13 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
 
     def clean(self):
         """
-        Make sure at least one of the send_to fields is filled in.
+        Make sure at least one of the send_to fields is filled in when sending it.
         """
         cleaned_data = super(ComposeEmailForm, self).clean()
 
-        if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
-            raise forms.ValidationError(_('Please provide at least one recipient.'))
+        if 'submit-send' in self.data:
+            if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
+                raise forms.ValidationError(_('Please provide at least one recipient.'))
 
         # Clean send_to addresses
         cleaned_data['send_to_normal'] = cleaned_data.get('send_to_normal').rstrip(', ')
@@ -215,7 +223,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         email_account_pks = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=user.messages_accounts.values_list('pk')).values_list('pk', flat=True)
 
         if send_from.pk not in email_account_pks:
-            self._errors['send_from'] = _(u'Invalid email account select to use as sender.')
+            self._errors['send_from'] = _(u'Invalid email account selected to use as sender.')
 
         return send_from
 

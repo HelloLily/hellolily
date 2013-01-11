@@ -91,7 +91,7 @@ class EmailMessage(Message):
     @property
     def subject(self):
         header = None
-        if getattr(self, '_subject_header', False):
+        if hasattr(self, '_subject_header',):
             header = self._subject_header
         else:
             header = self.headers.filter(name='Subject')
@@ -103,7 +103,7 @@ class EmailMessage(Message):
     @property
     def to_name(self):
         header = None
-        if getattr(self, '_to_header', False):
+        if hasattr(self, '_to_header'):
             header = self._to_header
         else:
             header = self.headers.filter(name='To')
@@ -115,19 +115,19 @@ class EmailMessage(Message):
     @property
     def to_email(self):
         header = None
-        if getattr(self, '_to_header', False):
+        if hasattr(self, '_to_header'):
             header = self._to_header
         else:
             header = self.headers.filter(name='To')
             self._to_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return u''
+        return u'<%s>' % _(u'No address')
 
     @property
     def from_name(self):
         header = None
-        if getattr(self, '_from_header', False):
+        if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
@@ -139,14 +139,14 @@ class EmailMessage(Message):
     @property
     def from_email(self):
         header = None
-        if getattr(self, '_from_header', False):
+        if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return u''
+        return u'<%s>' % _(u'No address')
 
     @property
     def is_plain(self):

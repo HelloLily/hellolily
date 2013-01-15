@@ -106,9 +106,10 @@ def get_param_vals(request, template):
     return filled_param_dict
 
 
-def flatten_html_to_text(html):
+def flatten_html_to_text(html, replace_br=False):
     """
-    Strip html and unwanted whitespace to preserve text only.
+    Strip html and unwanted whitespace to preserve text only. Optionally replace
+    <br> tags with line breaks (\n).
     """
     soup = BeautifulSoup(html)
 
@@ -124,7 +125,7 @@ def flatten_html_to_text(html):
 
     # Replace html line breaks with spaces to prevent lines appended after one another
     for linebreak in soup.findAll('br'):
-        linebreak.replaceWith(' ')
+        linebreak.replaceWith('\n' if replace_br else ' ')
 
     if soup.body:
         flat_body = soup.body

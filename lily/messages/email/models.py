@@ -83,7 +83,10 @@ class EmailMessage(Message):
     #     return messages
 
     @property
-    def flat_body(self):
+    def flatten_body(self):
+        """
+        Return a plain text version of the html body, and optionally replace <br> tags with line breaks (\n).
+        """
         if self.body:
             return flatten_html_to_text(self.body)
         return u''
@@ -102,27 +105,99 @@ class EmailMessage(Message):
 
     @property
     def to_name(self):
-        header = None
-        if hasattr(self, '_to_header'):
-            header = self._to_header
+        headers = None
+        if hasattr(self, '_to_headers'):
+            headers = self._to_headers
         else:
-            header = self.headers.filter(name='To')
-            self._to_header = header
-        if header:
-            return email.utils.parseaddr(header[0].value)[0]
+            headers = self.headers.filter(name='To')
+            self._to_headers = headers
+        if headers:
+            to_names = []
+            for header in headers:
+                to_names.append(email.utils.parseaddr(header.value)[0])
+            return ', '.join(to_names)
         return u''
 
     @property
     def to_email(self):
-        header = None
-        if hasattr(self, '_to_header'):
-            header = self._to_header
+        headers = None
+        if hasattr(self, '_to_headers'):
+            headers = self._to_headers
         else:
-            header = self.headers.filter(name='To')
-            self._to_header = header
-        if header:
-            return email.utils.parseaddr(header[0].value)[1]
+            headers = self.headers.filter(name='To')
+            self._to_headers = headers
+        if headers:
+            to_emails = []
+            for header in headers:
+                to_emails.append(email.utils.parseaddr(header.value)[1])
+            return ', '.join(to_emails)
         return u'<%s>' % _(u'No address')
+
+    @property
+    def to_combined(self):
+        headers = None
+        if hasattr(self, '_to_headers'):
+            headers = self._to_headers
+        else:
+            headers = self.headers.filter(name='To')
+            self._to_headers = headers
+        if headers:
+            to = []
+            for header in headers[0].value.split(','):
+                parts = email.utils.parseaddr(header)
+                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
+                    to.append('"%s" <%s>' % (parts[0], parts[1]))
+                elif len(parts[1]) > 0:
+                    to.append('%s' % parts[1])
+                else:
+                    to.append('"%s"' % parts[0])
+
+            return ', '.join(to)
+        return u''
+
+    @property
+    def to_cc_combined(self):
+        headers = None
+        if hasattr(self, '_to_cc_headers'):
+            headers = self._to_cc_headers
+        else:
+            headers = self.headers.filter(name='Cc')
+            self._to_cc_headers = headers
+        if headers:
+            to_cc = []
+            for header in headers[0].value.split(','):
+                parts = email.utils.parseaddr(header)
+                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
+                    to_cc.append('"%s" <%s>' % (parts[0], parts[1]))
+                elif len(parts[1]) > 0:
+                    to_cc.append('%s' % parts[1])
+                else:
+                    to_cc.append('"%s"' % parts[0])
+
+            return ', '.join(to_cc)
+        return u''
+
+    @property
+    def to_bcc_combined(self):
+        headers = None
+        if hasattr(self, '_to_bcc_headers'):
+            headers = self._to_bcc_headers
+        else:
+            headers = self.headers.filter(name='Bcc')
+            self._to_bcc_headers = headers
+        if headers:
+            to_bcc = []
+            for header in headers[0].value.split(','):
+                parts = email.utils.parseaddr(header)
+                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
+                    to_bcc.append('"%s" <%s>' % (parts[0], parts[1]))
+                elif len(parts[1]) > 0:
+                    to_bcc.append('%s' % parts[1])
+                else:
+                    to_bcc.append('"%s"' % parts[0])
+
+            return ', '.join(to_bcc)
+        return u''
 
     @property
     def from_name(self):
@@ -193,6 +268,9 @@ class EmailHeader(models.Model):
     name = models.CharField(max_length=255)
     value = models.TextField(null=True)
     message = models.ForeignKey(EmailMessage, related_name='headers')
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.name, self.value)
 
 
 class EmailLabel(models.Model):

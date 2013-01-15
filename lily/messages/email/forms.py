@@ -6,7 +6,6 @@ from django.forms import Form, ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.messages.email.models import EmailAccount, EmailTemplate, EmailDraft
-from lily.messages.email.utils import flatten_html_to_text
 from lily.tenant.middleware import get_current_user
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
@@ -131,7 +130,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         """
         Overload super().__init__ to change the appearance of the form.
         """
-        self.draft_id = kwargs.pop('draft_id')
+        self.draft_id = kwargs.pop('draft_id', None)
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         # Customize form layout

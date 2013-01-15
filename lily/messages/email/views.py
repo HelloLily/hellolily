@@ -248,7 +248,7 @@ class EmailMessageJSONView(View):
             message['sent_date'] = unix_time_millis(instance.sent_date)
             message['flags'] = instance.flags
             message['uid'] = instance.uid
-            message['flat_body'] = truncatechars(instance.flat_body, 200).encode('utf-8')
+            message['flat_body'] = truncatechars(instance.flatten_body, 200).encode('utf-8')
             message['subject'] = instance.subject.encode('utf-8')
             message['size'] = instance.size
             message['is_private'] = instance.is_private
@@ -348,19 +348,20 @@ class EmailComposeView(FormView):
         return super(EmailComposeView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self, **kwargs):
-        # Set initial values
-
         kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
-        kwargs.update({
-            'draft_id': self.draft_id,
-            'initial': {
-                'send_from': self.draft.from_email,
-                'subject': self.draft.subject,
-                'send_to_normal': self.draft.to_email,
-                'send_to_cc': ', '.join(self.draft.headers.filter(name='cc', ).values_list('value', flat=True)),
-                'send_to_bcc': ', '.join(self.draft.headers.filter(name='bcc', ).values_list('value', flat=True)),
-            }
-        })
+
+        if hasattr(self, 'draft'):
+            # Set initial values
+            kwargs.update({
+                'draft_id': self.draft_id,
+                'initial': {
+                    'send_from': self.draft.from_email,
+                    'subject': self.draft.subject,
+                    'send_to_normal': self.draft.to_combined,
+                    'send_to_cc': self.draft.to_cc_combined,
+                    'send_to_bcc': self.draft.to_bcc_combined,
+                }
+            })
 
         return kwargs
 
@@ -369,17 +370,22 @@ class EmailComposeView(FormView):
         Check to save or sent an e-mail message.
         """
         instance = form.save(commit=False)
+        remove_draft = True
 
-        if 'submit-save' in self.request.POST:
+        # Create python email message object
+        if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
             # Prepare text version of e-mail
-            text_body = flatten_html_to_text(instance.body)
+            text_body = flatten_html_to_text(instance.body, replace_br=True)
 
             # Generate email message source
             email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
             email_message.attach_alternative(instance.body, 'text/html')
-            message_string = unicode(email_message.message().as_string(unixfrom=False))
 
             # TODO support attachments
+
+        # Save draft
+        if 'submit-save' in self.request.POST:
+            message_string = unicode(email_message.message().as_string(unixfrom=False))
 
             # Save draft remotely and sync this specific message
             server = None
@@ -396,35 +402,39 @@ class EmailComposeView(FormView):
                     print traceback.format_exc(e)
             except Exception, e:
                 print traceback.format_exc(e)
+                remove_draft = False
             finally:
                 if server:
                     server.logout()
 
-            # TODO redirect after submit to compose with new id in url
-
+        # Send draft
         elif 'submit-send' in self.request.POST:
-            # send e-mail (smtp)
-            # server.get_smtp_server().send_email(message_string) ?
-
-            # remove as draft
-            pass
-
-        if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
             server = None
             try:
                 server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
-                if self.draft.uid:
-                    # remove remotely
-                    server.delete_from_folder(identifier=DRAFTS, message_uids=[self.draft.uid], trash_only=False)
-
-                if self.draft.pk:
-                    # remote locally
-                    self.draft.delete()
+                server.get_smtp_server(fail_silently=False).send_messages([email_message])
             except Exception, e:
                 print traceback.format_exc(e)
-            finally:
-                if server:
-                    server.logout()
+                remove_draft = False
+
+        # Remove (old) drafts in every case
+        if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+            if self.draft_id and remove_draft:
+                server = None
+                try:
+                    server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+                    if self.draft.uid:
+                        # remove remotely
+                        server.delete_from_folder(identifier=DRAFTS, message_uids=[self.draft.uid], trash_only=False)
+
+                    if self.draft.pk:
+                        # remote locally
+                        self.draft.delete()
+                except Exception, e:
+                    print traceback.format_exc(e)
+                finally:
+                    if server:
+                        server.logout()
 
         return super(EmailComposeView, self).form_valid(form)
 
@@ -453,7 +463,6 @@ class EmailComposeView(FormView):
         """
         Return to inbox after sending e-mail.
         """
-
         # Redirect to url with draft id
         if 'submit-save' in self.request.POST:
             return reverse('messages_email_compose', kwargs={'pk': self.new_draft.pk})
@@ -461,7 +470,7 @@ class EmailComposeView(FormView):
         if 'submit-send' in self.request.POST:
             return reverse('messages_email_inbox')
 
-        if 'submit-back' in self.request.POST:
+        if 'submit-back' in self.request.POST or 'submit-discard' in self.request.POST:
             return reverse('messages_email_drafts')
 
         return reverse('messages_email_inbox')

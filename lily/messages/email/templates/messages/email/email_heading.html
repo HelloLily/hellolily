@@ -1,0 +1,50 @@
+{% load i18n email media %}
+
+<div class="clearfix">
+    <div class="float-left">
+        {% if object.from_name %}
+            <strong>{{ object.from_name }}</strong>
+            {% if object.from_email %}
+                &lt;{{ object.from_email }}&gt;
+            {% endif %}
+        {% else %}
+            {{ object.from_email }}
+        {% endif %}
+    </div>
+
+    <div class="float-right">
+        {{ object.sent_date|pretty_datetime:"%d-%b-%y %H:%M" }}
+    </div>
+</div>
+
+<div>
+    {% trans 'to' %}
+    {% if object.to_name %}
+        <strong>{{ object.to_name }}</strong>
+        {% if object.to_email %}
+            &lt;{{ object.to_email }}&gt;
+        {% endif %}
+    {% else %}
+        {{ object.to_email }}
+    {% endif %}
+</div>
+
+<div id="iframe-wrapper">
+    <iframe src="{% url messages_email_html pk=object.pk %}"></iframe>
+</div>
+
+{% if object.has_attachments %}
+
+    {% comment %}
+    <hr />
+
+    {% for attachment in object.attachments %}
+        <div>
+            {{ attachment.attachment.file_name }} <br />
+            {{ attachment.size }} <a href="#">Download</a>
+        </div>
+        <br />
+    {% endif %}
+    {% endcomment %}
+
+{% endif %}

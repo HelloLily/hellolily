@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+        ('messages', '0004_auto__del_message'),
+    )
+
     def forwards(self, orm):
         # Deleting field 'EmailMessage.message_ptr'
         db.delete_column('email_emailmessage', 'message_ptr_id')

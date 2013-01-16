@@ -1,0 +1,15 @@
+{% load media %}
+
+{% if is_plain %}
+    <html>
+        <head>
+            {% include_media 'typography.css' %}
+            {# {% include_media 'main.css' %} #}
+        </head>
+        <body style="white-space: pre-wrap;">
+            {{ body|safe|linebreaksbr }}
+        </body>
+    </html>
+{% else %}
+    {{ body|safe }}
+{% endif %}

@@ -75,6 +75,12 @@
     box-shadow:none !important;
 }
 
+
+.ui-buttonset /* .ui-buttonset */
+{
+    margin-right: 7px;
+}
+
 /**
  *     Core Stylesheet (core.css)
  */

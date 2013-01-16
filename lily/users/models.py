@@ -28,17 +28,14 @@ class CustomUser(User, TenantMixin):
     def __unicode__(self):
         return unicode(self.contact)
 
-    def __getattribute__(self, name):
-        if name == 'primary_email':
-            try:
-                if self.contact:
-                    email = self.contact.email_addresses.get(is_primary=True)
-                    return email.email_address
-            except EmailAddress.DoesNotExist:
-                pass
-            return None
-        else:
-            return object.__getattribute__(self, name)
+    @property
+    def primary_email(self):
+        try:
+            if self.contact:
+                return self.contact.email_addresses.get(is_primary=True)
+        except EmailAddress.DoesNotExist:
+            pass
+        return u''
 
     class Meta:
         verbose_name = _('user')

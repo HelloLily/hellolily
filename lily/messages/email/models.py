@@ -1,7 +1,5 @@
-import copy
 import email
 
-from BeautifulSoup import BeautifulSoup, Comment, Declaration
 from django.db import models
 from django.template.defaultfilters import truncatechars
 from django_extensions.db.models import TimeStampedModel
@@ -9,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django_fields.fields import EncryptedCharField, EncryptedEmailField
 
 from lily.messages.email.emailclient import DRAFTS, TRASH
+from lily.messages.email.utils import flatten_html_to_text
 from lily.messages.models import Message, MessagesAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
@@ -86,89 +85,68 @@ class EmailMessage(Message):
     @property
     def flat_body(self):
         if self.body:
-            soup = BeautifulSoup(self.body)
-
-            # Remove html comments
-            comments = soup.findAll(text=lambda text: isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-
-            flat_soup = copy.deepcopy(soup)
-
-            # Remove doctype tag from flat_soup
-            for child in flat_soup.contents:
-                if isinstance(child, Declaration):
-                    declaration_type = child.string.split()[0]
-                    if declaration_type.upper() == 'DOCTYPE':
-                        del flat_soup.contents[flat_soup.contents.index(child)]
-
-            # Remove several tags from flat_soup
-            extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
-            for elem in flat_soup.findAll(extract_tags):
-                elem.extract()
-
-            return ''.join(flat_soup.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
-        return ''
+            return flatten_html_to_text(self.body)
+        return u''
 
     @property
     def subject(self):
         header = None
-        if getattr(self, '_subject_header', False):
+        if hasattr(self, '_subject_header',):
             header = self._subject_header
         else:
             header = self.headers.filter(name='Subject')
             self._subject_header = header
         if header:
             return header[0].value
-        return None
+        return u'<%s>' % _(u'No subject')
 
     @property
     def to_name(self):
         header = None
-        if getattr(self, '_to_header', False):
+        if hasattr(self, '_to_header'):
             header = self._to_header
         else:
             header = self.headers.filter(name='To')
             self._to_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[0]
-        return ''
+        return u''
 
     @property
     def to_email(self):
         header = None
-        if getattr(self, '_to_header', False):
+        if hasattr(self, '_to_header'):
             header = self._to_header
         else:
             header = self.headers.filter(name='To')
             self._to_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return ''
+        return u'<%s>' % _(u'No address')
 
     @property
     def from_name(self):
         header = None
-        if getattr(self, '_from_header', False):
+        if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[0]
-        return ''
+        return u''
 
     @property
     def from_email(self):
         header = None
-        if getattr(self, '_from_header', False):
+        if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
         if header:
             return email.utils.parseaddr(header[0].value)[1]
-        return ''
+        return u'<%s>' % _(u'No address')
 
     @property
     def is_plain(self):
@@ -258,10 +236,8 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     body_html = models.TextField(verbose_name=_('html part'), blank=True)
     body_text = models.TextField(verbose_name=_('plain text part'), blank=True)
 
-
     def __unicode__(self):
         return u'%s' % self.name
-
 
     class Meta:
         verbose_name = _('e-mail template')
@@ -279,11 +255,25 @@ class EmailTemplateAttachment(models.Model):
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
     attachment = models.FileField(verbose_name=_('template attachment'), upload_to=EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO)
 
-
     def __unicode__(self):
         return u'%s: %s' % (_('attachment of'), self.template)
-
 
     class Meta:
         verbose_name = _('e-mail template attachment')
         verbose_name_plural = _('e-mail template attachments')
+
+
+class EmailDraft(TimeStampedModel):
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')  # or simple charfield with modelchoices?
+    send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('To'))
+    send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
+    send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
+    body = models.TextField(null=True, blank=True, verbose_name=_('Body'))
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.send_from, self.subject)
+
+    class Meta:
+        verbose_name = _('e-mail draft')
+        verbose_name_plural = _('e-mail drafts')

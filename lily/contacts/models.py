@@ -50,16 +50,14 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
                                  verbose_name=_('salutation'))
 
-    def __getattribute__(self, name):
-        if name == 'primary_email':
-            try:
-                email = self.email_addresses.get(is_primary=True)
-                return email.email_address
-            except EmailAddress.DoesNotExist:
-                pass
-            return None
-        else:
-            return object.__getattribute__(self, name)
+    @property
+    def primary_email(self):
+        try:
+            if self.contact:
+                return self.email_addresses.get(is_primary=True)
+        except EmailAddress.DoesNotExist:
+            pass
+        return u''
 
     def get_work_phone(self):
         try:

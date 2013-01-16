@@ -3,8 +3,7 @@
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field|is_checkbox %} checkbox{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
-        
+    <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field|is_checkbox %} checkbox{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %} {{ field|field_classes }}">
         {% if field.label %}
             {% if field|is_checkbox %}
                 {% crispy_field field %}
@@ -21,7 +20,7 @@
                     {% if field.errors %}
                         <span class="field_error">{% crispy_field field %}</span>
                         <div class="mws-error no_list_style_type">
-                              {{ field.errors }}
+                            {{ field.errors }}
                         </div>
                     {% else %}
                         {% crispy_field field %}

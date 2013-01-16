@@ -1,72 +1,163 @@
 {% extends 'base_user.html' %}
-{% load i18n media activelink %}
+{% load i18n media %}
 
-{% block title %}{% trans 'Dashboard' %} - {% endblock %}
+{% block page-title %}
+    {% trans 'Compose e-mail' %} -
+{% endblock %}
 
 {% block styles %}
     {{ block.super }}
-    {% include_media 'lily.messages.css' %}
+    <!--{% include_media 'hallojs.css' %}-->
+    <!--[if lt IE 9]> {% include_media 'hallojs-ie7.css' %} <![endif]-->
+
+    <style type="text/css">
+        .sent-to-recipients textarea {
+            height: 31px;
+        }
+        #email-body {
+            border: 1px solid #c5c5c5;
+            width: 100%;
+            outline: 0;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            -o-border-radius: 4px;
+            -khtml-border-radius: 4px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -khtml-box-sizing: border-box;
+        }
+        #email-body.focus {
+            border: 1px solid #1c76bc;
+            box-shadow:0 0 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
-    {% include_media 'lily.messages.js' %}
+
+    <script type="text/javascript">
+        function getIframeHeight(iframe) {
+            var height;
+            var scrollHeight;
+            var offsetHeight;
+
+            var body = $(iframe).contents().find('body')[0];
+            if (body.scrollHeight) {
+                height = scrollHeight = body.scrollHeight;
+            }
+            if (body.offsetHeight) {
+                height = offsetHeight = body.offsetHeight;
+            }
+
+            if (scrollHeight && offsetHeight){
+                // In Firefox, scrollHeight shrinks with content,
+                // but in Chrome only offsetHeight shrinks.
+                // height = Math.max(scrollHeight, offsetHeight);
+                // TODO : test in IE
+            }
+
+            height += parseInt($(body).css('margin-top'))
+                    + parseInt($(body).css('margin-bottom'))
+                    + parseInt($(body).css('padding-top'))
+                    + parseInt($(body).css('padding-bottom'))
+                    + parseInt($(iframe).css('border-top-width'))
+                    + parseInt($(iframe).css('border-bottom-width'));
+            return height;
+        }
+
+        $(document).ready(function() {
+            var known_contact_addresses = {{ known_contact_addresses|safe }};
+            function split( val ) {
+                return val.split( /,\s*/ );
+            }
+            function extractLast( term ) {
+                return split( term ).pop();
+            }
+            $('#id_send_to_normal, #id_send_to_cc, #id_send_to_bcc')
+                // don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB &&
+                            $( this ).data( 'autocomplete' ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function( request, response ) {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            known_contact_addresses, extractLast( request.term ) ) );
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = split( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( '' );
+                        this.value = terms.join( ', ' );
+                        // trigger autogrow
+                        $(this).trigger('update');
+                        return false;
+                    }
+                });
+
+            // jump from subject to iframe contents
+            $('#id_subject').keydown(function(event) {
+                if(event.keyCode == 9) { // TAB key
+                    $(this).trigger('blur');
+                    $('#email-body').contents().find('#email-content').trigger('focus');
+                    return false;
+                }
+            });
+
+            $('#email-body').load(function() {
+                // visualize possibility of inline editing and enable autogrow
+                $('#email-body').contents().find('#email-content').bind('halloactivated', function(event) {
+                    $('#email-body').addClass('focus').contents().find('html').addClass('focus');
+                }).bind('hallodeactivated', function(event) {
+                    $('#email-body').removeClass('focus').contents().find('html').removeClass('focus');
+                }).bind('hallomodified', function(event) {
+                    $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+                });
+
+                // move content below toolbar
+                var email_content = $('#email-body').contents().find('#email-content');
+                $('#email-body').contents().find(email_content).css('padding-top', parseInt($(email_content).parent().css('padding-top')) + $('#email-body').contents().find('.hallotoolbar').outerHeight() + 'px');
+
+                // set new height after load
+                $('#email-body').contents()
+                    .find('html')
+                        .addClass('autogrow')
+                    .find('body')
+                        .css('font-family', $('body').css('font-family'))
+                        .css('font-size', $('body').css('font-size'))
+                        .css('margin', '1px');
+                $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+            });
+
+            // intercept submit and add email body to form data
+            $('#submit-id-submit-save, #submit-id-submit-send').closest('form').submit(function(event) {
+                var body = $('#email-body').contents().find('#email-content').html();
+                $(this).find('[name="body"]').val(body);
+
+                return true;
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block container %}
     <div class="mws-panel grid_8">
-        <div class="mws-panel-body" style="border: 1px solid #BCBCBC;">
-            <div class="mws-panel-content" style="padding: 8px;">
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button red">
-                        {% trans 'Compose new message' %}
-                    </button>
-                </a>
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button gray">
-                        {% trans 'Mark all as read' %}
-                    </button>
-                </a>
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button gray">
-                        {% trans 'Refresh' %}
-                    </button>
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="mws-panel grid_8">
-        <div class="mws-panel-header">
-            <span class="mws-i-24 i-mail">{% trans 'e-mail' %}</span>
-        </div>
-        <div class="mws-panel-body">
-            <div id="email-control-panel">
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button red small">
-                        {% trans 'Compose new message' %} {{ task_value }}
-                    </button>
-                </a>
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button gray small">
-                        {% trans 'Mark all as read' %}
-                    </button>
-                </a>
-                <a id="quickbutton-account"  href="#" class="no-decoration">
-                    <button type="button" class="mws-button gray small">
-                        {% trans 'Refresh' %}
-                    </button>
-                </a>
-            </div>
-            <div id="messages-container">
-                <div id="messages-busy" style="display: none;">
-                    <div id="messages-spacer">{% trans 'Loading' %}</div>
-                    <img src="{% media_url 'extra/images/blue-loading.gif' %}" alt="loading" />
-                </div>
-                <div id="message-list">
-
-                    {% include 'messages/message_list.html' %}
-                </div>
-            </div>
-        </div>
+        {% include 'messages/email/email_compose_form.html' %}
     </div>
 {% endblock %}

@@ -20,16 +20,26 @@
         {% endblock %}
 
         {% block item-columns %}
-            <div class="action no-width">
-                <div class="high priority" title="{% trans 'Mark as a high priority item' %}"></div>
-                <div class="medium priority" title="{% trans 'Mark as a medium priority item' %}"></div>
-                <div class="low priority" title="{% trans 'Mark as a low priority item' %}"></div>
-            </div>
-            <div class="message email">
-                <div class="sender-time-email">
-                    <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }}</div>
-                    <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+            {% if 'draft' not in item.flags|lower %}
+                <div class="action no-width">
+                    <div class="high priority" title="{% trans 'Mark as a high priority item' %}"></div>
+                    <div class="medium priority" title="{% trans 'Mark as a medium priority item' %}"></div>
+                    <div class="low priority" title="{% trans 'Mark as a low priority item' %}"></div>
                 </div>
+            {% endif %}
+            <div class="message email{% if 'draft' in item.flags|lower %} draft{% endif %}">
+                <a href="{% url messages_email_compose pk=item.pk %}" class="message-draft-link">
+                    <div class="sender-time-email">
+                        <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }}</div>
+                        {% if 'draft' in item.flags|lower %}
+                            <div class="sender" title="{{ item.to_name }} <{{ item.to_email }}>">{% trans 'To' %}: {% if item.to_name %}{{ item.to_name }}{%else%}{{ item.to_email }}{% endif %}</div>
+                            <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+                        {% else %}
+                            <div class="sender" title="{{ item.to_name }} <{{ item.to_email }}>">{% trans 'To' %}: {% if item.to_name %}{{ item.to_name }}{%else%}{{ item.to_email }}{% endif %}</div>
+                            <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+                        {% endif %}
+                    </div>
+                </a>
                 <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
                 <div class="body preview">{{ item.flat_body|truncatechars:"200"|safe }}</div>
             </div>

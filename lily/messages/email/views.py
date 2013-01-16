@@ -20,7 +20,7 @@ from lily.messages.email.forms import CreateUpdateEmailAccountForm, \
  CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
 from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
 from lily.messages.email.tasks import save_email_messages, mark_messages
-from lily.messages.email.utils import get_email_parameter_choices, flatten_html_to_text
+from lily.messages.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateFileParser
 from lily.utils.models import EmailAddress
 
 

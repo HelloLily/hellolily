@@ -332,8 +332,8 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     name = models.CharField(verbose_name=_('template name'), max_length=255)
     description = models.TextField(verbose_name=_('template description'), blank=True)
     subject = models.CharField(verbose_name=_('message subject'), max_length=255, blank=True)
-    body_html = models.TextField(verbose_name=_('html message body'), blank=True)
-    body_text = models.TextField(verbose_name=_('plain text message body'), blank=True)
+    body_html = models.TextField(verbose_name=_('html part'), blank=True)
+    body_text = models.TextField(verbose_name=_('plain text part'), blank=True)
 
     def __unicode__(self):
         return u'%s' % self.name

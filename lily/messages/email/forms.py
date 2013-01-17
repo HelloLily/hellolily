@@ -1,4 +1,4 @@
-from crispy_forms.layout import HTML, Submit
+from crispy_forms.layout import HTML, Layout, Submit
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -6,10 +6,11 @@ from django.forms import Form, ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.messages.email.models import EmailAccount, EmailTemplate, EmailDraft
+from lily.messages.email.utils import get_email_parameter_choices, flatten_html_to_text
 from lily.tenant.middleware import get_current_user
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Column, Divider, Row
+from lily.utils.layout import Column, Divider, Button, Row
 
 
 class CreateUpdateEmailAccountForm(ModelForm):
@@ -47,23 +48,33 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
     """
     Form for displaying e-mail parameters.
     """
+    variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
+    values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
+    text_value = forms.CharField(label=_('Variable'), required=False)
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
         """
         super(CreateUpdateEmailTemplateForm, self).__init__(*args, **kwargs)
+
         # Customize form layout
         self.helper = DeleteBackAddSaveFormHelper(form=self)
+        self.helper.layout = Layout()
 
-        self.helper.replace_fields({
-            'name': _('Template name*'),
-            'description': _('Template description'),
-            'subject': _('Subject'),
-        }, Column, 4)
-        self.helper.replace_fields({
-            'body_html': _('Message as HTML'),
-            'body_text': _('Message as plain text'),
-        }, Column, 8)
+        self.helper.add_columns(Column('name', size=4, first=True))
+        self.helper.add_columns(Column('description', size=8, first=True))
+        self.helper.add_columns(Column('subject', size=4, first=True))
+
+        self.helper.add_columns(
+            Column('variables', size=2, first=True),
+            Column('values', size=2),
+            Column('text_value', size=2),
+            Button(name='variable_submit', value=_('Insert'), css_class='small', css_id='id_insert_button'),
+            label=_('Insert variable'),
+        )
+
+        self.helper.add_columns(Column('body_html', size=8, first=True))
+        self.helper.add_columns(Column('body_text', size=8, first=True))
 
         self.helper.insert_after(Divider(), 'subject', )
 
@@ -71,7 +82,8 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
             Column(HTML('Type your template below or upload your template file <a href="#" id="body_file_upload" class="body_file_upload" title="upload">here</a>'), size=8, first=True),
             label=''
         )
-        self.helper.insert_before(body_file_upload, 'body_html')
+        self.helper.insert_before(body_file_upload, 'variables')
+        self.fields['variables'].choices += [[x, x] for x in get_email_parameter_choices().keys()]
 
     def clean(self):
         cleaned_data = super(CreateUpdateEmailTemplateForm, self).clean()
@@ -85,11 +97,18 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = EmailTemplate
-        fields = ('name', 'description', 'subject', 'body_html', 'body_text', )
+        fields = ('name', 'description', 'subject', 'variables', 'values', 'text_value', 'body_html', 'body_text', )
         widgets = {
+            'values': forms.Select(attrs={
+                'disabled': 'disabled',
+            }),
             'body_html': forms.Textarea(attrs={
+                'placeholder': _('Write your html message body here'),
                 'click_and_show': False,
-                })
+            }),
+            'body_text': forms.Textarea(attrs={
+                'placeholder': _('Write your plain text message body here'),
+            })
         }
 
 

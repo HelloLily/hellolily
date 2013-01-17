@@ -1,4 +1,3 @@
-import anyjson
 import datetime
 import email
 import textwrap
@@ -24,7 +23,7 @@ from lily.messages.email.forms import CreateUpdateEmailAccountForm, \
  CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
 from lily.messages.email.models import EmailMessage, EmailAccount, EmailTemplate
 from lily.messages.email.tasks import save_email_messages, mark_messages
-from lily.messages.email.utils import get_email_parameter_dict, get_param_vals, get_email_parameter_choices, flatten_html_to_text
+from lily.messages.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateFileParser
 from lily.utils.models import EmailAddress
 
 
@@ -71,11 +70,6 @@ class DetailEmailAccountView(TemplateView):
     template_name = 'messages/email/account_create.html'
 
 
-class TempTestClass:
-    def __init__(self, html=None, text=None):
-        self.html = html
-        self.text = text
-
 class AddEmailTemplateView(CreateView):
     """
     Create a new e-mail template that can be used for sending emails.
@@ -86,24 +80,10 @@ class AddEmailTemplateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(AddEmailTemplateView, self).get_context_data(**kwargs)
-
-        # add context to template for parameter inserter javascript
-#        print get_email_parameter_choices()
-
+        context.update({
+            'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
+        })
         return context
-
-
-    def form_invalid(self, form):
-        lst =  get_email_parameter_dict()
-
-        fake_template_object = TempTestClass(
-            html = form.data.get('body_html'),
-            text = form.data.get('body_text')
-        )
-
-        param_list = get_param_vals(self.request, fake_template_object)
-
-        return super(AddEmailTemplateView, self).form_invalid(form)
 
     def get_success_url(self):
         """
@@ -132,7 +112,7 @@ class DetailEmailTemplateView(TemplateView):
 
 class ParseEmailTemplateView(FormView):
     """
-    Parse an uploaded template for variables and return a generated form/
+    Parse an uploaded template for variables and return a generated form
     """
     template_name = 'messages/email/template_create_or_update_base_form.html'
     form_class = EmailTemplateFileForm
@@ -141,16 +121,23 @@ class ParseEmailTemplateView(FormView):
         """
         Return parsed form with rendered parameter fields
         """
-        body_file = form.cleaned_data.get('body_file').read()
+        # we return content of the file here because this easily enables us to do more sophisticated parsing in the future.
+        body_file = form.cleaned_data.get('body_file')
 
-        return HttpResponse(anyjson.dumps({
+        response_dict = {
             'valid': True,
-            'html': '',
-            'text': '',
-        }), mimetype="application/json")
+        }
+
+        response_dict.update(TemplateFileParser(body_file, context={
+            'account_name': 'test',
+        }).parse())
+
+
+        return HttpResponse(simplejson.dumps(response_dict), mimetype="application/json")
+
 
     def form_invalid(self, form):
-        return HttpResponse(anyjson.dumps({
+        return HttpResponse(simplejson.dumps({
             'valid': False,
             'errors': form.errors,
         }), mimetype="application/json")

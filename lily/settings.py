@@ -146,6 +146,7 @@ TEMPLATE_DIRS = (
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
     'lily.utils.context_processors.quickbutton_forms',
+    'lily.utils.context_processors.current_site',
 )
 
 # Disable caching in a development environment

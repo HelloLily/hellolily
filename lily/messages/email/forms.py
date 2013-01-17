@@ -186,12 +186,15 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         self.fields['send_from'].empty_label = None
         self.fields['send_from'].choices = [(email_account.pk, email_account.email) for email_account in email_accounts]
 
-        # Set user's primary_email as default choice
+        # Set user's primary_email as default choice if no initial was provided
         initial_email_account = None
         for email_account in email_accounts:
-            if email_account.email == user.primary_email.email_address:
+            if self.initial.get('send_from', None) not in [None, '']:
+                if email_account.email == self.initial.get('send_from'):
+                    initial_email_account = email_account
+            elif email_account.email == user.primary_email.email_address:
                 initial_email_account = email_account
-        self.fields['send_from'].initial = initial_email_account
+        self.initial['send_from'] = initial_email_account
 
     def clean(self):
         """

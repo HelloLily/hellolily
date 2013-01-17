@@ -115,7 +115,8 @@ class EmailMessage(Message):
             to_names = []
             for header in headers:
                 to_names.append(email.utils.parseaddr(header.value)[0])
-            return ', '.join(to_names)
+
+            return u', '.join(to_names)
         return u''
 
     @property
@@ -130,7 +131,7 @@ class EmailMessage(Message):
             to_emails = []
             for header in headers:
                 to_emails.append(email.utils.parseaddr(header.value)[1])
-            return ', '.join(to_emails)
+            return u', '.join(to_emails)
         return u'<%s>' % _(u'No address')
 
     @property
@@ -146,13 +147,13 @@ class EmailMessage(Message):
             for header in headers[0].value.split(','):
                 parts = email.utils.parseaddr(header)
                 if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to.append('"%s" <%s>' % (parts[0], parts[1]))
+                    to.append(u'"%s" <%s>' % (parts[0], parts[1]))
                 elif len(parts[1]) > 0:
-                    to.append('%s' % parts[1])
-                else:
-                    to.append('"%s"' % parts[0])
+                    to.append(u'%s' % parts[1])
+                elif len(parts[0]) > 0:
+                    to.append(u'"%s"' % parts[0])
 
-            return ', '.join(to)
+            return u', '.join(to)
         return u''
 
     @property
@@ -168,13 +169,13 @@ class EmailMessage(Message):
             for header in headers[0].value.split(','):
                 parts = email.utils.parseaddr(header)
                 if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to_cc.append('"%s" <%s>' % (parts[0], parts[1]))
+                    to_cc.append(u'"%s" <%s>' % (parts[0], parts[1]))
                 elif len(parts[1]) > 0:
-                    to_cc.append('%s' % parts[1])
-                else:
-                    to_cc.append('"%s"' % parts[0])
+                    to_cc.append(u'%s' % parts[1])
+                elif len(parts[0]) > 0:
+                    to_cc.append(u'"%s"' % parts[0])
 
-            return ', '.join(to_cc)
+            return u', '.join(to_cc)
         return u''
 
     @property
@@ -190,13 +191,33 @@ class EmailMessage(Message):
             for header in headers[0].value.split(','):
                 parts = email.utils.parseaddr(header)
                 if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to_bcc.append('"%s" <%s>' % (parts[0], parts[1]))
+                    to_bcc.append(u'"%s" <%s>' % (parts[0], parts[1]))
                 elif len(parts[1]) > 0:
-                    to_bcc.append('%s' % parts[1])
-                else:
-                    to_bcc.append('"%s"' % parts[0])
+                    to_bcc.append(u'%s' % parts[1])
+                elif len(parts[0]) > 0:
+                    to_bcc.append(u'"%s"' % parts[0])
 
-            return ', '.join(to_bcc)
+            return u', '.join(to_bcc)
+        return u''
+
+    @property
+    def from_combined(self):
+        header = None
+        if hasattr(self, '_from_header'):
+            header = self._from_header
+        else:
+            header = self.headers.filter(name='From')
+            self._from_header = header
+        if header:
+            parts = email.utils.parseaddr(header[0].value)
+            if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
+                from_combi = '"%s" <%s>' % (parts[0], parts[1])
+            elif len(parts[1]) > 0:
+                from_combi = '%s' % parts[1]
+            else:
+                from_combi = '"%s"' % parts[0]
+
+            return from_combi
         return u''
 
     @property

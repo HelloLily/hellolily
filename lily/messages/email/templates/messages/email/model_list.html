@@ -504,6 +504,16 @@
                 event.preventDefault();
             });
 
+            $('#reply-message').on('click', function(event) {
+                var id = $('#email').data('id');
+                window.location.href = '{{ SITE }}/messages/email/reply/' + id;
+            });
+
+            $('#forward-message').on('click', function(event) {
+                var id = $('#email').data('id');
+                window.location.href = '{{ SITE }}/messages/email/forward/' + id;
+            });
+
             $('.mws-email-list .action .priority').click(function(event) {
                 var priority = $(event.target).attr('class');
             });
@@ -585,7 +595,8 @@
                 <li class=""><a href="#" id="mark-unread-single">Mark as unread</a></li>
                 <li class=""><a href="#" id="mark-read-single">Mark as read</a></li>
                 <li class=""><a href="#" id="delete-single">Move to trash</a></li>
-                <li class=""><a href="#">Reply</a></li>
+                <li class=""><a href="#" id="reply-message">Reply</a></li>
+                <li class=""><a href="#" id="forward-message">Forward</a></li>
             </ul>
         </div>
         <div id="email-wrapper">

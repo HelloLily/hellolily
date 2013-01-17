@@ -133,4 +133,4 @@ def flatten_html_to_text(html, replace_br=False):
         flat_body = soup
 
     # Strip tags and whitespace
-    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', '\n' if replace_br else ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also

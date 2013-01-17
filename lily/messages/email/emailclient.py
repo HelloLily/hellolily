@@ -139,7 +139,6 @@ class LilyIMAP(object):
         """
         Return backend for sending emails.
         """
-
         provider = self._conn_kwargs.get('provider')
         account = self._conn_kwargs.get('account')
         use_tls = self._conn_kwargs.get('ssl')

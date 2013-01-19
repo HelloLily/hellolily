@@ -1,3 +1,5 @@
+from django.contrib.sites.models import Site
+
 from lily.accounts.forms import AddAccountQuickbuttonForm
 from lily.cases.forms import AddCaseQuickbuttonForm
 from lily.contacts.forms import AddContactQuickbuttonForm
@@ -12,4 +14,12 @@ def quickbutton_forms(request):
             'deal': AddDealQuickbuttonForm,
             'case': AddCaseQuickbuttonForm,
         }
+    }
+
+
+def current_site(request):
+    protocol = 'https' if request.is_secure() else 'http'
+    domain = Site.objects.get_current().domain
+    return {
+        'SITE': '%s://%s' % (protocol, domain)
     }

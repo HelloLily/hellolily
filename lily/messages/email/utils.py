@@ -60,9 +60,10 @@ def get_email_parameter_choices():
     return _EMAIL_PARAMETER_CHOICES
 
 
-def flatten_html_to_text(html):
+def flatten_html_to_text(html, replace_br=False):
     """
-    Strip html and unwanted whitespace to preserve text only.
+    Strip html and unwanted whitespace to preserve text only. Optionally replace
+    <br> tags with line breaks (\n).
     """
     soup = BeautifulSoup(html)
 
@@ -78,7 +79,7 @@ def flatten_html_to_text(html):
 
     # Replace html line breaks with spaces to prevent lines appended after one another
     for linebreak in soup.findAll('br'):
-        linebreak.replaceWith(' ')
+        linebreak.replaceWith('\n' if replace_br else ' ')
 
     if soup.body:
         flat_body = soup.body
@@ -86,7 +87,7 @@ def flatten_html_to_text(html):
         flat_body = soup
 
     # Strip tags and whitespace
-    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', '\n' if replace_br else ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
 
 
 class TemplateParser(object):

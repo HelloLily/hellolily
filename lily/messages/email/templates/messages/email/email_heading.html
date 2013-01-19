@@ -2,14 +2,7 @@
 
 <div class="clearfix">
     <div class="float-left">
-        {% if object.from_name %}
-            <strong>{{ object.from_name }}</strong>
-            {% if object.from_email %}
-                &lt;{{ object.from_email }}&gt;
-            {% endif %}
-        {% else %}
-            {{ object.from_email }}
-        {% endif %}
+        <strong>{% trans 'From' %}</strong> {{ object.from_combined }}
     </div>
 
     <div class="float-right">
@@ -18,14 +11,12 @@
 </div>
 
 <div>
-    {% trans 'to' %}
-    {% if object.to_name %}
-        <strong>{{ object.to_name }}</strong>
-        {% if object.to_email %}
-            &lt;{{ object.to_email }}&gt;
-        {% endif %}
-    {% else %}
-        {{ object.to_email }}
+    <strong>{% trans 'To' %}</strong>
+    {{ object.to_combined }}
+    {% if object.to_cc_combined %}
+        <br />
+        <strong>{% trans 'Cc' %}</strong>
+        {{ object.to_cc_combined }}
     {% endif %}
 </div>
 

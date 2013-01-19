@@ -9,7 +9,6 @@ from imapclient import SEEN
 
 from lily.messages.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
 from lily.messages.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
-from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 
 

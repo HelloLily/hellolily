@@ -18,7 +18,6 @@
                 {% endblock %}
             </div>
         {% endblock %}
-
         {% block item-columns %}
             {% if 'draft' not in item.flags|lower %}
                 <div class="action no-width">
@@ -28,7 +27,9 @@
                 </div>
             {% endif %}
             <div class="message email{% if 'draft' in item.flags|lower %} draft{% endif %}">
-                <a href="{% url messages_email_compose pk=item.pk %}" class="message-draft-link">
+                {% if 'draft' in item.flags|lower %}
+                    <a href="{% url messages_email_compose pk=item.pk %}" class="message-draft-link">
+                {% endif %}
                     <div class="sender-time-email">
                         <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }}</div>
                         {% if 'draft' in item.flags|lower %}
@@ -39,9 +40,11 @@
                             <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
                         {% endif %}
                     </div>
-                </a>
-                <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
-                <div class="body preview">{{ item.flat_body|truncatechars:"200"|safe }}</div>
+                    <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
+                    <div class="body preview">{{ item.flatten_body|truncatechars:"200"|safe }}</div>
+                {% if 'draft' in item.flags|lower %}
+                    </a>
+                {% endif %}
             </div>
         {% endblock %}
     </div>

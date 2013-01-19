@@ -1,4 +1,6 @@
 import datetime
+import email
+import textwrap
 import traceback
 
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,7 @@ from django.http import HttpResponse, Http404
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
@@ -227,7 +230,7 @@ class EmailMessageJSONView(View):
             message['sent_date'] = unix_time_millis(instance.sent_date)
             message['flags'] = instance.flags
             message['uid'] = instance.uid
-            message['flat_body'] = truncatechars(instance.flat_body, 200).encode('utf-8')
+            message['flat_body'] = truncatechars(instance.flatten_body, 200).encode('utf-8')
             message['subject'] = instance.subject.encode('utf-8')
             message['size'] = instance.size
             message['is_private'] = instance.is_private
@@ -316,49 +319,60 @@ class EmailComposeView(FormView):
     form_class = ComposeEmailForm
 
     def dispatch(self, request, *args, **kwargs):
-        self.draft_id = kwargs.get('pk')
-
-        if self.draft_id:
+        """
+        Get message draft by pk or raise 404.
+        """
+        self.message_id = kwargs.get('pk')
+        if self.message_id:
             try:
-                self.draft = EmailMessage.objects.get(flags__icontains='draft', pk=self.draft_id)
+                # This is the message being drafted
+                self.message = EmailMessage.objects.get(flags__icontains='draft', pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 
         return super(EmailComposeView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self, **kwargs):
-        # Set initial values
-
+        """
+        Provide initial values for a draft.
+        """
         kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
-        kwargs.update({
-            'draft_id': self.draft_id,
-            'initial': {
-                'send_from': self.draft.from_email,
-                'subject': self.draft.subject,
-                'send_to_normal': self.draft.to_email,
-                'send_to_cc': ', '.join(self.draft.headers.filter(name='cc', ).values_list('value', flat=True)),
-                'send_to_bcc': ', '.join(self.draft.headers.filter(name='bcc', ).values_list('value', flat=True)),
-            }
-        })
+        if hasattr(self, 'message'):
+            kwargs.update({
+                'draft_id': self.message_id,
+                'initial': {
+                    'send_from': self.message.from_email,
+                    'subject': self.message.subject,
+                    'send_to_normal': self.message.to_combined,
+                    'send_to_cc': self.message.to_cc_combined,
+                    'send_to_bcc': self.message.to_bcc_combined,
+                    'body': self.message.body or '',
+                }
+            })
 
         return kwargs
 
     def form_valid(self, form):
         """
-        Check to save or sent an e-mail message.
+        Check to save or send an e-mail message.
         """
         instance = form.save(commit=False)
+        remove_draft = True
 
-        if 'submit-save' in self.request.POST:
+        # Create python email message object
+        if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
             # Prepare text version of e-mail
-            text_body = flatten_html_to_text(instance.body)
+            text_body = flatten_html_to_text(instance.body, replace_br=True)
 
             # Generate email message source
             email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
             email_message.attach_alternative(instance.body, 'text/html')
-            message_string = unicode(email_message.message().as_string(unixfrom=False))
 
             # TODO support attachments
+
+        # Save draft
+        if 'submit-save' in self.request.POST:
+            message_string = unicode(email_message.message().as_string(unixfrom=False))
 
             # Save draft remotely and sync this specific message
             server = None
@@ -375,35 +389,39 @@ class EmailComposeView(FormView):
                     print traceback.format_exc(e)
             except Exception, e:
                 print traceback.format_exc(e)
+                remove_draft = False
             finally:
                 if server:
                     server.logout()
 
-            # TODO redirect after submit to compose with new id in url
-
+        # Send draft
         elif 'submit-send' in self.request.POST:
-            # send e-mail (smtp)
-            # server.get_smtp_server().send_email(message_string) ?
-
-            # remove as draft
-            pass
-
-        if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
             server = None
             try:
                 server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
-                if self.draft.uid:
-                    # remove remotely
-                    server.delete_from_folder(identifier=DRAFTS, message_uids=[self.draft.uid], trash_only=False)
-
-                if self.draft.pk:
-                    # remote locally
-                    self.draft.delete()
+                server.get_smtp_server(fail_silently=False).send_messages([email_message])
             except Exception, e:
                 print traceback.format_exc(e)
-            finally:
-                if server:
-                    server.logout()
+                remove_draft = False
+
+        # Remove (old) drafts in every case
+        if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+            if self.message_id and remove_draft:
+                server = None
+                try:
+                    server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+                    if self.message.uid:
+                        # remove remotely
+                        server.delete_from_folder(identifier=DRAFTS, message_uids=[self.message.uid], trash_only=False)
+
+                    if self.message.pk:
+                        # remote locally
+                        self.message.delete()
+                except Exception, e:
+                    print traceback.format_exc(e)
+                finally:
+                    if server:
+                        server.logout()
 
         return super(EmailComposeView, self).form_valid(form)
 
@@ -430,9 +448,8 @@ class EmailComposeView(FormView):
 
     def get_success_url(self):
         """
-        Return to inbox after sending e-mail.
+        Return different URLs depending on the button pressed.
         """
-
         # Redirect to url with draft id
         if 'submit-save' in self.request.POST:
             return reverse('messages_email_compose', kwargs={'pk': self.new_draft.pk})
@@ -440,34 +457,222 @@ class EmailComposeView(FormView):
         if 'submit-send' in self.request.POST:
             return reverse('messages_email_inbox')
 
-        if 'submit-back' in self.request.POST:
+        if 'submit-back' in self.request.POST or 'submit-discard' in self.request.POST:
             return reverse('messages_email_drafts')
 
         return reverse('messages_email_inbox')
+
+
+class EmailReplyView(FormView):
+    template_name = 'messages/email/email_compose.html'
+    form_class = ComposeEmailForm
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Get message being replied to or raise 404.
+        """
+        self.message_id = kwargs.get('pk')
+        if self.message_id:
+            try:
+                # This is the message being replied to
+                self.message = EmailMessage.objects.get(~Q(flags__icontains='draft'), pk=self.message_id)
+            except EmailMessage.DoesNotExist:
+                raise Http404()
+
+        return super(EmailReplyView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        """
+        Build initial value for the e-mail body.
+        """
+        # Body exists of reply, signature and original content
+        reply = u''
+        signature = u''  # get_user_signature()
+        quoted_content = self.message.body or ''
+
+        if len(quoted_content) > 0:
+            content_type_header = self.message.headers.filter(name='Content-Type')
+            if len(content_type_header) > 0:
+                content_type = content_type_header[0].value.split(';')[0]
+                if 'text/plain' in content_type:
+                    # In case of plain text, make quoted text appear like
+                    #
+                    # > This is the
+                    # > original e-mail
+                    # > content.
+                    quoted_lines = textwrap.wrap(quoted_content, 80)
+                    quoted_lines = ['> %s' % line for line in quoted_lines]
+                    quoted_content = '<br />'.join(quoted_lines)
+
+        # Prepend separation notice
+        #
+        # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
+        #
+        notice = _('On %s, %s wrote:' % (self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
+        quoted_content = '<br />'.join([notice, quoted_content])
+
+        body = reply + signature + '<br />' * 2 + quoted_content
+
+        kwargs = super(EmailReplyView, self).get_form_kwargs(**kwargs)
+        if hasattr(self, 'message'):
+            # Set initial values
+            kwargs.update({
+                # 'draft_id': self.message_id,
+                'initial': {
+                    'subject': 'RE: %s' % self.message.subject,
+                    'send_to_normal': self.message.from_combined,
+                    'send_to_cc': self.message.to_cc_combined,
+                    'send_to_bcc': self.message.to_bcc_combined,
+                    'body': body,
+                }
+            })
+
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        Check to save or send an e-mail message.
+        """
+        instance = form.save(commit=False)
+
+        # Create python email message object
+        if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+            # Prepare text version of e-mail
+            text_body = flatten_html_to_text(instance.body, replace_br=True)
+
+            # Generate email message source
+            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc], headers=self.get_email_headers())
+            email_message.attach_alternative(instance.body, 'text/html')
+
+            # TODO support attachments
+
+        # Create draft
+        if 'submit-save' in self.request.POST:
+            message_string = unicode(email_message.message().as_string(unixfrom=False))
+
+            # Save draft remotely and sync this specific message
+            server = None
+            try:
+                server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+
+                uid = int(server.save_draft(message_string))
+                message = server.get_modifiers_for_uid(uid, modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'], folder=DRAFTS)
+                save_email_messages({uid: message}, instance.send_from, server.get_server_name_for_folder(DRAFTS), new_messages=True)
+
+                try:
+                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=server.get_server_name_for_folder(DRAFTS))
+                except EmailMessage.DoesNotExist, e:
+                    print traceback.format_exc(e)
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                if server:
+                    server.logout()
+
+        # Send reply
+        elif 'submit-send' in self.request.POST:
+            server = None
+            try:
+                server = LilyIMAP(provider=instance.send_from.provider, account=instance.send_from)
+                server.get_smtp_server(fail_silently=False).send_messages([email_message])
+            except Exception, e:
+                print traceback.format_exc(e)
+
+        return super(EmailReplyView, self).form_valid(form)
+
+    def get_email_headers(self):
+        """
+        Return reply-to e-mail header.
+        """
+        email_headers = {}
+        if hasattr(self.message, 'send_from'):
+            sender = email.utils.parseaddr(self.message.send_from)
+            reply_to_name = sender[0]
+            reply_to_address = sender[1]
+            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
+        return email_headers
+
+    def get_context_data(self, **kwargs):
+        """
+        Allow autocomplete for email addresses.
+        """
+        kwargs = super(EmailReplyView, self).get_context_data(**kwargs)
+
+        # Query for all contacts which have e-mail addresses
+        contacts_addresses_qs = Contact.objects.filter(email_addresses__in=EmailAddress.objects.all()).prefetch_related('email_addresses')
+
+        known_contact_addresses = []
+        for contact in contacts_addresses_qs:
+            for email_address in contact.email_addresses.all():
+                contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
+                known_contact_addresses.append(contact_address)
+
+        kwargs.update({
+            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
+        })
+
+        return kwargs
+
+    def get_success_url(self):
+        """
+        Return different URLs depending on the button pressed.
+        """
+        # Redirect to url with draft id
+        if 'submit-save' in self.request.POST:
+            return reverse('messages_email_compose', kwargs={'pk': self.new_draft.pk})
+
+        if 'submit-send' in self.request.POST:
+            return reverse('messages_email_inbox')
+
+        if 'submit-back' in self.request.POST or 'submit-discard' in self.request.POST:
+            return reverse('messages_email_drafts')
+
+        return reverse('messages_email_inbox')
+
+
+class EmailForwardView(EmailReplyView):
+    """
+    Forward an e-mail message.
+    """
+    def get_form_kwargs(self, **kwargs):
+        """
+        Change kwargs generated by super()
+        """
+        kwargs = super(EmailForwardView, self).get_form_kwargs(**kwargs)
+        if hasattr(self, 'message'):
+            # Override initial values
+            if 'initial' in kwargs:
+                kwargs['initial'].update({
+                    'subject': 'FWD: %s' % self.message.subject,
+                    'send_to_normal': None,
+                    'send_to_cc': None,
+                    'send_to_bcc': None,
+                })
+        return kwargs
 
 
 class EmailDraftTemplateView(TemplateView):
     template_name = 'messages/email/email_compose_frame.html'  # default for non-templated e-mails
 
     def dispatch(self, request, *args, **kwargs):
-        self.draft_id = kwargs.get('pk')
+        self.message_id = kwargs.get('pk')
 
         return super(EmailDraftTemplateView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs = super(EmailDraftTemplateView, self).get_context_data(**kwargs)
 
-        if self.draft_id:
+        if self.message_id:
             try:
-                self.draft = EmailMessage.objects.get(flags__icontains='draft', pk=self.draft_id)
+                self.message = EmailMessage.objects.get(flags__icontains='draft', pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 
         body = u''
 
         # Check for existing draft
-        if self.draft_id:
-            body = self.draft.body
+        if self.message_id:
+            body = self.message.body
 
         if not len(body.strip('</>brdiv ')):
             # Get user's signature
@@ -495,6 +700,8 @@ move_trash_view = login_required(MoveTrashAjaxView.as_view())
 
 email_compose_view = login_required(EmailComposeView.as_view())
 email_compose_template_view = login_required(EmailDraftTemplateView.as_view())
+email_reply_view = login_required(EmailReplyView.as_view())
+email_forward_view = login_required(EmailForwardView.as_view())
 
 detail_email_sent_view = DetailEmailSentView.as_view()
 detail_email_draft_view = DetailEmailDraftView.as_view()

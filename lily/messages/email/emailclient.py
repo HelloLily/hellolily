@@ -1,12 +1,12 @@
 import datetime
 import email
-import imapclient
 import StringIO  # can't always use cStringIO
 import traceback
 
 from BeautifulSoup import BeautifulSoup, Comment
 from dateutil.parser import parse
 from dateutil.tz import tzutc
+from django.core.mail import get_connection
 from django.utils.datastructures import SortedDict
 from imapclient.imapclient import IMAPClient, SEEN, DRAFT
 import chardet
@@ -134,6 +134,34 @@ class LilyIMAP(object):
                 server.login(username, password)
         self._servers['imap'] = server
         return server
+
+    def get_smtp_server(self, fail_silently=False):
+        """
+        Return backend for sending emails.
+        """
+        provider = self._conn_kwargs.get('provider')
+        account = self._conn_kwargs.get('account')
+        use_tls = self._conn_kwargs.get('ssl')
+
+        if not any([provider, account]) is None:
+            host = provider.send_host
+            port = provider.send_port
+            username = account.username
+            password = account.password
+        else:
+            host = self._conn_kwargs.get('host')
+            port = self._conn_kwargs.get('port')
+            username = self._conn_kwargs.get('username')
+            password = self._conn_kwargs.get('password')
+
+        kwargs = {
+            'host': host,
+            'port': port,
+            'username': username,
+            'password': password,
+            'use_tls': use_tls,
+        }
+        return get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=fail_silently, **kwargs)
 
     def retrieve_and_map_folders(self):
         '''
@@ -295,6 +323,8 @@ class LilyIMAP(object):
                     header_fragments.append(fragment)
                 headers[name] = ''.join(header_fragments)
 
+            if 'Content-Type' in headers:
+                headers['Content-Type'] = headers['Content-Type'].split(';')[0]
             is_plain = headers.get('Content-Type', '').startswith('text/plain')
             from_email = message.get('From')
             to_email = message.get('To')

@@ -3,6 +3,7 @@
 {% endif %}
 
 <div class="mws-form-row">
+    <label>{{ formset.label }}</label>
     {% for form in formset.instance.forms %}
         {% include formset.template with formset=formset.instance form=form %}
     {% empty %}

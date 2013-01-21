@@ -173,7 +173,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
-    # 'django.contrib.messages',
+    'django.contrib.messages',
 
     # 3rd party
     'templated_email',

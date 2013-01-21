@@ -6,7 +6,7 @@ from django.forms import Form, ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.messaging.email.models import EmailAccount, EmailTemplate, EmailDraft
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text
+from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
@@ -120,15 +120,25 @@ class EmailTemplateFileForm(Form):
         Form validation: message body_file should be a valid html file.
         """
         valid_formats = ['text/html', 'text/plain']
+
         cleaned_data = super(EmailTemplateFileForm, self).clean()
         body_file = cleaned_data.get('body_file', False)
-        error_msg = "Upload a valid template file. Format can be any of these: %s." % ', '.join(valid_formats)
+        body_file_type = body_file.content_type
 
-        if not body_file:
-            self._errors["body_file"] = error_msg
-        if body_file and not body_file.content_type in valid_formats:
-            self._errors["body_file"] = error_msg
-            del cleaned_data['body_file']
+        file_error = '%s %s.' % (_('Upload a valid template file. Format can be any of these:'), ', '.join(valid_formats))
+        syntax_error = _('There was an error parsing your template file, please make sure to use correct syntax.')
+
+        if body_file and body_file_type in valid_formats:
+            parsed_file = TemplateParser(body_file.read())
+            if parsed_file.is_valid():
+                default_part = 'html_part' if body_file_type == 'text/html' else 'text_part'
+                cleaned_data.update(parsed_file.get_parts(default_part=default_part))
+            else:
+                self._errors['body_file'] = syntax_error
+        else:
+            self._errors['body_file'] = file_error
+
+        del cleaned_data['body_file']
 
         return cleaned_data
 

@@ -2,7 +2,6 @@ import re
 
 from BeautifulSoup import BeautifulSoup, Comment
 from django.db import models
-from django.conf import settings
 from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
@@ -61,83 +60,6 @@ def get_email_parameter_choices():
     return _EMAIL_PARAMETER_CHOICES
 
 
-def _parse_params(text):
-    param_re = (re.compile('(%s[\s]*[\w]*[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
-
-    # var list that filters variables that are not allowed
-    #    var_list = [x.strip(' {}') for x in re.findall(var_re, text) if x.strip(' {}') in get_email_parameter_dict()]
-    # var list that does not filter variables that are not allowed
-    param_list = [x.strip(' {}') for x in re.findall(param_re, text)]
-
-    return param_list
-
-
-def _parse_blocks(text):
-    block_re = (re.compile('(%s[\s]*[\w]*[\s]*%s)' % (re.escape(BLOCK_TAG_START), re.escape(BLOCK_TAG_END))))
-
-    # block list that filters blocks that are not allowed
-    #    block_list = [x.strip(' {%}') for x in re.findall(block_re, text) if x.strip(' {%}') in ['email_part', 'text_part']]
-    # block list that does not filter blocks that are not allowed
-    block_list = [x.strip(' {%}') for x in re.findall(block_re, text)]
-
-    return block_list
-
-
-def parse_parameters(text):
-    """
-    Parse given text and return all parameters that are supported.
-
-    """
-    return list(set(_parse_params(text)).intersection( set(get_email_parameter_dict()) ))
-
-
-def parse_text(text, file=False):
-    if file:
-        # the method is called to parse a file so we need to check for a text_part and html_part
-        pass
-    else:
-        # the method is called to parse a normal text so we only have to escape not supported blocks and parameters
-        pass
-
-
-
-    return {
-        'html': 'html_part',
-        'text': 'text_part',
-    }
-
-
-def get_param_vals(request, template):
-    """
-    Fill the parameters with actual values for rendering.
-
-    """
-    html_params = parse_parameters(template.html) if hasattr(template, 'html') else []
-    text_params = parse_parameters(template.text) if hasattr(template, 'text') else []
-    parsed_param_list = {}.fromkeys(html_params + text_params).keys()
-
-    param_dict = get_email_parameter_dict()
-    result_dict = {}
-    filled_param_dict = {}
-
-    # Get needed results from database
-    for param in parsed_param_list:
-        model = param_dict[param]['model']
-        field = param_dict[param]['field']
-        lookup = model.email_template_lookup
-
-        if model not in result_dict:
-            result_dict.update({
-                '%s' % model: eval(lookup)
-            })
-
-        filled_param_dict.update({
-            '%s' % param: getattr(result_dict['%s' % model], field.name),
-        })
-
-    return filled_param_dict
-
-
 def flatten_html_to_text(html, replace_br=False):
     """
     Strip html and unwanted whitespace to preserve text only. Optionally replace
@@ -167,58 +89,96 @@ def flatten_html_to_text(html, replace_br=False):
     # Strip tags and whitespace
     return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', '\n' if replace_br else ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
 
-    
-class TemplateFileParser(object):
+
+class TemplateParser(object):
     """
     TODO
     """
-    def __init__(self, file, context, parts=None):
-        self.file = file
-        self.content = self._make_safe(file.read())
-        self.template = get_template_from_string(self.content)
-        self.parts = parts or getattr(settings, 'EMAIL_TEMPLATE_FILE_PARTS', ['name', 'description', 'subject', 'html_part', 'text_part', ])
-        self.context = context
+    def __init__(self, text):
+        self.valid_parameters = []
+        self.valid_blocks = []
+        self.text = self._escape_text(text)
 
-    def parse(self):
-        render_context = Context(self.context, autoescape=False)
+        try:
+            self.template = get_template_from_string(self.text)
+            self.template.render(context=Context())
+        except:
+            self.template = None
+
+    def render(self, request, context=None):
+        context = context or self.get_template_context(request)
+        return get_template_from_string(self.get_text()).render(context=Context(context))
+
+    def is_valid(self):
+        return self.text and self.template
+
+    def get_text(self):
+        return self.template.render(context=Context())
+
+    def get_parts(self, default_part='html_part', parts=None):
+        parts = parts or ['name', 'description', 'subject', 'html_part', 'text_part', ]
         response = {}
 
-        for part in self.parts:
-            value = self._get_node(self.template, render_context, name=part).strip()
+        for part in parts:
+            value = self._get_node(self.template, name=part).strip()
 
             if value:
                 response[part] = value
 
         if not response:
-            if self.file.content_type == 'text/html':
-                response['html_part'] = self.content
-            else:
-                response['text_part'] = self.content
+            response[default_part] = self.get_text()
 
         return response
 
-    def _make_safe(self, text):
-        for parameter in self._get_parameter_list(text):
-            stripped_parameter = parameter.strip(' {}')
-            if not re.match("^[A-Za-z0-9_.]*$", stripped_parameter) or stripped_parameter not in get_email_parameter_dict():
-                text = text.replace('%s' % parameter, '%s' % stripped_parameter)
-            else:
-                text = text.replace('%s' % parameter, '{%% templatetag openvariable %%} %s {%% templatetag closevariable %%}' % stripped_parameter)
+    def get_template_context(self, request):
+        parameters = self.valid_parameters
+        param_dict = get_email_parameter_dict()
+        result_dict = {}
+        filled_param_dict = {}
 
-        for block in self._get_block_list(text):
-            pass
+        # Get needed results from database
+        for param in parameters:
+            model = param_dict[param]['model']
+            field = param_dict[param]['field']
+            lookup = model.email_template_lookup
 
-        return text
+            if model not in result_dict:
+                result_dict.update({
+                    '%s' % model: eval(lookup)
+                })
 
-    def _get_parameter_list(self, text):
+            filled_param_dict.update({
+                '%s' % param: getattr(result_dict['%s' % model], field.name),
+            })
+
+        return filled_param_dict
+
+    def get_parameter_list(self, text):
         param_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
 
         return [x for x in re.findall(param_re, text)]
 
-    def _get_block_list(self, text):
+    def get_block_list(self, text):
         block_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(BLOCK_TAG_START), re.escape(BLOCK_TAG_END))))
 
         return [x for x in re.findall(block_re, text)]
+
+    def _escape_text(self, text):
+        for parameter in self.get_parameter_list(text):
+            stripped_parameter = parameter.strip(' {}')
+            split_parameter = stripped_parameter.split('|')[0]
+            if re.match("^[A-Za-z0-9_.]*$", split_parameter) and split_parameter in get_email_parameter_dict():
+                # variable is accepted, now just escape so it can be rendered later
+                text = text.replace('%s' % parameter, '{%% templatetag openvariable %%} %s {%% templatetag closevariable %%}' % stripped_parameter)
+                self.valid_parameters.append(stripped_parameter)
+            else:
+                # variable is not accepted, remove surrounding braces
+                text = text.replace('%s' % parameter, '%s' % stripped_parameter)
+
+        for block in self.get_block_list(text):
+            pass
+
+        return text
 
     def _get_node(self, template, context=Context(), name='subject', block_lookups={}):
         for node in template:
@@ -234,5 +194,3 @@ class TemplateFileParser(object):
                 lookups.update(block_lookups)
                 return self._get_node(node.get_parent(context), context, name, lookups)
         return ''
-
-

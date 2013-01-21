@@ -20,10 +20,10 @@ from django.views.generic.list import ListView
 from lily.contacts.models import Contact
 from lily.messaging.email.emailclient import LilyIMAP, DRAFTS
 from lily.messaging.email.forms import CreateUpdateEmailAccountForm, \
- CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
+    CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate
 from lily.messaging.email.tasks import save_email_messages, mark_messages
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateFileParser
+from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
 from lily.utils.models import EmailAddress
 
 
@@ -122,19 +122,11 @@ class ParseEmailTemplateView(FormView):
         Return parsed form with rendered parameter fields
         """
         # we return content of the file here because this easily enables us to do more sophisticated parsing in the future.
-        body_file = form.cleaned_data.get('body_file')
-
-        response_dict = {
+        form.cleaned_data.update({
             'valid': True,
-        }
+        })
 
-        response_dict.update(TemplateFileParser(body_file, context={
-            'account_name': 'test',
-        }).parse())
-
-
-        return HttpResponse(simplejson.dumps(response_dict), mimetype="application/json")
-
+        return HttpResponse(simplejson.dumps(form.cleaned_data), mimetype="application/json")
 
     def form_invalid(self, form):
         return HttpResponse(simplejson.dumps({

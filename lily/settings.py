@@ -82,8 +82,8 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
-EMAIL_ATTACHMENT_UPLOAD_TO = 'messages/email/attachements/'
-EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messages/email/templates/attachements/'
+EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/'
+EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messaging/email/templates/attachments/'
 
 # Static
 STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))
@@ -173,7 +173,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
-    'django.contrib.messages',
+    # 'django.contrib.messages',
 
     # 3rd party
     'templated_email',
@@ -196,7 +196,7 @@ INSTALLED_APPS = (
     'lily.cases',
     'lily.deals',
     'lily.contacts',
-    'lily.messages',
+    'lily.messaging',
     'lily.notes',
     'lily.provide',
     'lily.tags',
@@ -207,7 +207,7 @@ INSTALLED_APPS = (
 )
 
 MESSAGE_APPS = (
-    'lily.messages.email',
+    'lily.messaging.email',
 )
 INSTALLED_APPS += MESSAGE_APPS
 
@@ -384,6 +384,9 @@ try:
 except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
 
+# django-south
+SOUTH_AUTO_FREEZE_APP = True
+
 # django-storages
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -398,6 +401,7 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age=1314000',
     'Expires': expires,
 }
+
 
 # cripsy-forms
 CRISPY_TEMPLATE_PACK = 'mws-admin'

@@ -225,18 +225,19 @@ class EmailMessageJSONView(View):
             instance.is_seen = True
             instance.save()
 
-            message = {}
-            message['id'] = instance.id
-            message['sent_date'] = unix_time_millis(instance.sent_date)
-            message['flags'] = instance.flags
-            message['uid'] = instance.uid
-            message['flat_body'] = truncatechars(instance.flatten_body, 200).encode('utf-8')
-            message['subject'] = instance.subject.encode('utf-8')
-            message['size'] = instance.size
-            message['is_private'] = instance.is_private
-            message['is_read'] = instance.is_seen
-            message['is_plain'] = instance.is_plain
-            message['folder_name'] = instance.folder_name
+            message = {
+                'id': instance.id,
+                'sent_date': unix_time_millis(instance.sent_date),
+                'flags': instance.flags,
+                'uid': instance.uid,
+                'flat_body': truncatechars(instance.flatten_body, 200).encode('utf-8'),
+                'subject': instance.subject.encode('utf-8'),
+                'size': instance.size,
+                'is_private': instance.is_private,
+                'is_read': instance.is_seen,
+                'is_plain': instance.is_plain,
+                'folder_name': instance.folder_name,
+            }
 
             # Replace body with a more richer version of an e-mail view
             message['body'] = render_to_string(self.template_name, {'object': instance})

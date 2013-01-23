@@ -141,7 +141,7 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
             # Email subject *must not* contain newlines
             subject = ''.join(subject.splitlines())
             email = loader.render_to_string(email_template_name, c)
-            send_mail(subject, email, from_email, [user.primary_email])
+            send_mail(subject, email, from_email, [str(user.primary_email)])
 
 
 class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):

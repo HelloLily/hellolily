@@ -20,6 +20,18 @@
             var parameter_choices = {{ parameter_choices|safe }};
             var last_focussed_body_part = $('#id_body_html');
 
+            $("#templateDialog").dialog({
+                autoOpen: false,
+                title: gettext('Error'),
+                modal: true,
+                width: "640",
+                buttons: [{
+                    text: gettext('Close'),
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }}]
+            });
+
             function insertTextAtCursor(el, text) {
                 var val = el.value, endIndex, range;
                 if (typeof el.selectionStart != "undefined" && typeof el.selectionEnd != "undefined") {
@@ -85,47 +97,51 @@
 
             $('#id_body_file').change(function() {
                 var form = $(this).closest('form');
+                var value = form.find('#id_body_file').val();
 
-                $(form).ajaxSubmit({
-                    type: 'post',
-                    dataType: 'json',
-                    url: '{% url messaging_email_template_parse %}',
-                    success: function(response) {
-                        if (response.valid === true) {
-                            if (response.name !== undefined) {
-                                $('#id_name').val(response.name);
-                            }
+                if (value !== '') {
+                    $(form).ajaxSubmit({
+                        type: 'post',
+                        dataType: 'json',
+                        url: '{% url messaging_email_template_parse %}',
+                        success: function(response) {
+                            if (response.valid === true) {
+                                if (response.name !== undefined) {
+                                    $('#id_name').val(response.name);
+                                }
 
-                            if (response.description !== undefined) {
-                                var description = $('#id_description');
-                                description.val(response.description);
-                                description.closest('#div_id_description').find('.click-show').click();
-                                description.trigger('update');
-                            }
+                                if (response.description !== undefined) {
+                                    var description = $('#id_description');
+                                    description.val(response.description);
+                                    description.closest('#div_id_description').find('.click-show').click();
+                                    description.trigger('update');
+                                }
 
-                            if (response.subject !== undefined) {
-                                $('#id_subject').val(response.subject)
-                            }
+                                if (response.subject !== undefined) {
+                                    $('#id_subject').val(response.subject)
+                                }
 
-                            if (response.html_part !== undefined) {
-                                var body_html = $('#id_body_html');
-                                body_html.val(response.html_part);
-                                body_html.trigger('update');
-                            }
+                                if (response.html_part !== undefined) {
+                                    var body_html = $('#id_body_html');
+                                    body_html.val(response.html_part);
+                                    body_html.trigger('update');
+                                }
 
-                            if (response.text_part !== undefined) {
-                                var body_text = $('#id_body_text');
-                                body_text.val(response.text_part);
-                                body_text.closest('#div_id_body_text').find('.click-show').click();
-                                body_text.trigger('update');
+                                if (response.text_part !== undefined) {
+                                    var body_text = $('#id_body_text');
+                                    body_text.val(response.text_part);
+                                    body_text.closest('#div_id_body_text').find('.click-show').click();
+                                    body_text.trigger('update');
+                                }
+                            } else {
+                                $('#templateDialogMessage').html(response.errors['body_file']);
+                                $("#templateDialog").dialog('open');
                             }
-                        } else {
-                            console.log('not valid');
+                        }, error: function(){
+                            $("#errorDialog").dialog('open');
                         }
-                    }, error: function(){
-                        console.log('something went wrong');
-                    }
-                });
+                    });
+                }
             });
         });
     </script>
@@ -138,4 +154,12 @@
         <input id="id_body_file" type="file" class="clearablefileinput" name="body_file" accept="text/html,text/plain">
     </form>
     {% include 'messaging/email/template_create_or_update_form.html' %}
+{% endblock %}
+
+{% block dialogs %}
+    <div id="templateDialog">
+        <div class="mws-dialog-inner">
+            <p id="templateDialogMessage"></p>
+        </div>
+    </div>
 {% endblock %}

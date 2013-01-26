@@ -2,9 +2,10 @@ import re
 
 from BeautifulSoup import BeautifulSoup, Comment
 from django.db import models
-from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END
+from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END, TemplateSyntaxError, TemplateDoesNotExist, TemplateEncodingError, VariableDoesNotExist, InvalidTemplateLibrary
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
+from lily.messaging.email.decorators import get_safe_template
 
 
 _EMAIL_PARAMETER_DICT = {}
@@ -29,7 +30,7 @@ def get_email_parameter_dict():
                             'model_verbose': model._meta.verbose_name.title(),
                             'field': field,
                             'field_verbose': field.verbose_name.title(),
-                            }
+                        }
                     })
     return _EMAIL_PARAMETER_DICT
 
@@ -92,30 +93,45 @@ def flatten_html_to_text(html, replace_br=False):
 
 class TemplateParser(object):
     """
-    TODO
+    Parse template input and provide helper functions for further template handling.
     """
     def __init__(self, text):
         self.valid_parameters = []
         self.valid_blocks = []
-        self.text = self._escape_text(text)
+        text = self._escape_text(text).strip()
+
+        safe_get_template_from_string = get_safe_template(get_template_from_string)
 
         try:
-            self.template = get_template_from_string(self.text)
-            self.template.render(context=Context())
-        except:
+            self.template = safe_get_template_from_string(text)
+            self.error = None
+        except TemplateSyntaxError as error:
             self.template = None
+            self.error = error
 
     def render(self, request, context=None):
+        """
+        Render the template in a form that is ready for output.
+        """
         context = context or self.get_template_context(request)
         return get_template_from_string(self.get_text()).render(context=Context(context))
 
     def is_valid(self):
-        return self.text and self.template
+        """
+        Return wheter the template is valid or not.
+        """
+        return self.template and not self.error
 
     def get_text(self):
+        """
+        Return the unrendered text, so variables etc. are still visible.
+        """
         return self.template.render(context=Context())
 
     def get_parts(self, default_part='html_part', parts=None):
+        """
+        Return the contents of specified parts, if no parts are available return the default part.
+        """
         parts = parts or ['name', 'description', 'subject', 'html_part', 'text_part', ]
         response = {}
 
@@ -131,6 +147,9 @@ class TemplateParser(object):
         return response
 
     def get_template_context(self, request):
+        """
+        Retrieve the context used for rendering of the template in a dict.
+        """
         parameters = self.valid_parameters
         param_dict = get_email_parameter_dict()
         result_dict = {}
@@ -154,16 +173,17 @@ class TemplateParser(object):
         return filled_param_dict
 
     def get_parameter_list(self, text):
+        """
+        Retrieve all parameters using a regex.
+        """
         param_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
 
         return [x for x in re.findall(param_re, text)]
 
-    def get_block_list(self, text):
-        block_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(BLOCK_TAG_START), re.escape(BLOCK_TAG_END))))
-
-        return [x for x in re.findall(block_re, text)]
-
     def _escape_text(self, text):
+        """
+        Escape variables and delete django syntax around variables that are not allowed.
+        """
         for parameter in self.get_parameter_list(text):
             stripped_parameter = parameter.strip(' {}')
             split_parameter = stripped_parameter.split('|')[0]
@@ -175,12 +195,13 @@ class TemplateParser(object):
                 # variable is not accepted, remove surrounding braces
                 text = text.replace('%s' % parameter, '%s' % stripped_parameter)
 
-        for block in self.get_block_list(text):
-            pass
-
         return text
 
-    def _get_node(self, template, context=Context(), name='subject', block_lookups={}):
+    def _get_node(self, template, context=Context(), name='subject', block_lookups=None):
+        """
+        Get contents of specified node out of the template.
+        """
+        block_lookups = block_lookups or {}
         for node in template:
             if isinstance(node, BlockNode) and node.name == name:
                 #Rudimentary handling of extended templates, for issue #3
@@ -190,7 +211,7 @@ class TemplateParser(object):
                         node.nodelist[i] = block_lookups[n.name]
                 return node.render(context)
             elif isinstance(node, ExtendsNode):
-                lookups = dict([(n.name, n) for n in node.nodelist if isinstance(n,BlockNode)])
+                lookups = dict([(n.name, n) for n in node.nodelist if isinstance(n, BlockNode)])
                 lookups.update(block_lookups)
                 return self._get_node(node.get_parent(context), context, name, lookups)
         return ''

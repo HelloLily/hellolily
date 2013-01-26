@@ -9,6 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -25,6 +26,7 @@ from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplat
 from lily.messaging.email.tasks import save_email_messages, mark_messages
 from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
 from lily.utils.models import EmailAddress
+from lily.utils.views import DeleteBackAddSaveFormViewMixin
 
 
 class DetailEmailInboxView(TemplateView):
@@ -70,7 +72,7 @@ class DetailEmailAccountView(TemplateView):
     template_name = 'messaging/email/account_create.html'
 
 
-class AddEmailTemplateView(CreateView):
+class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
     """
     Create a new e-mail template that can be used for sending emails.
     """
@@ -89,18 +91,29 @@ class AddEmailTemplateView(CreateView):
         """
         Redirect to the edit view, so the default values of parameters can be filled in.
         """
-        return reverse('messaging_email_template_edit', kwargs={
-            'pk': self.object.pk,
-        })
+        return reverse('messaging_email_inbox')
 
 
-class EditEmailTemplateView(UpdateView):
+class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
     """
     Parse an uploaded template for variables and return a generated form/
     """
     template_name = 'messaging/email/template_create_or_update.html'
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(EditEmailTemplateView, self).get_context_data(**kwargs)
+        context.update({
+            'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
+        })
+        return context
+
+    def get_success_url(self):
+        """
+        Redirect to the edit view, so the default values of parameters can be filled in.
+        """
+        return reverse('messaging_email_inbox')
 
 
 class DetailEmailTemplateView(TemplateView):

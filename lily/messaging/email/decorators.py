@@ -1,5 +1,6 @@
-from django.utils.functional import wraps
 from django import template
+from django.utils.functional import wraps
+
 
 # Default tag whitelist
 whitelist_tags = [

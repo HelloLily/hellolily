@@ -98,16 +98,16 @@ class TemplateParser(object):
     def __init__(self, text):
         self.valid_parameters = []
         self.valid_blocks = []
-        text = self._escape_text(text).strip()
+        text = self._escape_text(text.decode('utf-8')).strip()
 
         safe_get_template_from_string = get_safe_template(get_template_from_string)
 
         try:
             self.template = safe_get_template_from_string(text)
             self.error = None
-        except TemplateSyntaxError as error:
+        except TemplateSyntaxError, e:
             self.template = None
-            self.error = error
+            self.error = e
 
     def render(self, request, context=None):
         """

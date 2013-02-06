@@ -11,7 +11,6 @@ from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
-from lily.users.models import CustomUser
 
 
 # Mixins
@@ -87,7 +86,6 @@ class FieldInitFormMixin(forms.BaseForm):
         },
     }
 
-
     def __init__(self, *args, **kwargs):
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
         self.update_fields()
@@ -152,6 +150,12 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
                         ),
                         size=2,
                         css_class='center email_is_primary'),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-setting blue'),
+                        size=1,
+                        css_class='email-configuration-wizard',
+                        title=_('Start wizard to set up incoming and outgoing email for this address')
+                    ),
                     Column(
                         Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
                         size=1,

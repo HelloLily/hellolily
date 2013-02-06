@@ -7,3 +7,24 @@
 .mws-table .personal .name a {
     font-size: 108%;
 }
+
+/* E-mail configuration wizard */
+.stepContainer .mws-wizard a {
+    outline: none !important;
+}
+
+.stepContainer .mws-wizard ul a.selected {
+    color: #333 !important;
+}
+
+.stepContainer .mws-wizard ul li {
+    /*width: 30%;*/
+    width: 21%;
+    float: none;
+    display: inline-block;
+}
+
+.stepContainer .mws-wizard ul li:last-child {
+    /*width: 29%;*/
+    border-right: none;
+}

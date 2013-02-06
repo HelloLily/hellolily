@@ -206,4 +206,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['messages']
+    complete_apps = ['messaging']

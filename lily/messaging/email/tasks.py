@@ -1,4 +1,5 @@
 import datetime
+import logging
 import traceback
 from dateutil.tz import tzutc
 
@@ -7,16 +8,18 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
 from imapclient import SEEN
 
-from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
+from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT, Folder
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
 from lily.users.models import CustomUser
 
 
-def save_email_messages(messages, account, folder_name, new_messages=False):
+log = logging.getLogger()
+
+
+def save_email_messages(messages, account, folder_name, folder_identifier=None, new_messages=False):
     """
     Save messages in database for account. Folder_name needs to be the server name.
     """
-
     try:
         query_batch_size = 10000
 
@@ -40,6 +43,7 @@ def save_email_messages(messages, account, folder_name, new_messages=False):
                     email_message.body = body
                 email_message.size = message.get('size')
                 email_message.folder_name = folder_name
+                email_message.folder_identifier = folder_identifier
                 email_message.is_private = False
                 email_message.tenant = account.tenant
                 email_message.polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
@@ -255,7 +259,7 @@ def get_unread_emails(accounts, page=1):
             try:
                 server = LilyIMAP(provider=account.provider, account=account)
 
-                synchronize_folder(server, folder_name=server.get_server_name_for_folder(ALLMAIL), criteria=['UNSEEN'])
+                synchronize_folder(server, folder_name=server.get_folder_by_identifier(ALLMAIL), criteria=['UNSEEN'])
             except Exception, e:
                 print traceback.format_exc(e)
             else:
@@ -267,17 +271,21 @@ def get_unread_emails(accounts, page=1):
                     server.logout()
 
 
-def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
+def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
+    # Make sure the messages has at least an internal timestamp
+    if 'INTERNALDATE' not in modifiers_old:
+        modifiers_old.append('INTERNALDATE')
+    if 'INTERNALDATE' not in modifiers_new:
+        modifiers_new.append('INTERNALDATE')
 
-    modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
-    modifiers_new = modifiers_old
+    folder = server.get_folder(folder_name)
 
     # Find already known uids
-    known_uids_qs = EmailMessage.objects.filter(account=server.account, folder_name=server.get_server_name_for_folder(folder_name))
+    known_uids_qs = EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name())
     if 'SEEN' in criteria:
         known_uids_qs = known_uids_qs.filter(is_seen=True)
 
@@ -287,7 +295,7 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
     known_uids = set(known_uids_qs.values_list('uid', flat=True))
 
     try:
-        folder_count, remote_uids = server.search_in_folder(criteria=criteria, identifier=server.get_server_name_for_folder(folder_name), close=False)
+        folder_count, remote_uids = server.search_in_folder(criteria=criteria, identifier=folder.get_server_name(), close=False)
 
         # Get the difference between local and server uids
         new_uids = list(set(remote_uids).difference(known_uids))
@@ -300,21 +308,22 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
         known_uids = list(known_uids)
 
         # Delete from database
-        EmailMessage.objects.filter(account=server.account, folder_name=server.get_server_name_for_folder(folder_name), uid__in=removed_uids).delete()
+        EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name(), uid__in=removed_uids).delete()
 
         if len(new_uids):
             # Retrieve modifiers_new for new_uids
             folder_messages = server.fetch_from_folder(identifier=folder_name, message_uids=new_uids, modifiers=modifiers_new, close=False)
 
             if len(folder_messages) > 0:
-                save_email_messages(folder_messages, server.account, server.get_server_name_for_folder(folder_name), new_messages=True)
+
+                save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier, new_messages=True)
 
         if len(known_uids):
             # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-            folder_messages = server.fetch_from_folder(identifier=folder_name, message_uids=known_uids, modifiers=modifiers_old, close=False)
+            folder_messages = server.fetch_from_folder(identifier=folder.get_server_name(), message_uids=known_uids, modifiers=modifiers_old, close=False)
 
             if len(folder_messages) > 0:
-                save_email_messages(folder_messages, server.account, server.get_server_name_for_folder(folder_name))
+                save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier)
 
     except Exception, e:
         print traceback.format_exc(e)
@@ -363,17 +372,18 @@ def synchronize_email_for_account(account_id):
             try:
                 # Built check for last_sync_date vs current datetime
                 server = LilyIMAP(provider=account.provider, account=account)
-
                 folders = server.get_folders(exclude=[ALLMAIL, DRAFTS, SPAM, TRASH, IMPORTANT])
 
                 for folder in folders:
-                    print 'sync start for', folder
-                    synchronize_folder(server, folder.get_server_name())
-                    print 'sync done for', folder
+                    log.debug('sync start for %s' % unicode(folder))
 
-                modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                    synchronize_folder(server, folder.get_server_name())
+
+                    log.debug('sync done for %s' % unicode(folder))
+
+                modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                 modifiers_new = modifiers_old
-                synchronize_folder(server, server.get_server_name_for_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                synchronize_folder(server, server.get_folder_by_identifier(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                 account.last_sync_date = now_utc_date
                 account.save()
@@ -397,9 +407,11 @@ def synchronize_email():
     accounts = EmailAccount.objects.all()
 
     for account in accounts:
-        print 'sync start for ', account
+        log.debug('sync start for %s' % account.email)
+
         synchronize_email_for_account(account.id)
-        print 'sync done for ', account
+
+        log.debug('sync done for %s' % account.email)
 
 
 @celery.task

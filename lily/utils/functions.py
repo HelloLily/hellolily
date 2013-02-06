@@ -23,7 +23,7 @@ def autostrip(cls):
 
 
 # TODO: build testcase
-def uniquify(sequence, function=None):
+def uniquify(sequence, function=None, filter=None):
     """
     Remove non-unique items from given sequence. Redirect call to _uniquify for the actual
     uniquifying.
@@ -31,28 +31,31 @@ def uniquify(sequence, function=None):
     function can for example be lambda x: x.lower() to also remove items that are actually the same
     except for lettercase ['a', 'A'], which will prevent the latter from joining the result list.
     """
-    return list(_uniquify (sequence, function))
-def _uniquify(sequence, function=None):
+    return list(_uniquify(sequence, function, filter))
+
+
+def _uniquify(sequence, function=None, filter=None):
     """
-    The function that actually uniquifies the sequence.
+    Function: manipulate what is being returned.
+    Filter: manipulate what is being compared.
 
     One of the fastest ways to uniquify a sequence according to http://www.peterbe.com/plog/uniqifiers-benchmark
     with full support of also non-hashable sequence items.
     """
     seen = set()
-    if function is None:
+    if filter is None:
         for x in sequence:
             if x in seen:
                 continue
             seen.add(x)
-            yield x
+            yield x if function is None else function(x)
     else:
         for x in sequence:
-            x = function(x)
-            if x in seen:
+            x_mod = filter(x)
+            if x_mod in seen:
                 continue
-            seen.add(x)
-            yield x
+            seen.add(x_mod)
+            yield x if function is None else function(x)
 
 
 def is_ajax(request):

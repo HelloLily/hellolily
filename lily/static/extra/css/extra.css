@@ -328,10 +328,17 @@ div#mws-quickbutton-container button
 }
 
 
+.mws-form input,
+.mws-form select,
+.mws-form .mws-textinput,
+.mws-form textarea /* .mws-form textarea */
+{
+    font: 13px/1.5 'PTSansRegular', Arial, Helvetica, sans-serif;
+}
+
 .mws-form textarea /* .mws-form textarea */
 {
     height:6em;
-    font: 13px/1.5 'PTSansRegular', Arial, Helvetica, sans-serif;
 }
 
 .mws-form select /* .mws-form select, .mws-form textarea, .mws-form .mws-textinput */

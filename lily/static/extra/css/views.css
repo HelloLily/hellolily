@@ -18,8 +18,9 @@
     cursor: pointer;
 }
 
-.mws-form .formset-delete .i-16 {
-    display: block; 
+.mws-form .formset-delete .i-16,
+.mws-form .email-configuration-wizard .i-16 {
+    display: block;
     width: 16px;
     height: 32px;
 }

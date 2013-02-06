@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.models import MigrationHistory
+from south.v2 import DataMigration
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
+        """
+        Remove south migration history entries for 'messages'.
+        """
+        if not MigrationHistory.objects.filter(app_name='messages').exists():
+            return
 
-        # Changing field 'Message.sent_date'
-        db.alter_column('messaging_message', 'sent_date', self.gf('django.db.models.fields.DateTimeField')(null=True))
+        MigrationHistory.objects.filter(app_name='messages').delete()
 
     def backwards(self, orm):
+        """
+        Nothing to do.
+        """
+        pass
 
-        # Changing field 'Message.sent_date'
-        db.alter_column('messaging_message', 'sent_date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(1970, 1, 1, 0, 0)))
 
     models = {
         'accounts.account': {
@@ -102,26 +109,15 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'messaging.message': {
-            'Meta': {'object_name': 'Message'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'messages'", 'to': "orm['messaging.MessagesAccount']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_seen': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.message_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
-            'sent_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
-        },
         'messaging.messagesaccount': {
             'Meta': {'object_name': 'MessagesAccount'},
             'account_type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messaging.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
-            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'social_media_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
+            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'messages_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
         },
         'notes.note': {
             'Meta': {'ordering': "['-created']", 'object_name': 'Note'},

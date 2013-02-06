@@ -2,9 +2,10 @@ import datetime
 import email
 import re
 import StringIO  # can't always use cStringIO
+import sys
 import traceback
 
-from BeautifulSoup import BeautifulSoup, Comment
+from bs4 import BeautifulSoup, Comment
 from dateutil.parser import parse
 from dateutil.tz import tzutc
 from django.core.mail import get_connection
@@ -13,6 +14,8 @@ from imapclient.imapclient import IMAPClient, SEEN, DRAFT
 import chardet
 import pytz
 
+
+sys.setrecursionlimit(5000)
 
 INBOX = '\\Inbox'
 SENT = '\\Sent'
@@ -103,37 +106,53 @@ class LilyIMAP(object):
     _conn_kwargs = {}
     folders = None
 
-    def __init__(self, provider=None, account=None, use_uid=True, ssl=True, **kwargs):
+    def __init__(self, provider=None, account=None, use_uid=True, ssl=True, test=False, **kwargs):
         # Save these arguments for later use
         self._conn_kwargs.update(provider=provider, account=account, use_uid=use_uid, ssl=ssl, **kwargs)
 
         # Create folder mapping
-        self.retrieve_and_map_folders()
+        if not test:
+            self.retrieve_and_map_folders()
 
     @property
     def account(self):
         return self._conn_kwargs.get('account')
 
+    def _get_imap_client(self):
+        provider = self._conn_kwargs.get('provider')
+        account = self._conn_kwargs.get('account')
+        use_uid = self._conn_kwargs.get('use_uid')
+        ssl = self._conn_kwargs.get('ssl')
+
+        server = False
+        if provider is not None and account is not None:
+            server = IMAPClient(provider.imap_host, provider.imap_port, use_uid, ssl)
+        else:
+            host = self._conn_kwargs.get('host')
+            port = self._conn_kwargs.get('port')
+            server = IMAPClient(host, port, use_uid, ssl)
+
+        return server
+
+    def _login_in_imap(self, imap_client):
+        provider = self._conn_kwargs.get('provider')
+        account = self._conn_kwargs.get('account')
+
+        if provider is not None and account is not None:
+            imap_client.login(account.username, account.password)
+        else:
+            username = self._conn_kwargs.get('username')
+            password = self._conn_kwargs.get('password')
+            imap_client.login(username, password)
+        return imap_client
+
     def get_imap_server(self):
         server = self._servers.get('imap', False) or False
         if not server or server._imap.state in ['NONAUTH', 'LOGOUT']:
-            provider = self._conn_kwargs.get('provider')
-            account = self._conn_kwargs.get('account')
-            use_uid = self._conn_kwargs.get('use_uid')
-            ssl = self._conn_kwargs.get('ssl')
-
-            if not any([provider, account]) is None:
-                server = IMAPClient(provider.retrieve_host, provider.retrieve_port, use_uid, ssl)
-                server.login(account.username, account.password)
-            else:
-                host = self._conn_kwargs.get('host')
-                port = self._conn_kwargs.get('port')
-                server = IMAPClient(host, port, use_uid, ssl)
-
-                username = self._conn_kwargs.get('username')
-                password = self._conn_kwargs.get('password')
-                server.login(username, password)
-        self._servers['imap'] = server
+            imap_client = self._get_imap_client()
+            if imap_client:
+                server = self._login_in_imap(imap_client)
+                self._servers['imap'] = server
         return server
 
     def get_smtp_server(self, fail_silently=False):
@@ -144,7 +163,7 @@ class LilyIMAP(object):
         account = self._conn_kwargs.get('account')
         use_tls = self._conn_kwargs.get('ssl')
 
-        if not any([provider, account]) is None:
+        if provider is not None and account is not None:
             host = provider.send_host
             port = provider.send_port
             username = account.username
@@ -202,7 +221,9 @@ class LilyIMAP(object):
 
                 folder = Folder(name_server, flags, name_locale, folder_identifier)
                 folders.append(folder)
-                mapping[folder_identifier] = folder.get_server_name()
+
+                if folder_identifier is not None:
+                    mapping[folder_identifier] = folder.get_server_name()
 
         # Store identifier list and mapping
         self.set_folders(folders)
@@ -236,30 +257,67 @@ class LilyIMAP(object):
                     include = False
                 elif identifier.lstrip('\\') == folder.identifier:
                     include = False
-                elif self.get_server_name_for_folder(identifier) == folder.get_server_name():
-                    include = False
+                else:
+                    folder_obj = self.get_folder_by_identifier(identifier)
+                    if folder_obj is None:
+                        folder_obj = self.get_folder_by_name(identifier)
+                    if folder_obj is not None:
+                        if folder_obj.get_server_name() == folder.get_server_name():
+                            include = False
 
             if include:
                 if folder.can_select() or not folder.can_select() and all:
                     folders.append(folder)
         return folders
 
-    def get_server_name_for_folder(self, identifier):
+    def get_folder_by_identifier(self, identifier):
         '''
-        Return the name on the server for given identifier. Identifier can be either a
-        string representing a identifier name or a 'Folder' object.
+        Return the Folder for the current server for given identifier.
         '''
-        if isinstance(identifier, Folder):
-            return identifier.get_server_name()
-        else:
-            folder_name = None
-            if identifier in IMAP_XFOLDER_FLAGS:
-                for folder in self.get_folders(all=True):
-                    if '\\%s' % folder.identifier == identifier:
-                        folder_name = folder.get_server_name()
+        result = None
+        if identifier in IMAP_XFOLDER_FLAGS:
+            for folder in self.get_folders(all=True):
+                if '\\%s' % folder.identifier == identifier:
+                    result = folder
+                    break
+        return result
 
-            folder_name = folder_name if folder_name else identifier
-            return self.IMAP_FOLDERS_DICT.get(folder_name, folder_name)
+    def get_folder_by_name(self, folder_name):
+        '''
+        Return the Folder for the current server for given folder name.
+        '''
+        result = None
+        for folder in self.get_folders(all=True):
+            if folder.get_server_name() == folder_name:
+                result = folder
+                break
+        return result
+
+    def get_folder(self, folder):
+        """
+        Return the Folder instance for given folder.
+        Folder can be a Folder object, identifier or folder name.
+        """
+        folder_obj = None
+        if isinstance(folder, Folder):
+            folder_obj = folder
+        else:
+            folder_obj = self.get_folder_by_identifier(folder)
+            if folder_obj is None:
+                folder_obj = self.get_folder_by_name(folder)
+            if folder_obj is not None:
+                folder_obj = folder_obj
+        return folder_obj
+
+    def get_server_name(self, folder):
+        """
+        Return the Folder's server name for given folder.
+        Folder can be a Folder object, identifier or folder name.
+        """
+        folder_obj = self.get_folder(folder)
+        if folder_obj is not None:
+            return folder_obj.get_server_name()
+        return None
 
     def parse_attachment(self, message_part):
         """
@@ -347,7 +405,12 @@ class LilyIMAP(object):
                 except Exception, e:
                     # No valid sent date could be parsed; fall back to INTERNALDATE.
                     # INTERNALDATE has no tzinfo, but force UTC anyway.
-                    sent_date = pytz.utc.localize(raw_data.get('INTERNALDATE'))
+                    internal_date = raw_data.get('INTERNALDATE')
+                    if internal_date:
+                        sent_date = pytz.utc.localize(internal_date)
+                    else:
+                        import pdb
+                        pdb.set_trace()
 
             # Check for attachments
             if header_key is not None:
@@ -363,47 +426,6 @@ class LilyIMAP(object):
             data = raw_data.get('BODY[]')
             message = email.message_from_string(data)
             for part in message.walk():
-                # if str(part.get_content_type()) == 'text/plain':
-                #     content = part.get_payload(decode=True)
-                #     encoding = chardet.detect(content)['encoding']
-                #     if encoding is not None:
-                #         try:
-                #             content = content.decode(encoding)
-                #         except Exception, e:
-                #             print traceback.format_exc(e)
-                #             print encoding
-                #             print content[:100]
-                #     if type(content) is unicode:
-                #         plain_body += content
-                #     else:
-                #         try:
-                #             plain_body += content.decode('utf-8')
-                #         except:
-                #             try:
-                #                 plain_body += content.decode('utf-16')
-                #             except:
-                #                 html_body += unicode(content)
-                # if str(part.get_content_type()) == 'text/html':
-                #     content = part.get_payload(decode=True)
-                #     encoding = chardet.detect(content)['encoding']
-                #     if encoding is not None:
-                #         try:
-                #             content = content.decode(encoding)
-                #         except Exception, e:
-                #             print traceback.format_exc(e)
-                #             print encoding
-                #             print content[:100]
-                #     if type(content) is unicode:
-                #         html_body += content
-                #     else:
-                #         try:
-                #             html_body += content.decode('utf-8')
-                #         except:
-                #             try:
-                #                 html_body += content.decode('utf-16')
-                #             except:
-                #                 html_body += unicode(content)
-
                 # Check for attachment
                 attachment = self.parse_attachment(part)
                 if attachment:
@@ -416,40 +438,32 @@ class LilyIMAP(object):
                     if payload is None:
                         continue
 
-                    # Try to decode with the provided encoding
-                    encoding = detected_encoding = None
-                    encoding = part.get_content_charset()
-
-                    if encoding is None:
-                        detected_encoding = chardet.detect(payload)['encoding']
-
-                    if any([encoding, detected_encoding]):
-                        payload = unicode(payload, encoding or detected_encoding)
-                except (UnicodeDecodeError, LookupError), e:
-                    # Retry with the detected encoding
-                    if detected_encoding is None:
-                        detected_encoding = chardet.detect(payload)['encoding']
-                        if detected_encoding is not None:
-                            payload = unicode(payload, detected_encoding, 'ignore')
+                    soup = BeautifulSoup(payload)
+                    payload = soup.decode()
                     try:
-                        payload = unicode(payload)
-                    except UnicodeDecodeError:
-                        payload = unicode(payload, 'utf-8', 'ignore')
-                finally:
-                    if payload is not None:
-                        # if not isinstance(payload, unicode):
-                        #     payload = unicode(payload, 'utf-8')
+                        payload = payload.encode(soup.original_encoding)
+                        payload = payload.decode(soup.original_encoding)
+                    except Exception, e:
                         try:
-                            if part.get_content_type() == 'text/plain':
-                                plain_body += payload
-                            elif part.get_content_type() == 'text/html':
-                                html_body += payload
+                            payload = payload.encode(part.get_content_charset())
+                            payload = payload.decode(part.get_content_charset())
                         except Exception, e:
-                            print traceback.format_exc(e)
-                            print 'encoding: %s, detected_encoding: %s' % (encoding, detected_encoding)
-                            print 'sent_date: %s, subject: %s' % (sent_date, subject)
-                            print 'Content-Disposition: %s, Content-Transfer-Encoding: %s' % (part.get('Content-Disposition'), part.get('Content-Transfer-Encoding'))
-                            print payload[:100]
+                            payload = payload.encode('utf-8', errors='ignore')
+                            payload = payload.decode('utf-8')
+
+                    payload = payload.encode('utf-8')
+                    payload = payload.decode('utf-8')
+
+                except Exception, e:
+                    print traceback.format_exc(e)
+                else:
+                    try:
+                        if part.get_content_type() == 'text/plain':
+                            plain_body += payload
+                        elif part.get_content_type() == 'text/html':
+                            html_body += payload
+                    except Exception, e:
+                        print traceback.format_exc(e)
 
                 if part.get_content_maintype() == 'multipart':
                     continue
@@ -467,11 +481,9 @@ class LilyIMAP(object):
 
             # Make all anchors open outside the iframe
             for anchor in soup.findAll('a'):
-                attrs = list(anchor.attrs)
-                if 'target' in anchor.attrs:
-                    del attrs['target']
-                attrs.append(('target', '_blank'))
-                anchor.attrs = tuple(attrs)
+                anchor.attrs.update({
+                    'target': '_blank',
+                })
 
             html_body = soup.renderContents()
 
@@ -503,7 +515,7 @@ class LilyIMAP(object):
 
             # Fastest case
             if folder:
-                folder_name = self.get_server_name_for_folder(folder)
+                folder_name = self.get_server_name(folder)
                 if self.get_imap_server().folder_exists(folder_name):
                     self.get_imap_server().select_folder(folder_name)
                     response = self.get_imap_server().fetch(uid, modifiers)
@@ -522,8 +534,8 @@ class LilyIMAP(object):
             # message it finds with the uid.
             #
             # Look for common case: INBOX
-            folder_name = self.get_server_name_for_folder(INBOX)
-            if self.get_server_name_for_folder(folder) != folder_name:
+            inbox = self.get_folder_by_identifier(INBOX)
+            if inbox.get_server_name() == folder_name:
                 self.get_imap_server().select_folder(folder_name)
                 response = self.get_imap_server().fetch(uid, modifiers)
 
@@ -535,8 +547,8 @@ class LilyIMAP(object):
                     return message
 
             # Look into other folders
-            for identifier in self.get_folders(exclude=[INBOX, ALLMAIL, folder]):
-                folder_name = self.get_server_name_for_folder(identifier)
+            for folder in self.get_folders(exclude=[INBOX, ALLMAIL, folder_name]):
+                folder_name = folder.get_server_name()
                 if self.get_imap_server().folder_exists(folder_name):
                     # Open folder
                     self.get_imap_server().select_folder(folder_name)
@@ -560,7 +572,7 @@ class LilyIMAP(object):
         A single identifier can be either a string representing an
         identifier name or a 'Folder' object.
         """
-        folder_name = self.get_server_name_for_folder(identifier)
+        folder_name = self.get_server_name(identifier)
         if self.get_imap_server().folder_exists(folder_name):
             # Open folder
             select_info = self.get_imap_server().select_folder(folder_name, readonly)
@@ -597,7 +609,7 @@ class LilyIMAP(object):
             for msgid, data in response.items():
                 try:
                     messages[msgid] = self.get_message_from_raw(data)
-                    messages[msgid]['folder_name'] = self.get_server_name_for_folder(identifier)
+                    messages[msgid]['folder_name'] = self.get_server_name(identifier)
                 except Exception, e:
                     print traceback.format_exc(e)
         except Exception, e:

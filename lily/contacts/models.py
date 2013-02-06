@@ -53,8 +53,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     @property
     def primary_email(self):
         try:
-            if self.contact:
-                return self.email_addresses.get(is_primary=True)
+            return self.email_addresses.get(is_primary=True)
         except EmailAddress.DoesNotExist:
             pass
         return u''

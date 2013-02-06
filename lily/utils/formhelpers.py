@@ -18,11 +18,11 @@ class LilyFormHelper(FormHelper):
         super(LilyFormHelper, self).__init__(form=form)
         # set the default to inline
         self.form_style = 'inline'
-    
+
     def wrap_by_names(self, layoutObject, *field_names):
         """
         Wrap fields *field_names within layoutObject.
-        
+
         Example:
         self.helper.wrap_by_names(Row, 'description', 'tags')
         """
@@ -32,7 +32,7 @@ class LilyFormHelper(FormHelper):
             layout_object = self.layout.fields[pos[0]]
             for i in pointer[0][1:-1]:
                 layout_object = layout_object.fields[i]
-            
+
             # If layout object has no fields attribute, then it's a basestring (a field name)
             if not hasattr(layout_object, 'fields'):
                 if layout_object in field_names:
@@ -60,7 +60,7 @@ class LilyFormHelper(FormHelper):
     def insert_after(self, layoutObject, *field_names):
         """
         Insert layoutObject after all field_names in the layout.
-        
+
         Example:
         self.helper.insert_after(Divider(), 'field_3', 'field6')
         """
@@ -82,7 +82,7 @@ class LilyFormHelper(FormHelper):
         for i in pointer[0][1:-1]:
             if hasattr(layout_object, 'fields'):
                 layout_object = layout_object.fields[i]
-                
+
         # If layout object has no fields attribute, then it's a basestring (a field name)
         if not hasattr(layout_object, 'fields'):
             return layout_object, pos[0]
@@ -102,9 +102,9 @@ class LilyFormHelper(FormHelper):
                 field_name = self.get_field_name_from_layout(object)
                 if isinstance(field_name, basestring):
                     return field_name
-        
+
         return None
-    
+
     def delete_label_for(self, *field_names):
         """
         Remove the label for given fields.
@@ -112,7 +112,7 @@ class LilyFormHelper(FormHelper):
         for field_name in field_names:
             if field_name in self.form.fields:
                 self.form.fields[field_name].label = ''
-    
+
     def create_only_columns(self, *columns):
         """
         Create a layoutObject which contains given columns.
@@ -138,7 +138,7 @@ class LilyFormHelper(FormHelper):
                 label,
                 self.create_only_columns(*columns)
             )
-        else: 
+        else:
             layout =  Row(
                 MultiField(
                     label,
@@ -150,9 +150,9 @@ class LilyFormHelper(FormHelper):
             field_name = self.get_field_name_from_layout(column)
             if field_name is not None:
                 self.delete_label_for(field_name)
-                
+
         return layout
-    
+
     def add_columns(self, *columns, **kwargs):
         """
         Append given columns to the current layout using a MultiField layout.
@@ -160,7 +160,7 @@ class LilyFormHelper(FormHelper):
         self.layout.append(
             self.create_columns(*columns, **kwargs)
         )
-        
+
     def create_large_field(self, field_name, **kwargs):
         """
         Create a simple layout for a field that expands to the width of the container (form).
@@ -179,11 +179,11 @@ class LilyFormHelper(FormHelper):
                     InlineRow(field_name),
                 )
             )
-        
+
         self.delete_label_for(field_name)
-        
+
         return layout
-    
+
     def add_large_field(self, field_name, **kwargs):
         """
         Append given field to the current layout using a MultiField layout.
@@ -191,20 +191,20 @@ class LilyFormHelper(FormHelper):
         self.layout.append(
             self.create_large_field(field_name, **kwargs)
         )
-    
+
     def add_large_fields(self, *field_names, **kwargs):
         """
         Append multiple fields to the current layout using a MultiField layout.
         """
         for field_name in field_names:
             self.add_large_field(field_name, **kwargs)
-    
+
     def create_multi_row(self, *rows, **kwargs):
         """
         Create a MultiField which contains multiple rows with columns inside.
-        
+
         Example:
-        self.helper.layout.insert(0, 
+        self.helper.layout.insert(0,
             self.helper.create_multi_row(
                 (
                     Column('salutation', size=2, first=True),
@@ -226,15 +226,15 @@ class LilyFormHelper(FormHelper):
                 *[InlineRow(self.create_only_columns(*row)) for row in rows]
             )
         )
-        
+
         for row in rows:
             for column in row:
                 field_name = self.get_field_name_from_layout(column)
                 if field_name is not None:
                     self.delete_label_for(field_name)
-        
+
         return layout
-    
+
     def add_multi_row(self, *rows, **kwargs):
         """
         Append a multiple rows using a MultiField layout.
@@ -242,11 +242,11 @@ class LilyFormHelper(FormHelper):
         self.layout.append(
             self.create_multi_row(*rows, **kwargs)
         )
-    
+
     def replace(self, field, layoutObject):
         """
         Replace default generated layout for field, for a custom one.
-        
+
         Example:
         self.helper.replace('account',
             self.helper.create_columns(
@@ -260,7 +260,7 @@ class LilyFormHelper(FormHelper):
             if field_name == field:
                 self.layout.pop(index)
                 self.layout.insert(index, layoutObject)
-                
+
                 self.delete_label_for(field_name)
 
     def replace_fields(self, field_dict, layoutObject, size):
@@ -284,21 +284,21 @@ class LilyFormHelper(FormHelper):
 
 class DeleteBackAddSaveFormHelper(LilyFormHelper):
     """
-    Provide three buttons: 
+    Provide three buttons:
         delete (conditional)
         back
         add or save
     """
     def __init__(self, form=None):
         super(DeleteBackAddSaveFormHelper, self).__init__(form=form)
-        
+
         if hasattr(form, 'instance') and form.instance.pk is not None:
             if not has_user_in_group(form.instance, 'account_admin'):
-                self.add_input(Submit('delete', _('Delete'), 
-                   css_id='delete-%s' % form.instance.pk, 
+                self.add_input(Submit('delete', _('Delete'),
+                   css_id='delete-%s' % form.instance.pk,
                    css_class='link delete %s red float-left' % form.instance.__class__.__name__.lower())
                 )
-        
+
         self.add_input(Submit('submit-back', _('Back'), css_class='red'))
         if hasattr(form, 'instance') and form.instance.pk is not None:
             self.add_input(Submit('submit-save', _('Save')))

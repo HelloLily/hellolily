@@ -1,3 +1,8 @@
+import socket
+import traceback
+from smtplib import SMTPAuthenticationError
+from urlparse import urlparse
+
 from crispy_forms.layout import HTML, Layout, Submit
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -5,43 +10,15 @@ from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
 from django.utils.translation import ugettext as _
 
-from lily.messaging.email.models import EmailAccount, EmailTemplate, EmailDraft
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
+from lily.messaging.email.emailclient import LilyIMAP
+from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
+from lily.utils.fields import EmailProviderChoiceField
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Column, Divider, Button, Row
-
-
-class CreateUpdateEmailAccountForm(ModelForm):
-    password_repeat = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'mws-login-password mws-textinput required',
-        'placeholder': _('Password repeat')
-    }))
-
-    class Meta:
-        model = EmailAccount
-        widgets = {
-            'provider': forms.Select(attrs={
-                'class': 'chzn-select',
-            }),
-            'name': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Name'),
-            }),
-            'email': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Email'),
-            }),
-            'username': forms.TextInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Username'),
-            }),
-            'password': forms.PasswordInput(attrs={
-                'class': 'mws-textinput',
-                'placeholder': _('Password'),
-            }),
-        }
+from lily.utils.widgets import EmailProviderSelect
 
 
 class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
@@ -51,6 +28,7 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
     text_value = forms.CharField(label=_('Variable'), required=False)
+
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
@@ -147,14 +125,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
     """
     Form that lets a user compose an e-mail message.
     """
-    # send_from = forms.CharField(label=_('From'), widget=forms.Textarea())
-    # send_to_normal = forms.MultiValueField(label=_('To'), required=False)
-    # send_to_cc = forms.MultiValueField(label=_('Cc'), required=False)
-    # send_to_bcc = forms.MultiValueField(label=_('Bcc'), required=False)
-    # subject = forms.CharField(label=_('Subject'))
     # TODO: Insert a formset for attachments?
-    model = EmailDraft
-
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form.
@@ -209,11 +180,11 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
 
         user = get_current_user()
         email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=user.messages_accounts.values_list('pk')).order_by('name')
+        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=user.messages_accounts.values_list('pk')).order_by('email__email_address')
 
         # Filter choices by ctype for EmailAccount
         self.fields['send_from'].empty_label = None
-        self.fields['send_from'].choices = [(email_account.pk, email_account.email) for email_account in email_accounts]
+        self.fields['send_from'].choices = [(email_account.pk, '"%s" <%s>' % (email_account.from_name, email_account.email.email_address)) for email_account in email_accounts]
 
         # Set user's primary_email as default choice if no initial was provided
         initial_email_account = None
@@ -287,3 +258,120 @@ class ComposeTemplatedEmailForm(ComposeEmailForm):
     """
     # template = forms.ModelChoiceField(label=_('Template'))
     # template_vars = forms.MultiWidget()
+
+
+class EmailConfigurationStep1Form(Form, FieldInitFormMixin):
+    """
+    Fields in e-mail configuration wizard step 1.
+    """
+    email = forms.CharField(max_length=255, label=_('E-mail address'), widget=forms.TextInput(attrs={
+        'placeholder': _('email@example.com')
+    }))
+    username = forms.CharField(max_length=255, label=_('Username'))
+    password = forms.CharField(max_length=255, label=_('Password'), widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        super(EmailConfigurationStep1Form, self).__init__(*args, **kwargs)
+
+
+class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
+    """
+    Fields in e-mail configuration wizard step 2.
+    """
+    presets = EmailProviderChoiceField(queryset=EmailProvider.objects.none(), widget=EmailProviderSelect(attrs={
+        'class': 'chzn-select-no-search'
+    }), required=False)
+    imap_host = forms.URLField(max_length=255, label=_('Incoming server (IMAP)'))
+    imap_port = forms.IntegerField(label=_('Incoming port'))
+    imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
+    smtp_host = forms.URLField(max_length=255, label=_('Outgoing server (SMTP)'))
+    smtp_port = forms.IntegerField(label=_('Outgoing port'))
+    smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.username = kwargs.pop('username', '')
+        self.password = kwargs.pop('password', '')
+        super(EmailConfigurationStep2Form, self).__init__(*args, **kwargs)
+
+        self.fields['presets'].queryset = EmailProvider.objects.all()
+
+    def clean(self):
+        data = self.cleaned_data
+        if data.get('imap_host', None) is not None:
+            data['imap_host'] = urlparse(data.get('imap_host')).netloc
+
+        if data.get('smtp_host', None) is not None:
+            data['smtp_host'] = urlparse(data.get('smtp_host')).netloc
+
+        if not self.errors:
+            # Start verifying when the form has no errors
+            defaulttimeout = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(1)
+
+            try:
+                imap_host = data.get('imap_host')
+                try:
+                    # Resolve host name
+                    socket.gethostbyname(imap_host)
+                except Exception, e:
+                    print traceback.format_exc(e)
+                    raise forms.ValidationError(_('Could not resolve %s' % imap_host))
+                else:
+                    try:
+                        # Try connecting
+                        imap = LilyIMAP(ssl=data.get('imap_ssl'), test=True, host=imap_host, port=int(data.get('imap_port')), username=self.username, password=self.password)
+                        imap_client = imap._get_imap_client()
+                        if not imap_client:
+                            raise forms.ValidationError(_('Could not connect to %s:%s' % (imap_host, data.get('imap_port'))))
+                    except Exception, e:
+                        print traceback.format_exc(e)
+                        raise forms.ValidationError(_('Could not connect to %s:%s' % (imap_host, data.get('imap_port'))))
+                    else:
+                        try:
+                            # Try authenticating
+                            server = imap._login_in_imap(imap_client)
+                            if not server:
+                                raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
+                        except Exception, e:
+                            print traceback.format_exc(e)
+                            raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
+
+                smtp_host = data.get('smtp_host')
+                try:
+                    # Resolve SMTP server
+                    socket.gethostbyname(smtp_host)
+                except Exception, e:
+                    raise forms.ValidationError(_('Could not resolve %s' % smtp_host))
+                else:
+                    try:
+                        # Try connecting
+                        smtp = LilyIMAP(ssl=data.get('smtp_ssl'), test=True, host=smtp_host, port=int(data.get('smtp_port')), username=self.username, password=self.password)
+                        smtp_server = smtp.get_smtp_server(fail_silently=False)
+                        smtp_server.open()
+                        smtp_server.close()
+                    except SMTPAuthenticationError, e:
+                        raise forms.ValidationError(_('Unable to login with provided username and password on the SMTP host'))
+                    except Exception, e:
+                        print traceback.format_exc(e)
+                        raise forms.ValidationError(_('Could not connect to %s:%s' % (smtp_host, data.get('smtp_port'))))
+            except:
+                raise
+            finally:
+                socket.setdefaulttimeout(defaulttimeout)
+
+        return data
+
+
+class EmailConfigurationStep3Form(Form, FieldInitFormMixin):
+    """
+    Fields in e-mail configuration wizard step 3.
+    """
+    name = forms.CharField(max_length=255, label=_('Your name'), widget=forms.TextInput(attrs={
+        'placeholder': _('First Last')
+    }))
+    signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(attrs={
+        'click_and_show': False,
+    }), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EmailConfigurationStep3Form, self).__init__(*args, **kwargs)

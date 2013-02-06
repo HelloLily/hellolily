@@ -169,6 +169,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.formtools',
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -187,7 +188,7 @@ INSTALLED_APPS = (
     'storages',
     'crispy_forms',
     'django_extensions',
-#    'template_debug', # in-template tags for debugging purposes
+    # 'template_debug',  # in-template tags for debugging purposes
 
     # Lily
     'lily',  # required for management command
@@ -231,11 +232,18 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'extended': {
+            'format': '[%(asctime)s] %(filename)s#%(lineno)s %(funcName)s(): %(message)s',
+            'datefmt': '%H:%M:%S',
+        },
+    },
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'filters': ['require_debug_false'],
             'class': 'logging.StreamHandler',
+            'formatter': 'extended'
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -256,7 +264,11 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        '': {
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
         },

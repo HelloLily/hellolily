@@ -2,11 +2,12 @@ from django.conf.urls import patterns, url
 
 from lily.messaging.email.views import email_inbox_view, detail_email_sent_view, \
  detail_email_draft_view, detail_email_archive_view, detail_email_compose_view, \
- email_json_view, add_email_account_view, edit_email_account_view, \
+ email_json_view, edit_email_account_view, \
  detail_email_account_view, add_email_template_view, edit_email_template_view, \
  detail_email_template_view, parse_email_template_view, email_html_view, \
  mark_read_view, mark_unread_view, move_trash_view, email_compose_view, \
- email_compose_template_view, email_drafts_view, email_reply_view, email_forward_view
+ email_compose_template_view, email_drafts_view, email_reply_view, \
+ email_forward_view, email_configuration_wizard, email_configuration_wizard_template
 
 
 urlpatterns = patterns('',
@@ -34,7 +35,8 @@ urlpatterns = patterns('',
     url(r'^movetotrash/$', move_trash_view, name='messaging_move_trash'),
 
     # e-mail account views
-    url(r'^account/add/$', add_email_account_view, name='messaging_email_account_add'),
+    url(r'^account/wizard/$', email_configuration_wizard_template, name='messaging_email_account_wizard_template'),
+    url(r'^account/wizard/(?P<pk>[\w-]+)/$', email_configuration_wizard, name='messaging_email_account_wizard'),
     url(r'^account/edit/(?P<pk>[\w-]+)/$', edit_email_account_view, name='messaging_email_account_edit'),
     url(r'^account/details/(?P<pk>[\w-]+)/$', detail_email_account_view, name='messaging_email_account_details'),
 

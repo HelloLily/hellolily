@@ -1,6 +1,6 @@
 import re
 
-from BeautifulSoup import BeautifulSoup, Comment
+from bs4 import BeautifulSoup, Comment
 from django.db import models
 from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END
 from django.template.loader import get_template_from_string
@@ -86,8 +86,7 @@ def flatten_html_to_text(html, replace_br=False):
     else:
         flat_body = soup
 
-    # Strip tags and whitespace
-    return ''.join(flat_body.findAll(text=True)).strip('&nbsp;\n ').replace('\r\n', ' ').replace('\r', '').replace('\n', '\n' if replace_br else ' ').replace('&nbsp;', ' ')  # pass html white-space to strip() also
+    return flat_body.get_text(separator=u' ', strip=True)
 
 
 class TemplateParser(object):

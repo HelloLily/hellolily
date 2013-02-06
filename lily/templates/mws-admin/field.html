@@ -12,6 +12,12 @@
             <label for="{{ field.id_for_label }}" {% if field.field.required %}class="requiredField"{% endif %}>
                 {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
             </label>
+
+            {% if field.label %}
+                {% if not field|is_checkbox %}
+                    <div class="mws-form-item">
+                {% endif %}
+            {% endif %}
         {% endif %}
 
         {% if not field|is_checkbox %}
@@ -80,6 +86,11 @@
                 {% else %}
                     {% crispy_field field %}
                 {% endif %}
+            {% endif %}
+
+
+            {% if field.label %}
+                </div>
             {% endif %}
         {% endif %}
 

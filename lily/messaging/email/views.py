@@ -5,6 +5,7 @@ import traceback
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -18,12 +19,15 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from lily.contacts.models import Contact
-from lily.messaging.email.emailclient import LilyIMAP, DRAFTS
-from lily.messaging.email.forms import CreateUpdateEmailAccountForm, \
-    CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm
-from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate
+from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX
+from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
+    EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
+    EmailConfigurationStep2Form, EmailConfigurationStep3Form
+from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
+from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text
+from lily.tenant.middleware import get_current_user
+from lily.utils.functions import uniquify
 from lily.utils.models import EmailAddress
 
 
@@ -45,15 +49,6 @@ class DetailEmailArchiveView(TemplateView):
 
 class DetailEmailComposeView(TemplateView):
     template_name = 'messaging/email/account_create.html'
-
-
-class AddEmailAccountView(CreateView):
-    """
-    Create a new e-mail account that can be used for sending and retreiving emails.
-    """
-    template_name = 'messaging/email/account_create.html'
-    model = EmailAccount
-    form_class = CreateUpdateEmailAccountForm
 
 
 class EditEmailAccountView(TemplateView):
@@ -135,42 +130,49 @@ class ParseEmailTemplateView(FormView):
         }), mimetype="application/json")
 
 
-class EmailInboxView(ListView):
+class EmailFolderView(ListView):
     """
-    Show a list of e-mail messages.
+    Show a list of e-mail messages in a certain folder.
     """
     template_name = 'messaging/email/model_list.html'
     paginate_by = 10
+    folder_name = None
+    folder_identifier = None
 
     def get(self, request, *args, **kwargs):
-        # Check need to synchronize before hitting the database
         ctype = ContentType.objects.get_for_model(EmailAccount)
-        self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype).all()
-        page = self.kwargs.get('page') or self.request.GET.get('page') or 1
+        self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
 
-        try:
-            page = int(page)
-        except:
-            page = 1
+        # Uniquify accounts, doubles are possible via personal, group, shared access etc.
+        self.messages_accounts = uniquify(self.messages_accounts, filter=lambda x: x.emailaccount.email.email_address)
 
-        self.queryset = self.get_queryset()
-
-        return super(EmailInboxView, self).get(request, *args, **kwargs)
+        return super(EmailFolderView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return EmailMessage.objects.filter(~Q(flags__icontains='draft'), account__in=self.messages_accounts).order_by('-sent_date')
+        if self.folder_name is not None:
+            return EmailMessage.objects.filter(account__in=self.messages_accounts, folder_name=self.folder_name).order_by('-sent_date')
+        elif self.folder_identifier is not None:
+            return EmailMessage.objects.filter(account__in=self.messages_accounts, folder_identifier=self.folder_identifier.lstrip('\\')).order_by('-sent_date')
+        return EmailMessage.objects.none()
 
     def get_context_data(self, **kwargs):
         """
         Overloading super().get_context_data to provide the list item template.
         """
-        kwargs = super(EmailInboxView, self).get_context_data(**kwargs)
+        kwargs = super(EmailFolderView, self).get_context_data(**kwargs)
         kwargs.update({
             'list_item_template': 'messaging/email/model_list_item.html',
-            'accounts': ', '.join([messaging_account.email for messaging_account in self.messages_accounts]),
+            'accounts': ', '.join([messaging_account.email.email_address for messaging_account in self.messages_accounts]),
         })
 
         return kwargs
+
+
+class EmailInboxView(EmailFolderView):
+    """
+    Show INBOX folder for all accessible messages accounts.
+    """
+    folder_identifier = INBOX
 
 
 class EmailDraftListView(EmailInboxView):
@@ -214,9 +216,10 @@ class EmailMessageJSONView(View):
             if instance.body is None or len(instance.body.strip()) == 0:
                 # Retrieve directly from IMAP (marks as read automatically)
                 server = LilyIMAP(provider=instance.account.provider, account=instance.account)
-                message = server.get_modifiers_for_uid(instance.uid, modifiers=['BODY[]', 'FLAGS', 'RFC822.SIZE'], folder=instance.folder_name)
+                message = server.get_modifiers_for_uid(instance.uid, modifiers=['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], folder=instance.folder_name)
                 if len(message):
-                    save_email_messages({instance.uid: message}, instance.account, message.get('folder_name'))
+                    folder = server.get_folder(message.get('folder_name'))
+                    save_email_messages({instance.uid: message}, instance.account, folder.get_server_name(), folder.identifier)
 
                 instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             else:
@@ -230,7 +233,7 @@ class EmailMessageJSONView(View):
             message['sent_date'] = unix_time_millis(instance.sent_date)
             message['flags'] = instance.flags
             message['uid'] = instance.uid
-            message['flat_body'] = truncatechars(instance.flatten_body, 200).encode('utf-8')
+            message['flat_body'] = truncatechars(instance.flatten_body, 200)
             message['subject'] = instance.subject.encode('utf-8')
             message['size'] = instance.size
             message['is_private'] = instance.is_private
@@ -381,10 +384,11 @@ class EmailComposeView(FormView):
 
                 uid = int(server.save_draft(message_string))
                 message = server.get_modifiers_for_uid(uid, modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'], folder=DRAFTS)
-                save_email_messages({uid: message}, instance.send_from, server.get_server_name_for_folder(DRAFTS), new_messages=True)
+                folder = server.get_folder_by_identifier(DRAFTS)
+                save_email_messages({uid: message}, instance.send_from, folder.get_server_name(), folder.identifier, new_messages=True)
 
                 try:
-                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=server.get_server_name_for_folder(DRAFTS))
+                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=folder.get_server_name())
                 except EmailMessage.DoesNotExist, e:
                     print traceback.format_exc(e)
             except Exception, e:
@@ -504,7 +508,7 @@ class EmailReplyView(FormView):
                     quoted_lines = ['> %s' % line for line in quoted_lines]
                     quoted_content = '<br />'.join(quoted_lines)
 
-        # Prepend separation notice
+        # Prepend notice that the following text is a quote
         #
         # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
         #
@@ -517,7 +521,6 @@ class EmailReplyView(FormView):
         if hasattr(self, 'message'):
             # Set initial values
             kwargs.update({
-                # 'draft_id': self.message_id,
                 'initial': {
                     'subject': 'RE: %s' % self.message.subject,
                     'send_to_normal': self.message.from_combined,
@@ -557,10 +560,11 @@ class EmailReplyView(FormView):
 
                 uid = int(server.save_draft(message_string))
                 message = server.get_modifiers_for_uid(uid, modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'], folder=DRAFTS)
-                save_email_messages({uid: message}, instance.send_from, server.get_server_name_for_folder(DRAFTS), new_messages=True)
+                folder = server.get_folder_by_identifier(DRAFTS)
+                save_email_messages({uid: message}, instance.send_from, folder.get_server_name(), folder.identifier, new_messages=True)
 
                 try:
-                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=server.get_server_name_for_folder(DRAFTS))
+                    self.new_draft = EmailMessage.objects.get(account=instance.send_from, uid=uid, folder_name=folder.get_server_name())
                 except EmailMessage.DoesNotExist, e:
                     print traceback.format_exc(e)
             except Exception, e:
@@ -688,6 +692,139 @@ class EmailDraftTemplateView(TemplateView):
         return kwargs
 
 
+class EmailConfigurationWizardTemplate(TemplateView):
+    """
+    View to provide html for wizard form skeleton to configure e-mail accounts.
+    """
+    template_name = 'messaging/email/wizard_configuration_form.html'
+
+
+class EmailConfigurationView(SessionWizardView):
+    template_name = 'messaging/email/wizard_configuration_form_step.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Verify email address exists
+        self.email_address_id = kwargs.get('pk')
+        try:
+            pk = kwargs.pop('pk')
+            self.email_address = EmailAddress.objects.get(pk=pk)
+        except EmailAddress.DoesNotExist:
+            raise Http404()
+
+        # Set up initial values per step
+        self.initial_dict = {
+            '0': {},
+            '1': {},
+            '2': {}
+        }
+
+        # Default: email as username
+        self.initial_dict['0']['email'] = self.initial_dict['0']['username'] = self.email_address.email_address
+
+        try:
+            email_account = EmailAccount.objects.get(email=self.email_address)
+        except EmailAccount.DoesNotExist:
+            # Set from_name
+            contacts = self.email_address.contact_set.all()
+            if len(contacts) > 0:  # check to be safe, but should always have a contact when using this format
+                contact = contacts[0]
+                self.initial_dict['2']['name'] = contact.full_name()
+        else:
+            # Set provider data
+            self.initial_dict['1']['imap_host'] = email_account.provider.imap_host
+            self.initial_dict['1']['imap_port'] = email_account.provider.imap_port
+            self.initial_dict['1']['imap_ssl'] = email_account.provider.imap_ssl
+            self.initial_dict['1']['smtp_host'] = email_account.provider.smtp_host
+            self.initial_dict['1']['smtp_port'] = email_account.provider.smtp_port
+            self.initial_dict['1']['smtp_ssl'] = email_account.provider.smtp_ssl
+
+            # Set from_name and signature
+            self.initial_dict['2']['name'] = email_account.from_name
+            self.initial_dict['2']['signature'] = email_account.signature
+
+        return super(EmailConfigurationView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        """
+        Reset storage on first request.
+        """
+        self.storage.reset()
+        return super(EmailConfigurationView, self).get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        """
+        Override POST to validate the form first.
+        """
+        # Get the form for the current step
+        form = self.get_form(data=self.request.POST.copy())
+
+        # On first request, there's nothing to validate
+        if self.storage.current_step is None:
+            # Render the same form if it's not valid, continue otherwise
+            if form.is_valid():
+                return super(EmailConfigurationView, self).post(*args, **kwargs)
+            return self.render(form)
+        elif form.is_valid():
+            self.storage.set_step_data(self.steps.current, self.process_step(form))
+        else:
+            return self.render(form)
+        return super(EmailConfigurationView, self).post(*args, **kwargs)
+
+    def get_form_kwargs(self, step=None):
+        """
+        Returns the keyword arguments for instantiating the form
+        (or formset) on the given step.
+        """
+        kwargs = super(EmailConfigurationView, self).get_form_kwargs(step)
+
+        if int(step) == 1:
+            cleaned_data = self.get_cleaned_data_for_step(unicode(int(step) - 1))
+            if cleaned_data is not None:
+                kwargs.update({
+                    'username': cleaned_data.get('username'),
+                    'password': cleaned_data.get('password'),
+                })
+
+        return kwargs
+
+    def done(self, form_list, **kwargs):
+        data = {}
+        for form in self.form_list.keys():
+            data[form] = self.get_cleaned_data_for_step(form)
+
+        # Save provider and emailaccount instances
+        provider = EmailProvider()
+        provider.imap_host = data['1']['imap_host']
+        provider.imap_port = data['1']['imap_port']
+        provider.imap_ssl = data['1']['imap_ssl']
+        provider.smtp_host = data['1']['smtp_host']
+        provider.smtp_port = data['1']['smtp_port']
+        provider.smtp_ssl = data['1']['smtp_ssl']
+
+        provider.save()
+
+        try:
+            account = EmailAccount.objects.get(email=self.email_address)
+        except EmailAccount.DoesNotExist:
+            account = EmailAccount()
+            account.email = self.email_address
+
+        account.account_type = 'email'
+        account.from_name = data['2']['name']
+        account.signature = data['2']['signature']
+        account.username = data['0']['username']
+        account.password = data['0']['password']
+        account.provider = provider
+        account.last_sync_date = datetime.datetime.today() - datetime.timedelta(days=1)
+        account.save()
+
+        # Link contact's user to emailaccount
+        account.user_group.add(get_current_user())
+        # account.save()
+
+        return HttpResponse(render_to_string(self.template_name, {'messaging_email_inbox': reverse('messaging_email_inbox')}, None))
+
+
 # E-mail views
 # detail_email_inbox_view = DetailEmailInboxView.as_view()
 email_inbox_view = login_required(EmailInboxView.as_view())
@@ -709,7 +846,9 @@ detail_email_archive_view = DetailEmailArchiveView.as_view()
 detail_email_compose_view = DetailEmailComposeView.as_view()
 
 # E-mail account views
-add_email_account_view = AddEmailAccountView.as_view()
+email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())
+email_configuration_wizard = login_required(EmailConfigurationView.as_view([EmailConfigurationStep1Form, EmailConfigurationStep2Form, EmailConfigurationStep3Form]))
+
 edit_email_account_view = EditEmailAccountView.as_view()
 detail_email_account_view = DetailEmailAccountView.as_view()
 

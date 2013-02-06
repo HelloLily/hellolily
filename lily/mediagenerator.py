@@ -99,6 +99,7 @@ extra_theme_bundle_js = (
     'accounts/js/accounts.js',
 
     'contacts/js/contacts.js',
+    'plugins/smartwizard/js/jquery.smartWizard-2.0.js',
 
     'cases/js/cases.js',
 
@@ -136,6 +137,7 @@ MEDIA_BUNDLES = (
     ('lily.contacts.css',
         'contacts/css/contacts.css',
         'contacts/css/responsive.css',
+        'plugins/smartwizard/styles/smart_wizard.css',
     ),
     ('lily.deals.css',
         'deals/css/deals.css',

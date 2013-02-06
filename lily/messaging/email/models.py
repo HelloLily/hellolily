@@ -4,29 +4,30 @@ from django.db import models
 from django.template.defaultfilters import truncatechars
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
-from django_fields.fields import EncryptedCharField, EncryptedEmailField
+from django_fields.fields import EncryptedCharField
 
 from lily.messaging.email.emailclient import DRAFTS, TRASH
 from lily.messaging.email.utils import flatten_html_to_text
 from lily.messaging.models import Message, MessagesAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.utils.models import EmailAddress
 
 
 class EmailProvider(TenantMixin):
     """
     A provider contains the connection information for an account.
     """
-    name = models.CharField(max_length=30, blank=True, null=True)  # named providers are defaults.
-    retrieve_host = models.CharField(max_length=32)
-    retrieve_port = models.IntegerField()
-
-    send_host = models.CharField(max_length=32)
-    send_port = models.IntegerField()
-    send_use_tls = models.BooleanField()
+    name = models.CharField(max_length=30, blank=True, null=True)  # named providers can be selected to pre-fill the form.
+    imap_host = models.CharField(max_length=32)
+    imap_port = models.PositiveIntegerField()
+    imap_ssl = models.BooleanField()
+    smtp_host = models.CharField(max_length=32)
+    smtp_port = models.PositiveIntegerField()
+    smtp_ssl = models.BooleanField()
 
     def __unicode__(self):
-        return self.retrieve_host if len(self.name.strip()) == 0 else self.name
+        return self.imap_host if self.name and len(self.name.strip()) == 0 else self.name or ''
 
     class Meta:
         verbose_name = _('e-mail provider')
@@ -37,15 +38,16 @@ class EmailAccount(MessagesAccount):
     """
     An e-mail account.
     """
-    name = models.CharField(max_length=255)
-    email = EncryptedEmailField(max_length=255)
+    from_name = models.CharField(max_length=255)
+    signature = models.TextField(blank=True, null=True)
+    email = models.ForeignKey(EmailAddress, related_name='email', unique=True)
     username = EncryptedCharField(max_length=255)
     password = EncryptedCharField(max_length=255)
     provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     last_sync_date = models.DateTimeField()
 
     def __unicode__(self):
-        return self.name if self.name else self.email
+        return self.from_name if self.from_name else self.email
 
     class Meta:
         verbose_name = _('e-mail account')
@@ -61,6 +63,7 @@ class EmailMessage(Message):
     body = models.TextField(blank=True, null=True)
     size = models.IntegerField(default=0, null=True)  # size in bytes
     folder_name = models.CharField(max_length=255)
+    folder_identifier = models.CharField(max_length=255, blank=True, null=True)
     is_private = models.BooleanField(default=False)
 
     def has_attachments(self):

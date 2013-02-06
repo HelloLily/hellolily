@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -29,6 +30,7 @@ from lily.messaging.email.utils import get_email_parameter_choices, flatten_html
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import uniquify
 from lily.utils.models import EmailAddress
+from lily.utils.views import DeleteBackAddSaveFormViewMixin
 
 
 class DetailEmailInboxView(TemplateView):
@@ -65,7 +67,7 @@ class DetailEmailAccountView(TemplateView):
     template_name = 'messaging/email/account_create.html'
 
 
-class AddEmailTemplateView(CreateView):
+class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
     """
     Create a new e-mail template that can be used for sending emails.
     """
@@ -84,18 +86,29 @@ class AddEmailTemplateView(CreateView):
         """
         Redirect to the edit view, so the default values of parameters can be filled in.
         """
-        return reverse('messaging_email_template_edit', kwargs={
-            'pk': self.object.pk,
-        })
+        return reverse('messaging_email_inbox')
 
 
-class EditEmailTemplateView(UpdateView):
+class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
     """
     Parse an uploaded template for variables and return a generated form/
     """
     template_name = 'messaging/email/template_create_or_update.html'
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
+
+    def get_context_data(self, **kwargs):
+        context = super(EditEmailTemplateView, self).get_context_data(**kwargs)
+        context.update({
+            'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
+        })
+        return context
+
+    def get_success_url(self):
+        """
+        Redirect to the edit view, so the default values of parameters can be filled in.
+        """
+        return reverse('messaging_email_inbox')
 
 
 class DetailEmailTemplateView(TemplateView):
@@ -228,18 +241,19 @@ class EmailMessageJSONView(View):
             instance.is_seen = True
             instance.save()
 
-            message = {}
-            message['id'] = instance.id
-            message['sent_date'] = unix_time_millis(instance.sent_date)
-            message['flags'] = instance.flags
-            message['uid'] = instance.uid
-            message['flat_body'] = truncatechars(instance.flatten_body, 200)
-            message['subject'] = instance.subject.encode('utf-8')
-            message['size'] = instance.size
-            message['is_private'] = instance.is_private
-            message['is_read'] = instance.is_seen
-            message['is_plain'] = instance.is_plain
-            message['folder_name'] = instance.folder_name
+            message = {
+                'id': instance.id,
+                'sent_date': unix_time_millis(instance.sent_date),
+                'flags': instance.flags,
+                'uid': instance.uid,
+                'flat_body': truncatechars(instance.flatten_body, 200),
+                'subject': instance.subject.encode('utf-8'),
+                'size': instance.size,
+                'is_private': instance.is_private,
+                'is_read': instance.is_seen,
+                'is_plain': instance.is_plain,
+                'folder_name': instance.folder_name,
+            }
 
             # Replace body with a more richer version of an e-mail view
             message['body'] = render_to_string(self.template_name, {'object': instance})

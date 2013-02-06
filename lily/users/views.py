@@ -501,13 +501,13 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
         """
         Redirect to display a certain page when jumping towards one.
         """
-        if self.request.POST.has_key('page'):
+        if 'page' in self.request.POST:
             try:
                 location = 'dashboard'
                 kwargs = {
                     'page': int(self.request.POST.get('page'))
                 }
-                if self.request.POST.has_key('tag'):
+                if 'tag' in self.request.POST:
                     kwargs.update({'tag': self.request.POST.get('tag')})
                     location += '_tag'
 
@@ -557,7 +557,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
             'page': page,
             'blogentry_list': page.object_list,
             'blogentry_form': CreateBlogEntryForm,
-            'has_tag_filter': self.kwargs.has_key('tag'),
+            'has_tag_filter': 'tag' in self.kwargs,
             'tag': self.kwargs.get('tag', None),
         })
 

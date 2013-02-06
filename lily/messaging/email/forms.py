@@ -23,7 +23,7 @@ from lily.utils.widgets import EmailProviderSelect
 
 class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
     """
-    Form for displaying e-mail parameters.
+    Form used for creating and updating email templates.
     """
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
@@ -47,7 +47,7 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
             Column('variables', size=2, first=True),
             Column('values', size=2),
             Column('text_value', size=2),
-            Button(name='variable_submit', value=_('Insert'), css_class='small', css_id='id_insert_button'),
+            Button(name='variable_submit', value=_('Insert'), css_id='id_insert_button'),
             label=_('Insert variable'),
         )
 
@@ -64,12 +64,33 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
         self.fields['variables'].choices += [[x, x] for x in get_email_parameter_choices().keys()]
 
     def clean(self):
+        """
+        Make sure the form is valid.
+        """
         cleaned_data = super(CreateUpdateEmailTemplateForm, self).clean()
         html_part = cleaned_data.get('body_html')
         text_part = cleaned_data.get('body_text')
 
         if not html_part and not text_part:
             self._errors['body_html'] = _('Please fill in the html part or the text part, at least one of these is required.')
+        elif html_part:
+            parsed_template = TemplateParser(html_part)
+            if parsed_template.is_valid():
+                cleaned_data.update({
+                    'body_html': parsed_template.get_text(),
+                })
+            else:
+                self._errors['body_html'] = parsed_template.error.message
+                del cleaned_data['body_html']
+        elif text_part:
+            parsed_template = TemplateParser(text_part)
+            if parsed_template.is_valid():
+                cleaned_data.update({
+                    'body_text': parsed_template.get_text(),
+                })
+            else:
+                self._errors['body_text'] = parsed_template.error.message
+                del cleaned_data['body_text']
 
         return cleaned_data
 
@@ -91,6 +112,9 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
 
 
 class EmailTemplateFileForm(Form):
+    """
+    Form that is used to parse uploaded template files.
+    """
     body_file = forms.FileField(label=_('Message body'))
 
     def clean(self):
@@ -101,22 +125,24 @@ class EmailTemplateFileForm(Form):
 
         cleaned_data = super(EmailTemplateFileForm, self).clean()
         body_file = cleaned_data.get('body_file', False)
-        body_file_type = body_file.content_type
 
         file_error = '%s %s.' % (_('Upload a valid template file. Format can be any of these:'), ', '.join(valid_formats))
-        syntax_error = _('There was an error parsing your template file, please make sure to use correct syntax.')
+        syntax_error = _('There was an error parsing your template file:')
 
-        if body_file and body_file_type in valid_formats:
-            parsed_file = TemplateParser(body_file.read())
-            if parsed_file.is_valid():
-                default_part = 'html_part' if body_file_type == 'text/html' else 'text_part'
-                cleaned_data.update(parsed_file.get_parts(default_part=default_part))
+        if body_file:
+            body_file_type = body_file.content_type
+            if body_file_type in valid_formats:
+                parsed_file = TemplateParser(body_file.read())
+                if parsed_file.is_valid():
+                    default_part = 'html_part' if body_file_type == 'text/html' else 'text_part'
+                    cleaned_data.update(parsed_file.get_parts(default_part=default_part))
+                else:
+                    self._errors['body_file'] = syntax_error + ' "' + parsed_file.error.message + '"'
             else:
-                self._errors['body_file'] = syntax_error
+                self._errors['body_file'] = file_error
+            del cleaned_data['body_file']
         else:
             self._errors['body_file'] = file_error
-
-        del cleaned_data['body_file']
 
         return cleaned_data
 

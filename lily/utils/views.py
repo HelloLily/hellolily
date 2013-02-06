@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from hashlib import sha256
 import base64
 import pickle
-import types
+from django.shortcuts import redirect
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -92,8 +92,8 @@ class CustomSingleObjectMixin(object):
                 raise ImproperlyConfigured(u"%(cls)s is missing a detail_queryset. Define "
                                            u"%(cls)s.detail_model, %(cls)s.detail_queryset, or override "
                                            u"%(cls)s.get_object()." % {
-                                                'cls': self.__class__.__name__
-                                        })
+                                               'cls': self.__class__.__name__
+                                           })
         return self.detail_queryset._clone()
 
     def get_detail_slug_field(self):
@@ -161,7 +161,7 @@ class CustomMultipleObjectMixin(object):
             return (paginator, page, page.object_list, page.has_other_pages())
         except InvalidPage:
             raise Http404(_(u'Invalid page (%(page_number)s)') % {
-                                'page_number': page_number
+                'page_number': page_number
             })
 
     def get_paginate_by(self, queryset):
@@ -278,13 +278,13 @@ class MultipleModelListView(object):
         """
         Retrieve the queryset for all models and save them in self.object_lists.
         """
-        if type(self.models) == types.ListType:
+        if isinstance(self.models, list):
             for model in self.models:
                 list_name = smart_str(model._meta.object_name.lower())
                 self.object_lists.update({
                     list_name: self.get_model_queryset(list_name, model)
                 })
-        elif type(self.models) == types.DictType:
+        elif isinstance(self.models, dict):
             for list_name, model in self.models.items():
                 self.object_lists.update({
                     list_name: self.get_model_queryset(list_name, model)
@@ -302,7 +302,7 @@ class MultipleModelListView(object):
         """
         kwargs = super(MultipleModelListView, self).get_context_data(**kwargs)
         for list_name, object_list in self.object_lists.items():
-            if type(self.models) == types.ListType:
+            if isinstance(self.models, list):
                 list_name = '%s%s' % (list_name, self.context_name_suffix)
 
             kwargs.update({
@@ -404,8 +404,8 @@ class DeleteBackAddSaveFormViewMixin(object):
             if request.POST.get('submit-delete', None):
                 pass  # TODO: get delete url
             if request.POST.get('submit-back', None):
-                return self.get_success_url()  # TODO: ask if the user is sure to cancel when the form has been changed
-
+                success_url = self.get_success_url()  # TODO: ask if the user is sure to cancel when the form has been changed
+                return redirect(success_url) if isinstance(success_url, basestring) else success_url
         # continue for other options (add or save)
         return super(DeleteBackAddSaveFormViewMixin, self).post(request, *args, **kwargs)
 
@@ -552,7 +552,7 @@ class ModelFormSetViewMixin(object):
         """
         kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):  # filter formsets from ajax requests
-            if not kwargs.has_key('formsets'):
+            if not 'formsets' in kwargs:
                 kwargs['formsets'] = SortedDict()
 
             for context_name, instance in self.formsets.items():

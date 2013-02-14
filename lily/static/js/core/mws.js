@@ -332,6 +332,10 @@ $(document).ready(function () {
                 $(element).parent().find('i').addClass('ui-icon-carat-1-e');
                 $(element).parent().find('i').removeClass('ui-icon-carat-1-s');
             }
+            if($(element).parent().find('i').hasClass('ui-icon-triangle-1-s')) {
+                $(element).parent().find('i').addClass('ui-icon-caret-1-e');
+                $(element).parent().find('i').removeClass('ui-icon-triangle-1-s');
+            }
         });
 
         // toggle carat for element

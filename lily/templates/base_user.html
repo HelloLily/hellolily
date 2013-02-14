@@ -1,6 +1,6 @@
 {% extends 'base_app.html' %}
 
-{% load i18n media activelink %}
+{% load i18n media activelink email %}
 
 {% block body %}
 
@@ -92,64 +92,27 @@
                     <div id="mws-navigation">
                         <ul>
                             <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
-                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">Dashboard</a>
+                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">{% trans 'Dashboard' %}</a>
                             </li>
                             <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
-                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">Contacts</a>
+                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">{% trans 'Contacts' %}</a>
                             </li>
                             <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">Accounts</a>
+                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">{% trans 'Accounts' %}</a>
                             </li>
                             <li class="mws-dropdown-menu {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
-                                <a href="#messaging" class="{% ifstartswith "messaging_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
-                                    Messages
+                                <a href="javascript:void(0)" class="{% ifstartswith "messaging_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
+                                    {% trans 'Messages' %}
                                 </a>
-
-                                <ul {% ifstartswith "messaging_dashboard" %}class="open"{% else %}class="closed"{% endifstartswith%}>
-                                    <li {% ifactive "messaging_email_inbox" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_inbox %}" class="i-20 i-archive">
-                                            {% trans 'Inbox' %}
-                                            <span class="mws-nav-tooltip mws-inset" >146</span>
-                                        </a>
-                                    </li>
-                                    <li {% ifactive "messaging_email_next_steps" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_next_steps %}" class="i-20 i-bended-arrow-left">
-                                            {% trans 'Next Steps' %}
-                                        </a>
-                                    </li>
-                                    <li {% ifactive "messaging_email_sent" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_sent %}" class="i-20 i-bended-arrow-left">
-                                            {% trans 'Sent' %}
-                                        </a>
-                                    </li>
-                                    <li {% ifactive "messaging_email_drafts" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_drafts %}" class="i-20 i-create">
-                                            {% trans 'Drafts' %}
-                                            <span class="mws-nav-tooltip mws-inset">11</span>
-                                        </a>
-                                    </li>
-                                    <li style="background: #ffffff;">
-                                        <a href="#"></a>
-                                    </li>
-                                    <li {% ifactive "messaging_email_archived" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_archived %}" class="i-20 i-folder">
-                                            {% trans 'Archived' %}
-                                            <span class="mws-nav-tooltip mws-inset">32</span>
-                                        </a>
-                                    </li>
-                                    <li {% ifactive "messaging_email_trash" %}class="active"{% endifactive %}>
-                                        <a href="{% url messaging_email_trash %}" class="i-20 i-trash">
-                                            {% trans 'Trash' %}
-                                            <span class="mws-nav-tooltip mws-inset">32</span>
-                                        </a>
-                                    </li>
+                                <ul>
+                                    {% email_folder_tree %}
                                 </ul>
                             </li>
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">Deals</a>
+                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">{% trans 'Deals' %}</a>
                             </li>
                             <li {% ifstartswith "case_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">Cases</a>
+                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">{% trans 'Cases' %}</a>
                             </li>
                         </ul>
                     </div>

@@ -22,7 +22,7 @@
  * 7. Footer
  *
  */
- 
+
 /* (1) Header
 ================================================== */
 
@@ -34,7 +34,7 @@ div#mws-header
     z-index:1;
     position:absolute;
     top:0; left:0; right:0;
-    
+
     -moz-box-shadow:0 2px 2px rgba(0, 0, 0, 0.35);
     -webkit-box-shadow:0 2px 2px rgba(0, 0, 0, 0.35);
     -o-box-shadow:0 2px 2px rgba(0, 0, 0, 0.35);
@@ -44,7 +44,7 @@ div#mws-header
 
     /* (1.1) Logo
     ================================================== */
-    
+
     div#mws-logo-container
     {
         width:180px;
@@ -52,7 +52,7 @@ div#mws-header
         float:left;
         padding:0 10px;
     }
-    
+
     div#mws-logo-container #mws-logo-wrap
     {
         width:180px;
@@ -61,24 +61,24 @@ div#mws-header
         vertical-align:middle;
         display:table-cell;
     }
-    
+
     div#mws-logo-container #mws-logo-wrap img
     {
         max-width:180px;
         max-height:58px;
     }
-    
+
     /* (1.2) User Toolbar
     ================================================== */
-    
+
     div#mws-user-tools
     {
         float:right;
         padding:9px 0;
         margin-right:10px;
     }
-    
-    div#mws-user-tools .mws-dropdown-menu, 
+
+    div#mws-user-tools .mws-dropdown-menu,
     div#mws-user-tools #mws-user-info
     {
         display:inline-block;
@@ -86,18 +86,18 @@ div#mws-header
         position:relative;
         margin:0 6px;
     }
-    
+
     div#mws-user-tools .mws-dropdown-menu
     {
         margin-top:4px;
     }
-    
+
     div#mws-user-tools #mws-user-info
     {
         height:32px;
         padding:4px;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-photo
     {
         width:28px;
@@ -106,55 +106,55 @@ div#mws-header
         float:left;
         background:url(../../images/core/mws-user-pic-bg.png) repeat-x;
         position:relative;
-        
+
         /* CSS 3 */
-        
+
         -webkit-border-radius:2px;
         -moz-border-radius:2px;
         -o-border-radius:2px;
         -khtml-border-radius:2px;
         border-radius:2px;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-photo img
     {
         max-width:100%;
         max-height:100%;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-functions
     {
         margin:0 4px 0 40px;
         font-size:11px;
     }
-    
-    div#mws-user-tools #mws-user-info #mws-user-functions ul, 
+
+    div#mws-user-tools #mws-user-info #mws-user-functions ul,
     div#mws-user-tools #mws-user-info #mws-user-functions ul li
     {
         margin:0;
         list-style:none;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-functions ul li
     {
         display:inline;
         margin-right:4px;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-functions ul li a
     {
         text-decoration:none;
         color:#ffffff;
     }
-    
+
     div#mws-user-tools #mws-user-info #mws-user-functions ul li a:hover
     {
         text-decoration:underline;
     }
-    
+
     /* (1.3) User Toolbar Dropdown Menu
     ================================================== */
-    
+
     div#mws-user-tools .mws-dropdown-menu span.mws-dropdown-notif
     {
         position:absolute;
@@ -169,22 +169,22 @@ div#mws-header
         top:-4px;
         left:75%;
         z-index:2;
-        
+
         /* CSS 3 */
-        
+
         -webkit-border-radius:2px;
         -moz-border-radius:2px;
         -o-border-radius:2px;
         -khtml-border-radius:2px;
         border-radius:2px;
     }
-    
-    div#mws-user-tools .mws-dropdown-menu a.mws-i-24, 
+
+    div#mws-user-tools .mws-dropdown-menu a.mws-i-24,
     div#mws-user-tools .mws-dropdown-menu a.mws-ic
     {
         background-position:center center;
     }
-    
+
     div#mws-user-tools .mws-dropdown-menu a.mws-dropdown-trigger
     {
         text-indent:-9999px;
@@ -195,16 +195,16 @@ div#mws-header
         width:32px;
         height:32px;
         border:1px solid #565656;
-        
+
         /* CSS 3 */
-        
+
         -webkit-border-radius:4px;
         -moz-border-radius:4px;
         -o-border-radius:4px;
         -khtml-border-radius:4px;
         border-radius:4px;
     }
-    
+
     div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box
     {
         display:none;
@@ -215,41 +215,41 @@ div#mws-header
         margin-top:-1px;
         z-index:-1;
         padding:10px;
-        
+
         background:#323232;
         border:1px solid #565656;
-        
+
         /* CSS 3 */
-        
+
         -webkit-border-radius:6px 0 6px 6px;
         -moz-border-radius:6px 0 6px 6px;
         -o-border-radius:6px 0 6px 6px;
         -khtml-border-radius:6px 0 6px 6px;
-        border-radius:6px 0 6px 6px;    
+        border-radius:6px 0 6px 6px;
     }
-    
+
     div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content
     {
         background:#ffffff;
     }
-    
-    div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box ul, 
+
+    div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box ul,
     div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box ul li
     {
         margin:0;
         list-style:none;
         font-size:12px;
     }
-    
+
         /* (1.3.1) User Toolbar Dropdown Styles
         ================================================== */
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li a
         {
             padding-left:32px;
         }
-        
-        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content .mws-dropdown-viewall a, 
+
+        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content .mws-dropdown-viewall a,
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul li a
         {
             padding:4px 8px;
@@ -258,41 +258,41 @@ div#mws-header
             display:block;
             border-bottom:1px solid #d0d0d0;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content .mws-dropdown-viewall a
         {
             border:0;
             font-size:11px;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content .mws-dropdown-viewall a:hover
         {
             background-color:#d5d5d5;
         }
-        
-        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li:hover a, 
+
+        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li:hover a,
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-notifications li:hover a
         {
             background-color:#d5d5d5 !important;
             border-bottom-color:#bbbbbb;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li.read a
         {
             background:url(../icons/16/email_open.png) no-repeat 8px center;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li.unread a
         {
             background:url(../icons/16/email.png) no-repeat 8px center #f0f0f0;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-notifications li.unread a
         {
             background:#f0f0f0;
         }
-        
-        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .message, 
+
+        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .message,
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-notifications li .message
         {
             overflow:hidden;
@@ -300,39 +300,39 @@ div#mws-header
             white-space:nowrap;
             text-overflow:ellipsis;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .sender
         {
             font-weight:bold;
         }
-        
-        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .sender, 
-        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .time, 
+
+        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .sender,
+        div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-messages li .time,
         div#mws-user-tools .mws-dropdown-menu .mws-dropdown-box .mws-dropdown-content ul.mws-notifications li .time
         {
             font-size:0.9em;
             display:block;
         }
-        
+
         /* (1.3.2) User Toolbar Toggled Dropdown Styles
         ================================================== */
-        
+
         div#mws-user-tools .mws-dropdown-menu.toggled
         {
             z-index:2;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu.toggled .mws-dropdown-box
         {
             display:block;
         }
-        
+
         div#mws-user-tools .mws-dropdown-menu.toggled a.mws-dropdown-trigger
         {
             border-bottom:0;
-            
+
             /* CSS 3 */
-                
+
             -webkit-border-radius:4px 4px 0 0;
             -moz-border-radius:4px 4px 0 0;
             -o-border-radius:4px 4px 0 0;
@@ -364,7 +364,7 @@ div#mws-sidebar
     position:relative;
 }
 
-div#mws-sidebar-stitch, 
+div#mws-sidebar-stitch,
 div#mws-sidebar-bg
 {
     position:absolute;
@@ -417,7 +417,7 @@ div#mws-searchbox .mws-search-submit
     border:none;
     cursor:pointer;
     background:url(../../images/core/mws-search-icon.png) no-repeat center center;
-    
+
     -webkit-border-radius:4px;
     -moz-border-radius:4px;
     -o-border-radius:4px;
@@ -428,7 +428,7 @@ div#mws-searchbox .mws-search-submit
 /* (5) Navigation
 ================================================== */
 
-div#mws-navigation ul, 
+div#mws-navigation ul,
 div#mws-navigation ul li
 {
     margin:0;
@@ -448,7 +448,7 @@ div#mws-navigation ul li
     background:url(../../images/core/mws-nav-ruler.png) repeat-x left bottom;
 }
 
-div#mws-navigation ul li a, 
+div#mws-navigation ul li a,
 div#mws-navigation ul li span
 {
     color:#ffffff;
@@ -462,14 +462,14 @@ div#mws-navigation ul li span
     line-height:20px;
 }
 
-div#mws-navigation ul li a.mws-ic, 
+div#mws-navigation ul li a.mws-ic,
 div#mws-navigation ul li span.mws-ic
 {
     padding-left:40px;
     background-position:4px center;
 }
 
-div#mws-navigation ul li a.mws-i-24, 
+div#mws-navigation ul li a.mws-i-24,
 div#mws-navigation ul li span.mws-i-24
 {
     padding-left:40px;
@@ -490,7 +490,7 @@ div#mws-navigation ul li ul
 {
     background:url(../../images/core/mws-inset.png);
     border:0;
-    
+
     -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
     -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.5);
     -o-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -511,7 +511,7 @@ div#mws-navigation ul li ul li
     background-image:none;
 }
 
-div#mws-navigation ul li ul li a, 
+div#mws-navigation ul li ul li a,
 div#mws-navigation ul li ul li span
 {
     display:block;
@@ -521,7 +521,8 @@ div#mws-navigation ul li ul li span
     text-shadow:none;
 }
 
-div#mws-navigation ul li ul li:hover
+div#mws-navigation ul li ul li:hover,
+div#mws-navigation ul li ul ul.active
 {
     background:url(../../images/core/mws-sub-nav-bg.png);
 }

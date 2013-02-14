@@ -1,9 +1,18 @@
+import urllib
 from datetime import datetime
 
 from dateutil.tz import gettz, tzutc
 from dateutil.parser import parse
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+from django.db.models.query_utils import Q
+
+from lily.messaging.email.emailclient import INBOX, SENT, DRAFTS, TRASH, SPAM
+from lily.messaging.email.models import EmailAccount, EmailMessage
+from lily.tenant.middleware import get_current_user
+
 register = template.Library()
 
 
@@ -37,3 +46,166 @@ def pretty_datetime(time, format=None):
         return datetime.strftime(localized_time, '%d-%m-%y')
     else:
         return datetime.strftime(localized_time, '%d-%b.')
+
+
+def get_folder_unread_count(folder, accounts=None):
+    if accounts is None:
+        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
+        accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=get_current_user().messages_accounts.values_list('pk')).order_by('email__email_address')
+
+    return EmailMessage.objects.filter(Q(folder_identifier=folder.lstrip('\\')) | Q(folder_name=folder), account__in=accounts, is_seen=False).count()
+
+
+class UnreadMessagesNode(template.Node):
+    def __init__(self, folder, accounts=None):
+        self.folder = folder
+        self.accounts = accounts
+
+    def render(self, context):
+        folder = self.folder.resolve(context)
+        accounts = self.accounts
+        if self.accounts is not None:
+            accounts = self.accounts.resolve(context)
+            if not isinstance(accounts, list):
+                accounts = [accounts]
+
+        return get_folder_unread_count(folder, accounts)
+
+
+@register.tag(name='unread_folder_count')
+def unread_folder_count(parser, token):
+    """
+    Return the number of sum of unread messages in folder for accounts.
+    """
+    try:
+        tag_name, folder = token.split_contents()
+        folder = template.Variable(folder)
+    except ValueError:
+        try:
+            tag_name, folder, accounts = token.split_contents()
+            folder = template.Variable(folder)
+            accounts = template.Variable(accounts)
+        except ValueError:
+            raise template.TemplateSyntaxError("%r tag requires either one or two arguments" % token.contents.split()[0])
+    else:
+        accounts = None
+    return UnreadMessagesNode(folder=folder, accounts=accounts)
+
+
+def get_folder_html(folder_name, folder, request, account=None):
+    folder_is_active = False
+    html = u''
+    sub_html = u''
+    if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
+
+        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
+        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=get_current_user().messages_accounts.values_list('pk')).order_by('email__email_address')
+        for account in email_accounts:
+            folder_url = 'javascript:void(0)'
+            if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
+                folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
+                sub_reverse_url_name = {
+                    INBOX: 'messaging_email_account_inbox',
+                    SENT: 'messaging_email_account_sent',
+                    DRAFTS: 'messaging_email_account_drafts',
+                    TRASH: 'messaging_email_account_trash',
+                    SPAM: 'messaging_email_account_spam',
+                }.get(folder_flag)
+                folder_url = reverse(sub_reverse_url_name, kwargs={'account_id': account.pk})
+
+            current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+            if current_is_active:
+                folder_is_active = True
+
+            sub_html += """
+                    <li%s>
+                        <a href="%s" style="margin-left: 10px;">
+                            %s
+                            <span class="mws-nav-tooltip mws-inset">%d</span>
+                        </a>
+                    </li>""" % (' class="active"' if current_is_active else '', folder_url, account.email.email_address, get_folder_unread_count(folder_name, accounts=[account]))
+
+        folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
+        reverse_url_name = {
+            INBOX: 'messaging_email_inbox',
+            SENT: 'messaging_email_sent',
+            DRAFTS: 'messaging_email_drafts',
+            TRASH: 'messaging_email_trash',
+            SPAM: 'messaging_email_spam',
+        }.get(folder_flag)
+        folder_url = reverse(reverse_url_name)
+        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+        html += """
+            <li class="mws-dropdown-menu%s">
+                <a href="%s" class="i-16 i-mailbox mws-dropdown-trigger">
+                    %s
+                    <span class="mws-nav-tooltip mws-inset">%d</span>
+                </a>
+                <ul%s>
+                    %s
+                </ul>
+            </li>""" % (' active' if current_is_active or folder_is_active else '', folder_url, folder_name, get_folder_unread_count(folder_name), ' class="active"' if current_is_active or folder_is_active else ' class="closed"', sub_html)
+
+    else:
+        folder_url = 'javascript:void(0)'
+        if not '\\Noselect' in folder.get('flags'):
+            if folder.get('account_id'):
+                folder_url = reverse('messaging_email_account_folder', kwargs={'account_id': folder.get('account_id'), 'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))})
+
+        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+        if current_is_active:
+            folder_is_active = True
+
+        if folder.get('is_parent'):
+            sub_html = u''
+            for sub_folder_name, sub_folder in folder.get('children', {}).items():
+                sub_folder_is_active, sub_folder_html = get_folder_html(sub_folder_name, sub_folder, request, account=account)
+                sub_html += sub_folder_html
+                if sub_folder_is_active:
+                    folder_is_active = True
+
+            html += """
+            <li class="mws-dropdown-menu%s">
+                <a href="%s" class="mws-dropdown-trigger">
+                    <i class="ui-icon %s"></i>
+                    %s
+                </a>
+                <ul%s>
+                    %s
+                </ul>
+            </li>""" % (' active' if folder_is_active else '', folder_url, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active"' if folder_is_active else ' class="closed"', sub_html)
+
+        else:
+            html += """<li%s>
+                        <a href="%s">
+                            %s
+                            <span class="mws-nav-tooltip mws-inset">%d</span>
+                        </a>
+                    </li>""" % (' class="active"' if current_is_active or folder_is_active else '', folder_url, folder_name, get_folder_unread_count(folder_name))
+
+    return folder_is_active, html
+
+
+class EmailFolderTreeNode(template.Node):
+    def __init__(self):
+        self.user = get_current_user()
+        self.folders = template.Variable('email_folders')
+        self.request = template.Variable('request')
+
+    def render(self, context):
+        email_folders = self.folders.resolve(context)
+        request = self.request.resolve(context)
+        html = u''
+        for folder_name, folder in email_folders.items():
+            active, folder_html = get_folder_html(folder_name, folder, request)
+            html += folder_html
+
+        return html
+
+
+@register.tag(name='email_folder_tree')
+def email_folder_tree(parser, token):
+    """
+    Return HTML containing the menu layout for e-mail folders.
+    """
+    return EmailFolderTreeNode()

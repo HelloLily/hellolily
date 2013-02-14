@@ -2,6 +2,7 @@ import email
 
 from django.db import models
 from django.template.defaultfilters import truncatechars
+from django_extensions.db.fields.json import JSONField
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
 from django_fields.fields import EncryptedCharField
@@ -45,6 +46,7 @@ class EmailAccount(MessagesAccount):
     password = EncryptedCharField(max_length=255)
     provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     last_sync_date = models.DateTimeField()
+    folders = JSONField()
 
     def __unicode__(self):
         return self.from_name if self.from_name else self.email
@@ -52,6 +54,7 @@ class EmailAccount(MessagesAccount):
     class Meta:
         verbose_name = _('e-mail account')
         verbose_name_plural = _('e-mail accounts')
+        ordering = ['email__email_address']
 
 
 class EmailMessage(Message):

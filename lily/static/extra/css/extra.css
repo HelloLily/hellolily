@@ -226,6 +226,9 @@ div#mws-navigation ul li a,   /* div#mws-navigation ul li a,  */
 div#mws-navigation ul li span /* div#mws-navigation ul li span */
 {
     color:#000000;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 div#mws-navigation > ul > li.active
@@ -253,6 +256,12 @@ div#mws-navigation ul li ul li a,   /* div#mws-navigation ul li ul li a,  */
 div#mws-navigation ul li ul li span /* div#mws-navigation ul li ul li span */
 {
     color:#000000 !important;
+    padding-right: 40px;
+}
+
+div#mws-navigation ul li span.mws-nav-tooltip /* div#mws-navigation ul li span.mws-nav-tooltip */
+{
+    top:55%;
 }
 
 div#mws-container /* div#mws-container */
@@ -1417,6 +1426,25 @@ p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset, figure
  */
 div#mws-navigation ul li a.i-32,
 div#mws-navigation ul li span.i-32 {
+    padding-left: 40px;
+}
+
+div#mws-navigation ul li a.i-16 {
+    background-position-x: 10px;
+}
+
+div#mws-navigation ul ul li .ui-icon {
+    display: inline-block !important;
+    vertical-align: middle;
+    margin-left: -35px;
+}
+
+div#mws-navigation ul li ul li ul li a {
+    /*margin-left: -5px !important;*/
+    padding-left: 25px;
+}
+
+div#mws-navigation ul li ul li ul li.mws-dropdown-menu a {
     padding-left: 40px;
 }
 

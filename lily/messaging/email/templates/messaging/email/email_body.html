@@ -6,9 +6,7 @@
             {% include_media 'typography.css' %}
             {# {% include_media 'main.css' %} #}
         </head>
-        <body style="white-space: pre-wrap;">
-            {{ body|safe|linebreaksbr }}
-        </body>
+        <body style="white-space: pre-wrap;">{{ body|safe|linebreaksbr }}</body>
     </html>
 {% else %}
     {{ body|safe }}

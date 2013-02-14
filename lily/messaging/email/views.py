@@ -2,7 +2,9 @@ import datetime
 import email
 import textwrap
 import traceback
+import urllib
 
+from dateutil.tz import tzutc
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.formtools.wizard.views import SessionWizardView
@@ -10,7 +12,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -20,7 +21,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from lily.contacts.models import Contact
-from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX
+from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form
@@ -31,26 +32,6 @@ from lily.tenant.middleware import get_current_user
 from lily.utils.functions import uniquify
 from lily.utils.models import EmailAddress
 from lily.utils.views import DeleteBackAddSaveFormViewMixin
-
-
-class DetailEmailInboxView(TemplateView):
-    template_name = 'messaging/email/message_row.html'
-
-
-class DetailEmailSentView(TemplateView):
-    template_name = 'messaging/email/message_row.html'
-
-
-class DetailEmailDraftView(TemplateView):
-    template_name = 'messaging/email/message_row.html'
-
-
-class DetailEmailArchiveView(TemplateView):
-    template_name = 'messaging/email/message_row.html'
-
-
-class DetailEmailComposeView(TemplateView):
-    template_name = 'messaging/email/account_create.html'
 
 
 class EditEmailAccountView(TemplateView):
@@ -153,20 +134,34 @@ class EmailFolderView(ListView):
     folder_identifier = None
 
     def get(self, request, *args, **kwargs):
-        ctype = ContentType.objects.get_for_model(EmailAccount)
-        self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
+        # Determine which accounts to show messages from
+        if kwargs.get('account_id'):
+            self.messages_accounts = request.user.messages_accounts.filter(pk__in=[kwargs.get('account_id')])
+        else:
+            ctype = ContentType.objects.get_for_model(EmailAccount)
+            self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
 
-        # Uniquify accounts, doubles are possible via personal, group, shared access etc.
-        self.messages_accounts = uniquify(self.messages_accounts, filter=lambda x: x.emailaccount.email.email_address)
+            # Uniquify accounts, doubles are possible via personal, group, shared access etc.
+            self.messages_accounts = uniquify(self.messages_accounts, filter=lambda x: x.emailaccount.email.email_address)
+
+        # Deteremine which folder to show messages from
+        if kwargs.get('folder'):
+            self.folder_name = self.folder_identifier = urllib.unquote_plus(kwargs.get('folder'))
 
         return super(EmailFolderView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.folder_name is not None:
-            return EmailMessage.objects.filter(account__in=self.messages_accounts, folder_name=self.folder_name).order_by('-sent_date')
+        """
+        Return empty queryset or return it filtered based on folder_name and/or folder_identifier.
+        """
+        qs = EmailMessage.objects.none()
+        if self.folder_name is not None and self.folder_identifier is not None:
+            qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier.lstrip('\\')) | Q(folder_name=self.folder_name))
+        elif self.folder_name is not None:
+            qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
-            return EmailMessage.objects.filter(account__in=self.messages_accounts, folder_identifier=self.folder_identifier.lstrip('\\')).order_by('-sent_date')
-        return EmailMessage.objects.none()
+            qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier.lstrip('\\'))
+        return qs.filter(account__in=self.messages_accounts).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
         """
@@ -188,12 +183,32 @@ class EmailInboxView(EmailFolderView):
     folder_identifier = INBOX
 
 
-class EmailDraftListView(EmailInboxView):
+class EmailDraftsView(EmailFolderView):
     """
-    Show a list of e-mail message drafts.
+    Show DRAFTS folder for all accessible messages accounts.
     """
-    def get_queryset(self):
-        return EmailMessage.objects.filter(flags__icontains='draft', account__in=self.messages_accounts).order_by('-sent_date')
+    folder_identifier = DRAFTS
+
+
+class EmailSentView(EmailFolderView):
+    """
+    Show SENT folder for all accessible messages accounts.
+    """
+    folder_identifier = SENT
+
+
+class EmailTrashView(EmailFolderView):
+    """
+    Show TRASH folder for all accessible messages accounts.
+    """
+    folder_identifier = TRASH
+
+
+class EmailSpamView(EmailFolderView):
+    """
+    Show SPAM folder for all accessible messages accounts.
+    """
+    folder_identifier = SPAM
 
 
 class EmailMessageJSONView(View):
@@ -829,44 +844,44 @@ class EmailConfigurationView(SessionWizardView):
         account.username = data['0']['username']
         account.password = data['0']['password']
         account.provider = provider
-        account.last_sync_date = datetime.datetime.today() - datetime.timedelta(days=1)
+        account.last_sync_date = datetime.datetime.now(tzutc()) - datetime.timedelta(days=1)
         account.save()
 
         # Link contact's user to emailaccount
         account.user_group.add(get_current_user())
-        # account.save()
 
         return HttpResponse(render_to_string(self.template_name, {'messaging_email_inbox': reverse('messaging_email_inbox')}, None))
 
 
-# E-mail views
-# detail_email_inbox_view = DetailEmailInboxView.as_view()
+# E-mail folder views
 email_inbox_view = login_required(EmailInboxView.as_view())
-email_drafts_view = login_required(EmailDraftListView.as_view())
+email_sent_view = login_required(EmailSentView.as_view())
+email_drafts_view = login_required(EmailDraftsView.as_view())
+email_trash_view = login_required(EmailTrashView.as_view())
+email_spam_view = login_required(EmailSpamView.as_view())
+email_account_folder_view = login_required(EmailFolderView.as_view())
+
+# Ajax views
 email_html_view = login_required(EmailMessageHTMLView.as_view())
 email_json_view = login_required(EmailMessageJSONView.as_view())
 mark_read_view = login_required(MarkReadAjaxView.as_view())
 mark_unread_view = login_required(MarkUnreadAjaxView.as_view())
 move_trash_view = login_required(MoveTrashAjaxView.as_view())
 
+# E-mail interaction views
 email_compose_view = login_required(EmailComposeView.as_view())
 email_compose_template_view = login_required(EmailDraftTemplateView.as_view())
 email_reply_view = login_required(EmailReplyView.as_view())
 email_forward_view = login_required(EmailForwardView.as_view())
 
-detail_email_sent_view = DetailEmailSentView.as_view()
-detail_email_draft_view = DetailEmailDraftView.as_view()
-detail_email_archive_view = DetailEmailArchiveView.as_view()
-detail_email_compose_view = DetailEmailComposeView.as_view()
-
-# E-mail account views
+# E-mail account wizard views
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())
 email_configuration_wizard = login_required(EmailConfigurationView.as_view([EmailConfigurationStep1Form, EmailConfigurationStep2Form, EmailConfigurationStep3Form]))
 
 edit_email_account_view = EditEmailAccountView.as_view()
 detail_email_account_view = DetailEmailAccountView.as_view()
 
-# E-mail template views
+# E-mail templating views
 add_email_template_view = AddEmailTemplateView.as_view()
 edit_email_template_view = EditEmailTemplateView.as_view()
 detail_email_template_view = DetailEmailTemplateView.as_view()

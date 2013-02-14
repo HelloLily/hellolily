@@ -1,19 +1,19 @@
 import datetime
 import logging
 import traceback
-from dateutil.tz import tzutc
 
 import celery
+from dateutil.tz import tzutc
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
 from imapclient import SEEN
 
-from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT, Folder
+from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
 from lily.users.models import CustomUser
 
 
-log = logging.getLogger()
+log = logging.getLogger('django.request')
 
 
 def save_email_messages(messages, account, folder_name, folder_identifier=None, new_messages=False):
@@ -276,6 +276,8 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
+    log.debug('sync start for %s' % unicode(folder_name))
+
     # Make sure the messages has at least an internal timestamp
     if 'INTERNALDATE' not in modifiers_old:
         modifiers_old.append('INTERNALDATE')
@@ -330,6 +332,8 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
     finally:
         server.close_folder()
 
+    log.debug('sync done for %s' % unicode(folder_name))
+
 
 @celery.task
 @transaction.commit_manually
@@ -354,10 +358,12 @@ def synchronize_email_for_account(account_id):
 
         # Check for account inactivity, by checking last login for all users of the account's tenant
         last_login_date = CustomUser.objects.filter(tenant=account.tenant).order_by('-last_login').values_list('last_login')[0][0]
+        print last_login_date
         last_login_delta = now_utc_date - last_login_date
         if last_login_delta.total_seconds() > 14 * 86400:  # 14 days
             # Complete current open transaction
             transaction.commit()
+            log.debug('skipping sync because of 14 days of inactivity')
             return
 
         # Retrieve all messages every 15 minutes
@@ -372,18 +378,51 @@ def synchronize_email_for_account(account_id):
             try:
                 # Built check for last_sync_date vs current datetime
                 server = LilyIMAP(provider=account.provider, account=account)
-                folders = server.get_folders(exclude=[ALLMAIL, DRAFTS, SPAM, TRASH, IMPORTANT])
 
+                # Update account.folders
+                account.folders = {}
+                folders = server.get_folders(all=True)
+                for i in range(len(folders)):
+                    folder = folders[i]
+
+                    account.folders[folder.get_name()] = {
+                        'flags': folder.flags,
+                        'is_parent': folder.is_parent(),
+                        'children': {},
+                        'full_name': folder.get_name(full=True)
+                    }
+
+                    if folder.is_parent():
+                        i += 1
+                        while i < len(folders) and folder.is_parent():
+                            sub_folder = folders[i]
+                            if sub_folder.is_subfolder():
+                                sub_folder = folders[i]
+                                account.folders[folder.get_name()]['children'].update({
+                                    sub_folder.get_name(): {
+                                        'flags': sub_folder.flags,
+                                        'parent': sub_folder.get_parent(),
+                                        'full_name': sub_folder.get_name(full=True)
+                                    }
+                                })
+                            else:
+                                break
+                            i += 1
+
+                folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
                 for folder in folders:
-                    log.debug('sync start for %s' % unicode(folder))
-
                     synchronize_folder(server, folder.get_server_name())
-
-                    log.debug('sync done for %s' % unicode(folder))
 
                 modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                 modifiers_new = modifiers_old
                 synchronize_folder(server, server.get_folder_by_identifier(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+
+                # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
+                modifiers_old = ['FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                modifiers_new = modifiers_old
+                synchronize_folder(server, server.get_folder_by_identifier(ALLMAIL), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                synchronize_folder(server, server.get_folder_by_identifier(TRASH), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                synchronize_folder(server, server.get_folder_by_identifier(SPAM), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                 account.last_sync_date = now_utc_date
                 account.save()

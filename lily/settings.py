@@ -127,7 +127,8 @@ MIDDLEWARE_CLASSES = (
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
     # Lily
-    'lily.tenant.middleware.TenantMiddleWare',
+    'lily.tenant.middleware.TenantMiddleware',
+    'lily.messaging.email.middleware.EmailMiddleware',
 #    'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
 )
 
@@ -265,7 +266,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['console'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
         },
         '': {
             'handlers': ['console'],

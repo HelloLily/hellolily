@@ -1,6 +1,5 @@
 import datetime
 import email
-import re
 import StringIO  # can't always use cStringIO
 import sys
 import traceback
@@ -11,7 +10,6 @@ from dateutil.tz import tzutc
 from django.core.mail import get_connection
 from django.utils.datastructures import SortedDict
 from imapclient.imapclient import IMAPClient, SEEN, DRAFT
-import chardet
 import pytz
 
 
@@ -87,9 +85,9 @@ class Folder(object):
         '''
         Return the parent identifier when available.
         '''
-        if not self.issubfolder():
+        if not self.is_subfolder():
             return None
-        return self._name_server.split('/')[:-1][0].join('/')
+        return '/'.join(self._name_server.split('/')[:-1])
 
     def __str__(self):
         return self.get_name(full=True)

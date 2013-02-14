@@ -13,6 +13,10 @@
 .blue.i-16.i-trash-1 { background-image: url(blue/16/trash-1.png); }
 .blue.i-16.i-twitter { background-image: url(blue/16/twitter.png); }
 
+.i-16.i-inbox { background-image: url(color/16/inbox.png); }
+.i-16.i-mailbox { background-image: url(color/16/mailbox.png); }
+.i-16.i-outbox { background-image: url(color/16/outbox.png); }
+
 div.jGrowl div.jGrowl-notification.mws-ic-16 { background-repeat:no-repeat; }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-accept { background-image:url(../../../css/icons/16/accept.png); }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-error { background-image:url(../../../css/icons/16/error.png); }

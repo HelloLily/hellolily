@@ -404,11 +404,7 @@ class LilyIMAP(object):
                     # No valid sent date could be parsed; fall back to INTERNALDATE.
                     # INTERNALDATE has no tzinfo, but force UTC anyway.
                     internal_date = raw_data.get('INTERNALDATE')
-                    if internal_date:
-                        sent_date = pytz.utc.localize(internal_date)
-                    else:
-                        import pdb
-                        pdb.set_trace()
+                    sent_date = pytz.utc.localize(internal_date)
 
             # Check for attachments
             if header_key is not None:

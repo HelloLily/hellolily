@@ -51,17 +51,19 @@ $(document).ready(function () {
     // });
 
     /* Side dropdown menu */
-    $("div#mws-navigation ul li a:not('.i-mailbox'), div#mws-navigation ul li span").bind('click', function(event) {
-        if($(this).next('ul').size() !== 0) {
+    $("div#mws-navigation ul li a:not('.i-mailbox'), div#mws-navigation ul li span:not('.spacer')").bind('click', function(event) {
+        var ul = $(this).nextAll('ul').eq(0);
+        if($(ul).size() !== 0) {
+            // do not toggle for followable anchor elements
             if($(this)[0].tagName == 'A') {
                 if($(this).attr('href').indexOf('javascript:void(0)') === 0) {
                     event.preventDefault();
-                    $(this).next('ul').slideToggle('fast', function() {
+                    $(ul).slideToggle('fast', function() {
                         $(this).toggleClass('closed');
                     });
                 }
             } else {
-                $(this).next('ul').slideToggle('fast', function() {
+                $(ul).slideToggle('fast', function() {
                     $(this).toggleClass('closed');
                 });
                 event.preventDefault();
@@ -90,10 +92,29 @@ $(document).ready(function () {
 
     /* Responsive Layout Script */
     $("div#mws-navigation").live('click', function(event) {
-        if(event.target === this) {
+        if(event.target === this || event.target == $("div#mws-navigation > span")[0]) {
             $(this).toggleClass('toggled');
         }
     });
+
+    $("div#mws-navigation #email-search-form input:visible").live('focus', function(event) {
+        $(event.target).parent().removeClass('collapsed');
+    });
+
+    $("div#mws-navigation #email-search-form input:visible").live('blur', function(event) {
+        $(event.target).parent().addClass('collapsed');
+    });
+
+    $('div#mws-navigation ul ul li:not(.email-search, .search-results)').hover(
+        function(event) {
+            $('div#mws-navigation ul ul .hover-state').removeClass('hover-state');
+            $(event.target).closest('li').addClass('hover-state');
+        },
+        function(event) {
+            $(event.target).closest('li').removeClass('hover-state');
+            $(event.target).closest('li').find('.hover-state').removeClass('hover-state');
+        }
+    );
 
     /* Form Messages */
     // $(".mws-form-message").live("click", function() {
@@ -315,91 +336,83 @@ $(document).ready(function () {
         });
     }
 
-    function toggleDropDownIcon(element) {
-        // element should be i.ui-icon.ui-icon-carat-1-?
+    function toggleDropDownIcons() {
+        // point sideways, all closed and active dropdown triggers
+        $('#mws-navigation ul ul li.active > a.mws-dropdown-trigger + span + ul.closed').prevAll('.mws-dropdown-trigger').find('.ui-icon')
+            .removeClass('ui-icon-carat-1-e')  // not having this css-class prevents removing triangle-s on mouseout
+            .removeClass('ui-icon-triangle-1-s')
+            .addClass('ui-icon-triangle-1-e');
 
-        // reset carats, except for element and parents
-        var parents = Array();
-        // push bare (not jQUery wrapped) elements to array
-        $(element).parents('ul').each(function(index, ul) {
-            parents.push($(ul)[0]);
-        });
-        parents.push($(element).parent().nextAll('ul').eq(0)[0]);  // current ul
-        $('#mws-navigation ul li .mws-dropdown-trigger + ul').filter(function() {
-            return $(parents).index($(this)[0]) < 0;
-        }).each(function(index, element) {
-            if($(element).parent().find('i').hasClass('ui-icon-carat-1-s')) {
-                $(element).parent().find('i').addClass('ui-icon-carat-1-e');
-                $(element).parent().find('i').removeClass('ui-icon-carat-1-s');
-            }
-            if($(element).parent().find('i').hasClass('ui-icon-triangle-1-s')) {
-                $(element).parent().find('i').addClass('ui-icon-caret-1-e');
-                $(element).parent().find('i').removeClass('ui-icon-triangle-1-s');
-            }
-        });
+        // point sideways, all inactive dropdown triggers
+        $('#mws-navigation ul ul a.mws-dropdown-trigger:not(li.active > a.mws-dropdown-trigger) + span + ul.closed').prevAll('.mws-dropdown-trigger').find('.ui-icon')
+            .removeClass('ui-icon-triangle-1-s')
+            .removeClass('ui-icon-triangle-1-e')
+            .addClass('ui-icon-carat-1-e');  // shows triangle-1-e on mouseover
 
-        // toggle carat for element
-        if($(element).hasClass('ui-icon-carat-1-e') || $(element).hasClass('ui-icon-triangle-1-e')) {
-            $(element).removeClass('ui-icon-carat-1-e');
-            $(element).removeClass('ui-icon-triangle-1-e');
-            $(element).addClass('ui-icon-carat-1-s');
-            $(element).addClass('ui-icon-triangle-1-s');
-        } else {
-            $(element).addClass('ui-icon-carat-1-e');
-            $(element).addClass('ui-icon-triangle-1-e');
-            $(element).removeClass('ui-icon-carat-1-s');
-            $(element).removeClass('ui-icon-triangle-1-s');
-        }
+        // point downwards, all open dropdown triggers (inactive or active)
+        $('#mws-navigation ul ul li .mws-dropdown-trigger + span + ul:not(.closed)').prevAll('.mws-dropdown-trigger').find('.ui-icon')
+            .removeClass('ui-icon-triangle-1-e')
+            .addClass('ui-icon-triangle-1-s')
+            .addClass('ui-icon-carat-1-e');
+
+        // point downwards, all open and active dropdown triggers
+        $('#mws-navigation ul ul li.active > a.mws-dropdown-trigger + span + ul:not(.closed)').prevAll('.mws-dropdown-trigger').find('.ui-icon')
+            .removeClass('ui-icon-carat-1-e')  // not having this css-class prevents removing triangle-s on mouseout
+            .removeClass('ui-icon-triangle-1-e')
+            .addClass('ui-icon-triangle-1-s');
     }
 
     function toggleOpenMenus(element) {
         // element should be a.mws-dropdown-trigger
 
-        // close all menus except element and parents
+        // close all UL's except the one next to element and parents
         var parents = Array();
-        parents.push($(element).closest('ul')[0]); // parent ul
-        parents.push($(element).nextAll('ul').eq(0)[0]);  // current ul
+        parents.push($(element).closest('ul')[0]); // parent UL
+        parents.push($(element).nextAll('ul').eq(0)[0]);  // current
 
-        // (instant) hide menus except for element and parents
-        $('#mws-navigation ul li li .mws-dropdown-trigger + ul').filter(function() {
+        $('#mws-navigation ul ul li ul').filter(function() {
+            // get every UL, except current/parent
             return $(parents).index($(this)) < 0;
-        }).hide().addClass('closed');
+        }).hide().addClass('closed').closest('.expanded').removeClass('expanded').find('.expanded').removeClass('expanded'); // close all these UL's
     }
 
     $('div#mws-navigation ul li .mws-dropdown-trigger').click(function(event) {
         // event.target == a.mws-dropdown-trigger
-        if($(event.target).attr('href').indexOf('javascript:void(0)') === 0) {
-            toggleDropDownIcon($(event.target).find('.ui-icon'));
-            toggleOpenMenus($(event.target));
-        }
-    });
 
-    $('div#mws-navigation ul li .mws-dropdown-trigger i.ui-icon').hover(
-        function(event) {
-            if($(event.target).hasClass('ui-icon-carat-1-e')) {
-                $(event.target).addClass('ui-icon-triangle-1-e');
-                $(event.target).removeClass('ui-icon-carat-1-e');
-            }
-        },
-        function(event) {
-            if($(event.target).hasClass('ui-icon-triangle-1-e')) {
-                $(event.target).removeClass('ui-icon-triangle-1-e');
-                $(event.target).addClass('ui-icon-carat-1-e');
-            }
+        // go to url for every anchor, except when it has a script url
+        if($(event.target).attr('href').indexOf('javascript:void(0)') === 0) {
+            // if it has, only change the icon and expand the sub menu
+            toggleOpenMenus($(event.target));
+            toggleDropDownIcons();
         }
-    );
+        $(event.target).closest('li').toggleClass('expanded');
+    });
 
     $('div#mws-navigation ul li .mws-dropdown-trigger i.ui-icon').click(function(event) {
         // event.target == i.ui-icon.ui-icon-carat-1-?
-        toggleDropDownIcon($(event.target));
         toggleOpenMenus($(event.target).parent());
 
         // slide in/out
-        $(event.target).parent().next('ul').slideToggle('fast', function() {
+        $(event.target).closest('li').toggleClass('expanded');
+        $(event.target).parent().nextAll('ul').eq(0).slideToggle('fast', function() {
             $(this).toggleClass('closed');
+            toggleDropDownIcons();
         });
 
         event.preventDefault();
         event.stopPropagation();  // when propagating event.target does not match a.mws-dropdown-trigger which confuses the click handler for these anchor elements
     });
+
+    $('div#mws-navigation ul li .mws-dropdown-trigger i.ui-icon').hover(
+        function(event) {
+            if(!$(event.target).hasClass('ui-icon-triangle-1-s')) {
+                $(event.target).addClass('ui-icon-triangle-1-e');
+            }
+        },
+        function(event) {
+            if($(event.target).hasClass('ui-icon-carat-1-e')) {
+                $(event.target).removeClass('ui-icon-triangle-1-e');
+            }
+        }
+    );
 });

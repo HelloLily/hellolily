@@ -12,6 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -21,7 +22,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from lily.contacts.models import Contact
-from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM
+from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form
@@ -142,10 +143,10 @@ class EmailFolderView(ListView):
             self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
 
             # Uniquify accounts, doubles are possible via personal, group, shared access etc.
-            self.messages_accounts = uniquify(self.messages_accounts, filter=lambda x: x.emailaccount.email.email_address)
+            self.messages_accounts = uniquify(self.messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
 
         # Deteremine which folder to show messages from
-        if kwargs.get('folder'):
+        if kwargs.get('folder') and not any([self.folder_name, self.folder_identifier]):
             self.folder_name = self.folder_identifier = urllib.unquote_plus(kwargs.get('folder'))
 
         return super(EmailFolderView, self).get(request, *args, **kwargs)
@@ -170,7 +171,14 @@ class EmailFolderView(ListView):
         kwargs = super(EmailFolderView, self).get_context_data(**kwargs)
         kwargs.update({
             'list_item_template': 'messaging/email/model_list_item.html',
-            'accounts': ', '.join([messaging_account.email.email_address for messaging_account in self.messages_accounts]),
+            'list_title': ', '.join([messaging_account.email.email_address for messaging_account in self.messages_accounts]),
+        })
+
+        # Also pass search parameters, if any
+        kwargs.update({
+            'selected_email_account_id': self.kwargs.get('account_id', ''),
+            'selected_email_folder': urllib.quote_plus(self.kwargs.get('folder', self.folder_name or self.folder_identifier)),
+            'email_search_key': self.kwargs.get('search_key', '')
         })
 
         return kwargs
@@ -436,6 +444,9 @@ class EmailComposeView(FormView):
             except Exception, e:
                 print traceback.format_exc(e)
                 remove_draft = False
+            finally:
+                if server:
+                    server.logout()
 
         # Remove (old) drafts in every case
         if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
@@ -610,6 +621,9 @@ class EmailReplyView(FormView):
                 server.get_smtp_server(fail_silently=False).send_messages([email_message])
             except Exception, e:
                 print traceback.format_exc(e)
+            finally:
+                if server:
+                    server.logout()
 
         return super(EmailReplyView, self).form_valid(form)
 
@@ -853,6 +867,211 @@ class EmailConfigurationView(SessionWizardView):
         return HttpResponse(render_to_string(self.template_name, {'messaging_email_inbox': reverse('messaging_email_inbox')}, None))
 
 
+class EmailSearchView(EmailFolderView):
+    """
+    ListView that parses search arguments and retrieves messages
+    from all the user's email accounts.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Parse search keys and search via IMAP.
+        """
+        if not any([kwargs.get('account_id', None), kwargs.get('folder', None)]):
+            if not any([request.GET.get('account_id', None), request.GET.get('folder', None)]):
+                raise Http404()
+            if request.GET.get('account_id'):
+                return redirect(reverse('messaging_email_search', kwargs={'account_id': request.GET.get('account_id', None), 'folder': request.GET.get('folder', None), 'search_key': request.GET.get('search_key', None)}))
+            else:
+                return redirect(reverse('messaging_email_search_all', kwargs={'folder': request.GET.get('folder', None), 'search_key': request.GET.get('search_key', None)}))
+
+        # Look in url which account id and folder the searched is performed in
+        account_id = kwargs.get('account_id', None)
+
+        # Filter accounts from which the user has no access to
+        ctype = ContentType.objects.get_for_model(EmailAccount)
+        accounts_qs = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
+        if account_id is not None:
+            accounts = [int(account_id)]
+            accounts_qs = accounts_qs.filter(pk__in=accounts)
+
+            if len(accounts_qs) == 0:  # When provided, but no matches were found raise 404
+                raise Http404()
+
+        # Get folder name from url or settle for ALLMAIL
+        folder_name = kwargs.get('folder', None)
+        if folder_name is None:
+            self.folder = self.folder_locale_name = ALLMAIL
+            self.folder_identifier = ALLMAIL
+        else:
+            self.folder = urllib.unquote_plus(folder_name)
+            self.folder_locale_name = self.folder.split('/')[-1:][0]
+            self.folder_name = self.folder_locale_name
+
+        if len(accounts_qs) > 0:
+            if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder]))) > 0:
+                folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder])).pop()
+                self.folder_name = None
+                self.folder_identifier = folder_flag
+
+                account = accounts_qs[0]
+                server = None
+                try:
+                    server = LilyIMAP(account=account, provider=account.provider)
+                    self.folder_locale_name = server.get_folder(folder_flag).get_name()
+                except Exception, e:
+                    print traceback.format_exc(e)
+                finally:
+                    if server:
+                        server.logout()
+
+        # Check if folder is from account
+        folder_found = False
+        for account in accounts_qs:
+            for folder_name, folder in account.folders.items():
+                if folder_name == self.folder_locale_name:
+                    folder_found = True
+                    break
+
+                children = folder.get('children', {})
+                for sub_folder_name, sub_folder in children.items():
+                    if sub_folder_name == self.folder_locale_name:
+                        folder_found = True
+                        break
+
+        if not folder_found:
+            raise Http404()
+
+        # Scrape messages together from one or more e-mail accounts
+        search_criteria = self.parse_search_keys(kwargs.get('search_key'))
+        self.imap_search_in_accounts(search_criteria, accounts=accounts_qs)
+
+        return super(EmailSearchView, self).get(request, *args, **kwargs)
+
+    def parse_search_keys(self, search_string):
+        """
+        Figure out what to search for and return an IMAP compatible search string.
+        """
+        TOKENS_START = ['from', 'to', 'cc', 'bcc', 'subject', 'has']
+        TOKEN_END = ','
+        TOKEN_VALUE_START = ':'
+
+        def get_next_token(search_string, begin_index):
+            token = None
+            token_value = None
+
+            # Find token start index
+            token_start_index = next_begin_index = begin_index
+            first_token_start_index = len(search_string)
+            for TOKEN_START in TOKENS_START:
+                try:
+                    temp_token_start_index = search_string.index(TOKEN_START, begin_index)
+                except ValueError:
+                    continue
+                else:
+                    if temp_token_start_index <= first_token_start_index:
+                        token_start_index = first_token_start_index = temp_token_start_index
+                        token = TOKEN_START
+                next_begin_index = token_start_index
+
+            # Search for TOKEN_END preceding first_token_start_index
+            try:
+                token_end_index = search_string.index(TOKEN_END, begin_index, token_start_index)
+            except ValueError:
+                pass
+            else:
+                # Replace token with whatever comes next as return value
+                token = None
+                next_begin_index = first_token_start_index
+                token_value = search_string[token_end_index:token_start_index].strip(' %s' % TOKEN_END)
+
+            # Find token value
+            if token is not None:
+                # Assume start for token_value is after TOKEN_VALUE_START
+                token_value_start_index = search_string.index(TOKEN_VALUE_START, token_start_index) + len(TOKEN_VALUE_START)
+                # Find end of token_value by TOKEN_END or end of string
+                try:
+                    token_value_end_index = search_string.index(TOKEN_END, token_value_start_index - 1)
+                except ValueError:
+                    token_value_end_index = len(search_string)
+
+                # Get token_value
+                token_value = search_string[token_value_start_index:token_value_end_index]
+
+                # Set next starting index after token_value
+                next_begin_index = token_value_end_index
+            elif token_value is None:
+                # If no token was provided
+                token_value = search_string[token_start_index:].strip(' %s' % TOKEN_END)
+                next_begin_index = len(search_string)
+
+            return token, token_value, next_begin_index
+
+        criteria = []
+        begin_index = 0
+        token = not None
+        while begin_index < len(search_string):
+            token, token_value, begin_index = get_next_token(search_string, begin_index)
+
+            # If valid token add to criteria 'as is'
+            if token is not None and token_value is not None:
+                criteria.append(u'%s %s' % (token.upper(), token_value))
+            elif token_value is not None:
+                # Add token_value as full-text
+                criteria.append(u'TEXT "%s"' % token_value)
+
+        if not any(criteria):
+            criteria = 'TEXT "%s"' % search_string
+
+        return criteria
+
+    def imap_search_in_accounts(self, search_criteria, accounts):
+        """
+        Performa a search on given or all accounts and save the results.
+        """
+        self.resultset = []  # result set of email messages pks
+
+        # Find corresponding messages in database and save message pks
+        for account in accounts:
+
+            server = None
+            try:
+                server = LilyIMAP(account=account, provider=account.provider)
+                total_count, uids = server.search_in_folder(self.folder, search_criteria)
+
+                if len(uids):
+                    qs = EmailMessage.objects.none()
+                    if self.folder_name is not None and self.folder_identifier is not None:
+                        qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier.lstrip('\\')) | Q(folder_name=self.folder_name))
+                    elif self.folder_name is not None:
+                        qs = EmailMessage.objects.filter(folder_name__in=[self.folder_name, self.folder])
+                    elif self.folder_identifier is not None:
+                        qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier.lstrip('\\'))
+                    qs = qs.filter(account=account, uid__in=uids).order_by('-sent_date')
+
+                    pks = qs.values_list('pk', flat=True)
+                    self.resultset += list(pks)
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                server.logout()
+
+    def get_queryset(self):
+        """
+        Return all messages matching the result set.
+        """
+        return EmailMessage.objects.filter(pk__in=self.resultset).order_by('-sent_date')
+
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to reflect the folder being searched in.
+        """
+        kwargs = super(EmailSearchView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'list_title': _('%s for %s') % (self.folder_locale_name, kwargs.get('list_title'))
+        })
+        return kwargs
+
+
 # E-mail folder views
 email_inbox_view = login_required(EmailInboxView.as_view())
 email_sent_view = login_required(EmailSentView.as_view())
@@ -886,3 +1105,6 @@ add_email_template_view = AddEmailTemplateView.as_view()
 edit_email_template_view = EditEmailTemplateView.as_view()
 detail_email_template_view = DetailEmailTemplateView.as_view()
 parse_email_template_view = ParseEmailTemplateView.as_view()
+
+# other
+email_search_view = login_required(EmailSearchView.as_view())

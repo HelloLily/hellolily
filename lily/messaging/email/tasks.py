@@ -4,6 +4,7 @@ import traceback
 
 import celery
 from dateutil.tz import tzutc
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
 from imapclient import SEEN
@@ -124,6 +125,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
             param_list = []
             query_count = 0
             update_email_headers = {}
+
             # update_email_attachments = {}
             for uid, message in messages.items():
                 query_string = 'UPDATE email_emailmessage SET '
@@ -171,7 +173,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                         update_email_headers.update({uid: email_headers})
 
                 # Check for attachments
-                # TOOD
+                # TODO
 
                 if query_count == query_batch_size:
                     # Execute queries
@@ -186,6 +188,14 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
 
             # Fetch message ids
             email_messages = EmailMessage.objects.filter(account=account, uid__in=messages.keys(), folder_name=folder_name).values_list('id', 'uid')
+
+            # Find existing headers per email message
+            existing_headers_per_message = {}
+            existing_headers_qs = EmailHeader.objects.filter(message_id__in=[id for id, uid in email_messages]).values_list('message_id', 'name')
+            for message_id, header_name in existing_headers_qs:
+                headers = existing_headers_per_message.get(message_id, [])
+                headers.append(header_name)
+                existing_headers_per_message.update({message_id: headers})
 
             # Link message ids to headers and attachments
             for id, uid in email_messages:
@@ -212,13 +222,22 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 param_list = []
                 query_count = 0
                 for header_obj in update_header_obj_list:
-                    query_string = 'UPDATE email_emailheader SET '
-                    query_string += 'value = %s '
+                    # Decide whether to update or insert this email header
+                    if header_obj.name in existing_headers_per_message.get(header_obj.message_id, []):
+                        # Update email header
+                        query_string = 'UPDATE email_emailheader SET '
+                        query_string += 'value = %s '
 
-                    query_string += 'WHERE name = %s AND message_id = %s;\n'
-                    param_list.append(header_obj.value)
-                    param_list.append(header_obj.name)
-                    param_list.append(header_obj.message_id)
+                        query_string += 'WHERE name = %s AND message_id = %s;\n'
+                        param_list.append(header_obj.value)
+                        param_list.append(header_obj.name)
+                        param_list.append(header_obj.message_id)
+                    else:
+                        # Insert email header
+                        query_string = 'INSERT INTO email_emailheader (name, value, message_id) VALUES (%s, %s, %s);\n'
+                        param_list.append(header_obj.name)
+                        param_list.append(header_obj.value)
+                        param_list.append(header_obj.message_id)
 
                     total_query_string += query_string
                     query_count += 1
@@ -358,7 +377,6 @@ def synchronize_email_for_account(account_id):
 
         # Check for account inactivity, by checking last login for all users of the account's tenant
         last_login_date = CustomUser.objects.filter(tenant=account.tenant).order_by('-last_login').values_list('last_login')[0][0]
-        print last_login_date
         last_login_delta = now_utc_date - last_login_date
         if last_login_delta.total_seconds() > 14 * 86400:  # 14 days
             # Complete current open transaction
@@ -436,21 +454,39 @@ def synchronize_email_for_account(account_id):
                     server.logout()
 
 
-# @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), expires=60)
-# @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), options={"expires": 60.0})
-@celery.task
-def synchronize_email():
+@celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), expires=120)
+class synchronize_email(celery.Task):
     """
     Synchronize e-mail messages for all e-mail accounts.
     """
-    accounts = EmailAccount.objects.all()
+    def run(self, setid=None, subtasks=None, **kwargs):
+        """
+        If this task should be unique, check if this instance is the
+        unique one and prevent it from running otherwise.
+        """
+        if self.name in settings.UNIQUE_TASKS:
+            i = celery.task.control.inspect()
+            active_count = 0
+            for worker, task in i.active().items():
+                task_kwargs = task[0]
 
-    for account in accounts:
-        log.debug('sync start for %s' % account.email)
+                # Find other active tasks
+                if task_kwargs.get('name', '') == self.name:
+                    if task_kwargs.get('id') != self.request.id:
+                        active_count += 1
 
-        synchronize_email_for_account(account.id)
+            if active_count > 0:
+                log.info('%s is already running, not starting another worker' % self.name)
+                return
 
-        log.debug('sync done for %s' % account.email)
+        accounts = EmailAccount.objects.all()
+
+        for account in accounts:
+            log.debug('sync start for %s' % account.email)
+
+            synchronize_email_for_account(account.id)
+
+            log.debug('sync done for %s' % account.email)
 
 
 @celery.task

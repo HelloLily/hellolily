@@ -40,7 +40,7 @@
         }
 
         #mws-wrapper {
-            height: 100% !important;
+            /*height: 100% !important;*/
         }
 
         #mws-container {
@@ -526,10 +526,10 @@
 {% endblock %}
 
 {% block model-list-title %}
-    {% if accounts|length %}
+    {% if list_title|length %}
         <div id="emailbox-top-info">
-            <div id="emailbox-header" class="inline"  title="{{ accounts }}">
-                {{ page_obj.start_index }}-{{ page_obj.end_index }} {% blocktrans with total_count=page_obj.paginator.count accounts=accounts %}of {{ total_count }} e-mails in {{ accounts }} {% endblocktrans %}
+            <div id="emailbox-header" class="inline"  title="{{ list_title }}">
+                {{ page_obj.start_index }}-{{ page_obj.end_index }} {% blocktrans with total_count=page_obj.paginator.count accounts=accounts %}of {{ total_count }} e-mails in {{ list_title }} {% endblocktrans %}
             </div>
             <div class="inline email-toolbar paginator">
                 {% if page_obj.has_previous %}

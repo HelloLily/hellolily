@@ -90,6 +90,7 @@
 
                 {% block navigation %}
                     <div id="mws-navigation">
+                        <span class="navigation-title">{% trans 'Show menu' %}</span>
                         <ul>
                             <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
                                 <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">{% trans 'Dashboard' %}</a>
@@ -106,6 +107,38 @@
                                 </a>
                                 <ul>
                                     {% email_folder_tree %}
+
+                                    {% ifstartswith "messaging_dashboard" %}
+                                        {% ifstartswith "messaging_email_compose" %}
+                                        {% else %}
+                                            {% ifstartswith "/messaging/email/reply/" %}
+                                            {% else %}
+                                                {% ifstartswith "/messaging/email/forward/" %}
+                                                {% else %}
+                                                    <li class="email-search">
+                                                        <form class="mws-form tabthis" action="{% url messaging_email_search_empty %}" method="get" id="email-search-form">
+                                                            <input type="hidden" name="account_id" value="{{ selected_email_account_id }}" />
+                                                            <input type="hidden" name="folder" value="{{ selected_email_folder }}" />
+                                                            <div class="mws-form-row">
+                                                                <div class="mws-form-item collapsed">
+                                                                    <input type="text" name="search_key" value="{{ email_search_key }}" placeholder="{% trans 'Search...' %}" class="mws-textinput" />
+                                                                    <button type="submit" class="mws-search-button mws-button blue"><span class="i-20 i-looking-glass mws-search-icon" title="{% trans 'Search' %}"></span></button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </li>
+                                                {% endifstartswith %}
+                                            {% endifstartswith %}
+                                        {% endifstartswith %}
+                                    {% endifstartswith %}
+                                    {% ifstartswith "messaging_email_search_empty" %}
+                                        <li class="active search-results">
+                                            <a href="{{ request.full.path }}">
+                                                <i class="ui-icon ui-icon-search"></i>
+                                                {% trans 'Search results' %}
+                                            </a>
+                                        </li>
+                                    {% endifstartswith %}
                                 </ul>
                             </li>
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>

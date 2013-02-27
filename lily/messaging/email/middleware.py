@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 
@@ -37,7 +38,7 @@ class EmailMiddleware(object):
             }
         }]
         """
-        if not request.user or request.user.is_anonymous():
+        if request.path.startswith(reverse('admin:index')) or not request.user or request.user.is_anonymous():
             return response
 
         email_folders = SortedDict()  # Preserve folder order
@@ -89,7 +90,6 @@ class EmailMiddleware(object):
                         email_folders[account.email.email_address]['children'][folder_name]['account_id'] = account.pk
 
         response.context_data.update({'email_folders': email_folders})
-
         return response
 
 

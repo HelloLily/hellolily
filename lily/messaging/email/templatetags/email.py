@@ -113,17 +113,18 @@ def get_folder_html(folder_name, folder, request, account=None):
                 }.get(folder_flag)
                 folder_url = reverse(sub_reverse_url_name, kwargs={'account_id': account.pk})
 
-            current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+            current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.path)
             if current_is_active:
                 folder_is_active = True
 
             sub_html += """
                     <li%s>
-                        <a href="%s" style="margin-left: 10px;">
+                        <a href="%s" style="margin-left: 10px;" title="%s">
                             %s
                             <span class="mws-nav-tooltip mws-inset">%d</span>
                         </a>
-                    </li>""" % (' class="active"' if current_is_active else '', folder_url, account.email.email_address, get_folder_unread_count(folder_name, accounts=[account]))
+                        <span class="spacer"></span>
+                    </li>""" % (' class="active expanded"' if current_is_active else '', folder_url, account.email.email_address, account.email.email_address, get_folder_unread_count(folder_name, accounts=[account]))
 
         folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
         reverse_url_name = {
@@ -134,17 +135,18 @@ def get_folder_html(folder_name, folder, request, account=None):
             SPAM: 'messaging_email_spam',
         }.get(folder_flag)
         folder_url = reverse(reverse_url_name)
-        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.path)
         html += """
             <li class="mws-dropdown-menu%s">
-                <a href="%s" class="i-16 i-mailbox mws-dropdown-trigger">
+                <a href="%s" class="i-16 i-mailbox mws-dropdown-trigger" title="%s">
                     %s
                     <span class="mws-nav-tooltip mws-inset">%d</span>
                 </a>
+                <span class="spacer"></span>
                 <ul%s>
                     %s
                 </ul>
-            </li>""" % (' active' if current_is_active or folder_is_active else '', folder_url, folder_name, get_folder_unread_count(folder_name), ' class="active"' if current_is_active or folder_is_active else ' class="closed"', sub_html)
+            </li>""" % (' active expanded' if current_is_active or folder_is_active else '', folder_url, folder_name, folder_name, get_folder_unread_count(folder_name), ' class="active expanded"' if current_is_active or folder_is_active else ' class="closed"', sub_html)
 
     else:
         folder_url = 'javascript:void(0)'
@@ -152,7 +154,7 @@ def get_folder_html(folder_name, folder, request, account=None):
             if folder.get('account_id'):
                 folder_url = reverse('messaging_email_account_folder', kwargs={'account_id': folder.get('account_id'), 'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))})
 
-        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.get_full_path())
+        current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')).decode('utf-8') == urllib.unquote_plus(request.path)
         if current_is_active:
             folder_is_active = True
 
@@ -166,22 +168,24 @@ def get_folder_html(folder_name, folder, request, account=None):
 
             html += """
             <li class="mws-dropdown-menu%s">
-                <a href="%s" class="mws-dropdown-trigger">
+                <a href="%s" class="mws-dropdown-trigger" title="%s">
                     <i class="ui-icon %s"></i>
                     %s
                 </a>
+                <span class="spacer"></span>
                 <ul%s>
                     %s
                 </ul>
-            </li>""" % (' active' if folder_is_active else '', folder_url, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active"' if folder_is_active else ' class="closed"', sub_html)
+            </li>""" % (' active expanded' if folder_is_active else '', folder_url, folder_name, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active expanded"' if folder_is_active else ' class="closed"', sub_html)
 
         else:
             html += """<li%s>
-                        <a href="%s">
+                        <a href="%s" title="%s">
                             %s
                             <span class="mws-nav-tooltip mws-inset">%d</span>
                         </a>
-                    </li>""" % (' class="active"' if current_is_active or folder_is_active else '', folder_url, folder_name, get_folder_unread_count(folder_name))
+                        <span class="spacer"></span>
+                    </li>""" % (' class="active expanded"' if current_is_active or folder_is_active else '', folder_url, folder_name, folder_name, get_folder_unread_count(folder_name))
 
     return folder_is_active, html
 

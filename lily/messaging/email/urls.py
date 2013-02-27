@@ -6,7 +6,8 @@ from lily.messaging.email.views import email_inbox_view, email_json_view, \
  mark_read_view, mark_unread_view, move_trash_view, email_compose_view, \
  email_compose_template_view, email_drafts_view, email_reply_view, \
  email_sent_view, email_trash_view, email_spam_view, email_account_folder_view, \
- email_forward_view, email_configuration_wizard, email_configuration_wizard_template
+ email_forward_view, email_configuration_wizard, email_configuration_wizard_template, \
+ email_search_view
 
 
 urlpatterns = patterns('',
@@ -51,5 +52,10 @@ urlpatterns = patterns('',
     url(r'^template/edit/(?P<pk>[\d-]+)/$', edit_email_template_view, name='messaging_email_template_edit'),
     url(r'^template/details/(?P<pk>[\w-]+)/$', detail_email_template_view, name='messaging_email_template_details'),
     url(r'^template/parse/$', parse_email_template_view, name='messaging_email_template_parse'),
+
+    # other
+    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>.+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search'),
+    url(r'^search/(?P<folder>.+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search_all'),
+    url(r'^search/$', email_search_view, name='messaging_email_search_empty'),
 
 )

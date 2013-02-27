@@ -199,6 +199,11 @@ div#mws-navigation ul /* div#mws-navigation ul */
     background:none;
 }
 
+div#mws-navigation .navigation-title
+{
+    display: none;
+}
+
 div#mws-navigation > ul
 {
     background:#ffffff;
@@ -217,9 +222,13 @@ div#mws-navigation ul li.mws-dropdown-menu
 }
 
 div#mws-navigation ul li ul li:hover, /* div#mws-navigation ul li ul li:hover */
-div#mws-navigation ul li ul li.active
+div#mws-navigation ul li ul li:hover ul,
+div#mws-navigation ul li ul li.active,
+div#mws-navigation ul li ul li.active ul,
+div#mws-navigation ul li ul li.expanded,
+div#mws-navigation ul li ul li.expanded ul
 {
-    background:url(../../images/core/mws-sub-nav-bg.png);
+    background:url(../../images/core/mws-sub-nav-bg.png) !important;
 }
 
 div#mws-navigation ul li a,   /* div#mws-navigation ul li a,  */
@@ -231,20 +240,38 @@ div#mws-navigation ul li span /* div#mws-navigation ul li span */
     text-overflow: ellipsis;
 }
 
-div#mws-navigation > ul > li.active
+div#mws-navigation ul li active
+{
+    z-index: 2;
+}
+
+div#mws-navigation ul li ul li .spacer
+{
+    display:block;
+    height:0px;
+    padding:0;
+}
+
+div#mws-navigation > ul > li.active,
+div#mws-navigation > ul > li.expanded
 {
     background:#1C76BC !important;
 }
 
 div#mws-navigation > ul > li.active > a,
-div#mws-navigation > ul > li.active > a:hover
+div#mws-navigation > ul > li.active > a:hover,
+div#mws-navigation > ul > li.expanded > a,
+div#mws-navigation > ul > li.expanded > a:hover
 {
     color:#ffffff !important;
 }
 
-div#mws-navigation ul li.active ul
+div#mws-navigation ul li:hover ul,
+div#mws-navigation ul li.active ul,
+div#mws-navigation ul li.expanded ul
 {
     background:#d8d8d8;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 div#mws-navigation ul li.active ul a
@@ -262,6 +289,41 @@ div#mws-navigation ul li ul li span /* div#mws-navigation ul li ul li span */
 div#mws-navigation ul li span.mws-nav-tooltip /* div#mws-navigation ul li span.mws-nav-tooltip */
 {
     top:55%;
+}
+
+#email-search-form input
+{
+    padding-right: 34px;
+}
+
+#email-search-form input,
+#email-search-form .mws-search-button
+{
+    float: left;
+}
+
+#email-search-form .mws-form-row
+{
+    padding: 12px;
+}
+
+#email-search-form .mws-search-button
+{
+    margin-left: -34px;
+    position: absolute;
+}
+
+#email-search-form .mws-search-button,
+#email-search-form .mws-search-icon
+{
+    height: 29px;
+    padding: 0 !important;
+}
+
+#email-search-form .mws-search-icon
+{
+    width: 30px;
+    margin: 0;
 }
 
 div#mws-container /* div#mws-container */
@@ -781,6 +843,11 @@ div.jGrowl div.jGrowl-notification.error
         padding-top:138px;
     }
 
+    div#mws-sidebar
+    {
+        z-index: auto !important;
+    }
+
     div#mws-sidebar-stitch /* div#mws-sidebar-stitch */
     {
         left:91px;
@@ -799,10 +866,105 @@ div.jGrowl div.jGrowl-notification.error
         background-position:center 8px;
     }
 
+    div#mws-navigation ul li ul li a,
+    div#mws-navigation ul li ul li span
+    {
+        padding-right:0px;
+        text-align:left;
+    }
+
+    div#mws-navigation ul li ul li ul li a
+    {
+        padding-left:0px !important;
+    }
+
+    div#mws-navigation ul li ul li.active > .spacer,
+    div#mws-navigation ul li ul li.expanded > .spacer,
+    div#mws-navigation ul li ul li.hover-state > .spacer
+    {
+        height:28px;
+    }
+
+    div#mws-navigation ul li ul li.active > a,
+    div#mws-navigation ul li ul li.expanded > a,
+    div#mws-navigation ul li ul li.hover-state > a
+    {
+        position:absolute;
+        background:white;
+        margin-left:0px !important;
+        padding:4px 4px 4px 10px;
+        outline:1px solid #ccc;
+        min-width:100%;
+        z-index: 2;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -khtml-box-sizing: border-box;
+    }
+
+    div#mws-navigation ul ul ul li.active > a,
+    div#mws-navigation ul ul ul li.expanded > a,
+    div#mws-navigation ul ul ul li.hover-state > a
+    {
+        padding-left:10px !important;
+    }
+
     div#mws-navigation ul li span.mws-nav-tooltip /* div#mws-navigation ul li span.mws-nav-tooltip */
     {
-        margin:0; right:3px;
-        left:60%; top:2px;
+        display: none;
+    }
+
+    div#mws-navigation .i-mailbox
+    {
+        background: none;
+    }
+
+    div#mws-navigation ul ul li .ui-icon
+    {
+        margin-left: -19px !important;
+        background: none;
+    }
+
+    #email-search-form .mws-form-item
+    {
+        padding: 0;
+    }
+
+    #email-search-form .mws-form-item input
+    {
+        width: 200%;
+    }
+
+
+    #email-search-form .mws-form-item
+    {
+        z-index: 4;
+        position: relative;
+    }
+
+    #email-search-form .mws-form-item.collapsed input
+    {
+        width: 100%;
+        padding-right: 7px;
+    }
+
+    #email-search-form .mws-form-item.collapsed .mws-search-button
+    {
+        display: none;
+    }
+
+    #email-search-form .mws-search-button,
+    #email-search-form .mws-search-icon
+    {
+        height: 29px;
+        padding: 0 !important;
+    }
+
+    #email-search-form .mws-search-icon
+    {
+        width: 30px;
+        margin: 0;
     }
 
     div#mws-wrapper
@@ -895,14 +1057,28 @@ div.jGrowl div.jGrowl-notification.error
     div#mws-navigation /* div#mws-navigation */
     {
         background-color:#ffffff;
-        background-image:url(icons/blue/24/bended-arrow-down.png);
+        background-image:url(icons/blue/24/looking-glass.png);
         background-position-y:8px;
+    }
+
+    div#mws-navigation .navigation-title
+    {
+        display:inline-block;
+        height: 0;
+        margin-left: 50px;
+        position: relative;
+        top: -26px;
     }
 
     div#mws-navigation.toggled /* div#mws-navigation.toggled */
     {
         padding-bottom:0px;
         background-image:url(icons/blue/24/bended-arrow-up.png);
+    }
+
+    div#mws-navigation.toggled .navigation-title
+    {
+        display: none;
     }
 
     div#mws-navigation.toggled > ul

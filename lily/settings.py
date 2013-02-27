@@ -344,6 +344,9 @@ else:
                  'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
                  }
          }
+UNIQUE_TASKS = [
+    'lily.messaging.email.tasks.synchronize_email',
+]
 
 # New relic
 NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))

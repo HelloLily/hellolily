@@ -97,8 +97,8 @@ class TemplateParser(object):
     def __init__(self, text):
         self.valid_parameters = []
         self.valid_blocks = []
-        text = self._escape_text(text.decode('utf-8')).strip()
 
+        text = self._escape_text(text.encode('utf-8')).strip()
         safe_get_template_from_string = get_safe_template(get_template_from_string)
 
         try:
@@ -111,6 +111,9 @@ class TemplateParser(object):
     def render(self, request, context=None):
         """
         Render the template in a form that is ready for output.
+
+        :param request: request that is used to fill context.
+        :param context: override the default context.
         """
         context = context or self.get_template_context(request)
         return get_template_from_string(self.get_text()).render(context=Context(context))
@@ -130,6 +133,9 @@ class TemplateParser(object):
     def get_parts(self, default_part='html_part', parts=None):
         """
         Return the contents of specified parts, if no parts are available return the default part.
+
+        :param default_part: which part is filled when no parts are defined.
+        :param parts: override the default recognized parts.
         """
         parts = parts or ['name', 'description', 'subject', 'html_part', 'text_part', ]
         response = {}

@@ -5,6 +5,7 @@ import traceback
 import urllib
 
 from dateutil.tz import tzutc
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.formtools.wizard.views import SessionWizardView
@@ -28,7 +29,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text
+from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import uniquify
 from lily.utils.models import EmailAddress
@@ -58,6 +59,11 @@ class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
     form_class = CreateUpdateEmailTemplateForm
 
     def get_context_data(self, **kwargs):
+        """
+
+        :param kwargs: keyword arguments.
+        :return: context data used to render the template.
+        """
         context = super(AddEmailTemplateView, self).get_context_data(**kwargs)
         context.update({
             'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
@@ -66,8 +72,10 @@ class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
 
     def get_success_url(self):
         """
-        Redirect to the edit view, so the default values of parameters can be filled in.
+        Redirect to the inbox view.
         """
+        messages.success(self.request, _('Template saved successfully.'))
+
         return reverse('messaging_email_inbox')
 
 
@@ -90,6 +98,8 @@ class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
         """
         Redirect to the edit view, so the default values of parameters can be filled in.
         """
+        messages.success(self.request, _('Template edited successfully.'))
+
         return reverse('messaging_email_inbox')
 
 
@@ -484,8 +494,20 @@ class EmailComposeView(FormView):
                 contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
                 known_contact_addresses.append(contact_address)
 
+        templates = EmailTemplate.objects.all()
+        template_list = {}
+        for template in templates:
+            template_list.update({
+                template.pk: {
+                    'subject': template.subject,
+                    'html_part': TemplateParser(template.body_html).render(self.request),
+                    'text_part': TemplateParser(template.body_text).render(self.request),
+                }
+            })
+
         kwargs.update({
             'known_contact_addresses': simplejson.dumps(known_contact_addresses),
+            'template_list': simplejson.dumps(template_list),
         })
 
         return kwargs

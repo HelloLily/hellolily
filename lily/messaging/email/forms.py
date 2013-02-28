@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
+from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 
 from lily.messaging.email.emailclient import LilyIMAP
@@ -94,6 +95,15 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
 
         return cleaned_data
 
+    def save(self, commit=True):
+        instance = super(CreateUpdateEmailTemplateForm, self).save(False)
+        instance.body_html = linebreaksbr(instance.body_html.strip())
+
+        if commit:
+            instance.save()
+        return instance
+
+
     class Meta:
         model = EmailTemplate
         fields = ('name', 'description', 'subject', 'variables', 'values', 'text_value', 'body_html', 'body_text', )
@@ -132,7 +142,7 @@ class EmailTemplateFileForm(Form):
         if body_file:
             body_file_type = body_file.content_type
             if body_file_type in valid_formats:
-                parsed_file = TemplateParser(body_file.read())
+                parsed_file = TemplateParser(body_file.read().decode('utf-8'))
                 if parsed_file.is_valid():
                     default_part = 'html_part' if body_file_type == 'text/html' else 'text_part'
                     cleaned_data.update(parsed_file.get_parts(default_part=default_part))
@@ -151,6 +161,8 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
     """
     Form that lets a user compose an e-mail message.
     """
+    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'))
+
     # TODO: Insert a formset for attachments?
     def __init__(self, *args, **kwargs):
         """
@@ -257,7 +269,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body')
+        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body')
         widgets = {
             'send_to_normal': forms.Textarea(attrs={
                 'placeholder': _('Add recipient'),

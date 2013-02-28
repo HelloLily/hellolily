@@ -71,6 +71,7 @@
 
         $(document).ready(function() {
             var known_contact_addresses = {{ known_contact_addresses|safe }};
+            var template_list = {{ template_list|safe }};
             function split( val ) {
                 return val.split( /,\s*/ );
             }
@@ -157,6 +158,27 @@
                 $(this).find('[name="body"]').val(body);
 
                 return true;
+            });
+
+            $('#id_template').change(function() {
+                var value = $(this).val();
+                var subject_field = $('#id_subject');
+                var html_field = $('#email-body').contents().find('#email-content');
+{#                var text_field = $('id_subject');#}
+
+                if(subject_field.val() !== '' || html_field.html() !== '') {
+                    if(confirm('{% trans 'Choosing a template will overwrite current values of the subject and the email body' %}')) {
+                        subject_field.val(template_list[value]['subject']);
+                        html_field.html(template_list[value]['html_part']);
+                    }
+                } else {
+                    subject_field.val(template_list[value]['subject']);
+                    html_field.html(template_list[value]['html_part']);
+                }
+
+                console.log(subject_field);
+                console.log(html_field);
+                console.log(template_list[$(this).val()]);
             });
         });
     </script>

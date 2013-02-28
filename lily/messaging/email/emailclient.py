@@ -1,5 +1,6 @@
 import datetime
 import email
+import pytz
 import StringIO  # can't always use cStringIO
 import sys
 import traceback
@@ -10,7 +11,6 @@ from dateutil.tz import tzutc
 from django.core.mail import get_connection
 from django.utils.datastructures import SortedDict
 from imapclient.imapclient import IMAPClient, SEEN, DRAFT
-import pytz
 
 
 sys.setrecursionlimit(5000)
@@ -433,20 +433,16 @@ class LilyIMAP(object):
                         continue
 
                     soup = BeautifulSoup(payload)
-                    payload = soup.decode()
                     try:
-                        payload = payload.encode(soup.original_encoding)
-                        payload = payload.decode(soup.original_encoding)
+                        # First try, set charset
+                        payload = payload.decode(part.get_content_charset())
                     except Exception, e:
                         try:
-                            payload = payload.encode(part.get_content_charset())
-                            payload = payload.decode(part.get_content_charset())
+                            # Second try, use charset detection by beautifulsoup
+                            payload = payload.decode(soup.original_encoding)
                         except Exception, e:
-                            payload = payload.encode('utf-8', errors='ignore')
-                            payload = payload.decode('utf-8')
-
-                    payload = payload.encode('utf-8')
-                    payload = payload.decode('utf-8')
+                            # Last resort, force utf-8, ignore errors
+                            payload = payload.decode('utf-8', errors='ignore')
 
                 except Exception, e:
                     print traceback.format_exc(e)

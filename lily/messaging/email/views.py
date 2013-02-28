@@ -366,7 +366,7 @@ class EmailComposeView(FormView):
         if self.message_id:
             try:
                 # This is the message being drafted
-                self.message = EmailMessage.objects.get(flags__icontains='draft', pk=self.message_id)
+                self.message = EmailMessage.objects.get(Q(folder_identifier=DRAFTS.lstrip('\\')) | Q(flags__icontains='draft'), pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 
@@ -519,7 +519,7 @@ class EmailReplyView(FormView):
         if self.message_id:
             try:
                 # This is the message being replied to
-                self.message = EmailMessage.objects.get(~Q(flags__icontains='draft'), pk=self.message_id)
+                self.message = EmailMessage.objects.get(~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'), pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 
@@ -711,7 +711,7 @@ class EmailDraftTemplateView(TemplateView):
 
         if self.message_id:
             try:
-                self.message = EmailMessage.objects.get(flags__icontains='draft', pk=self.message_id)
+                self.message = EmailMessage.objects.get(Q(folder_identifier=DRAFTS.lstrip('\\')) | Q(flags__icontains='draft'), pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 

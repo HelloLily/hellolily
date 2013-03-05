@@ -162,8 +162,8 @@ class LilyIMAP(object):
         use_tls = self._conn_kwargs.get('ssl')
 
         if provider is not None and account is not None:
-            host = provider.send_host
-            port = provider.send_port
+            host = provider.smtp_host
+            port = provider.smtp_port
             username = account.username
             password = account.password
         else:

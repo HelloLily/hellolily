@@ -415,7 +415,7 @@ class EmailComposeView(FormView):
             text_body = flatten_html_to_text(instance.body, replace_br=True)
 
             # Generate email message source
-            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
+            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email.email_address, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc])
             email_message.attach_alternative(instance.body, 'text/html')
 
             # TODO support attachments
@@ -606,7 +606,7 @@ class EmailReplyView(FormView):
             text_body = flatten_html_to_text(instance.body, replace_br=True)
 
             # Generate email message source
-            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc], headers=self.get_email_headers())
+            email_message = EmailMultiAlternatives(subject=instance.subject, body=text_body, from_email=instance.send_from.email.email_address, to=[instance.send_to_normal], cc=[instance.send_to_cc], bcc=[instance.send_to_bcc], headers=self.get_email_headers())
             email_message.attach_alternative(instance.body, 'text/html')
 
             # TODO support attachments

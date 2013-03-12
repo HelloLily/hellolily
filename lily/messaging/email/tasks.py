@@ -7,10 +7,12 @@ from dateutil.tz import tzutc
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
+from django.utils.html import escape
 from imapclient import SEEN
 
 from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
+from lily.messaging.email.utils import flatten_html_to_text
 from lily.users.models import CustomUser
 
 
@@ -39,9 +41,17 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 if message.get('flags') is not None:
                     email_message.is_seen = SEEN in message.get('flags')
                     email_message.flags = message.get('flags')
-                body = message.get('html_body') or message.get('plain_body')
-                if body is not None:
-                    email_message.body = body
+
+                body_html = message.get('html_body')
+                body_text = message.get('plain_body')
+
+                if body_html and not body_text:
+                    body_text = flatten_html_to_text(body_html, replace_br=True)
+                elif body_text is not None:
+                    body_text = escape(body_text)
+
+                email_message.body_html = body_html
+                email_message.body_text = body_text
                 email_message.size = message.get('size')
                 email_message.folder_name = folder_name
                 email_message.folder_identifier = folder_identifier
@@ -137,10 +147,21 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                     param_list.append(str(message.get('flags')))
                     query_string += 'is_seen = %s, '
                     param_list.append(SEEN in message.get('flags'))
-                body = message.get('html_body') or message.get('plain_body')
-                if body is not None:
-                    query_string += 'body = %s, '
-                    param_list.append(body)
+
+                body_html = message.get('html_body')
+                body_text = message.get('plain_body')
+
+                if body_html is not None and not body_text:
+                    body_text = flatten_html_to_text(body_html, replace_br=True)
+
+                if body_html is not None:
+                    query_string += 'body_html = %s, '
+                    param_list.append(body_html)
+
+                if body_text is not None:
+                    query_string += 'body_text = %s, '
+                    param_list.append(escape(body_text))
+
                 if query_string.endswith(', '):
                     query_string = query_string.rstrip(', ')
                     query_string += ' WHERE tenant_id = %s AND account_id = %s AND uid = %s AND folder_name = %s;\n'
@@ -290,10 +311,17 @@ def get_unread_emails(accounts, page=1):
                     server.logout()
 
 
-def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
+def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], new_only=False):
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
+
+    :param server:          The server with the connection to an account.
+    :param folder_name:     The folder name to sync.
+    :param criteria:        The criteria used for searching and specified syncing.
+    :param modifiers_old:   The modifiers
+    :param modifiers_new:
+    :param new_only:
     """
     log.debug('sync start for %s' % unicode(folder_name))
 
@@ -321,30 +349,31 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
         # Get the difference between local and server uids
         new_uids = list(set(remote_uids).difference(known_uids))
 
-        # UIDs that no longer exist in this folder
-        removed_uids = list(known_uids.difference(set(remote_uids)))
+        if not new_only:
+            # UIDs that no longer exist in this folder
+            removed_uids = list(known_uids.difference(set(remote_uids)))
 
-        # Delete removed_uids from known_uids
-        [known_uids.discard(x) for x in removed_uids]
-        known_uids = list(known_uids)
+            # Delete removed_uids from known_uids
+            [known_uids.discard(x) for x in removed_uids]
+            known_uids = list(known_uids)
 
-        # Delete from database
-        EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name(), uid__in=removed_uids).delete()
+            # Delete from database
+            EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name(), uid__in=removed_uids).delete()
+
+            if len(known_uids):
+                # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
+                folder_messages = server.fetch_from_folder(identifier=folder.get_server_name(), message_uids=known_uids,
+                                                           modifiers=modifiers_old, close=False)
+
+                if len(folder_messages) > 0:
+                    save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier)
 
         if len(new_uids):
             # Retrieve modifiers_new for new_uids
             folder_messages = server.fetch_from_folder(identifier=folder_name, message_uids=new_uids, modifiers=modifiers_new, close=False)
 
             if len(folder_messages) > 0:
-
                 save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier, new_messages=True)
-
-        if len(known_uids):
-            # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-            folder_messages = server.fetch_from_folder(identifier=folder.get_server_name(), message_uids=known_uids, modifiers=modifiers_old, close=False)
-
-            if len(folder_messages) > 0:
-                save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier)
 
     except Exception, e:
         print traceback.format_exc(e)
@@ -436,11 +465,9 @@ def synchronize_email_for_account(account_id):
                 synchronize_folder(server, server.get_folder_by_identifier(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                 # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
-                modifiers_old = ['FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                modifiers_new = modifiers_old
-                synchronize_folder(server, server.get_folder_by_identifier(ALLMAIL), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
-                synchronize_folder(server, server.get_folder_by_identifier(TRASH), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
-                synchronize_folder(server, server.get_folder_by_identifier(SPAM), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                synchronize_folder(server, server.get_folder_by_identifier(ALLMAIL))
+                synchronize_folder(server, server.get_folder_by_identifier(TRASH))
+                synchronize_folder(server, server.get_folder_by_identifier(SPAM))
 
                 account.last_sync_date = now_utc_date
                 account.save()

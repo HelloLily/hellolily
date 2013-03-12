@@ -432,14 +432,23 @@ class LilyIMAP(object):
                     if payload is None:
                         continue
 
-                    soup = BeautifulSoup(payload)
-                    try:
-                        # First try, set charset
-                        payload = payload.decode(part.get_content_charset())
-                    except Exception, e:
+                    # Use soup to parse html formatted e-mail messages
+                    if part.get_content_type() == 'text/html':
+                        soup = BeautifulSoup(payload)
                         try:
-                            # Second try, use charset detection by beautifulsoup
-                            payload = payload.decode(soup.original_encoding)
+                            # First try, set charset
+                            payload = payload.decode(part.get_content_charset())
+                        except Exception, e:
+                            try:
+                                # Second try, use charset detection by beautifulsoup
+                                payload = payload.decode(soup.original_encoding)
+                            except Exception, e:
+                                # Last resort, force utf-8, ignore errors
+                                payload = payload.decode('utf-8', errors='ignore')
+                    else:
+                        try:
+                            # First try, set charset
+                            payload = payload.decode(part.get_content_charset())
                         except Exception, e:
                             # Last resort, force utf-8, ignore errors
                             payload = payload.decode('utf-8', errors='ignore')

@@ -161,7 +161,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
     """
     Form that lets a user compose an e-mail message.
     """
-    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'))
+    # template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
 
     # TODO: Insert a formset for attachments?
     def __init__(self, *args, **kwargs):
@@ -169,13 +169,15 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         Overload super().__init__ to change the appearance of the form.
         """
         self.draft_id = kwargs.pop('draft_id', None)
+        self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         # Customize form layout
         self.helper = LilyFormHelper(form=self)
         self.helper.form_tag = False
 
-        self.helper.all().wrap(Row)
+        # self.helper.all().wrap(Row)
+        self.helper.wrap_by_names(Row, 'send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_text')
         self.helper.replace('send_from',
             self.helper.create_columns(
                 Column('send_from', size=4, first=True),
@@ -203,9 +205,9 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         )
 
         if self.draft_id:
-            email_template_url = reverse('messaging_email_compose_template', kwargs={'pk': self.draft_id})
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'pk': self.draft_id})
         else:
-            email_template_url = reverse('messaging_email_compose_template')
+            email_template_url = reverse('messaging_email_body_preview')
 
         self.helper.layout.append(
             Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
@@ -269,7 +271,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body')
+        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_html', 'body_text')
         widgets = {
             'send_to_normal': forms.Textarea(attrs={
                 'placeholder': _('Add recipient'),
@@ -286,16 +288,11 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
                 'click_show_text': _('Add Bcc'),
                 'field_classes': 'sent-to-recipients',
             }),
-            'body': forms.HiddenInput()
+            'body_html': forms.HiddenInput(),
+            'body_text': forms.Textarea(attrs={
+                'placeholder': _('Write your plain text message body here'),
+            })
         }
-
-
-class ComposeTemplatedEmailForm(ComposeEmailForm):
-    """
-    Form that lets a user compose an e-mail message based on a template.
-    """
-    # template = forms.ModelChoiceField(label=_('Template'))
-    # template_vars = forms.MultiWidget()
 
 
 class EmailConfigurationStep1Form(Form, FieldInitFormMixin):

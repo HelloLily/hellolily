@@ -45,12 +45,12 @@
             var scrollHeight;
             var offsetHeight;
 
-            var body = $(iframe).contents().find('body')[0];
-            if (body.scrollHeight) {
-                height = scrollHeight = body.scrollHeight;
+            var body_html = $(iframe).contents().find('body')[0];
+            if (body_html.scrollHeight) {
+                height = scrollHeight = body_html.scrollHeight;
             }
-            if (body.offsetHeight) {
-                height = offsetHeight = body.offsetHeight;
+            if (body_html.offsetHeight) {
+                height = offsetHeight = body_html.offsetHeight;
             }
 
             if (scrollHeight && offsetHeight){
@@ -60,10 +60,10 @@
                 // TODO : test in IE
             }
 
-            height += parseInt($(body).css('margin-top'))
-                    + parseInt($(body).css('margin-bottom'))
-                    + parseInt($(body).css('padding-top'))
-                    + parseInt($(body).css('padding-bottom'))
+            height += parseInt($(body_html).css('margin-top'))
+                    + parseInt($(body_html).css('margin-bottom'))
+                    + parseInt($(body_html).css('padding-top'))
+                    + parseInt($(body_html).css('padding-bottom'))
                     + parseInt($(iframe).css('border-top-width'))
                     + parseInt($(iframe).css('border-bottom-width'));
             return height;
@@ -155,30 +155,42 @@
             // intercept submit and add email body to form data
             $('#submit-id-submit-save, #submit-id-submit-send').closest('form').submit(function(event) {
                 var body = $('#email-body').contents().find('#email-content').html();
-                $(this).find('[name="body"]').val(body);
+                $(this).find('[name="body_html"]').val(body);
 
                 return true;
             });
 
-            $('#id_template').change(function() {
+            $('#id_template').change(function(e) {
                 var value = $(this).val();
+                var text = $(this).find('option:selected').text();
                 var subject_field = $('#id_subject');
                 var html_field = $('#email-body').contents().find('#email-content');
-{#                var text_field = $('id_subject');#}
+                var text_field = $('#id_body_text');
+                var confirmation_text = '{% trans 'This will cause you to loose all data already entered within the email body and subject. Click "OK" to continue or "Cancel" to prevent this.' %}';
 
-                if(subject_field.val() !== '' || html_field.html() !== '') {
-                    if(confirm('{% trans 'Choosing a template will overwrite current values of the subject and the email body' %}')) {
-                        subject_field.val(template_list[value]['subject']);
-                        html_field.html(template_list[value]['html_part']);
+                if(subject_field.val() !== '' || html_field.html().trim() !== '' || text_field.val() !== '') {
+                    if(confirm(confirmation_text)) {
+                        if (value == '') {
+                            subject_field.val('');
+                            html_field.html('');
+                            text_field.val('');
+                        } else {
+                            subject_field.val(template_list[value]['subject']);
+                            html_field.html(template_list[value]['html_part']);
+                            text_field.val(template_list[value]['text_part']);
+                        }
                     }
                 } else {
                     subject_field.val(template_list[value]['subject']);
                     html_field.html(template_list[value]['html_part']);
+                    text_field.val(template_list[value]['text_part']);
                 }
 
-                console.log(subject_field);
-                console.log(html_field);
-                console.log(template_list[$(this).val()]);
+                if (text_field.val() !== '') {
+                    text_field.closest('#div_id_body_text').find('.click-show').click();
+                    text_field.trigger('update');
+                }
+                $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
             });
         });
     </script>

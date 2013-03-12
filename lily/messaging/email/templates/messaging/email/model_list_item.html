@@ -41,7 +41,7 @@
                         {% endif %}
                     </div>
                     <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
-                    <div class="body preview">{{ item.flatten_body|truncatechars:"200"|safe }}</div>
+                    <div class="body preview">{{ item.textify|truncatechars:"200"|safe }}</div>
                 {% if item.is_draft %}
                     </a>
                 {% endif %}

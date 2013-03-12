@@ -1,4 +1,7 @@
 import email
+import textwrap
+
+from bs4 import BeautifulSoup, Tag
 
 from django.db import models
 from django.template.defaultfilters import truncatechars
@@ -63,7 +66,8 @@ class EmailMessage(Message):
     """
     uid = models.IntegerField()  # unique id on the server
     flags = models.TextField(blank=True, null=True)
-    body = models.TextField(blank=True, null=True)
+    body_html = models.TextField(blank=True, null=True)
+    body_text = models.TextField(blank=True, null=True)
     size = models.IntegerField(default=0, null=True)  # size in bytes
     folder_name = models.CharField(max_length=255)
     folder_identifier = models.CharField(max_length=255, blank=True, null=True)
@@ -88,14 +92,37 @@ class EmailMessage(Message):
 
     #     return messages
 
-    @property
-    def flatten_body(self):
+    def textify(self):
         """
         Return a plain text version of the html body, and optionally replace <br> tags with line breaks (\n).
         """
-        if self.body:
-            return flatten_html_to_text(self.body)
-        return u''
+        return self.body_text or flatten_html_to_text(self.body_html) or u''
+
+    def htmlify(self):
+        """
+        Return a html version of the text body, and optionally replace line breaks (\n) with <br> tags.
+        """
+        return True
+
+    @property
+    def indented_body(self):
+        """
+        Return an indented version of the body, preferably the html part, but in case that doesn't exist the text part.
+        This indented version of the body can be used to reply or forward an e-mail message.
+        """
+        if self.body_html:
+            # In case of html, wrap body in blockquote tag.
+            soup = BeautifulSoup(self.body_html)
+            soup.html.wrap(soup.new_tag('blockquote', type='cite'))
+            soup.html.replace_with_children()
+            return soup.decode()
+        elif self.body_text:
+            # In case of plain text, prepend '>' to every line of body.
+            indented_body = textwrap.wrap(self.body_text, 80)
+            indented_body = ['> %s' % line for line in indented_body]
+            return '<br />'.join(indented_body)
+        else:
+            return ''
 
     @property
     def subject(self):
@@ -374,7 +401,8 @@ class EmailDraft(TimeStampedModel):
     send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
     send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
-    body = models.TextField(null=True, blank=True, verbose_name=_('Body'))
+    body_html = models.TextField(null=True, blank=True, verbose_name=_('Html body'))
+    body_text = models.TextField(null=True, blank=True, verbose_name=_('Plain text body'))
 
     def __unicode__(self):
         return u'%s - %s' % (self.send_from, self.subject)

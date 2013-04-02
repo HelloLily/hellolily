@@ -60,11 +60,13 @@ $(document).ready(function () {
                     event.preventDefault();
                     $(ul).slideToggle('fast', function() {
                         $(this).toggleClass('closed');
+                        toggleDropDownIcons();
                     });
                 }
             } else {
                 $(ul).slideToggle('fast', function() {
                     $(this).toggleClass('closed');
+                    toggleDropDownIcons();
                 });
                 event.preventDefault();
             }
@@ -373,7 +375,7 @@ $(document).ready(function () {
         $('#mws-navigation ul ul li ul').filter(function() {
             // get every UL, except current/parent
             return $(parents).index($(this)) < 0;
-        }).hide().addClass('closed').closest('.expanded').removeClass('expanded').find('.expanded').removeClass('expanded'); // close all these UL's
+        }).hide().addClass('closed').closest('.expanded:not(#mws-navigation > ul > li.expanded)').removeClass('expanded').find('.expanded').removeClass('expanded'); // close all these UL's
     }
 
     $('div#mws-navigation ul li .mws-dropdown-trigger').click(function(event) {
@@ -383,9 +385,16 @@ $(document).ready(function () {
         if($(event.target).attr('href').indexOf('javascript:void(0)') === 0) {
             // if it has, only change the icon and expand the sub menu
             toggleOpenMenus($(event.target));
-            toggleDropDownIcons();
         }
         $(event.target).closest('li').toggleClass('expanded');
+
+        // toggle icon colors of the main nav items
+        var li =  $(event.target).closest('#mws-navigation > ul > li');
+        if (li.hasClass('expanded') || li.hasClass('active')) {
+            $(li).find('> a').removeClass('blue');
+        } else {
+            $(li).find('> a').addClass('blue');
+        }
     });
 
     $('div#mws-navigation ul li .mws-dropdown-trigger i.ui-icon').click(function(event) {

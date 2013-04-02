@@ -105,7 +105,7 @@
                                 <a href="javascript:void(0)" class="{% ifstartswith "messaging_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
                                     {% trans 'Messages' %}
                                 </a>
-                                <ul>
+                                <ul{% ifstartswith "messaging_dashboard" %}{% else %} class="closed"{% endifstartswith %}>
                                     {% email_folder_tree %}
 
                                     {% ifstartswith "messaging_dashboard" %}

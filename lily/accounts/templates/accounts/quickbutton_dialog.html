@@ -54,6 +54,11 @@
                 }
             });
 
+            $('#quickbutton-dialog-account form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-account') );
+                event.preventDefault();
+            });
+
             // show add account dialog
             $('.quickbutton.account').click(function(event) {
                 $('#quickbutton-dialog-account').dialog('open');

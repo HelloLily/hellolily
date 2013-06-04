@@ -56,7 +56,12 @@
                     clearForm( $(this).find('form') );
                 }
             });
-            
+
+            $('#quickbutton-dialog-contact form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-contact') );
+                event.preventDefault();
+            });
+
             // show add contact dialog
             $('.quickbutton.contact').click(function(event) {
                 $('#quickbutton-dialog-contact').dialog('open');

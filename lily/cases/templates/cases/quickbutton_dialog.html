@@ -20,7 +20,7 @@
                 autoOpen: false,
                 modal: true,
                 width: 640,
-                height: 710, // TODO don't use a fixed height, but rather find a elegant solution using z-index to fix the not visible dropdown menu options 
+                height: 710, // TODO don't use a fixed height, but rather find a elegant solution using z-index to fix the not visible dropdown menu options
                 open: function() {
                     enableChosen($(this));
                     var prio_classes = ['', 'green', 'yellow', 'orange', 'red'];
@@ -50,7 +50,12 @@
                     clearForm( $(this).find('form') );
                 }
             });
-            
+
+            $('#quickbutton-dialog-case form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-case') );
+                event.preventDefault();
+            });
+
             // show add contact dialog
             $('.quickbutton.case').click(function(event) {
                 $('#quickbutton-dialog-case').dialog('open');

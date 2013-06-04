@@ -20,7 +20,7 @@
                 autoOpen: false,
                 modal: true,
                 width: 640,
-                height: 800, // TODO don't use a fixed height, but rather find a elegant solution using z-index to fix the not visible dropdown menu options 
+                height: 800, // TODO don't use a fixed height, but rather find a elegant solution using z-index to fix the not visible dropdown menu options
                 open: function() {
                     enableChosen($(this));
                 },
@@ -47,7 +47,12 @@
 		          	$(this).find('.datepicker').datepicker('hide');
                 }
             });
-            
+
+            $('#quickbutton-dialog-deal form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-deal') );
+                event.preventDefault();
+            });
+
             // show add contact dialog
             $('.quickbutton.deal').click(function(event) {
                 $('#quickbutton-dialog-deal').dialog('open');

@@ -9,13 +9,9 @@ function clearForm(form) {
 
 // TODO: detect which button was clicked to be able to redirect to an edit view
 function sendForm(dialog, successCallback, errorCallback, beforeSubmit) {
-    var form = $(dialog).find('form'),
+    var form = $(dialog).find('form')[0],
         counter = 0,
         cb = null;
-
-    if( typeof(form === 'list') ){
-        form = form[0];
-    }
 
     var hideLoadingDialog = function(callback) {
         counter++;

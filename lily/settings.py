@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 import django.conf.global_settings as DEFAULT_SETTINGS
 
 
+# Don't share this with anybody
+SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
+
 # Register database scheme and redis caching in URLs
 uses_netloc.append('postgres')
 uses_netloc.append('redis')
@@ -56,9 +59,6 @@ USE_I18N = boolean(os.environ.get('USE_I18N', 1))
 USE_L10N = boolean(os.environ.get('USE_L10N', 1))
 USE_TZ = boolean(os.environ.get('USE_TZ', 1))
 FIRST_DAY_OF_WEEK = os.environ.get('FIRST_DAY_OF_WEEK', 1)
-
-# Don't share this with anybody
-SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 
 # Security parameters
 CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0)) # For production this needs to be set to True

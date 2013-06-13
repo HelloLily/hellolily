@@ -254,9 +254,7 @@ LOGGING = {
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Tenant support
-TENANT_MIXIN = 'django.db.models.Model' # prevent models from breaking, use the default base model
-if boolean(os.environ.get('MULTI_TENANT', 0)) and 'lily.tenant' in INSTALLED_APPS:
-    TENANT_MIXIN = 'lily.tenant.models.TenantMixin'
+MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 
 # Settings for 3rd party apps
 
@@ -301,7 +299,7 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
             'LOCATION': "{0.hostname}:{0.port}".format(url),
             'OPTIONS': {
                 'PASSWORD': url.password,
-                'DB': 0
+                'DB': int(url.path.lstrip("/")),
             }
         }
     }

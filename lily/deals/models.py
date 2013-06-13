@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.users.models import CustomUser
-from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.tenant.models import TenantMixin
 from lily.utils.models import Deleted
 
 
@@ -21,7 +21,7 @@ class Deal(TenantMixin, Deleted):
         ('CHF', _('Swiss franc')),
         ('USD', _('United States dollar')),
     )
-    
+
     NEW_STAGE, LOST_STAGE, PENDING_STAGE, WON_STAGE = range(4)
     STAGE_CHOICES = (
         (NEW_STAGE, _('New')),
@@ -29,7 +29,7 @@ class Deal(TenantMixin, Deleted):
         (PENDING_STAGE, _('Pending')),
         (WON_STAGE, _('Won')),
     )
-    
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'))
@@ -42,10 +42,10 @@ class Deal(TenantMixin, Deleted):
     assigned_to = models.ForeignKey(CustomUser, verbose_name=_('assigned to'))
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
-    
+
     def __unicode__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = _('deal')
         verbose_name_plural = _('deals')

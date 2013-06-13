@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.tenant.models import TenantMixin
 
 
 # ISO 3166-1 country names and codes
@@ -311,7 +311,7 @@ class PhoneNumber(TenantMixin):
     def save(self, *args, **kwargs):
         # Save raw input as number only (for searching)
         self.number = filter(type(self.raw_input).isdigit, self.raw_input)
-        
+
         # Replace starting digits
         if self.number[:3] == '310':
             self.number = self.number.replace('310', '31', 1)
@@ -319,13 +319,13 @@ class PhoneNumber(TenantMixin):
             self.number = self.number.replace('06', '316', 1)
         if self.number[:1] == '0':
             self.number = self.number.replace('0', '31', 1)
-        
+
         if len(self.number) > 0:
             self.number = '+' + self.number
-        
+
             # Overwrite user input
             self.raw_input = self.number # reserved field for future display based on locale
-        
+
         return super(PhoneNumber, self).save(*args, **kwargs)
 
     class Meta:
@@ -444,37 +444,37 @@ class CaseClientModelMixin(object):
         try:
             if None not in [priority, status]:
                 return self.case_set.filter(priority=priority, status=status)
-            
+
             if priority is not None:
                 return self.case_set.filter(priority=priority)
-            
+
             if status is not None:
                 return self.case_set.filter(status=status)
 
             return self.case_set.all()
         except:
             return None
-    
+
     def get_cases_critical(self):
         return self.get_cases(priority=3)
-    
+
     def get_cases_high(self):
         return self.get_cases(priority=2)
-    
+
     def get_cases_medium(self):
         return self.get_cases(priority=1)
-    
+
     def get_cases_low(self):
         return self.get_cases(priority=0)
-    
+
     def get_cases_open(self):
         return self.get_cases(status=0)
-    
+
     def get_cases_progress(self):
         return self.get_cases(status=1)
-    
+
     def get_cases_pending(self):
         return self.get_cases(status=2)
-    
+
     def get_cases_closed(self):
         return self.get_cases(status=3)

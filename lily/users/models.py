@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.tenant.models import TenantMixin
 from lily.utils.models import EmailAddress
 
 try:

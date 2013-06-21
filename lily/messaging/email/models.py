@@ -113,8 +113,11 @@ class EmailMessage(Message):
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
             soup = BeautifulSoup(self.body_html)
+            if soup.html is None:
+                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)  # haven't figured out yet how to do this elegantly..
+
             soup.html.wrap(soup.new_tag('blockquote', type='cite'))
-            soup.html.replace_with_children()
+            soup.html.unwrap()
             return soup.decode()
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.

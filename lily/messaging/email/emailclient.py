@@ -10,7 +10,9 @@ from dateutil.parser import parse
 from dateutil.tz import tzutc
 from django.core.mail import get_connection
 from django.utils.datastructures import SortedDict
+
 from imapclient.imapclient import IMAPClient, SEEN, DRAFT
+from lily.messaging.email.utils import flatten_html_to_text
 
 
 sys.setrecursionlimit(5000)
@@ -485,6 +487,9 @@ class LilyIMAP(object):
                 })
 
             html_body = soup.renderContents()
+
+        if plain_body:
+            plain_body = flatten_html_to_text(plain_body)
 
         # Return useful data
         return {

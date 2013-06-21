@@ -283,7 +283,7 @@ class EmailMessageJSONView(View):
                 'sent_date': unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': truncatechars(instance.body_text, 200),
+                'flat_body': truncatechars(instance.body_text.lstrip('&nbsp;\n\r\n '), 200),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,
@@ -374,7 +374,6 @@ class EmailComposeView(FormView):
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
-    get_email_headers = False
     remove_old_message = True
 
     def dispatch(self, request, *args, **kwargs):
@@ -434,8 +433,9 @@ class EmailComposeView(FormView):
                     to=[unsaved_form.send_to_normal],
                     cc=[unsaved_form.send_to_cc],
                     bcc=[unsaved_form.send_to_bcc],
-                    headers=self.get_email_headers() if self.get_email_headers else None,
-                ).attach_alternative(unsaved_form.body_html, 'text/html')
+                    headers=self.get_email_headers(),
+                )
+                email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
                 # TODO support attachments
 
@@ -609,25 +609,24 @@ class EmailCreateView(EmailComposeView):
 
 class EmailReplyView(EmailComposeView):
     message_object_query_args = (~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'))
-    get_email_headers = True
     remove_old_message = False
 
     def get_form_kwargs(self, **kwargs):
-        keyword_arguments = super(EmailReplyView, self).get_form_kwargs(**kwargs)
+        kwargs = super(EmailReplyView, self).get_form_kwargs(**kwargs)
 
         if hasattr(self, 'instance'):
-            keyword_arguments['initial']['subject'] = 'Re: %s' % keyword_arguments['initial']['subject']
-            keyword_arguments['initial']['send_to_normal'] = self.instance.from_combined
-            keyword_arguments['message_type'] = 'reply'
+            kwargs['initial']['subject'] = 'Re: %s' % self.instance.subject
+            kwargs['initial']['send_to_normal'] = self.instance.from_combined
+            kwargs['message_type'] = 'reply'
 
-        return keyword_arguments
+        return kwargs
 
     def get_email_headers(self):
         """
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if hasattr(self.message, 'send_from'):
+        if hasattr(self.instance, 'send_from'):
             sender = email.utils.parseaddr(self.message.send_from)
             reply_to_name = sender[0]
             reply_to_address = sender[1]
@@ -637,7 +636,6 @@ class EmailReplyView(EmailComposeView):
 
 class EmailForwardView(EmailReplyView):
     message_object_query_args = (~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'))
-    get_email_headers = True
     remove_old_message = False
 
     def get_form_kwargs(self, **kwargs):
@@ -646,13 +644,13 @@ class EmailForwardView(EmailReplyView):
 
         :return: An dict of keyword arguments.
         """
-        keyword_arguments = super(EmailReplyView, self).get_form_kwargs(**kwargs)
+        kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
 
         if hasattr(self, 'instance'):
-            keyword_arguments['initial']['subject'] = 'Fwd: %s' % keyword_arguments['initial']['subject']
-            keyword_arguments['message_type'] = 'forward'
+            kwargs['initial']['subject'] = 'Fwd: %s' % self.instance.subject
+            kwargs['message_type'] = 'forward'
 
-        return keyword_arguments
+        return kwargs
 
 
 class EmailBodyPreviewView(TemplateView):
@@ -673,7 +671,6 @@ class EmailBodyPreviewView(TemplateView):
 
         return super(EmailBodyPreviewView, self).dispatch(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
         kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
         body = u''
@@ -693,38 +690,6 @@ class EmailBodyPreviewView(TemplateView):
             else:
                 notice = _('On %s, %s wrote:' % (
                     self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
-            quoted_content = '<div>' + notice + '</div>' + quoted_content
-
-            body = reply + signature + '<br />' * 2 + quoted_content
-
-        kwargs.update({
-            # TODO get draft or user signature
-            # 'draft': get_user_sig(),
-            'draft': body
-        })
-
-        return kwargs
-
-
-def get_context_data(self, **kwargs):
-        kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
-
-        body = u''
-
-        # Check for existing draft
-        if self.message:
-            reply = u''
-            signature = u''
-            quoted_content = self.message.indented_body
-
-            # Prepend notice that the following text is a quote
-            #
-            # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
-            #
-            if self.message_type == 'forward':
-                notice = _('Begin forwarded message:')
-            else:
-                notice = _('On %s, %s wrote:' % (self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
             quoted_content = '<div>' + notice + '</div>' + quoted_content
 
             body = reply + signature + '<br />' * 2 + quoted_content

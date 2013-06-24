@@ -509,6 +509,14 @@ class EmailComposeView(FormView):
         error = False
         try:
             server.get_smtp_server(fail_silently=False).send_messages([email_message])
+            if email_message.bcc:
+                recipients = email_message.bcc
+                # Send separate messages
+                for recipient in recipients:
+                    email_message.bcc = []
+                    email_message.to += [recipient]
+                    server.get_smtp_server(fail_silently=False).send_messages([email_message])
+
             synchronize_folder(
                 server,
                 server.get_folder_by_identifier(SENT),
@@ -541,11 +549,9 @@ class EmailComposeView(FormView):
 
     def get_email_headers(self):
         """
-        Method stub for subclasses to overwrite.
-
-        :raise: NotImplementedError, because it's only a stub.
+        This function is not implemented. For custom headers overwrite this function.
         """
-        raise NotImplementedError('This function is not implemented. For custom headers overwrite this function.')
+        pass
 
     def get_context_data(self, **kwargs):
         """
@@ -663,7 +669,7 @@ class EmailBodyPreviewView(TemplateView):
         if self.message_id:
             try:
                 self.message = EmailMessage.objects.get(
-                    ~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'), pk=self.message_id)
+                    ~Q(folder_identifier=DRAFTS.lstrip('\\')) | ~Q(flags__icontains='draft'), pk=self.message_id)
             except EmailMessage.DoesNotExist:
                 raise Http404()
         else:

@@ -5,6 +5,15 @@
     display: inline-block;
 }
 
+#div_id_shared_with ul li {
+    list-style-type: none;
+    margin-left: 0px;
+}
+
+#div_id_shared_with ul li label {
+    cursor: pointer;
+}
+
 .mws-form .email_is_primary label span {
     color: #aaa;
     font-weight: normal;
@@ -18,8 +27,9 @@
     cursor: pointer;
 }
 
-.mws-form .formset-delete .i-16,
-.mws-form .email-configuration-wizard .i-16 {
+.mws-form .email-configuration-wizard .i-16,
+.mws-form .email-share-wizard .i-16,
+.mws-form .formset-delete .i-16 {
     display: block;
     width: 16px;
     height: 32px;

@@ -47,16 +47,18 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
-    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
-                                 verbose_name=_('salutation'))
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL, verbose_name=_('salutation'))
 
-    @property
-    def primary_email(self):
-        try:
-            return self.email_addresses.get(is_primary=True)
-        except EmailAddress.DoesNotExist:
-            pass
-        return u''
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
 
     def get_work_phone(self):
         try:

@@ -14,9 +14,11 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
+from django.template.context import RequestContext
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
@@ -26,13 +28,15 @@ from lily.contacts.models import Contact
 from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
-    EmailConfigurationStep2Form, EmailConfigurationStep3Form
+    EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
 from lily.tenant.middleware import get_current_user
-from lily.utils.functions import uniquify
+from lily.users.models import CustomUser
+from lily.utils.functions import is_ajax, uniquify
 from lily.utils.models import EmailAddress
+from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DeleteBackAddSaveFormViewMixin
 
 
@@ -723,8 +727,7 @@ class EmailConfigurationView(SessionWizardView):
         # Verify email address exists
         self.email_address_id = kwargs.get('pk')
         try:
-            pk = kwargs.pop('pk')
-            self.email_address = EmailAddress.objects.get(pk=pk)
+            self.email_address = EmailAddress.objects.get(pk=self.email_address_id)
         except EmailAddress.DoesNotExist:
             raise Http404()
 
@@ -839,6 +842,77 @@ class EmailConfigurationView(SessionWizardView):
         account.user_group.add(get_current_user())
 
         return HttpResponse(render_to_string(self.template_name, {'messaging_email_inbox': reverse('messaging_email_inbox')}, None))
+
+
+class EmailShareView(FormView):
+    """
+    Display a form to share an email account with everybody or certain people only.
+    """
+    template_name = 'messaging/email/wizard_share_form.html'
+    form_class = EmailShareForm
+
+    def dispatch(self, request, *args, **kwargs):
+        # Verify email address exists
+        email_address_id = kwargs.get('pk')
+        try:
+            self.email_address = EmailAddress.objects.get(pk=email_address_id)
+        except EmailAddress.DoesNotExist:
+            raise Http404()
+
+        # Verify email account exists
+        try:
+            self.email_account = EmailAccount.objects.get(email=self.email_address)
+        except EmailAccount.DoesNotExist:
+            raise Http404()
+
+        return super(EmailShareView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        original_user = None
+        try:
+            original_user = CustomUser.objects.get(tenant=get_current_user().tenant, contact__email_addresses__email_address=self.email_address, contact__email_addresses__is_primary=True)
+        except CustomUser.DoesNotExist:
+            pass
+
+        kwargs = super(EmailShareView, self).get_form_kwargs(**kwargs)
+        kwargs.update({
+            'instance': self.email_account,
+            'original_user': original_user
+        })
+
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        Handle form submission via AJAX or show custom save message.
+        """
+        self.object = form.save()  # copied from ModelFormMixin
+        message = _('Sharing options for %s have been saved.') % self.object.email.email_address
+
+        if is_ajax(self.request):
+            # Return response
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'notification': [{'message': escapejs(message), 'tags': tag_mapping.get('success')}]
+            }), mimetype='application/json')
+
+        # Show save message
+        messages.success(self.request, message)
+
+        return super(EmailShareView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to return a different response to ajax requests.
+        """
+        if is_ajax(self.request):
+            context = RequestContext(self.request, self.get_context_data(form=form))
+            return HttpResponse(simplejson.dumps({
+                'error': True,
+                'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/json')
+
+        return super(EmailShareView, self).form_invalid(form)
 
 
 class EmailSearchView(EmailFolderView):
@@ -1070,6 +1144,7 @@ email_forward_view = login_required(EmailForwardView.as_view())
 # E-mail account wizard views
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())
 email_configuration_wizard = login_required(EmailConfigurationView.as_view([EmailConfigurationStep1Form, EmailConfigurationStep2Form, EmailConfigurationStep3Form]))
+email_share_wizard = login_required(EmailShareView.as_view())
 
 edit_email_account_view = EditEmailAccountView.as_view()
 detail_email_account_view = DetailEmailAccountView.as_view()

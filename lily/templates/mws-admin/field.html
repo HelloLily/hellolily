@@ -87,15 +87,16 @@
                     {% crispy_field field %}
                 {% endif %}
             {% endif %}
-
-
-            {% if field.label %}
-                </div>
-            {% endif %}
         {% endif %}
 
         {% if field.help_text %}
             <div id="hint_{{ field.auto_id }}" class="formHint">{{ field.help_text|safe }}</div>
+        {% endif %}
+
+        {% if not field|is_checkbox %}
+            {% if field.label %}
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 {% endif %}

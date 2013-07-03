@@ -7,13 +7,21 @@ from lily.users.models import CustomUser
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 
 
+ACCOUNT_SHARE_CHOICES = [
+    (0, _('Don\'t share')),
+    (1, _('Everybody')),
+    (2, _('Specific users')),
+]
+
+
 class MessagesAccount(PolymorphicModel, TimeStampedModel, TenantMixin):
     """
     A social media account base class, all accounts are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
     """
-    user_group = models.ManyToManyField(CustomUser, related_name='messages_accounts')
     account_type = models.CharField(max_length=255)
+    shared_with = models.SmallIntegerField(choices=ACCOUNT_SHARE_CHOICES, default=0, help_text='')
+    user_group = models.ManyToManyField(CustomUser, related_name='messages_accounts', verbose_name=_('users'))
 
     def __unicode__(self):
         return u'%s account' % self.account_type

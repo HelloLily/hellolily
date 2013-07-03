@@ -129,7 +129,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         if is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
 
-            # Add e-mail address to account as primary
+            # Add e-mail address to contact as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
 

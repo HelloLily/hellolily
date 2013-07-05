@@ -32,6 +32,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
+from lily.messaging.models import MessagesAccount
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, uniquify
@@ -159,7 +160,10 @@ class EmailFolderView(ListView):
             ctype = ContentType.objects.get_for_model(EmailAccount)
             self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
 
-            # Uniquify accounts, doubles are possible via personal, group, shared access etc.
+            # Include shared accounts
+            self.messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=[account.pk for account in self.messages_accounts]))
+
+            # Uniquify accounts
             self.messages_accounts = uniquify(self.messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
 
         # Deteremine which folder to show messages from

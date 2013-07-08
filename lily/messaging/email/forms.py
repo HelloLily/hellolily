@@ -5,7 +5,6 @@ from urlparse import urlparse
 
 from crispy_forms.layout import HTML, Layout, Submit
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
 from django.forms.widgets import RadioSelect, SelectMultiple
@@ -244,8 +243,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         self.helper.add_input(Submit('submit-send', _('Send')))
 
         user = get_current_user()
-        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=user.messages_accounts.values_list('pk')).order_by('email__email_address')
+        email_accounts = user.get_messages_accounts(EmailAccount)
 
         # Filter choices by ctype for EmailAccount
         self.fields['send_from'].empty_label = None
@@ -285,11 +283,8 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         cleaned_data = self.cleaned_data
         send_from = cleaned_data.get('send_from')
 
-        user = get_current_user()
-        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        email_account_pks = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=user.messages_accounts.values_list('pk')).values_list('pk', flat=True)
-
-        if send_from.pk not in email_account_pks:
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
+        if send_from.pk not in [account.pk for account in email_accounts]:
             self._errors['send_from'] = _(u'Invalid email account selected to use as sender.')
 
         return send_from

@@ -708,7 +708,8 @@ class LilyIMAP(object):
     def logout(self):
         try:
             self.get_imap_server().logout()
-            del self._servers['imap']
+            if 'imap' in self._servers:
+                del self._servers['imap']
         except Exception, e:
             print traceback.format_exc(e)
 

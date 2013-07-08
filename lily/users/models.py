@@ -1,14 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.models import User, UserManager
 from django.contrib.auth.signals import user_logged_out
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.utils.functions import get_tenant_mixin as TenantMixin, uniquify
 from lily.utils.models import EmailAddress
 
 try:
@@ -36,6 +38,27 @@ class CustomUser(User, TenantMixin):
         except EmailAddress.DoesNotExist:
             pass
         return u''
+
+    def get_messages_accounts(self, model=None, pk__in=None):
+        from lily.messaging.models import MessagesAccount
+
+        # Filter by content type if provided
+        if model is not None:
+            ctype = ContentType.objects.get_for_model(model)
+
+            # Include shared accounts
+            messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk')))
+        else:
+            # Include all type of accounts and include shared accounts
+            messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=self.messages_accounts.values_list('pk')))
+
+        if pk__in is not None:
+            messages_accounts = messages_accounts.filter(pk__in=pk__in)
+
+        # Uniquify accounts
+        messages_accounts = uniquify(messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
+
+        return messages_accounts
 
     class Meta:
         verbose_name = _('user')

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
@@ -60,8 +59,7 @@ class EmailMiddleware(object):
                 'children': {},
             }
 
-        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=get_current_user().messages_accounts.values_list('pk')).order_by('email__email_address')
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
 
         for account in email_accounts:
             email_folders[account.email.email_address] = {

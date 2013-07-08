@@ -7,7 +7,6 @@ import logging
 from dateutil.tz import tzutc
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
@@ -32,10 +31,9 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
-from lily.messaging.models import MessagesAccount
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
-from lily.utils.functions import is_ajax, uniquify
+from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
 
@@ -179,16 +177,9 @@ class EmailFolderView(ListView):
     def get(self, request, *args, **kwargs):
         # Determine which accounts to show messages from
         if kwargs.get('account_id'):
-            self.messages_accounts = request.user.messages_accounts.filter(pk__in=[kwargs.get('account_id')])
+            self.email_accounts = request.user.get_messages_accounts(EmailAccount, pk__in=[kwargs.get('account_id')])
         else:
-            ctype = ContentType.objects.get_for_model(EmailAccount)
-            self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
-
-            # Include shared accounts
-            self.messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=[account.pk for account in self.messages_accounts]))
-
-            # Uniquify accounts
-            self.messages_accounts = uniquify(self.messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
+            self.email_accounts = request.user.get_messages_accounts(EmailAccount)
 
         # Deteremine which folder to show messages from
         if kwargs.get('folder') and not any([self.folder_name, self.folder_identifier]):
@@ -207,7 +198,7 @@ class EmailFolderView(ListView):
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier.lstrip('\\'))
-        return qs.filter(account__in=self.messages_accounts).order_by('-sent_date')
+        return qs.filter(account__in=self.email_accounts).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
         """
@@ -216,7 +207,7 @@ class EmailFolderView(ListView):
         kwargs = super(EmailFolderView, self).get_context_data(**kwargs)
         kwargs.update({
             'list_item_template': 'messaging/email/model_list_item.html',
-            'list_title': ', '.join([messaging_account.email.email_address for messaging_account in self.messages_accounts]),
+            'list_title': ', '.join([email_account.email.email_address for email_account in self.email_accounts]),
         })
 
         # Also pass search parameters, if any
@@ -284,14 +275,13 @@ class EmailMessageJSONView(View):
         def unix_time_millis(dt):
             return unix_time(dt) * 1000.0
 
-        # Find account
-        ctype = ContentType.objects.get_for_model(EmailAccount)
-        self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
+        # Find accounts
+        self.email_accounts = request.user.get_messages_accounts(EmailAccount)
         server = None
         try:
             instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             # See if the user has access to this message
-            if instance.account not in self.messages_accounts:
+            if instance.account not in self.email_accounts:
                 raise Http404()
 
             # if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
@@ -315,7 +305,7 @@ class EmailMessageJSONView(View):
                 'sent_date': unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': truncatechars(instance.body_text.lstrip('&nbsp;\n\r\n '), 200),
+                'flat_body': truncatechars(instance.textify.lstrip('&nbsp;\n\r\n '), 200),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,
@@ -976,9 +966,8 @@ class EmailSearchView(EmailFolderView):
         # Look in url which account id and folder the searched is performed in
         account_id = kwargs.get('account_id', None)
 
-        # Filter accounts from which the user has no access to
-        ctype = ContentType.objects.get_for_model(EmailAccount)
-        accounts_qs = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
+        # Get accounts the user has access to
+        accounts_qs = request.user.get_messages_accounts(EmailAccount)
         if account_id is not None:
             accounts = [int(account_id)]
             accounts_qs = accounts_qs.filter(pk__in=accounts)

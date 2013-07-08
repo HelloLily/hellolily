@@ -5,7 +5,6 @@ from dateutil.tz import gettz, tzutc
 from dateutil.parser import parse
 from django import template
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 
@@ -48,12 +47,11 @@ def pretty_datetime(time, format=None):
         return datetime.strftime(localized_time, '%d-%b.')
 
 
-def get_folder_unread_count(folder, accounts=None):
-    if accounts is None:
-        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=get_current_user().messages_accounts.values_list('pk')).order_by('email__email_address')
+def get_folder_unread_count(folder, email_accounts=None):
+    if email_accounts is None:
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
 
-    return EmailMessage.objects.filter(Q(folder_identifier=folder.lstrip('\\')) | Q(folder_name=folder), account__in=accounts, is_seen=False).count()
+    return EmailMessage.objects.filter(Q(folder_identifier=folder.lstrip('\\')) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
 
 class UnreadMessagesNode(template.Node):
@@ -98,8 +96,7 @@ def get_folder_html(folder_name, folder, request, account=None):
     sub_html = u''
     if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
 
-        email_account_ctype = ContentType.objects.get_for_model(EmailAccount)
-        email_accounts = EmailAccount.objects.filter(polymorphic_ctype=email_account_ctype, pk__in=get_current_user().messages_accounts.values_list('pk')).order_by('email__email_address')
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
         for account in email_accounts:
             folder_url = 'javascript:void(0)'
             if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
@@ -124,7 +121,7 @@ def get_folder_html(folder_name, folder, request, account=None):
                             <span class="mws-nav-tooltip mws-inset">%d</span>
                         </a>
                         <span class="spacer"></span>
-                    </li>""" % (' class="active expanded"' if current_is_active else '', folder_url, account.email.email_address, account.email.email_address, get_folder_unread_count(folder_name, accounts=[account]))
+                    </li>""" % (' class="active expanded"' if current_is_active else '', folder_url, account.email.email_address, account.email.email_address, get_folder_unread_count(folder_name, email_accounts=[account]))
 
         folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
         reverse_url_name = {

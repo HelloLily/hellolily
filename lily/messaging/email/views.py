@@ -305,7 +305,7 @@ class EmailMessageJSONView(View):
                 'sent_date': unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': truncatechars(instance.textify.lstrip('&nbsp;\n\r\n '), 200),
+                'flat_body': truncatechars(instance.textify().lstrip('&nbsp;\n\r\n '), 200),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,

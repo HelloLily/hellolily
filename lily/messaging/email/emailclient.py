@@ -1,6 +1,7 @@
 import datetime
 import email
 import pytz
+import re
 import StringIO  # can't always use cStringIO
 import sys
 import traceback
@@ -374,11 +375,15 @@ class LilyIMAP(object):
             # Properly read headers
             headers = dict(message.items())
             for name, value in headers.items():
-                decoded_fragments = email.header.decode_header(value)
+                # The regex fixes broken headers,
+                # i.e. headers that don't have a white space after an utf-8 encoded string
+                decoded_fragments = email.header.decode_header(re.sub(r"(=\?.*\?=)(?!$)", r"\1 ", value))
                 header_fragments = []
                 for fragment, encoding in decoded_fragments:
                     if encoding is not None:
                         fragment = unicode(fragment, encoding).encode('utf-8', 'replace')
+                    else:
+                        fragment = unicode(fragment, 'utf-8').encode('utf-8', 'replace')
                     header_fragments.append(fragment)
                 headers[name] = ''.join(header_fragments)
 

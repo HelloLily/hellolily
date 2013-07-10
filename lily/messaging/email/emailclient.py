@@ -1,5 +1,6 @@
 import datetime
 import email
+import logging
 import pytz
 import re
 import StringIO  # can't always use cStringIO
@@ -15,6 +16,8 @@ from django.utils.datastructures import SortedDict
 from imapclient.imapclient import IMAPClient, SEEN, DRAFT
 from lily.messaging.email.utils import flatten_html_to_text
 
+
+logger = logging.getLogger('emailclient')
 
 sys.setrecursionlimit(5000)
 
@@ -112,6 +115,7 @@ class LilyIMAP(object):
         self._conn_kwargs.update(provider=provider, account=account, use_uid=use_uid, ssl=ssl, **kwargs)
 
         # Create folder mapping
+        logger.info('Starting in test modus: %s' % test)
         if not test:
             self.retrieve_and_map_folders()
 
@@ -127,8 +131,10 @@ class LilyIMAP(object):
 
         server = False
         if provider is not None and account is not None:
+            logger.info('Creating IMAPClient with provider instance')
             server = IMAPClient(provider.imap_host, provider.imap_port, use_uid, ssl)
         else:
+            logging.info('Creating IMAPClient with separately provided host and port')
             host = self._conn_kwargs.get('host')
             port = self._conn_kwargs.get('port')
             server = IMAPClient(host, port, use_uid, ssl)
@@ -140,11 +146,15 @@ class LilyIMAP(object):
         account = self._conn_kwargs.get('account')
 
         if provider is not None and account is not None:
+            logging.info('Logging in with account instance')
             imap_client.login(account.username, account.password)
         else:
+            logging.info('Logging in with separately provided username and password')
             username = self._conn_kwargs.get('username')
             password = self._conn_kwargs.get('password')
             imap_client.login(username, password)
+
+        logging.info('Logged in')
         return imap_client
 
     def get_imap_server(self):
@@ -182,6 +192,8 @@ class LilyIMAP(object):
             'password': password,
             'use_tls': use_tls,
         }
+
+        logging.info('Connecting with SMTP backend')
         return get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=fail_silently, **kwargs)
 
     def retrieve_and_map_folders(self):
@@ -194,7 +206,9 @@ class LilyIMAP(object):
         mapping = {}
 
         # Get identifier .list from server
+        logging.info('Retrieve folders with XLIST')
         out = self.get_imap_server().xlist_folders()
+        logging.info('Folders retrieved')
 
         # If there are folderes, map them
         if not len(out) == 1 and out[0] is not None:
@@ -324,19 +338,26 @@ class LilyIMAP(object):
         """
         Parse an attachment from a message part. Returns a StringIO object or None.
         """
+        logging.info('Checking message part for attachment')
         content_disposition = message_part.get('Content-Disposition', None)
         if content_disposition:
             dispositions = content_disposition.strip().split(';')
-            if bool(content_disposition and dispositions[0].lower() in ['attachment', 'inline'] and message_part.get_filename() is not None):
-                # Make sure not to use cStringIO; cStringIO can't set these attributes
-                file_data = message_part.get_payload(decode=True)
-                if file_data is not None:
-                    attachment = StringIO.StringIO(file_data)
-                    attachment.content_type = message_part.get_content_type()
-                    attachment.size = len(file_data)
-                    attachment.name = message_part.get_filename()
-                    return attachment
+            if bool(content_disposition and dispositions[0].lower() in ['attachment', 'inline']):
+                if message_part.get_filename() is not None:
+                    # Make sure not to use cStringIO; cStringIO can't set these attributes
+                    file_data = message_part.get_payload(decode=True)
+                    if file_data is not None:
+                        attachment = StringIO.StringIO(file_data)
+                        attachment.content_type = message_part.get_content_type()
+                        attachment.size = len(file_data)
+                        attachment.name = message_part.get_filename()
 
+                        logging.info('Attachment found: %s %s %s' % (attachment.name, attachment.size, attachment.content_type))
+                        return attachment
+                else:
+                    logging.info('Attachment found, but no filename')
+
+        logging.info('No attachment found')
         return None
 
     def get_message_from_raw(self, raw_data):
@@ -358,12 +379,16 @@ class LilyIMAP(object):
         html_body = None
         plain_body = None
 
+        logging.info('Parsing raw e-mail message')
+
         # Find key for header
         header_key = [key for key in raw_data.keys() if key.startswith('BODY[HEADER')] or None
         if header_key is not None:
+            logging.info('E-mail contains BODY[HEADER]')
             header_key = header_key[0]
 
         if 'FLAGS' in raw_data:
+            logging.info('E-mail contains FLAGS')
             flags = raw_data.get('FLAGS', ())
 
         # Parse headers
@@ -385,7 +410,11 @@ class LilyIMAP(object):
                     else:
                         fragment = unicode(fragment, 'utf-8').encode('utf-8', 'replace')
                     header_fragments.append(fragment)
-                headers[name] = ''.join(header_fragments)
+
+                header_value = ''.join(header_fragments)
+                if headers[name] != header_value:
+                    logging.info('Fixed e-mail header %s, from "%s" to "%s"' % (name, headers[name], header_value))
+                headers[name] = header_value
 
             if 'Content-Type' in headers:
                 headers['Content-Type'] = headers['Content-Type'].split(';')[0]
@@ -419,7 +448,11 @@ class LilyIMAP(object):
             else:
                 has_attachments = headers.get('Content-Type', '').startswith('multipart/mixed') and message.is_multipart()
 
+            logging.info('%sxpecting to find attachments' % ('E' if has_attachments else 'Not e'))
+
         if 'BODY[]' in raw_data:
+            logging.info('E-mail contains BODY[]')
+
             html_body = plain_body = u''
             attachments = []
 
@@ -434,6 +467,7 @@ class LilyIMAP(object):
                     continue
 
                 # Read body
+                logging.info('Checking part for body')
                 try:
                     payload = part.get_payload(decode=True)
                     if payload is None:
@@ -472,15 +506,18 @@ class LilyIMAP(object):
                         print traceback.format_exc(e)
 
                 if part.get_content_maintype() == 'multipart':
+                    logging.info('Skipping multipart message part')
                     continue
 
                 if part.get('Content-Disposition') is None:
+                    logging.info('Skipping part with no Content-Disposition')
                     continue
 
             # Create soup from body to alter html tags
             soup = BeautifulSoup(html_body)
 
             # Remove html comments
+            logging.info('Stripping html comments from body')
             comments = soup.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
@@ -497,6 +534,7 @@ class LilyIMAP(object):
             plain_body = flatten_html_to_text(plain_body)
 
         # Return useful data
+        logging.info('E-mail parsed')
         return {
             'flags': flags,
             'headers': headers,
@@ -518,6 +556,11 @@ class LilyIMAP(object):
         recommended. As a uid only needs be unique per folder, it's possible
         that not the intended message is found and returned.
         """
+        if folder:
+            logging.info('Finding modifiers (%s) for message %s in folder %s' % (modifiers, uid, folder))
+        else:
+            logging.info('Finding modifiers (%s) for message %s on server' % (modifiers, uid))
+
         try:
             if not isinstance(uid, list):
                 uid = [uid]
@@ -536,6 +579,7 @@ class LilyIMAP(object):
                         message['folder_name'] = folder_name
                         return message
                     # Not found in given folder, return nothing
+                    logging.info('Message not found')
                     return {}
 
             # From here on, we're just guessing which message it is.
@@ -553,6 +597,7 @@ class LilyIMAP(object):
                     message = self.get_message_from_raw(data)
                     self.get_imap_server().close_folder()
                     message['folder_name'] = folder_name
+                    logging.info('Message found in folder %s' % folder_name)
                     return message
 
             # Look into other folders
@@ -568,10 +613,12 @@ class LilyIMAP(object):
                         message = self.get_message_from_raw(data)
                         self.get_imap_server().close_folder()
                         message['folder_name'] = folder_name
+                        logging.info('Message found in folder %s' % folder_name)
                         return message
         except Exception, e:
             print traceback.format_exc(e)
 
+        logging.info('Message not found')
         return {}
 
     def search_in_folder(self, identifier=None, criteria=['ALL'], readonly=True, paginate=False, page=1, page_size=10, close=True):

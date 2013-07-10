@@ -39,6 +39,7 @@ from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, 
 
 
 log = logging.getLogger('django.request')
+email_logger = logging.getLogger('emailclient')
 
 
 class EditEmailAccountView(TemplateView):
@@ -280,6 +281,7 @@ class EmailMessageJSONView(View):
         server = None
         try:
             instance = EmailMessage.objects.get(id=kwargs.get('pk'))
+            email_logger.info('Retrieving message for e-mail account: %s' % instance.account.email.email_address)
             # See if the user has access to this message
             if instance.account not in self.email_accounts:
                 raise Http404()
@@ -287,15 +289,19 @@ class EmailMessageJSONView(View):
             # if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
             if True:
                 # Retrieve directly from IMAP (marks as read automatically)
+                email_logger.info('Connecting with IMAP')
                 server = LilyIMAP(provider=instance.account.provider, account=instance.account)
+                email_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
                 message = server.get_modifiers_for_uid(instance.uid, modifiers=['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], folder=instance.folder_name)
                 if len(message):
+                    email_logger.info('Message retrieved, saving in database')
                     folder = server.get_folder(message.get('folder_name'))
                     save_email_messages({instance.uid: message}, instance.account, folder.get_server_name(), folder.identifier)
 
                 instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             else:
                 # Mark as read manually
+                email_logger.info('Mark message %s as read on server (asynchronously)' % instance.id)
                 mark_messages.delay(instance.id, read=True)
             instance.is_seen = True
             instance.save()

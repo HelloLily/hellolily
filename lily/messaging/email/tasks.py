@@ -17,16 +17,20 @@ from lily.users.models import CustomUser
 
 
 log = logging.getLogger('django.request')
+task_logger = logging.getLogger('celery_tasks')
 
 
 def save_email_messages(messages, account, folder_name, folder_identifier=None, new_messages=False):
     """
     Save messages in database for account. Folder_name needs to be the server name.
     """
+    task_logger.info('Saving %s messages for %s in %s in the database' % (len(messages), account.email.email_address, folder_name))
     try:
         query_batch_size = 10000
 
         if new_messages:
+            task_logger.info('Saving these messages with the ORM since they are new')
+
             new_message_obj_list = []
             new_email_headers = {}
             # new_email_attachments = {}
@@ -130,6 +134,8 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
             # TODO
 
         elif not new_messages:
+            task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')
+
             # Build query string and parameter list
             total_query_string = ''
             param_list = []
@@ -137,7 +143,9 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
             update_email_headers = {}
 
             # update_email_attachments = {}
+            task_logger.info('Looping through %s messages' % len(messages))
             for uid, message in messages.items():
+                logging.info('Message %s' % uid)
                 query_string = 'UPDATE email_emailmessage SET '
                 if message.get('sent_date') is not None:
                     query_string += 'sent_date = %s, '
@@ -191,6 +199,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                         email_headers.append(email_header)
                     if len(email_headers):
                         # Save reference to uid
+                        task_logger.info('Also updating headers for message %s' % uid)
                         update_email_headers.update({uid: email_headers})
 
                 # Check for attachments
@@ -198,12 +207,14 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
 
                 if query_count == query_batch_size:
                     # Execute queries
+                    task_logger.info('Executing query batch (%s) now - queries for e-mail messages (full batch)' % query_count)
                     cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
                     query_count = 0  # reset counter
 
             # Execute leftover queries
             if query_count and query_count < query_batch_size:
+                task_logger.info('Executing query batch (%s) now - queries for e-mail messages (leftovers next batch)' % query_count)
                 cursor = connection.cursor()
                 cursor.execute(total_query_string, param_list)
 
@@ -242,6 +253,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 total_query_string = ''
                 param_list = []
                 query_count = 0
+                task_logger.info('Looping through %s headers that need updating' % len(update_header_obj_list))
                 for header_obj in update_header_obj_list:
                     # Decide whether to update or insert this email header
                     if header_obj.name in existing_headers_per_message.get(header_obj.message_id, []):
@@ -264,21 +276,27 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                     query_count += 1
 
                     if query_count == query_batch_size:
-                        # Execute queries
+                        # Execute queries - queries for e-mail headers (full batch)
+                        task_logger.info('Executing query batch (%s) now - queries for e-mail headers (full batch)' % query_count)
                         cursor = connection.cursor()
                         cursor.execute(total_query_string, param_list)
                         query_count = 0  # reset counter
 
                 # Execute leftover queries
                 if query_count and query_count < query_batch_size:
+                    task_logger.info('Executing query batch (%s) now - queries for e-mail headers (leftovers next batch)' % query_count)
                     cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
+                else:
+                    task_logger.info('Not executing queries yet')
 
             # Save new_email_attachments
             # TODO
 
     except Exception, e:
         print traceback.format_exc(e)
+
+    task_logger.info('Messages saves')
 
 
 def get_unread_emails(accounts, page=1):

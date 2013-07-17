@@ -142,3 +142,32 @@ function addCSRFHeader(jqXHR, settings) {
         jqXHR.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
     }
 }
+
+function getIframeHeight(iframe) {
+    var height;
+    var scrollHeight;
+    var offsetHeight;
+
+    var body_html = $(iframe).contents().find('body')[0];
+    if (body_html.scrollHeight) {
+        height = scrollHeight = body_html.scrollHeight;
+    }
+    if (body_html.offsetHeight) {
+        height = offsetHeight = body_html.offsetHeight;
+    }
+
+    if (scrollHeight && offsetHeight){
+        // In Firefox, scrollHeight shrinks with content,
+        // but in Chrome only offsetHeight shrinks.
+        // height = Math.max(scrollHeight, offsetHeight);
+        // TODO : test in IE
+    }
+
+    height += parseInt($(body_html).css('margin-top'))
+            + parseInt($(body_html).css('margin-bottom'))
+            + parseInt($(body_html).css('padding-top'))
+            + parseInt($(body_html).css('padding-bottom'))
+            + parseInt($(iframe).css('border-top-width'))
+            + parseInt($(iframe).css('border-bottom-width'));
+    return height;
+}

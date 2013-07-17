@@ -1,3 +1,4 @@
+from django.db.models import Field
 import re
 
 from bs4 import BeautifulSoup, Comment
@@ -5,11 +6,29 @@ from django.db import models
 from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END, TemplateSyntaxError, TemplateDoesNotExist, TemplateEncodingError, VariableDoesNotExist, InvalidTemplateLibrary
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
+from types import FunctionType
 from lily.messaging.email.decorators import get_safe_template
 
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
+
+
+def get_field_names(field):
+    """
+    Set the field name and the verbose field name depending on the type of field
+
+    :param field: The field from which we want the name
+    :return: The field name and the verbose field name
+    """
+    if isinstance(field, FunctionType):
+        field_name = field.__name__
+        field_verbose_name = field.__name__.replace('_', ' ')
+    elif isinstance(field, Field):
+        field_name = field.name
+        field_verbose_name = field.verbose_name
+
+    return field_name, field_verbose_name
 
 
 def get_email_parameter_dict():
@@ -24,12 +43,14 @@ def get_email_parameter_dict():
         for model in models.get_models():
             if hasattr(model, 'email_template_parameters'):
                 for field in model.email_template_parameters:
+                    field_name, field_verbose_name = get_field_names(field)
+
                     _EMAIL_PARAMETER_DICT.update({
-                        '%s_%s' % (model._meta.verbose_name.lower(), field.name.lower()): {
+                        '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): {
                             'model': model,
                             'model_verbose': model._meta.verbose_name.title(),
                             'field': field,
-                            'field_verbose': field.verbose_name.title(),
+                            'field_verbose': field_verbose_name.title(),
                         }
                     })
     return _EMAIL_PARAMETER_DICT
@@ -47,14 +68,16 @@ def get_email_parameter_choices():
         for model in models.get_models():
             if hasattr(model, 'email_template_parameters'):
                 for field in model.email_template_parameters:
+                    field_name, field_verbose_name = get_field_names(field)
+
                     if '%s' % model._meta.verbose_name.title() in _EMAIL_PARAMETER_CHOICES:
                         _EMAIL_PARAMETER_CHOICES.get('%s' % model._meta.verbose_name.title()).update({
-                            '%s_%s' % (model._meta.verbose_name.lower(), field.name.lower()): field.verbose_name.title(),
+                            '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
                         })
                     else:
                         _EMAIL_PARAMETER_CHOICES.update({
                             '%s' % model._meta.verbose_name.title(): {
-                                '%s_%s' % (model._meta.verbose_name.lower(), field.name.lower()): field.verbose_name.title(),
+                                '%s_%s' % (model._meta.verbose_name.lower(), field.name.lower()): field_verbose_name.title(),
                             }
                         })
 
@@ -66,7 +89,10 @@ def flatten_html_to_text(html, replace_br=False):
     Strip html and unwanted whitespace to preserve text only. Optionally replace
     <br> tags with line breaks (\n).
     """
-    soup = BeautifulSoup(html)
+    try:
+        soup = BeautifulSoup(html)
+    except RuntimeWarning:
+        return html
 
     # Remove html comments
     comments = soup.findAll(text=lambda text: isinstance(text, Comment))
@@ -99,7 +125,7 @@ class TemplateParser(object):
         self.valid_blocks = []
 
         text = self._escape_text(text.encode('utf-8')).strip()
-        safe_get_template_from_string = get_safe_template(get_template_from_string)
+        safe_get_template_from_string = get_safe_template(tags=['now', 'templatetag', ])(get_template_from_string)
 
         try:
             self.template = safe_get_template_from_string(text)
@@ -170,9 +196,9 @@ class TemplateParser(object):
                 result_dict.update({
                     '%s' % model: eval(lookup)
                 })
-
+            field_name, field_verbose_name = get_field_names(field)
             filled_param_dict.update({
-                '%s' % param: getattr(result_dict['%s' % model], field.name),
+                '%s' % param: getattr(result_dict['%s' % model], field_name),
             })
 
         return filled_param_dict
@@ -181,7 +207,15 @@ class TemplateParser(object):
         """
         Retrieve all parameters using a regex.
         """
-        param_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
+        param_re = (re.compile('(%s[\s]*[a-zA-Z_|]+[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
+
+        return [x for x in re.findall(param_re, text)]
+
+    def get_block_list(self, text):
+        """
+        Retrieve all tags using a regex.
+        """
+        param_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(BLOCK_TAG_START), re.escape(BLOCK_TAG_END))))
 
         return [x for x in re.findall(param_re, text)]
 
@@ -192,7 +226,7 @@ class TemplateParser(object):
         for parameter in self.get_parameter_list(text):
             stripped_parameter = parameter.strip(' {}')
             split_parameter = stripped_parameter.split('|')[0]
-            if re.match("^[A-Za-z0-9_.]*$", split_parameter) and split_parameter in get_email_parameter_dict():
+            if split_parameter in get_email_parameter_dict():
                 # variable is accepted, now just escape so it can be rendered later
                 text = text.replace('%s' % parameter, '{%% templatetag openvariable %%} %s {%% templatetag closevariable %%}' % stripped_parameter)
                 self.valid_parameters.append(stripped_parameter)

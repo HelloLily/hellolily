@@ -89,42 +89,48 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .email-toolbar.paginator {
+        .email-toolbar {
             position: absolute;
             right: 12px;
         }
-        .email-toolbar.paginator a {
+        .email-toolbar a {
             width: 16px;
             display: inline-block;
             height: 24px;
             position: relative;
         }
-        .email-toolbar.paginator .mws-i-24 {
+        .email-toolbar .mws-i-24 {
             height: 100%;
             width: 100%;
             display: block;
             padding-left: 0 !important;
         }
-        .email-toolbar.paginator .next-page {
+        .email-toolbar .next-page {
             margin-left: 16px;
         }
-        .email-toolbar.paginator .next-page.jump {
+        .email-toolbar .next-page.jump {
             margin-left: 7px;
         }
-        .email-toolbar.paginator .jump span {
+        .email-toolbar .jump span {
             display: inline-block;
             width: 5px;
         }
-        .email-toolbar.paginator .prev-page.jump span {
+        .email-toolbar .prev-page.jump span {
             background-position: -3px center;
         }
-        .email-toolbar.paginator .next-page .mws-i-24 {
+        .email-toolbar .next-page .mws-i-24 {
             background-position: -16px center !important;
         }
-        .email-toolbar.paginator .refresh {
+        .email-toolbar .refresh {
             width: 24px;
         }
-        .email-toolbar.paginator .refresh .mws-i-24 {
+        .email-toolbar .refresh .mws-i-24 {
+            background-position: 0px center !important;
+        }
+        .email-toolbar .templates {
+            width: 24px;
+        }
+        .email-toolbar .templates .mws-i-24 {
             background-position: 0px center !important;
         }
 
@@ -243,7 +249,7 @@
             width: 65px;
         }
         .single-message .email .body.preview {
-            max-width: 200px
+            max-width: 200px;
             height: 13px;
             color: #777777;
         }
@@ -531,7 +537,7 @@
             <div id="emailbox-header" class="inline"  title="{{ list_title }}">
                 {{ page_obj.start_index }}-{{ page_obj.end_index }} {% blocktrans with total_count=page_obj.paginator.count accounts=accounts %}of {{ total_count }} e-mails in {{ list_title }} {% endblocktrans %}
             </div>
-            <div class="inline email-toolbar paginator">
+            <div class="inline email-toolbar">
                 {% if page_obj.has_previous %}
                     <a href="{{ request.path }}?page=1" title="{% trans 'Show first page' %}" class="prev-page jump"><span class="mws-i-24 i-arrow-left"></span><span class="mws-i-24 i-arrow-left"></span></a>
                 {% endif %}
@@ -552,6 +558,7 @@
                     <span style="width: 23px; display: inline-block"></span>
                 {% endif %}
                 <a href="{{ request.path }}?page={{ page_obj.number }}" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
+                <a href="{% url messaging_email_template_list %}" title="{% trans 'Templates' %}" class="templates" id="messaging-templates-button"><span class="mws-i-24 i-document"></span></a>
             </div>
         </div>
         <div id="emailbox-top-subject" class="hidden"></div>

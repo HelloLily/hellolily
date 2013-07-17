@@ -28,12 +28,13 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
     """
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
-    text_value = forms.CharField(label=_('Variable'), required=False)
 
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
         """
+        self.draft_id = kwargs.pop('draft_id', None)
+        self.message_type = kwargs.pop('message_type', 'reply')
         super(CreateUpdateEmailTemplateForm, self).__init__(*args, **kwargs)
 
         # Customize form layout
@@ -47,12 +48,11 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
         self.helper.add_columns(
             Column('variables', size=2, first=True),
             Column('values', size=2),
-            Column('text_value', size=2),
+            HTML('<span id="id_text_value"></span>'),
             Button(name='variable_submit', value=_('Insert'), css_id='id_insert_button'),
             label=_('Insert variable'),
         )
 
-        self.helper.add_columns(Column('body_html', size=8, first=True))
         self.helper.add_columns(Column('body_text', size=8, first=True))
 
         self.helper.insert_after(Divider(), 'subject', )
@@ -62,7 +62,23 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
             label=''
         )
         self.helper.insert_before(body_file_upload, 'variables')
-        self.fields['variables'].choices += [[x, x] for x in get_email_parameter_choices().keys()]
+
+        email_parameter_choices = get_email_parameter_choices()
+
+        self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
+
+        if self.draft_id:
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'object_id': self.draft_id})
+        else:
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': 'new'})
+
+        self.helper.layout.append(
+            Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
+        )
+
+        for value in email_parameter_choices:
+            for val in email_parameter_choices[value]:
+                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
 
     def clean(self):
         """
@@ -106,7 +122,7 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = EmailTemplate
-        fields = ('name', 'description', 'subject', 'variables', 'values', 'text_value', 'body_html', 'body_text', )
+        fields = ('name', 'description', 'subject', 'variables', 'values', 'body_html', 'body_text', )
         widgets = {
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
@@ -117,7 +133,8 @@ class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
             }),
             'body_text': forms.Textarea(attrs={
                 'placeholder': _('Write your plain text message body here'),
-            })
+            }),
+            'body_html': forms.HiddenInput(),
         }
 
 
@@ -161,7 +178,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
     """
     Form that lets a user compose an e-mail message.
     """
-    # template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
+    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
 
     # TODO: Insert a formset for attachments?
     def __init__(self, *args, **kwargs):
@@ -177,7 +194,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         self.helper.form_tag = False
 
         # self.helper.all().wrap(Row)
-        self.helper.wrap_by_names(Row, 'send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_text')
+        self.helper.wrap_by_names(Row, 'send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_text')
         self.helper.replace('send_from',
             self.helper.create_columns(
                 Column('send_from', size=4, first=True),
@@ -204,10 +221,16 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
             ),
         )
 
+        self.helper.replace('template',
+            self.helper.create_columns(
+               Column('template', size=6, first=True),
+            )
+        )
+
         if self.draft_id:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'pk': self.draft_id})
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'object_id': self.draft_id})
         else:
-            email_template_url = reverse('messaging_email_body_preview')
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': 'new'})
 
         self.helper.layout.append(
             Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
@@ -271,7 +294,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_html', 'body_text')
+        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_html', 'template', 'body_html', 'body_text', )
         widgets = {
             'send_to_normal': forms.Textarea(attrs={
                 'placeholder': _('Add recipient'),

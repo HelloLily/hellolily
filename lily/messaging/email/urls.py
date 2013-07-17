@@ -1,13 +1,11 @@
 from django.conf.urls import patterns, url
 
-from lily.messaging.email.views import email_inbox_view, email_json_view, \
- edit_email_account_view, add_email_template_view, edit_email_template_view, \
- detail_email_template_view, parse_email_template_view, email_html_view, \
- mark_read_view, mark_unread_view, move_trash_view, email_compose_view, \
- email_body_preview_view, email_drafts_view, email_reply_view, \
- email_sent_view, email_trash_view, email_spam_view, email_account_folder_view, \
- email_forward_view, email_configuration_wizard, email_configuration_wizard_template, \
- email_search_view
+from lily.messaging.email.views import email_inbox_view, email_json_view, edit_email_account_view, \
+    list_email_template_view, add_email_template_view, edit_email_template_view, parse_email_template_view, \
+    email_html_view, mark_read_view, mark_unread_view, move_trash_view, email_compose_view, email_body_preview_view, \
+    email_drafts_view, email_reply_view, email_sent_view, email_trash_view, email_spam_view, \
+    email_account_folder_view, email_forward_view, email_configuration_wizard, email_configuration_wizard_template, \
+    email_search_view
 
 
 urlpatterns = patterns('',
@@ -31,8 +29,9 @@ urlpatterns = patterns('',
     url(r'^compose/(?P<pk>[\d-]+)/$', email_compose_view, name='messaging_email_compose'),
     url(r'^reply/(?P<pk>[\d-]+)/$', email_reply_view, name='messaging_email_reply'),
     url(r'^forward/(?P<pk>[\d-]+)/$', email_forward_view, name='messaging_email_forward'),
-    url(r'^preview/$', email_body_preview_view, name='messaging_email_body_preview'),
-    url(r'^preview/(?P<message_type>[a-z]+)/(?P<pk>[\d-]+)/$', email_body_preview_view, name='messaging_email_body_preview'),
+    url(r'^preview/(?P<message_type>[a-z]+)/$', email_body_preview_view, name='messaging_email_body_preview'),
+    url(r'^preview/(?P<message_type>[a-z]+)/(?P<object_id>[\d-]+)/$', email_body_preview_view, name='messaging_email_body_preview'),
+    url(r'^preview/(?P<message_type>[a-z]+)/(?P<object_id>[\d-]+)/(?P<template_id>[\d-]+)$', email_body_preview_view, name='messaging_email_body_preview'),
 
     # AJAX views
     url(r'^json/(?P<pk>[\w-]+)/$', email_json_view, name='messaging_email_json'),
@@ -48,10 +47,10 @@ urlpatterns = patterns('',
     # url(r'^account/details/(?P<pk>[\w-]+)/$', detail_email_account_view, name='messaging_email_account_details'),
 
     # e-mail template views
-    url(r'^template/new/$', add_email_template_view, name='messaging_email_template_add'),
-    url(r'^template/edit/(?P<pk>[\d-]+)/$', edit_email_template_view, name='messaging_email_template_edit'),
-    url(r'^template/details/(?P<pk>[\w-]+)/$', detail_email_template_view, name='messaging_email_template_details'),
-    url(r'^template/parse/$', parse_email_template_view, name='messaging_email_template_parse'),
+    url(r'^templates/$', list_email_template_view, name='messaging_email_template_list'),
+    url(r'^templates/new/$', add_email_template_view, name='messaging_email_template_add'),
+    url(r'^templates/edit/(?P<pk>[\d-]+)/$', edit_email_template_view, name='messaging_email_template_edit'),
+    url(r'^templates/parse/$', parse_email_template_view, name='messaging_email_template_parse'),
 
     # other
     url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>.+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search'),

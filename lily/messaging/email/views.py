@@ -33,7 +33,7 @@ from lily.messaging.email.utils import get_email_parameter_choices, flatten_html
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import uniquify
 from lily.utils.models import EmailAddress
-from lily.utils.views import DeleteBackAddSaveFormViewMixin
+from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
 
 
 log = logging.getLogger('django.request')
@@ -51,6 +51,25 @@ class DetailEmailAccountView(TemplateView):
     Show the details of an existing e-mail account.
     """
     template_name = 'messaging/email/account_create.html'
+
+
+class ListEmailTemplateView(SortedListMixin, FilteredListMixin, ListView):
+    template_name = 'messaging/email/email_template_list.html'
+    model = EmailTemplate
+    sortable = [1, 2]
+    default_order_by = 2
+
+    def get_context_data(self, **kwargs):
+        """
+        Overloading super().get_context_data to provide the list item template.
+        """
+        kwargs = super(ListEmailTemplateView, self).get_context_data(**kwargs)
+
+        kwargs.update({
+            'list_item_template': 'messaging/email/email_template_list_item.html',
+        })
+
+        return kwargs
 
 
 class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
@@ -105,12 +124,18 @@ class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
 
         return reverse('messaging_email_inbox')
 
+    def get_form_kwargs(self):
+        """
+        Get the keyword arguments that will be used to initiate the form.
 
-class DetailEmailTemplateView(TemplateView):
-    """
-    Show the details of an existing e-mail template.
-    """
-    template_name = 'messaging/email/account_create.html'
+        :return: An dict of keyword arguments.
+        """
+        kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
+        kwargs.update({
+            'draft_id': self.object.pk,
+            'message_type': 'template',
+        })
+        return kwargs
 
 
 class ParseEmailTemplateView(FormView):
@@ -420,7 +445,7 @@ class EmailComposeView(FormView):
         """
         unsaved_form = form.save(commit=False)
         server = None
-
+        
         try:
             server = LilyIMAP(provider=unsaved_form.send_from.provider, account=unsaved_form.send_from)
 
@@ -435,7 +460,8 @@ class EmailComposeView(FormView):
                     cc=[unsaved_form.send_to_cc],
                     bcc=[unsaved_form.send_to_bcc],
                     headers=self.get_email_headers() if self.get_email_headers else None,
-                ).attach_alternative(unsaved_form.body_html, 'text/html')
+                )
+                email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
                 # TODO support attachments
 
@@ -545,7 +571,8 @@ class EmailComposeView(FormView):
 
         :raise: NotImplementedError, because it's only a stub.
         """
-        raise NotImplementedError('This function is not implemented. For custom headers overwrite this function.')
+        #raise NotImplementedError('This function is not implemented. For custom headers overwrite this function.')
+        return None
 
     def get_context_data(self, **kwargs):
         """
@@ -659,83 +686,96 @@ class EmailBodyPreviewView(TemplateView):
     template_name = 'messaging/email/email_compose_frame.html'  # default for non-templated e-mails
 
     def dispatch(self, request, *args, **kwargs):
-        self.message_id = kwargs.get('pk')
-        self.message_type = kwargs.get('message_type')
+        self.object_id = kwargs.get('object_id', None)
+        # self.message_id = kwargs.get('message_id', None)
+        self.message_type = kwargs.get('message_type', None)
+        self.template_id = kwargs.get('template_id', None)
+        self.message = None
 
-        if self.message_id:
-            try:
-                self.message = EmailMessage.objects.get(
-                    ~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'), pk=self.message_id)
-            except EmailMessage.DoesNotExist:
-                raise Http404()
-        else:
-            self.message = None
+        if self.message_type == 'template' and self.object_id:
+            self.template = get_object_or_404(
+                EmailTemplate,
+                pk=self.object_id
+            )
+        elif self.object_id:
+            self.message = get_object_or_404(
+                EmailMessage,
+                ~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'),
+                pk=self.object_id
+            )
+
+            if self.template_id:
+                self.template = get_object_or_404(
+                    EmailTemplate,
+                    pk=self.template_id
+                )
 
         return super(EmailBodyPreviewView, self).dispatch(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
         kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
-        body = u''
 
-        # Check for existing draft
-        if self.message:
-            reply = u''
-            signature = u''
+        if self.message_type == 'template' and self.object_id:
+            body = self.template.body_html
+        elif self.object_id:
             quoted_content = self.message.indented_body
 
-            # Prepend notice that the following text is a quote
-            #
-            # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
-            #
             if self.message_type == 'forward':
                 notice = _('Begin forwarded message:')
             else:
                 notice = _('On %s, %s wrote:' % (
-                    self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
+                    self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')),
+                    self.message.from_combined)
+                )
+
             quoted_content = '<div>' + notice + '</div>' + quoted_content
 
-            body = reply + signature + '<br />' * 2 + quoted_content
-
-        kwargs.update({
-            # TODO get draft or user signature
-            # 'draft': get_user_sig(),
-            'draft': body
-        })
-
-        return kwargs
-
-
-def get_context_data(self, **kwargs):
-        kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
-
-        body = u''
-
-        # Check for existing draft
-        if self.message:
-            reply = u''
-            signature = u''
-            quoted_content = self.message.indented_body
-
-            # Prepend notice that the following text is a quote
-            #
-            # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
-            #
-            if self.message_type == 'forward':
-                notice = _('Begin forwarded message:')
+            if hasattr(self, 'template'):
+                template = TemplateParser(self.template.body_html).render(self.request) or self.template.body_text
+                body = '<div>' + template + '</div>' + '<br />' * 2 + quoted_content
             else:
-                notice = _('On %s, %s wrote:' % (self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
-            quoted_content = '<div>' + notice + '</div>' + quoted_content
-
-            body = reply + signature + '<br />' * 2 + quoted_content
+                signature = u''
+                body = signature + '<br />' * 2 + quoted_content
+        else:
+            body = u''
 
         kwargs.update({
-            # TODO get draft or user signature
-            # 'draft': get_user_sig(),
             'draft': body
         })
 
         return kwargs
+
+
+    # def get_context_data(self, **kwargs):
+    #     kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
+    #
+    #     body = u''
+    #
+    #     # Check for existing draft
+    #     if self.message:
+    #         reply = u''
+    #         signature = u''
+    #         quoted_content = self.message.indented_body
+    #
+    #         # Prepend notice that the following text is a quote
+    #         #
+    #         # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
+    #         #
+    #         if self.message_type == 'forward':
+    #             notice = _('Begin forwarded message:')
+    #         else:
+    #             notice = _('On %s, %s wrote:' % (self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
+    #         quoted_content = '<div>' + notice + '</div>' + quoted_content
+    #
+    #         body = reply + signature + '<br />' * 2 + quoted_content
+    #
+    #     kwargs.update({
+    #         # TODO get draft or user signature
+    #         # 'draft': get_user_sig(),
+    #         'draft': body
+    #     })
+    #
+    #     return kwargs
 
 
 class EmailConfigurationWizardTemplate(TemplateView):
@@ -1100,14 +1140,14 @@ email_forward_view = login_required(EmailForwardView.as_view())
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())
 email_configuration_wizard = login_required(EmailConfigurationView.as_view([EmailConfigurationStep1Form, EmailConfigurationStep2Form, EmailConfigurationStep3Form]))
 
-edit_email_account_view = EditEmailAccountView.as_view()
-detail_email_account_view = DetailEmailAccountView.as_view()
+edit_email_account_view = login_required(EditEmailAccountView.as_view())
+detail_email_account_view = login_required(DetailEmailAccountView.as_view())
 
 # E-mail templating views
-add_email_template_view = AddEmailTemplateView.as_view()
-edit_email_template_view = EditEmailTemplateView.as_view()
-detail_email_template_view = DetailEmailTemplateView.as_view()
-parse_email_template_view = ParseEmailTemplateView.as_view()
+list_email_template_view = login_required(ListEmailTemplateView.as_view())
+add_email_template_view = login_required(AddEmailTemplateView.as_view())
+edit_email_template_view = login_required(EditEmailTemplateView.as_view())
+parse_email_template_view = login_required(ParseEmailTemplateView.as_view())
 
 # other
 email_search_view = login_required(EmailSearchView.as_view())

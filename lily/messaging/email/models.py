@@ -111,11 +111,16 @@ class EmailMessage(Message):
         This indented version of the body can be used to reply or forward an e-mail message.
         """
         if self.body_html:
-            # In case of html, wrap body in blockquote tag.
-            soup = BeautifulSoup(self.body_html)
-            soup.html.wrap(soup.new_tag('blockquote', type='cite'))
-            soup.html.replace_with_children()
-            return soup.decode()
+            try:
+                # In case of html, wrap body in blockquote tag.
+                soup = BeautifulSoup(self.body_html)
+                soup.html.wrap(soup.new_tag('blockquote', type='cite'))
+                soup.html.replace_with_children()
+                html = soup.decode()
+            except AttributeError:
+                # sometimes people don't send proper html :(
+                html = '<blockquote type="cite">' + self.body_html + '</blockquote>'
+            return html
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
             indented_body = textwrap.wrap(self.body_text, 80)

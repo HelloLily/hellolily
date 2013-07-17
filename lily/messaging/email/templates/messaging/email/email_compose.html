@@ -40,35 +40,6 @@
     {{ block.super }}
 
     <script type="text/javascript">
-        function getIframeHeight(iframe) {
-            var height;
-            var scrollHeight;
-            var offsetHeight;
-
-            var body_html = $(iframe).contents().find('body')[0];
-            if (body_html.scrollHeight) {
-                height = scrollHeight = body_html.scrollHeight;
-            }
-            if (body_html.offsetHeight) {
-                height = offsetHeight = body_html.offsetHeight;
-            }
-
-            if (scrollHeight && offsetHeight){
-                // In Firefox, scrollHeight shrinks with content,
-                // but in Chrome only offsetHeight shrinks.
-                // height = Math.max(scrollHeight, offsetHeight);
-                // TODO : test in IE
-            }
-
-            height += parseInt($(body_html).css('margin-top'))
-                    + parseInt($(body_html).css('margin-bottom'))
-                    + parseInt($(body_html).css('padding-top'))
-                    + parseInt($(body_html).css('padding-bottom'))
-                    + parseInt($(iframe).css('border-top-width'))
-                    + parseInt($(iframe).css('border-bottom-width'));
-            return height;
-        }
-
         $(document).ready(function() {
             var known_contact_addresses = {{ known_contact_addresses|safe }};
             var template_list = {{ template_list|safe }};
@@ -160,6 +131,7 @@
                 return true;
             });
 
+            var last_selected = $("#id_template option:selected");
             $('#id_template').change(function(e) {
                 var value = $(this).val();
                 var text = $(this).find('option:selected').text();
@@ -179,11 +151,15 @@
                             html_field.html(template_list[value]['html_part']);
                             text_field.val(template_list[value]['text_part']);
                         }
+                        last_selected = $("#id_template option:selected");
+                    } else {
+                        last_selected.attr('selected', true);
                     }
                 } else {
                     subject_field.val(template_list[value]['subject']);
                     html_field.html(template_list[value]['html_part']);
                     text_field.val(template_list[value]['text_part']);
+                    last_selected = $("#id_template option:selected");
                 }
 
                 if (text_field.val() !== '') {
@@ -191,6 +167,7 @@
                     text_field.trigger('update');
                 }
                 $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+                $('#id_template').trigger('liszt:updated');
             });
         });
     </script>

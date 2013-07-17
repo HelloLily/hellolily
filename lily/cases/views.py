@@ -85,7 +85,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
         Overloading super().form_valid to show a success message after adding.
         """
         # Save instance
-        super(AddCaseView, self).form_valid(form)
+        response = super(AddCaseView, self).form_valid(form)
 
         message = _('%s (Case) has been saved.') % self.object.subject
 
@@ -118,7 +118,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
         # Show save message
         messages.success(self.request, message)
 
-        return self.get_success_url()
+        return response
 
     def form_invalid(self, form):
         """
@@ -145,12 +145,12 @@ class EditCaseView(CreateUpdateCaseView, UpdateView):
         Overloading super().form_valid to add success message after editing.
         """
         # Save instance
-        super(CreateUpdateCaseView, self).form_valid(form)
+        response = super(CreateUpdateCaseView, self).form_valid(form)
 
         # Show save message
         messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject)
 
-        return self.get_success_url()
+        return response
 
 
 class DeleteCaseView(DeleteView):
@@ -164,14 +164,15 @@ class DeleteCaseView(DeleteView):
         """
         Overloading super().delete to add a message of successful removal of this instance.
         """
-        self.object = self.get_object()
+        response = super(DeleteCaseView, self).delete(request)
 
         # Show delete message
         messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
-        self.object.delete()
+        return response
 
-        return redirect(reverse('case_list'))
+    def get_success_url(self):
+        return reverse('case_list')
 
 
 # Perform logic here instead of in urls.py

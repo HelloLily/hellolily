@@ -15,6 +15,8 @@
 
 celeryev.pid
 
+Procfile.dev
+
 lily/media/
 lily/files/
 lily/site_settings.py

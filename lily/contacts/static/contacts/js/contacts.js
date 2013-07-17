@@ -32,6 +32,91 @@ $(document).ready(function() {
     // update e-mail formset to select first as primary
     // $('.email_is_primary input[name$="primary-email"]:first').attr('checked', 'checked').siblings('span').addClass('checked');
 
+    function reload_email_share_wizard() {
+        var wrapped_div = $('#dialog-email-share-wizard [name="user_group"]').closest('.mws-form-row');
+        if($('#dialog-email-share-wizard [name="shared_with"]:checked').val() < 2) {
+            $(wrapped_div).hide();
+        } else {
+            $(wrapped_div).show();
+        }
+        enableChosen($('#dialog-email-share-wizard'));
+    }
+
+    // open dialog for sharing options for e-mail address
+    $('.email_addresses .email-share-wizard a').live('click', function(event) {
+        $('#dialog-email-share-wizard').dialog('destroy');
+        var id = 'new';
+        var id_input = $(event.target).closest('.email_addresses').find('input[id$="id"]');
+        if( id_input.length ) {
+            id = $(id_input).val();
+        }
+        var url = '/messaging/email/account/wizard/share/';
+        $('#dialog-email-share-wizard').load(
+            url + id + '/',
+            function() {
+                // transform div into email share options dialog
+                $('#dialog-email-share-wizard')
+                    .dialog({ // init dialog
+                        autoOpen: false,
+                        modal: true,
+                        width: 600,
+                        height: 400,
+                        resizable: true,
+                        buttons: [
+                        {
+                            'class': 'mws-button red float-left',
+                            text: gettext('Cancel'),
+                            click: function() {
+                                // cancel form on NO
+                                $(this).dialog('close');
+                            }
+                        },
+                        {
+                            'class': 'mws-button green',
+                            text: gettext('Save'),
+                            click: function() {
+                                // submit form on YES
+                                $(this).find('form').ajaxSubmit({
+                                    type: 'post',
+                                    dataType: 'json',
+                                    url: url + id + '/',
+                                    success: function(response) {
+                                        if(response.error) {
+                                            $('#dialog-email-share-wizard').find('form').html(response.html);
+                                            reload_email_share_wizard();
+                                        } else {
+                                           if( $.jGrowl ) {
+                                                if( response.notification ) {
+                                                    for(i=0; i < response.notification.length; i++) {
+                                                        $.jGrowl(response.notification[i].message, {
+                                                            theme: response.notification[i].tags
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            $('#dialog-email-share-wizard').dialog('close');
+                                        }
+                                    },
+                                    error: function(response){
+                                        $("#errorDialog").dialog('open');
+                                    }
+                                });
+                            }
+                        }
+                        ]
+                    }) // bind callback
+                    .live('dialogopen', function(event, ui) {
+                        reload_email_share_wizard();
+                    }) // open dialog
+                    .dialog('open');
+            }
+        );
+    });
+
+    $('#dialog-email-share-wizard [name="shared_with"]').live('change', function() {
+        reload_email_share_wizard();
+    });
+
     // open configuration wizard for e-mail address
     $('.email_addresses .email-configuration-wizard a').live('click', function(event) {
         var id = 'new';
@@ -39,7 +124,7 @@ $(document).ready(function() {
         if( id_input.length ) {
             id = $(id_input).val();
         }
-        var url = '/messaging/email/account/wizard/';
+        var url = '/messaging/email/account/wizard/configuration/';
         $('#dialog-email-configuration-wizard').load(
             url,
             function() {

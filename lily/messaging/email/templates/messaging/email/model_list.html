@@ -237,7 +237,9 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            height: 17px;
+            min-height: 17px;
+            margin-top: 1px;
+            margin-bottom: 1px;
         }
         .single-message .email .sender {
             margin-right: 65px;
@@ -249,8 +251,7 @@
             width: 65px;
         }
         .single-message .email .body.preview {
-            max-width: 200px;
-            height: 13px;
+            height: auto;
             color: #777777;
         }
 

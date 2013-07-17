@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
+from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 
@@ -15,6 +16,7 @@ from lily.messaging.email.emailclient import LilyIMAP
 from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
+from lily.users.models import CustomUser
 from lily.utils.fields import EmailProviderChoiceField
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.forms import FieldInitFormMixin
@@ -431,5 +433,66 @@ class EmailConfigurationStep3Form(Form, FieldInitFormMixin):
         'click_and_show': False,
     }), required=False)
 
+
+class EmailShareForm(ModelForm):
+    """
+    Form to share an e-mail account.
+    """
     def __init__(self, *args, **kwargs):
-        super(EmailConfigurationStep3Form, self).__init__(*args, **kwargs)
+        """
+        Overload super().__init__ to change the appearance of the form.
+        """
+        self.original_user = kwargs.pop('original_user', None)
+        super(EmailShareForm, self).__init__(*args, **kwargs)
+
+        # Exclude original user from queryset when provided
+        if self.original_user is not None:
+            self.fields['user_group'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant).exclude(pk=self.original_user.pk)
+        else:
+            self.fields['user_group'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
+
+        # Overwrite help_text
+        self.fields['user_group'].help_text = ''
+
+        # Only a required field when selecting 'Specific users'
+        self.fields['user_group'].required = False
+
+        # Customize form layout
+        self.helper = LilyFormHelper(form=self)
+        self.helper.all().wrap(Row)
+
+    def clean(self):
+        """
+        Please specify which users to share this email address with.
+        """
+        cleaned_data = self.cleaned_data
+
+        if cleaned_data.get('shared_with', 0) == 2 and len(cleaned_data.get('user_group', [])) == 0:
+            self._errors['user_group'] = self.error_class([_('Please specify which users to share this email address with.')])
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        """
+        Overloading super().save to at least always add the original user to user_group when provided.
+        """
+        if self.instance.shared_with < 2:
+            # clear relation set for *don't share* and *everybody*
+            self.instance.user_group.clear()
+        else:
+            # save m2m relations properly
+            super(EmailShareForm, self).save(commit)
+
+        if self.original_user is not None:
+            self.instance.user_group.add(self.original_user)
+
+        self.instance.save()
+        return self.instance
+
+    class Meta:
+        exclude = ('account_type', 'tenant', 'email_account', 'from_name', 'signature', 'email', 'username', 'password', 'provider', 'last_sync_date', 'folders')
+        model = EmailAccount
+        widgets = {
+            'shared_with': RadioSelect(),
+            'user_group': SelectMultiple(attrs={'class': 'chzn-select'})
+        }

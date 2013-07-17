@@ -14,9 +14,11 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
+from django.template.context import RequestContext
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
@@ -26,12 +28,14 @@ from lily.contacts.models import Contact
 from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
-    EmailConfigurationStep2Form, EmailConfigurationStep3Form
+    EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
+from lily.messaging.models import MessagesAccount
 from lily.tenant.middleware import get_current_user
-from lily.utils.functions import uniquify
+from lily.users.models import CustomUser
+from lily.utils.functions import is_ajax, uniquify
 from lily.utils.models import EmailAddress
 from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
 
@@ -180,7 +184,10 @@ class EmailFolderView(ListView):
             ctype = ContentType.objects.get_for_model(EmailAccount)
             self.messages_accounts = request.user.messages_accounts.filter(polymorphic_ctype=ctype)
 
-            # Uniquify accounts, doubles are possible via personal, group, shared access etc.
+            # Include shared accounts
+            self.messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=[account.pk for account in self.messages_accounts]))
+
+            # Uniquify accounts
             self.messages_accounts = uniquify(self.messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
 
         # Deteremine which folder to show messages from
@@ -308,7 +315,7 @@ class EmailMessageJSONView(View):
                 'sent_date': unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': truncatechars(instance.body_text, 200),
+                'flat_body': truncatechars(instance.body_text.lstrip('&nbsp;\n\r\n '), 200),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,
@@ -399,7 +406,6 @@ class EmailComposeView(FormView):
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
-    get_email_headers = False
     remove_old_message = True
 
     def dispatch(self, request, *args, **kwargs):
@@ -459,7 +465,7 @@ class EmailComposeView(FormView):
                     to=[unsaved_form.send_to_normal],
                     cc=[unsaved_form.send_to_cc],
                     bcc=[unsaved_form.send_to_bcc],
-                    headers=self.get_email_headers() if self.get_email_headers else None,
+                    headers=self.get_email_headers(),
                 )
                 email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
@@ -535,6 +541,14 @@ class EmailComposeView(FormView):
         error = False
         try:
             server.get_smtp_server(fail_silently=False).send_messages([email_message])
+            if email_message.bcc:
+                recipients = email_message.bcc
+                # Send separate messages
+                for recipient in recipients:
+                    email_message.bcc = []
+                    email_message.to += [recipient]
+                    server.get_smtp_server(fail_silently=False).send_messages([email_message])
+
             synchronize_folder(
                 server,
                 server.get_folder_by_identifier(SENT),
@@ -567,12 +581,9 @@ class EmailComposeView(FormView):
 
     def get_email_headers(self):
         """
-        Method stub for subclasses to overwrite.
-
-        :raise: NotImplementedError, because it's only a stub.
+        This function is not implemented. For custom headers overwrite this function.
         """
-        #raise NotImplementedError('This function is not implemented. For custom headers overwrite this function.')
-        return None
+        pass
 
     def get_context_data(self, **kwargs):
         """
@@ -636,25 +647,24 @@ class EmailCreateView(EmailComposeView):
 
 class EmailReplyView(EmailComposeView):
     message_object_query_args = (~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'))
-    get_email_headers = True
     remove_old_message = False
 
     def get_form_kwargs(self, **kwargs):
-        keyword_arguments = super(EmailReplyView, self).get_form_kwargs(**kwargs)
+        kwargs = super(EmailReplyView, self).get_form_kwargs(**kwargs)
 
         if hasattr(self, 'instance'):
-            keyword_arguments['initial']['subject'] = 'Re: %s' % keyword_arguments['initial']['subject']
-            keyword_arguments['initial']['send_to_normal'] = self.instance.from_combined
-            keyword_arguments['message_type'] = 'reply'
+            kwargs['initial']['subject'] = 'Re: %s' % self.instance.subject
+            kwargs['initial']['send_to_normal'] = self.instance.from_combined
+            kwargs['message_type'] = 'reply'
 
-        return keyword_arguments
+        return kwargs
 
     def get_email_headers(self):
         """
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if hasattr(self.message, 'send_from'):
+        if hasattr(self.instance, 'send_from'):
             sender = email.utils.parseaddr(self.message.send_from)
             reply_to_name = sender[0]
             reply_to_address = sender[1]
@@ -664,7 +674,6 @@ class EmailReplyView(EmailComposeView):
 
 class EmailForwardView(EmailReplyView):
     message_object_query_args = (~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'))
-    get_email_headers = True
     remove_old_message = False
 
     def get_form_kwargs(self, **kwargs):
@@ -673,13 +682,13 @@ class EmailForwardView(EmailReplyView):
 
         :return: An dict of keyword arguments.
         """
-        keyword_arguments = super(EmailReplyView, self).get_form_kwargs(**kwargs)
+        kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
 
         if hasattr(self, 'instance'):
-            keyword_arguments['initial']['subject'] = 'Fwd: %s' % keyword_arguments['initial']['subject']
-            keyword_arguments['message_type'] = 'forward'
+            kwargs['initial']['subject'] = 'Fwd: %s' % self.instance.subject
+            kwargs['message_type'] = 'forward'
 
-        return keyword_arguments
+        return kwargs
 
 
 class EmailBodyPreviewView(TemplateView):
@@ -711,7 +720,6 @@ class EmailBodyPreviewView(TemplateView):
                 )
 
         return super(EmailBodyPreviewView, self).dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
 
@@ -746,38 +754,6 @@ class EmailBodyPreviewView(TemplateView):
         return kwargs
 
 
-    # def get_context_data(self, **kwargs):
-    #     kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
-    #
-    #     body = u''
-    #
-    #     # Check for existing draft
-    #     if self.message:
-    #         reply = u''
-    #         signature = u''
-    #         quoted_content = self.message.indented_body
-    #
-    #         # Prepend notice that the following text is a quote
-    #         #
-    #         # On Jan 15, 2013, at 14:45, Developer VoIPGRID <developer@voipgrid.nl> wrote:
-    #         #
-    #         if self.message_type == 'forward':
-    #             notice = _('Begin forwarded message:')
-    #         else:
-    #             notice = _('On %s, %s wrote:' % (self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')), self.message.from_combined))
-    #         quoted_content = '<div>' + notice + '</div>' + quoted_content
-    #
-    #         body = reply + signature + '<br />' * 2 + quoted_content
-    #
-    #     kwargs.update({
-    #         # TODO get draft or user signature
-    #         # 'draft': get_user_sig(),
-    #         'draft': body
-    #     })
-    #
-    #     return kwargs
-
-
 class EmailConfigurationWizardTemplate(TemplateView):
     """
     View to provide html for wizard form skeleton to configure e-mail accounts.
@@ -792,8 +768,7 @@ class EmailConfigurationView(SessionWizardView):
         # Verify email address exists
         self.email_address_id = kwargs.get('pk')
         try:
-            pk = kwargs.pop('pk')
-            self.email_address = EmailAddress.objects.get(pk=pk)
+            self.email_address = EmailAddress.objects.get(pk=self.email_address_id)
         except EmailAddress.DoesNotExist:
             raise Http404()
 
@@ -908,6 +883,77 @@ class EmailConfigurationView(SessionWizardView):
         account.user_group.add(get_current_user())
 
         return HttpResponse(render_to_string(self.template_name, {'messaging_email_inbox': reverse('messaging_email_inbox')}, None))
+
+
+class EmailShareView(FormView):
+    """
+    Display a form to share an email account with everybody or certain people only.
+    """
+    template_name = 'messaging/email/wizard_share_form.html'
+    form_class = EmailShareForm
+
+    def dispatch(self, request, *args, **kwargs):
+        # Verify email address exists
+        email_address_id = kwargs.get('pk')
+        try:
+            self.email_address = EmailAddress.objects.get(pk=email_address_id)
+        except EmailAddress.DoesNotExist:
+            raise Http404()
+
+        # Verify email account exists
+        try:
+            self.email_account = EmailAccount.objects.get(email=self.email_address)
+        except EmailAccount.DoesNotExist:
+            raise Http404()
+
+        return super(EmailShareView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        original_user = None
+        try:
+            original_user = CustomUser.objects.get(tenant=get_current_user().tenant, contact__email_addresses__email_address=self.email_address, contact__email_addresses__is_primary=True)
+        except CustomUser.DoesNotExist:
+            pass
+
+        kwargs = super(EmailShareView, self).get_form_kwargs(**kwargs)
+        kwargs.update({
+            'instance': self.email_account,
+            'original_user': original_user
+        })
+
+        return kwargs
+
+    def form_valid(self, form):
+        """
+        Handle form submission via AJAX or show custom save message.
+        """
+        self.object = form.save()  # copied from ModelFormMixin
+        message = _('Sharing options for %s have been saved.') % self.object.email.email_address
+
+        if is_ajax(self.request):
+            # Return response
+            return HttpResponse(simplejson.dumps({
+                'error': False,
+                'notification': [{'message': escapejs(message), 'tags': tag_mapping.get('success')}]
+            }), mimetype='application/json')
+
+        # Show save message
+        messages.success(self.request, message)
+
+        return super(EmailShareView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to return a different response to ajax requests.
+        """
+        if is_ajax(self.request):
+            context = RequestContext(self.request, self.get_context_data(form=form))
+            return HttpResponse(simplejson.dumps({
+                'error': True,
+                'html': render_to_string(self.template_name, context_instance=context)
+            }), mimetype='application/json')
+
+        return super(EmailShareView, self).form_invalid(form)
 
 
 class EmailSearchView(EmailFolderView):
@@ -1139,6 +1185,7 @@ email_forward_view = login_required(EmailForwardView.as_view())
 # E-mail account wizard views
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())
 email_configuration_wizard = login_required(EmailConfigurationView.as_view([EmailConfigurationStep1Form, EmailConfigurationStep2Form, EmailConfigurationStep3Form]))
+email_share_wizard = login_required(EmailShareView.as_view())
 
 edit_email_account_view = login_required(EditEmailAccountView.as_view())
 detail_email_account_view = login_required(DetailEmailAccountView.as_view())

@@ -1,7 +1,7 @@
 import email
 import textwrap
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 from django.db import models
 from django.template.defaultfilters import truncatechars
@@ -111,16 +111,14 @@ class EmailMessage(Message):
         This indented version of the body can be used to reply or forward an e-mail message.
         """
         if self.body_html:
-            try:
-                # In case of html, wrap body in blockquote tag.
-                soup = BeautifulSoup(self.body_html)
-                soup.html.wrap(soup.new_tag('blockquote', type='cite'))
-                soup.html.replace_with_children()
-                html = soup.decode()
-            except AttributeError:
-                # sometimes people don't send proper html :(
-                html = '<blockquote type="cite">' + self.body_html + '</blockquote>'
-            return html
+            # In case of html, wrap body in blockquote tag.
+            soup = BeautifulSoup(self.body_html)
+            if soup.html is None:
+                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)  # haven't figured out yet how to do this elegantly..
+
+            soup.html.wrap(soup.new_tag('blockquote', type='cite'))
+            soup.html.unwrap()
+            return soup.decode()
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
             indented_body = textwrap.wrap(self.body_text, 80)

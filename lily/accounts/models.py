@@ -58,14 +58,16 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
 
 
-    @property
-    def primary_email(self):
-        try:
-            if self.contact:
-                return self.email_addresses.get(is_primary=True)
-        except EmailAddress.DoesNotExist:
-            pass
-        return u''
+    def __getattribute__(self, name):
+        if name == 'primary_email':
+            try:
+                email = self.email_addresses.get(is_primary=True)
+                return email.email_address
+            except EmailAddress.DoesNotExist:
+                pass
+            return None
+        else:
+            return object.__getattribute__(self, name)
 
     def get_work_phone(self):
         try:

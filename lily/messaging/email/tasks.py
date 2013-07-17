@@ -45,7 +45,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 body_html = message.get('html_body')
                 body_text = message.get('plain_body')
 
-                if body_html and not body_text:
+                if body_html is not None and not body_text:
                     body_text = flatten_html_to_text(body_html, replace_br=True)
                 elif body_text is not None:
                     body_text = escape(body_text)

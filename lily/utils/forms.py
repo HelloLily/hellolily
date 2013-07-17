@@ -146,21 +146,23 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
                             <label>
                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
                                 <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">''' + _('primary') + '''</span>
-                            </label>'''
-                        ),
+                            </label>'''),
                         size=2,
                         css_class='center email_is_primary'),
                     Column(
                         Anchor(href='javascript:void(0)', css_class='i-16 i-setting blue'),
                         size=1,
                         css_class='email-configuration-wizard',
-                        title=_('Start wizard to set up incoming and outgoing email for this address')
-                    ),
+                        title=_('Start wizard to set up incoming and outgoing email for this address')),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-share blue'),
+                        size=1,
+                        css_class='email-share-wizard',
+                        title=_('Share this email address with others')),
                     Column(
                         Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
                         size=1,
-                        css_class='formset-delete'
-                    ),
+                        css_class='formset-delete'),
                 )
             )
         ))

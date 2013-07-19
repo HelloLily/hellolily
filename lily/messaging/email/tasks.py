@@ -9,22 +9,22 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
 from django.utils.html import escape
 from imapclient import SEEN
+from python_imap.folder import ALLMAIL, DRAFTS, TRASH, SPAM
+from python_imap.server import IMAP
+from python_imap.utils import convert_html_to_text
 
-from lily.messaging.email.emailclient import LilyIMAP, ALLMAIL, DRAFTS, TRASH, SPAM, IMPORTANT
-from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
-from lily.messaging.email.utils import flatten_html_to_text
+from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader
 from lily.users.models import CustomUser
 
 
-log = logging.getLogger('django.request')
-task_logger = logging.getLogger('celery_tasks')
+task_logger = logging.getLogger('celery_task')
 
 
-def save_email_messages(messages, account, folder_name, folder_identifier=None, new_messages=False):
+def save_email_messages(messages, account, folder, new_messages=False):
     """
     Save messages in database for account. Folder_name needs to be the server name.
     """
-    task_logger.info('Saving %s messages for %s in %s in the database' % (len(messages), account.email.email_address, folder_name))
+    task_logger.info('Saving %s messages for %s in %s in the database' % (len(messages), account.email.email_address, folder.name_on_server))
     try:
         query_batch_size = 10000
 
@@ -34,31 +34,31 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
             new_message_obj_list = []
             new_email_headers = {}
             # new_email_attachments = {}
-            for uid, message in messages.items():
+            for message in messages:
                 # Create new object
                 email_message = EmailMessage()
-                if message.get('sent_date') is not None:
-                    email_message.sent_date = message.get('sent_date')
+                if message.get_sent_date() is not None:
+                    email_message.sent_date = message.get_sent_date()
                 email_message.account = account
 
-                email_message.uid = uid
-                if message.get('flags') is not None:
-                    email_message.is_seen = SEEN in message.get('flags')
-                    email_message.flags = message.get('flags')
+                email_message.uid = message.uid
+                if message.get_flags() is not None:
+                    email_message.is_seen = SEEN in message.get_flags()
+                    email_message.flags = message.get_flags()
 
-                body_html = message.get('html_body')
-                body_text = message.get('plain_body')
+                body_html = message.get_html_body()
+                body_text = message.get_text_body()
 
                 if body_html is not None and not body_text:
-                    body_text = flatten_html_to_text(body_html, replace_br=True)
+                    body_text = convert_html_to_text(body_html, keep_linebreaks=True)
                 elif body_text is not None:
                     body_text = escape(body_text)
 
                 email_message.body_html = body_html
                 email_message.body_text = body_text
-                email_message.size = message.get('size')
-                email_message.folder_name = folder_name
-                email_message.folder_identifier = folder_identifier
+                email_message.size = message.get_size()
+                email_message.folder_name = folder.name_on_server
+                email_message.folder_identifier = folder.identifier
                 email_message.is_private = False
                 email_message.tenant = account.tenant
                 email_message.polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
@@ -66,8 +66,8 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 new_message_obj_list.append(email_message)
 
                 # Check for headers
-                if message.get('headers') is not None:
-                    headers = message.get('headers')
+                if message.get_headers() is not None:
+                    headers = message.get_headers()
                     # Remove certain headers that are stored in the model instead
                     if 'Received' in headers:
                         del headers['Received']
@@ -82,7 +82,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                         email_headers.append(email_header)
                     if len(email_headers):
                         # Save reference to uid
-                        new_email_headers.update({uid: email_headers})
+                        new_email_headers.update({message.uid: email_headers})
 
                 # Check for attachments
                 # TODO
@@ -105,7 +105,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                     EmailMessage.objects.bulk_create(new_message_obj_list[i:i + query_batch_size])
 
                 # Fetch message ids
-                email_messages = EmailMessage.objects.filter(account=account, uid__in=messages.keys(), folder_name=folder_name).values_list('id', 'uid')
+                email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
 
                 # Link message ids to headers and attachments
                 for id, uid in email_messages:
@@ -144,23 +144,22 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
 
             # update_email_attachments = {}
             task_logger.info('Looping through %s messages' % len(messages))
-            for uid, message in messages.items():
-                logging.info('Message %s' % uid)
+            for message in messages:
                 query_string = 'UPDATE email_emailmessage SET '
-                if message.get('sent_date') is not None:
+                if message.get_sent_date() is not None:
                     query_string += 'sent_date = %s, '
-                    param_list.append(datetime.datetime.strftime(message.get('sent_date'), '%Y-%m-%d %H:%M'))
-                if message.get('flags') is not None:
+                    param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M'))
+                if message.get_flags() is not None:
                     query_string += 'flags = %s, '
-                    param_list.append(str(message.get('flags')))
+                    param_list.append(str(message.get_flags()))
                     query_string += 'is_seen = %s, '
-                    param_list.append(SEEN in message.get('flags'))
+                    param_list.append(SEEN in message.get_flags())
 
-                body_html = message.get('html_body')
-                body_text = message.get('plain_body')
+                body_html = message.get_html_body()
+                body_text = message.get_text_body()
 
                 if body_html is not None and not body_text:
-                    body_text = flatten_html_to_text(body_html, replace_br=True)
+                    body_text = convert_html_to_text(body_html, keep_linebreaks=True)
 
                 if body_html is not None:
                     query_string += 'body_html = %s, '
@@ -175,15 +174,15 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                     query_string += ' WHERE tenant_id = %s AND account_id = %s AND uid = %s AND folder_name = %s;\n'
                     param_list.append(account.tenant_id)
                     param_list.append(account.id)
-                    param_list.append(uid)
-                    param_list.append(folder_name)
+                    param_list.append(message.uid)
+                    param_list.append(folder.name_on_server)
 
                     total_query_string += query_string
                     query_count += 1
 
                 # Check for headers
-                if message.get('headers') is not None:
-                    headers = message.get('headers')
+                if message.get_headers() is not None:
+                    headers = message.get_headers()
 
                     # Remove certain headers that are stored in the model instead
                     if 'Received' in headers:
@@ -199,8 +198,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                         email_headers.append(email_header)
                     if len(email_headers):
                         # Save reference to uid
-                        task_logger.info('Also updating headers for message %s' % uid)
-                        update_email_headers.update({uid: email_headers})
+                        update_email_headers.update({message.uid: email_headers})
 
                 # Check for attachments
                 # TODO
@@ -219,7 +217,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
                 cursor.execute(total_query_string, param_list)
 
             # Fetch message ids
-            email_messages = EmailMessage.objects.filter(account=account, uid__in=messages.keys(), folder_name=folder_name).values_list('id', 'uid')
+            email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
 
             # Find existing headers per email message
             existing_headers_per_message = {}
@@ -296,7 +294,7 @@ def save_email_messages(messages, account, folder_name, folder_identifier=None, 
     except Exception, e:
         print traceback.format_exc(e)
 
-    task_logger.info('Messages saves')
+    task_logger.info('Messages saved')
 
 
 def get_unread_emails(accounts, page=1):
@@ -315,9 +313,13 @@ def get_unread_emails(accounts, page=1):
         if delta.total_seconds() > 0:
             server = None
             try:
-                server = LilyIMAP(provider=account.provider, account=account)
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
 
-                synchronize_folder(server, folder_name=server.get_folder_by_identifier(ALLMAIL), criteria=['UNSEEN'])
+                synchronize_folder(account, server, server.get_folder(ALLMAIL), ['UNSEEN'])
             except Exception, e:
                 print traceback.format_exc(e)
             else:
@@ -329,30 +331,22 @@ def get_unread_emails(accounts, page=1):
                     server.logout()
 
 
-def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], new_only=False):
+def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], new_only=False):
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
 
     :param server:          The server with the connection to an account.
-    :param folder_name:     The folder name to sync.
+    :param folder:          The folder to sync.
     :param criteria:        The criteria used for searching and specified syncing.
     :param modifiers_old:   The modifiers
     :param modifiers_new:
     :param new_only:
     """
-    log.debug('sync start for %s' % unicode(folder_name))
-
-    # Make sure the messages has at least an internal timestamp
-    if 'INTERNALDATE' not in modifiers_old:
-        modifiers_old.append('INTERNALDATE')
-    if 'INTERNALDATE' not in modifiers_new:
-        modifiers_new.append('INTERNALDATE')
-
-    folder = server.get_folder(folder_name)
+    task_logger.debug('sync start for %s' % unicode(folder.get_name()))
 
     # Find already known uids
-    known_uids_qs = EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name())
+    known_uids_qs = EmailMessage.objects.filter(account=account, folder_name=folder.name_on_server)
     if 'SEEN' in criteria:
         known_uids_qs = known_uids_qs.filter(is_seen=True)
 
@@ -362,7 +356,7 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
     known_uids = set(known_uids_qs.values_list('uid', flat=True))
 
     try:
-        folder_count, remote_uids = server.search_in_folder(criteria=criteria, identifier=folder.get_server_name(), close=False)
+        folder_count, remote_uids = server.get_uids(folder, criteria)
 
         # Get the difference between local and server uids
         new_uids = list(set(remote_uids).difference(known_uids))
@@ -376,29 +370,26 @@ def synchronize_folder(server, folder_name, criteria=['ALL'], modifiers_old=['FL
             known_uids = list(known_uids)
 
             # Delete from database
-            EmailMessage.objects.filter(account=server.account, folder_name=folder.get_server_name(), uid__in=removed_uids).delete()
+            EmailMessage.objects.filter(account=account, folder_name=folder.name_on_server, uid__in=removed_uids).delete()
 
             if len(known_uids):
                 # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-                folder_messages = server.fetch_from_folder(identifier=folder.get_server_name(), message_uids=known_uids,
-                                                           modifiers=modifiers_old, close=False)
+                folder_messages = server.get_messages(known_uids, modifiers_old, folder)
 
                 if len(folder_messages) > 0:
-                    save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier)
+                    save_email_messages(folder_messages, account, folder)
 
         if len(new_uids):
             # Retrieve modifiers_new for new_uids
-            folder_messages = server.fetch_from_folder(identifier=folder_name, message_uids=new_uids, modifiers=modifiers_new, close=False)
+            folder_messages = server.get_messages(new_uids, modifiers_new, folder)
 
             if len(folder_messages) > 0:
-                save_email_messages(folder_messages, server.account, folder.get_server_name(), folder.identifier, new_messages=True)
+                save_email_messages(folder_messages, account, folder, new_messages=True)
 
     except Exception, e:
         print traceback.format_exc(e)
-    finally:
-        server.close_folder()
 
-    log.debug('sync done for %s' % unicode(folder_name))
+    task_logger.debug('sync done for %s' % unicode(folder.get_name()))
 
 
 @celery.task
@@ -428,7 +419,7 @@ def synchronize_email_for_account(account_id):
         if last_login_delta.total_seconds() > 14 * 86400:  # 14 days
             # Complete current open transaction
             transaction.commit()
-            log.debug('skipping sync because of 14 days of inactivity')
+            task_logger.debug('skipping sync because of 14 days of inactivity')
             return
 
         # Retrieve all messages every 15 minutes
@@ -441,18 +432,22 @@ def synchronize_email_for_account(account_id):
         if last_sync_delta.total_seconds() > 0:
             server = None
             try:
-                # Built check for last_sync_date vs current datetime
-                server = LilyIMAP(provider=account.provider, account=account)
+                # TODO: Build check for last_sync_date vs current datetime
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
 
                 # Update account.folders
                 account.folders = {}
-                folders = server.get_folders(all=True)
+                folders = server.get_folders(can_select=True)
                 for i in range(len(folders)):
                     folder = folders[i]
 
                     account.folders[folder.get_name()] = {
                         'flags': folder.flags,
-                        'is_parent': folder.is_parent(),
+                        'is_parent': folder.parent is not None,
                         'children': {},
                         'full_name': folder.get_name(full=True)
                     }
@@ -476,16 +471,16 @@ def synchronize_email_for_account(account_id):
 
                 folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
                 for folder in folders:
-                    synchronize_folder(server, folder.get_server_name())
+                    synchronize_folder(account, server, folder)
 
-                modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
                 modifiers_new = modifiers_old
-                synchronize_folder(server, server.get_folder_by_identifier(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                synchronize_folder(account, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                 # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
-                synchronize_folder(server, server.get_folder_by_identifier(ALLMAIL))
-                synchronize_folder(server, server.get_folder_by_identifier(TRASH))
-                synchronize_folder(server, server.get_folder_by_identifier(SPAM))
+                synchronize_folder(account, server, server.get_folder(ALLMAIL))
+                synchronize_folder(account, server, server.get_folder(TRASH))
+                synchronize_folder(account, server, server.get_folder(SPAM))
 
                 account.last_sync_date = now_utc_date
                 account.save()
@@ -521,17 +516,17 @@ class synchronize_email(celery.Task):
                         active_count += 1
 
             if active_count > 0:
-                log.info('%s is already running, not starting another worker' % self.name)
+                task_logger.info('%s is already running, not starting another worker' % self.name)
                 return
 
         accounts = EmailAccount.objects.all()
 
         for account in accounts:
-            log.debug('sync start for %s' % account.email)
+            task_logger.debug('sync start for %s' % account.email)
 
             synchronize_email_for_account(account.id)
 
-            log.debug('sync done for %s' % account.email)
+            task_logger.debug('sync done for %s' % account.email)
 
 
 @celery.task
@@ -564,22 +559,27 @@ def mark_messages(message_ids, read=True):
         account_qs = EmailAccount.objects.filter(pk=account_id)
         if len(account_qs) > 0:
             account = account_qs[0]
-            # Connect
             server = None
             try:
-                server = LilyIMAP(provider=account.provider, account=account)
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
 
-                for folder_name, message_uids in folders.items():
-                    if server.get_imap_server().folder_exists(folder_name):
-                        server.get_imap_server().select_folder(folder_name)
+                for folder_name, uids in folders.items():
+                    folder = server.get_folder(folder_name)
+                    is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
+
+                    if is_selected:
+                        uids = ','.join([str(val) for val in uids])
+
                         if read:
-                            # Mark as read
-                            server.mark_as_read(message_uids)
+                            server.client.add_flags(uids, [SEEN])
                         else:
-                            # Mark as unread
-                            server.mark_as_unread(message_uids)
+                            server.client.remove_flags(uids, [SEEN])
 
-                        server.close_folder()
+                        server.client.close_folder()
             finally:
                 if server:
                     server.logout()

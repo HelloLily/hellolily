@@ -22,15 +22,17 @@ from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
+from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
+from python_imap.server import IMAP
+from python_imap.utils import convert_html_to_text
 
 from lily.contacts.models import Contact
-from lily.messaging.email.emailclient import LilyIMAP, DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
-from lily.messaging.email.utils import get_email_parameter_choices, flatten_html_to_text, TemplateParser
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -194,11 +196,11 @@ class EmailFolderView(ListView):
         """
         qs = EmailMessage.objects.none()
         if self.folder_name is not None and self.folder_identifier is not None:
-            qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier.lstrip('\\')) | Q(folder_name=self.folder_name))
+            qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier) | Q(folder_name=self.folder_name))
         elif self.folder_name is not None:
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
-            qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier.lstrip('\\'))
+            qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
         return qs.filter(account__in=self.email_accounts).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
@@ -290,13 +292,19 @@ class EmailMessageJSONView(View):
             if True:
                 # Retrieve directly from IMAP (marks as read automatically)
                 email_logger.info('Connecting with IMAP')
-                server = LilyIMAP(provider=instance.account.provider, account=instance.account)
+
+                host = instance.account.provider.imap_host
+                port = instance.account.provider.imap_port
+                ssl = instance.account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(instance.account.username,  instance.account.password)
+
                 email_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
-                message = server.get_modifiers_for_uid(instance.uid, modifiers=['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], folder=instance.folder_name)
-                if len(message):
+
+                message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], server.get_folder(instance.folder_name), readonly=False)
+                if message is not None:
                     email_logger.info('Message retrieved, saving in database')
-                    folder = server.get_folder(message.get('folder_name'))
-                    save_email_messages({instance.uid: message}, instance.account, folder.get_server_name(), folder.identifier)
+                    save_email_messages([message], instance.account, message.folder)
 
                 instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             else:
@@ -449,14 +457,18 @@ class EmailComposeView(FormView):
         server = None
         
         try:
-            server = LilyIMAP(provider=unsaved_form.send_from.provider, account=unsaved_form.send_from)
+            host = unsaved_form.send_from.provider.imap_host
+            port = unsaved_form.send_from.provider.imap_port
+            ssl = unsaved_form.send_from.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(unsaved_form.send_from.username,  unsaved_form.send_from.password)
 
             # Create python email message object
             if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
                 # Generate email message source
                 email_message = EmailMultiAlternatives(
                     subject=unsaved_form.subject,
-                    body=unsaved_form.body_text or flatten_html_to_text(unsaved_form.body_html, replace_br=True),  # TODO Check why we need flatten_html
+                    body=unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),  # TODO Check why we need flatten_html
                     from_email=unsaved_form.send_from.email.email_address,
                     to=[unsaved_form.send_to_normal],
                     cc=[unsaved_form.send_to_cc],
@@ -507,7 +519,7 @@ class EmailComposeView(FormView):
             save_email_messages(
                 {uid: message},
                 unsaved_form.send_from,
-                folder.get_server_name(),
+                folder.name_on_server,
                 folder.identifier,
                 new_messages=True
             )
@@ -516,7 +528,7 @@ class EmailComposeView(FormView):
                 self.new_draft = EmailMessage.objects.get(
                     account=unsaved_form.send_from,
                     uid=uid,
-                    folder_name=folder.get_server_name()
+                    folder_name=folder.name_on_server
                 )
             except EmailMessage.DoesNotExist, e:
                 log.error(traceback.format_exc(e))
@@ -1000,7 +1012,12 @@ class EmailSearchView(EmailFolderView):
                 account = accounts_qs[0]
                 server = None
                 try:
-                    server = LilyIMAP(account=account, provider=account.provider)
+                    host = account.provider.imap_host
+                    port = account.provider.imap_port
+                    ssl = account.provider.imap_ssl
+                    server = IMAP(host, port, ssl)
+                    server.login(account.username,  account.password)
+
                     self.folder_locale_name = server.get_folder(folder_flag).get_name()
                 except Exception, e:
                     print traceback.format_exc(e)
@@ -1119,7 +1136,12 @@ class EmailSearchView(EmailFolderView):
 
             server = None
             try:
-                server = LilyIMAP(account=account, provider=account.provider)
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
+
                 total_count, uids = server.search_in_folder(self.folder, search_criteria)
 
                 if len(uids):

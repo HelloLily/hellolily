@@ -5,13 +5,14 @@ from urlparse import urlparse
 
 from crispy_forms.layout import HTML, Layout, Submit
 from django import forms
+from django.core.mail import get_connection
 from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
+from python_imap.server import IMAP
 
-from lily.messaging.email.emailclient import LilyIMAP
 from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
@@ -365,6 +366,8 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
 
             try:
                 imap_host = data.get('imap_host')
+                imap_port = int(data.get('imap_port'))
+                imap_ssl = data.get('imap_ssl')
                 try:
                     # Resolve host name
                     socket.gethostbyname(imap_host)
@@ -374,9 +377,8 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
                 else:
                     try:
                         # Try connecting
-                        imap = LilyIMAP(ssl=data.get('imap_ssl'), test=True, host=imap_host, port=int(data.get('imap_port')), username=self.username, password=self.password)
-                        imap_client = imap._get_imap_client()
-                        if not imap_client:
+                        imap = IMAP(imap_host, imap_port, imap_ssl)
+                        if not imap:
                             raise forms.ValidationError(_('Could not connect to %s:%s' % (imap_host, data.get('imap_port'))))
                     except Exception, e:
                         print traceback.format_exc(e)
@@ -384,14 +386,15 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
                     else:
                         try:
                             # Try authenticating
-                            server = imap._login_in_imap(imap_client)
-                            if not server:
+                            if imap.login(self.username, self.password):
                                 raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
                         except Exception, e:
                             print traceback.format_exc(e)
                             raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
 
                 smtp_host = data.get('smtp_host')
+                smtp_port = int(data.get('smtp_port'))
+                smtp_ssl = data.get('smtp_ssl')
                 try:
                     # Resolve SMTP server
                     socket.gethostbyname(smtp_host)
@@ -400,8 +403,14 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
                 else:
                     try:
                         # Try connecting
-                        smtp = LilyIMAP(ssl=data.get('smtp_ssl'), test=True, host=smtp_host, port=int(data.get('smtp_port')), username=self.username, password=self.password)
-                        smtp_server = smtp.get_smtp_server(fail_silently=False)
+                        kwargs = {
+                            'host': smtp_host,
+                            'port': smtp_port,
+                            'use_tls': smtp_ssl,
+                            'username': self.username,
+                            'password': self.password,
+                        }
+                        smtp_server = get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=False, **kwargs)
                         smtp_server.open()
                         smtp_server.close()
                     except SMTPAuthenticationError, e:

@@ -1,12 +1,12 @@
-from django.db.models import Field
 import re
+from types import FunctionType
 
-from bs4 import BeautifulSoup, Comment
 from django.db import models
-from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, BLOCK_TAG_START, BLOCK_TAG_END, TemplateSyntaxError, TemplateDoesNotExist, TemplateEncodingError, VariableDoesNotExist, InvalidTemplateLibrary
+from django.db.models import Field
+from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
-from types import FunctionType
+
 from lily.messaging.email.decorators import get_safe_template
 
 
@@ -82,38 +82,6 @@ def get_email_parameter_choices():
                         })
 
     return _EMAIL_PARAMETER_CHOICES
-
-
-def flatten_html_to_text(html, replace_br=False):
-    """
-    Strip html and unwanted whitespace to preserve text only. Optionally replace
-    <br> tags with line breaks (\n).
-    """
-    try:
-        soup = BeautifulSoup(html)
-    except RuntimeWarning:
-        return html
-
-    # Remove html comments
-    comments = soup.findAll(text=lambda text: isinstance(text, Comment))
-    for comment in comments:
-        comment.extract()
-
-    # Remove several tags from flat_soup
-    extract_tags = ['style', 'script', 'img', 'object', 'audio', 'video', 'doctype']
-    for elem in soup.findAll(extract_tags):
-        elem.extract()
-
-    # Replace html line breaks with spaces to prevent lines appended after one another
-    for linebreak in soup.findAll('br'):
-        linebreak.replaceWith('\n' if replace_br else ' ')
-
-    if soup.body:
-        flat_body = soup.body
-    else:
-        flat_body = soup
-
-    return flat_body.get_text(separator=u' ', strip=True)
 
 
 class TemplateParser(object):

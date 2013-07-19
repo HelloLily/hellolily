@@ -7,8 +7,8 @@ from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
+from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
 
-from lily.messaging.email.emailclient import INBOX, SENT, DRAFTS, TRASH, SPAM
 from lily.messaging.email.models import EmailAccount, EmailMessage
 from lily.tenant.middleware import get_current_user
 

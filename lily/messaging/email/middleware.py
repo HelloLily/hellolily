@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
+from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
 
-from lily.messaging.email.emailclient import INBOX, SENT, DRAFTS, TRASH, SPAM
 from lily.messaging.email.models import EmailAccount
 from lily.tenant.middleware import get_current_user
 

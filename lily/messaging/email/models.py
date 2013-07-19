@@ -9,9 +9,9 @@ from django_extensions.db.fields.json import JSONField
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
 from django_fields.fields import EncryptedCharField
+from python_imap.folder import DRAFTS, TRASH
+from python_imap.utils import convert_html_to_text
 
-from lily.messaging.email.emailclient import DRAFTS, TRASH
-from lily.messaging.email.utils import flatten_html_to_text
 from lily.messaging.models import Message, MessagesAccount
 from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
@@ -96,7 +96,7 @@ class EmailMessage(Message):
         """
         Return a plain text version of the html body, and optionally replace <br> tags with line breaks (\n).
         """
-        return self.body_text or flatten_html_to_text(self.body_html) or u''
+        return self.body_text or convert_html_to_text(self.body_html, keep_linebreaks=True)
 
     def htmlify(self):
         """

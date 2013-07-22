@@ -93,15 +93,23 @@ class IMAP(object):
 
         return folder
 
-    def get_folders(self, exclude=[], can_select=False, update=False):
+    def get_folders(self, exclude=[], cant_select=False, update=False):
         if self._folders is None or update:
             self._retrieve_folders()
 
+        exclude_names_on_server = []
+        for folder in exclude:
+            exclude_names_on_server.append(self.get_folder(folder).name_on_server)
+
         folders = []
         for folder in self._folders:
-            if not can_select and not '\\Noselect' in folder.flags:
-                folders.append(folder)
+            if folder.name_on_server in exclude_names_on_server:
+                continue
 
+            if '\\Noselect' in folder.flags and cant_select:
+                folders.append(folder)
+            elif not '\\Noselect' in folder.flags:
+                folders.append(folder)
         return folders
 
     def select_folder(self, name_on_server, readonly=True):

@@ -24,7 +24,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from python_imap.server import IMAP
-from python_imap.utils import convert_html_to_text
+from python_imap.utils import convert_html_to_text, parse_search_keys
 
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
@@ -37,6 +37,7 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
+from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
 
 
@@ -455,7 +456,7 @@ class EmailComposeView(FormView):
         """
         unsaved_form = form.save(commit=False)
         server = None
-        
+
         try:
             host = unsaved_form.send_from.provider.imap_host
             port = unsaved_form.send_from.provider.imap_port
@@ -728,6 +729,7 @@ class EmailBodyPreviewView(TemplateView):
                 )
 
         return super(EmailBodyPreviewView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         kwargs = super(EmailBodyPreviewView, self).get_context_data(**kwargs)
 
@@ -985,145 +987,55 @@ class EmailSearchView(EmailFolderView):
         account_id = kwargs.get('account_id', None)
 
         # Get accounts the user has access to
-        accounts_qs = request.user.get_messages_accounts(EmailAccount)
         if account_id is not None:
             accounts = [int(account_id)]
-            accounts_qs = accounts_qs.filter(pk__in=accounts)
+            accounts_qs = request.user.get_messages_accounts(EmailAccount, pk__in=accounts)
 
-            if len(accounts_qs) == 0:  # When provided, but no matches were found raise 404
+            if len(accounts_qs) == 0:  # when provided, but no matches were found raise 404
                 raise Http404()
+        else:
+            accounts_qs = request.user.get_messages_accounts(EmailAccount)
 
         # Get folder name from url or settle for ALLMAIL
         folder_name = kwargs.get('folder', None)
-        if folder_name is None:
-            self.folder = self.folder_locale_name = ALLMAIL
-            self.folder_identifier = ALLMAIL
-        else:
+        if folder_name is not None:
             self.folder = urllib.unquote_plus(folder_name)
             self.folder_locale_name = self.folder.split('/')[-1:][0]
             self.folder_name = self.folder_locale_name
+            self.folder_identifier = None
+        else:
+            self.folder = self.folder_locale_name = ALLMAIL
+            self.folder_identifier = ALLMAIL
 
-        if len(accounts_qs) > 0:
-            if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder]))) > 0:
-                folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder])).pop()
-                self.folder_name = None
-                self.folder_identifier = folder_flag
+        if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder]))) > 0:
+            folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set([self.folder])).pop()
+            self.folder_name = None
+            self.folder_locale_name = None
+            self.folder_identifier = folder_flag
 
-                account = accounts_qs[0]
-                server = None
-                try:
-                    host = account.provider.imap_host
-                    port = account.provider.imap_port
-                    ssl = account.provider.imap_ssl
-                    server = IMAP(host, port, ssl)
-                    server.login(account.username,  account.password)
-
-                    self.folder_locale_name = server.get_folder(folder_flag).get_name()
-                except Exception, e:
-                    print traceback.format_exc(e)
-                finally:
-                    if server:
-                        server.logout()
-
-        # Check if folder is from account
-        folder_found = False
-        for account in accounts_qs:
-            for folder_name, folder in account.folders.items():
-                if folder_name == self.folder_locale_name:
-                    folder_found = True
-                    break
-
-                children = folder.get('children', {})
-                for sub_folder_name, sub_folder in children.items():
-                    if sub_folder_name == self.folder_locale_name:
+        if self.folder_locale_name is not None:
+            # Check if folder is from account
+            folder_found = False
+            for account in accounts_qs:
+                for folder_name, folder in account.folders.items():
+                    if folder_name == self.folder_locale_name:
                         folder_found = True
                         break
 
-        if not folder_found:
-            raise Http404()
+                    children = folder.get('children', {})
+                    for sub_folder_name, sub_folder in children.items():
+                        if sub_folder_name == self.folder_locale_name:
+                            folder_found = True
+                            break
+
+            if not folder_found:
+                raise Http404()
 
         # Scrape messages together from one or more e-mail accounts
-        search_criteria = self.parse_search_keys(kwargs.get('search_key'))
+        search_criteria = parse_search_keys(kwargs.get('search_key'))
         self.imap_search_in_accounts(search_criteria, accounts=accounts_qs)
 
         return super(EmailSearchView, self).get(request, *args, **kwargs)
-
-    def parse_search_keys(self, search_string):
-        """
-        Figure out what to search for and return an IMAP compatible search string.
-        """
-        TOKENS_START = ['from', 'to', 'cc', 'bcc', 'subject', 'has']
-        TOKEN_END = ','
-        TOKEN_VALUE_START = ':'
-
-        def get_next_token(search_string, begin_index):
-            token = None
-            token_value = None
-
-            # Find token start index
-            token_start_index = next_begin_index = begin_index
-            first_token_start_index = len(search_string)
-            for TOKEN_START in TOKENS_START:
-                try:
-                    temp_token_start_index = search_string.index(TOKEN_START, begin_index)
-                except ValueError:
-                    continue
-                else:
-                    if temp_token_start_index <= first_token_start_index:
-                        token_start_index = first_token_start_index = temp_token_start_index
-                        token = TOKEN_START
-                next_begin_index = token_start_index
-
-            # Search for TOKEN_END preceding first_token_start_index
-            try:
-                token_end_index = search_string.index(TOKEN_END, begin_index, token_start_index)
-            except ValueError:
-                pass
-            else:
-                # Replace token with whatever comes next as return value
-                token = None
-                next_begin_index = first_token_start_index
-                token_value = search_string[token_end_index:token_start_index].strip(' %s' % TOKEN_END)
-
-            # Find token value
-            if token is not None:
-                # Assume start for token_value is after TOKEN_VALUE_START
-                token_value_start_index = search_string.index(TOKEN_VALUE_START, token_start_index) + len(TOKEN_VALUE_START)
-                # Find end of token_value by TOKEN_END or end of string
-                try:
-                    token_value_end_index = search_string.index(TOKEN_END, token_value_start_index - 1)
-                except ValueError:
-                    token_value_end_index = len(search_string)
-
-                # Get token_value
-                token_value = search_string[token_value_start_index:token_value_end_index]
-
-                # Set next starting index after token_value
-                next_begin_index = token_value_end_index
-            elif token_value is None:
-                # If no token was provided
-                token_value = search_string[token_start_index:].strip(' %s' % TOKEN_END)
-                next_begin_index = len(search_string)
-
-            return token, token_value, next_begin_index
-
-        criteria = []
-        begin_index = 0
-        token = not None
-        while begin_index < len(search_string):
-            token, token_value, begin_index = get_next_token(search_string, begin_index)
-
-            # If valid token add to criteria 'as is'
-            if token is not None and token_value is not None:
-                criteria.append(u'%s %s' % (token.upper(), token_value))
-            elif token_value is not None:
-                # Add token_value as full-text
-                criteria.append(u'TEXT "%s"' % token_value)
-
-        if not any(criteria):
-            criteria = 'TEXT "%s"' % search_string
-
-        return criteria
 
     def imap_search_in_accounts(self, search_criteria, accounts):
         """
@@ -1142,16 +1054,21 @@ class EmailSearchView(EmailFolderView):
                 server = IMAP(host, port, ssl)
                 server.login(account.username,  account.password)
 
-                total_count, uids = server.search_in_folder(self.folder, search_criteria)
+                if self.folder_identifier is not None:
+                    folder = server.get_folder(self.folder_identifier)
+                else:
+                    folder = server.get_folder(self.folder)
+
+                total_count, uids = server.get_uids(folder, search_criteria)
 
                 if len(uids):
                     qs = EmailMessage.objects.none()
                     if self.folder_name is not None and self.folder_identifier is not None:
-                        qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier.lstrip('\\')) | Q(folder_name=self.folder_name))
+                        qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier) | Q(folder_name=self.folder_name))
                     elif self.folder_name is not None:
                         qs = EmailMessage.objects.filter(folder_name__in=[self.folder_name, self.folder])
                     elif self.folder_identifier is not None:
-                        qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier.lstrip('\\'))
+                        qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
                     qs = qs.filter(account=account, uid__in=uids).order_by('-sent_date')
 
                     pks = qs.values_list('pk', flat=True)
@@ -1159,7 +1076,8 @@ class EmailSearchView(EmailFolderView):
             except Exception, e:
                 print traceback.format_exc(e)
             finally:
-                server.logout()
+                if server:
+                    server.logout()
 
     def get_queryset(self):
         """

@@ -62,30 +62,29 @@ class EmailMiddleware(object):
         email_accounts = get_current_user().get_messages_accounts(EmailAccount)
 
         for account in email_accounts:
+            # Set root folders for email address
+            account_root_folders = get_email_folders_structure(account.folders)
             email_folders[account.email.email_address] = {
                 'flags': ['\\Noselect'],
                 'show_all': False,
                 'is_parent': True,
-                'children': get_email_folders_structure(account.folders),
+                'children': account_root_folders,
             }
 
-            # Filter child folders from root
-            for folder_name, folder in email_folders[account.email.email_address]['children'].items():
-                if folder.get('is_parent'):
-                    email_folders[account.email.email_address]['children'][folder_name]['account_id'] = account.pk
-                    for sub_folder_name, sub_folder in folder.get('children', {}).items():
-                        email_folders[account.email.email_address]['children'][folder_name]['children'][sub_folder_name]['account_id'] = account.pk
-                        parent_folder = sub_folder.get('parent', '') or ''
-                        if len(parent_folder) > 0:
-                            # Check parent existence and delete from root
-                            for root_folder_name, root_folder in account.folders.items():
-                                if root_folder_name == parent_folder:
-                                    del email_folders[account.email.email_address]['children'][sub_folder_name]
-                                    break
+            # Remove sub folders from root
+            for root_folder_name, root_folder in account_root_folders.items():
+                if root_folder.get('is_parent'):
+                    email_folders[account.email.email_address]['children'][root_folder_name]['account_id'] = account.pk
+
+                    for sub_folder_name, sub_folder in root_folder.get('children').items():
+                        if sub_folder_name in account_root_folders.keys():
+                            del account_root_folders[sub_folder_name]
+                            continue
+                        email_folders[account.email.email_address]['children'][root_folder_name]['children'][sub_folder_name]['account_id'] = account.pk
                 else:
                     # Might have been deleted if it was a duplicate
-                    if folder_name in email_folders[account.email.email_address]['children']:
-                        email_folders[account.email.email_address]['children'][folder_name]['account_id'] = account.pk
+                    if root_folder_name in email_folders[account.email.email_address]['children']:
+                        email_folders[account.email.email_address]['children'][root_folder_name]['account_id'] = account.pk
 
         response.context_data.update({'email_folders': email_folders})
         return response

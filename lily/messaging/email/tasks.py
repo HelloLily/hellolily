@@ -439,35 +439,36 @@ def synchronize_email_for_account(account_id):
                 server = IMAP(host, port, ssl)
                 server.login(account.username,  account.password)
 
-                # Update account.folders
-                account.folders = {}
-                folders = server.get_folders(can_select=True)
-                for i in range(len(folders)):
-                    folder = folders[i]
-
-                    account.folders[folder.get_name()] = {
+                account_folders = {}
+                all_folders = server.get_folders(cant_select=True)
+                for i in range(len(all_folders)):
+                    folder = all_folders[i]
+                    is_parent = '\\HasNoChildren' not in folder.flags
+                    folder_properties = {
                         'flags': folder.flags,
-                        'is_parent': folder.parent is not None,
+                        'is_parent': is_parent,
+                        'full_name': folder.get_name(full=True),
                         'children': {},
-                        'full_name': folder.get_name(full=True)
                     }
+                    account_folders[folder.get_name()] = folder_properties
 
-                    if folder.is_parent():
+                    if is_parent:
+                        children = {}
                         i += 1
-                        while i < len(folders) and folder.is_parent():
-                            sub_folder = folders[i]
-                            if sub_folder.is_subfolder():
-                                sub_folder = folders[i]
-                                account.folders[folder.get_name()]['children'].update({
-                                    sub_folder.get_name(): {
-                                        'flags': sub_folder.flags,
-                                        'parent': sub_folder.get_parent(),
-                                        'full_name': sub_folder.get_name(full=True)
-                                    }
-                                })
+                        while i < len(all_folders) and '\\HasNoChildren' not in folder.flags:
+                            child_folder = all_folders[i]
+                            if child_folder.parent is not None and child_folder.parent == folder:
+                                children[child_folder.get_name()] = {
+                                    'flags': child_folder.flags,
+                                    'parent': folder.get_name(full=True),
+                                    'full_name': child_folder.get_name(full=True),
+                                }
                             else:
                                 break
                             i += 1
+                        account_folders[folder.get_name()]['children'] = children
+
+                account.folders = account_folders
 
                 folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
                 for folder in folders:

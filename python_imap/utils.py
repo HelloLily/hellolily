@@ -1,3 +1,4 @@
+import mimetypes
 from email.utils import formataddr
 
 from bs4 import BeautifulSoup, Comment, Doctype
@@ -136,3 +137,12 @@ def parse_search_keys(search_string):
         criteria = 'TEXT "%s"' % search_string
 
     return criteria
+
+
+def get_extensions_for_type(general_type):
+    if not mimetypes.inited:
+        mimetypes.init()
+
+    for ext in mimetypes.types_map:
+        if mimetypes.types_map[ext] == general_type or mimetypes.types_map[ext].split('/')[0] == general_type:
+            yield ext

@@ -3,7 +3,10 @@ import textwrap
 
 from bs4 import BeautifulSoup
 
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 from django_extensions.db.fields.json import JSONField
 from django_extensions.db.models import TimeStampedModel
@@ -13,9 +16,10 @@ from python_imap.folder import DRAFTS, TRASH
 from python_imap.utils import convert_html_to_text
 
 from lily.messaging.models import Message, MessagesAccount
-from lily.settings import EMAIL_ATTACHMENT_UPLOAD_TO, EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
+from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 from lily.utils.models import EmailAddress
+from lily.messaging.email.utils import get_attachment_upload_path
 
 
 class EmailProvider(TenantMixin):
@@ -308,9 +312,13 @@ class EmailAttachment(TenantMixin):
     """
     A single attachment linked to an e-mail message.
     """
-    attachment = models.FileField(upload_to=EMAIL_ATTACHMENT_UPLOAD_TO)  # also contains filename
-    size = models.PositiveIntegerField(default=0)  # size in bytes
+    inline = models.BooleanField(default=False)
+    attachment = models.FileField(upload_to=get_attachment_upload_path)
+    size = models.PositiveIntegerField(default=0)
     message = models.ForeignKey(EmailMessage, related_name='attachments')
+
+    def __unicode__(self):
+        return self.attachment.name
 
     class Meta:
         verbose_name = _('e-mail attachment')
@@ -413,3 +421,10 @@ class EmailDraft(TimeStampedModel):
     class Meta:
         verbose_name = _('e-mail draft')
         verbose_name_plural = _('e-mail drafts')
+
+
+@receiver(post_delete, sender=EmailAttachment)
+def post_delete_mail_attachment_handler(sender, **kwargs):
+    attachment = kwargs['instance']
+    storage, filename = attachment.attachment.storage, attachment.attachment.name
+    storage.delete(filename)

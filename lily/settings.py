@@ -82,7 +82,7 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
-EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/'
+EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messaging/email/templates/attachments/'
 
 # Static
@@ -129,7 +129,7 @@ MIDDLEWARE_CLASSES = (
     # Lily
     'lily.tenant.middleware.TenantMiddleware',
     'lily.messaging.email.middleware.EmailMiddleware',
-#    'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
+    # 'lily.utils.middleware.PrettifyMiddleware',  # Nice for debugging html source, but places whitespace in textareas
 )
 
 # Main urls file

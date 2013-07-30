@@ -1,6 +1,9 @@
 import re
 from types import FunctionType
+from urllib import unquote
 
+from bs4 import BeautifulSoup
+from django.conf import settings
 from django.db import models
 from django.db.models import Field
 from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
@@ -222,3 +225,28 @@ class TemplateParser(object):
                 lookups.update(block_lookups)
                 return self._get_node(node.get_parent(context), context, name, lookups)
         return ''
+
+
+def get_attachment_upload_path(instance, filename):
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': instance.message_id,
+        'filename': filename
+    }
+
+
+def get_attachment_filename_from_url(url):
+    return unquote(url).split("/")[-1].rsplit(".", 1)[0]
+
+
+def replace_cid_in_html(html, mapped_attachments):
+    soup = BeautifulSoup(html)
+
+    inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+
+    for image in inline_images:
+        inline_attachment = mapped_attachments.get(image.get('src')[4:])
+        if inline_attachment is not None:
+            image['src'] = inline_attachment.attachment.url
+
+    return soup.renderContents()

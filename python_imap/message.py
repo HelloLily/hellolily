@@ -10,7 +10,7 @@ from dateutil.parser import parse
 from dateutil.tz import tzutc
 
 from logger import logger
-from utils import convert_html_to_text
+from utils import convert_html_to_text, get_extensions_for_type
 
 
 def decode_header_proper(value):
@@ -106,35 +106,67 @@ def parse_body(message_part):
     return content_type, decoded_payload
 
 
-def parse_attachment(message_part):
+def parse_attachment(message_part, attachments, inline_attachments):
     """
-    Return attachment data if attachment is found.
+    Return whether message_part contains attachment data.
     """
-    name = None
-    payload = None
-    is_inline = None
+    attachment = {}
 
-    # logger.info('Checking message part for attachment')
-    # content_disposition = message_part.get('Content-Disposition', None)
-    # if content_disposition:
-    #     dispositions = content_disposition.strip().split(';')
-    #     if bool(content_disposition and dispositions[0].lower() in ['attachment', 'inline']):
-    #         if message_part.get_filename() is not None:
-    #             file_data = message_part.get_payload(decode=True)
-    #             if file_data is not None:
-    #                 attachment = StringIO.StringIO(file_data)
-    #                 attachment.content_type = message_part.get_content_type()
-    #                 attachment.size = len(file_data)
-    #                 attachment.name = message_part.get_filename()
+    # logger.debug(message_part.get('Content-Disposition'))
+    # logger.debug(message_part.get('Content-Transfer-Encoding'))
+    # logger.debug(message_part.get('Content-ID'))
 
-    #                 logger.info('Attachment found: %s %s %s' % (attachment.name, attachment.size, attachment.content_type))
-    #                 return attachment
-    #         else:
-    #             logger.info('Attachment found, but no filename')
+    if message_part.get('Content-Transfer-Encoding', '').lower() != 'quoted-printable':
+        content_disposition = message_part.get('Content-Disposition', None)
+        if content_disposition:
+            dispositions = content_disposition.strip().split(';')
+            if bool(content_disposition and dispositions[0].lower() in ['attachment', 'inline']):
+                file_data = message_part.get_payload(decode=True)
+                if file_data is not None:
+                    attachment['name'] = message_part.get_filename()
+                    attachment['size'] = len(file_data)
+                    attachment['payload'] = file_data
+                    attachment['content_type'] = message_part.get_content_type()
 
-    # logger.info('No attachment found')
+                if attachment.get('name') is None:
+                    count = len(attachments)
+                    extensions = get_extensions_for_type(attachment.get('content_type'))
+                    try:
+                        name = 'attachment-%d%s' % (count, extensions.next())
+                        attachment['name'] = name
+                    except:
+                        logger.error(message_part.get('Content-Type'))
+                        logger.error(message_part.get_content_type())
+                        logger.error(extensions)
 
-    return name, payload, is_inline
+                # logger.debug(attachment)
+                attachments.append(attachment)
+                return True
+
+        if attachment.get('payload') is None and message_part.get('Content-ID') is not None:
+            file_data = message_part.get_payload(decode=True)
+            if file_data is not None:
+                attachment['cid'] = message_part.get('Content-ID')[1:-1]
+                attachment['name'] = message_part.get_filename()
+                attachment['size'] = len(file_data)
+                attachment['payload'] = file_data
+                attachment['content_type'] = message_part.get_content_type()
+
+            if attachment.get('name') is None:
+                count = len(inline_attachments) + 1
+                extensions = get_extensions_for_type(attachment.get('content_type'))
+                try:
+                    name = 'attachment-%d%s' % (count, extensions.next())
+                    attachment['name'] = name
+                except:
+                    logger.error(message_part.get('Content-Type'))
+                    logger.error(message_part.get_content_type())
+                    logger.error(extensions)
+
+            inline_attachments[attachment.get('cid')] = attachment
+            return True
+
+    return False
 
 
 def parse_message(message):
@@ -144,15 +176,16 @@ def parse_message(message):
     text = ''
     html = ''
     attachments = []
-    inline_attachments = []
+    inline_attachments = {}
 
     for message_part in message.walk():
-        # name, payload, is_inline = parse_attachment(message_part)
-        # if not any([name, payload, is_inline]):
-        #     attachments.append((name, payload, is_inline))
-        #     continue
-        # if message_part is None:
-        #     continue
+        if message.get_content_maintype() == 'multipart':
+            is_attachment = parse_attachment(message_part, attachments, inline_attachments)
+            if is_attachment:
+                continue
+
+        if message_part is None:
+            continue
 
         content_type, body = parse_body(message_part)
         if content_type == 'text/html':
@@ -170,6 +203,17 @@ def parse_message(message):
 
     if len(text) > 0:
         text = convert_html_to_text(text)
+
+    if len(html) > 0 and len(inline_attachments) > 0:
+        soup = BeautifulSoup(html)
+        inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+        cids_in_body = []
+        for image in inline_images:
+            cids_in_body.append(image.get('src')[4:])
+
+        for cid, inline_attachment in inline_attachments.items():
+            if cid not in cids_in_body:
+                del inline_attachments[cid]
 
     return text, html, attachments, inline_attachments
 
@@ -199,13 +243,10 @@ class Message(object):
         message_string_key = 'BODY[]'
         for key in self._imap_response:
             if key.startswith('BODY[HEADER'):
-                logger.debug('Message does not have a body payload')
                 message_string_key = key
 
         message_string = self._imap_response.get(message_string_key, '')
-        if len(message_string) == 0 and message_string_key == 'BODY[]':
-            logger.debug('Message has neither headers or body')
-        else:
+        if len(message_string) > 0:
             self._message = email.message_from_string(message_string)
 
     def process(self):

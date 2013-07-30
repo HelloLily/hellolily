@@ -2,8 +2,13 @@
 
 <html>
     <head>
-        {% include_media 'typography.css' %}
-        <style type="text/css">blockquote { border-left: 1px solid darkgray; padding-left: 5px; margin: 5px 5px 5px 15px; }</style>
+        <style type="text/css">
+            body { font-size: 13px; font-family: sans-serif; } pre, code { font-family: monospace; }
+            blockquote { border-left: 1px solid darkgray; padding-left: 5px; margin: 5px 5px 5px 15px; }
+        </style>
+        {% if is_plain %}
+            {% include_media 'typography.css' %}
+        {% endif %}
     </head>
     {% if is_plain %}
         <body style="white-space: pre-wrap;">{{ body|safe|linebreaksbr }}</body>

@@ -1,11 +1,14 @@
 import datetime
 import logging
+import StringIO
 import traceback
 
 import celery
 from dateutil.tz import tzutc
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.files import File
+from django.core.files.storage import default_storage
 from django.db import connection, transaction
 from django.utils.html import escape
 from imapclient import SEEN
@@ -13,8 +16,10 @@ from python_imap.folder import ALLMAIL, DRAFTS, TRASH, SPAM
 from python_imap.server import IMAP
 from python_imap.utils import convert_html_to_text
 
-from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader
+from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
 from lily.users.models import CustomUser
+from lily.messaging.email.utils import get_attachment_upload_path
+from lily.messaging.email.utils import replace_cid_in_html
 
 
 task_logger = logging.getLogger('celery_task')
@@ -27,13 +32,16 @@ def save_email_messages(messages, account, folder, new_messages=False):
     task_logger.info('Saving %s messages for %s in %s in the database' % (len(messages), account.email.email_address, folder.name_on_server))
     try:
         query_batch_size = 10000
+        new_email_attachments = {}
+        new_inline_email_attachments = {}
+        update_email_attachments = {}
+        update_inline_email_attachments = {}
 
         if new_messages:
             task_logger.info('Saving these messages with the ORM since they are new')
 
             new_message_obj_list = []
             new_email_headers = {}
-            # new_email_attachments = {}
             for message in messages:
                 # Create new object
                 email_message = EmailMessage()
@@ -85,19 +93,40 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         new_email_headers.update({message.uid: email_headers})
 
                 # Check for attachments
-                # TODO
-                # email_attachments = []
-                # for attachment in message.get('attachments', []) or []:
-                #     email_attachment = EmailAttachment()
-                #     email_attachment.filename = attachment.get('filename')
-                #     email_attachment.message = email_message
-                #     email_attachment.tenant = account.tenant
-                #     # email_attachment.file = File(filename=attachment.get('filename'), content=attachment.get('payload'))
-                #     email_attachment.size = attachment.get('size')
-                #     email_attachments.append(email_attachment)
-                # if len(email_attachments):
-                #     # Save reference to uid
-                #     new_email_attachments.update({uid: email_attachments})
+                email_attachments = []
+                for attachment in message.get_attachments():
+                    attachment_file = StringIO.StringIO(attachment.get('payload'))
+                    attachment_file.content_type = attachment.get('content_type')
+                    attachment_file.size = attachment.get('size')
+                    attachment_file.name = attachment.get('name')
+
+                    email_attachment = EmailAttachment()
+                    email_attachment.attachment = attachment_file
+                    email_attachment.size = attachment.get('size')
+                    email_attachment.tenant = account.tenant
+                    email_attachments.append(email_attachment)
+                if len(email_attachments):
+                    # Save reference to uid
+                    new_email_attachments.update({message.uid: email_attachments})
+
+                # Check for inline attachments
+                inline_email_attachments = []
+                for cid, attachment in message.get_inline_attachments():
+                    attachment_file = StringIO.StringIO(attachment.get('payload'))
+                    attachment_file.content_type = attachment.get('content_type')
+                    attachment_file.size = attachment.get('size')
+                    attachment_file.name = attachment.get('name')
+
+                    inline_email_attachment = EmailAttachment()
+                    inline_email_attachment.attachment = attachment_file
+                    inline_email_attachment.size = attachment.get('size')
+                    inline_email_attachment.tenant = account.tenant
+                    inline_email_attachment.inline = True
+                    inline_email_attachment.cid = cid
+                    inline_email_attachments.append(inline_email_attachment)
+                if len(inline_email_attachments):
+                    # Save reference to uid
+                    new_inline_email_attachments.update({message.uid: inline_email_attachments})
 
             # Save new_email_messages
             if len(new_message_obj_list):
@@ -107,17 +136,22 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 # Fetch message ids
                 email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
 
-                # Link message ids to headers and attachments
+                # Link message ids to headers and (inline) attachments
                 for id, uid in email_messages:
                     header_obj_list = new_email_headers.get(uid)
                     if header_obj_list:
                         for header_obj in header_obj_list:
                             header_obj.message_id = id
 
-                    # attachment_obj_list = new_email_attachments.get(uid)
-                    # if attachment_obj_list:
-                    #     for attachment_obj in attachment_obj_list:
-                    #         attachment_obj.message_id = id
+                    attachment_obj_list = new_email_attachments.get(uid)
+                    if attachment_obj_list:
+                        for attachment_obj in attachment_obj_list:
+                            attachment_obj.message_id = id
+
+                    inline_attachment_obj_list = new_inline_email_attachments.get(uid)
+                    if inline_attachment_obj_list:
+                        for attachment_obj in inline_attachment_obj_list:
+                            attachment_obj.message_id = id
 
                 # Save new_email_headers
                 if len(new_email_headers):
@@ -129,9 +163,6 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                     for i in range(0, len(new_header_obj_list), query_batch_size):
                         EmailHeader.objects.bulk_create(new_header_obj_list[i:i + query_batch_size])
-
-            # Save new_email_attachments
-            # TODO
 
         elif not new_messages:
             task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')
@@ -201,7 +232,43 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         update_email_headers.update({message.uid: email_headers})
 
                 # Check for attachments
-                # TODO
+                email_attachments = []
+                for attachment in message.get_attachments():
+                    attachment_file = StringIO.StringIO(attachment.get('payload'))
+                    attachment_file.content_type = attachment.get('content_type')
+                    attachment_file.size = attachment.get('size')
+                    attachment_file.name = attachment.get('name')
+
+                    email_attachment = EmailAttachment()
+                    email_attachment.attachment = attachment_file
+                    email_attachment.size = attachment.get('size')
+                    email_attachment.tenant = account.tenant
+                    email_attachments.append(email_attachment)
+                if len(email_attachments):
+                    # Save reference to uid
+                    update_email_attachments.update({message.uid: email_attachments})
+
+                # Check for inline attachments
+                inline_email_attachments = []
+                for cid, attachment in message.get_inline_attachments().items():
+                    attachment_file = StringIO.StringIO(attachment.get('payload'))
+                    attachment_file.content_type = attachment.get('content_type')
+                    attachment_file.size = attachment.get('size')
+                    attachment_file.name = attachment.get('name')
+
+                    EmailAttachment.objects.filter(attachment='messaging/email/attachments/%(tenant_id)d/%(account_id)d/%(folder_name)s/%(filename)s')
+
+                    inline_email_attachment = EmailAttachment()
+                    inline_email_attachment.attachment = attachment_file
+                    inline_email_attachment.size = attachment.get('size')
+                    inline_email_attachment.tenant = account.tenant
+                    inline_email_attachment.inline = True
+                    inline_email_attachment.cid = cid
+                    inline_email_attachments.append(inline_email_attachment)
+
+                if len(inline_email_attachments):
+                    # Save reference to uid
+                    update_inline_email_attachments.update({message.uid: inline_email_attachments})
 
                 if query_count == query_batch_size:
                     # Execute queries
@@ -227,17 +294,22 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 headers.append(header_name)
                 existing_headers_per_message.update({message_id: headers})
 
-            # Link message ids to headers and attachments
+            # Link message ids to headers and (inline) attachments
             for id, uid in email_messages:
                 header_obj_list = update_email_headers.get(uid)
                 if header_obj_list:
                     for header_obj in header_obj_list:
                         header_obj.message_id = id
 
-                # attachment_obj_list = new_email_attachments.get(uid)
-                # if attachment_obj_list:
-                #     for attachment_obj in attachment_obj_list:
-                #         attachment_obj.message_id = id
+                attachment_obj_list = update_email_attachments.get(uid)
+                if attachment_obj_list:
+                    for attachment_obj in attachment_obj_list:
+                        attachment_obj.message_id = id
+
+                inline_attachment_obj_list = update_inline_email_attachments.get(uid)
+                if inline_attachment_obj_list:
+                    for attachment_obj in inline_attachment_obj_list:
+                        attachment_obj.message_id = id
 
             # Save update_email_headers
             if len(update_email_headers):
@@ -288,8 +360,71 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 else:
                     task_logger.info('Not executing queries yet')
 
-            # Save new_email_attachments
-            # TODO
+        # Save attachments for new messages
+        for uid, attachment_list in new_email_attachments.items():
+            for attachment in attachment_list:
+                attachment.attachment = File(attachment.attachment, attachment.attachment.name)
+
+                # Upload attachments that are new or if it belongs to a draft
+                path = get_attachment_upload_path(attachment, attachment.attachment.name)
+                if not default_storage.exists(path) or folder.identifier == DRAFTS:
+                    attachment.save()
+                else:
+                    attachment.attachment.name = path
+
+        # Save inline attachments for new messages
+        for uid, attachment_list in new_inline_email_attachments.items():
+            cid_attachments = {}
+            for attachment in attachment_list:
+                attachment.attachment = File(attachment.attachment, attachment.attachment.name)
+
+                path = get_attachment_upload_path(attachment, attachment.attachment.name)
+                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, size=attachment.size, message_id=attachment.message_id)
+                email_attachment.attachment = attachment.attachment
+                email_attachment.save()
+
+                cid_attachments[attachment.cid] = attachment
+
+            if len(attachment_list) > 0:
+                # Replace img elements with the *cid* src attribute to they point to AWS
+                email_message = attachment_list[0].message
+                email_message.body_html = replace_cid_in_html(email_message.body_html, cid_attachments)
+                email_message.save()
+
+        # Save attachments for updated messages
+        for uid, attachment_list in update_email_attachments.items():
+            for attachment in attachment_list:
+                attachment.attachment = File(attachment.attachment, attachment.attachment.name)
+
+                # Upload attachments that are new or if it belongs to a draft
+                path = get_attachment_upload_path(attachment, attachment.attachment.name)
+                if not default_storage.exists(path) or folder.identifier == DRAFTS:
+                    attachment.save()
+                else:
+                    attachment.attachment.name = path
+
+        # Save inline attachments for updated messages
+        for uid, attachment_list in update_inline_email_attachments.items():
+            cid_attachments = {}
+            for attachment in attachment_list:
+                attachment.attachment = File(attachment.attachment, attachment.attachment.name)
+
+                # Upload attachments that are new or if it belongs to a draft
+                path = get_attachment_upload_path(attachment, attachment.attachment.name)
+                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, attachment=path, size=attachment.size, message_id=attachment.message_id)
+                email_attachment.attachment = attachment.attachment
+                if created and not default_storage.exists(path) or folder.identifier == DRAFTS:
+                    email_attachment.save()
+                else:
+                    attachment.attachment.name = path
+
+                cid_attachments[attachment.cid] = attachment
+
+            if len(attachment_list) > 0 and len(cid_attachments) > 0:
+                # Replace img elements with the *cid* src attribute to they point to AWS
+                email_message = attachment_list[0].message
+                email_message.body_html = replace_cid_in_html(email_message.body_html, cid_attachments)
+                email_message.save()
 
     except Exception, e:
         print traceback.format_exc(e)
@@ -470,18 +605,20 @@ def synchronize_email_for_account(account_id):
 
                 account.folders = account_folders
 
-                folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
-                for folder in folders:
-                    synchronize_folder(account, server, folder)
+                # folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
+                # for folder in folders:
+                #     synchronize_folder(account, server, folder)
 
                 modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
-                modifiers_new = modifiers_old
-                synchronize_folder(account, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                # modifiers_new = modifiers_old
+                # synchronize_folder(account, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
-                # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
-                synchronize_folder(account, server, server.get_folder(ALLMAIL))
-                synchronize_folder(account, server, server.get_folder(TRASH))
-                synchronize_folder(account, server, server.get_folder(SPAM))
+                # # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
+                # synchronize_folder(account, server, server.get_folder(ALLMAIL))
+                # synchronize_folder(account, server, server.get_folder(TRASH))
+                # synchronize_folder(account, server, server.get_folder(SPAM))
+
+                server.get_message(3773, modifiers_old, server.get_folder('\\Inbox'))
 
                 account.last_sync_date = now_utc_date
                 account.save()
@@ -521,6 +658,11 @@ class synchronize_email(celery.Task):
                 return
 
         accounts = EmailAccount.objects.all()
+        for account in accounts:
+            task_logger.info('email will be synchronized for %s' % account.email)
+
+        if len(accounts) == 0:
+            task_logger.info('no email accounts to synchronize')
 
         for account in accounts:
             task_logger.debug('sync start for %s' % account.email)

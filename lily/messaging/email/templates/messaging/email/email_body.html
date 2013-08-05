@@ -10,6 +10,7 @@
             {% include_media 'typography.css' %}
         {% endif %}
     </head>
+
     {% if is_plain %}
         <body style="white-space: pre-wrap;">{{ body|safe|linebreaksbr }}</body>
     {% else %}

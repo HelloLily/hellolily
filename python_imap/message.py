@@ -112,15 +112,12 @@ def parse_attachment(message_part, attachments, inline_attachments):
     """
     attachment = {}
 
-    # logger.debug(message_part.get('Content-Disposition'))
-    # logger.debug(message_part.get('Content-Transfer-Encoding'))
-    # logger.debug(message_part.get('Content-ID'))
-
-    if message_part.get('Content-Transfer-Encoding', '').lower() != 'quoted-printable':
-        content_disposition = message_part.get('Content-Disposition', None)
-        if content_disposition:
-            dispositions = content_disposition.strip().split(';')
-            if bool(content_disposition and dispositions[0].lower() in ['attachment', 'inline']):
+    # Don't show these content types as attachments
+    if message_part.get_content_type() not in ['text/plain', 'text/html']:
+        # Check for 'normal' attachments first
+        if message_part.get('Content-Disposition', False):
+            dispositions = message_part.get('Content-Disposition').strip().split(';')
+            if dispositions[0].lower() in ['attachment', 'inline']:
                 file_data = message_part.get_payload(decode=True)
                 if file_data is not None:
                     attachment['name'] = message_part.get_filename()
@@ -128,21 +125,24 @@ def parse_attachment(message_part, attachments, inline_attachments):
                     attachment['payload'] = file_data
                     attachment['content_type'] = message_part.get_content_type()
 
-                if attachment.get('name') is None:
-                    count = len(attachments)
-                    extensions = get_extensions_for_type(attachment.get('content_type'))
-                    try:
-                        name = 'attachment-%d%s' % (count, extensions.next())
-                        attachment['name'] = name
-                    except:
-                        logger.error(message_part.get('Content-Type'))
-                        logger.error(message_part.get_content_type())
-                        logger.error(extensions)
+                    if attachment.get('name') is None:
+                        count = len(attachments)
+                        extensions = get_extensions_for_type(attachment.get('content_type'))
+                        try:
+                            name = 'attachment-%d%s' % (count, extensions.next())
+                            attachment['name'] = name
+                        except:
+                            pass
 
-                # logger.debug(attachment)
-                attachments.append(attachment)
-                return True
+                    if attachment.get('name') is not None:
+                        logger.debug(message_part.get('Content-ID'))
+                        logger.debug('%s is a normal attachment' % attachment['name'])
+                        attachments.append(attachment)
+                        return True
+            else:
+                logger.info('other disposition found: %s' % ';'.join(dispositions))
 
+        # Check if it might be an inline attachment
         if attachment.get('payload') is None and message_part.get('Content-ID') is not None:
             file_data = message_part.get_payload(decode=True)
             if file_data is not None:
@@ -152,20 +152,22 @@ def parse_attachment(message_part, attachments, inline_attachments):
                 attachment['payload'] = file_data
                 attachment['content_type'] = message_part.get_content_type()
 
-            if attachment.get('name') is None:
-                count = len(inline_attachments) + 1
-                extensions = get_extensions_for_type(attachment.get('content_type'))
-                try:
-                    name = 'attachment-%d%s' % (count, extensions.next())
-                    attachment['name'] = name
-                except:
-                    logger.error(message_part.get('Content-Type'))
-                    logger.error(message_part.get_content_type())
-                    logger.error(extensions)
+                if attachment.get('name') is None:
+                    count = len(inline_attachments) + 1
+                    extensions = get_extensions_for_type(attachment.get('content_type'))
+                    try:
+                        name = 'attachment-%d%s' % (count, extensions.next())
+                        attachment['name'] = name
+                    except:
+                        pass
 
-            inline_attachments[attachment.get('cid')] = attachment
-            return True
+                if attachment.get('name') is not None:
+                    logger.debug(message_part.get('Content-ID'))
+                    logger.debug('%s is an inline attachment' % attachment['name'])
+                    inline_attachments[attachment.get('cid')] = attachment
+                    return True
 
+    # Didn't find an attachment (with a name) so assume it's part of the body
     return False
 
 
@@ -338,13 +340,13 @@ class Message(object):
         if self.attachments is None:
             self._parse_body()
 
-        return self.attachments
+        return self.attachments or []
 
     def get_inline_attachments(self):
         if self.inline_attachments:
             self._parse_body()
 
-        return self.inline_attachments
+        return self.inline_attachments or {}
 
     def get_size(self):
         if self.size is None:

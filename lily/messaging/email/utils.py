@@ -236,7 +236,7 @@ def get_attachment_upload_path(instance, filename):
 
 
 def get_attachment_filename_from_url(url):
-    return unquote(url).split("/")[-1].rsplit(".", 1)[0]
+    return unquote(url).split('/')[-1]
 
 
 def replace_cid_in_html(html, mapped_attachments):
@@ -248,5 +248,18 @@ def replace_cid_in_html(html, mapped_attachments):
         inline_attachment = mapped_attachments.get(image.get('src')[4:])
         if inline_attachment is not None:
             image['src'] = inline_attachment.attachment.url
+
+    return soup.renderContents()
+
+
+def replace_anchors_in_html(html):
+    """
+    Make all anchors open outside the iframe
+    """
+    soup = BeautifulSoup(html)
+    for anchor in soup.findAll('a'):
+        anchor.attrs.update({
+            'target': '_blank',
+        })
 
     return soup.renderContents()

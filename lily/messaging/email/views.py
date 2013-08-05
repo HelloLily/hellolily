@@ -32,7 +32,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -202,7 +202,9 @@ class EmailFolderView(ListView):
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
-        return qs.filter(account__in=self.email_accounts).order_by('-sent_date')
+        return qs.filter(account__in=self.email_accounts).extra(select={
+            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.id AND inline=False'
+        }).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
         """
@@ -329,8 +331,14 @@ class EmailMessageJSONView(View):
                 'folder_name': instance.folder_name,
             }
 
+            # Fix up attachment file names
+            attachments = instance.attachments.filter(inline=False)
+            if len(attachments):
+                for attachment in attachments:
+                    attachment.attachment.name = get_attachment_filename_from_url(attachment.attachment.name)
+
             # Replace body with a more richer version of an e-mail view
-            message['body'] = render_to_string(self.template_name, {'object': instance})
+            message['body'] = render_to_string(self.template_name, {'object': instance, 'attachments': attachments})
             return HttpResponse(simplejson.dumps(message), mimetype='application/json; charset=utf-8')
         except EmailMessage.DoesNotExist:
             raise Http404()
@@ -349,6 +357,7 @@ class EmailMessageHTMLView(View):
     def get(self, request, *args, **kwargs):
         try:
             instance = EmailMessage.objects.get(id=kwargs.get('pk'))
+
             if instance.body_html:
                 body = render_to_string(self.template_name, {'is_plain': False, 'body': instance.body_html.encode('utf-8')})
             else:
@@ -1039,7 +1048,7 @@ class EmailSearchView(EmailFolderView):
 
     def imap_search_in_accounts(self, search_criteria, accounts):
         """
-        Performa a search on given or all accounts and save the results.
+        Perform a search on given or all accounts and save the results.
         """
         self.resultset = []  # result set of email messages pks
 
@@ -1083,7 +1092,9 @@ class EmailSearchView(EmailFolderView):
         """
         Return all messages matching the result set.
         """
-        return EmailMessage.objects.filter(pk__in=self.resultset).order_by('-sent_date')
+        return EmailMessage.objects.filter(pk__in=self.resultset).extra(select={
+            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.id AND inline=False'
+        }).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):
         """

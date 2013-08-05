@@ -26,22 +26,10 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
 
-if DEV:  # Only use sqlite db when in dev mode, Heroku injects db settings on deployment
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'local.sqlite',
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',
-            'PORT': '',
-        }
-    }
-else:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(default='postgres://localhost')
-    }
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.config(default='postgres://localhost')
+}
 
 SITE_ID = os.environ.get('SITE_ID', 1)
 
@@ -151,7 +139,7 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
 )
 
 # Disable caching in a development environment
-if not DEBUG:
+if not DEBUG and not DEV:
     TEMPLATE_LOADERS = (
         ('django.template.loaders.cached.Loader', (
             'django.template.loaders.filesystem.Loader',

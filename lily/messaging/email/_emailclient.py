@@ -68,7 +68,7 @@ class Folder(object):
         if self.has_locale_name():
             name = self.get_locale_name()
         else:
-            name = self.get_server_name()
+            name = self.name_on_server
 
         if not full:
             # Only return last identifier name
@@ -238,7 +238,7 @@ class LilyIMAP(object):
                 folders.append(folder)
 
                 if folder_identifier is not None:
-                    mapping[folder_identifier] = folder.get_server_name()
+                    mapping[folder_identifier] = folder.name_on_server
 
         # Store identifier list and mapping
         self.set_folders(folders)
@@ -277,7 +277,7 @@ class LilyIMAP(object):
                     if folder_obj is None:
                         folder_obj = self.get_folder_by_name(identifier)
                     if folder_obj is not None:
-                        if folder_obj.get_server_name() == folder.get_server_name():
+                        if folder_obj.name_on_server == folder.name_on_server:
                             include = False
 
             if include:
@@ -303,7 +303,7 @@ class LilyIMAP(object):
         '''
         result = None
         for folder in self.get_folders(all=True):
-            if folder.get_server_name() == folder_name:
+            if folder.name_on_server == folder_name:
                 result = folder
                 break
         return result
@@ -331,7 +331,7 @@ class LilyIMAP(object):
         """
         folder_obj = self.get_folder(folder)
         if folder_obj is not None:
-            return folder_obj.get_server_name()
+            return folder_obj.name_on_server
         return None
 
     def parse_attachment(self, message_part):
@@ -588,7 +588,7 @@ class LilyIMAP(object):
             #
             # Look for common case: INBOX
             inbox = self.get_folder_by_identifier(INBOX)
-            if inbox.get_server_name() == folder_name:
+            if inbox.name_on_server == folder_name:
                 self.get_imap_server().select_folder(folder_name)
                 response = self.get_imap_server().fetch(uid, modifiers)
 
@@ -602,7 +602,7 @@ class LilyIMAP(object):
 
             # Look into other folders
             for folder in self.get_folders(exclude=[INBOX, ALLMAIL, folder_name]):
-                folder_name = folder.get_server_name()
+                folder_name = folder.name_on_server
                 if self.get_imap_server().folder_exists(folder_name):
                     # Open folder
                     self.get_imap_server().select_folder(folder_name)

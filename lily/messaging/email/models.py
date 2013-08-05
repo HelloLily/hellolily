@@ -134,12 +134,12 @@ class EmailMessage(Message):
     @property
     def subject(self):
         header = None
-        if hasattr(self, '_subject_header',):
+        if hasattr(self, '_subject_header'):
             header = self._subject_header
         else:
             header = self.headers.filter(name='Subject')
             self._subject_header = header
-        if header:
+        if header and header[0].value != '':
             return header[0].value
         return u'<%s>' % _(u'No subject')
 

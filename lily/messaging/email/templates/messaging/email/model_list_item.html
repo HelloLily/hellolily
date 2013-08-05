@@ -16,6 +16,7 @@
                 {% block item-actions %}
                     <input type="checkbox" name="item[]" value="{{ item.uid }}" />
                 {% endblock %}
+                {% if item.num_attachments > 0 %}<span class="i-16 i-paperclip blue"></span>{% endif %}
             </div>
         {% endblock %}
         {% block item-columns %}
@@ -31,7 +32,7 @@
                     <a href="{% url messaging_email_compose pk=item.pk %}" class="message-draft-link clearfix">
                 {% endif %}
                     <div class="sender-time-email">
-                        <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }}</div>
+                        <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }} </div>
                         {% if 'draft' in item.flags|lower %}
                             <div class="sender" title="{{ item.to_name }} <{{ item.to_email }}>">{% trans 'To' %}: {% if item.to_name %}{{ item.to_name }}{%else%}{{ item.to_email }}{% endif %}</div>
                             <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>

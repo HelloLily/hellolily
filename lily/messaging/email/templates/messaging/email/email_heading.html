@@ -20,22 +20,24 @@
     {% endif %}
 </div>
 
-<div id="iframe-wrapper">
-    <iframe src="{% url messaging_email_html pk=object.pk %}"></iframe>
-</div>
-
-{% if object.has_attachments %}
-
-    {% comment %}
-    <hr />
-
-    {% for attachment in object.attachments %}
-        <div>
-            {{ attachment.attachment.file_name }} <br />
-            {{ attachment.size }} <a href="#">Download</a>
-        </div>
-        <br />
+{% if attachments|length > 0 %}
+<div id="attachments">
+    {% if attachments|length > 1 %}
+        <strong>Attached files</strong>
+        <ul>
+            {% for attachment in attachments %}
+            <li><a href="{{ attachment.attachment.url }}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <strong>Attached file</strong>
+        {% for attachment in attachments %}
+            <a href="{{ attachment.attachment.url }}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})
+        {% endfor %}
     {% endif %}
-    {% endcomment %}
-
+</div>
 {% endif %}
+
+<div id="iframe-wrapper">
+    <iframe id="email-iframe" src="{% url messaging_email_html pk=object.pk %}"></iframe>
+</div>

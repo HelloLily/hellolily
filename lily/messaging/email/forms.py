@@ -386,7 +386,7 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
                     else:
                         try:
                             # Try authenticating
-                            if imap.login(self.username, self.password):
+                            if not imap.login(self.username, self.password):
                                 raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
                         except Exception, e:
                             print traceback.format_exc(e)

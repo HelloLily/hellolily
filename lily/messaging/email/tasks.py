@@ -18,8 +18,7 @@ from python_imap.utils import convert_html_to_text
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
 from lily.users.models import CustomUser
-from lily.messaging.email.utils import get_attachment_upload_path
-from lily.messaging.email.utils import replace_cid_in_html
+from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html
 
 
 task_logger = logging.getLogger('celery_task')
@@ -62,7 +61,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 elif body_text is not None:
                     body_text = escape(body_text)
 
-                email_message.body_html = body_html
+                email_message.body_html = replace_anchors_in_html(body_html)
                 email_message.body_text = body_text
                 email_message.size = message.get_size()
                 email_message.folder_name = folder.name_on_server
@@ -111,7 +110,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                 # Check for inline attachments
                 inline_email_attachments = []
-                for cid, attachment in message.get_inline_attachments():
+                for cid, attachment in message.get_inline_attachments().items():
                     attachment_file = StringIO.StringIO(attachment.get('payload'))
                     attachment_file.content_type = attachment.get('content_type')
                     attachment_file.size = attachment.get('size')
@@ -194,7 +193,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                 if body_html is not None:
                     query_string += 'body_html = %s, '
-                    param_list.append(body_html)
+                    param_list.append(replace_anchors_in_html(body_html))
 
                 if body_text is not None:
                     query_string += 'body_text = %s, '
@@ -379,7 +378,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 attachment.attachment = File(attachment.attachment, attachment.attachment.name)
 
                 path = get_attachment_upload_path(attachment, attachment.attachment.name)
-                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, size=attachment.size, message_id=attachment.message_id)
+                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, size=attachment.size, message_id=attachment.message_id, tenant_id=account.tenant_id)
                 email_attachment.attachment = attachment.attachment
                 email_attachment.save()
 
@@ -411,7 +410,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                 # Upload attachments that are new or if it belongs to a draft
                 path = get_attachment_upload_path(attachment, attachment.attachment.name)
-                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, attachment=path, size=attachment.size, message_id=attachment.message_id)
+                email_attachment, created = EmailAttachment.objects.get_or_create(inline=True, attachment=path, size=attachment.size, message_id=attachment.message_id, tenant_id=account.tenant_id)
                 email_attachment.attachment = attachment.attachment
                 if created and not default_storage.exists(path) or folder.identifier == DRAFTS:
                     email_attachment.save()
@@ -605,20 +604,18 @@ def synchronize_email_for_account(account_id):
 
                 account.folders = account_folders
 
-                # folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
-                # for folder in folders:
-                #     synchronize_folder(account, server, folder)
+                folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
+                for folder in folders:
+                    synchronize_folder(account, server, folder)
 
                 modifiers_old = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
-                # modifiers_new = modifiers_old
-                # synchronize_folder(account, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                modifiers_new = modifiers_old
+                synchronize_folder(account, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
-                # # Don't download too much information from ALLMAIL, TRASH, SPAM but still make search results possible
-                # synchronize_folder(account, server, server.get_folder(ALLMAIL))
-                # synchronize_folder(account, server, server.get_folder(TRASH))
-                # synchronize_folder(account, server, server.get_folder(SPAM))
-
-                server.get_message(3773, modifiers_old, server.get_folder('\\Inbox'))
+                # Don't download too much information from ALLMAIL, TRASH, SPAM but still make browsing possible
+                synchronize_folder(account, server, server.get_folder(ALLMAIL))
+                synchronize_folder(account, server, server.get_folder(TRASH))
+                synchronize_folder(account, server, server.get_folder(SPAM))
 
                 account.last_sync_date = now_utc_date
                 account.save()
@@ -670,6 +667,8 @@ class synchronize_email(celery.Task):
             synchronize_email_for_account(account.id)
 
             task_logger.debug('sync done for %s' % account.email)
+
+        task_logger.info('synchronizing finished')
 
 
 @celery.task

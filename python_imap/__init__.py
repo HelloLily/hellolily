@@ -8,5 +8,5 @@
 # __license__ = "MIT License"
 # __version__ = '0.1.0'
 
-# import sys
-# sys.setrecursionlimit(5000)
+import sys
+sys.setrecursionlimit(5000)

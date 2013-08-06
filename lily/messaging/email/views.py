@@ -8,8 +8,10 @@ from dateutil.tz import tzutc
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.formtools.wizard.views import SessionWizardView
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
+from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
@@ -30,7 +32,7 @@ from lily.contacts.models import Contact
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
-from lily.messaging.email.models import EmailMessage, EmailAccount, EmailTemplate, EmailProvider
+from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url
 from lily.tenant.middleware import get_current_user
@@ -1107,6 +1109,24 @@ class EmailSearchView(EmailFolderView):
         return kwargs
 
 
+class EmailAttachmentProxy(View):
+    def get(request, *args, **kwargs):
+        pk = kwargs.get('pk')
+
+        try:
+            attachment = EmailAttachment.objects.get(pk=pk)
+        except:
+            raise Http404()
+
+        s3_file = default_storage._open(attachment.attachment.name)
+
+        wrapper = FileWrapper(s3_file)
+        response = HttpResponse(wrapper, content_type='%s' % s3_file.key.content_type)
+        response['Content-Disposition'] = 'attachment; filename=%s' % get_attachment_filename_from_url(s3_file.name)
+        response['Content-Length'] = attachment.size
+        return response
+
+
 # E-mail folder views
 email_inbox_view = login_required(EmailInboxView.as_view())
 email_sent_view = login_required(EmailSentView.as_view())
@@ -1144,3 +1164,4 @@ parse_email_template_view = login_required(ParseEmailTemplateView.as_view())
 
 # other
 email_search_view = login_required(EmailSearchView.as_view())
+email_proxy_view = login_required(EmailAttachmentProxy.as_view())

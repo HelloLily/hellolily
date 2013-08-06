@@ -1,6 +1,5 @@
 import email
 import re
-import StringIO
 from email.header import decode_header
 from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 

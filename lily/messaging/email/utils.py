@@ -4,6 +4,7 @@ from urllib import unquote
 
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Field
 from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
@@ -240,6 +241,9 @@ def get_attachment_filename_from_url(url):
 
 
 def replace_cid_in_html(html, mapped_attachments):
+    if html is None:
+        return None
+
     soup = BeautifulSoup(html)
 
     inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
@@ -247,7 +251,7 @@ def replace_cid_in_html(html, mapped_attachments):
     for image in inline_images:
         inline_attachment = mapped_attachments.get(image.get('src')[4:])
         if inline_attachment is not None:
-            image['src'] = inline_attachment.attachment.url
+            image['src'] = reverse('email_proxy_view', kwargs={'pk': inline_attachment.pk, 'path': inline_attachment.attachment.name})
 
     return soup.renderContents()
 
@@ -256,7 +260,11 @@ def replace_anchors_in_html(html):
     """
     Make all anchors open outside the iframe
     """
+    if html is None:
+        return None
+
     soup = BeautifulSoup(html)
+
     for anchor in soup.findAll('a'):
         anchor.attrs.update({
             'target': '_blank',

@@ -382,7 +382,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 email_attachment.attachment = attachment.attachment
                 email_attachment.save()
 
-                cid_attachments[attachment.cid] = attachment
+                cid_attachments[attachment.cid] = email_attachment
 
             if len(attachment_list) > 0:
                 # Replace img elements with the *cid* src attribute to they point to AWS
@@ -417,7 +417,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 else:
                     attachment.attachment.name = path
 
-                cid_attachments[attachment.cid] = attachment
+                cid_attachments[attachment.cid] = email_attachment
 
             if len(attachment_list) > 0 and len(cid_attachments) > 0:
                 # Replace img elements with the *cid* src attribute to they point to AWS

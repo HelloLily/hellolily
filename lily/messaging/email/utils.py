@@ -274,7 +274,7 @@ def replace_anchors_in_html(html):
     return soup.renderContents()
 
 
-def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], page=1, page_size=10):
+def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
     """
     Fetch messages for page *page* in *folder* for *account*.
     """
@@ -294,7 +294,7 @@ def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY
         known_uids_qs = EmailMessage.objects.filter(account=account, folder_name=folder.name_on_server)
         known_uids = set(known_uids_qs.values_list('uid', flat=True))
 
-        folder_count, remote_uids = server.get_uids(folder, criteria, paginate=True, page=page, page_size=page_size)
+        folder_count, remote_uids = server.get_uids(folder, criteria)
 
         # Get the difference between local and server uids
         new_uids = list(set(remote_uids).difference(known_uids))

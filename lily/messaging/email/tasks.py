@@ -577,6 +577,11 @@ def synchronize_email_for_account(account_id):
                 all_folders = server.get_folders(cant_select=True)
                 for i in range(len(all_folders)):
                     folder = all_folders[i]
+
+                    # Skip sub folders (they will be retrieved later on
+                    if folder.get_name(full=True).find('/') != -1:
+                        continue
+
                     is_parent = '\\HasNoChildren' not in folder.flags
                     folder_properties = {
                         'flags': folder.flags,

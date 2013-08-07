@@ -8,7 +8,6 @@ from lily.tenant.middleware import get_current_user
 
 
 class EmailMiddleware(object):
-
     def process_template_response(self, request, response):
         """
         Add a JSON-structu with the structure and other information about
@@ -71,20 +70,17 @@ class EmailMiddleware(object):
                 'children': account_root_folders,
             }
 
-            # Remove sub folders from root
-            for root_folder_name, root_folder in account_root_folders.items():
-                if root_folder.get('is_parent'):
-                    email_folders[account.email.email_address]['children'][root_folder_name]['account_id'] = account.pk
+            def set_account_for_tree(pk, tree):
+                for name, folder in tree.items():
+                    if folder.get('is_parent'):
+                        tree[name]['account_id'] = pk
 
-                    for sub_folder_name, sub_folder in root_folder.get('children').items():
-                        if sub_folder_name in account_root_folders.keys():
-                            del account_root_folders[sub_folder_name]
-                            continue
-                        email_folders[account.email.email_address]['children'][root_folder_name]['children'][sub_folder_name]['account_id'] = account.pk
-                else:
-                    # Might have been deleted if it was a duplicate
-                    if root_folder_name in email_folders[account.email.email_address]['children']:
-                        email_folders[account.email.email_address]['children'][root_folder_name]['account_id'] = account.pk
+                        sub_folders = folder.get('children')
+                        if len(sub_folders):
+                            set_account_for_tree(pk, sub_folders)
+                    elif name in tree:
+                        tree[name]['account_id'] = pk
+            set_account_for_tree(account.pk, account_root_folders)
 
         response.context_data.update({'email_folders': email_folders})
         return response

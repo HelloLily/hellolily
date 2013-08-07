@@ -173,7 +173,7 @@ def get_folder_html(folder_name, folder, request, account=None):
                 <ul%s>
                     %s
                 </ul>
-            </li>""" % (' active expanded' if folder_is_active else '', folder_url, folder_name, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active expanded"' if folder_is_active else ' class="closed"', sub_html)
+            </li>""" % (' active expanded' if folder_is_active else '', 'javascript:void(0)', folder_name, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active expanded"' if folder_is_active else ' class="closed"', sub_html)
 
         else:
             html += """<li%s>

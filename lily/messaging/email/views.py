@@ -34,7 +34,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -193,7 +193,7 @@ class EmailFolderView(ListView):
 
         return super(EmailFolderView, self).get(request, *args, **kwargs)
 
-    def get_queryset(self):
+    def get_queryset(self, tried_remote=False):
         """
         Return empty queryset or return it filtered based on folder_name and/or folder_identifier.
         """
@@ -204,9 +204,17 @@ class EmailFolderView(ListView):
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
-        return qs.filter(account__in=self.email_accounts).extra(select={
+        qs = qs.filter(account__in=self.email_accounts).extra(select={
             'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.id AND inline=False'
         }).order_by('-sent_date')
+
+        # Try remote fetch when no results have been found locally
+        if not tried_remote and len(qs) == 0:
+            for account in self.email_accounts:
+                get_remote_messages(account, self.folder_identifier or self.folder_name)
+            qs = self.get_queryset(tried_remote=True)
+
+        return qs
 
     def get_context_data(self, **kwargs):
         """
@@ -1052,11 +1060,20 @@ class EmailSearchView(EmailFolderView):
         """
         Perform a search on given or all accounts and save the results.
         """
+        def get_uids_from_local(uids, account):
+            qs = EmailMessage.objects.none()
+            if self.folder_name is not None and self.folder_identifier is not None:
+                qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier) | Q(folder_name=self.folder_name))
+            elif self.folder_name is not None:
+                qs = EmailMessage.objects.filter(folder_name__in=[self.folder_name, self.folder])
+            elif self.folder_identifier is not None:
+                qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
+            return qs.filter(account=account, uid__in=uids).order_by('-sent_date')
+
         self.resultset = []  # result set of email messages pks
 
         # Find corresponding messages in database and save message pks
         for account in accounts:
-
             server = None
             try:
                 host = account.provider.imap_host
@@ -1065,27 +1082,21 @@ class EmailSearchView(EmailFolderView):
                 server = IMAP(host, port, ssl)
                 server.login(account.username,  account.password)
 
-                if self.folder_identifier is not None:
-                    folder = server.get_folder(self.folder_identifier)
-                else:
-                    folder = server.get_folder(self.folder)
-
+                folder = server.get_folder(self.folder_identifier or self.folder)
                 total_count, uids = server.get_uids(folder, search_criteria)
 
                 if len(uids):
-                    qs = EmailMessage.objects.none()
-                    if self.folder_name is not None and self.folder_identifier is not None:
-                        qs = EmailMessage.objects.filter(Q(folder_identifier=self.folder_identifier) | Q(folder_name=self.folder_name))
-                    elif self.folder_name is not None:
-                        qs = EmailMessage.objects.filter(folder_name__in=[self.folder_name, self.folder])
-                    elif self.folder_identifier is not None:
-                        qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
-                    qs = qs.filter(account=account, uid__in=uids).order_by('-sent_date')
+                    qs = get_uids_from_local(uids, account)
+                    if len(qs) == 0:
+                        # Get actual messages for *uids* from *server* when they're not available locally
+                        modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                        folder_messages = server.get_messages(uids, modifiers, folder)
+
+                        if len(folder_messages) > 0:
+                            save_email_messages(folder_messages, account, folder, new_messages=True)
 
                     pks = qs.values_list('pk', flat=True)
                     self.resultset += list(pks)
-            except Exception, e:
-                print traceback.format_exc(e)
             finally:
                 if server:
                     server.logout()

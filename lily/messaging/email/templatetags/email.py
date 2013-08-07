@@ -51,7 +51,7 @@ def get_folder_unread_count(folder, email_accounts=None):
     if email_accounts is None:
         email_accounts = get_current_user().get_messages_accounts(EmailAccount)
 
-    return EmailMessage.objects.filter(Q(folder_identifier=folder.lstrip('\\')) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
+    return EmailMessage.objects.filter(Q(folder_identifier=folder) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
 
 class UnreadMessagesNode(template.Node):
@@ -91,29 +91,38 @@ def unread_folder_count(parser, token):
 
 
 def get_folder_html(folder_name, folder, request, account=None):
-    folder_is_active = False
+    """
+    Return HTML to display a list with e-mail folders and the count for unread messages within each folder.
+    """
+    expand_parent = active_and_expand = False
     html = u''
     sub_html = u''
-    if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
 
+    folder_flags = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags')))
+    if len(folder_flags) > 0:
+        # In case it's one of the global folders, get html and unread count per account
+        flag = folder_flags.pop()
+
+        # Build sub_html, which displays the account's email address and unread count for folder *flag*
         email_accounts = get_current_user().get_messages_accounts(EmailAccount)
-        for account in email_accounts:
-            folder_url = 'javascript:void(0)'
-            if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
-                folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
-                sub_reverse_url_name = {
-                    INBOX: 'messaging_email_account_inbox',
-                    SENT: 'messaging_email_account_sent',
-                    DRAFTS: 'messaging_email_account_drafts',
-                    TRASH: 'messaging_email_account_trash',
-                    SPAM: 'messaging_email_account_spam',
-                }.get(folder_flag)
-                folder_url = reverse(sub_reverse_url_name, kwargs={'account_id': account.pk})
 
+        for account in email_accounts:
+            # Reverse find urls to each account's folder *flag*
+            sub_reverse_url_name = {
+                INBOX: 'messaging_email_account_inbox',
+                SENT: 'messaging_email_account_sent',
+                DRAFTS: 'messaging_email_account_drafts',
+                TRASH: 'messaging_email_account_trash',
+                SPAM: 'messaging_email_account_spam',
+            }.get(flag)
+            folder_url = reverse(sub_reverse_url_name, kwargs={'account_id': account.pk})
+
+            # Check if *folder_url* is currently being displayed by checking against *request.path*
             current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.path)
             if current_is_active:
-                folder_is_active = True
+                expand_parent = True
 
+            # Append HTML for folder *flag* for *account*
             sub_html += """
                     <li%s>
                         <a href="%s" style="margin-left: 10px;" title="%s">
@@ -121,70 +130,102 @@ def get_folder_html(folder_name, folder, request, account=None):
                             <span class="mws-nav-tooltip mws-inset">%d</span>
                         </a>
                         <span class="spacer"></span>
-                    </li>""" % (' class="active expanded"' if current_is_active else '', folder_url, account.email.email_address, account.email.email_address, get_folder_unread_count(folder_name, email_accounts=[account]))
+                    </li>""" % (' class="active expanded"' if current_is_active else '', folder_url, account.email.email_address, account.email.email_address, get_folder_unread_count(flag, email_accounts=[account]))
 
-        folder_flag = set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags'))).pop()
+        # Reverse find url to the combined folder *flag* for *email_accounts*
         reverse_url_name = {
             INBOX: 'messaging_email_inbox',
             SENT: 'messaging_email_sent',
             DRAFTS: 'messaging_email_drafts',
             TRASH: 'messaging_email_trash',
             SPAM: 'messaging_email_spam',
-        }.get(folder_flag)
+        }.get(flag)
         folder_url = reverse(reverse_url_name)
+
+        # Check if *folder_url* is currently being displayed by checking against *request.path*
         current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(request.path)
+        active_and_expand = current_is_active or expand_parent
+
+        # Append HTML for combined folder *flag* for *email_accounts*
         html += """
-            <li class="mws-dropdown-menu%s">
-                <a href="%s" class="i-16 i-mailbox mws-dropdown-trigger" title="%s">
-                    %s
-                    <span class="mws-nav-tooltip mws-inset">%d</span>
+            <li class="mws-dropdown-menu%(parent_css_classes)s">
+                <a href="%(folder_url)s" class="i-16 i-mailbox mws-dropdown-trigger" title="%(folder_name)s">
+                    %(folder_name)s
+                    <span class="mws-nav-tooltip mws-inset">%(unread_count)d</span>
                 </a>
                 <span class="spacer"></span>
-                <ul%s>
-                    %s
+                <ul%(sub_folder_css_classes)s>
+                    %(sub_folder_html)s
                 </ul>
-            </li>""" % (' active expanded' if current_is_active or folder_is_active else '', folder_url, folder_name, folder_name, get_folder_unread_count(folder_name), ' class="active expanded"' if current_is_active or folder_is_active else ' class="closed"', sub_html)
+            </li>""" % \
+            {
+                'parent_css_classes': 'active expanded' if active_and_expand else '',
+                'folder_url': folder_url,
+                'folder_name': folder_name,
+                'unread_count': get_folder_unread_count(flag),
+                'sub_folder_css_classes': ' class="active expanded"' if active_and_expand else ' class="closed"',
+                'sub_folder_html': sub_html
+            }
 
     else:
+        # URL for folders that are not selectable via IMAP or parent folders, clicking this will show sub folders
         folder_url = 'javascript:void(0)'
-        if not '\\Noselect' in folder.get('flags'):
+        if not '\\Noselect' in folder.get('flags') and not folder.get('is_parent'):
             if folder.get('account_id'):
-                folder_url = reverse('messaging_email_account_folder', kwargs={'account_id': folder.get('account_id'), 'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))})
+                # Replace *folder_url* with an actual URL to be able to view messages in folder
+                folder_url = reverse('messaging_email_account_folder', kwargs={
+                    'account_id': folder.get('account_id'),
+                    'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))
+                })
 
+        # Check if *folder_url* is currently being displayed by checking against *request.path*
         current_is_active = urllib.unquote_plus(folder_url.encode('utf-8')).decode('utf-8') == urllib.unquote_plus(request.path)
-        if current_is_active:
-            folder_is_active = True
 
         if folder.get('is_parent'):
+            # Get HTML for sub folders *children*
             sub_html = u''
             for sub_folder_name, sub_folder in folder.get('children', {}).items():
                 sub_folder_is_active, sub_folder_html = get_folder_html(sub_folder_name, sub_folder, request, account=account)
                 sub_html += sub_folder_html
                 if sub_folder_is_active:
-                    folder_is_active = True
+                    expand_parent = True
 
+            # Check if a sub folder
+            active_and_expand = current_is_active or expand_parent
+
+            # Append HTML for parent folder *folder_name* for *account*
             html += """
-            <li class="mws-dropdown-menu%s">
-                <a href="%s" class="mws-dropdown-trigger" title="%s">
-                    <i class="ui-icon %s"></i>
-                    %s
-                </a>
-                <span class="spacer"></span>
-                <ul%s>
-                    %s
-                </ul>
-            </li>""" % (' active expanded' if folder_is_active else '', 'javascript:void(0)', folder_name, 'ui-icon-triangle-1-s' if folder_is_active else 'ui-icon-carat-1-e', folder_name, ' class="active expanded"' if folder_is_active else ' class="closed"', sub_html)
+                <li class="mws-dropdown-menu%(parent_css_classes)s">
+                    <a href="%(folder_url)s" class="mws-dropdown-trigger" title="%(folder_name)s">
+                        <i class="ui-icon %(folder_icon)s"></i>
+                        %(folder_name)s
+                    </a>
+                    <span class="spacer"></span>
+                    <ul%(sub_folder_css_classes)s>
+                        %(sub_folder_html)s
+                    </ul>
+                </li>""" % \
+                {
+                    'parent_css_classes': ' active expanded' if active_and_expand else '',
+                    'folder_url': folder_url,
+                    'folder_name': folder_name,
+                    'folder_icon': 'ui-icon-triangle-1-s' if active_and_expand else 'ui-icon-carat-1-e',
+                    'sub_folder_css_classes': ' class="active expanded"' if active_and_expand else ' class="closed"',
+                    'sub_folder_html': sub_html
+                }
 
         else:
+            # Append HTML for folder *folder_name* for *account*
+            active_and_expand = current_is_active
             html += """<li%s>
                         <a href="%s" title="%s">
                             %s
                             <span class="mws-nav-tooltip mws-inset">%d</span>
                         </a>
                         <span class="spacer"></span>
-                    </li>""" % (' class="active expanded"' if current_is_active or folder_is_active else '', folder_url, folder_name, folder_name, get_folder_unread_count(folder_name))
+                    </li>""" % (' class="active expanded"' if active_and_expand else '', folder_url, folder_name, folder_name, get_folder_unread_count(folder_name))
 
-    return folder_is_active, html
+    return active_and_expand, html
 
 
 class EmailFolderTreeNode(template.Node):

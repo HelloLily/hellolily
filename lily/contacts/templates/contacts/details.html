@@ -162,13 +162,6 @@
 {% block tabs-content %}
     {{ block.super }}
 
-    <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-        <h2>{% trans 'Contacts' %}</h2>
-        <div id="detail-emails" class="detail-block">
-            {% include 'base_list.html' with list=item.functions.all list_item_template='accounts/function_list_item.html' %}
-        </div>
-    </div>
-
     {% if item.get_cases|length or item.get_assigned_cases|length %}
         <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
             <div id="cases-assigned" class="mws-collapsible mws-collapsed">

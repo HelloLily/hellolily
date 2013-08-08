@@ -116,7 +116,7 @@ def parse_attachment(message_part, attachments, inline_attachments):
         # Check for 'normal' attachments first
         if message_part.get('Content-Disposition', False):
             dispositions = message_part.get('Content-Disposition').strip().split(';')
-            if dispositions[0].lower() in ['attachment', 'inline']:
+            if dispositions[0].lower() in ['attachment', 'inline'] and not (dispositions[0].lower() == 'inline' and message_part.get('Content-ID') is not None):
                 file_data = message_part.get_payload(decode=True)
                 if file_data is not None:
                     attachment['name'] = message_part.get_filename()
@@ -138,8 +138,6 @@ def parse_attachment(message_part, attachments, inline_attachments):
                         logger.debug('%s is a normal attachment' % attachment['name'])
                         attachments.append(attachment)
                         return True
-            else:
-                logger.info('other disposition found: %s' % ';'.join(dispositions))
 
         # Check if it might be an inline attachment
         if attachment.get('payload') is None and message_part.get('Content-ID') is not None:

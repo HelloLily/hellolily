@@ -25,6 +25,7 @@ from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
+from python_imap.logger import logger as imap_logger
 from python_imap.server import IMAP
 from python_imap.utils import convert_html_to_text, parse_search_keys
 
@@ -44,7 +45,6 @@ from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, 
 
 
 log = logging.getLogger('django.request')
-email_logger = logging.getLogger('emailclient')
 
 
 class EditEmailAccountView(TemplateView):
@@ -296,7 +296,7 @@ class EmailMessageJSONView(View):
         server = None
         try:
             instance = EmailMessage.objects.get(id=kwargs.get('pk'))
-            email_logger.info('Retrieving message for e-mail account: %s' % instance.account.email.email_address)
+            imap_logger.info('Retrieving message for e-mail account: %s' % instance.account.email.email_address)
             # See if the user has access to this message
             if instance.account not in self.email_accounts:
                 raise Http404()
@@ -304,7 +304,7 @@ class EmailMessageJSONView(View):
             # if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
             if True:
                 # Retrieve directly from IMAP (marks as read automatically)
-                email_logger.info('Connecting with IMAP')
+                imap_logger.info('Connecting with IMAP')
 
                 host = instance.account.provider.imap_host
                 port = instance.account.provider.imap_port
@@ -312,17 +312,17 @@ class EmailMessageJSONView(View):
                 server = IMAP(host, port, ssl)
                 server.login(instance.account.username,  instance.account.password)
 
-                email_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
+                imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
 
                 message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], server.get_folder(instance.folder_name), readonly=False)
                 if message is not None:
-                    email_logger.info('Message retrieved, saving in database')
+                    imap_logger.info('Message retrieved, saving in database')
                     save_email_messages([message], instance.account, message.folder)
 
                 instance = EmailMessage.objects.get(id=kwargs.get('pk'))
             else:
                 # Mark as read manually
-                email_logger.info('Mark message %s as read on server (asynchronously)' % instance.id)
+                imap_logger.info('Mark message %s as read on server (asynchronously)' % instance.id)
                 mark_messages.delay(instance.id, read=True)
             instance.is_seen = True
             instance.save()

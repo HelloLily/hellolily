@@ -4,6 +4,7 @@ import traceback
 import urllib
 import logging
 
+from bs4 import BeautifulSoup
 from dateutil.tz import tzutc
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -35,7 +36,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
 from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -477,33 +478,79 @@ class EmailComposeView(FormView):
         server = None
 
         try:
-            host = unsaved_form.send_from.provider.imap_host
-            port = unsaved_form.send_from.provider.imap_port
-            ssl = unsaved_form.send_from.provider.imap_ssl
+            account = unsaved_form.send_from
+
+            host = account.provider.imap_host
+            port = account.provider.imap_port
+            ssl = account.provider.imap_ssl
             server = IMAP(host, port, ssl)
-            server.login(unsaved_form.send_from.username,  unsaved_form.send_from.password)
+            server.login(account.username,  account.password)
 
             # Create python email message object
             if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
-                # Generate email message source
-                email_message = EmailMultiAlternatives(
-                    subject=unsaved_form.subject,
-                    body=unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),  # TODO Check why we need flatten_html
-                    from_email=unsaved_form.send_from.email.email_address,
-                    to=[unsaved_form.send_to_normal],
-                    cc=[unsaved_form.send_to_cc],
-                    bcc=[unsaved_form.send_to_bcc],
-                    headers=self.get_email_headers(),
-                )
-                email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                # Search for inline images, and replace the src attribute with Content-IDs
+                soup = BeautifulSoup(unsaved_form.body_html, 'permissive')
 
-                # TODO support attachments
+                inline_application_url = '/messaging/email/attachment/'
+                inline_application_images = soup.findAll('img', {'src': lambda src: src and src.startswith(inline_application_url)})
+
+                # Mapping attachment.pk : image element
+                mapped_attachments = {}
+
+                # Parse attachment pks from image paths
+                for image in inline_application_images:
+                    pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
+                    parts = pk_and_path.split('/')
+                    pk = int(parts[0])
+                    mapped_attachments[pk] = image
+
+                kwargs = dict(
+                    subject=unsaved_form.subject,
+                    body=unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),  # TODO replace inline images with filenames or alt/title attributes ? (should be attachments when viewing text/plain
+                    from_email=unsaved_form.send_from.email.email_address,
+                    to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
+                    bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
+                    connection=None,
+                    attachments=None,
+                    headers=self.get_email_headers(),
+                    alternatives=None,
+                    cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
+                )
+
+                # Use EmailMultiAlternatives for text/(plain|html) e-mails
+                if len(mapped_attachments.keys()) == 0:
+                    email_message = EmailMultiAlternatives(**kwargs)
+                    # Attach html as alternative to *body*
+                    email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                else:
+                    # Use multipart/related when using inline images
+                    email_message = EmailMultiRelated(**kwargs)
+
+                    # Put imagedata for attachments in *email_message*
+                    attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
+                    for attachment in attachments:
+                        s3_file = default_storage._open(attachment.attachment.name)
+                        filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+                        # Add as inline attachment
+                        s3_file.open()
+                        content = s3_file.read()
+                        s3_file.close()
+                        email_message.attach_related(filename, content, s3_file.key.content_type)
+
+                        # Update attribute src for inline image
+                        inline_image = mapped_attachments[attachment.pk]
+                        inline_image['src'] = 'cid:%s' % filename
+
+                    # Use new HTML
+                    unsaved_form.body_html = soup.encode_contents()
+                    email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
                 success = True
                 if 'submit-save' in self.request.POST:  # Save draft
                     success = self.save_message(server, email_message, unsaved_form)
                 elif 'submit-send' in self.request.POST:  # Send draft
-                    success = self.send_message(server, email_message)
+                    success = self.send_message(account, server, email_message)
 
                 # Remove (old) drafts in every case
                 if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST and hasattr(self, 'instance') and success and self.remove_old_message:
@@ -558,7 +605,7 @@ class EmailComposeView(FormView):
         finally:
             return not error  # return whether or not this function was executed successfully
 
-    def send_message(self, server, email_message):
+    def send_message(self, account, active_server, email_message):
         """
         Send the message via IMAP and save the sent message to the database.
 
@@ -566,28 +613,34 @@ class EmailComposeView(FormView):
         :param email_message: The message that needs to be sent.
         :return: A Boolean indicating whether the save was successful.
         """
-        error = False
         try:
-            server.get_smtp_server(fail_silently=False).send_messages([email_message])
+            # Send initial message
+            connection = smtp_connect(account, fail_silently=False)
+            connection.send_messages([email_message])
+
+            # Send extra for BCC recipients if any
             if email_message.bcc:
                 recipients = email_message.bcc
+
                 # Send separate messages
                 for recipient in recipients:
                     email_message.bcc = []
-                    email_message.to += [recipient]
-                    server.get_smtp_server(fail_silently=False).send_messages([email_message])
+                    email_message.to = [recipient]
+                    connection.send_messages([email_message])
 
+            # Synchronize only new messages from folder *SENT*
             synchronize_folder(
-                server,
-                server.get_folder_by_identifier(SENT),
+                account,
+                active_server,
+                active_server.get_folder(SENT),
                 criteria=['subject "%s"' % email_message.subject],
                 new_only=True
             )
         except Exception, e:
             log.error(traceback.format_exc(e))
-            error = True
-        finally:
-            return not error  # return whether or not this function was executed successfully
+            return False
+
+        return True
 
     def remove_old_message(self, server):
         """

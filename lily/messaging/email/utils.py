@@ -4,10 +4,11 @@ from urllib import unquote
 
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Field
-from django.template import Context, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
+from django.template import Context, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from python_imap.server import IMAP
@@ -254,7 +255,7 @@ def replace_cid_in_html(html, mapped_attachments):
         if inline_attachment is not None:
             image['src'] = reverse('email_proxy_view', kwargs={'pk': inline_attachment.pk, 'path': inline_attachment.attachment.name})
 
-    return soup.renderContents()
+    return soup.encode_contents()
 
 
 def replace_anchors_in_html(html):
@@ -271,7 +272,7 @@ def replace_anchors_in_html(html):
             'target': '_blank',
         })
 
-    return soup.renderContents()
+    return soup.encode_contents()
 
 
 def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
@@ -308,3 +309,75 @@ def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY
     finally:
         if server:
             server.logout()
+
+
+def smtp_connect(account, fail_silently=True):
+    kwargs = {
+        'host': account.provider.smtp_host,
+        'port': account.provider.smtp_port,
+        'username': account.username,
+        'password': account.password,
+        'use_tls': account.provider.smtp_ssl,
+    }
+
+    return get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=fail_silently, **kwargs)
+
+
+class EmailMultiRelated(EmailMultiAlternatives):
+    """
+    A version of EmailMessage that makes it easy to send multipart/related
+    messages. For example, including text and HTML versions with inline images.
+
+    A Utility class for sending HTML emails with inline images
+    http://hunterford.me/html-emails-with-inline-images-in-django/
+    """
+    related_subtype = 'related'
+
+    def __init__(self, subject='', body='', from_email=None, to=None, bcc=None,
+                 connection=None, attachments=None, headers=None, alternatives=None, cc=None):
+        self.related_attachments = []
+        return super(EmailMultiRelated, self).__init__(subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc)
+
+    def attach_related(self, filename=None, content=None, mimetype=None):
+        """
+        Attaches a file with the given filename and content. The filename can
+        be omitted and the mimetype is guessed, if not provided.
+        """
+        self.related_attachments.append((filename, content, mimetype))
+
+    def _create_message(self, msg):
+        return self._create_attachments(self._create_related_attachments(self._create_alternatives(msg)))
+
+    def _create_alternatives(self, msg):
+        for i, (content, mimetype) in enumerate(self.alternatives):
+            if mimetype == 'text/html':
+                self.alternatives[i] = (content, mimetype)
+
+        return super(EmailMultiRelated, self)._create_alternatives(msg)
+
+    def _create_related_attachments(self, msg):
+        encoding = self.encoding or settings.DEFAULT_CHARSET
+        if self.related_attachments:
+            body_msg = msg
+            msg = SafeMIMEMultipart(_subtype=self.related_subtype, encoding=encoding)
+            if self.body:
+                msg.attach(body_msg)
+            for related in self.related_attachments:
+                msg.attach(self._create_related_attachment(*related))
+        return msg
+
+    def _create_related_attachment(self, filename, content, mimetype=None):
+        """
+        Convert the filename, content, mimetype triple into a MIME attachment
+        object. Adjust headers to use Content-ID where applicable.
+        Taken from http://code.djangoproject.com/ticket/4771
+        """
+        attachment = super(EmailMultiRelated, self)._create_attachment(filename, content, mimetype)
+        if filename:
+            mimetype = attachment['Content-Type']
+            del(attachment['Content-Type'])
+            del(attachment['Content-Disposition'])
+            attachment.add_header('Content-Disposition', 'inline', filename=filename)
+            attachment.add_header('Content-Type', mimetype, name=filename)
+            attachment.add_header('Content-ID', '<%s>' % filename)
+        return attachment

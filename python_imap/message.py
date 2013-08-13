@@ -113,6 +113,7 @@ def parse_attachment(message_part, attachments, inline_attachments):
 
     # Don't show these content types as attachments
     if message_part.get_content_type() not in ['text/plain', 'text/html']:
+
         # Check for 'normal' attachments first
         if message_part.get('Content-Disposition', False):
             dispositions = message_part.get('Content-Disposition').strip().split(';')
@@ -134,8 +135,6 @@ def parse_attachment(message_part, attachments, inline_attachments):
                             pass
 
                     if attachment.get('name') is not None:
-                        logger.debug(message_part.get('Content-ID'))
-                        logger.debug('%s is a normal attachment' % attachment['name'])
                         attachments.append(attachment)
                         return True
 
@@ -159,8 +158,6 @@ def parse_attachment(message_part, attachments, inline_attachments):
                         pass
 
                 if attachment.get('name') is not None:
-                    logger.debug(message_part.get('Content-ID'))
-                    logger.debug('%s is an inline attachment' % attachment['name'])
                     inline_attachments[attachment.get('cid')] = attachment
                     return True
 
@@ -178,10 +175,10 @@ def parse_message(message):
     inline_attachments = {}
 
     for message_part in message.walk():
-        if message.get_content_maintype() == 'multipart':
-            is_attachment = parse_attachment(message_part, attachments, inline_attachments)
-            if is_attachment:
-                continue
+        # if message.get_content_maintype() == 'multipart':
+        is_attachment = parse_attachment(message_part, attachments, inline_attachments)
+        if is_attachment:
+            continue
 
         if message_part is None:
             continue

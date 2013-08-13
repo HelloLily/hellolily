@@ -25,6 +25,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
+from imapclient.imapclient import DRAFT
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
 from python_imap.logger import logger as imap_logger
 from python_imap.server import IMAP
@@ -548,13 +549,16 @@ class EmailComposeView(FormView):
 
                 success = True
                 if 'submit-save' in self.request.POST:  # Save draft
-                    success = self.save_message(server, email_message, unsaved_form)
+                    success = self.save_message(account, server, email_message)
                 elif 'submit-send' in self.request.POST:  # Send draft
                     success = self.send_message(account, server, email_message)
 
                 # Remove (old) drafts in every case
-                if 'submit-discard' in self.request.POST or 'submit-save' in self.request.POST or 'submit-send' in self.request.POST and hasattr(self, 'instance') and success and self.remove_old_message:
-                    self.remove_old_message(server)
+                if hasattr(self, 'instance') and success and self.remove_old_message:
+                    self.remove_draft(server)
+
+            if 'submit-discard' in self.request.POST and hasattr(self, 'instance') and self.remove_old_message:
+                self.remove_draft(server)
         except Exception, e:
             log.error(traceback.format_exc(e))
         finally:
@@ -563,47 +567,46 @@ class EmailComposeView(FormView):
 
         return super(EmailComposeView, self).form_valid(form)
 
-    def save_message(self, server, email_message, unsaved_form):
+    def save_message(self, account, server, email_message):
         """
         Save the message as a draft to the database and to the server via IMAP.
-
-        :param server: The server on which the draft needs to be saved.
-        :param email_message: The message that needs to be saved as a draft.
-        :param unsaved_form: Successfully validated form that is not yet saved to the database.
-        :return: A Boolean indicating whether the save was successful.
         """
-        error = False
         message_string = unicode(email_message.message().as_string(unixfrom=False))
 
-        try:  # Save draft remotely and sync this specific message
-            uid = int(server.save_draft(message_string))
-            message = server.get_modifiers_for_uid(
+        try:
+            # Save *email_message* as draft
+            message = unicode(email.message_from_string(message_string))
+            folder = server.get_folder(DRAFTS)
+
+            # Save draft remotely
+            response = server.client.append(folder.name_on_server, message, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
+
+            # Extract uid from response
+            command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]
+            uid = int(uid)
+
+            # Sync this specific message
+            message = server.get_message(
                 uid,
                 modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'],
-                folder=DRAFTS
+                folder=folder
             )
-            folder = server.get_folder_by_identifier(DRAFTS)
             save_email_messages(
-                {uid: message},
-                unsaved_form.send_from,
-                folder.name_on_server,
-                folder.identifier,
+                [message],
+                account,
+                folder,
                 new_messages=True
             )
-
-            try:
-                self.new_draft = EmailMessage.objects.get(
-                    account=unsaved_form.send_from,
-                    uid=uid,
-                    folder_name=folder.name_on_server
-                )
-            except EmailMessage.DoesNotExist, e:
-                log.error(traceback.format_exc(e))
+            self.new_draft = EmailMessage.objects.get(
+                account=account,
+                uid=uid,
+                folder_name=folder.name_on_server
+            )
         except Exception, e:
             log.error(traceback.format_exc(e))
-            error = True
-        finally:
-            return not error  # return whether or not this function was executed successfully
+            return False
+
+        return True
 
     def send_message(self, account, active_server, email_message):
         """
@@ -642,23 +645,20 @@ class EmailComposeView(FormView):
 
         return True
 
-    def remove_old_message(self, server):
+    def remove_draft(self, server):
         """
-        Remove old version of the message from the server and out of the database.
+        Remove old version of the message from the server and the database.
 
         :param server: The server from which the old message needs to be removed.
         """
-        try:
-            if self.instance.uid:
-                server.delete_from_folder(
-                    identifier=DRAFTS,
-                    message_uids=[self.instance.uid],
-                    trash_only=False
-                )
+        if self.instance.uid:
+            folder = server.get_folder(DRAFTS)
+            is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
+            if is_selected:
+                server.client.delete_messages([self.instance.uid])
+                server.client.close_folder()
 
-            self.instance.delete()
-        except Exception, e:
-            log.error(traceback.format_exc(e))
+        self.instance.delete()
 
     def get_email_headers(self):
         """
@@ -790,7 +790,6 @@ class EmailBodyPreviewView(TemplateView):
         elif self.object_id:
             self.message = get_object_or_404(
                 EmailMessage,
-                ~Q(folder_identifier=DRAFTS.lstrip('\\')) & ~Q(flags__icontains='draft'),
                 pk=self.object_id
             )
 

@@ -293,7 +293,7 @@ class EmailMessage(Message):
 
     @property
     def is_draft(self):
-        return DRAFTS in self.flags or self.folder_identifier == DRAFTS.lstrip('\\')
+        return DRAFTS in self.flags or self.folder_identifier == DRAFTS
 
     @property
     def is_deleted(self):

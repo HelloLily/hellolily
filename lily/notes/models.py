@@ -4,7 +4,7 @@ from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 
-from lily.utils.models import Deleted
+from lily.utils.models import Deleted, HistoryListItem
 
 
 class Note(Deleted):
@@ -15,7 +15,7 @@ class Note(Deleted):
     author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
     
     content_type = models.ForeignKey(ContentType)
-    object_id  = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField()
     subject = generic.GenericForeignKey('content_type','object_id')
     
     def __unicode__(self):

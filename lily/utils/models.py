@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
+from polymorphic import PolymorphicModel
 
 from lily.utils.functions import get_tenant_mixin as TenantMixin
 
@@ -478,3 +479,10 @@ class CaseClientModelMixin(object):
     
     def get_cases_closed(self):
         return self.get_cases(status=3)
+
+
+class HistoryListItem(PolymorphicModel):
+    """
+    An base model for all items that can appear in a History List
+    """
+    pass

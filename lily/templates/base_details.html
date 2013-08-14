@@ -94,6 +94,7 @@
                                 
                                 {% block history-tab-content %}
                                     {% include 'base_list.html' with list=item.notes.all list_item_template='base_details_history_list_item.html' %}
+{#                                    {% include 'base_list.html' with list=item.get_history_list list_item_template='base_details_history_list_item.html' %}#}
                                 {% endblock %}
                                 
                                 <div class="hidden">

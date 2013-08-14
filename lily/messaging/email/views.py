@@ -207,7 +207,7 @@ class EmailFolderView(ListView):
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
         qs = qs.filter(account__in=self.email_accounts).extra(select={
-            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.id AND inline=False'
+            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
         }).order_by('-sent_date')
 
         # Try remote fetch when no results have been found locally
@@ -303,8 +303,8 @@ class EmailMessageJSONView(View):
             if instance.account not in self.email_accounts:
                 raise Http404()
 
-            # if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
-            if True:
+            if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
+            # if True:
                 # Retrieve directly from IMAP (marks as read automatically)
                 imap_logger.info('Connecting with IMAP')
 

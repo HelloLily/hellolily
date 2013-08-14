@@ -71,6 +71,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 email_message.polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
                 # Add to object list
                 new_message_obj_list.append(email_message)
+                email_message.save()
 
                 # Check for headers
                 if message.get_headers() is not None:
@@ -129,8 +130,8 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             # Save new_email_messages
             if len(new_message_obj_list):
-                for i in range(0, len(new_message_obj_list), query_batch_size):
-                    EmailMessage.objects.bulk_create(new_message_obj_list[i:i + query_batch_size])
+                # for i in range(0, len(new_message_obj_list), query_batch_size):
+                #     EmailMessage.objects.bulk_create(new_message_obj_list[i:i + query_batch_size])
 
                 # Fetch message ids
                 email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
@@ -175,15 +176,26 @@ def save_email_messages(messages, account, folder, new_messages=False):
             # update_email_attachments = {}
             task_logger.info('Looping through %s messages' % len(messages))
             for message in messages:
+                # UPDATE messaging_message
+                # SET is_seen = FALSE
+                # FROM email_emailmessage as email
+                # WHERE email.message_ptr_id = historylistitem_ptr_id
+                # AND email.account_id = 1
+                # AND email.uid = 1
+                # AND email.folder_name = 'Inbox';
+
+                # UPDATE email_emailmessage
+                # SET flags = ('NotJunk', '$NotJunk', '\\Seen')
+                # FROM messaging_message as message
+                # WHERE message.historylistitem_ptr_id = message_ptr_id
+                # AND account_id = 1
+                # AND uid = 1
+                # AND folder_name = 'Inbox';
+
                 query_string = 'UPDATE email_emailmessage SET '
-                if message.get_sent_date() is not None:
-                    query_string += 'sent_date = %s, '
-                    param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M'))
                 if message.get_flags() is not None:
                     query_string += 'flags = %s, '
                     param_list.append(str(message.get_flags()))
-                    query_string += 'is_seen = %s, '
-                    param_list.append(SEEN in message.get_flags())
 
                 body_html = message.get_html_body()
                 body_text = message.get_text_body()
@@ -201,7 +213,30 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                 if query_string.endswith(', '):
                     query_string = query_string.rstrip(', ')
-                    query_string += ' WHERE tenant_id = %s AND account_id = %s AND uid = %s AND folder_name = %s;\n'
+                    query_string += ' FROM messaging_message as message'
+                    query_string += ' WHERE message.historylistitem_ptr_id = message_ptr_id AND message.tenant_id = %s AND account_id = %s AND uid = %s AND folder_name = %s;\n'
+                    param_list.append(account.tenant_id)
+                    param_list.append(account.id)
+                    param_list.append(message.uid)
+                    param_list.append(folder.name_on_server)
+
+                    total_query_string += query_string
+                    query_count += 1
+
+                if message.get_flags() is not None or message.get_sent_date() is not None:
+                    query_string = 'UPDATE messaging_message SET '
+
+                    if message.get_flags() is not None:
+                        query_string += 'is_seen = %s, '
+                        param_list.append(SEEN in message.get_flags())
+
+                    if message.get_sent_date() is not None:
+                        query_string += 'sent_date = %s, '
+                        param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M'))
+
+                    query_string = query_string.rstrip(', ')
+                    query_string += ' FROM email_emailmessage as email'
+                    query_string += ' WHERE email.message_ptr_id = historylistitem_ptr_id AND tenant_id = %s AND email.account_id = %s and email.uid = %s and email.folder_name = %s;\n'
                     param_list.append(account.tenant_id)
                     param_list.append(account.id)
                     param_list.append(message.uid)

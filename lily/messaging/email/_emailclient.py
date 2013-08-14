@@ -399,6 +399,7 @@ class LilyIMAP(object):
 
             # Properly read headers
             headers = dict(message.items())
+            print 'BODY[]' in raw_data or header_key is not None, dict(message.items()).keys()
             for name, value in headers.items():
                 # The regex fixes broken headers,
                 # i.e. headers that don't have a white space after an utf-8 encoded string
@@ -665,6 +666,7 @@ class LilyIMAP(object):
             for msgid, data in response.items():
                 try:
                     messages[msgid] = self.get_message_from_raw(data)
+                    print msgid, messages[msgid].get('headers')
                     messages[msgid]['folder_name'] = self.get_server_name(identifier)
                 except Exception, e:
                     print traceback.format_exc(e)

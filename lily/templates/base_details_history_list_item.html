@@ -1,3 +1,4 @@
 <div class="object-list-item note iedit_wrapper i-32 blue i-note" id="note_{{ item.pk }}">
     {% include 'notes/list_item.html' with note=item %}
+{#    {% include item.get_list_item_template with object=item %}#}
 </div>

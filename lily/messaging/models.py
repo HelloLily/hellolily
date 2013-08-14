@@ -5,6 +5,7 @@ from polymorphic import PolymorphicModel
 
 from lily.users.models import CustomUser
 from lily.utils.functions import get_tenant_mixin as TenantMixin
+from lily.utils.models import HistoryListItem
 
 
 ACCOUNT_SHARE_CHOICES = [
@@ -31,16 +32,14 @@ class MessagesAccount(PolymorphicModel, TimeStampedModel, TenantMixin):
         verbose_name_plural = _('messaging accounts')
 
 
-class Message(PolymorphicModel, TimeStampedModel, TenantMixin):
+class Message(HistoryListItem, TenantMixin):
     """
     A message base class, all messages are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
     """
     sent_date = models.DateTimeField(null=True)  # time sent in UTC
     is_seen = models.BooleanField(default=False)
-    account = models.ForeignKey(MessagesAccount, related_name='messages')
 
     class Meta:
-        abstract = True
         verbose_name = _('message')
         verbose_name_plural = _('messages')

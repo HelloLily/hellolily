@@ -7,10 +7,6 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    needed_by = (
-         ('messaging.email', '0001_initial'),
-    )
-
     def forwards(self, orm):
         # Adding model 'MessagesAccount'
         db.create_table('messaging_messagesaccount', (
@@ -18,8 +14,9 @@ class Migration(SchemaMigration):
             ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_messages.messagesaccount_set', null=True, to=orm['contenttypes.ContentType'])),
+            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_messaging.messagesaccount_set', null=True, to=orm['contenttypes.ContentType'])),
             ('account_type', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('shared_with', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
         ))
         db.send_create_signal('messaging', ['MessagesAccount'])
 
@@ -33,14 +30,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'Message'
         db.create_table('messaging_message', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('historylistitem_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['utils.HistoryListItem'], unique=True, primary_key=True)),
             ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_messages.message_set', null=True, to=orm['contenttypes.ContentType'])),
-            ('datetime', self.gf('django.db.models.fields.DateTimeField')()),
+            ('sent_date', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('is_seen', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('account', self.gf('django.db.models.fields.related.ForeignKey')(related_name='messages', to=orm['messaging.MessagesAccount'])),
         ))
         db.send_create_signal('messaging', ['Message'])
 
@@ -142,14 +135,10 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'messaging.message': {
-            'Meta': {'object_name': 'Message'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'messages'", 'to': "orm['messaging.MessagesAccount']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'datetime': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'Meta': {'object_name': 'Message', '_ormbases': ['utils.HistoryListItem']},
+            'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_seen': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.message_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'sent_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'messaging.messagesaccount': {
@@ -158,17 +147,18 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messaging.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'shared_with': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
-            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'social_media_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
+            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'messages_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
         },
         'notes.note': {
-            'Meta': {'ordering': "['-created']", 'object_name': 'Note'},
+            'Meta': {'ordering': "['-created']", 'object_name': 'Note', '_ormbases': ['utils.HistoryListItem']},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['users.CustomUser']"}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'note': ('django.db.models.fields.TextField', [], {}),
@@ -213,6 +203,11 @@ class Migration(SchemaMigration):
             'is_primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '50'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
+        },
+        'utils.historylistitem': {
+            'Meta': {'object_name': 'HistoryListItem'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
         },
         'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},

@@ -76,25 +76,26 @@ class EmailMessage(Message):
     folder_name = models.CharField(max_length=255)
     folder_identifier = models.CharField(max_length=255, blank=True, null=True)
     is_private = models.BooleanField(default=False)
+    account = models.ForeignKey(EmailAccount, related_name='messages')
 
     def has_attachments(self):
         return self.attachments.count() > 0
 
-    # def get_conversation(self):
-    #     """
-    #     Return the entire conversation this message is a part of.
-    #     """
-    #     messages = []
-    #     message = self.headers.filter(name='In-Reply-To')
-    #     while message != None:
-    #         messages.append(message)
-    #         try:
-    #             message_id = message.headers.filter(name='In-Reply-To')
-    #             message = EmailMessage.objects.get(header__name='MSG-ID', header_value=message_id)
-    #         except EmailMessage.DoesNotExist:
-    #             message = None
+    def get_conversation(self):
+        """
+        Return the entire conversation this message is a part of.
+        """
+        messages = []
+        message = self.headers.filter(name='In-Reply-To')
+        while message != None:
+            messages.append(message)
+            try:
+                message_id = message.headers.filter(name='In-Reply-To')
+                message = EmailMessage.objects.get(header__name='MSG-ID', header_value=message_id)
+            except EmailMessage.DoesNotExist:
+                message = None
 
-    #     return messages
+        return messages
 
     def textify(self):
         """

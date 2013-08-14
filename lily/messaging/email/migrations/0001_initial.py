@@ -7,32 +7,32 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = (
-        ('messaging', '0001_initial'),
-    )
-
     def forwards(self, orm):
         # Adding model 'EmailProvider'
         db.create_table('email_emailprovider', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=30, null=True, blank=True)),
-            ('retrieve_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('retrieve_port', self.gf('django.db.models.fields.IntegerField')()),
-            ('send_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('send_port', self.gf('django.db.models.fields.IntegerField')()),
-            ('send_use_tls', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('imap_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
+            ('imap_port', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('imap_ssl', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('smtp_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
+            ('smtp_port', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('smtp_ssl', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('email', ['EmailProvider'])
 
         # Adding model 'EmailAccount'
         db.create_table('email_emailaccount', (
             ('messagesaccount_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['messaging.MessagesAccount'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('email', self.gf('django_fields.fields.EncryptedEmailField')(max_length=549, cipher='AES')),
+            ('from_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('signature', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('email', self.gf('django.db.models.fields.related.ForeignKey')(related_name='email', unique=True, to=orm['utils.EmailAddress'])),
             ('username', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES')),
             ('password', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES')),
             ('provider', self.gf('django.db.models.fields.related.ForeignKey')(related_name='email_accounts', to=orm['email.EmailProvider'])),
+            ('last_sync_date', self.gf('django.db.models.fields.DateTimeField')()),
+            ('folders', self.gf('django.db.models.fields.TextField')(default='{}')),
         ))
         db.send_create_signal('email', ['EmailAccount'])
 
@@ -40,32 +40,47 @@ class Migration(SchemaMigration):
         db.create_table('email_emailmessage', (
             ('message_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['messaging.Message'], unique=True, primary_key=True)),
             ('uid', self.gf('django.db.models.fields.IntegerField')()),
-            ('flags', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('body', self.gf('django.db.models.fields.TextField')()),
-            ('subject', self.gf('django.db.models.fields.TextField')()),
-            ('size', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('private', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('flags', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('body_html', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('body_text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('size', self.gf('django.db.models.fields.IntegerField')(default=0, null=True)),
+            ('folder_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('folder_identifier', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('is_private', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('account', self.gf('django.db.models.fields.related.ForeignKey')(related_name='messages', to=orm['email.EmailAccount'])),
         ))
         db.send_create_signal('email', ['EmailMessage'])
 
-        # Adding model 'EmailHeader'
-        db.create_table('email_emailheader', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='headers', to=orm['email.EmailMessage'])),
-        ))
-        db.send_create_signal('email', ['EmailHeader'])
+        # Adding unique constraint on 'EmailMessage', fields ['uid', 'folder_name', 'account']
+        db.create_unique('email_emailmessage', ['uid', 'folder_name', 'account_id'])
 
         # Adding model 'EmailAttachment'
         db.create_table('email_emailattachment', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
+            ('inline', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('attachment', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('size', self.gf('django.db.models.fields.IntegerField')()),
+            ('size', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
             ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attachments', to=orm['email.EmailMessage'])),
         ))
         db.send_create_signal('email', ['EmailAttachment'])
+
+        # Adding model 'EmailHeader'
+        db.create_table('email_emailheader', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('value', self.gf('django.db.models.fields.TextField')(null=True)),
+            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='headers', to=orm['email.EmailMessage'])),
+        ))
+        db.send_create_signal('email', ['EmailHeader'])
+
+        # Adding model 'EmailLabel'
+        db.create_table('email_emaillabel', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='labels', to=orm['email.EmailMessage'])),
+        ))
+        db.send_create_signal('email', ['EmailLabel'])
 
         # Adding model 'ActionStep'
         db.create_table('email_actionstep', (
@@ -81,23 +96,44 @@ class Migration(SchemaMigration):
         db.create_table('email_emailtemplate', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
+            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('body', self.gf('django.db.models.fields.TextField')()),
+            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('body_html', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('body_text', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal('email', ['EmailTemplate'])
 
-        # Adding model 'EmailTemplateParameters'
-        db.create_table('email_emailtemplateparameters', (
+        # Adding model 'EmailTemplateAttachment'
+        db.create_table('email_emailtemplateattachment', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('template', self.gf('django.db.models.fields.related.ForeignKey')(related_name='parameters', to=orm['email.EmailTemplate'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('default_value', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('template', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attachments', to=orm['email.EmailTemplate'])),
+            ('attachment', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
         ))
-        db.send_create_signal('email', ['EmailTemplateParameters'])
+        db.send_create_signal('email', ['EmailTemplateAttachment'])
+
+        # Adding model 'EmailDraft'
+        db.create_table('email_emaildraft', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
+            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
+            ('send_from', self.gf('django.db.models.fields.related.ForeignKey')(related_name='drafts', to=orm['email.EmailAccount'])),
+            ('send_to_normal', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('send_to_cc', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('send_to_bcc', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('body_html', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('body_text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+        ))
+        db.send_create_signal('email', ['EmailDraft'])
 
 
     def backwards(self, orm):
+        # Removing unique constraint on 'EmailMessage', fields ['uid', 'folder_name', 'account']
+        db.delete_unique('email_emailmessage', ['uid', 'folder_name', 'account_id'])
+
         # Deleting model 'EmailProvider'
         db.delete_table('email_emailprovider')
 
@@ -107,11 +143,14 @@ class Migration(SchemaMigration):
         # Deleting model 'EmailMessage'
         db.delete_table('email_emailmessage')
 
+        # Deleting model 'EmailAttachment'
+        db.delete_table('email_emailattachment')
+
         # Deleting model 'EmailHeader'
         db.delete_table('email_emailheader')
 
-        # Deleting model 'EmailAttachment'
-        db.delete_table('email_emailattachment')
+        # Deleting model 'EmailLabel'
+        db.delete_table('email_emaillabel')
 
         # Deleting model 'ActionStep'
         db.delete_table('email_actionstep')
@@ -119,8 +158,11 @@ class Migration(SchemaMigration):
         # Deleting model 'EmailTemplate'
         db.delete_table('email_emailtemplate')
 
-        # Deleting model 'EmailTemplateParameters'
-        db.delete_table('email_emailtemplateparameters')
+        # Deleting model 'EmailTemplateAttachment'
+        db.delete_table('email_emailtemplateattachment')
+
+        # Deleting model 'EmailDraft'
+        db.delete_table('email_emaildraft')
 
 
     models = {
@@ -217,74 +259,100 @@ class Migration(SchemaMigration):
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'email.emailaccount': {
-            'Meta': {'object_name': 'EmailAccount', '_ormbases': ['messaging.MessagesAccount']},
-            'email': ('django_fields.fields.EncryptedEmailField', [], {'max_length': '549', 'cipher': "'AES'"}),
+            'Meta': {'ordering': "['email__email_address']", 'object_name': 'EmailAccount', '_ormbases': ['messaging.MessagesAccount']},
+            'email': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'email'", 'unique': 'True', 'to': "orm['utils.EmailAddress']"}),
+            'folders': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
+            'from_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'last_sync_date': ('django.db.models.fields.DateTimeField', [], {}),
             'messagesaccount_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['messaging.MessagesAccount']", 'unique': 'True', 'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'password': ('django_fields.fields.EncryptedCharField', [], {'max_length': '549', 'cipher': "'AES'"}),
             'provider': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'email_accounts'", 'to': "orm['email.EmailProvider']"}),
+            'signature': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'username': ('django_fields.fields.EncryptedCharField', [], {'max_length': '549', 'cipher': "'AES'"})
         },
         'email.emailattachment': {
             'Meta': {'object_name': 'EmailAttachment'},
             'attachment': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'inline': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attachments'", 'to': "orm['email.EmailMessage']"}),
-            'size': ('django.db.models.fields.IntegerField', [], {}),
+            'size': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
+        },
+        'email.emaildraft': {
+            'Meta': {'object_name': 'EmailDraft'},
+            'body_html': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'body_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'send_from': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'drafts'", 'to': "orm['email.EmailAccount']"}),
+            'send_to_bcc': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'send_to_cc': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'send_to_normal': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'subject': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'email.emailheader': {
             'Meta': {'object_name': 'EmailHeader'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'headers'", 'to': "orm['email.EmailMessage']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+            'value': ('django.db.models.fields.TextField', [], {'null': 'True'})
+        },
+        'email.emaillabel': {
+            'Meta': {'object_name': 'EmailLabel'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'message': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'labels'", 'to': "orm['email.EmailMessage']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
         'email.emailmessage': {
-            'Meta': {'object_name': 'EmailMessage', '_ormbases': ['messaging.Message']},
-            'body': ('django.db.models.fields.TextField', [], {}),
-            'flags': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'Meta': {'unique_together': "(('uid', 'folder_name', 'account'),)", 'object_name': 'EmailMessage', '_ormbases': ['messaging.Message']},
+            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'messages'", 'to': "orm['email.EmailAccount']"}),
+            'body_html': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'body_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'flags': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'folder_identifier': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'folder_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'is_private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'message_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['messaging.Message']", 'unique': 'True', 'primary_key': 'True'}),
-            'private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'size': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'subject': ('django.db.models.fields.TextField', [], {}),
+            'size': ('django.db.models.fields.IntegerField', [], {'default': '0', 'null': 'True'}),
             'uid': ('django.db.models.fields.IntegerField', [], {})
         },
         'email.emailprovider': {
             'Meta': {'object_name': 'EmailProvider'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'imap_host': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'imap_port': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'imap_ssl': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'retrieve_host': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'retrieve_port': ('django.db.models.fields.IntegerField', [], {}),
-            'send_host': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'send_port': ('django.db.models.fields.IntegerField', [], {}),
-            'send_use_tls': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'smtp_host': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'smtp_port': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'smtp_ssl': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'email.emailtemplate': {
             'Meta': {'object_name': 'EmailTemplate'},
-            'body': ('django.db.models.fields.TextField', [], {}),
+            'body_html': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'body_text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'subject': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
-        'email.emailtemplateparameters': {
-            'Meta': {'object_name': 'EmailTemplateParameters'},
-            'default_value': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+        'email.emailtemplateattachment': {
+            'Meta': {'object_name': 'EmailTemplateAttachment'},
+            'attachment': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'template': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'parameters'", 'to': "orm['email.EmailTemplate']"}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
+            'template': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attachments'", 'to': "orm['email.EmailTemplate']"})
         },
         'messaging.message': {
-            'Meta': {'object_name': 'Message'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'messages'", 'to': "orm['messaging.MessagesAccount']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'datetime': ('django.db.models.fields.DateTimeField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'Meta': {'object_name': 'Message', '_ormbases': ['utils.HistoryListItem']},
+            'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_seen': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.message_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'sent_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
         },
         'messaging.messagesaccount': {
@@ -293,17 +361,18 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messages.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messaging.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'shared_with': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
-            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'social_media_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
+            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'messages_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
         },
         'notes.note': {
-            'Meta': {'ordering': "['-created']", 'object_name': 'Note'},
+            'Meta': {'ordering': "['-created']", 'object_name': 'Note', '_ormbases': ['utils.HistoryListItem']},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['users.CustomUser']"}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'note': ('django.db.models.fields.TextField', [], {}),
@@ -348,6 +417,11 @@ class Migration(SchemaMigration):
             'is_primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '50'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
+        },
+        'utils.historylistitem': {
+            'Meta': {'object_name': 'HistoryListItem'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
         },
         'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},

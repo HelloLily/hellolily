@@ -156,6 +156,9 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
+    def get_history_list(self):
+        pass
+
     def __unicode__(self):
         return self.full_name()
 

@@ -87,11 +87,11 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
 
     exclude_address_types = ['visiting']
 
-    def __init__(self, *args, **kwargs):
-        super(CreateUpdateContactView, self).__init__(*args, **kwargs)
-
+    def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data['addresses_formset']['template'] = 'contacts/formset_address.html'
+        self.formset_data.update({'addresses_formset': {'template': 'contacts/formset_address.html'}})
+
+        return super(CreateUpdateContactView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save()  # copied from ModelFormMixin

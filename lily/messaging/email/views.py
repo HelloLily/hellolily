@@ -1,8 +1,11 @@
 import datetime
 import email
+import os
 import traceback
 import urllib
 import logging
+from email import Encoders
+from email.MIMEBase import MIMEBase
 
 from bs4 import BeautifulSoup
 from dateutil.tz import tzutc
@@ -43,7 +46,7 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.templatetags.messages import tag_mapping
-from lily.utils.views import DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
+from lily.utils.views import AttachmentFormSetViewMixin, DeleteBackAddSaveFormViewMixin, FilteredListMixin, SortedListMixin
 
 
 log = logging.getLogger('django.request')
@@ -428,7 +431,7 @@ class MoveTrashAjaxView(MessageUpdateView):
         pass
 
 
-class EmailComposeView(FormView):
+class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
@@ -567,10 +570,30 @@ class EmailComposeView(FormView):
 
         return super(EmailComposeView, self).form_valid(form)
 
+    def attach_request_files(self, email_message):
+        """
+        Attach files from request.FILES to *email_messages* as separte mime parts.
+        """
+        attachments = self.request.FILES
+        if len(attachments) > 0:
+            for key, attachment in attachments.items():
+                filetype = attachment.content_type.split('/')
+                part = MIMEBase(filetype[0], filetype[1])
+                part.set_payload(attachment.read())
+                Encoders.encode_base64(part)
+                part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(attachment.name))
+
+                email_message.attach(part)
+
+        return email_message
+
     def save_message(self, account, server, email_message):
         """
         Save the message as a draft to the database and to the server via IMAP.
         """
+        # Check for attachments
+        email_message = self.attach_request_files(email_message)
+
         message_string = unicode(email_message.message().as_string(unixfrom=False))
 
         try:
@@ -610,12 +633,15 @@ class EmailComposeView(FormView):
 
     def send_message(self, account, active_server, email_message):
         """
-        Send the message via IMAP and save the sent message to the database.
+        Send the message via SMTP and save the sent message to the database.
 
         :param server: The server on which the message needs to be sent.
         :param email_message: The message that needs to be sent.
         :return: A Boolean indicating whether the save was successful.
         """
+        # Check for attachments
+        email_message = self.attach_request_files(email_message)
+
         try:
             # Send initial message
             connection = smtp_connect(account, fail_silently=False)

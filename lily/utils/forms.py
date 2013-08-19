@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.widgets import ContactAccountSelect
+from lily.messaging.email.models import EmailAttachment
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
@@ -304,3 +305,35 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
         exclude = ('state_provice',)
+
+
+class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
+    """
+    Form for uploading files.
+    """
+    def __init__(self, *args, **kwargs):
+        super(AttachmentBaseForm, self).__init__(*args, **kwargs)
+
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                None,
+                ColumnedRow(
+                    Column('attachment', size=3, first=True),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                        size=1,
+                        css_class='formset-delete'
+                    ),
+                )
+            )
+        ))
+
+        self.fields['attachment'].label = ''
+
+    class Meta:
+        models = EmailAttachment
+        fields = ('attachment',)
+        exclude = ('message', 'size', 'inline', 'tenant')

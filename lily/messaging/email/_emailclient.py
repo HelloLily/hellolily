@@ -529,7 +529,7 @@ class LilyIMAP(object):
                     'target': '_blank',
                 })
 
-            html_body = soup.renderContents()
+            html_body = soup.encode_contents()
 
         if plain_body:
             plain_body = flatten_html_to_text(plain_body)

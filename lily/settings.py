@@ -1,11 +1,11 @@
 import os
-import djcelery
+from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
+import django.conf.global_settings as DEFAULT_SETTINGS
+import djcelery
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import gettext_noop
-from datetime import datetime, timedelta
-import django.conf.global_settings as DEFAULT_SETTINGS
 
 
 # Register database scheme and redis caching in URLs

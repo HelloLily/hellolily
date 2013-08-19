@@ -1,0 +1,20 @@
+{% extends 'base_formset.html' %}
+
+{% load i18n %}
+
+{% block template %}
+    <div class="mws-form-item large">
+        <div class="ctrlHolder">
+            <div class="mws-form-cols clearfix">
+                <div class="mws-form-col-3-8 alpha">
+                    <div id="div_id_attachments-0-attachment" class="ctrlHolder">
+                        <input name="{{ formset.prefix }}-0-attachment" type="file" class="clearablefileinput" id="id_{{ formset.prefix }}-0-attachment" />
+                    </div>
+                </div>
+                <div class="mws-form-col-1-8 formset-delete">
+                    <a href="javascript:void(0)" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

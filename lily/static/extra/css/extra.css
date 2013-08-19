@@ -480,7 +480,8 @@ div#mws-quickbutton-container button
 .mws-form .email_addresses-add-row,
 .mws-form .phone_numbers-add-row,
 .mws-form .addresses-add-row,
-.mws-form .websites-add-row
+.mws-form .websites-add-row,
+.mws-form .attachments-add-row
 {
     margin:5px 0 0 0;
     padding-top:0 !important;

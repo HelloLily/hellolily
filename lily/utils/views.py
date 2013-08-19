@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from hashlib import sha256
 import base64
 import pickle
-from django.shortcuts import redirect
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -14,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
+from django.shortcuts import redirect
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
@@ -25,8 +25,9 @@ from templated_email import send_templated_mail
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
+from lily.messaging.email.models import EmailAttachment
 from lily.users.models import CustomUser
-from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm
+from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 
@@ -409,19 +410,6 @@ class DeleteBackAddSaveFormViewMixin(object):
         # continue for other options (add or save)
         return super(DeleteBackAddSaveFormViewMixin, self).post(request, *args, **kwargs)
 
-    def get_form(self, form_class):
-        """
-        Pass formset instances to the FormHelper. It's a workaround to get these available in the
-        context available to the TEMPLATE_PACK templates when rendered.
-        """
-        form = super(DeleteBackAddSaveFormViewMixin, self).get_form(form_class)
-
-        # Make all 'regular' context data available in crispy forms templates as well
-        if hasattr(form, 'helper'):
-            form.helper.__dict__.update(self.get_context_data())
-
-        return form
-
 
 class ValidateFormSetViewMixin(object):
     """
@@ -452,7 +440,22 @@ class ValidateFormSetViewMixin(object):
             return self.form_invalid(form)
 
 
-class ModelFormSetViewMixin(object):
+class FormSetViewContextMixin(object):
+    def get_form(self, form_class):
+        """
+        Pass formset instances to the FormHelper. It's a workaround to get these available in the
+        context available to the TEMPLATE_PACK templates when rendered.
+        """
+        form = super(FormSetViewContextMixin, self).get_form(form_class)
+
+        # Make all 'regular' context data available in crispy forms templates as well
+        if hasattr(form, 'helper'):
+            form.helper.__dict__.update(self.get_context_data())
+
+        return form
+
+
+class ModelFormSetViewMixin(FormSetViewContextMixin):
     """
     Mixin base class to add a formset to a FormView in an easier fashion.
 
@@ -477,6 +480,11 @@ class ModelFormSetViewMixin(object):
     formset_data = {}
     formset_classes = SortedDict()
     formsets = SortedDict()
+
+    def __init__(self, *args, **kwargs):
+        self.formset_data = {}
+        self.formset_classes = SortedDict()
+        self.formsets = SortedDict()
 
     def get_form(self, form_class):
         """
@@ -514,8 +522,9 @@ class ModelFormSetViewMixin(object):
         """
         Create a formset class for context_name.
         """
-        self.formset_data.update({
-            context_name: {
+        if context_name in self.formset_data:
+            # Update existing preset values
+            self.formset_data[context_name] = dict({
                 'model': model,
                 'related_name': related_name,
                 'form': form,
@@ -523,8 +532,19 @@ class ModelFormSetViewMixin(object):
                 'label': label,
                 'template': template,
                 'prefix': prefix,
-            }
-        })
+            }.items() + self.formset_data[context_name].items())
+        else:
+            self.formset_data.update({
+                context_name: {
+                    'model': model,
+                    'related_name': related_name,
+                    'form': form,
+                    'extra': extra,
+                    'label': label,
+                    'template': template,
+                    'prefix': prefix,
+                }
+            })
 
         for attr, value in form_attrs.items():
             setattr(form, attr, value)
@@ -565,7 +585,7 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
     """
     FormMixin for adding an e-mail address formset to a form.
     """
-    def __init__(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         context_name = 'email_addresses_formset'
         model = EmailAddress
         related_name = 'email_addresses'
@@ -575,7 +595,7 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
         template = 'utils/formset_email_address.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
-        super(EmailAddressFormSetViewMixin, self).__init__(*args, **kwargs)
+        return super(EmailAddressFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         context_name = 'email_addresses_formset'
@@ -778,7 +798,7 @@ class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
     """
     FormMixin for adding a phone number formset to a form.
     """
-    def __init__(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         context_name = 'phone_numbers_formset'
         model = PhoneNumber
         related_name = 'phone_numbers'
@@ -788,7 +808,7 @@ class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
         template = 'utils/formset_phone_number.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
-        super(PhoneNumberFormSetViewMixin, self).__init__(*args, **kwargs)
+        return super(PhoneNumberFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         context_name = 'phone_numbers_formset'
@@ -815,7 +835,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
     """
     FormMixin for adding an address formset to a form.
     """
-    def __init__(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         context_name = 'addresses_formset'
         model = Address
         related_name = 'addresses'
@@ -828,7 +848,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
             form_attrs = {'exclude_address_types': self.exclude_address_types}
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix, **form_attrs)
-        super(AddressFormSetViewMixin, self).__init__(*args, **kwargs)
+        return super(AddressFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         context_name = 'addresses_formset'
@@ -871,7 +891,7 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
     """
     FormMixin for adding a website formset to a form.
     """
-    def __init__(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         context_name = 'websites_formset'
         model = Website
         related_name = 'websites'
@@ -881,7 +901,7 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
         template = 'accounts/formset_website.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
-        super(WebsiteFormSetViewMixin, self).__init__(*args, **kwargs)
+        return super(WebsiteFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         context_name = 'websites_formset'
@@ -904,6 +924,42 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
 
     def get_websites_queryset(self, instance):
         return instance.websites.filter(is_primary=False)
+
+
+class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
+    """
+    FormMixin for adding an email attachment formset to a form.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        context_name = 'attachments_formset'
+        model = EmailAttachment
+        related_name = 'attachments'
+        form = AttachmentBaseForm
+        prefix = 'attachments'
+        label = _('Attachments')
+        template = 'utils/formset_attachment.html'
+
+        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
+        return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        context_name = 'attachments_formset'
+        formset = self.get_formset(context_name)
+
+        form_kwargs = self.get_form_kwargs()
+        for formset_form in formset:
+            # Check if existing instance has been marked for deletion
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                self.object.attachments.remove(formset_form.instance)
+                if hasattr(formset, 'instance'):
+                    if formset.instance.pk:
+                        formset.instance.delete()
+                continue
+
+                formset_form.save()
+                self.object.attachments.add(formset_form.instance)
+
+        return super(AttachmentFormSetViewMixin, self).form_valid(form)
 
 
 class AjaxUpdateView(View):

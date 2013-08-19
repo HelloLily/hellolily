@@ -182,7 +182,6 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
     """
     template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
 
-    # TODO: Insert a formset for attachments?
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form.
@@ -259,6 +258,12 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
             elif email_account.email == user.primary_email.email_address:
                 initial_email_account = email_account
         self.initial['send_from'] = initial_email_account
+
+    def is_multipart(self):
+        """
+        AttachmentFormset might upload files.
+        """
+        return True
 
     def clean(self):
         """

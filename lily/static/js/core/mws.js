@@ -1,7 +1,16 @@
 function enableChosen(elem) {
     /* Chosen Select Box Plugin */
-    $(elem).find("select.chzn-select:visible").not('.chzn-select-no-search').chosen();
-    $(elem).find("select.chzn-select-no-search:visible").chosen({disable_search_threshold: 999999});
+    if($.fn.chosen) {
+        $(elem).find("select.chzn-select:visible").not('.chzn-select-no-search').chosen();
+        $(elem).find("select.chzn-select-no-search:visible").chosen({disable_search_threshold: 999999});
+    }
+}
+
+function enableCustomFileInput(elem) {
+    /* Custom File Input Plugin */
+    if($.fn.customFileInput) {
+        // $(elem).find('input[type="file"]:visible').not('.customfile-input').customFileInput();
+    }
 }
 
 function enableValidate(elem) {
@@ -153,14 +162,10 @@ $(document).ready(function () {
     });
 
     /* File Input Styling */
-    if($.fn.customFileInput) {
-        $("input[type='file']").customFileInput();
-    }
+    enableCustomFileInput($('body'));
 
     /* Chosen */
-    if($.fn.chosen) {
-        enableChosen($('body'));
-    }
+    enableChosen($('body'));
 
     /* Elastic (auto grow) */
     if( $.fn.elastic ) {

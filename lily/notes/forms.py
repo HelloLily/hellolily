@@ -13,20 +13,20 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = True
-        self.helper.replace('note',
+        self.helper.replace('content',
            MultiField(
                 None,
-                'note',
+                'content',
                 Submit('note-submit', _('Add note'), css_id='add-note-button', css_class='small')
            )
         )
 
     class Meta:
         model = Note
-        fields = ('note',)
+        fields = ('content',)
         exclude = ('is_deleted', 'author', 'object_id', 'content_type')
         widgets = {
-            'note': forms.Textarea(attrs={
+            'content': forms.Textarea(attrs={
                 'placeholder': _('Write your note here'),
                 'click_show': False,
                 'field_classes': 'inline note-textarea',
@@ -39,8 +39,8 @@ class EditNoteForm(forms.ModelForm, FieldInitFormMixin):
         super(EditNoteForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = True
-        self.helper.replace('note',
-            self.helper.create_large_field('note')
+        self.helper.replace('content',
+            self.helper.create_large_field('content')
         )
 
         self.helper.add_input(Submit('submit', _('Save'), css_class='red'))
@@ -48,10 +48,10 @@ class EditNoteForm(forms.ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = Note
-        fields = ('note',)
+        fields = ('content',)
         exclude = ('is_deleted', 'author', 'object_id', 'content_type')
         widgets = {
-            'note': forms.Textarea(attrs={
+            'content': forms.Textarea(attrs={
                 'class': 'inline note-textarea',
             })
         }

@@ -7,11 +7,11 @@ from django.utils.translation import ugettext as _
 from lily.utils.models import Deleted, HistoryListItem
 
 
-class Note(Deleted):
+class Note(HistoryListItem, Deleted):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
-    note = models.TextField(verbose_name=_('note'))
+    content = models.TextField(verbose_name=_('note'))
     author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
     
     content_type = models.ForeignKey(ContentType)
@@ -19,7 +19,7 @@ class Note(Deleted):
     subject = generic.GenericForeignKey('content_type','object_id')
     
     def __unicode__(self):
-        return truncatewords(self.note, 5)
+        return self.content
 
     class Meta:
         ordering = ['-created']

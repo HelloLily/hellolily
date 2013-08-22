@@ -5,7 +5,7 @@ from lily.messaging.email.views import email_inbox_view, email_json_view, edit_e
     email_html_view, mark_read_view, mark_unread_view, move_trash_view, email_compose_view, email_body_preview_view, \
     email_drafts_view, email_reply_view, email_sent_view, email_trash_view, email_spam_view, \
     email_account_folder_view, email_forward_view, email_configuration_wizard, email_configuration_wizard_template, \
-    email_search_view, email_share_wizard, email_proxy_view
+    email_search_view, email_share_wizard, email_proxy_view, email_attachment_removal
 
 
 urlpatterns = patterns('',
@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     # compose view
     url(r'^compose/$', email_compose_view, name='messaging_email_compose'),
     url(r'^compose/(?P<pk>[\d-]+)/$', email_compose_view, name='messaging_email_compose'),
+    url(r'^compose/(?P<pk>[\d-]+)/remove/attachment/(?P<attachment_pk>[\d-]+)/$', email_attachment_removal, name='email_attachment_removal'),
     url(r'^reply/(?P<pk>[\d-]+)/$', email_reply_view, name='messaging_email_reply'),
     url(r'^forward/(?P<pk>[\d-]+)/$', email_forward_view, name='messaging_email_forward'),
     url(r'^preview/(?P<message_type>[a-z]+)/$', email_body_preview_view, name='messaging_email_body_preview'),

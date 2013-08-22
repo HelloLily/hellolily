@@ -2,7 +2,7 @@
  * Lily Formset 1.0
  * @author Allard Stijnman, Cornelis Poppema (Voys Telecom)
  * @requires jQuery 1.2.6 or later
- * 
+ *
  * Original source: django dynamic formset
  * See: http://code.google.com/p/django-dynamic-formset/
  */
@@ -33,20 +33,20 @@
             hasChildElements = function(row) {
                 return row.find('input,select,textarea,label').length > 0;
             },
-            
+
             preventEmptyFormset = function(row, forms) {
                 var deleteTriggers, buttonTrigger;
-                if (options.preventEmptyFormset && forms.length === 1) { 
+                if (options.preventEmptyFormset && forms.length === 1) {
                     // Prevent the last form from being deleted:
-                    deleteTriggers = forms.find('.' + options.deleteCssClass);
+                    deleteTriggers = forms.find('.' + options.deleteCssClass).not('.dont');
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) != undefined) {
                             $(buttonTrigger).parent().addClass('hidden');
                         }
                     }
-                } else { 
+                } else {
                     // Make sure that delete on first form is enabled:
-                    deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass);
+                    deleteTriggers = $(forms[0]).find('.' + options.deleteCssClass).not('.dont');
                     for (var i = 0, triggerCount = deleteTriggers.length; i < triggerCount; i++) {
                         if ((buttonTrigger = $(deleteTriggers[i])) !== undefined) {
                             $(buttonTrigger).parent().removeClass('hidden');
@@ -54,9 +54,9 @@
                     }
                 }
             },
-            
+
             insertDeleteLink = function(row) {
-                row.find('.' + options.deleteCssClass).click(function() {
+                row.find('.' + options.deleteCssClass).not('.dont').click(function() {
                     var row = $(this).parents('.' + options.formCssClass),
                         del = row.find('input[id $= "-DELETE"]').not(':visible');
                     if (del.length) {
@@ -79,14 +79,14 @@
                         }
                         preventEmptyFormset(row, forms);
                     }
-                    
-                    
+
+
                     if( forms === undefined ) {
                         var forms = $('.' + options.formCssClass + ':visible').not('.formset-custom-template');
                     } else {
                         forms = $(forms).filter(':visible');
                     }
-					
+
                     if( options.notEmptyFormSetAddCssClass ) {
                         addButton = $('#id_' + options.prefix + '-TOTAL_FORMS').siblings('.' + options.addCssClass)
                         if (forms.length > 0) {
@@ -95,7 +95,7 @@
                             $(addButton).removeClass(options.notEmptyFormSetAddCssClass);
                         }
                     }
-                    
+
                     // If a post-delete callback was provided, call it with the deleted form:
                     if (options.removed) options.removed(row);
                     return false;
@@ -154,19 +154,19 @@
             // Otherwise, insert it immediately after the last form:
             $$.filter(':last').after('<a class="' + options.addCssClass + '" href="javascript:void(0)">' + options.addText + '</a>');
             addButton = $$.filter(':last').next();
-            
+
             addButton.click(function() {
                 var formCount = parseInt($('#id_' + options.prefix + '-TOTAL_FORMS').val()),
                     row = options.formTemplate.clone(true).removeClass('formset-custom-template'),
                     buttonRow = $(this).parents('tr.' + options.formCssClass + '-add').get(0) || this;
                 applyExtraClasses(row, formCount);
-                
+
                 row.insertBefore($(buttonRow)).show();
                 row.find('input,select,textarea,label').each(function() {
                     updateElementIndex($(this), options.prefix, formCount);
                 });
                 $('#id_' + options.prefix + '-TOTAL_FORMS').val(formCount + 1);
-                
+
                 var forms = $('.' + options.formCssClass).not('.formset-custom-template');
                 preventEmptyFormset(row, forms);
                 if( options.notEmptyFormSetAddCssClass ) {
@@ -176,18 +176,18 @@
                         $(this).removeClass(options.notEmptyFormSetAddCssClass);
                     }
                 }
-                
+
                 // Set what to focus on after click
                 $(addButton).data('click-focus', $('.' + options.formCssClass + ':visible:last').find(':input:first').attr('id'));
-            
+
                 // If a post-add callback was supplied, call it with the added form:
                 if (options.added) options.added(row);
                 return false;
             });
-            
+
             // Enable focus on input after click
             addButton.clickFocus();
-            
+
             var forms = $('.' + options.formCssClass).not('.formset-custom-template');
             if( options.notEmptyFormSetAddCssClass ) {
                 if (forms.length > 0) {

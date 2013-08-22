@@ -1640,3 +1640,13 @@ textarea.single-line,
 .customfile {
     padding: 4px 7px;
 }
+
+.email-attachment-widget {
+    white-space: nowrap;
+    margin-top: 7px;
+}
+
+.email-attachment-widget .ctrlHolder {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

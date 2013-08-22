@@ -1,12 +1,13 @@
 from crispy_forms.layout import Layout, HTML
 from django import forms
+from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput
-from django.forms.widgets import TextInput, Select, Textarea, HiddenInput
+from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.widgets import ContactAccountSelect
+from lily.messaging.email.widgets import EmailAttachmentWidget
 from lily.messaging.email.models import EmailAttachment
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
@@ -306,13 +307,18 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
         exclude = ('state_provice',)
 
-
 class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for uploading files.
     """
     def __init__(self, *args, **kwargs):
         super(AttachmentBaseForm, self).__init__(*args, **kwargs)
+
+        anchor_url = 'javascript:void(0)'
+        anchor_css_class = 'i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'
+        if self.instance:
+            anchor_url = reverse('email_attachment_removal', kwargs={'pk': self.instance.message_id, 'attachment_pk': self.instance.pk})
+            anchor_css_class += ' dont'
 
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = False
@@ -321,9 +327,9 @@ class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
                 None,
                 None,
                 ColumnedRow(
-                    Column('attachment', size=3, first=True),
+                    Column('attachment', size=3, first=True, css_class='email-attachment-widget'),
                     Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+                        Anchor(href=anchor_url, css_class=anchor_css_class),
                         size=1,
                         css_class='formset-delete'
                     ),
@@ -337,3 +343,6 @@ class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
         models = EmailAttachment
         fields = ('attachment',)
         exclude = ('message', 'size', 'inline', 'tenant')
+        widgets = {
+            'attachment': EmailAttachmentWidget(),
+        }

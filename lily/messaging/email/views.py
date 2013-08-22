@@ -431,7 +431,7 @@ class MoveTrashAjaxView(MessageUpdateView):
         pass
 
 
-class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
+class EmailComposeView(AttachmentFormSetViewMixin, FormView):
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
@@ -470,7 +470,8 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                     'send_to_cc': self.instance.to_cc_combined,
                     'send_to_bcc': self.instance.to_bcc_combined,
                     'body_text': self.instance.body_text,
-                }
+                },
+                'instance': self.instance
             })
         return kwargs
 
@@ -536,14 +537,14 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                     # Put imagedata for attachments in *email_message*
                     attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
                     for attachment in attachments:
-                        s3_file = default_storage._open(attachment.attachment.name)
+                        storage_file = default_storage._open(attachment.attachment.name)
                         filename = get_attachment_filename_from_url(attachment.attachment.name)
 
                         # Add as inline attachment
-                        s3_file.open()
-                        content = s3_file.read()
-                        s3_file.close()
-                        email_message.attach_related(filename, content, s3_file.key.content_type)
+                        storage_file.open()
+                        content = storage_file.read()
+                        storage_file.close()
+                        email_message.attach_related(filename, content, storage_file.key.content_type)
 
                         # Update attribute src for inline image
                         inline_image = mapped_attachments[attachment.pk]
@@ -557,6 +558,9 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                 if 'submit-save' in self.request.POST:  # Save draft
                     success = self.save_message(account, server, email_message)
                 elif 'submit-send' in self.request.POST:  # Send draft
+                    if self.message_id:
+                        email_message = self.attach_stored_files(email_message, self.message_id)
+
                     success = self.send_message(account, server, email_message)
 
                 # Remove (old) drafts in every case
@@ -575,7 +579,7 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
 
     def attach_request_files(self, email_message):
         """
-        Attach files from request.FILES to *email_messages* as separte mime parts.
+        Attach files from request.FILES to *email_message* as separte mime parts.
         """
         attachments = self.request.FILES
         if len(attachments) > 0:
@@ -585,6 +589,30 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                 part.set_payload(attachment.read())
                 Encoders.encode_base64(part)
                 part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(attachment.name))
+
+                email_message.attach(part)
+
+        return email_message
+
+    def attach_stored_files(self, email_message, pk):
+        """
+        Attach EmailAttachments to *email_message* as separte mime parts.
+        """
+        attachments = EmailAttachment.objects.filter(inline=False, message_id=pk).all()
+        if len(attachments) > 0:
+            for attachment in attachments:
+                storage_file = default_storage._open(attachment.attachment.name)
+                filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+                storage_file.open()
+                content = storage_file.read()
+                storage_file.close()
+
+                filetype = storage_file.key.content_type.split('/')
+                part = MIMEBase(filetype[0], filetype[1])
+                part.set_payload(content)
+                Encoders.encode_base64(part)
+                part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
 
                 email_message.attach(part)
 
@@ -687,6 +715,7 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                 server.client.delete_messages([self.instance.uid])
                 server.client.close_folder()
 
+        self.instance.attachments.all().delete()
         self.instance.delete()
 
     def get_email_headers(self):
@@ -1225,6 +1254,20 @@ class EmailAttachmentProxy(View):
         response['Content-Length'] = attachment.size
         return response
 
+class EmailAttachmentRemoval(View):
+    def get(request, *args, **kwargs):
+        """
+        Removal of attachments from drafts.
+        """
+        message_pk = kwargs.get('pk')
+        attachment_pk = kwargs.get('attachment_pk')
+
+        attachment = EmailAttachment.objects.filter(message_id=message_pk, pk=attachment_pk).all()
+        if len(attachment) > 0:
+            attachment.delete()
+
+        return redirect(reverse('messaging_email_compose', kwargs={'pk': message_pk}))
+
 
 # E-mail folder views
 email_inbox_view = login_required(EmailInboxView.as_view())
@@ -1264,3 +1307,4 @@ parse_email_template_view = login_required(ParseEmailTemplateView.as_view())
 # other
 email_search_view = login_required(EmailSearchView.as_view())
 email_proxy_view = login_required(EmailAttachmentProxy.as_view())
+email_attachment_removal = login_required(EmailAttachmentRemoval.as_view())

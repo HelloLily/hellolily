@@ -1223,7 +1223,8 @@ class EmailSearchView(EmailFolderView):
         Return all messages matching the result set.
         """
         return EmailMessage.objects.filter(pk__in=self.resultset).extra(select={
-            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.id AND inline=False'
+            'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
+
         }).order_by('-sent_date')
 
     def get_context_data(self, **kwargs):

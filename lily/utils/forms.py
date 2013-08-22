@@ -316,7 +316,7 @@ class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
 
         anchor_url = 'javascript:void(0)'
         anchor_css_class = 'i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'
-        if self.instance:
+        if self.instance.pk:
             anchor_url = reverse('email_attachment_removal', kwargs={'pk': self.instance.message_id, 'attachment_pk': self.instance.pk})
             anchor_css_class += ' dont'
 

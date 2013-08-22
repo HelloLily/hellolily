@@ -458,6 +458,8 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
         :return: An dict of keyword arguments.
         """
         kwargs = super(EmailComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = 'new'
+
         if hasattr(self, 'instance'):
             kwargs.update({
                 'draft_id': self.instance.pk,
@@ -467,6 +469,7 @@ class EmailComposeView(AttachmentFormSetViewMixin,  FormView):
                     'send_to_normal': self.instance.to_combined,
                     'send_to_cc': self.instance.to_cc_combined,
                     'send_to_bcc': self.instance.to_bcc_combined,
+                    'body_text': self.instance.body_text,
                 }
             })
         return kwargs
@@ -789,7 +792,7 @@ class EmailForwardView(EmailReplyView):
 
         :return: An dict of keyword arguments.
         """
-        kwargs = super(EmailComposeView, self).get_form_kwargs(**kwargs)
+        kwargs = super(EmailForwardView, self).get_form_kwargs(**kwargs)
 
         if hasattr(self, 'instance'):
             kwargs['initial']['subject'] = 'Fwd: %s' % self.instance.subject
@@ -832,18 +835,25 @@ class EmailBodyPreviewView(TemplateView):
 
         if self.message_type == 'template' and self.object_id:
             body = self.template.body_html
+        elif self.message_type == 'new':
+            if self.message is None:
+                body = u''
+            else:
+                body = self.message.body_html
         elif self.object_id:
             quoted_content = self.message.indented_body
 
+            notice = None
             if self.message_type == 'forward':
                 notice = _('Begin forwarded message:')
-            else:
+            elif self.message_type == 'reply':
                 notice = _('On %s, %s wrote:' % (
                     self.message.sent_date.strftime(_('%b %e, %Y, at %H:%M')),
                     self.message.from_combined)
                 )
 
-            quoted_content = '<div>' + notice + '</div>' + quoted_content
+            if notice is not None:
+                quoted_content = '<div>' + notice + '</div>' + quoted_content
 
             if hasattr(self, 'template'):
                 template = TemplateParser(self.template.body_html).render(self.request) or self.template.body_text

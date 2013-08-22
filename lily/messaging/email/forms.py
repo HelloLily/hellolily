@@ -231,7 +231,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         if self.draft_id:
             email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'object_id': self.draft_id})
         else:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': 'new'})
+            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type})
 
         self.helper.layout.append(
             Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))

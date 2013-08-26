@@ -442,18 +442,18 @@
         $(window).resize(email_frame_auto_resize);
 
         $(document).ready(function() {
-            $('.mws-email-list .single-message').hover(
-                function(event) {
-                    $('.mws-email-list .action:not(.no-width)').addClass('no-width');
-                    clearTimeout(hide_action_timeout);
-                    $(event.target).closest('.single-message').find('.action').removeClass('no-width');
-                },
-                function(event) {
-                    hide_action_timeout = setTimeout(function() {
-                        $(event.target).closest('.single-message').find('.action').addClass('no-width');
-                    }, 1000);
-                }
-            );
+            // $('.mws-email-list .single-message').hover(
+            //     function(event) {
+            //         $('.mws-email-list .action:not(.no-width)').addClass('no-width');
+            //         clearTimeout(hide_action_timeout);
+            //         $(event.target).closest('.single-message').find('.action').removeClass('no-width');
+            //     },
+            //     function(event) {
+            //         hide_action_timeout = setTimeout(function() {
+            //             $(event.target).closest('.single-message').find('.action').addClass('no-width');
+            //         }, 1000);
+            //     }
+            // );
 
             $('.email-content .mws-panel-toolbar .back-button a, .email-content .container-busy.email .container-cancel.email').click(function(event) {
                 back_to_list(true);

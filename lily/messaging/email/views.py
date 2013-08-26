@@ -141,7 +141,7 @@ class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
         """
         Get the keyword arguments that will be used to initiate the form.
 
-        :return: An dict of keyword arguments.
+        :return: A dict of keyword arguments.
         """
         kwargs = super(EditEmailTemplateView, self).get_form_kwargs()
         kwargs.update({
@@ -444,7 +444,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
         :param request: The browser request tot this view.
         :param args: Arguments passed to this view.
         :param kwargs: Keyword arguments passed to this view.
-        :return: An HttpResponse object.
+        :return: A HttpResponse object.
         """
         self.message_id = kwargs.get('pk')
         if self.message_id:
@@ -455,7 +455,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
         """
         Get the keyword arguments that will be used to initiate the form.
 
-        :return: An dict of keyword arguments.
+        :return: A dict of keyword arguments.
         """
         kwargs = super(EmailComposeView, self).get_form_kwargs()
         kwargs['message_type'] = 'new'
@@ -471,7 +471,6 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
                     'send_to_bcc': self.instance.to_bcc_combined,
                     'body_text': self.instance.body_text,
                 },
-                'instance': self.instance
             })
         return kwargs
 
@@ -480,7 +479,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
         Handle the form data according to the type of submit.
 
         :param form: The form that was validated successfully.
-        :return: An HttpResponse object.
+        :return: A HttpResponse object.
         """
         unsaved_form = form.save(commit=False)
         server = None
@@ -514,8 +513,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
 
                 kwargs = dict(
                     subject=unsaved_form.subject,
-                    body=unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),  # TODO replace inline images with filenames or alt/title attributes ? (should be attachments when viewing text/plain
-                    from_email=unsaved_form.send_from.email.email_address,
+                    from_email=account.email.email_address,
                     to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
                     bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
                     connection=None,
@@ -524,6 +522,16 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
                     alternatives=None,
                     cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
                 )
+
+                # When sending the e-mail, potentially convert the HTML to plain/text, but don't do this for drafts
+                if 'submit-send' in self.request.POST:
+                    kwargs.update({
+                        'body': unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),  # TODO replace inline images with filenames or alt/title attributes ? (should be attachments when viewing text/plain
+                    })
+                else:
+                    kwargs.update({
+                        'body': unsaved_form.body_text
+                    })
 
                 # Use EmailMultiAlternatives for text/(plain|html) e-mails
                 if len(mapped_attachments.keys()) == 0:
@@ -624,6 +632,8 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
         """
         # Check for attachments
         email_message = self.attach_request_files(email_message)
+        if hasattr(self, 'instance') and self.instance.pk:
+            email_message = self.attach_stored_files(email_message, self.instance.pk)
 
         message_string = unicode(email_message.message().as_string(unixfrom=False))
 
@@ -715,6 +725,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
                 server.client.delete_messages([self.instance.uid])
                 server.client.close_folder()
 
+        # Delete local attachments
         self.instance.attachments.all().delete()
         self.instance.delete()
 
@@ -819,7 +830,7 @@ class EmailForwardView(EmailReplyView):
         """
         Get the keyword arguments that will be used to initiate the form.
 
-        :return: An dict of keyword arguments.
+        :return: A dict of keyword arguments.
         """
         kwargs = super(EmailForwardView, self).get_form_kwargs(**kwargs)
 

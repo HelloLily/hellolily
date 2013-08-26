@@ -942,6 +942,9 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
+    def get_attachments_queryset(self, instance):
+        return EmailAttachment.objects.filter(message_id=self.message_id)
+
     def form_valid(self, form):
         context_name = 'attachments_formset'
         formset = self.get_formset(context_name)

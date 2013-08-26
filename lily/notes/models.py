@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
-from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 
 from lily.utils.models import Deleted, HistoryListItem
@@ -13,11 +12,11 @@ class Note(HistoryListItem, Deleted):
     """
     content = models.TextField(verbose_name=_('note'))
     author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
-    
+
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     subject = generic.GenericForeignKey('content_type','object_id')
-    
+
     def __unicode__(self):
         return self.content
 

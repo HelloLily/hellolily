@@ -106,6 +106,9 @@
                                     {% trans 'Messages' %}
                                 </a>
                                 <ul{% ifstartswith "messaging_dashboard" %}{% else %} class="closed"{% endifstartswith %}>
+                                    <li><a href="{% url messaging_email_compose %}" class="i-16 i-compose" title="Compose e-mail">
+                                        Compose
+                                    </a></li>
                                     {% email_folder_tree %}
 
                                     {% ifstartswith "messaging_dashboard" %}

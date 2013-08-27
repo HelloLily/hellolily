@@ -11,14 +11,14 @@ from django.core.files import File
 from django.core.files.storage import default_storage
 from django.db import connection, transaction
 from django.utils.html import escape
-from imapclient import SEEN
+from imapclient import SEEN, DELETED
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, SPAM
 from python_imap.server import IMAP
 from python_imap.utils import convert_html_to_text
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
-from lily.users.models import CustomUser
 from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html
+from lily.users.models import CustomUser
 
 
 task_logger = logging.getLogger('celery_task')
@@ -762,6 +762,60 @@ def mark_messages(message_ids, read=True):
                             server.client.remove_flags(uids, [SEEN])
 
                         server.client.close_folder()
+            finally:
+                if server:
+                    server.logout()
+
+@celery.task
+def delete_messages(message_ids):
+    """
+    Delete n messages in the background.
+    """
+    if not isinstance(message_ids, list):
+        message_ids = [message_ids]
+
+    # Determine folder_names per account
+    folder_name_qs = EmailMessage.objects.filter(id__in=message_ids).values_list('account_id', 'folder_name', 'uid')
+    len(folder_name_qs)
+
+    # Delete messages from database first for immediate effect
+    EmailMessage.objects.filter(id__in=message_ids).delete()
+
+    # Create a more sensible dict with this information
+    account_folders = {}
+    for account_id, folder_name, message_uid in folder_name_qs:
+        if not account_folders.get(account_id, False):
+            account_folders[account_id] = {}
+        folder_names = account_folders.get(account_id)
+        if not account_folders[account_id].get(folder_name, False):
+            account_folders[account_id][folder_name] = []
+        folder_names[folder_name].append(message_uid)
+
+    # Delete in every appropriate account/folder
+    for account_id, folders in account_folders.items():
+        account_qs = EmailAccount.objects.filter(pk=account_id)
+        if len(account_qs) > 0:
+            account = account_qs[0]
+            server = None
+            try:
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
+
+                for folder_name, uids in folders.items():
+                    folder = server.get_folder(folder_name)
+                    is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
+
+                    if is_selected:
+                        uids = ','.join([str(val) for val in uids])
+
+                        server.client.add_flags(uids, DELETED)
+
+                        server.client.close_folder()
+            except Exception, e:
+                print traceback.format_exc(e)
             finally:
                 if server:
                     server.logout()

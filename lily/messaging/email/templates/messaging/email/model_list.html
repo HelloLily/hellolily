@@ -401,8 +401,7 @@
             });
 
             // go back to list
-            back_to_list();
-        }
+            back_to_list   }
 
         function delete_messages(ids) {
             // delete message from remote and origin
@@ -413,8 +412,37 @@
                 $(element).remove();
             });
 
-            // go back to list
-            back_to_list();
+            // call server to sync
+            // try this
+            jqXHR = $.ajax({
+                url: '{% url messaging_move_trash %}',
+                data: $.param({'ids': ids}),
+                type: 'POST',
+                beforeSend: addCSRFHeader,
+                dataType: 'json',
+            })
+            // on success
+            jqXHR.done(function(data, status, xhr) {
+                $.jGrowl(gettext('Message deleted.'), {
+                    sticky: true,
+                    theme: 'info mws-ic-16 ic-accept'
+                });
+            });
+            // on error
+            jqXHR.fail(function() {
+                $.jGrowl(gettext('Unable to delete message from folder.'), {
+                    sticky: true,
+                    theme: 'error mws-ic-16 ic-cross'
+                });
+            });
+            // finally do this
+            jqXHR.always(function() {
+                // remove request object
+                jqXHR = null;
+
+                // go back to whereever we came from
+                window.location.reload(true);
+            });
         }
 
         function email_frame_auto_resize() {

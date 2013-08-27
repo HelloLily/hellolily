@@ -39,7 +39,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
-from lily.messaging.email.tasks import save_email_messages, mark_messages, synchronize_folder
+from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
@@ -427,8 +427,7 @@ class MoveTrashAjaxView(MessageUpdateView):
     Move messages to trash.
     """
     def handle_message_update(self, message_ids):
-        # EmailMessage.objects.filter(id__in=self.message_ids).
-        pass
+        delete_messages.delay(message_ids)
 
 
 class EmailComposeView(AttachmentFormSetViewMixin, FormView):

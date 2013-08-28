@@ -614,7 +614,7 @@
                 {% else %}
                     <span style="width: 23px; display: inline-block"></span>
                 {% endif %}
-                <a href="{{ request.path }}?page={{ page_obj.number }}" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
+                <a href="{{ request.path }}sync" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
                 <a href="{% url messaging_email_template_list %}" title="{% trans 'Templates' %}" class="templates" id="messaging-templates-button"><span class="mws-i-24 i-document"></span></a>
             </div>
         </div>

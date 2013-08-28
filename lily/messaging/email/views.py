@@ -430,6 +430,79 @@ class MoveTrashAjaxView(MessageUpdateView):
         delete_messages.delay(message_ids)
 
 
+class ForceFolderSyncView(View):
+    """
+    Synchronize a folder with minimal headers and redirect to the first page.
+    """
+    folder_name = None
+    folder_identifier = None
+
+    def get(self, request, *args, **kwargs):
+        # Determine which accounts to show messages from
+        if kwargs.get('account_id'):
+            email_accounts = request.user.get_messages_accounts(EmailAccount, pk__in=[kwargs.get('account_id')])
+        else:
+            email_accounts = request.user.get_messages_accounts(EmailAccount)
+
+        # Deteremine which folder to show messages from
+        folder_name = urllib.unquote_plus(kwargs.get('folder'))
+        identifier = None
+
+        # Synchronize self.folder for self.email_accounts
+        for account in email_accounts:
+            server = None
+            try:
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
+
+                if '\\%s' % folder_name in [x.lower() for x in [INBOX, SENT, DRAFTS, TRASH, SPAM]]:
+                    for folder_identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
+                        if  '\\%s' % folder_name == folder_identifier.lower():
+                            identifier = folder_identifier
+
+                if identifier is not None:
+                    folder = server.get_folder(identifier)
+                else:
+                    folder = server.get_folder(folder_name)
+
+                modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                synchronize_folder(account, server, folder, modifiers_old=modifiers, modifiers_new=modifiers)
+
+            finally:
+                if server:
+                    server.logout()
+
+        if identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
+            if kwargs.get('account_id'):
+                reverse_url_name = {
+                    INBOX: 'messaging_email_account_inbox',
+                    SENT: 'messaging_email_account_sent',
+                    DRAFTS: 'messaging_email_account_drafts',
+                    TRASH: 'messaging_email_account_trash',
+                    SPAM: 'messaging_email_account_spam',
+                }.get(identifier)
+                folder_url = reverse(reverse_url_name, kwargs={'account_id': kwargs.get('account_id')})
+            else:
+                reverse_url_name = {
+                    INBOX: 'messaging_email_inbox',
+                    SENT: 'messaging_email_sent',
+                    DRAFTS: 'messaging_email_drafts',
+                    TRASH: 'messaging_email_trash',
+                    SPAM: 'messaging_email_spam',
+                }.get(identifier)
+                folder_url = reverse(reverse_url_name)
+        else:
+            folder_url = reverse('messaging_email_account_folder', kwargs={
+                'account_id': kwargs.get('account_id'),
+                'folder': urllib.quote_plus(folder_name)
+            })
+
+        return redirect(folder_url)
+
+
 class EmailComposeView(AttachmentFormSetViewMixin, FormView):
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
@@ -1319,3 +1392,4 @@ parse_email_template_view = login_required(ParseEmailTemplateView.as_view())
 email_search_view = login_required(EmailSearchView.as_view())
 email_proxy_view = login_required(EmailAttachmentProxy.as_view())
 email_attachment_removal = login_required(EmailAttachmentRemoval.as_view())
+email_folder_sync_view = login_required(ForceFolderSyncView.as_view())

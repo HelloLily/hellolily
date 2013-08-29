@@ -338,6 +338,8 @@
             if(abort && jqXHR) {
                 jqXHR.abort();
             }
+
+            $('#bulk-toolbar').show();
         }
 
         function mark_unread(ids) {
@@ -415,7 +417,7 @@
             });
 
             // go back to list
-            back_to_list
+            back_to_list();
         }
 
         function delete_messages(ids) {
@@ -505,6 +507,7 @@
             });
 
             $('.mws-email-list .email:not(.draft)').click(function(event) {
+                $('#bulk-toolbar').hide();
                 if(jqXHR==null) {
                     var table = $('.mws-email-list');
                     if (!$(table).hasClass('small')) {
@@ -665,6 +668,7 @@
         <li><a href="#" id="mark-unread-bulk">Mark as unread</a></li>
         <li><a href="#" id="mark-read-bulk">Mark as read</a></li>
         <li><a href="#" id="delete-single">Move to trash</a></li>
+        <li><a href="#" id="move-bulk">Move to ..</a></li>
     </ul>
 </div>
 {% endblock %}

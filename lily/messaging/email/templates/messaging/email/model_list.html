@@ -80,6 +80,20 @@
             position: relative;
         }
 
+        #bulk-toolbar {
+            margin: 0 3px;
+            height: 36px;
+        }
+
+        #bulk-toolbar ul,
+        #bulk-toolbar li {
+            height: 100%;
+        }
+
+        #bulk-check {
+            margin-top: 10px;
+        }
+
         #mws-footer {
             padding: 8px 0 0 !important;
             margin: 10px auto 0 2% !important;
@@ -343,14 +357,14 @@
             })
             // on success
             jqXHR.done(function(data, status, xhr) {
-                $.jGrowl(gettext('Message marked as unread.'), {
+                $.jGrowl(gettext('Message(s) marked as unread.'), {
                     sticky: true,
                     theme: 'info mws-ic-16 ic-accept'
                 });
             });
             // on error
             jqXHR.fail(function() {
-                $.jGrowl(gettext('Unable to mark this message as unread.'), {
+                $.jGrowl(gettext('Unable to mark this message(s) as unread.'), {
                     sticky: true,
                     theme: 'error mws-ic-16 ic-cross'
                 });
@@ -382,14 +396,14 @@
             })
             // on success
             jqXHR.done(function(data, status, xhr) {
-                $.jGrowl(gettext('Message marked as read.'), {
+                $.jGrowl(gettext('Message(s) marked as read.'), {
                     sticky: true,
                     theme: 'info mws-ic-16 ic-accept'
                 });
             });
             // on error
             jqXHR.fail(function() {
-                $.jGrowl(gettext('Unable to mark this message as read.'), {
+                $.jGrowl(gettext('Unable to mark this message(s) as read.'), {
                     sticky: true,
                     theme: 'error mws-ic-16 ic-cross'
                 });
@@ -401,7 +415,8 @@
             });
 
             // go back to list
-            back_to_list   }
+            back_to_list
+        }
 
         function delete_messages(ids) {
             // delete message from remote and origin
@@ -423,14 +438,14 @@
             })
             // on success
             jqXHR.done(function(data, status, xhr) {
-                $.jGrowl(gettext('Message deleted.'), {
+                $.jGrowl(gettext('Message(s) deleted.'), {
                     sticky: true,
                     theme: 'info mws-ic-16 ic-accept'
                 });
             });
             // on error
             jqXHR.fail(function() {
-                $.jGrowl(gettext('Unable to delete message from folder.'), {
+                $.jGrowl(gettext('Unable to delete message(s) from folder.'), {
                     sticky: true,
                     theme: 'error mws-ic-16 ic-cross'
                 });
@@ -511,6 +526,7 @@
                     jqXHR.done(function(data, status, xhr) {
                         $(event.target).closest('.single-message')
                             .removeClass('unread')
+
                             .find('.body.preview').html(data.flat_body);
                         $('#email')
                             .html(data.body)
@@ -546,6 +562,8 @@
                 event.preventDefault();
             });
 
+            /* Single message actions */
+
             $('#delete-single').on('click', function(event) {
                 var id = $('#email').data('id');
                 delete_messages([id]);
@@ -580,12 +598,75 @@
             $('.mws-email-list .action .priority').click(function(event) {
                 var priority = $(event.target).attr('class');
             });
+
+            /* Bulk messages actions */
+            function get_checked_messages() {
+                var ids = Array();
+
+                var checked = $('[name="item[]"]:checked');
+                $.each(checked, function(index, element) {
+                    ids.push($(element).closest('.single-message').data('id'));
+                });
+
+                return ids;
+            }
+
+            $('#delete-bulk').on('click', function(event) {
+                var ids = get_checked_messages();
+
+                if(ids.length)
+                    delete_messages(ids);
+
+                event.preventDefault();
+            });
+
+            $('#mark-read-bulk').on('click', function(event) {
+                var ids = get_checked_messages();
+
+                if(ids.length)
+                    mark_read(ids);
+
+                event.preventDefault();
+            });
+
+            $('#mark-unread-bulk').on('click', function(event) {
+                var ids = get_checked_messages();
+
+                if(ids.length)
+                    mark_unread(ids);
+
+                event.preventDefault();
+            });
+
+            /* (uncheck) all */
+            $('#bulk-check').click(function(event) {
+                if($(this).is(':checked')) {
+                    $('[name="item[]"]').attr('checked', 'checked');
+                } else {
+                    $('[name="item[]"]').removeAttr('checked');
+                }
+            });
+
+            $('[name="item[]"]').click(function(event) {
+                if($('[name="item[]"]').length == $('[name="item[]"]:checked').length) {
+                    $('#bulk-check').attr('checked', 'checked');
+                } else {
+                    $('#bulk-check').removeAttr('checked');
+                }
+            });
         });
     </script>
 {% endblock %}
 
 {% block before-list %}
-
+<div id="bulk-toolbar" class="mws-panel-toolbar top clearfix">
+    <ul>
+        <li><input type="checkbox" id="bulk-check" /></li>
+        <li><a href="#" id="mark-unread-bulk">Mark as unread</a></li>
+        <li><a href="#" id="mark-read-bulk">Mark as read</a></li>
+        <li><a href="#" id="delete-single">Move to trash</a></li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block model-list-title %}

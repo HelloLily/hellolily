@@ -25,9 +25,9 @@ urlpatterns = patterns('',
     url(r'^(?P<account_id>[\d-]+)/(?P<folder>.+)/$', email_account_folder_view, name='messaging_email_account_folder'),
 
     # hard sync folders
-    url(r'^(?P<folder>[^/.]+)/sync$', email_folder_sync_view, name='messaging_email_folder_sync'),
-    url(r'^(?P<folder>[^/.]+)/(?P<account_id>[\d-]+)/sync$', email_folder_sync_view, name='messaging_email_folder_account_sync'),
-    url(r'^(?P<account_id>[\d-]+)/(?P<folder>[^/.]+)/sync$', email_folder_sync_view, name='messaging_email_account_folder_sync'),
+    url(r'^(?P<folder>[^/].+)/(?P<account_id>[\d-]+)/sync$', email_folder_sync_view, name='messaging_email_folder_account_sync'),
+    url(r'^(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/sync$', email_folder_sync_view, name='messaging_email_account_folder_sync'),
+    url(r'^(?P<folder>[^/].+)/sync$', email_folder_sync_view, name='messaging_email_folder_sync'),
 
     # compose view
     url(r'^compose/$', email_compose_view, name='messaging_email_compose'),
@@ -60,9 +60,9 @@ urlpatterns = patterns('',
     url(r'^templates/parse/$', parse_email_template_view, name='messaging_email_template_parse'),
 
     # other
-    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/.]+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search'),
-    url(r'^search/(?P<folder>[^/.]+)/(?P<search_key>[^/.]+)/$', email_search_view, name='messaging_email_search_all'),
+    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search'),
+    url(r'^search/(?P<folder>[^/].+)/(?P<search_key>[^/].+)/$', email_search_view, name='messaging_email_search_all'),
     url(r'^search/$', email_search_view, name='messaging_email_search_empty'),
-    url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/.]+)/$', email_proxy_view, name='email_proxy_view'),
+    url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/].+)/$', email_proxy_view, name='email_proxy_view'),
 
 )

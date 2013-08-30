@@ -232,7 +232,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                     if message.get_sent_date() is not None:
                         query_string += 'sent_date = %s, '
-                        param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M'))
+                        param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M:%S'))
 
                     query_string = query_string.rstrip(', ')
                     query_string += ' FROM email_emailmessage as email'
@@ -814,6 +814,68 @@ def delete_messages(message_ids):
                         server.client.add_flags(uids, DELETED)
 
                         server.client.close_folder()
+            except Exception, e:
+                print traceback.format_exc(e)
+            finally:
+                if server:
+                    server.logout()
+
+
+@celery.task
+def move_messages(message_ids, target_folder_name):
+    """
+    Move n messages in the background.
+    """
+    if not isinstance(message_ids, list):
+        message_ids = [message_ids]
+
+    # Determine folder_names per account
+    folder_name_qs = EmailMessage.objects.filter(id__in=message_ids).values_list('account_id', 'folder_name', 'uid')
+    len(folder_name_qs)
+
+    # Create a more sensible dict with this information
+    account_folders = {}
+    for account_id, folder_name, message_uid in folder_name_qs:
+        if not account_folders.get(account_id, False):
+            account_folders[account_id] = {}
+        folder_names = account_folders.get(account_id)
+        if not account_folders[account_id].get(folder_name, False):
+            account_folders[account_id][folder_name] = []
+        folder_names[folder_name].append(message_uid)
+
+    # Delete in every appropriate account/folder
+    for account_id, folders in account_folders.items():
+        account_qs = EmailAccount.objects.filter(pk=account_id)
+        if len(account_qs) > 0:
+            account = account_qs[0]
+            server = None
+            try:
+                host = account.provider.imap_host
+                port = account.provider.imap_port
+                ssl = account.provider.imap_ssl
+                server = IMAP(host, port, ssl)
+                server.login(account.username,  account.password)
+
+                target_folder = server.get_folder(target_folder_name)
+
+                task_logger.info('target_folder.server_name %s' % target_folder.name_on_server)
+
+                # Copy messages from origin folders to *target_folder*
+                for folder_name, uids in folders.items():
+                    origin_folder = server.get_folder(folder_name)
+                    is_selected, select_info = server.select_folder(origin_folder.get_search_name(), readonly=False)
+
+                    if is_selected:
+                        task_logger.info('in folder %s' % origin_folder.get_search_name())
+                        server.client.copy(uids, target_folder.get_search_name())
+
+                        # Delete from origin folder
+                        uids = ','.join([str(val) for val in uids])
+                        server.client.add_flags(uids, DELETED)
+                        server.client.close_folder()
+
+                    # Synchronize with target_folder
+                    synchronize_folder(account, server, target_folder, new_only=True)
             except Exception, e:
                 print traceback.format_exc(e)
             finally:

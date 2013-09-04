@@ -45,12 +45,12 @@ def parse_sent_date(message, internaldate):
 
         if received_headers is not None:
             for received_header in received_headers:
-                received_date = received_header.split(';')[-1].strip()
+                received_date = decode_header_proper(received_header.split(';')[-1].strip())
 
                 if sent_date is None or received_date < sent_date:
                     sent_date = received_date
         elif date_header is not None:
-            sent_date = message.get('Date')
+            sent_date = decode_header_proper(message.get('Date'))
 
     if sent_date is not None:
         try:

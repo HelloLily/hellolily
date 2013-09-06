@@ -491,7 +491,7 @@ class MoveMessagesView(MessageUpdateView):
 
             if len(message_ids) > 0:
                 if request.POST.get('move-to-folder-select', False):
-                    move_messages(message_ids, request.POST.get('move-to-folder-select'))
+                    move_messages(message_ids, request.POST.get('move-to-folder-select'), request)
         except:
             raise Http404()
 

@@ -851,8 +851,9 @@ def move_messages(message_ids, target_folder_name, request=None):
 
                         # Delete from origin folder locally
                         EmailMessage.objects.filter(id__in=message_ids).delete()
-                    elif request is not None:
-                        messages.success(request, _('Folder %s doesn\'t exist for every account') % target_folder_name)
+
+                    if request is not None:
+                        messages.success(request, _('Messages have been moved in %s') % account.email.email_address)
 
                     # Synchronize with target_folder
                     synchronize_folder(account, server, target_folder, new_only=True)

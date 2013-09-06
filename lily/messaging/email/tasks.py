@@ -6,11 +6,13 @@ import traceback
 import celery
 from dateutil.tz import tzutc
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.db import connection, transaction
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 from imapclient import SEEN, DELETED
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, SPAM
 from python_imap.server import IMAP
@@ -607,42 +609,7 @@ def synchronize_email_for_account(account_id):
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
                 server.login(account.username,  account.password)
-
-                account_folders = {}
-                all_folders = server.get_folders(cant_select=True)
-                for i in range(len(all_folders)):
-                    folder = all_folders[i]
-
-                    # Skip sub folders (they will be retrieved later on
-                    if folder.get_name(full=True).find('/') != -1:
-                        continue
-
-                    is_parent = '\\HasNoChildren' not in folder.flags
-                    folder_properties = {
-                        'flags': folder.flags,
-                        'is_parent': is_parent,
-                        'full_name': folder.get_name(full=True),
-                        'children': {},
-                    }
-                    account_folders[folder.get_name()] = folder_properties
-
-                    if is_parent:
-                        children = {}
-                        i += 1
-                        while i < len(all_folders) and '\\HasNoChildren' not in folder.flags:
-                            child_folder = all_folders[i]
-                            if child_folder.parent is not None and child_folder.parent == folder:
-                                children[child_folder.get_name()] = {
-                                    'flags': child_folder.flags,
-                                    'parent': folder.get_name(full=True),
-                                    'full_name': child_folder.get_name(full=True),
-                                }
-                            else:
-                                break
-                            i += 1
-                        account_folders[folder.get_name()]['children'] = children
-
-                account.folders = account_folders
+                account.folders = get_account_folders_from_server(server)
 
                 folders = server.get_folders(exclude=[DRAFTS, ALLMAIL, TRASH, SPAM])
                 for folder in folders:
@@ -822,7 +789,7 @@ def delete_messages(message_ids):
 
 
 @celery.task
-def move_messages(message_ids, target_folder_name):
+def move_messages(message_ids, target_folder_name, request=None):
     """
     Move n messages in the background.
     """
@@ -856,7 +823,15 @@ def move_messages(message_ids, target_folder_name):
                 server = IMAP(host, port, ssl)
                 server.login(account.username,  account.password)
 
+                # Get or create folder *target_folder_name*
                 target_folder = server.get_folder(target_folder_name)
+                if target_folder is None:
+                    # Update folders for account
+                    server.client.create_folder(target_folder_name)
+                    account.folders = get_account_folders_from_server(server)
+                    account.save()
+
+                    target_folder = server.get_folder(target_folder_name)
 
                 task_logger.info('target_folder.server_name %s' % target_folder.name_on_server)
 
@@ -869,10 +844,15 @@ def move_messages(message_ids, target_folder_name):
                         task_logger.info('in folder %s' % origin_folder.get_search_name())
                         server.client.copy(uids, target_folder.get_search_name())
 
-                        # Delete from origin folder
+                        # Delete from origin folder remote
                         uids = ','.join([str(val) for val in uids])
                         server.client.add_flags(uids, DELETED)
                         server.client.close_folder()
+
+                        # Delete from origin folder locally
+                        EmailMessage.objects.filter(id__in=message_ids).delete()
+                    elif request is not None:
+                        messages.success(request, _('Folder %s doesn\'t exist for every account') % target_folder_name)
 
                     # Synchronize with target_folder
                     synchronize_folder(account, server, target_folder, new_only=True)
@@ -881,3 +861,45 @@ def move_messages(message_ids, target_folder_name):
             finally:
                 if server:
                     server.logout()
+
+
+def get_account_folders_from_server(server):
+    """
+    Map folders existing on *server* in a format that is used in template rendering.
+    """
+    account_folders = {}
+
+    all_folders = server.get_folders(cant_select=True)
+    for i in range(len(all_folders)):
+        folder = all_folders[i]
+
+        # Skip sub folders (they will be retrieved later on
+        if folder.get_name(full=True).find('/') != -1:
+            continue
+
+        is_parent = '\\HasNoChildren' not in folder.flags
+        folder_properties = {
+            'flags': folder.flags,
+            'is_parent': is_parent,
+            'full_name': folder.get_name(full=True),
+            'children': {},
+        }
+        account_folders[folder.get_name()] = folder_properties
+
+        if is_parent:
+            children = {}
+            i += 1
+            while i < len(all_folders) and '\\HasNoChildren' not in folder.flags:
+                child_folder = all_folders[i]
+                if child_folder.parent is not None and child_folder.parent == folder:
+                    children[child_folder.get_name()] = {
+                        'flags': child_folder.flags,
+                        'parent': folder.get_name(full=True),
+                        'full_name': child_folder.get_name(full=True),
+                    }
+                else:
+                    break
+                i += 1
+            account_folders[folder.get_name()]['children'] = children
+
+    return account_folders

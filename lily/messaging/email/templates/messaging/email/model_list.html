@@ -85,9 +85,13 @@
             height: 36px;
         }
 
-        #bulk-toolbar ul,
-        #bulk-toolbar li {
+        #bulk-toolbar > ul,
+        #bulk-toolbar > ul > li {
             height: 100%;
+        }
+
+        #bulk-toolbar .no-border {
+            border-right: none;
         }
 
         #bulk-check {
@@ -200,7 +204,7 @@
             background-color: lightblue;
             background-color: rgba(28,118,188, .3);
         }
-        .action .priority:hover {email
+        .action .priority:hover {
             background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wLCAwWIUKnM+cAAAAIdEVYdENvbW1lbnQA9syWvwAAAChJREFUOMtjYBgFJANFRcX/hNQwUcOiwWMIIzlhcP/+fcbRgB0FpAIAoOYG0sWTENQAAAAASUVORK5CYII=); /* black */
             background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAAXNSR0IArs4c6QAAAAZiS0dEAAAAAAAA+UO7fwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wLCA0DCthsRoQAAAAoSURBVDjLY2AYBSSD/////yekhokaFg0eQxjJCQNGRkbG0YAdBaQCAAgxDAYkiUYnAAAAAElFTkSuQmCC); /* white */
         }
@@ -310,6 +314,10 @@
 
         #iframe-wrapper {
             padding-right: 1px;
+        }
+
+        #move-folder-select {
+            vertical-align: middle;
         }
     </style>
 {% endblock %}
@@ -611,6 +619,12 @@
                     ids.push($(element).closest('.single-message').data('id'));
                 });
 
+                if(!ids.length) {
+                    if($('#email').data('id') != -1) {
+                        ids.push($('#email').data('id'));
+                    }
+                }
+
                 return ids;
             }
 
@@ -641,6 +655,12 @@
                 event.preventDefault();
             });
 
+            $('.move-to-folder-toggle').on('click', function(event) {
+                var container = $(event.target).closest('.mws-panel-toolbar').find('.move-to-folder-select').closest('li');
+                $(container).toggle();
+                enableChosen(container);
+            });
+
             /* (uncheck) all */
             $('#bulk-check').click(function(event) {
                 if($(this).is(':checked')) {
@@ -657,6 +677,16 @@
                     $('#bulk-check').removeAttr('checked');
                 }
             });
+
+            $('.move-to-folder-confirm').click(function(event) {
+                var target_folder_name = $(event.target).closest('.mws-panel-toolbar').find('.move-to-folder-select').val();
+                var ids = get_checked_messages();
+                if(ids.length) {
+                    $(event.target).closest('.mws-panel-toolbar').find('.ids-to-move').val(ids.join(','));
+                } else {
+                    event.preventDefault();
+                }
+            });
         });
     </script>
 {% endblock %}
@@ -668,7 +698,22 @@
         <li><a href="#" id="mark-unread-bulk">Mark as unread</a></li>
         <li><a href="#" id="mark-read-bulk">Mark as read</a></li>
         <li><a href="#" id="delete-single">Move to trash</a></li>
-        <li><a href="#" id="move-bulk">Move to ..</a></li>
+        {% if move_to_folders.items|length %}
+        <li class="no-border"><a href="#" class="move-to-folder-toggle">Move to ..</a></li>
+        <li class="no-border" style="padding-top: 1px; display: none;">
+            <form action="{% url move_messages_view %}" method="post">
+                <input type="hidden" class="ids-to-move" name="ids"/>
+                {% csrf_token %}
+                <select class="move-to-folder-select chzn-select-no-search" style="width: 200px;" name="move-to-folder-select">
+                    <option value="">{% trans 'Choose a folder' %}</option>
+                    {% for value, label in move_to_folders.items %}
+                    <option value="{{ value }}" {% if active_move_to_folder == value %}class="active" selected="selected"{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" class="move-to-folder-confirm mws-button blue" name="move-to-folder" value="{% trans 'Go' %}" style="padding: 4px 8px;">
+            </form>
+        <li>
+        {% endif %}
     </ul>
 </div>
 {% endblock %}
@@ -743,9 +788,25 @@
                 <li class="back-button"><a href="javascript:">Back</a></li>
                 <li class=""><a href="#" id="mark-unread-single">Mark as unread</a></li>
                 <li class=""><a href="#" id="mark-read-single">Mark as read</a></li>
-                <li class=""><a href="#" id="delete-single">Move to trash</a></li>
                 <li class=""><a href="#" id="reply-message">Reply</a></li>
                 <li class=""><a href="#" id="forward-message">Forward</a></li>
+                <li class=""><a href="#" id="delete-single">Move to trash</a></li>
+                {% if move_to_folders.items|length %}
+                <li class="no-border"><a href="#" class="move-to-folder-toggle">Move to ..</a></li>
+                <li class="no-border" style="padding-top: 1px; display: none;">
+                    <form action="{% url move_messages_view %}" method="post">
+                        <input type="hidden" class="ids-to-move" name="ids"/>
+                        {% csrf_token %}
+                        <select class="move-to-folder-select chzn-select-no-search" style="width: 200px;" name="move-to-folder-select">
+                            <option value="">{% trans 'Choose a folder' %}</option>
+                            {% for value, label in move_to_folders.items %}
+                            <option value="{{ value }}" {% if active_move_to_folder == value %}class="active" selected="selected"{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" class="move-to-folder-confirm mws-button blue" name="move-to-folder" value="{% trans 'Go' %}" style="padding: 4px 8px;">
+                    </form>
+                <li>
+                {% endif %}
             </ul>
         </div>
         <div id="email-wrapper">

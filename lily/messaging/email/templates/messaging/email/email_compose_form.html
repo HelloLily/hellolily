@@ -2,34 +2,6 @@
 {% load i18n media crispy_forms_tags %}
 
 {% block form %}
-    <!--
-    <style type="text/css">
-        .mws-panel {
-            margin-bottom: 3px;
-        }
-    </style>
-    <div class="mws-panel grid_8">
-        <div class="mws-panel-body" style="border: 1px solid #BCBCBC;">
-            <div id="email-toolbar" class="mws-panel-content" style="padding: 8px;">
-                <a href="#" class="no-decoration">
-                    <button type="button" class="mws-button red small">
-                        {% trans 'Compose new message' %}
-                    </button>
-                </a>
-                <a href="#" class="no-decoration">
-                    <button type="button" class="mws-button gray small" disabled="disabled">
-                        {% trans 'Mark as read' %}
-                    </button>
-                </a>
-                <a href="#" class="no-decoration" class="">
-                    <button type="button" class="mws-button gray small" disabled="disabled">
-                        {% trans 'Mark as unread' %}
-                    </button>
-                </a>
-            </div>
-        </div>
-    </div>
-    -->
     <div class="mws-panel grid_8">
         <div class="mws-panel-header">
             <span>{% block form-title %}{% trans 'New e-mail message' %}{% endblock %}</span>

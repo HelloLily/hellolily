@@ -29,7 +29,7 @@ from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
-from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL
+from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
 from python_imap.server import IMAP
 from python_imap.utils import convert_html_to_text, parse_search_keys
@@ -39,7 +39,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationStep1Form, \
     EmailConfigurationStep2Form, EmailConfigurationStep3Form, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
-from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder
+from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
@@ -231,11 +231,57 @@ class EmailFolderView(ListView):
             'list_title': ', '.join([email_account.email.email_address for email_account in self.email_accounts]),
         })
 
+        from collections import OrderedDict
+        folders = OrderedDict()
+
+        folders['Postvak In'] = 'Postvak IN'
+        if self.folder_identifier not in [SENT, TRASH]:
+            # Find folders for visible accounts
+            for account in self.email_accounts:
+                def get_folders_from_tree(tree):
+                    for name, folder in tree.items():
+                        if folder.get('is_parent'):
+                            if '\\Noselect' not in folder.get('flags'):
+                                folders[name] = folder.get('full_name')
+
+                            sub_folders = folder.get('children')
+                            if len(sub_folders):
+                                get_folders_from_tree(sub_folders)
+                        elif name in tree:
+                            if '\\Noselect' not in folder.get('flags'):
+                                intersect = set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED]).intersection(set(folder.get('flags', [])))
+                                if len(intersect) > 0:
+                                    # If folder already exists, remove it since it probably wasn't added with *intersect* as the key
+                                    if folder.get('full_name') in folders.values():
+                                        del folders[folders.keys()[folders.values().index(folder.get('full_name'))]]
+                                    folders[intersect.pop()] = folder.get('full_name')
+                                elif not folder.get('full_name') in folders.values():
+                                    # Don't add to avoid duplicates
+                                    folders[name] = folder.get('full_name')
+
+                get_folders_from_tree(account.folders)
+
+        # Sort dictionary by value (folder name)
+        folders = OrderedDict(sorted(folders.items(), key=lambda t: t[1]))
+
+        # Find active folder
+        active_move_to_folder = ''
+        if self.folder_identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
+            for account in self.email_accounts:
+                for name, folder in account.folders.items():
+                    if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
+                        active_move_to_folder = folder.get('full_name')
+                        break
+        else:
+            active_move_to_folder = self.folder_identifier
+
         # Also pass search parameters, if any
         kwargs.update({
             'selected_email_account_id': self.kwargs.get('account_id', ''),
             'selected_email_folder': urllib.quote_plus(self.kwargs.get('folder', self.folder_name or self.folder_identifier)),
-            'email_search_key': self.kwargs.get('search_key', '')
+            'email_search_key': self.kwargs.get('search_key', ''),
+            'move_to_folders': folders,
+            'active_move_to_folder': active_move_to_folder,
         })
 
         return kwargs
@@ -428,6 +474,29 @@ class MoveTrashAjaxView(MessageUpdateView):
     """
     def handle_message_update(self, message_ids):
         delete_messages.delay(message_ids)
+
+
+class MoveMessagesView(MessageUpdateView):
+    """
+    Move messages to selected folder.
+    """
+    def post(self, request, *args, **kwargs):
+        if not request.META.get('HTTP_REFERER'):
+            raise Http404()
+
+        try:
+            message_ids = request.POST.get('ids')
+            if not isinstance(message_ids, list):
+                message_ids = message_ids.split(',')
+
+            if len(message_ids) > 0:
+                if request.POST.get('move-to-folder-select', False):
+                    move_messages(message_ids, request.POST.get('move-to-folder-select'))
+        except:
+            raise Http404()
+
+        # Simply return back to the page the request originated from
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class ForceFolderSyncView(View):
@@ -1373,6 +1442,7 @@ email_compose_view = login_required(EmailCreateView.as_view())
 email_body_preview_view = login_required(EmailBodyPreviewView.as_view())
 email_reply_view = login_required(EmailReplyView.as_view())
 email_forward_view = login_required(EmailForwardView.as_view())
+move_messages_view = login_required(MoveMessagesView.as_view())
 
 # E-mail account wizard views
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())

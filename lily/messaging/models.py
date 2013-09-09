@@ -40,6 +40,10 @@ class Message(HistoryListItem, TenantMixin):
     sent_date = models.DateTimeField(null=True)  # time sent in UTC
     is_seen = models.BooleanField(default=False)
 
+    def save(self):
+        self.sort_by_date = self.sent_date
+        return super(Message, self).save()
+
     class Meta:
         verbose_name = _('message')
         verbose_name_plural = _('messages')

@@ -485,4 +485,4 @@ class HistoryListItem(PolymorphicModel):
     """
     An base model for all items that can appear in a History List
     """
-    pass
+    sort_by_date = models.DateTimeField(verbose_name='date to sort by')

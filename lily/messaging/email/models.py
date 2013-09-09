@@ -77,6 +77,12 @@ class EmailMessage(Message):
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
 
+    def get_list_item_template(self):
+        """
+        Return the template that must be used for history list rendering
+        """
+        return 'messaging/email/history_list_item.html'
+
     def has_attachments(self):
         return self.attachments.count() > 0
 

@@ -6,6 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ('utils', '0003_auto__add_historylistitem'),
+    )
+
     def forwards(self, orm):
         # Start transaction
         db.start_transaction()

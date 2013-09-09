@@ -93,8 +93,20 @@
                                 <hr />
                                 
                                 {% block history-tab-content %}
-                                    {% include 'base_list.html' with list=item.notes.all list_item_template='base_details_history_list_item.html' %}
-{#                                    {% include 'base_list.html' with list=item.get_history_list list_item_template='base_details_history_list_item.html' %}#}
+                                    <div id="history_list">
+                                        {% include 'base_list.html' with list=history_list list_item_template='base_details_history_list_item.html' %}
+                                    </div>
+                                    <div class="object-list-buttons">
+                                        <button type="button" class="mws-button blue" data-url="{{ request.path }}" id="load-more">
+                                            {% trans 'Load more items' %}
+                                        </button>
+                                        <button type="button" class="mws-button" id="end-of-list" disabled="disabled">
+                                            {% trans 'End of list' %}
+                                        </button>
+                                        <button type="button" class="mws-button" id="item-loading" disabled="disabled">
+                                            {% trans 'Loading' %}
+                                        </button>
+                                    </div>
                                 {% endblock %}
                                 
                                 <div class="hidden">

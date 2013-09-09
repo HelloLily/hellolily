@@ -1,4 +1,6 @@
-<div class="object-list-item note iedit_wrapper i-32 blue i-note" id="note_{{ item.pk }}">
-    {% include 'notes/list_item.html' with note=item %}
-{#    {% include item.get_list_item_template with object=item %}#}
+{% load utils %}
+
+<div class="object-list-item {{ item|classname }} iedit_wrapper i-32 blue i-{{ item|classname }}" id="{{ item|classname }}_{{ item.pk }}" data-sort-date="{{ item.sort_by_date|date:'U' }}">
+{#    {% include 'notes/list_item.html' with item=item %}#}
+    {% include item.get_list_item_template with item=item %}
 </div>

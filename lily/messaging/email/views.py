@@ -20,7 +20,6 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.context import RequestContext
-from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.html import escapejs
@@ -322,68 +321,65 @@ class EmailSpamView(EmailFolderView):
     folder_identifier = SPAM
 
 
-class EmailMessageJSONView(View):
+class BaseJSONViewMixin(View):
     """
     Show most attributes of an EmailMessage in JSON format.
     """
     http_method_names = ['get']
     template_name = 'messaging/email/email_heading.html'
+    mark_as_read = True
+    use_rich_body = True
+
+    def unix_time(self, dt):
+        """
+        Get epoch time in milliseconds
+
+        :param dt: datetime object
+        :return: epoch ms time
+        """
+        epoch = datetime.datetime.fromtimestamp(0, tz=dt.tzinfo)
+        delta = dt - epoch
+        return delta.total_seconds()
+
+    def unix_time_millis(self, dt):
+        """
+        Get epoch time in milliseconds
+
+        :param dt: datetime object
+        :return: epoch ms time
+        """
+        return self.unix_time(dt) * 1000.0
 
     def get(self, request, *args, **kwargs):
         """
         Retrieve the email for the requested uid from the database or directly via IMAP.
         """
-        # Convert date to epoch
-        def unix_time(dt):
-            epoch = datetime.datetime.fromtimestamp(0, tz=dt.tzinfo)
-            delta = dt - epoch
-            return delta.total_seconds()
-
-        def unix_time_millis(dt):
-            return unix_time(dt) * 1000.0
-
         # Find accounts
         self.email_accounts = request.user.get_messages_accounts(EmailAccount)
         server = None
+        pk = kwargs.get('pk')
         try:
-            instance = EmailMessage.objects.get(id=kwargs.get('pk'))
+            instance = EmailMessage.objects.get(pk=pk)
             imap_logger.info('Retrieving message for e-mail account: %s' % instance.account.email.email_address)
             # See if the user has access to this message
             if instance.account not in self.email_accounts:
                 raise Http404()
 
-            if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (instance.body_text is None or len(instance.body_text.strip()) == 0):
-            # if True:
-                # Retrieve directly from IMAP (marks as read automatically)
-                imap_logger.info('Connecting with IMAP')
+            if (instance.body_html is None or len(instance.body_html.strip()) == 0) and (
+                        instance.body_text is None or len(instance.body_text.strip()) == 0):
+                server, instance = self.get_message_from_imap(instance, pk)
 
-                host = instance.account.provider.imap_host
-                port = instance.account.provider.imap_port
-                ssl = instance.account.provider.imap_ssl
-                server = IMAP(host, port, ssl)
-                server.login(instance.account.username,  instance.account.password)
+            if self.mark_as_read:
+                instance.is_seen = True
 
-                imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
-
-                message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], server.get_folder(instance.folder_name), readonly=False)
-                if message is not None:
-                    imap_logger.info('Message retrieved, saving in database')
-                    save_email_messages([message], instance.account, message.folder)
-
-                instance = EmailMessage.objects.get(id=kwargs.get('pk'))
-            else:
-                # Mark as read manually
-                imap_logger.info('Mark message %s as read on server (asynchronously)' % instance.id)
-                mark_messages.delay(instance.id, read=True)
-            instance.is_seen = True
             instance.save()
 
             message = {
                 'id': instance.id,
-                'sent_date': unix_time_millis(instance.sent_date),
+                'sent_date': self.unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': truncatechars(instance.textify().lstrip('&nbsp;\n\r\n '), 200),
+                'flat_body': instance.textify().strip('&nbsp;\n\r\n ').replace('\n', '<br />'),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,
@@ -392,20 +388,91 @@ class EmailMessageJSONView(View):
                 'folder_name': instance.folder_name,
             }
 
-            # Fix up attachment file names
-            attachments = instance.attachments.filter(inline=False)
-            if len(attachments):
-                for attachment in attachments:
-                    attachment.attachment.name = get_attachment_filename_from_url(attachment.attachment.name)
+            instance, message, attachments = self.get_attachments(instance, message)
 
+            imap_logger.debug(instance)
+            imap_logger.debug(message)
+            imap_logger.debug(attachments)
+
+            if self.use_rich_body:
             # Replace body with a more richer version of an e-mail view
-            message['body'] = render_to_string(self.template_name, {'object': instance, 'attachments': attachments})
+                message['body'] = render_to_string(self.template_name, {'object': instance, 'attachments': attachments})
+
             return HttpResponse(simplejson.dumps(message), mimetype='application/json; charset=utf-8')
         except EmailMessage.DoesNotExist:
             raise Http404()
         finally:
             if server:
                 server.logout()
+
+    def get_message_from_imap(self, instance, pk):
+        """
+        Retrieve an e-mail via IMAP
+
+        :param instance: the instance of a message
+        :param pk: the primary key of a message
+        :return: server used for connecting and the new updated instance
+        """
+        imap_logger.info('Connecting with IMAP')
+
+        host = instance.account.provider.imap_host
+        port = instance.account.provider.imap_port
+        ssl = instance.account.provider.imap_ssl
+        server = IMAP(host, port, ssl)
+        server.login(instance.account.username, instance.account.password)
+
+        imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
+
+        message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                     server.get_folder(instance.folder_name), readonly=False)
+        if message is not None:
+            imap_logger.info('Message retrieved, saving in database')
+            save_email_messages([message], instance.account, message.folder)
+
+        instance = EmailMessage.objects.get(pk=pk)
+
+        return server, instance
+
+    def get_attachments(self, instance, message):
+        """
+        Get the attachments for the message
+
+        :param instance: the instance of which we want the attachments
+        :param message: the message to which we append the attachments
+        :return: the instance and the message
+        """
+        # By default we don't get attachments
+        attachments = None
+        return instance, message, attachments
+
+
+class EmailMessageJSONView(BaseJSONViewMixin):
+    """
+    Show most attributes of an EmailMessage in JSON format.
+    """
+
+    def get_attachments(self, instance, message):
+        """
+        Get the attachments for the message
+
+        :param instance: the instance of which we want the attachments
+        :param message: the message to which we append the attachments
+        :return: the instance, message and attachments
+        """
+        attachments = instance.attachments.filter(inline=False)
+        if len(attachments):
+            for attachment in attachments:
+                attachment.attachment.name = get_attachment_filename_from_url(attachment.attachment.name)
+
+        return instance, message, attachments
+
+
+class HistoryListEmailMessageJSONView(BaseJSONViewMixin):
+    """
+    Show most attributes of an EmailMessage in JSON format.
+    """
+    mark_as_read = False
+    use_rich_body = False
 
 
 class EmailMessageHTMLView(View):
@@ -1433,6 +1500,7 @@ email_account_folder_view = login_required(EmailFolderView.as_view())
 # Ajax views
 email_html_view = login_required(EmailMessageHTMLView.as_view())
 email_json_view = login_required(EmailMessageJSONView.as_view())
+history_list_email_json_view = login_required(HistoryListEmailMessageJSONView.as_view())
 mark_read_view = login_required(MarkReadAjaxView.as_view())
 mark_unread_view = login_required(MarkUnreadAjaxView.as_view())
 move_trash_view = login_required(MoveTrashAjaxView.as_view())

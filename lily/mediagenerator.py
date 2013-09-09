@@ -111,6 +111,7 @@ extra_theme_bundle_js = (
 
     'utils/js/utils.js',
 
+    'plugins/historylist/historylist.js',
 )
 
 MEDIA_BUNDLES = (

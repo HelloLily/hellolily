@@ -6,7 +6,7 @@ from lily.messaging.email.views import email_inbox_view, email_json_view, edit_e
     email_drafts_view, email_reply_view, email_sent_view, email_trash_view, email_spam_view, \
     email_account_folder_view, email_forward_view, email_configuration_wizard, email_configuration_wizard_template, \
     email_search_view, email_share_wizard, email_proxy_view, email_attachment_removal, email_folder_sync_view, \
-    move_messages_view
+    move_messages_view, history_list_email_json_view
 
 
 urlpatterns = patterns('',
@@ -42,6 +42,7 @@ urlpatterns = patterns('',
 
     # AJAX views
     url(r'^json/(?P<pk>[\w-]+)/$', email_json_view, name='messaging_email_json'),
+    url(r'^history-list-json/(?P<pk>[\w-]+)/$', history_list_email_json_view, name='messaging_history_list_email_json'),
     url(r'^html/(?P<pk>[\w-]+)/$', email_html_view, name='messaging_email_html'),
     url(r'^markasread/$', mark_read_view, name='messaging_mark_read'),
     url(r'^markasunread/$', mark_unread_view, name='messaging_mark_unread'),

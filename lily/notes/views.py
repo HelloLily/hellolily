@@ -1,5 +1,10 @@
+import operator
+import datetime
+
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -9,9 +14,12 @@ from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, UpdateView, FormMixin
 
+from lily.contacts.models import Contact
 from lily.notes.forms import EditNoteForm, NoteForm
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
+from lily.utils.models import HistoryListItem
+from python_imap.folder import ALLMAIL, IMPORTANT, INBOX, SENT, STARRED
 
 
 class DeleteNoteView(DeleteView):
@@ -115,6 +123,101 @@ class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, V
             return super(NoteDetailViewMixin, self).get_success_url()
         
         return reverse(self.success_url_reverse_name, kwargs={ 'pk': self.object.pk })
+
+
+class HistoryListViewMixin(NoteDetailViewMixin):
+    """
+    DetailView for models including a NoteForm to quickly add notes.
+    """
+    form_class = NoteForm
+    page_size = 15
+    ajax_template = 'base_list.html'
+    list_item_template = 'base_details_history_list_item.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Implementing the response for the http method GET.
+        """
+        self.object = self.get_object()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        self.is_ajax = is_ajax(request)
+
+        context = self.get_context_data(object=self.object, form=form)
+
+        if self.is_ajax:
+            html = render_to_string(self.ajax_template, {}, context_instance=RequestContext(self.request, context))
+            response = HttpResponse(simplejson.dumps({
+                'html': html.strip(),
+                'hide_button': len(context['list']) < 15,
+            }), mimetype='application/json')
+        else:
+            response = self.render_to_response(context)
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        """
+        Return the context dictionary used for template rendering.
+        """
+        context = super(HistoryListViewMixin, self).get_context_data(**kwargs)
+
+        note_content_type_id = ContentType.objects.get_for_model(self.model).pk
+        email_address_list = [x.email_address for x in self.object.email_addresses.all()]
+
+        if email_address_list:
+            q_object_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
+
+            history_list = HistoryListItem.objects.filter(
+                (Q(note__content_type=note_content_type_id) & Q(note__object_id=self.object.pk)) |
+                (
+                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
+                    Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                    reduce(operator.or_, q_object_list)
+                )
+            )
+        else:
+            history_list = HistoryListItem.objects.filter(
+                (Q(note__content_type=note_content_type_id) & Q(note__object_id=self.object.pk))
+            )
+
+        epoch = self.request.GET.get('datetime', None)
+        if epoch:
+            # Append datetime filter to the query
+            try:
+                filter_date = datetime.datetime.fromtimestamp(int(epoch))
+                history_list = history_list.filter(sort_by_date__lt=filter_date)
+            except ValueError:
+                pass
+
+        history_list = history_list.distinct().order_by('-sort_by_date')[:self.page_size]
+
+        if self.is_ajax:
+            context['list'] = history_list
+            context['list_item_template'] = self.list_item_template
+        else:
+            context['history_list'] = history_list
+
+        return context
+
+    def is_valid_offset(self, offset):
+        """
+        Check the validity of the offset given in the GET parameters.
+
+        :param offset: the offset set in the GET parameters
+        :return: True or False, depending on the validity of offset
+        """
+        try:
+            offset = int(offset)
+        except ValueError:
+            return False
+
+        if not offset % self.page_size == 0:
+            return False
+        if offset < self.page_size:
+            return False
+
+        return True
 
 
 delete_note_view = login_required(DeleteNoteView.as_view())

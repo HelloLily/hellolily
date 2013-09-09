@@ -1,173 +1,30 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
-
-    depends_on = (
-        ('messaging', '0001_initial'),
-    )
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'EmailProvider'
-        db.create_table('email_emailprovider', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=30, null=True, blank=True)),
-            ('imap_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('imap_port', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('imap_ssl', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('smtp_host', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('smtp_port', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('smtp_ssl', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('email', ['EmailProvider'])
+        # Start transaction
+        db.start_transaction()
 
-        # Adding model 'EmailAccount'
-        db.create_table('email_emailaccount', (
-            ('messagesaccount_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['messaging.MessagesAccount'], unique=True, primary_key=True)),
-            ('from_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('signature', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('email', self.gf('django.db.models.fields.related.ForeignKey')(related_name='email', unique=True, to=orm['utils.EmailAddress'])),
-            ('username', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES')),
-            ('password', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES')),
-            ('provider', self.gf('django.db.models.fields.related.ForeignKey')(related_name='email_accounts', to=orm['email.EmailProvider'])),
-            ('last_sync_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('folders', self.gf('django.db.models.fields.TextField')(default='{}')),
-        ))
-        db.send_create_signal('email', ['EmailAccount'])
+        # Create the index on name field of emailheader
+        db.create_index('email_emailheader', ['name', ])
 
-        # Adding model 'EmailMessage'
-        db.create_table('email_emailmessage', (
-            ('message_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['messaging.Message'], unique=True, primary_key=True)),
-            ('uid', self.gf('django.db.models.fields.IntegerField')()),
-            ('flags', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('body_html', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('body_text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('size', self.gf('django.db.models.fields.IntegerField')(default=0, null=True)),
-            ('folder_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('folder_identifier', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('is_private', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('account', self.gf('django.db.models.fields.related.ForeignKey')(related_name='messages', to=orm['email.EmailAccount'])),
-        ))
-        db.send_create_signal('email', ['EmailMessage'])
-
-        # Adding unique constraint on 'EmailMessage', fields ['uid', 'folder_name', 'account']
-        db.create_unique('email_emailmessage', ['uid', 'folder_name', 'account_id'])
-
-        # Adding model 'EmailAttachment'
-        db.create_table('email_emailattachment', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('inline', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('attachment', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('size', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attachments', to=orm['email.EmailMessage'])),
-        ))
-        db.send_create_signal('email', ['EmailAttachment'])
-
-        # Adding model 'EmailHeader'
-        db.create_table('email_emailheader', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('value', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='headers', to=orm['email.EmailMessage'])),
-        ))
-        db.send_create_signal('email', ['EmailHeader'])
-
-        # Adding model 'EmailLabel'
-        db.create_table('email_emaillabel', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(related_name='labels', to=orm['email.EmailMessage'])),
-        ))
-        db.send_create_signal('email', ['EmailLabel'])
-
-        # Adding model 'ActionStep'
-        db.create_table('email_actionstep', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('priority', self.gf('django.db.models.fields.IntegerField')()),
-            ('done', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['email.EmailMessage'])),
-        ))
-        db.send_create_signal('email', ['ActionStep'])
-
-        # Adding model 'EmailTemplate'
-        db.create_table('email_emailtemplate', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
-            ('body_html', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('body_text', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal('email', ['EmailTemplate'])
-
-        # Adding model 'EmailTemplateAttachment'
-        db.create_table('email_emailtemplateattachment', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('template', self.gf('django.db.models.fields.related.ForeignKey')(related_name='attachments', to=orm['email.EmailTemplate'])),
-            ('attachment', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-        ))
-        db.send_create_signal('email', ['EmailTemplateAttachment'])
-
-        # Adding model 'EmailDraft'
-        db.create_table('email_emaildraft', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('send_from', self.gf('django.db.models.fields.related.ForeignKey')(related_name='drafts', to=orm['email.EmailAccount'])),
-            ('send_to_normal', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('send_to_cc', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('send_to_bcc', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('body_html', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('body_text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('email', ['EmailDraft'])
-
+        # Commit transaction
+        db.commit_transaction()
 
     def backwards(self, orm):
-        # Removing unique constraint on 'EmailMessage', fields ['uid', 'folder_name', 'account']
-        db.delete_unique('email_emailmessage', ['uid', 'folder_name', 'account_id'])
+        # Start transaction
+        db.start_transaction()
 
-        # Deleting model 'EmailProvider'
-        db.delete_table('email_emailprovider')
+        # Create the index on name field of emailheader
+        db.delete_index('email_emailheader', ['name', ])
 
-        # Deleting model 'EmailAccount'
-        db.delete_table('email_emailaccount')
-
-        # Deleting model 'EmailMessage'
-        db.delete_table('email_emailmessage')
-
-        # Deleting model 'EmailAttachment'
-        db.delete_table('email_emailattachment')
-
-        # Deleting model 'EmailHeader'
-        db.delete_table('email_emailheader')
-
-        # Deleting model 'EmailLabel'
-        db.delete_table('email_emaillabel')
-
-        # Deleting model 'ActionStep'
-        db.delete_table('email_actionstep')
-
-        # Deleting model 'EmailTemplate'
-        db.delete_table('email_emailtemplate')
-
-        # Deleting model 'EmailTemplateAttachment'
-        db.delete_table('email_emailtemplateattachment')
-
-        # Deleting model 'EmailDraft'
-        db.delete_table('email_emaildraft')
-
+        # Commit transaction
+        db.commit_transaction()
 
     models = {
         'accounts.account': {
@@ -373,13 +230,13 @@ class Migration(SchemaMigration):
         'notes.note': {
             'Meta': {'ordering': "['-created']", 'object_name': 'Note', '_ormbases': ['utils.HistoryListItem']},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['users.CustomUser']"}),
+            'content': ('django.db.models.fields.TextField', [], {}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'note': ('django.db.models.fields.TextField', [], {}),
             'object_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'tags.tag': {
@@ -425,7 +282,8 @@ class Migration(SchemaMigration):
         'utils.historylistitem': {
             'Meta': {'object_name': 'HistoryListItem'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'sort_by_date': ('django.db.models.fields.DateTimeField', [], {})
         },
         'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},
@@ -449,3 +307,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['email']
+    symmetrical = True

@@ -1,57 +1,26 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
-
-    depends_on = (
-        ('utils', '0003_auto__add_historylistitem'),
-    )
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'MessagesAccount'
-        db.create_table('messaging_messagesaccount', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True)),
-            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_messaging.messagesaccount_set', null=True, to=orm['contenttypes.ContentType'])),
-            ('account_type', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('shared_with', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
-        ))
-        db.send_create_signal('messaging', ['MessagesAccount'])
+        "Write your forwards methods here."
+        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
 
-        # Adding M2M table for field user_group on 'MessagesAccount'
-        db.create_table('messaging_messagesaccount_user_group', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('messagesaccount', models.ForeignKey(orm['messaging.messagesaccount'], null=False)),
-            ('customuser', models.ForeignKey(orm['users.customuser'], null=False))
-        ))
-        db.create_unique('messaging_messagesaccount_user_group', ['messagesaccount_id', 'customuser_id'])
+        note_list = orm.Note.objects.all()
 
-        # Adding model 'Message'
-        db.create_table('messaging_message', (
-            ('historylistitem_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['utils.HistoryListItem'], unique=True, primary_key=True)),
-            ('tenant', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], blank=True)),
-            ('sent_date', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('is_seen', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('messaging', ['Message'])
-
+        for note in note_list:
+            if note.modified:
+                note.sort_by_date = note.modified
+            else:
+                note.sort_by_date = note.created
+            note.save()
 
     def backwards(self, orm):
-        # Deleting model 'MessagesAccount'
-        db.delete_table('messaging_messagesaccount')
-
-        # Removing M2M table for field user_group on 'MessagesAccount'
-        db.delete_table('messaging_messagesaccount_user_group')
-
-        # Deleting model 'Message'
-        db.delete_table('messaging_message')
-
+        "Write your backwards methods here."
 
     models = {
         'accounts.account': {
@@ -138,34 +107,16 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'messaging.message': {
-            'Meta': {'object_name': 'Message', '_ormbases': ['utils.HistoryListItem']},
-            'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
-            'is_seen': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'sent_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'})
-        },
-        'messaging.messagesaccount': {
-            'Meta': {'object_name': 'MessagesAccount'},
-            'account_type': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_messaging.messagesaccount_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
-            'shared_with': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['tenant.Tenant']", 'blank': 'True'}),
-            'user_group': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'messages_accounts'", 'symmetrical': 'False', 'to': "orm['users.CustomUser']"})
-        },
         'notes.note': {
             'Meta': {'ordering': "['-created']", 'object_name': 'Note', '_ormbases': ['utils.HistoryListItem']},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['users.CustomUser']"}),
+            'content': ('django.db.models.fields.TextField', [], {}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'note': ('django.db.models.fields.TextField', [], {}),
             'object_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'tags.tag': {
@@ -211,7 +162,8 @@ class Migration(SchemaMigration):
         'utils.historylistitem': {
             'Meta': {'object_name': 'HistoryListItem'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'sort_by_date': ('django.db.models.fields.DateTimeField', [], {})
         },
         'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},
@@ -234,4 +186,5 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['messaging']
+    complete_apps = ['notes']
+    symmetrical = True

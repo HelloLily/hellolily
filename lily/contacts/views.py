@@ -3,9 +3,11 @@ from hashlib import sha256
 from urlparse import urlparse
 import base64
 import pickle
+import operator
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -23,10 +25,10 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
-from lily.notes.views import NoteDetailViewMixin
+from lily.notes.views import NoteDetailViewMixin, HistoryListViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import PhoneNumber
+from lily.utils.models import PhoneNumber, HistoryListItem
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
@@ -55,25 +57,14 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
         return kwargs
 
 
-class DetailContactView(NoteDetailViewMixin):
+class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
     template_name = 'contacts/details.html'
     model = Contact
     success_url_reverse_name = 'contact_details'
-
-    def get(self, request, *args, **kwargs):
-        """
-        Implementing the response for the http method GET.
-        """
-        self.object = self.get_object()
-
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-
-        context = self.get_context_data(object=self.object, form=form)
-        return self.render_to_response(context)
+    page_size = 15
 
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):

@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ('notes', '0002_use_historylistitem_as_base_for_notes'),
+        ('messaging', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding field 'HistoryListItem.sort_by_date'
         db.add_column('utils_historylistitem', 'sort_by_date',

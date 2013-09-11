@@ -1,5 +1,6 @@
 import datetime
 import email
+from django.template.defaultfilters import truncatechars
 import os
 import traceback
 import urllib
@@ -379,7 +380,7 @@ class BaseJSONViewMixin(View):
                 'sent_date': self.unix_time_millis(instance.sent_date),
                 'flags': instance.flags,
                 'uid': instance.uid,
-                'flat_body': instance.textify().strip('&nbsp;\n\r\n ').replace('\n', '<br />'),
+                'flat_body': self.get_flat_body(instance),
                 'subject': instance.subject.encode('utf-8'),
                 'size': instance.size,
                 'is_private': instance.is_private,
@@ -404,6 +405,15 @@ class BaseJSONViewMixin(View):
         finally:
             if server:
                 server.logout()
+
+    def get_flat_body(self, instance):
+        """
+        Create the flat body for in the message
+
+        :param instance: The email message instance
+        :return: a flat body string
+        """
+        return truncatechars(instance.textify().lstrip('&nbsp;\n\r\n '), 200)
 
     def get_message_from_imap(self, instance, pk):
         """
@@ -473,6 +483,15 @@ class HistoryListEmailMessageJSONView(BaseJSONViewMixin):
     """
     mark_as_read = False
     use_rich_body = False
+
+    def get_flat_body(self, instance):
+        """
+        Create the flat body for in the message
+
+        :param instance: The email message instance
+        :return: a flat body string
+        """
+        return instance.textify().strip('&nbsp;\n\r\n ').replace('\n', '<br />')
 
 
 class EmailMessageHTMLView(View):

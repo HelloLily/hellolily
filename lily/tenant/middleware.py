@@ -12,7 +12,7 @@ def get_current_user():
     return getattr(_thread_locals, 'user', None)
 
 
-class TenantMiddleWare(object):
+class TenantMiddleware(object):
     """
     Make the user that makes the request retrievable from anywhere.
     """

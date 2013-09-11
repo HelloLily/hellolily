@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	// form template to copy
 	var form_html = $('<div>').append($('#microblog form:first').clone()).html();
-	
+
 	// insert form template into dom on click
 	$('.blogentry-reply').live('click', function(event) {
 		// remove others
@@ -15,20 +15,20 @@ $(document).ready(function() {
 		$(blogentry).find('input[name="reply_to"]').val(parent_blogentry_id);
 		$(blogentry).find('form textarea').next('div').remove();
 		$(blogentry).find('form textarea').elastic();
-		
+
 		$(blogentry).find('form').slideDown('fast');
 		$(blogentry).find('form textarea').focus();
-		
+
 		event.preventDefault();
 	});
-	
+
 	$('#blogentries .replied-to').live('click', function(event) {
 		$('#blogentries .perma-marked').removeClass('perma-marked');
 		$('#blogentries .origin').removeClass('origin');
 		$('#entry-' + $(event.target).data('replied-to')).addClass('perma-marked');
 		$(event.target).closest('.blogentry').addClass('origin');
      });
-	
+
 	$('#blogentries .replied-to').live({
         mouseover: function() {
 			$('#entry-' + $(this).data('replied-to')).addClass('marked');
@@ -37,11 +37,11 @@ $(document).ready(function() {
 			$('#entry-' + $(this).data('replied-to')).removeClass('marked');
         }
      });
-     
+
      // delete via ajax and reload if success
      $('#blogentries .blogentry-delete').live('click', function(event) {
 		var blogentry_id = $(event.target).closest('.blogentry').data('entry-id');
-		
+
 		// try this
         var jqXHR = $.ajax({
             url: '/updates/delete/' + blogentry_id + '/',
@@ -66,7 +66,7 @@ $(document).ready(function() {
             // remove request object
             jqXHR = null;
         });
-		
+
 		event.preventDefault();
      });
 });

@@ -28,7 +28,7 @@
                 <a href="mailto:{{ item.primary_email }}" title="{{ item.primary_email }}">{{ item.primary_email|truncatechars:"35" }}</a>
             </div>
         {% endif %}
-    
+
         {% with item.get_work_phone as phone %}
             {% if phone.raw_input %}
                 <div class="i-16 i-phone blue">
@@ -36,7 +36,7 @@
                 </div>
             {% endif %}
         {% endwith %}
-    
+
         {% with item.get_mobile_phone as phone %}
             {% if phone.raw_input %}
                 <div class="i-16 i-mobile blue">

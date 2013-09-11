@@ -7,6 +7,13 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+        ('cases', '0001_initial'),
+        ('contacts', '0001_initial'),
+        ('deals', '0001_initial'),
+        ('users', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'Account'
         db.create_table('accounts_account', (

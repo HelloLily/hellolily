@@ -3,8 +3,7 @@
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field|is_checkbox %} checkbox{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
-        
+    <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field|is_checkbox %} checkbox{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %} {{ field|field_classes }}">
         {% if field.label %}
             {% if field|is_checkbox %}
                 {% crispy_field field %}
@@ -13,6 +12,12 @@
             <label for="{{ field.id_for_label }}" {% if field.field.required %}class="requiredField"{% endif %}>
                 {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
             </label>
+
+            {% if field.label %}
+                {% if not field|is_checkbox %}
+                    <div class="mws-form-item">
+                {% endif %}
+            {% endif %}
         {% endif %}
 
         {% if not field|is_checkbox %}
@@ -21,14 +26,14 @@
                     {% if field.errors %}
                         <span class="field_error">{% crispy_field field %}</span>
                         <div class="mws-error no_list_style_type">
-                              {{ field.errors }}
+                            {{ field.errors }}
                         </div>
                     {% else %}
                         {% crispy_field field %}
                     {% endif %}
                 {% else %}
-                    <a href="javascript:" class="click-show" data-click-show="full_form_description_wrapper">{{ field.field.widget.click_show_text }}</a>
-                    <div id="full_form_description_wrapper" class="hidden">
+                    <a href="javascript:" class="click-show" data-click-show="{{ field.auto_id }}_full_form_wrapper">{{ field.field.widget.click_show_text }}</a>
+                    <div id="{{ field.auto_id }}_full_form_wrapper" class="hidden">
                         {% if form.description.errors %}
                             <span class="field_error">{% crispy_field field %}</span>
                             <div class="mws-error no_list_style_type">
@@ -86,6 +91,12 @@
 
         {% if field.help_text %}
             <div id="hint_{{ field.auto_id }}" class="formHint">{{ field.help_text|safe }}</div>
+        {% endif %}
+
+        {% if not field|is_checkbox %}
+            {% if field.label %}
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 {% endif %}

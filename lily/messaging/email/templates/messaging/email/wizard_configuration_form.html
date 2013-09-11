@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<form class="mws-form tabthis" action="{{ form_action_url }}" method="post" autocomplete="off">
+    <div class="stepContainer">
+        <div class="mws-wizard clearfix content">
+            <ul style="float: none;">
+                <li>
+                    <a href="#step-1" title="{% trans 'E-mail address and authorization' %}">{% trans 'E-mail address' %}</a>
+                </li>
+                <li>
+                    <a href="#step-2" title="{% trans 'Provide IMAP and SMTP server settings' %}">{% trans 'Server settings' %}</a>
+                </li>
+                <li>
+                    <a href="#step-3" title="{% trans 'Set up your name and signature' %}">{% trans 'Personal' %}</a>
+                </li>
+                <li>
+                    <a href="#step-4">{% trans 'Finish' %}</a>
+                </li>
+            </ul>
+        </div>
+        {% block form-content %}
+            <div class="mws-form-inline">
+                <div id="step-1"></div>
+                <div id="step-2"></div>
+                <div id="step-3"></div>
+                <div id="step-4"></div>
+            </div>
+        {% endblock %}
+    </div>
+</form>

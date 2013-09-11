@@ -69,7 +69,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         Overloading super().form_valid to add success message after editing.
         """
         # Save instance
-        super(CreateUpdateDealView, self).form_valid(form)
+        response = super(CreateUpdateDealView, self).form_valid(form)
 
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
         if self.object.stage in [1,3]:
@@ -78,7 +78,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
             self.object.closed_date = None
         self.object.save()
 
-        return self.get_success_url()
+        return response
 
     def get_success_url(self):
         """
@@ -105,7 +105,7 @@ class AddDealView(CreateUpdateDealView, CreateView):
         Overloading super().form_valid to return json for an ajax request.
         """
         # Save instance
-        super(AddDealView, self).form_valid(form)
+        response = super(AddDealView, self).form_valid(form)
 
         message = _('%s (Deal) has been saved.') % self.object.name
 
@@ -138,7 +138,7 @@ class AddDealView(CreateUpdateDealView, CreateView):
         # Show save message
         messages.success(self.request, message)
 
-        return self.get_success_url()
+        return response
 
     def form_invalid(self, form):
         """
@@ -165,12 +165,12 @@ class EditDealView(CreateUpdateDealView, UpdateView):
         Overloading super().form_valid to show success message on edit.
         """
         # Save instance
-        super(EditDealView, self).form_valid(form)
+        response = super(EditDealView, self).form_valid(form)
 
         # Show save message
         messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name)
 
-        return self.get_success_url()
+        return response
 
 
 class DeleteDealView(DeleteView):
@@ -184,14 +184,16 @@ class DeleteDealView(DeleteView):
         """
         Overloading super().delete to add a message of successful removal of this instance.
         """
-        self.object = self.get_object()
+        # Delete instance
+        response = super(DeleteDealView, self).delete(request)
 
         # Show delete message
         messages.success(self.request, _('%s (Deal) has been deleted.') % self.object.name)
 
-        self.object.delete()
+        return response
 
-        return redirect(reverse('deal_list'))
+    def get_success_url(self):
+        return reverse('deal_list')
 
 
 class EditStageAjaxView(AjaxUpdateView):

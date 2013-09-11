@@ -38,10 +38,10 @@ ul.mws-summary .things-you-can-do {
 	padding-left: 40px;
 }
 
-#microblog-form
+/*#microblog-form
 {
 	max-width: 450px;
-}
+}*/
 
 #microblog .blogentry-textarea
 {
@@ -70,7 +70,7 @@ ul.mws-summary .things-you-can-do {
 	margin-left: 0;
 }
 
-#microblog-paginator li a 
+#microblog-paginator li a
 {
 	display: inline-block;
 	font-weight: bold;
@@ -138,7 +138,7 @@ ul.mws-summary .things-you-can-do {
 	margin-top: 16px;
 }
 
-#blogentries li 
+#blogentries li
 {
 	margin-left: 0;
 	margin-bottom: 5px;

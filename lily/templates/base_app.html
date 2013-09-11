@@ -4,7 +4,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    
+
     {% if messages %}
         <!-- Generate jGrowl notifications based on messages middleware -->
         <script type="text/javascript">
@@ -20,11 +20,11 @@
 {% endblock %}
 
 {% block body %}
-    
+
     {% block page-header %}{% endblock %}
-    
+
     {% block container %}{% endblock %}
-        
+
     {% block page-footer %}{% endblock %}
-    
+
 {% endblock %}

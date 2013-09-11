@@ -6,6 +6,7 @@
 .i-32.i-edit { background-image: url(white/32/edit.png); }
 .i-32.i-home { background-image: url(white/32/home.png); }
 .i-32.i-trash-2 { background-image: url(white/32/trash-2.png); }
+.i-32.i-messages { background-image: url(white/32/message.png); }
 
 .blue.i-32.i-accounts { background-image: url(blue/32/accounts.png); }
 .blue.i-32.i-cases { background-image: url(blue/32/cases.png); }
@@ -13,4 +14,6 @@
 .blue.i-32.i-deals { background-image: url(blue/32/deals.png); }
 .blue.i-32.i-home { background-image: url(blue/32/home.png); }
 .blue.i-32.i-note { background-image: url(blue/32/note.png); }
+.blue.i-32.i-messages { background-image: url(blue/32/message.png); }
+.blue.i-32.i-emailmessage { background-image: url(blue/32/message.png); }
 .blue.i-32.i-microblog { background-image: url(blue/32/microblog.png); }

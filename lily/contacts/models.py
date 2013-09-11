@@ -47,8 +47,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
-    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL,
-                                 verbose_name=_('salutation'))
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL, verbose_name=_('salutation'))
 
     def __getattribute__(self, name):
         if name == 'primary_email':
@@ -157,8 +156,14 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
+    def get_history_list(self):
+        pass
+
     def __unicode__(self):
         return self.full_name()
+
+    email_template_parameters = [first_name, preposition, last_name, full_name]
+    email_template_lookup = 'request.user.contact'
 
     class Meta:
         verbose_name = _('contact')

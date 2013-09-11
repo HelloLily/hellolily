@@ -1,13 +1,13 @@
 {% extends 'base_app.html' %}
 
-{% load i18n media activelink %}
+{% load i18n media activelink email %}
 
 {% block body %}
 
     {% block page-header %}
         <!-- Page header -->
         <div id="mws-header">
-            
+
             <!-- Page header container -->
             <div id="mws-header-container" class="clearfix">
                 <!-- Logo container -->
@@ -18,7 +18,7 @@
                         </a>
                     </div>
                 </div>
-                    
+
                 <!-- User tools container -->
                 <div id="mws-user-tools" class="clearfix">
                     <!-- User information section -->
@@ -26,7 +26,7 @@
                         <div id="mws-user-photo">
                             <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
-        
+
                         <div id="mws-user-functions">
                             <div id="mws-username">
                                 Hello, {{ user }}
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 {% block quickbuttons-container %}
                     <!-- Quickbutton container -->
                     <div id="mws-quickbutton-container" class="tabthis">
@@ -47,31 +47,31 @@
                                     {% trans 'Add contact' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'contacts/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url account_add %}" class="no-decoration quickbutton account">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add account' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'accounts/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url deal_add %}" class="no-decoration quickbutton deal">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add deal' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'deals/quickbutton_dialog.html' %}
-                            
+
                             <a href="{% url case_add %}" class="no-decoration quickbutton case">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add case' %}
                                 </button>
                             </a>
-                            
+
                             {% include 'cases/quickbutton_dialog.html' %}
                         {% endblock %}
                     </div>
@@ -82,37 +82,81 @@
 
     <!-- Start Main Wrapper -->
     <div id="mws-wrapper">
-        
+
         <!-- Sidebar -->
         <div id="mws-sidebar-stitch"></div>
         <div id="mws-sidebar">
             {% block sidebar %}
-            
+
                 {% block navigation %}
                     <div id="mws-navigation">
+                        <span class="navigation-title">{% trans 'Show menu' %}</span>
                         <ul>
                             <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
-                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">Dashboard</a>
+                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">{% trans 'Dashboard' %}</a>
                             </li>
                             <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
-                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">Contacts</a>
+                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">{% trans 'Contacts' %}</a>
                             </li>
                             <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">Accounts</a>
+                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">{% trans 'Accounts' %}</a>
+                            </li>
+                            <li class="mws-dropdown-menu {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
+                                <a href="javascript:void(0)" class="{% ifstartswith "messaging_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
+                                    {% trans 'Messages' %}
+                                </a>
+                                <ul{% ifstartswith "messaging_dashboard" %}{% else %} class="closed"{% endifstartswith %}>
+                                    <li><a href="{% url messaging_email_compose %}" class="i-16 i-compose" title="Compose e-mail">
+                                        Compose
+                                    </a></li>
+                                    {% email_folder_tree %}
+
+                                    {% ifstartswith "messaging_dashboard" %}
+                                        {% ifstartswith "messaging_email_compose" %}
+                                        {% else %}
+                                            {% ifstartswith "/messaging/email/reply/" %}
+                                            {% else %}
+                                                {% ifstartswith "/messaging/email/forward/" %}
+                                                {% else %}
+                                                    <li class="email-search">
+                                                        <form class="mws-form tabthis" action="{% url messaging_email_search_empty %}" method="get" id="email-search-form">
+                                                            <input type="hidden" name="account_id" value="{{ selected_email_account_id }}" />
+                                                            <input type="hidden" name="folder" value="{{ selected_email_folder }}" />
+                                                            <div class="mws-form-row">
+                                                                <div class="mws-form-item collapsed">
+                                                                    <input type="text" name="search_key" value="{{ email_search_key }}" placeholder="{% trans 'Search...' %}" class="mws-textinput" />
+                                                                    <button type="submit" class="mws-search-button mws-button blue"><span class="i-20 i-looking-glass mws-search-icon" title="{% trans 'Search' %}"></span></button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </li>
+                                                {% endifstartswith %}
+                                            {% endifstartswith %}
+                                        {% endifstartswith %}
+                                    {% endifstartswith %}
+                                    {% ifstartswith "messaging_email_search_empty" %}
+                                        <li class="active search-results">
+                                            <a href="{{ request.full.path }}">
+                                                <i class="ui-icon ui-icon-search"></i>
+                                                {% trans 'Search results' %}
+                                            </a>
+                                        </li>
+                                    {% endifstartswith %}
+                                </ul>
                             </li>
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">Deals</a>
+                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">{% trans 'Deals' %}</a>
                             </li>
                             <li {% ifstartswith "case_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">Cases</a>
+                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">{% trans 'Cases' %}</a>
                             </li>
                         </ul>
                     </div>
                 {% endblock %}
-                    
+
             {% endblock %}
         </div>
-        
+
         <!-- Main Container -->
         <div id="mws-container" class="clearfix">
 
@@ -120,15 +164,16 @@
             <div class="container clearfix">
                 {% block container %}{% endblock %}
             </div>
-            
+
             {% block page-footer %}
                 <!-- Footer -->
                 <div id="mws-footer">Copyright HelloLily 2012. All Rights Reserved.</div>
             {% endblock %}
         </div>
     </div>
-    
+
     <div class="hidden">
+        {% block dialogs %}{% endblock %}
         <div id="loadingDialog"></div>
         <div id="successDialog">
             <div class="mws-dialog-inner">
@@ -141,5 +186,5 @@
             </div>
         </div>
     </div>
-    
+
 {% endblock %}

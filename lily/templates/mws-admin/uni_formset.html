@@ -9,8 +9,8 @@
     {% empty %}
         <div class="{{ formset.instance.prefix }}-mws-formset"></div>
     {% endfor %}
-    
-    {% include formset.template with formset=formset.instance form=None %}            
-    
+
+    {% include formset.template with formset=formset.instance form=None %}
+
     {{ formset.instance.management_form }}
 </div>

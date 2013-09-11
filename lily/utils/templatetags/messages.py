@@ -11,6 +11,7 @@ tag_mapping = {
     'error': 'error mws-ic-16 ic-cross'
 }
 
+
 @register.filter(name='unique_messages')
 def unique_messages(messages):
     """
@@ -21,7 +22,7 @@ def unique_messages(messages):
     for m in messages:
         messages_list.append(m.message)
     messages_list = uniquify(messages_list)
-    
+
     # Rebuild messages node
     messages_unique = []
     for m in messages:
@@ -31,7 +32,7 @@ def unique_messages(messages):
             del messages_list[index]
         except ValueError:
             pass
-    
+
     return messages_unique
 
 
@@ -43,6 +44,5 @@ def message_css_tags(messages):
     # Set new 'css_class' attribute
     for m in messages:
         m.extra_tags = tag_mapping.get(m.tags)
-    
+
     return messages
-                

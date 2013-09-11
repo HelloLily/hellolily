@@ -1,0 +1,28 @@
+{% extends 'base_model_list_item.html' %}
+
+{% load i18n media thumbnail utils %}
+
+{% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}
+
+{% block item-delete-url %}{% url account_delete pk=item.pk %}{% endblock %}
+
+{% block item-columns %}
+    <td class="name">
+        <div>
+            <a href="{% url messaging_email_template_edit pk=item.pk %}">
+                {{ item.name }}
+            </a>
+        </div>
+        {% with item.get_address as address %}
+            {% if address.street %}
+                <div class="address">{{ address.city }}</div>
+            {% endif %}
+            {% if address.country %}
+                <div class="country">{{ address.get_country_display }}</div>
+            {% endif %}
+        {% endwith %}
+    </td>
+    <td class="description">
+        <div>{{ item.description }}</div>
+    </td>
+{% endblock %}

@@ -14,17 +14,18 @@ from lily.utils.functions import autostrip
 
 local_installed_apps = filter(lambda item: item.startswith('%s.' % __name__), settings.INSTALLED_APPS)
 
+
 def is_form(member):
     """
     Allow only custom made classes which are a subclass from BaseForm to pass.
     """
     if not inspect.isclass(member):
         return False
-    
+
     if not issubclass(member, BaseForm):
         return False
-    
-    return member.__module__.startswith(__name__) 
+
+    return member.__module__.startswith(__name__)
 
 for app in local_installed_apps:
     try:

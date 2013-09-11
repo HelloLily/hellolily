@@ -12,6 +12,7 @@ class CreateBlogEntryForm(forms.ModelForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(CreateBlogEntryForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
+        self.helper.form_tag = True
         self.helper.set_form_action('dashboard')
         self.helper.replace('content',
            MultiField(
@@ -20,7 +21,7 @@ class CreateBlogEntryForm(forms.ModelForm, FieldInitFormMixin):
                 Submit('blogentry-submit', _('Post'), css_class='small add-blogentry-button')
            )
         )
-    
+
     class Meta:
         model = BlogEntry
         fields = ('reply_to', 'content',)

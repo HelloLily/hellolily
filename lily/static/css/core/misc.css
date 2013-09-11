@@ -50,9 +50,9 @@
     text-decoration:none;
     color:#545454;
     background:#f0f0f0;
-    
+
     /* CSS 3 */
-    
+
     -webkit-border-radius:4px;
     -o-border-radius:4px;
     -moz-border-radius:4px;
@@ -99,28 +99,28 @@
     margin-bottom:-1px;
     border-right:1px solid #d6d6d6;
     background:url(../../images/core/mws-wizard.png) no-repeat left -50px;
-    
+
     display:block;
     max-width:250px;
     max-height:50px;
     overflow:hidden;
 }
 
-.mws-wizard ul li.current a, 
+.mws-wizard ul li.current a,
 .mws-wizard ul li.current span
 {
     color:#666666;
 }
 
-.mws-wizard ul li.disabled a, 
+.mws-wizard ul li.disabled a,
 .mws-wizard ul li.disabled span
 {
     color:#dddddd;
 }
 
-.mws-wizard ul li a.mws-i-24, 
-.mws-wizard ul li a.mws-ic-16, 
-.mws-wizard ul li span.mws-i-24, 
+.mws-wizard ul li a.mws-i-24,
+.mws-wizard ul li a.mws-ic-16,
+.mws-wizard ul li span.mws-i-24,
 .mws-wizard ul li span.mws-ic-16
 {
     background-position:12px center;
@@ -138,7 +138,7 @@
     padding-right:12px;
 }
 
-.mws-wizard ul li:first-child.current, 
+.mws-wizard ul li:first-child.current,
 .mws-wizard ul li:first-child:hover.current
 {
     background-position:-25px top;
@@ -149,7 +149,7 @@
     background-position:-25px -100px;
 }
 
-.mws-wizard ul li.current, 
+.mws-wizard ul li.current,
 .mws-wizard ul li.current:hover
 {
     background-position:left top;
@@ -160,7 +160,7 @@
     background-position:left -100px;
 }
 
-.mws-wizard ul li a, 
+.mws-wizard ul li a,
 .mws-wizard ul li span
 {
     display:block;
@@ -175,7 +175,7 @@
 
 ul.mws-summary
 {
-    margin:0; 
+    margin:0;
     padding:0;
 }
 
@@ -188,7 +188,7 @@ ul.mws-summary li
     padding:2px 4px;
     border-bottom:1px solid #bbbbbb;
     border-top:1px solid #ffffff;
-    
+
     overflow:hidden;
     display:block;
     text-overflow:ellipsis;
@@ -229,47 +229,47 @@ div.mws-panel-toolbar.bottom
     border-top:1px solid #dddddd;
 }
 
-div.mws-panel-toolbar ul, 
-div.mws-panel-toolbar ul li
+div.mws-panel-toolbar > ul,
+div.mws-panel-toolbar > ul > li
 {
     list-style:none;
     padding:0; margin:0;
 }
 
-div.mws-panel-toolbar.right ul
+div.mws-panel-toolbar.right > ul
 {
     float:right;
 }
 
-div.mws-panel-toolbar ul
+div.mws-panel-toolbar > ul
 {
     float:left;
 }
 
-div.mws-panel-toolbar.right ul li
+div.mws-panel-toolbar.right > ul > li
 {
     border-right:0;
     border-left:1px solid #d0d0d0;
 }
 
-div.mws-panel-toolbar ul li
+div.mws-panel-toolbar > ul > li
 {
     display:block;
     float:left;
     border-right:1px solid #d0d0d0;
 }
 
-div.mws-panel-toolbar ul li a, 
-div.mws-panel-toolbar ul li span
+div.mws-panel-toolbar > ul > li > a,
+div.mws-panel-toolbar > ul > li > span
 {
     text-decoration:none;
     color:#666666;
     padding:8px 12px;
     display:block;
     cursor:pointer;
-    
+
     /* CSS 3 */
-    
+
     -webkit-box-shadow:inset 1px 0px 0px rgba(255, 255, 255, 0.75), inset 0px 1px 0px #ffffff;
     -moz-box-shadow:inset 1px 0px 0px rgba(255, 255, 255, 0.75), inset 0px 1px 0px #ffffff;
     -o-box-shadow:inset 1px 0px 0px rgba(255, 255, 255, 0.75), inset 0px 1px 0px #ffffff;
@@ -277,20 +277,20 @@ div.mws-panel-toolbar ul li span
     box-shadow:inset 1px 0px 0px rgba(255, 255, 255, 0.75), inset 0px 1px 0px #ffffff;
 }
 
-div.mws-panel-toolbar ul li a.mws-ic-16, 
-div.mws-panel-toolbar ul li span.mws-ic-16
+div.mws-panel-toolbar > ul > li a.mws-ic-16,
+div.mws-panel-toolbar > ul > li span.mws-ic-16
 {
     padding-left:32px;
     background-position:12px center;
 }
 
-div.mws-panel-toolbar ul li a:active, 
-div.mws-panel-toolbar ul li span:active
+div.mws-panel-toolbar > ul > li a:active,
+div.mws-panel-toolbar > ul > li span:active
 {
     background-color:#efefef;
-    
+
     /* CSS 3 */
-    
+
     -webkit-box-shadow:inset 0px 0px 8px rgba(0, 0, 0, 0.1) !important;
     -moz-box-shadow:inset 0px 0px 8px rgba(0, 0, 0, 0.1) !important;
     -o-box-shadow:inset 0px 0px 8px rgba(0, 0, 0, 0.1) !important;

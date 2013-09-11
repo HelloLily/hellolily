@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+         ('accounts', '0001_initial'),
+         ('contacts', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'Tag'
         db.create_table('tags_tag', (

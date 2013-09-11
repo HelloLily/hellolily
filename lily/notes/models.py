@@ -1,25 +1,34 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
-from django.template.defaultfilters import truncatewords
 from django.utils.translation import ugettext as _
 
-from lily.utils.models import Deleted
+from lily.utils.models import Deleted, HistoryListItem
 
 
-class Note(Deleted):
+class Note(HistoryListItem, Deleted):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
-    note = models.TextField(verbose_name=_('note'))
+    content = models.TextField(verbose_name=_('note'))
     author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
-    
+
     content_type = models.ForeignKey(ContentType)
-    object_id  = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField()
     subject = generic.GenericForeignKey('content_type','object_id')
-    
+
+    def get_list_item_template(self):
+        """
+        Return the template that must be used for history list rendering
+        """
+        return 'notes/list_item.html'
+
+    def save(self, *args, **kwargs):
+        self.sort_by_date = self.created
+        return super(Note, self).save()
+
     def __unicode__(self):
-        return truncatewords(self.note, 5)
+        return self.content
 
     class Meta:
         ordering = ['-created']

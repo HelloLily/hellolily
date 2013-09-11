@@ -4,11 +4,11 @@
     {% if form_style == 'inlineLabels' %}
         <div class="mws-form-inline">
     {% endif %}
-    
+
         {% if form_method|lower == 'post' %}
             {% csrf_token %}
         {% endif %}
-        
+
         {% comment %}
         TODO: find a better way to deal with this for accounts/create_or_update_form.html and accounts/quickbutton_form.html only
         {% endcomment %}
@@ -21,9 +21,9 @@
                 </p>
             </div>
         {% endif %}
-    
+
         {% include "mws-admin/display_form.html" %}
-       
+
         {% if inputs %}
             <div class="buttonHolder mws-button-row">
                 {% for input in inputs %}
@@ -31,7 +31,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        
+
     {% if form_style == 'inlineLabels' %}
         </div>
     {% endif %}

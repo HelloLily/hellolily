@@ -1,0 +1,13 @@
+{% extends 'base_create_or_update_form.html' %}
+
+{% load i18n field_extras %}
+
+{% block create-form-title %}{% trans 'Add template' %}{% endblock %}
+
+{% block update-form-title %}{% trans 'Edit template' %}{% endblock %}
+
+{% block hidden-dialogs %}
+    {% if item.pk %}
+        {% include 'messaging/email/template_delete_dialog.html' with item=item %}
+    {% endif %}
+{% endblock %}

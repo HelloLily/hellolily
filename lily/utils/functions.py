@@ -1,7 +1,7 @@
+import re
+
 from django import forms
 from django.contrib import messages
-import re
-import string
 
 
 def autostrip(cls):
@@ -21,8 +21,9 @@ def autostrip(cls):
         setattr(field_object, 'clean', clean_func)
     return cls
 
+
 # TODO: build testcase
-def uniquify (sequence, function=None):
+def uniquify(sequence, function=None, filter=None):
     """
     Remove non-unique items from given sequence. Redirect call to _uniquify for the actual
     uniquifying.
@@ -30,28 +31,32 @@ def uniquify (sequence, function=None):
     function can for example be lambda x: x.lower() to also remove items that are actually the same
     except for lettercase ['a', 'A'], which will prevent the latter from joining the result list.
     """
-    return list(_uniquify (sequence, function))
-def _uniquify (sequence, function=None):
+    return list(_uniquify(sequence, function, filter))
+
+
+def _uniquify(sequence, function=None, filter=None):
     """
-    The function that actually uniquifies the sequence.
+    Function: manipulate what is being returned.
+    Filter: manipulate what is being compared.
 
     One of the fastest ways to uniquify a sequence according to http://www.peterbe.com/plog/uniqifiers-benchmark
     with full support of also non-hashable sequence items.
     """
     seen = set()
-    if function is None:
+    if filter is None:
         for x in sequence:
             if x in seen:
                 continue
             seen.add(x)
-            yield x
+            yield x if function is None else function(x)
     else:
         for x in sequence:
-            x = function(x)
-            if x in seen:
+            x_mod = filter(x)
+            if x_mod in seen:
                 continue
-            seen.add(x)
-            yield x
+            seen.add(x_mod)
+            yield x if function is None else function(x)
+
 
 def is_ajax(request):
     """
@@ -59,12 +64,14 @@ def is_ajax(request):
     """
     return request.is_ajax() or 'xhr' in request.GET
 
+
 def clear_messages(request):
     """
     Clear messages for given request.
     """
     storage = messages.get_messages(request)
     storage.used = True
+
 
 def parse_address(address):
     """
@@ -99,6 +106,7 @@ def parse_address(address):
 
     return street, street_number, complement
 
+
 def flatten(input):
     """
     Flatten the input so only alphanumeric characters remain.
@@ -106,5 +114,7 @@ def flatten(input):
     pattern = re.compile('[\W_]+')
     return pattern.sub('', re.escape(input)).lower()
 
+
 def dummy_function(x, y=None):
     return x, y
+

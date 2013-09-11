@@ -36,6 +36,7 @@ function do_request_to_enrich(form, domain) {
         // on error
         jqXHR.fail(function() {
             $.jGrowl(gettext('No information found for') + ' ' + domain, {
+                sticky: true,
                 theme: 'info mws-ic-16 ic-exclamation'
             });
         });
@@ -67,7 +68,7 @@ function do_request_to_enrich(form, domain) {
 }
 
 $(document).ready(function() {
-    // do do_request_to_enrich() on enter key in text input 
+    // do do_request_to_enrich() on enter key in text input
     $('#id_primary_website, #id_account_quickbutton_website').each(function() {
         $(this).keydown(function(event) {
             // enrich on enter key only

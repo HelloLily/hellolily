@@ -1,0 +1,16 @@
+[
+    {
+        "pk": 1,
+        "model": "email.emailprovider",
+        "fields": {
+            "tenant": 1,
+            "name": "GMail",
+            "imap_host": "imap.gmail.com",
+            "imap_port": 993,
+            "imap_ssl": true,
+            "smtp_host": "smtp.gmail.com",
+            "smtp_port": 587,
+            "smtp_ssl": true
+        }
+    }
+]

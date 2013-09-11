@@ -1,0 +1,180 @@
+{% extends 'base_user.html' %}
+{% load i18n media %}
+
+{% block page-title %}
+    {% trans 'Compose e-mail' %} -
+{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <!--{% include_media 'hallojs.css' %}-->
+    <!--[if lt IE 9]> {% include_media 'hallojs-ie7.css' %} <![endif]-->
+
+    <style type="text/css">
+        .sent-to-recipients textarea {
+            height: 31px;
+        }
+        #email-body {
+            border: 1px solid #c5c5c5;
+            width: 100%;
+            outline: 0;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            -o-border-radius: 4px;
+            -khtml-border-radius: 4px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -khtml-box-sizing: border-box;
+        }
+        #email-body.focus {
+            border: 1px solid #1c76bc;
+            box-shadow:0 0 5px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var known_contact_addresses = {{ known_contact_addresses|safe }};
+            var template_list = {{ template_list|safe }};
+            function split( val ) {
+                return val.split( /,\s*/ );
+            }
+            function extractLast( term ) {
+                return split( term ).pop();
+            }
+            $('#id_send_to_normal, #id_send_to_cc, #id_send_to_bcc')
+                // don't navigate away from the field on tab when selecting an item
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB &&
+                            $( this ).data( 'autocomplete' ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function( request, response ) {
+                        // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            known_contact_addresses, extractLast( request.term ) ) );
+                    },
+                    focus: function() {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = split( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( '' );
+                        this.value = terms.join( ', ' );
+                        // trigger autogrow
+                        $(this).trigger('update');
+                        return false;
+                    }
+                });
+
+            // jump from subject to iframe contents
+            $('#id_subject').keydown(function(event) {
+                if(event.keyCode == 9) { // TAB key
+                    $(this).trigger('blur');
+                    $('#email-body').contents().find('#email-content').trigger('focus');
+                    return false;
+                }
+            });
+
+            $('#email-body').load(function() {
+                // visualize possibility of inline editing and enable autogrow
+                $('#email-body').contents()
+                    .find('#email-content')
+                        .bind('halloactivated', function(event) {
+                            $('#email-body').addClass('focus')
+                                .contents().find('html').addClass('focus');
+                        }).bind('hallodeactivated', function(event) {
+                            $('#email-body').removeClass('focus')
+                                .contents().find('html').removeClass('focus');
+                        }).bind('hallomodified', function(event) {
+                            $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+                        }).html($('#id_body').val());
+
+                // move content below toolbar
+                var email_content = $('#email-body').contents().find('#email-content');
+                $('#email-body').contents().find(email_content).css('padding-top', parseInt($(email_content).parent().css('padding-top')) + $('#email-body').contents().find('.hallotoolbar').outerHeight() + 'px');
+
+                // set new height after load
+                $('#email-body').contents()
+                    .find('html')
+                        .addClass('autogrow')
+                    .find('body')
+                        .css('font-family', $('body').css('font-family'))
+                        .css('font-size', $('body').css('font-size'))
+                        .css('margin', '1px');
+                $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+
+                $('#email-body').contents().find('#email-content');
+            });
+
+            // intercept submit and add email body to form data
+            $('#submit-id-submit-save, #submit-id-submit-send').closest('form').submit(function(event) {
+                var body = $('#email-body').contents().find('#email-content').html();
+                $(this).find('[name="body_html"]').val(body);
+
+                return true;
+            });
+
+            var last_selected = $("#id_template option:selected");
+            $('#id_template').change(function(e) {
+                var value = $(this).val();
+                var text = $(this).find('option:selected').text();
+                var subject_field = $('#id_subject');
+                var html_field = $('#email-body').contents().find('#email-content');
+                var text_field = $('#id_body_text');
+                var confirmation_text = '{% trans 'This will cause you to loose all data already entered within the email body and subject. Click "OK" to continue or "Cancel" to prevent this.' %}';
+
+                if(subject_field.val() !== '' || html_field.html().trim() !== '' || text_field.val() !== '') {
+                    if(confirm(confirmation_text)) {
+                        if (value == '') {
+                            subject_field.val('');
+                            html_field.html('');
+                            text_field.val('');
+                        } else {
+                            subject_field.val(template_list[value]['subject']);
+                            html_field.html(template_list[value]['html_part']);
+                            text_field.val(template_list[value]['text_part']);
+                        }
+                        last_selected = $("#id_template option:selected");
+                    } else {
+                        last_selected.attr('selected', true);
+                    }
+                } else {
+                    subject_field.val(template_list[value]['subject']);
+                    html_field.html(template_list[value]['html_part']);
+                    text_field.val(template_list[value]['text_part']);
+                    last_selected = $("#id_template option:selected");
+                }
+
+                if (text_field.val() !== '') {
+                    text_field.closest('#div_id_body_text').find('.click-show').click();
+                    text_field.trigger('update');
+                }
+                $('#email-body').css('height', ''+ getIframeHeight($('#email-body')) + 'px');
+                $('#id_template').trigger('liszt:updated');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block container %}
+    <div class="mws-panel grid_8">
+        {% include 'messaging/email/email_compose_form.html' %}
+    </div>
+{% endblock %}

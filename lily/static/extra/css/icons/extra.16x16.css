@@ -8,12 +8,22 @@
 .blue.i-16.i-edit { background-image: url(blue/16/edit.png); }
 .blue.i-16.i-mail { background-image: url(blue/16/mail.png); }
 .blue.i-16.i-mobile { background-image: url(blue/16/mobile.png); }
+.blue.i-16.i-paperclip { background-image: url(blue/16/paperclip.png); height: 13px; width: 13px; margin: 4px 3px 3px; display: block}
 .blue.i-16.i-phone { background-image: url(blue/16/phone.png); }
+.blue.i-16.i-setting { background-image: url(blue/16/setting.png); }
+.blue.i-16.i-share { background-image: url(blue/16/unlocked.png); }
 .blue.i-16.i-trash-1 { background-image: url(blue/16/trash-1.png); }
 .blue.i-16.i-twitter { background-image: url(blue/16/twitter.png); }
+
+.i-16.i-compose { background-image: url(color/16/compose.png); }
+.i-16.i-inbox { background-image: url(color/16/inbox.png); }
+.i-16.i-mailbox { background-image: url(color/16/mailbox.png); }
+.i-16.i-outbox { background-image: url(color/16/outbox.png); }
 
 div.jGrowl div.jGrowl-notification.mws-ic-16 { background-repeat:no-repeat; }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-accept { background-image:url(../../../css/icons/16/accept.png); }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-error { background-image:url(../../../css/icons/16/error.png); }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-exclamation { background-image:url(../../../css/icons/16/exclamation.png); }
 div.jGrowl div.jGrowl-notification.mws-ic-16.ic-cross { background-image:url(../../../css/icons/16/cross.png); }
+
+

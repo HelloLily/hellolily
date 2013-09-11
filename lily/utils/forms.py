@@ -1,17 +1,18 @@
 from crispy_forms.layout import Layout, HTML
 from django import forms
+from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, \
-    TextInput, Select, Textarea, HiddenInput
+from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.widgets import ContactAccountSelect
+from lily.messaging.email.widgets import EmailAttachmentWidget
+from lily.messaging.email.models import EmailAttachment
 from lily.utils.formhelpers import LilyFormHelper
 from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 from lily.utils.widgets import JqueryPasswordInput
-from lily.users.models import CustomUser
 
 
 # Mixins
@@ -89,7 +90,10 @@ class FieldInitFormMixin(forms.BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(FieldInitFormMixin, self).__init__(*args, **kwargs)
-        for name, field in self.base_fields.items():
+        self.update_fields()
+
+    def update_fields(self):
+        for name, field in self.fields.items():
             w = field.widget
             if issubclass(w.__class__, HiddenInput):
                 continue  # ignore
@@ -124,8 +128,6 @@ class FieldInitFormMixin(forms.BaseForm):
             if field.required:
                 w.attrs['class'] = (w.attrs.get('class', '') + ' required').strip()
 
-        super(FieldInitFormMixin, self).__init__(*args, **kwargs)
-
 
 # Forms
 class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
@@ -146,15 +148,23 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
                             <label>
                                 <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
                                 <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">''' + _('primary') + '''</span>
-                            </label>'''
-                        ),
+                            </label>'''),
                         size=2,
                         css_class='center email_is_primary'),
                     Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-setting blue'),
+                        size=1,
+                        css_class='email-configuration-wizard',
+                        title=_('Start wizard to set up incoming and outgoing email for this address')),
+                    Column(
+                        Anchor(href='javascript:void(0)', css_class='i-16 i-share blue'),
+                        size=1,
+                        css_class='email-share-wizard',
+                        title=_('Share this email address with others')),
+                    Column(
                         Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
                         size=1,
-                        css_class='formset-delete'
-                    ),
+                        css_class='formset-delete'),
                 )
             )
         ))
@@ -296,3 +306,43 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
         exclude = ('state_provice',)
+
+class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
+    """
+    Form for uploading files.
+    """
+    def __init__(self, *args, **kwargs):
+        super(AttachmentBaseForm, self).__init__(*args, **kwargs)
+
+        anchor_url = 'javascript:void(0)'
+        anchor_css_class = 'i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'
+        if self.instance.pk:
+            anchor_url = reverse('email_attachment_removal', kwargs={'pk': self.instance.message_id, 'attachment_pk': self.instance.pk})
+            anchor_css_class += ' dont'
+
+        self.helper = LilyFormHelper(self)
+        self.helper.form_tag = False
+        self.helper.add_layout(Layout(
+            MultiField(
+                None,
+                None,
+                ColumnedRow(
+                    Column('attachment', size=3, first=True, css_class='email-attachment-widget'),
+                    Column(
+                        Anchor(href=anchor_url, css_class=anchor_css_class),
+                        size=1,
+                        css_class='formset-delete'
+                    ),
+                )
+            )
+        ))
+
+        self.fields['attachment'].label = ''
+
+    class Meta:
+        models = EmailAttachment
+        fields = ('attachment',)
+        exclude = ('message', 'size', 'inline', 'tenant')
+        widgets = {
+            'attachment': EmailAttachmentWidget(),
+        }

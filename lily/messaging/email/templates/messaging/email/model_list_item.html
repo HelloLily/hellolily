@@ -1,0 +1,59 @@
+{# based on 'base_model_list_item.html' #}
+{% load i18n email media %}
+
+{% block item-row %}
+    {% if forloop.first %}
+        <div class="divider">
+        </div>
+    {% endif %}
+    {% if item.is_seen %}
+    <div class="single-message clearfix" data-uid="{{ item.uid }}" data-id="{{ item.id }}">
+    {% else %}
+    <div class="single-message unread clearfix" data-uid="{{ item.uid }}" data-id="{{ item.id }}">
+    {% endif %}
+        {% block controls %}
+            <div class="controls">
+                {% block item-actions %}
+                    <input type="checkbox" name="item[]" value="{{ item.uid }}" />
+                {% endblock %}
+                {% if item.num_attachments > 0 %}<span class="i-16 i-paperclip blue"></span>{% endif %}
+            </div>
+        {% endblock %}
+        {% block item-columns %}
+            {% if 'draft' not in item.flags|lower %}
+                <div class="action no-width">
+                    <div class="high priority" title="{% trans 'Mark as a high priority item' %}"></div>
+                    <div class="medium priority" title="{% trans 'Mark as a medium priority item' %}"></div>
+                    <div class="low priority" title="{% trans 'Mark as a low priority item' %}"></div>
+                </div>
+            {% endif %}
+            <div class="message email{% if item.is_draft %} draft{% endif %}">
+                {% if item.is_draft %}
+                    <a href="{% url messaging_email_compose pk=item.pk %}" class="message-draft-link clearfix">
+                {% endif %}
+                    <div class="sender-time-email">
+                        <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }} </div>
+                        {% if 'draft' in item.flags|lower %}
+                            <div class="sender" title="{{ item.to_name }} <{{ item.to_email }}>">{% trans 'To' %}: {% if item.to_name %}{{ item.to_name }}{%else%}{{ item.to_email }}{% endif %}</div>
+                            <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+                        {% else %}
+                            <div class="sender" title="{{ item.to_name }} <{{ item.to_email }}>">{% trans 'To' %}: {% if item.to_name %}{{ item.to_name }}{%else%}{{ item.to_email }}{% endif %}</div>
+                            <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
+                    <div class="body preview">{{ item.textify|truncatechars:"200"|safe }}</div>
+                {% if item.is_draft %}
+                    </a>
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
+    <div class="divider">
+    </div>
+    {% if not forloop.last %}
+    <div class="divider">
+        <hr />
+    </div>
+    {% endif %}
+{% endblock %}

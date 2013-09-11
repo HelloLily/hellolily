@@ -3,9 +3,11 @@ from hashlib import sha256
 from urlparse import urlparse
 import base64
 import pickle
+import operator
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -23,10 +25,10 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
-from lily.notes.views import NoteDetailViewMixin
+from lily.notes.views import NoteDetailViewMixin, HistoryListViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import PhoneNumber
+from lily.utils.models import PhoneNumber, HistoryListItem
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
@@ -55,13 +57,14 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
         return kwargs
 
 
-class DetailContactView(NoteDetailViewMixin):
+class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
     template_name = 'contacts/details.html'
     model = Contact
     success_url_reverse_name = 'contact_details'
+    page_size = 15
 
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
@@ -75,11 +78,11 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
 
     exclude_address_types = ['visiting']
 
-    def __init__(self, *args, **kwargs):
-        super(CreateUpdateContactView, self).__init__(*args, **kwargs)
-
+    def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data['addresses_formset']['template'] = 'contacts/formset_address.html'
+        self.formset_data.update({'addresses_formset': {'template': 'contacts/formset_address.html'}})
+
+        return super(CreateUpdateContactView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save()  # copied from ModelFormMixin
@@ -129,7 +132,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         if is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
 
-            # Add e-mail address to account as primary
+            # Add e-mail address to contact as primary
             self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
 

@@ -85,11 +85,11 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
 
         # Customize form layout
         self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.layout.pop(0) # salutation
-        self.helper.layout.pop(0) # gender
-        self.helper.layout.pop(0) # first name
-        self.helper.layout.pop(0) # preposition
-        self.helper.layout.pop(0) # last name
+        self.helper.layout.pop(0)  # salutation
+        self.helper.layout.pop(0)  # gender
+        self.helper.layout.pop(0)  # first name
+        self.helper.layout.pop(0)  # preposition
+        self.helper.layout.pop(0)  # last name
         self.helper.layout.insert(0,
             self.helper.create_multi_row(
                 (

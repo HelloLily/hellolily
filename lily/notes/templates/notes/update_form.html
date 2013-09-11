@@ -29,7 +29,7 @@
         {% if note.errors %}
             <div class="mws-form-item large">
                 <span class="field_error">
-                    <textarea id="id_note_{{ note.pk }}" class="note-autogrow tabbable" name="note">{{ note.note }}</textarea>
+                    <textarea id="id_note_{{ note.pk }}" class="note-autogrow tabbable" name="content">{{ note.note }}</textarea>
                 </span>
                 <div class="mws-error no_list_style_type">
                     {{ note.errors }}
@@ -37,7 +37,7 @@
             </div>
         {% else %}
             <div class="mws-form-item large">
-                <textarea id="id_note_{{ note.pk }}" class="note-autogrow tabbable" name="note">{{ note.note }}</textarea>
+                <textarea id="id_note_{{ note.pk }}" class="note-autogrow tabbable" name="content">{{ note.note }}</textarea>
             </div>
         {% endif %}
     </div>

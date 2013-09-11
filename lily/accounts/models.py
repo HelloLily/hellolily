@@ -57,6 +57,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
 
+
     def __getattribute__(self, name):
         if name == 'primary_email':
             try:
@@ -188,6 +189,9 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         self.flatname = flatten(self.name)
 
         return super(Account, self).save(*args, **kwargs)
+
+    email_template_parameters = [name, description, ]
+    email_template_lookup = 'request.user.account'
 
     class Meta:
         verbose_name = _('account')

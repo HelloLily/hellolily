@@ -17,7 +17,7 @@ from django.views.generic.list import ListView
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
-from lily.notes.views import NoteDetailViewMixin
+from lily.notes.views import NoteDetailViewMixin, HistoryListViewMixin
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
@@ -46,7 +46,7 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
         return kwargs
 
 
-class DetailAccountView(NoteDetailViewMixin):
+class DetailAccountView(HistoryListViewMixin):
     """
     Display a detail page for a single account.
     """
@@ -66,12 +66,12 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     # Option for address formset
     exclude_address_types = ['home']
 
-    def __init__(self, *args, **kwargs):
-        super(CreateUpdateAccountView, self).__init__(*args, **kwargs)
-
+    def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data['addresses_formset']['template'] = 'accounts/formset_address.html'
-        self.formset_data['websites_formset']['label'] = _('Extra websites')
+        self.formset_data.update({'addresses_formset': {'template': 'accounts/formset_address.html'}})
+        self.formset_data.update({'websites_formset': {'label': _('Extra websites')}})
+
+        return super(CreateUpdateAccountView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """

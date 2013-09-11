@@ -15,17 +15,17 @@ class TagsFormMixin(forms.ModelForm):
         widget=InputAndSelectMultiple(attrs={
             'class': 'input-and-choice-select',
     }))
-    
+
     def __init__(self, *args, **kwargs):
         """
         Set the initial values for tags.
         """
         super(TagsFormMixin, self).__init__(*args, **kwargs)
-        
+
         # Provide autocomplete suggestions and already linked tags
         self.fields['tags'].initial = self.instance.tags.all().values_list('name', flat=True)
-        self.fields['tags'].choices = [(tag, tag) for tag in Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct()]        
-        
+        self.fields['tags'].choices = [(tag, tag) for tag in Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct()]
+
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
@@ -34,7 +34,7 @@ class TagsFormMixin(forms.ModelForm):
         """
         # Save model instance
         instance = super(TagsFormMixin, self).save()
-        
+
         # Save tags
         tags = self.cleaned_data.get('tags')
         for tag in tags:
@@ -51,6 +51,6 @@ class TagsFormMixin(forms.ModelForm):
         tags_to_remove.delete()
 
         return instance
-    
+
     class Meta:
         fields = ('tags',)

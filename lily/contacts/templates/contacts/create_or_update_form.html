@@ -10,4 +10,7 @@
     {% if item.pk %}
         {% include 'contacts/delete_dialog.html' with item=item %}
     {% endif %}
+
+    <div id="dialog-email-configuration-wizard" class="dialog configuration" title="{% trans 'E-mail configuration wizard' %}"></div>
+    <div id="dialog-email-share-wizard" class="dialog share" title="{% trans 'E-mail share options' %}"></div>
 {% endblock %}

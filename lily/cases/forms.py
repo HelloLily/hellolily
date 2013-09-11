@@ -19,22 +19,22 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding or editing a case.
     """
-    account = forms.ModelChoiceField(label=_('Account'), queryset=Account.objects.none(), 
+    account = forms.ModelChoiceField(label=_('Account'), queryset=Account.objects.none(),
         empty_label=_('an account'), required=False, widget=forms.Select(attrs={
         'class': 'contact_account',
     }))
-    
-    contact = forms.ModelChoiceField(label=_('Contact'), queryset=Account.objects.none(), 
+
+    contact = forms.ModelChoiceField(label=_('Contact'), queryset=Account.objects.none(),
         empty_label=_('a contact'), required=False, widget=ContactAccountSelect(attrs={
         'class': 'contact_account',
     }))
-    
+
     assigned_to = forms.ModelChoiceField(label=_('Assigned to'), queryset=CustomUser.objects.none(),
         empty_label=None)
-    
+
     def __init__(self, *args, **kwargs):
         """
-        Create a dynamic layout and make accounts, contacts and users available for drop down selections. 
+        Create a dynamic layout and make accounts, contacts and users available for drop down selections.
         """
         super(CreateUpdateCaseForm, self).__init__(*args, **kwargs)
         self.helper = DeleteBackAddSaveFormHelper(self)
@@ -59,12 +59,12 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         self.helper.add_columns(
             Column('assigned_to', first=True)
         )
-        self.helper.insert_after(Divider, 'status', 'contact')
-        
+        self.helper.insert_after(Divider(), 'status', 'contact')
+
         # Provide filtered query set for account/contact/assigned_to
-        self.fields['account'].queryset = Account.objects.all()        
-        self.fields['contact'].queryset = Contact.objects.all()
-        
+        self.fields['account'].queryset = Account.objects.all()
+        self.fields['contact'].queryset = Contact.objects.all()  # Hits database per contact and function...
+
         # FIXME: WORKAROUND FOR TENANT FILTER.
         # An error will occur when using CustomUser.objects.all(), most likely because
         # the foreign key to contact (and maybe account) is filtered and executed before
@@ -73,7 +73,7 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         #
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
-    
+
     def clean(self):
         """
         Form validation: all fields should be unique.
@@ -86,19 +86,19 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
 
         # Check if not both contact or an account have been selected or verify that an account the contact works at
         if cleaned_data.get('contact') and cleaned_data.get('account'):
-            linked_account = existing_contact.get_primary_function().account
+            linked_account = cleaned_data.get('contact').get_primary_function().account
             if linked_account != cleaned_data.get('account'):
                 self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
 
         return cleaned_data
-    
+
     class Meta:
         model = Case
         fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to')
         exclude = ('is_deleted', 'closed_date', 'tenant')
-        
+
         widgets = {
-            'priority': PrioritySelect(attrs={ 
+            'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
             }),
             'description': forms.Textarea(attrs={
@@ -116,21 +116,21 @@ class AddCaseQuickbuttonForm(CreateUpdateCaseForm):
     """
     def __init__(self, *args, **kwargs):
         """
-        Overload super().__init__ to change auto_id to prevent clashing form field id's with 
+        Overload super().__init__ to change auto_id to prevent clashing form field id's with
         other forms.
         """
         kwargs.update({
             'auto_id': 'id_case_quickbutton_%s',
         })
-        
+
         super(AddCaseQuickbuttonForm, self).__init__(*args, **kwargs)
         self.helper.inputs = []
-    
+
     class Meta:
         model = Case
         fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to')
         exclude = ('is_deleted', 'closed_date', 'tenant')
-        
+
         widgets = {
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',

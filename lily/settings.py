@@ -1,10 +1,11 @@
 import os
+from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
+import django.conf.global_settings as DEFAULT_SETTINGS
+import djcelery
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import gettext_noop
-from datetime import datetime, timedelta
-import django.conf.global_settings as DEFAULT_SETTINGS
 
 
 # Don't share this with anybody
@@ -28,22 +29,10 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
 
-if DEV: # Only use sqlite db when in dev mode, Heroku injects db settings on deployment
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'local.sqlite',
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',
-            'PORT': '',
-        }
-    }
-else:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(default='postgres://localhost')
-    }
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.config(default='postgres://localhost')
+}
 
 SITE_ID = os.environ.get('SITE_ID', 1)
 
@@ -61,12 +50,12 @@ USE_TZ = boolean(os.environ.get('USE_TZ', 1))
 FIRST_DAY_OF_WEEK = os.environ.get('FIRST_DAY_OF_WEEK', 1)
 
 # Security parameters
-CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0)) # For production this needs to be set to True
+CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))  # For production this needs to be set to True
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
-SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0)) # For production this needs to be set to True
-SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0)) # For production this needs to be set to True
+SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))  # For production this needs to be set to True
+SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0))  # For production this needs to be set to True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 0))
-X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN') # For production this needs to be set to DENY
+X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')  # For production this needs to be set to DENY
 
 # Media and static file locations
 
@@ -81,6 +70,8 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
+EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
+EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messaging/email/templates/attachments/'
 
 # Static
 STATIC_ROOT = os.environ.get('STATIC_ROOT', local_path('files/static/'))
@@ -99,7 +90,7 @@ STATICFILES_FINDERS = (
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
 LOGOUT_URL = reverse_lazy('logout')
-PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7) # Also used as timeout for activation link
+PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 CUSTOM_USER_MODEL = 'users.CustomUser'
 AUTHENTICATION_BACKENDS = (
@@ -109,7 +100,7 @@ AUTHENTICATION_BACKENDS = (
 # Used middleware
 MIDDLEWARE_CLASSES = (
     # Mediagenerator (needs to be first)
-    'mediagenerator.middleware.MediaMiddleware', # only used in dev mode
+    'mediagenerator.middleware.MediaMiddleware',  # only used in dev mode
 
     # Django
     'django.middleware.common.CommonMiddleware',
@@ -121,11 +112,12 @@ MIDDLEWARE_CLASSES = (
 
     # Third party
     'newrelicextensions.middleware.NewRelicMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
     # Lily
-    'lily.tenant.middleware.TenantMiddleWare',
-#    'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
+    'lily.tenant.middleware.TenantMiddleware',
+    'lily.messaging.email.middleware.EmailMiddleware',
+    # 'lily.utils.middleware.PrettifyMiddleware',  # Nice for debugging html source, but places whitespace in textareas
 )
 
 # Main urls file
@@ -143,10 +135,11 @@ TEMPLATE_DIRS = (
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
     'lily.utils.context_processors.quickbutton_forms',
+    'lily.utils.context_processors.current_site',
 )
 
 # Disable caching in a development environment
-if not DEBUG:
+if not DEBUG and not DEV:
     TEMPLATE_LOADERS = (
         ('django.template.loaders.cached.Loader', (
             'django.template.loaders.filesystem.Loader',
@@ -165,6 +158,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.formtools',
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -177,19 +171,22 @@ INSTALLED_APPS = (
     'gunicorn',
     'activelink',
     'south',
+    'djcelery',
     'debug_toolbar',
     'mediagenerator',
     'storages',
     'crispy_forms',
-#    'template_debug', # in-template tags for debugging purposes
+    'django_extensions',
+    # 'template_debug',  # in-template tags for debugging purposes
 
     # Lily
-    'lily', # required for management command
+    'lily',  # required for management command
     'lily.accounts',
     'lily.activities',
     'lily.cases',
     'lily.deals',
     'lily.contacts',
+    'lily.messaging',
     'lily.notes',
     'lily.provide',
     'lily.tags',
@@ -198,6 +195,11 @@ INSTALLED_APPS = (
     'lily.users',
     'lily.utils',
 )
+
+MESSAGE_APPS = (
+    'lily.messaging.email',
+)
+INSTALLED_APPS += MESSAGE_APPS
 
 # E-mail settings
 EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))
@@ -216,14 +218,21 @@ LOGGING = {
     'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
+            # '()': 'django.utils.log.RequireDebugFalse'
         }
+    },
+    'formatters': {
+        'extended': {
+            'format': '[%(asctime)s] %(filename)s#%(lineno)s %(funcName)s(): %(message)s',
+            'datefmt': '%H:%M:%S',
+        },
     },
     'handlers': {
         'console': {
-            'level':'DEBUG',
+            'level': 'DEBUG',
             'filters': ['require_debug_false'],
-            'class':'logging.StreamHandler',
+            'class': 'logging.StreamHandler',
+            'formatter': 'extended'
         },
         'mail_admins': {
             'level': 'ERROR',
@@ -244,7 +253,12 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'WARNING',
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     }
@@ -274,6 +288,53 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
+# django-celery
+djcelery.setup_loader()
+CELERY_SEND_TASK_ERROR_EMAILS = boolean(os.environ.get('CELERY_SEND_TASK_ERROR_EMAILS', 0))
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_TASK_RESULT_EXPIRES = 172800  # 48 hours.
+
+# Settings that use Redis
+redis = os.environ.get('REDISTOGO_URL', False)
+if redis:
+    # django-celery
+    BROKER_URL = redis
+    CELERY_RESULT_BACKEND = 'redis'
+    CELERY_REDIS_HOST = 'localhost'
+    CELERY_REDIS_PORT = 6379
+    CELERY_REDIS_DB = 0
+
+    if boolean(os.environ.get('ENABLE_CACHE', 0)):
+        # django-redis-cache
+        url = urlparse(os.environ['REDISTOGO_URL'])
+        CACHES = {
+            'default': {
+                'BACKEND': 'redis_cache.RedisCache',
+                'LOCATION': "{0.hostname}:{0.port}".format(url),
+                'OPTIONS': {
+                    'PASSWORD': url.password,
+                    'DB': 0
+                }
+            }
+        }
+else:
+    # django-celery
+    INSTALLED_APPS += (
+        'kombu.transport.django',
+        )
+    BROKER_BACKEND = 'django'
+
+    if boolean(os.environ.get('ENABLE_CACHE', 0)):
+        CACHES = {
+             'default': {
+                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+                 }
+         }
+UNIQUE_TASKS = [
+    'lily.messaging.email.tasks.synchronize_email',
+]
+
+# New relic
 NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
 NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
 NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
@@ -306,11 +367,11 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
 
 # django-mediagenerator
 MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
-IGNORE_APP_MEDIA_DIRS = () # empty to include admin media
+IGNORE_APP_MEDIA_DIRS = ()  # empty to include admin media
 GENERATED_MEDIA_DIR = local_path('generated_media_dir/static')
 GENERATED_MEDIA_DIRS = (local_path('generated_media_dir'),)
 
-DEV_MEDIA_URL =  os.environ.get('DEV_MEDIA_URL', '/static/')
+DEV_MEDIA_URL = os.environ.get('DEV_MEDIA_URL', '/static/')
 PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
 
 YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
@@ -324,6 +385,9 @@ try:
     MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
 except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
+
+# django-south
+SOUTH_AUTO_FREEZE_APP = True
 
 # django-storages
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -339,6 +403,7 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age=1314000',
     'Expires': expires,
 }
+
 
 # cripsy-forms
 CRISPY_TEMPLATE_PACK = 'mws-admin'

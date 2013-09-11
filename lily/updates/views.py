@@ -5,7 +5,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic.edit import CreateView, DeleteView
 from django.utils import simplejson
-from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 
 from lily.updates.forms import CreateBlogEntryForm

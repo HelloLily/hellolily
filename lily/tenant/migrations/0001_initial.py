@@ -7,6 +7,16 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    needed_by = (
+         ('accounts', '0001_initial'),
+         ('cases', '0001_initial'),
+         ('contacts', '0001_initial'),
+         ('messages.email', '0001_initial'),
+         ('tags', '0001_initial'),
+         ('users', '0001_initial'),
+         ('utils', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'Tenant'
         db.create_table('tenant_tenant', (

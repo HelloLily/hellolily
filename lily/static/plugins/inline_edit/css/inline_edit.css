@@ -3,7 +3,8 @@
     margin-bottom: 5px;
 }
 
-.object-list-item.note {
+.object-list-item.note,
+.object-list-item.emailmessage {
     background-position: 100% 50%;
 }
 
@@ -78,4 +79,17 @@
 
 .object-list-item:hover .object-list-item-options {
     display: block;
+}
+
+.object-list-buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.object-list-buttons button {
+    width: 200px;
+}
+
+.object-list-buttons button#end-of-list, .object-list-buttons button#item-loading {
+    display: none;
 }

@@ -89,6 +89,10 @@ class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, V
         form = self.get_form(form_class)
                 
         context = self.get_context_data(object=self.object, form=form)
+        context.update({
+            'history_list': self.object.notes.all()
+        })
+
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):

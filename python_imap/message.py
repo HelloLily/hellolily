@@ -111,8 +111,14 @@ def parse_attachment(message_part, attachments, inline_attachments):
     """
     attachment = {}
 
-    # Don't show these content types as attachments
-    if message_part.get_content_type() not in ['text/plain', 'text/html']:
+    is_text_attachment = False
+    # Check if these content types are attached
+    if message_part.get_content_type() in ['text/plain', 'text/html']:
+        if message_part.get('Content-Disposition', '').strip().split(';')[0].lower() == 'attachment':
+            is_text_attachment = True
+
+    # By default don't show these content types as attachments
+    if message_part.get_content_type() not in ['text/plain', 'text/html'] or is_text_attachment:
 
         # Check for 'normal' attachments first
         if message_part.get('Content-Disposition', False):

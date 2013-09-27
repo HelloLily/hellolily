@@ -659,6 +659,9 @@ class ForceFolderSyncView(View):
 
 
 class EmailComposeView(AttachmentFormSetViewMixin, FormView):
+    """
+    View where you compose e-mail messages and either send or save them.
+    """
     template_name = 'messaging/email/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
@@ -866,11 +869,10 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
 
         try:
             # Save *email_message* as draft
-            message = unicode(email.message_from_string(message_string))
             folder = server.get_folder(DRAFTS)
 
             # Save draft remotely
-            response = server.client.append(folder.name_on_server, message, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
+            response = server.client.append(folder.name_on_server, message_string, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
 
             # Extract uid from response
             command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]

@@ -381,7 +381,7 @@ class BaseJSONViewMixin(View):
                 'flags': instance.flags,
                 'uid': instance.uid,
                 'flat_body': self.get_flat_body(instance),
-                'subject': instance.subject.encode('utf-8'),
+                'subject': instance.subject.encode('utf-8') or u'<%s>' % _('No subject'),
                 'size': instance.size,
                 'is_private': instance.is_private,
                 'is_read': instance.is_seen,

@@ -41,7 +41,7 @@
                             <div class="sender" title="{{ item.from_name }} <{{ item.from_email }}>">{% trans 'From' %}: {% if item.from_name %}{{ item.from_name }}{%else%}{{ item.from_email }}{% endif %}</div>
                         {% endif %}
                     </div>
-                    <div class="subject" title="{{ item.subject }}">{{ item.subject }}</div>
+                    <div class="subject" title="{{ item.subject|default:_('<No subject>') }}">{{ item.subject|default:_('&lt;No subject&gt;') }}</div>
                     <div class="body preview">{{ item.textify|truncatechars:"200"|safe }}</div>
                 {% if item.is_draft %}
                     </a>

@@ -2,6 +2,7 @@ import email
 import textwrap
 
 from bs4 import BeautifulSoup
+from django.core.exceptions import MultipleObjectsReturned
 
 from django.db import models
 from django.db.models.signals import post_delete
@@ -140,14 +141,17 @@ class EmailMessage(Message):
     @property
     def subject(self):
         header = None
+
         if hasattr(self, '_subject_header'):
             header = self._subject_header
         else:
-            header = self.headers.filter(name='Subject')
-            self._subject_header = header
-        if header and header[0].value != '':
-            return header[0].value
-        return u'<%s>' % _(u'No subject')
+            try:
+                header = self.headers.get(name='Subject')
+            except MultipleObjectsReturned:
+                header = self.headers.filter(name='Subject').reverse()[0]
+            self._subject_header = header.value or ''
+
+        return self._subject_header
 
     @property
     def to_name(self):

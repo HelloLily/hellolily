@@ -58,19 +58,19 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
 
     def primary_email(self):
-        for email in self.email_addresses:
+        for email in self.email_addresses.all():
             if email.is_primary:
                 return email
         return None
 
     def get_work_phone(self):
-        for phone in self.phone_numbers:
+        for phone in self.phone_numbers.all():
             if phone.type == 'work':
                 return phone
         return None
 
     def get_mobile_phone(self):
-        for phone in self.phone_numbers:
+        for phone in self.phone_numbers.all():
             if phone.type == 'mobile':
                 return phone
         return None

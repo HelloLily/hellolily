@@ -30,6 +30,7 @@ from lily.utils.views import SortedListMixin, FilteredListMixin,\
 class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
     template_name = 'accounts/model_list.html'
     sortable = [2, 4, 5]
+    model = Account
     prefetch_related = [
         'phone_numbers',
         'tags',

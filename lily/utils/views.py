@@ -345,6 +345,13 @@ class FilteredListMixin(object):
         else:
             raise ImproperlyConfigured(u"'%s' must define 'queryset' or 'model'"
                                        % self.__class__.__name__)
+
+        if hasattr(self, 'select_related'):
+            queryset = queryset.select_related(*self.select_related)
+
+        if hasattr(self, 'prefetch_related'):
+            queryset = queryset.prefetch_related(*self.prefetch_related)
+
         return queryset
 
 

@@ -46,9 +46,12 @@
         {% endwith %}
     </td>
     <td class="account">
-        {% if item.functions.all.0 %}
-            <a href="{% url account_details pk=item.functions.all.0.account.pk %}">{{ item.functions.all.0.account.name }}</a>
+        {% if item.functions.count > 0 %}
+            {% with item.functions.all|first as function %}
+                <a href="{% url account_details pk=function.account_id %}">{{ function.account }}</a>
+            {% endwith %}
         {% endif %}
+
     </td>
     <td class="datetime created hide_on_small_screen">
         <div>

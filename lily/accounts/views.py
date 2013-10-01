@@ -17,7 +17,7 @@ from django.views.generic.list import ListView
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
-from lily.notes.views import NoteDetailViewMixin, HistoryListViewMixin
+from lily.notes.views import HistoryListViewMixin
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
@@ -29,8 +29,12 @@ from lily.utils.views import SortedListMixin, FilteredListMixin,\
 
 class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
     template_name = 'accounts/model_list.html'
-    model = Account
     sortable = [2, 4, 5]
+    prefetch_related = [
+        'phone_numbers',
+        'tags',
+        'user'
+    ]
     default_order_by = 2
 
     def get_context_data(self, **kwargs):

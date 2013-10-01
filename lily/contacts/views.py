@@ -3,11 +3,9 @@ from hashlib import sha256
 from urlparse import urlparse
 import base64
 import pickle
-import operator
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -25,10 +23,10 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
-from lily.notes.views import NoteDetailViewMixin, HistoryListViewMixin
+from lily.notes.views import HistoryListViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import PhoneNumber, HistoryListItem
+from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
@@ -42,6 +40,12 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     template_name = 'contacts/model_list.html'
     model = Contact
+    prefetch_related = [
+        'functions__account',
+        'email_addresses',
+        'phone_numbers',
+        'user'
+    ]
     sortable = [2, 4, 5, 6]
     default_order_by = 2
 

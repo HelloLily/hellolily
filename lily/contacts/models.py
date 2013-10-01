@@ -49,28 +49,23 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     description = models.TextField(verbose_name=_('description'), blank=True)
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL, verbose_name=_('salutation'))
 
-    def __getattribute__(self, name):
-        if name == 'primary_email':
-            try:
-                email = self.email_addresses.get(is_primary=True)
-                return email.email_address
-            except EmailAddress.DoesNotExist:
-                pass
-            return None
-        else:
-            return object.__getattribute__(self, name)
+    def primary_email(self):
+        for email in self.email_addresses:
+            if email.is_primary:
+                return email
+        return None
 
     def get_work_phone(self):
-        try:
-            return self.phone_numbers.filter(type='work')[0]
-        except:
-            return None
+        for phone in self.phone_numbers:
+            if phone.type == 'work':
+                return phone
+        return None
 
     def get_mobile_phone(self):
-        try:
-            return self.phone_numbers.filter(type='mobile')[0]
-        except:
-            return None
+        for phone in self.phone_numbers:
+            if phone.type == 'mobile':
+                return phone
+        return None
 
     def get_phone_number(self):
         """
@@ -91,12 +86,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
             return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
         except:
             return None
-
-    def get_email(self):
-        try:
-            return self.email_addresses.all()[0].email_address
-        except:
-            return ''
 
     def get_address(self, type=None):
         try:
@@ -166,6 +155,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     email_template_lookup = 'request.user.contact'
 
     class Meta:
+        ordering = ['last_name', 'first_name']
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
 

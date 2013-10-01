@@ -24,10 +24,8 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
         'class': 'contact_account',
     }))
 
-    contact = forms.ModelChoiceField(label=_('Contact'), queryset=Account.objects.none(),
-        empty_label=_('a contact'), required=False, widget=ContactAccountSelect(attrs={
-        'class': 'contact_account',
-    }))
+    contact = forms.ModelChoiceField(label=_('Contact'), queryset=Contact.objects.none(),
+        empty_label=_('a contact'), required=False)
 
     assigned_to = forms.ModelChoiceField(label=_('Assigned to'), queryset=CustomUser.objects.none(),
         empty_label=None)
@@ -63,7 +61,13 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
 
         # Provide filtered query set for account/contact/assigned_to
         self.fields['account'].queryset = Account.objects.all()
-        self.fields['contact'].queryset = Contact.objects.all()  # Hits database per contact and function...
+        self.fields['contact'].queryset = Contact.objects.all()
+        self.fields['contact'].widget = ContactAccountSelect(
+            self.fields['contact'].queryset,
+            attrs={
+                'class': 'contact_account',
+            },
+        )
 
         # FIXME: WORKAROUND FOR TENANT FILTER.
         # An error will occur when using CustomUser.objects.all(), most likely because

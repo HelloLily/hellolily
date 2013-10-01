@@ -127,14 +127,13 @@ def in_group(user, groups):
 @register.filter
 def has_user_in_group(object, groups):
     """
-    Return a boolean if the object has a relation with any user in given group, or comma-separated
-    list of groups.
+    Return a boolean if the user has a relation with the given group(s).
     """
     group_list = force_unicode(groups).split(',')
 
     # Only try to filter if the object actually is linked with a user
-    if hasattr(object, 'user'):
-        return bool(object.user.filter(groups__name__in=group_list))
+    if len(object.user.all()):
+        return bool(object.user.all()[0].filter(groups__name__in=group_list))
     return False
 
 

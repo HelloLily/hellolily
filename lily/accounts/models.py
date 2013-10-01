@@ -57,29 +57,23 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
 
-
-    def __getattribute__(self, name):
-        if name == 'primary_email':
-            try:
-                email = self.email_addresses.get(is_primary=True)
-                return email.email_address
-            except EmailAddress.DoesNotExist:
-                pass
-            return None
-        else:
-            return object.__getattribute__(self, name)
+    def primary_email(self):
+        for email in self.email_addresses:
+            if email.is_primary:
+                return email
+        return None
 
     def get_work_phone(self):
-        try:
-            return self.phone_numbers.filter(type='work')[0]
-        except:
-            return None
+        for phone in self.phone_numbers:
+            if phone.type == 'work':
+                return phone
+        return None
 
     def get_mobile_phone(self):
-        try:
-            return self.phone_numbers.filter(type='mobile')[0]
-        except:
-            return None
+        for phone in self.phone_numbers:
+            if phone.type == 'mobile':
+                return phone
+        return None
 
     def get_phone_number(self):
         """
@@ -194,9 +188,9 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     email_template_lookup = 'request.user.account'
 
     class Meta:
+        ordering = ['name']
         verbose_name = _('account')
         verbose_name_plural = _('accounts')
-        ordering = ['name']
 
 
 class Website(models.Model):

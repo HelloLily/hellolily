@@ -4581,6 +4581,9 @@
 		{
 			var asSearch, sRegExpString;
 
+            if(window['__removeDiacritics'])
+                sSearch = __removeDiacritics(sSearch);
+
 			if ( bSmart )
 			{
 				/* Generate the regular expression to use. Something along the lines of:

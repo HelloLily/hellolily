@@ -360,7 +360,7 @@ if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE'
             'LOCATION': "{0.hostname}:{0.port}".format(url),
             'OPTIONS': {
                 'PASSWORD': url.password,
-                'DB': int(url.path.lstrip("/")),
+                'DB': 0,
             }
         }
     }

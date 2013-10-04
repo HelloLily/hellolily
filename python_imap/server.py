@@ -71,8 +71,8 @@ class IMAP(object):
             self._retrieve_folders()
 
         folder = self._folders_reverse.get(identifier, None)
-        if folder is None:
-            folder = self._folders_reverse.get('\\%s' % identifier, None)
+        #if folder is None:
+        #    folder = self._folders_reverse.get('\\%s' % identifier, None)
 
         return folder
 

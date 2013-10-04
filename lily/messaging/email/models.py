@@ -2,7 +2,7 @@ import email
 import textwrap
 
 from bs4 import BeautifulSoup
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from django.db import models
 from django.db.models.signals import post_delete
@@ -113,7 +113,9 @@ class EmailMessage(Message):
         """
         Return a html version of the text body, and optionally replace line breaks (\n) with <br> tags.
         """
-        return True
+        if self.body_text:
+            return self.body_text.replace('\n', '<br />')
+        return None
 
     @property
     def indented_body(self):
@@ -149,7 +151,9 @@ class EmailMessage(Message):
                 header = self.headers.get(name='Subject')
             except MultipleObjectsReturned:
                 header = self.headers.filter(name='Subject').reverse()[0]
-            self._subject_header = header.value or ''
+            except ObjectDoesNotExist:
+                header = ''
+            self._subject_header = header.value if header else ''
 
         return self._subject_header
 

@@ -1108,7 +1108,11 @@ class EmailBodyPreviewView(TemplateView):
             if self.message is None:
                 body = u''
             else:
-                body = self.message.body_html
+                body = self.message.body_html or self.message.htmlify() or None
+                if body is None:
+                    server, self.message = self.get_message_from_imap(self.message)
+                    self.message.save()
+                    body = self.message.body_html or self.message.htmlify() or u''
         elif self.object_id:
             quoted_content = self.message.indented_body
 
@@ -1138,6 +1142,35 @@ class EmailBodyPreviewView(TemplateView):
         })
 
         return kwargs
+
+    def get_message_from_imap(self, instance):
+        """
+        Retrieve an e-mail via IMAP
+
+        :param instance: the instance of a message
+        :param pk: the primary key of a message
+        :return: server used for connecting and the new updated instance
+        """
+        imap_logger.info('Connecting with IMAP')
+
+        pk = instance.pk
+        host = instance.account.provider.imap_host
+        port = instance.account.provider.imap_port
+        ssl = instance.account.provider.imap_ssl
+        server = IMAP(host, port, ssl)
+        server.login(instance.account.username, instance.account.password)
+
+        imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
+
+        message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                     server.get_folder(instance.folder_name), readonly=False)
+        if message is not None:
+            imap_logger.info('Message retrieved, saving in database')
+            save_email_messages([message], instance.account, message.folder)
+
+        instance = EmailMessage.objects.get(pk=pk)
+
+        return server, instance
 
 
 class EmailConfigurationWizardTemplate(TemplateView):
@@ -1389,20 +1422,32 @@ class EmailSearchView(EmailFolderView):
             self.folder_locale_name = None
             self.folder_identifier = folder_flag
 
-        if self.folder_locale_name is not None:
-            # Check if folder is from account
-            folder_found = False
-            for account in accounts_qs:
-                for folder_name, folder in account.folders.items():
-                    if folder_name == self.folder_locale_name:
+
+        # Check if folder is from account
+        folder_found = False
+        for account in accounts_qs:
+            for folder_name, folder in account.folders.items():
+                if self.folder_identifier in folder.get('flags'):
+                    folder_found = True
+                    self.folder_locale_name = folder_name
+                    break
+
+                if folder_name == self.folder_locale_name:
+                    folder_found = True
+                    self.folder_locale_name = folder_name
+                    break
+
+                if self.folder_identifier is not None:
+                    if folder_name == self.folder_identifier.lstrip('\\'):
                         folder_found = True
+                        self.folder_locale_name = folder_name
                         break
 
-                    children = folder.get('children', {})
-                    for sub_folder_name, sub_folder in children.items():
-                        if sub_folder_name == self.folder_locale_name:
-                            folder_found = True
-                            break
+                children = folder.get('children', {})
+                for sub_folder_name, sub_folder in children.items():
+                    if sub_folder_name == self.folder_locale_name:
+                        folder_found = True
+                        break
 
             if not folder_found:
                 raise Http404()

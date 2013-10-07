@@ -352,7 +352,7 @@ class SocialMedia(TenantMixin):
     name = models.CharField(max_length=30,choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
     other_name = models.CharField(max_length=30, blank=True, null=True) # used in combination with name='other'
     username = models.CharField(max_length=100, blank=True, verbose_name=_('username'))
-    profile_url = models.URLField(verbose_name=_('profile link'))
+    profile_url = models.URLField(max_length=255, verbose_name=_('profile link'))
 
     def __unicode__(self):
         return self.name

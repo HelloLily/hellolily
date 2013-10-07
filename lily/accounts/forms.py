@@ -14,7 +14,7 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
     """
     Form to add an account with the absolute minimum of information.
     """
-    website = forms.URLField(label=_('Website'), max_length=30, initial='http://', required=False)
+    website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False)
     name = forms.CharField(label=_('Company name'), max_length=255)
     email = forms.EmailField(label=_('E-mail address'), max_length=255)
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
@@ -76,7 +76,7 @@ class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
     """
     Form for creating or updating an account.
     """
-    primary_website = forms.URLField(label=_('Primary website'), initial='http://', required=False)
+    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False)
 
     def __init__(self, *args, **kwargs):
         """
@@ -129,7 +129,7 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
     """
     Base form for adding multiple websites to an account.
     """
-    website = forms.URLField(max_length=30, initial='http://', required=False)
+    website = forms.URLField(max_length=255, initial='http://', required=False)
 
     def __init__(self, *args, **kwargs):
         super(WebsiteBaseForm, self).__init__(*args, **kwargs)

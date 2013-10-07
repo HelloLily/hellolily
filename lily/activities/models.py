@@ -48,7 +48,7 @@ class Bookmark(Activity):
     """
     Bookmark model, simple url to share an interesting piece of the internet.
     """
-    url = models.URLField(verbose_name=_('bookmark url'))
+    url = models.URLField(max_length=255, verbose_name=_('bookmark url'))
     
     def __unicode__(self):
         return self.url
@@ -69,7 +69,7 @@ class Event(Activity):
     end_date = models.DateField(verbose_name=_('end date'), blank=True)
     end_time = models.TimeField(verbose_name=_('end time'), blank=True)
     location = models.CharField(max_length=100, verbose_name=_('location'), blank=True)
-    url = models.URLField(verbose_name=_('url'), blank=True)
+    url = models.URLField(max_length=255, verbose_name=_('url'), blank=True)
     description = models.CharField(max_length=255, verbose_name=_('description'), blank=True)
 
     def __unicode__(self):

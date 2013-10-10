@@ -714,7 +714,7 @@ def mark_messages(message_ids, read=True):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                server.login(account.username,  account.password)
+                server.login(account.username, account.password)
 
                 for folder_name, uids in folders.items():
                     folder = server.get_folder(folder_name)
@@ -769,7 +769,7 @@ def delete_messages(message_ids):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                server.login(account.username,  account.password)
+                server.login(account.username, account.password)
 
                 for folder_name, uids in folders.items():
                     folder = server.get_folder(folder_name)
@@ -821,7 +821,7 @@ def move_messages(message_ids, target_folder_name, request=None):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                server.login(account.username,  account.password)
+                server.login(account.username, account.password)
 
                 # Get or create folder *target_folder_name*
                 target_folder = server.get_folder(target_folder_name)

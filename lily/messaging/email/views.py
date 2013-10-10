@@ -611,7 +611,7 @@ class ForceFolderSyncView(View):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                server.login(account.username,  account.password)
+                server.login(account.username, account.password)
 
                 if '\\%s' % folder_name in [x.lower() for x in [INBOX, SENT, DRAFTS, TRASH, SPAM]]:
                     for folder_identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
@@ -1434,7 +1434,6 @@ class EmailSearchView(EmailFolderView):
 
                 if folder_name == self.folder_locale_name:
                     folder_found = True
-                    self.folder_locale_name = folder_name
                     break
 
                 if self.folder_identifier is not None:
@@ -1445,9 +1444,20 @@ class EmailSearchView(EmailFolderView):
 
                 children = folder.get('children', {})
                 for sub_folder_name, sub_folder in children.items():
+                    if self.folder_identifier in sub_folder.get('flags'):
+                        folder_found = True
+                        self.folder_locale_name = sub_folder_name
+                        break
+
                     if sub_folder_name == self.folder_locale_name:
                         folder_found = True
                         break
+
+                    if self.folder_identifier is not None:
+                        if sub_folder_name == self.folder_identifier.lstrip('\\'):
+                            folder_found = True
+                            self.folder_locale_name = sub_folder_name
+                            break
 
             if not folder_found:
                 raise Http404()

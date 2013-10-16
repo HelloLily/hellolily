@@ -131,9 +131,12 @@ def has_user_in_group(object, groups):
     """
     group_list = force_unicode(groups).split(',')
 
-    # Only try to filter if the object actually is linked with a user
-    if len(object.user.all()):
-        return bool(object.user.all()[0].groups.filter(name__in=group_list))
+    try:
+        # Only try to filter if the object actually is linked with a user
+        if len(object.user.all()):
+            return bool(object.user.all()[0].groups.filter(name__in=group_list))
+    except AttributeError:
+        pass
     return False
 
 

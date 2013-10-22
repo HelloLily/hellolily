@@ -3,26 +3,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        
+
         <!-- Favicon -->
-        <link href="{% media_url 'extra/images/favicon.ico' %}" rel="icon" type="image/x-icon" />
-        
+        <link href="{% media_url 'mwsadmin/extra/images/favicon.ico' %}" rel="icon" type="image/x-icon" />
+
         <!-- Page title -->
         <title>{% block page-title %}{% endblock %} HelloLily</title>
-        
+
         <!-- Apple iOS and Android stuff -->
         <meta name="apple-mobile-web-app-capable" content="no" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-        
+
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1" />
-        
+
         {% block styles %}
-        	{% include_media 'main.css' %}
+            {% include_media 'main.css' %}
         {% endblock %}
-        
+
         {% block scripts %}
-        	{% include_media 'main.js' language='en' %}
-        	{% comment %}{% include_media 'translations.js' language=LANGUAGE_CODE %}{% endcomment %}
+            {% include_media 'main.js' language='en' %}
+            {% comment %}{% include_media 'translations.js' language=LANGUAGE_CODE %}{% endcomment %}
         {% endblock %}
     </head>
     <body>

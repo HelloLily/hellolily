@@ -3,9 +3,9 @@ div#mws-login /* div#mws-login */
     background-image:none;
     background-color:white;
     padding:0;
-    
+
     border:1px solid #c0c0c0;
-    
+
     -webkit-border-radius:6px;
     -moz-border-radius:6px;
     -o-border-radius:6px;
@@ -61,19 +61,19 @@ div#mws-login input.mws-reset-email
     /* prev. border:1px solid #323232; */
     border:1px solid #b2b2b2; /* new */
     background-color:#ffffff !important;
-    
+
     /* CSS 3 */
-    
+
     -webkit-box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);
     -moz-box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);
     -o-box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);
     -khtml-box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);
-    box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);   
+    box-shadow:inset 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 div#mws-login input.mws-reset-email
 {
-    background-image:url(../../css/icons/16/email.png) !important;
+    background-image:url(../../../mwsadmin/css/icons/16/email.png) !important;
     background-repeat:no-repeat;
     background-position:8px center;
 }

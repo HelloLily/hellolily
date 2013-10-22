@@ -11,32 +11,32 @@
                         <a href="{% block item-delete-url %}{% endblock %}" id="delete-{{ item.pk }} " class="i-32 i-trash-2 link delete"></a>
                     {% endif %}
                     <a href="{% block item-edit-url %}{% endblock %}" class="i-32 i-edit"></a>
-    
+
                     {% if not item|has_user_in_group:'account_admin' %}
-                    	<div class="hidden">
-                        	{% block dialog-delete %}{% endblock %}
+                        <div class="hidden">
+                            {% block dialog-delete %}{% endblock %}
                         </div>
                     {% endif %}
                 </span>
                 <span>{% block details-title %}{{ item }}{% endblock %}</span>
             </div>
-            
+
             <div class="mws-panel-body">
                 <div id="details-top" class="clearfix">
                     <div class="float-left">
                         {% block image-left %}{% endblock %}
-                        
+
                         <div id="details-top-extra">
                             {% block item-details %}
                                 <h2>{{ item|truncatechars:"24" }}</h2>
                             {% endblock %}
-                        
+
                             {% block social-media %}
                                 {% if item.social_media %}
-                                    <div id="details-social"> 
+                                    <div id="details-social">
                                         {% for social in account.social_media.all %}
                                             <a href="{{ social.profile_url }}" class="no-decoration">
-                                                <img src="{% media_url 'images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
+                                                <img src="{% media_url 'mwsadmin/images/social/'|add:social.name|lower|add:'_16.png' %}" alt="" />
                                             </a>
                                         {% endfor %}
                                     </div>
@@ -57,11 +57,11 @@
                                         </span>
                                 {% endif %}
                             {% endwith %}
-                            
+
                             {% if item.primary_email %}
                                 <span class="i-16 i-mail blue"><a href="mailto:{{ item.primary_email }}">{{ item.primary_email }}</a></span>
                             {% endif %}
-                            
+
                             {% with item.get_twitter as twitter %}
                                 {% if twitter.username %}
                                     <span class="i-16 i-twitter blue"><a href="{{ twitter.profile_url }}" target="_blank">@{{ twitter.username }}</a></span>
@@ -76,22 +76,22 @@
                             {% block tabs %}
                                 <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="#tab-history">{% trans 'History' %}</a></li>
                                 <li class="ui-state-default ui-corner-top"><a href="#tab-details">{% trans 'Details' %}</a></li>
-                                
+
                                 {% comment %}
                                     <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% trans 'Deals' %}</a></li>
                                     <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
                                 {% endcomment %}
                             {% endblock %}
                         </ul>
-                        
+
                         {% block tabs-content %}
                             <div id="tab-history" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
                                 <h2>{% trans 'History' %}</h2>
-                                
+
                                 {% include 'notes/create_form.html' %}
-                                    
+
                                 <hr />
-                                
+
                                 {% block history-tab-content %}
                                     <div id="history_list">
                                         {% include 'base_list.html' with list=history_list list_item_template='base_details_history_list_item.html' %}
@@ -108,12 +108,12 @@
                                         </button>
                                     </div>
                                 {% endblock %}
-                                
+
                                 <div class="hidden">
                                     {% include 'notes/dialog_delete.html' %}
                                 </div>
                             </div>
-                            
+
                             <div id="tab-details" class="clearfix">
                                 {% block details-tab-content %}{% endblock %}
                             </div>

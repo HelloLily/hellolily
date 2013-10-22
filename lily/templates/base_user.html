@@ -14,7 +14,7 @@
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
                         <a href="{% url dashboard %}">
-                            <img src="{% media_url 'extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
+                            <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
                         </a>
                     </div>
                 </div>
@@ -24,7 +24,7 @@
                     <!-- User information section -->
                     <div id="mws-user-info" class="mws-inset">
                         <div id="mws-user-photo">
-                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'mwsadmin/extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
 
                         <div id="mws-user-functions">

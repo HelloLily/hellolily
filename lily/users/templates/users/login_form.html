@@ -6,7 +6,7 @@
 
 {% block styles %}
     {% include_media 'lily.users.css' %}
-    
+
     {{ block.super }}
 {% endblock %}
 
@@ -14,7 +14,7 @@
     <div class="mws-panel-header">
         <span>{% block portal-title %}HelloLily {% trans 'Log in' %}{% endblock %}</span>
     </div>
-    <img src="{% media_url 'extra/images/logo-hellolily-login.png' %}" id="login-logo" class="hide_on_small_screen" />
+    <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-login.png' %}" id="login-logo" class="hide_on_small_screen" />
 {% endblock %}
 
 {% block portal-bottom-links %}

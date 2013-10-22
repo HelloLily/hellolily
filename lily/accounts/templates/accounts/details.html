@@ -2,9 +2,9 @@
 
 {% load i18n media thumbnail utils %}
 
-{% block styles %}    
+{% block styles %}
     {% include_media 'lily.accounts.css' %}
-    
+
     {{ block.super }}
 {% endblock %}
 
@@ -20,25 +20,25 @@
     {% if account.logo %}
         <img class="details-image account" src="{% thumbnail account.logo 100x100 %}" alt="" />
     {% else %}
-        <img class="details-image account" src="{% media_url 'extra/images/core/unknown_account.png' %}" alt="" />
+        <img class="details-image account" src="{% media_url 'mwsadmin/extra/images/core/unknown_account.png' %}" alt="" />
     {% endif %}
 {% endblock %}
 
 {% block item-details %}
     {{ block.super }}
-    
+
     <div id="contact_function">
         {% with item.get_contacts as contacts %}
             {% if contacts|length == 1 %}
                 {% url contact_details pk=contacts.0.pk as contact_link  %}
-                
+
                 {% blocktrans with contacts|first as first_contact and contact_link as link %}
                     <a href="{{ link }}">{{ first_contact }}</a> works here
                 {% endblocktrans %}
             {% elif contacts|length > 0 %}
                 {% with contacts|joinby:';' as contacts_csv %}
                     {% url contact_list_filtered b36_pks=contacts_csv as contacts_link %}
-                
+
                     {% with link=contacts_link count=contacts|length %}
                         <a href="{{ link }}">{{ count }} {% trans 'contacts' %}</a>
                     {% endwith %}
@@ -52,15 +52,15 @@
 
 {% block tabs %}
     {{ block.super }}
-    
+
     {% if item.functions.all|length %}
         <li class="ui-state-default ui-corner-top"><a href="#tab-contacts">{% trans 'Contacts' %}</a></li>
     {% endif %}
-    
+
     {% if item.get_deals|length %}
         <li class="ui-state-default ui-corner-top"><a href="#tab-deals">{% blocktrans count counter=item.get_deals|length %}1 Deal{% plural %}{{ counter }} Deals{% endblocktrans %}</a></li>
     {% endif %}
-    
+
     {% if item.get_cases|length %}
         <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% blocktrans count counter=item.get_cases|length %}1 Case{% plural %}{{ counter }} Cases{% endblocktrans %}</a></li>
     {% endif %}
@@ -70,31 +70,31 @@
     {% if item.get_addresses|length or item.websites.all|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
         <h2>{% trans 'Contact details' %}</h2>
         <div class="grid_4">
-            {% if item.get_addresses|length %} 
+            {% if item.get_addresses|length %}
                 <div id="detail-addresses" class="detail-block">
-                    <h4>{% trans 'Addresses' %}</h4>            
+                    <h4>{% trans 'Addresses' %}</h4>
                     {% with list=item.get_billing_addresses %}
                         {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
                     {% endwith %}
-                    
+
                     {% with list=item.get_shipping_addresses %}
                         {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
                     {% endwith %}
-                    
+
                     {% with list=item.get_visiting_addresses %}
                         {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
                     {% endwith %}
-                    
+
                     {% with list=item.get_other_addresses %}
                         {% include 'base_list.html' with list=list list_item_template='utils/address_details_template.html' %}
                     {% endwith %}
                 </div>
             {% endif %}
-            
+
             {% if item.websites.all|length %}
                 <div id="detail-websites" class="detail-block">
                     <h4>{% trans 'Websites' %}</h4>
-                    
+
                     {% for website in item.websites.all %}
                         {% if website.is_primary %}
                                 <div class="primary website">
@@ -115,7 +115,7 @@
             {% if item.phone_numbers.all|length %}
                 <div id="detail-phones" class="detail-block">
                     <h4>{% trans 'Phone numbers' %}</h4>
-                    
+
                     {% for phone in item.phone_numbers.all %}
                         {% if phone.raw_input %}
                             {% if phone.type == 'mobile' %}
@@ -132,11 +132,11 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            
+
             {% if item.email_addresses.all|length %}
                 <div id="detail-emails" class="detail-block">
                     <h4>{% trans 'E-mail addresses' %}</h4>
-                    
+
                     {% for email in item.email_addresses.all %}
                         {% if email.email_address %}
                                 {% if email.is_primary %}
@@ -156,13 +156,13 @@
             {% endif %}
         </div>
     {% endif %}
-    
+
     {% if item.get_addresses|length or item.websites.all|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
         {% if item.description or item.tags.all|length %}
             <hr />
         {% endif %}
     {% endif %}
-        
+
     {% if item.description or item.tags.all|length %}
         <h2>{% trans 'Additional information' %}</h2>
         <div class="grid_8">
@@ -172,14 +172,14 @@
                     {{ item.description|linebreaksbr }}
                 </div>
             {% endif %}
-            
+
             {% if item.tags.all|length %}
                 <div class="detail-block">
                     <h4>{% trans 'Tags' %}</h4>
                     {% comment %}
                         TODO: when searching on tags is possible, change these into links
                     {% endcomment %}
-                    
+
                     {% for tag in item.tags.all %}
                         {{ tag }}
                         {% if not forloop.last %}
@@ -194,7 +194,7 @@
 
 {% block tabs-content %}
     {{ block.super }}
-    
+
     {% if item.functions.all|length %}
         <div id="tab-contacts" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
             <h2>{% trans 'Contacts' %}</h2>
@@ -203,7 +203,7 @@
             </div>
         </div>
     {% endif %}
-    
+
     {% if item.get_deals|length %}
         <div id="tab-deals" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
             {% if item.get_deals_new|length or item.get_deals_pending|length %}
@@ -215,7 +215,7 @@
                             {% include 'base_list.html' with list=item.get_deals_new list_item_template='accounts/deal_list_item.html' %}
                         </div>
                     {% endif %}
-                    
+
                     {% if item.get_deals_pending|length %}
                         <div id="detail-emails" class="detail-block">
                             <h4>{% trans 'Pending' %}</h4>
@@ -224,13 +224,13 @@
                     {% endif %}
                 </div>
             {% endif %}
-            
+
             {% if item.get_deals_new|length or item.get_deals_pending|length %}
                 {% if item.get_deals_won|length or item.get_deals_lost|length %}
                     <hr />
                 {% endif %}
             {% endif %}
-            
+
             {% if item.get_deals_won|length or item.get_deals_lost|length %}
                 <h2>{% trans 'Closed' %}</h2>
                 <div class="grid_8">
@@ -240,7 +240,7 @@
                             {% include 'base_list.html' with list=item.get_deals_won list_item_template='accounts/deal_list_item.html' %}
                         </div>
                     {% endif %}
-                    
+
                     {% if item.get_deals_lost|length %}
                         <div id="detail-emails" class="detail-block">
                             <h4>{% trans 'Lost' %}</h4>
@@ -251,7 +251,7 @@
             {% endif %}
         </div>
     {% endif %}
-    
+
     {% if item.get_cases|length %}
 	    <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
 	    	<div id="cases-priority" class="mws-collapsible mws-collapsed">
@@ -267,7 +267,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				            
+
 				    {% if item.get_cases_high|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_high|length %}
@@ -278,7 +278,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				    
+
 				    {% if item.get_cases_medium|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_medium|length %}
@@ -289,7 +289,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				            
+
 				    {% if item.get_cases_low|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_low|length %}
@@ -315,7 +315,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				            
+
 				    {% if item.get_cases_progress|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_progress|length %}
@@ -326,7 +326,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				    
+
 				    {% if item.get_cases_pending|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_pending|length %}
@@ -337,7 +337,7 @@
 				            {% endif %}
 				        </div>
 				    {% endif %}
-				            
+
 				    {% if item.get_cases_closed|length %}
 				        <div class="grid_8">
 				            {% if item.get_cases_closed|length %}

@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 
     # 3rd party
+    'bootstrap3',
     'templated_email',
     'easy_thumbnails',
     'gunicorn',

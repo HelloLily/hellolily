@@ -1,0 +1,13 @@
+{% extends 'mwsadmin/base_form.html' %}
+
+{% load i18n utils %}
+
+{% block form-title %}
+    {% with item=form.instance %}
+        {% if item.pk %}
+            {% block update-form-title %}{% endblock %}
+        {% else %}
+            {% block create-form-title %}{% endblock %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}

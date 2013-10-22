@@ -96,7 +96,7 @@ class MultiField(MultiField):
     """
     Render multiple fields with custom templates.
     """
-    template = 'mws-admin/layout/multifield.html'
+    template = 'mwsadmin/mws-admin/layout/multifield.html'
 
     def render(self, form, form_style, context):
 #        if form.errors:
@@ -114,9 +114,9 @@ class MultiField(MultiField):
 
 class Button(Button):
     """Overriding default template."""
-    template = 'mws-admin/layout/baseinput.html'
+    template = 'mwsadmin/mws-admin/layout/baseinput.html'
 
 
 class ButtonHolder(ButtonHolder):
     """Overriding default template."""
-    template = 'mws-admin/layout/buttonholder.html'
+    template = 'mwsadmin/mws-admin/layout/buttonholder.html'

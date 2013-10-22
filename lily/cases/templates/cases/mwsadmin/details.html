@@ -1,0 +1,56 @@
+{% extends 'mwsadmin/base_details.html' %}
+
+{% load i18n media utils %}
+
+{% block item-delete-url %}{% url case_delete pk=item.pk %}{% endblock %}
+
+{% block item-edit-url %}{% url case_edit pk=item.pk %}{% endblock %}
+
+{% block dialog-delete %}
+    {% include 'cases/mwsadmin/delete_dialog.html' %}
+{% endblock %}
+
+{% block details-title %}{{ item|truncatechars:24 }}{% endblock %}
+
+{% block item-details %}
+    <div class="i-32 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"></div> <h2 class="inline">{{ item }}</h2>
+    <div>
+        {% if item.contact %}
+            <strong>{% trans 'Contact' %}:</strong>
+            <a href="{% url contact_details pk=item.contact.pk %}">
+                {{ item.contact.full_name }}
+            </a>
+        {% endif %}
+
+        {% if item.contact and item.account %}
+            at
+        {% elif item.account %}
+            <strong>{% trans 'Account' %}:</strong>
+        {% endif %}
+
+        {% if item.account %}
+            <a href="{% url account_details pk=item.account.pk %}">
+                {{ item.account.name }}
+            </a>
+        {% endif %}
+    </div>
+    <div>
+        <strong>{% trans 'Assigned to' %}:</strong>
+         <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+            {{ item.assigned_to }}
+        </a>
+    </div>
+    <div>
+        <strong>{% trans 'Status' %}:</strong>
+        {{ item.get_status_display }}
+    </div>
+    {% if item.description %}
+        <p></p>
+        <div>
+            <strong>{% trans 'Description' %}:</strong>
+            <p>{{ item.description }}</p>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block tabs %}{% endblock %}

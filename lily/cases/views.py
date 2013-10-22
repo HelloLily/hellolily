@@ -24,7 +24,7 @@ class ListCaseView(SortedListMixin, ListView):
     """
     Display a list of all deals
     """
-    template_name = 'cases/model_list.html'
+    template_name = 'cases/mwsadmin/model_list.html'
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
     default_order_by = 1
@@ -37,7 +37,7 @@ class ListCaseView(SortedListMixin, ListView):
         kwargs = super(ListCaseView, self).get_context_data(**kwargs)
 
         kwargs.update({
-            'list_item_template': 'cases/model_list_item.html',
+            'list_item_template': 'cases/mwsadmin/model_list_item.html',
         })
 
         return kwargs
@@ -47,7 +47,7 @@ class DetailCaseView(NoteDetailViewMixin):
     """
     Display a detail page for a single deal.
     """
-    template_name = 'cases/details.html'
+    template_name = 'cases/mwsadmin/details.html'
     model = Case
     success_url_reverse_name = 'case_details'
 
@@ -56,7 +56,7 @@ class CreateUpdateCaseView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddCaseView and EditCaseView.
     """
-    template_name = 'cases/create_or_update.html'
+    template_name = 'cases/mwsadmin/create_or_update.html'
     form_class = CreateUpdateCaseForm
 
     def get_success_url(self):
@@ -75,7 +75,7 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
         Overloading super().dispatch to change the template to be rendered.
         """
         if is_ajax(request):
-            self.template_name = 'cases/quickbutton_form.html'
+            self.template_name = 'cases/mwsadmin/quickbutton_form.html'
             self.form_class = AddCaseQuickbuttonForm
 
         return super(AddCaseView, self).dispatch(request, *args, **kwargs)

@@ -21,7 +21,7 @@ class Note(HistoryListItem, Deleted):
         """
         Return the template that must be used for history list rendering
         """
-        return 'notes/list_item.html'
+        return 'notes/mwsadmin/list_item.html'
 
     def save(self, *args, **kwargs):
         self.sort_by_date = self.created

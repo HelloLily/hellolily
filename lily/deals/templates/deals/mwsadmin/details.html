@@ -1,0 +1,66 @@
+{% extends 'mwsadmin/base_details.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {% include_media 'lily.deals.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}
+
+{% block item-edit-url %}{% url deal_edit pk=item.pk %}{% endblock %}
+
+{% block dialog-delete %}
+    {% include 'deals/mwsadmin/delete_dialog.html' %}
+{% endblock %}
+
+{% block details-title %}{{ item|truncatechars:24 }}{% endblock %}
+
+{% block item-details %}
+    <h2>{{ item }}</h2>
+
+    <div>
+        <strong>{% trans 'Amount' %}:</strong>
+        {{ item.amount }}&nbsp;{{ item.get_currency_display }}
+    </div>
+    <div>
+        <strong>{% trans 'Account' %}:</strong>
+        <a href="{% url account_details pk=item.account.pk %}">
+            {{ item.account.name }}
+        </a>
+    </div>
+    <div>
+        <strong>{% trans 'Assigned to' %}:</strong>
+         <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+            {{ item.assigned_to }}
+        </a>
+    </div>
+    {% if item.description %}
+        <p></p>
+        <div>
+            <strong>{% trans 'Description' %}:</strong>
+            <p>{{ item.description }}</p>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block contact-details %}
+    <p id="deal-stage" data-object-id="{{ item.pk }}">
+        <input type="radio" id="stage-new" name="radio" value="0" {% if item.stage == 0 %}checked="checked"{% endif %} />
+        <input type="radio" id="stage-lost" name="radio" value="1" {% if item.stage == 1 %}checked="checked"{% endif %} />
+        <input type="radio" id="stage-pending" name="radio" value="2" {% if item.stage == 2 %}checked="checked"{% endif %} />
+        <input type="radio" id="stage-won" name="radio" value="3" {% if item.stage == 3 %}checked="checked"{% endif %} />
+
+        <label for="stage-new" class="deal-stage-label new">{% trans 'New' %}</label><label for="stage-lost" class="deal-stage-label lost">{% trans 'Lost' %}</label><label for="stage-pending" class="deal-stage-label pending">{% trans 'Pending' %}</label><label for="stage-won" class="deal-stage-label won">{% trans 'Won' %}</label>
+    </p>
+    <div class="closed-date expected">
+        <strong>{% trans 'Expected closing date' %}:</strong> <span>{{ item.expected_closing_date|date:"d/m/Y" }}</span>
+    </div>
+    <div class="closed-date actual {% if not item.closed_date %}hidden{% endif %}">
+        <strong>{% trans 'Actual closed date' %}:</strong> <span>{{ item.closed_date|date:"d/m/Y H:i" }}</span>
+    </div>
+{% endblock %}
+
+{% block tabs %}{% endblock %}

@@ -1,0 +1,54 @@
+{% load i18n %}
+
+{% if item %}
+    <!-- The visible div on load -->
+    <div class="iedit_content">
+        <div class="object-list-item-title">
+            {{ item.created|date:"l d-m-Y" }}
+            <span class="object-list-item-subtitle">
+                {{ item.created|date:"G:i" }}
+            </span>
+            <span class="object-list-ajax-message loading" style="display:none;">{% trans 'Sending' %}</span>
+            <span class="object-list-ajax-message success" style="display:none;">{% trans 'Saved' %}</span>
+            <span class="object-list-ajax-message error" style="display:none;">{% trans 'An error occurred' %}</span>
+        </div>
+        <div class="object-list-item-content">
+            <div class="object-list-item-text">{{ item.content|linebreaksbr }}</div>
+            <div class="object-list-item-options float-right">
+                <a href="{% url note_edit pk=item.pk %}" class="iedit_button object_edit_link" data-edit-selector="#note_{{ item.pk }}">
+                    {% trans 'Edit' %}
+                </a>
+                <a href="{% url note_delete pk=item.pk %}" class="delete note">
+                    {% trans 'Delete' %}
+                </a>
+            </div>
+            <div class="object-list-item-footer">{{ item.author }}</div>
+        </div>
+    </div>
+
+    <!-- The div that is displayed when editing, hidden by default -->
+    <div class="iedit_form" style="display: none;">
+        <div class="object-list-item-title">
+            {{ item.created|date:"l d-m-Y" }}
+            <span class="object-list-item-subtitle">
+                {{ item.created|date:"G:i" }}
+            </span>
+        </div>
+        <div class="object-list-item-content">
+            <div class="object-list-item-text">
+                <form class="mws-form tabthis" action="{% url note_edit pk=item.pk %}" method="post">
+                    {% include 'notes/mwsadmin/update_form.html' %}
+                </form>
+            </div>
+            <div class="object-list-item-options float-right" style="display: block;">
+                <a href="#" class="iedit_button object_cancel_link" data-edit-selector="#note_{{ item.pk }}">
+                    {% trans 'Cancel' %}
+                </a>
+                <a href="{% url note_edit pk=item.pk %}" class="iedit_submit_button">
+                    {% trans 'Save' %}
+                </a>
+            </div>
+            <div class="object-list-item-footer">{{ item.author }}</div>
+        </div>
+    </div>
+{% endif %}

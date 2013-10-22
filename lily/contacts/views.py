@@ -38,7 +38,7 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
-    template_name = 'contacts/model_list.html'
+    template_name = 'contacts/mwsadmin/model_list.html'
     model = Contact
     prefetch_related = [
         'functions__account',
@@ -56,7 +56,7 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
         kwargs = super(ListContactView, self).get_context_data(**kwargs)
 
         kwargs.update({
-            'list_item_template': 'contacts/model_list_item.html',
+            'list_item_template': 'contacts/mwsadmin/model_list_item.html',
         })
         return kwargs
 
@@ -65,7 +65,7 @@ class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
-    template_name = 'contacts/details.html'
+    template_name = 'contacts/mwsadmin/details.html'
     model = Contact
     success_url_reverse_name = 'contact_details'
     page_size = 15
@@ -77,14 +77,14 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
     """
 
     # Default template and form
-    template_name = 'contacts/create_or_update.html'
+    template_name = 'contacts/mwsadmin/create_or_update.html'
     form_class = CreateUpdateContactForm
 
     exclude_address_types = ['visiting']
 
     def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data.update({'addresses_formset': {'template': 'contacts/formset_address.html'}})
+        self.formset_data.update({'addresses_formset': {'template': 'contacts/mwsadmin/formset_address.html'}})
 
         return super(CreateUpdateContactView, self).dispatch(request, *args, **kwargs)
 
@@ -121,7 +121,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddContactQuickbuttonForm
-            self.template_name = 'contacts/quickbutton_form.html'
+            self.template_name = 'contacts/mwsadmin/quickbutton_form.html'
 
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
 

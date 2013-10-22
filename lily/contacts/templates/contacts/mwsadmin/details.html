@@ -1,0 +1,290 @@
+{% extends 'mwsadmin/base_details.html' %}
+
+{% load i18n media thumbnail utils %}
+
+{% block styles %}
+    {% include_media 'lily.contacts.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block item-delete-url %}{% url contact_delete pk=item.pk %}{% endblock %}
+
+{% block item-edit-url %}{% url contact_edit pk=item.pk %}{% endblock %}
+
+{% block dialog-delete %}
+    {% include 'contacts/mwsadmin/delete_dialog.html' %}
+{% endblock %}
+
+{% block image-left %}
+    {% if item.picture %}
+        <img class="details-image contact" src="{% thumbnail contact.picture 100x100 %}" alt="" />
+    {% else %}
+        <img class="details-image contact" src="{% media_url 'mwsadmin/extra/images/core/unknown_person_100x100.png' %}" alt="" />
+    {% endif %}
+{% endblock %}
+
+{% block item-details %}
+    {{ block.super }}
+
+    <div id="contact_function">
+        {% with item.get_primary_function as function %}
+            {% if function %}
+                {% if function.title %}{{ function.title }}<br />{% endif %}
+                at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
+            {% endif %}
+        {% endwith %}
+    </div>
+{% endblock %}
+
+{% block tabs %}
+    {{ block.super }}
+
+    {% comment %}
+        {% with contact.get_primary_function as function %}
+            {% if function %}
+                <li class="ui-state-default ui-corner-top"><a href="#tab-account">{% trans 'Account' %}</a></li>
+            {% endif %}
+        {% endwith %}
+    {% endcomment %}
+
+    {% if item.get_cases|length or item.get_assigned_cases|length %}
+        <li class="ui-state-default ui-corner-top"><a href="#tab-cases">{% trans 'Cases' %}</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block details-tab-content %}
+    {% if item.get_addresses|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
+        <h2>{% trans 'Contact details' %}</h2>
+        <div class="grid_4">
+            {% if item.get_addresses|length %}
+                <div id="detail-addresses" class="detail-block">
+                    <h4>{% trans 'Addresses' %}</h4>
+                    {% with list=item.get_billing_addresses %}
+                        {% include 'mwsadmin/base_list.html' with list=list list_item_template='utils/mwsadmin/address_details_template.html' %}
+                    {% endwith %}
+
+                    {% with list=item.get_shipping_addresses %}
+                        {% include 'mwsadmin/base_list.html' with list=list list_item_template='utils/mwsadmin/address_details_template.html' %}
+                    {% endwith %}
+
+                    {% with list=item.get_home_addresses %}
+                        {% include 'mwsadmin/base_list.html' with list=list list_item_template='utils/mwsadmin/address_details_template.html' %}
+                    {% endwith %}
+
+                    {% with list=item.get_other_addresses %}
+                        {% include 'mwsadmin/base_list.html' with list=list list_item_template='utils/mwsadmin/address_details_template.html' %}
+                    {% endwith %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="grid_4">
+            {% if item.phone_numbers.all|length %}
+                <div id="detail-phones" class="detail-block">
+                    <h4>{% trans 'Phone numbers' %}</h4>
+
+                    {% for phone in item.phone_numbers.all %}
+                        {% if phone.raw_input %}
+                            {% if phone.type == 'mobile' %}
+                                <div class="mobile_phone">
+                            {% else %}
+                                <div class="phone">
+                            {% endif %}
+                                    <h6>{{ phone.get_type_display }}</h6>
+                                    <div class="inline">
+                                        <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                                    </div>
+                                </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if item.email_addresses.all|length %}
+                <div id="detail-emails" class="detail-block">
+                    <h4>{% trans 'E-mail addresses' %}</h4>
+
+                    {% for email in item.email_addresses.all %}
+                        {% if email.email_address %}
+                                {% if email.is_primary %}
+                                    <div class="primary email">
+                                        <h6>{% trans 'Primary' %}</h6>
+                                {% else %}
+                                    <div class="email">
+                                        <h6></h6>
+                                {% endif %}
+                                        <div class="inline">
+                                            <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+                                        </div>
+                                    </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if item.get_addresses|length or item.phone_numbers.all|length or item.email_addresses.all|length %}
+        {% if item.description or item.tags.all|length %}
+            <hr />
+        {% endif %}
+    {% endif %}
+
+    {% if item.description or item.tags.all|length %}
+        <h2>{% trans 'Additional information' %}</h2>
+        <div class="grid_8">
+            {% if item.description %}
+                <div class="detail-block">
+                    <h4>{% trans 'Description' %}</h4>
+                    {{ item.description|linebreaksbr }}
+                </div>
+            {% endif %}
+
+            {% if item.tags.all|length %}
+                <div class="detail-block">
+                    <h4>{% trans 'Tags' %}</h4>
+                    {% comment %}
+                        TODO: when searching on tags is possible, change these into links
+                    {% endcomment %}
+
+                    {% for tag in item.tags.all %}
+                        {{ tag }}
+                        {% if not forloop.last %}
+                        ,
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block tabs-content %}
+    {{ block.super }}
+
+    {% if item.get_cases|length or item.get_assigned_cases|length %}
+        <div id="tab-cases" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide clearfix">
+            <div id="cases-assigned" class="mws-collapsible mws-collapsed">
+                {% if item.get_assigned_cases|length %}
+                    <div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display assigned cases' %}</span></div>
+                    <div class="mws-collapsible-body clearfix" style="display: none;">
+                        <div class="grid_8">
+                                <div id="detail-emails" class="detail-block">
+                                    <h2>{% trans 'Assigned' %}</h2>
+                                    {% include 'mwsadmin/base_list.html' with list=item.get_assigned_cases list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                </div>
+                        </div>
+                    </div>
+                {% else %}
+                    {% trans 'There are no cases assigned to' %} {{ item.full_name }}
+                {% endif %}
+            </div>
+
+            {% if item.get_cases|length %}
+                <div id="cases-priority" class="mws-collapsible mws-collapsed">
+                    <div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display cases sorted by priority' %}</span></div>
+                    <div class="mws-collapsible-body clearfix" style="display: none;">
+                        {% if item.get_cases_critical|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_critical|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Critical' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_critical list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_high|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_high|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'High' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_high list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_medium|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_medium|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Medium' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_medium list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_low|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_low|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Low' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_low list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="cases-status" class="mws-collapsible mws-collapsed">
+                    <div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display cases sorted by status' %}</span></div>
+                    <div class="mws-collapsible-body clearfix" style="display: none;">
+                        {% if item.get_cases_open|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_open|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Open' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_open list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_progress|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_progress|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'In progress' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_progress list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_pending|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_pending|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Pending' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_pending list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if item.get_cases_closed|length %}
+                            <div class="grid_8">
+                                {% if item.get_cases_closed|length %}
+                                    <div id="detail-emails" class="detail-block">
+                                        <h2>{% trans 'Closed' %}</h2>
+                                        {% include 'mwsadmin/base_list.html' with list=item.get_cases_closed list_item_template='cases/mwsadmin/case_list_item.html' %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div id="cases-priority" class="mws-collapsible mws-collapsed">
+                    <div class="mws-collapsible-header"><div class="mws-collapse-button"><span></span></div><span>{% trans 'Display related cases' %}</span></div>
+                    <div class="mws-collapsible-body clearfix" style="display: none;">
+                        {% trans 'There are no cases involving' %} {{ item.full_name }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

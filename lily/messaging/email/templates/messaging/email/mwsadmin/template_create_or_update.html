@@ -1,0 +1,360 @@
+{% extends 'mwsadmin/base_create_or_update.html' %}
+
+{% load i18n media %}
+
+{% block create-page-title %}{% trans 'Add template' %}{% endblock %}
+
+{% block update-page-title %}{% trans 'Edit template' %}{% endblock %}
+
+{% block styles %}
+    {% include_media 'lily.accounts.css' %}
+    {{ block.super }}
+    <!--{% include_media 'hallojs.css' %}-->
+    <!--[if lt IE 9]> {% include_media 'hallojs-ie7.css' %} <![endif]-->
+
+    <style type="text/css">
+        .sent-to-recipients textarea {
+            height: 31px;
+        }
+        #email-body {
+            border: 1px solid #c5c5c5;
+            width: 100%;
+            outline: 0;
+            -moz-border-radius: 4px;
+            -webkit-border-radius: 4px;
+            -o-border-radius: 4px;
+            -khtml-border-radius: 4px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -khtml-box-sizing: border-box;
+        }
+        #email-body.focus {
+            border: 1px solid #1c76bc;
+            box-shadow:0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        #id_variables {
+            width: 164px;
+        }
+        #id_values {
+            width: 153px;
+        }
+        #id_insert_button {
+            margin-top: 0;
+        }
+        #id_text_value {
+            min-height: 19px;
+            border: 1px solid #c5c5c5;
+            padding: 5px 8px;
+            display: inline-block;
+            vertical-align: top;
+            width: 153px;
+            margin-right: 4px;
+            text-align: center;
+
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{  block.super }}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var parameter_choices = {{ parameter_choices|safe }};
+            var iframe = $('#email-body');
+            var last_focussed_body_part = iframe;
+
+            $("#templateDialog").dialog({
+                autoOpen: false,
+                title: gettext('Error'),
+                modal: true,
+                width: "640",
+                buttons: [{
+                    text: gettext('Close'),
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }}]
+            });
+
+            function insertTextAtCursor(text) {
+                var el = last_focussed_body_part.get(0);
+                var range, caretIndex;
+
+                if (last_focussed_body_part.is(':input')) {
+                    var val = el.value, startIndex, endIndex;
+                    if (typeof el.selectionStart != "undefined" && typeof el.selectionEnd != "undefined") {
+                        startIndex = el.selectionStart;
+                        endIndex = el.selectionEnd;
+                        el.value = val.slice(0, startIndex) + text + val.slice(endIndex);
+                        el.selectionStart = el.selectionEnd = startIndex + text.length;
+                    } else if (typeof document.selection != "undefined" && typeof document.selection.createRange != "undefined") {
+                        el.focus();
+                        range = document.selection.createRange();
+                        range.collapse(false);
+                        range.text = text;
+                        range.select();
+                    }
+                } else if (last_focussed_body_part.is('iframe')) {
+                    // Get rangy out of the iframe, since the js is included there
+                    var rangy = last_focussed_body_part.get(0).contentWindow.rangy;
+
+                    // Get the selection from the iframe
+                    var sel = rangy.getSelection();
+
+                    // Initialize some variables that are used
+                    var firstNode, firstOffset, lastNode, firstParentNode, lastParentNode, before, after, caretNode;
+
+                    // Check if selection is backwards so we know which node is first and which is last
+                    // Also we check what the offset is at which we want to insert the text
+                    if (sel.isBackwards()) {
+                        firstNode = sel.focusNode;
+                        firstOffset = sel.focusOffset;
+
+                        lastNode = sel.anchorNode;
+                    } else {
+                        firstNode = sel.anchorNode;
+                        firstOffset = sel.anchorOffset;
+
+                        lastNode = sel.focusNode;
+                    }
+
+                    // We need to wrap the parentNode in jquery because the nodes themself are just text instead of elems
+
+
+                    // Delete selected text from the document
+                    sel.deleteFromDocument();
+
+                    // The index where the caret should be placed
+                    caretIndex = firstOffset + text.length;
+
+                    // Check if we have data, otherwise set empty string so slice doesn't error out on us
+                    // Also the parentNode is the node itself when it has no data so we don't need to get parent in that case
+                    if (firstNode.data) {
+                        before = firstNode.data;
+                        firstParentNode = $(firstNode.parentNode);
+                    } else {
+                        before = '';
+                        firstParentNode = $(firstNode);
+                    }
+
+                    // Check if we have data, otherwise set empty string so slice doesn't error out on us
+                    // Also the parentNode is the node itself when it has no data so we don't need to get parent in that case
+                    if (lastNode.data) {
+                        after = lastNode.data;
+                        lastParentNode = $(lastNode.parentNode);
+                    } else {
+                        after = '';
+                        lastParentNode = $(lastNode);
+                    }
+
+                    // Check if we are working with a selection whithin a single node or with one that spans multiple nodes
+                    if (firstNode == lastNode) {
+                        // The selection is whithin a single node
+                        before = before.slice(0, firstOffset);
+                        after = after.slice(firstOffset);
+
+                        firstParentNode.html(before + text + after);
+                    } else {
+                        // The selection spans multiple nodes
+                        if (jQuery.inArray(firstNode.parentNode, lastNode.parentNode.childNodes) !== -1) {
+                            // LastNode is the parentNode
+                            firstParentNode.append(text + after);
+                            lastParentNode.html(lastParentNode.html().substring(0, (lastParentNode.html().length - after.length)));
+                        } else if (jQuery.inArray(lastNode.parentNode, firstNode.parentNode.childNodes) !== -1) {
+                            // FirstNode is the parentNode
+                            before = before.slice(0, firstOffset);
+                            after = lastParentNode.html();
+
+                            lastParentNode.remove();
+                            firstParentNode.html(before + text + after + firstParentNode.html().substring(firstOffset));
+                        } else {
+                            // We are dealing with two different nodes but neither is the parent
+                            firstParentNode.append(text + lastParentNode.html());
+                            lastParentNode.remove();
+                        }
+                    }
+                    // Create a new range and refresh the selection after DOM manipulation
+                    range = rangy.createRange();
+                    sel.refresh();
+
+                    // We need to check again because we need different lookups
+                    // but content is changed so we cannot retreive the text in previous if check
+                    if (firstNode.data) {
+                        caretNode = firstNode;
+                    } else {
+                        caretNode = firstNode.childNodes[0]
+                    }
+
+                    // Set the start and end index of the new range
+                    range.setStart(caretNode, caretIndex);
+                    range.setEnd(caretNode, caretIndex);
+
+                    // Remove old ranges and add the new one, this places the caret at the specified index
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+
+                    // Place focus on hallojs
+                    $('#email-body').contents().find('#email-content').focus();
+                } else {
+                    console.log('This element is currently not supported for inserting text in.');
+                }
+            }
+
+            $('#id_variables').change(function() {
+                var value_select = $('#id_values');
+                var category = $(this).val();
+
+                value_select.find("option").not('option[value=""]').remove();
+                value_select.change();
+
+                if (category !== '') {
+                    $.each(parameter_choices[category], function(parameter, label) {
+                        value_select.append($("<option/>", {
+                            value: parameter,
+                            text: label
+                        }));
+                    });
+                }
+                value_select.trigger("liszt:updated");
+            });
+
+            $('#id_values').change(function() {
+                var text_value_input = $('#id_text_value');
+                var text_value = $(this).val();
+
+                if (text_value !== ''){
+                    text_value_input.html('{% templatetag openvariable %} ' + text_value + ' {% templatetag closevariable %}')
+                } else {
+                    text_value_input.html('');
+                }
+            });
+
+            $('#id_body_text').focus(function() {
+                last_focussed_body_part = $(this);
+            });
+
+            $('#id_insert_button').click(function(event) {
+                event.preventDefault();
+                var textvalue = $('#id_text_value').html();
+
+                insertTextAtCursor(textvalue);
+
+{#                textarea.trigger('update');#}
+            });
+
+            $('#body_file_upload').click(function(event) {
+                event.preventDefault();
+                $('#id_body_file').click();
+            });
+
+            $('#id_body_file').change(function() {
+                var form = $(this).closest('form');
+                var value = form.find('#id_body_file').val();
+
+                if (value !== '') {
+                    $(form).ajaxSubmit({
+                        type: 'post',
+                        dataType: 'json',
+                        url: '{% url messaging_email_template_parse %}',
+                        success: function(response) {
+                            if (response.valid === true) {
+                                if (response.name !== undefined) {
+                                    $('#id_name').val(response.name);
+                                }
+
+                                if (response.description !== undefined) {
+                                    var description = $('#id_description');
+                                    description.val(response.description);
+                                    description.closest('#div_id_description').find('.click-show').click();
+                                    description.trigger('update');
+                                }
+
+                                if (response.subject !== undefined) {
+                                    $('#id_subject').val(response.subject)
+                                }
+
+                                if (response.html_part !== undefined) {
+                                    var body_html = $('#email-body').contents().find('#email-content');
+                                    body_html.html(response.html_part);
+                                }
+
+                                if (response.text_part !== undefined) {
+                                    var body_text = $('#id_body_text');
+                                    body_text.val(response.text_part);
+                                    body_text.closest('#div_id_body_text').find('.click-show').click();
+                                    body_text.trigger('update');
+                                }
+                            } else {
+                                $('#templateDialogMessage').html(response.errors['body_file']);
+                                $("#templateDialog").dialog('open');
+                            }
+                        }, error: function(){
+                            $("#errorDialog").dialog('open');
+                        }
+                    });
+                }
+            });
+
+            // intercept submit and add email body to form data
+            $('#id_body_html').closest('form').submit(function (event) {
+                var body = iframe.contents().find('#email-content').html();
+                $(this).find('#id_body_html').val(body);
+
+                return true;
+            });
+
+            iframe.load(function () {
+                // visualize possibility of inline editing and enable autogrow
+                iframe.contents().find('#email-content')
+                        .bind('halloactivated',function (event) {
+                            iframe.addClass('focus').contents().find('html').addClass('focus');
+                            last_focussed_body_part = iframe;
+                        }).bind('hallodeactivated',function (event) {
+                            iframe.removeClass('focus').contents().find('html').removeClass('focus');
+                        }).bind('hallomodified',function (event) {
+                            iframe.css('height', '' + getIframeHeight(iframe) + 'px');
+                        }).html($('#id_body').val());
+
+                // move content below toolbar
+                var email_content = iframe.contents().find('#email-content');
+                iframe.contents().find(email_content).css('padding-top', parseInt($(email_content).parent().css('padding-top')) + iframe.contents().find('.hallotoolbar').outerHeight() + 'px');
+
+                // set new height after load
+                iframe.contents()
+                        .find('html')
+                        .addClass('autogrow')
+                        .find('body')
+                        .css('font-family', $('body').css('font-family'))
+                        .css('font-size', $('body').css('font-size'))
+                        .css('margin', '1px');
+                iframe.css('height', '' + getIframeHeight(iframe) + 'px');
+
+                iframe.contents().find('#email-content');
+            });
+            $('#id_variables').change();
+        });
+    </script>
+
+{% endblock %}
+
+{% block create_or_update_form %}
+    <form id="file_upload_form" action="" method="post" enctype="multipart/form-data" style="display: none;">
+        {% csrf_token %}
+        <input id="id_body_file" type="file" class="clearablefileinput" name="body_file" accept="text/html,text/plain">
+    </form>
+    {% include 'messaging/email/mwsadmin/template_create_or_update_form.html' %}
+{% endblock %}
+
+{% block dialogs %}
+    <div id="templateDialog">
+        <div class="mws-dialog-inner">
+            <p id="templateDialogMessage"></p>
+        </div>
+    </div>
+{% endblock %}

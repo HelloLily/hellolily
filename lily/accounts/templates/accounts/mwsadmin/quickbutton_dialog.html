@@ -1,0 +1,69 @@
+{% extends 'mwsadmin/base_quickbutton_dialog.html' %}
+
+{% load i18n %}
+
+{% block dialog-id %}-account{% endblock %}
+
+{% block dialog-class %} account{% endblock %}
+
+{% block dialog-title %}{% trans 'New account' %}{% endblock %}
+
+{% block dialog-form-url %}{% url account_add %}{% endblock %}
+
+{% block dialog-form %}{% include 'accounts/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.account %}{% endblock %}
+
+{% block quick-button-scripts %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // add account dialog
+            $('#quickbutton-dialog-account').dialog({
+                autoOpen: false,
+                modal: true,
+                width: 640,
+                buttons: [
+                    {
+                        'class': 'mws-button red float-left',
+                        text: gettext('Cancel'),
+                        click: function() {
+                            $(this).dialog('close');
+                        }
+                    },
+                    {
+                        'class': 'mws-button green',
+                        text: gettext('Add more details'),
+                        click: function() {
+                            // set form input to edit so we get a redirect to the extendend edit page
+                            $('#add-account-submit').val('edit');
+                            sendForm( $(this) );
+                        },
+                        name: 'submit',
+                        value: 'edit'
+                    },
+                    {
+                        'class': 'mws-button green',
+                        text: gettext('Save'),
+                        click: function() {
+                            sendForm( $(this) );
+                        },
+                        name: 'submit',
+                        value: 'add'
+                    },
+                ],
+                close: function() {
+                    clearForm( $(this).find('form') );
+                }
+            });
+
+            $('#quickbutton-dialog-account form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-account') );
+                event.preventDefault();
+            });
+
+            // show add account dialog
+            $('.quickbutton.account').click(function(event) {
+                $('#quickbutton-dialog-account').dialog('open');
+                event.preventDefault();
+            });
+        });
+    </script>
+{% endblock %}

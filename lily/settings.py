@@ -404,7 +404,5 @@ AWS_HEADERS = {
     'Expires': expires,
 }
 
-
-
 # cripsy-forms
-CRISPY_TEMPLATE_PACK = 'mws-admin'
+CRISPY_TEMPLATE_PACK = 'mwsadmin/mws-admin'

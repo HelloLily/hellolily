@@ -10,7 +10,7 @@ class DashboardView(ListView):
     """
     Dashboard of messages, display inbox and other cool stuff.
     """
-#     template_name = 'messaging/dashboard.html'
+#     template_name = 'messaging/mwsadmin/dashboard.html'
 
 
 #     def get_queryset(self):

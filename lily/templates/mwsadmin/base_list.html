@@ -1,0 +1,27 @@
+{% comment %}
+Use {% include 'mwsadmin/base_list.html' with list=list list_item_template=path_to_item_template %} to use this file.
+{% endcomment %}
+
+{% if empty_template %}
+
+    {% for item in list %}
+
+        {% include list_item_template with item=item %}
+
+    {% empty %}
+
+        {% include empty_template with list=list %}
+
+    {% endfor %}
+
+{% else %}
+
+    {% for item in list %}
+
+        {% include list_item_template with item=item %}
+
+    {% endfor %}
+
+{% endif %}
+
+

@@ -1,0 +1,29 @@
+{% extends 'mwsadmin/base_model_list.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {% include_media 'lily.contacts.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "bSearchable": false, "bSortable": false, "aTargets": [1] },
+    { "bSortable": false, "aTargets": [3] },
+    { "sType": "date-euro", "aTargets": [5] },
+    { "sType": "date-euro", "aTargets": [6] }
+{% endblock %}
+
+{% block model-list-title %}{% trans 'Contacts' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="controls"></th>
+    <th class="item-image contact hide_on_small_screen"></th>
+    <th class="personal">{% trans 'Personal' %}</th>
+    <th class="contact">{% trans 'Contact' %}</th>
+    <th class="account">{% trans 'Works at' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+    <th class="modified hide_on_small_screen">{% trans 'Modified' %}</th>
+{% endblock %}

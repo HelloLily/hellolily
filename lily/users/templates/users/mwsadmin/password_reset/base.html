@@ -1,0 +1,13 @@
+{% extends 'mwsadmin/base_visitor_portal.html' %}
+
+{% load i18n media %}
+
+{% block page-title %}{% trans 'Reset password' %} - {% endblock %}
+
+{% block styles %}
+    {% include_media 'lily.users.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block portal-title %}{% trans 'Reset password' %}{% endblock %}

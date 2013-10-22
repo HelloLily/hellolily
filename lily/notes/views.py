@@ -27,41 +27,41 @@ class DeleteNoteView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Note
-    
+
     def delete(self, request, *args, **kwargs):
         """
         Overloading super().delete to remove the related models and the instance itself.
         """
         self.object = self.get_object()
         self.object.delete()
-        
-        # Return response 
+
+        # Return response
         return HttpResponse(simplejson.dumps({
             'html': _('The note was successfully deleted.'),
         }), mimetype='application/json')
-        
+
 
 class EditNoteView(UpdateView):
     model = Note
     form_class = EditNoteForm
-    template_name = 'notes/edit_form.html'
-    ajax_template_name = 'notes/list_item.html'
-    
+    template_name = 'notes/mwsadmin/edit_form.html'
+    ajax_template_name = 'notes/mwsadmin/list_item.html'
+
     def get_success_url(self):
         return reverse('dashboard')
-    
+
     def form_valid(self, form):
         self.object = form.save()
-        
+
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(simplejson.dumps({
                 'error': False,
                 'html': render_to_string(self.ajax_template_name, context_instance=context),
             }), mimetype='application/json')
-        
+
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def form_invalid(self, form):
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
@@ -69,7 +69,7 @@ class EditNoteView(UpdateView):
                 'error': True,
                 'html': render_to_string(self.ajax_template_name, context_instance=context)
             }), mimetype='application/json')
-        
+
         return super(EditNoteView, self).form_invalid(form)
 
 
@@ -78,16 +78,16 @@ class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, V
     DetailView for models including a NoteForm to quickly add notes.
     """
     form_class = NoteForm
-    
+
     def get(self, request, *args, **kwargs):
         """
         Implementing the response for the http method GET.
         """
         self.object = self.get_object()
-        
+
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-                
+
         context = self.get_context_data(object=self.object, form=form)
         context.update({
             'history_list': self.object.notes.all()
@@ -100,7 +100,7 @@ class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, V
         Implementing the response for the http method POST.
         """
         self.object = self.get_object()
-        
+
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
@@ -125,7 +125,7 @@ class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, V
     def get_success_url(self):
         if not hasattr(self, 'success_url_reverse_name'):
             return super(NoteDetailViewMixin, self).get_success_url()
-        
+
         return reverse(self.success_url_reverse_name, kwargs={ 'pk': self.object.pk })
 
 
@@ -135,8 +135,8 @@ class HistoryListViewMixin(NoteDetailViewMixin):
     """
     form_class = NoteForm
     page_size = 15
-    ajax_template = 'base_list.html'
-    list_item_template = 'base_details_history_list_item.html'
+    ajax_template = 'mwsadmin/base_list.html'
+    list_item_template = 'mwsadmin/base_details_history_list_item.html'
 
     def get(self, request, *args, **kwargs):
         """

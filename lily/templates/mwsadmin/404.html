@@ -1,0 +1,20 @@
+{% extends 'mwsadmin/base_empty.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {% include_media 'error.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div id="mws-error-container">
+            <div id="mws-error-code">
+                <h1>Error <span>404</span></h1>
+            </div>
+            <p id="mws-error-message">{% trans 'Page not found' %}</p>
+        </div>
+    </div>
+{% endblock %}

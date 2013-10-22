@@ -28,7 +28,7 @@ from lily.utils.views import SortedListMixin, FilteredListMixin,\
 
 
 class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
-    template_name = 'accounts/model_list.html'
+    template_name = 'accounts/mwsadmin/model_list.html'
     sortable = [2, 4, 5]
     model = Account
     prefetch_related = [
@@ -45,7 +45,7 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
         kwargs = super(ListAccountView, self).get_context_data(**kwargs)
 
         kwargs.update({
-            'list_item_template': 'accounts/model_list_item.html',
+            'list_item_template': 'accounts/mwsadmin/model_list_item.html',
         })
 
         return kwargs
@@ -55,7 +55,7 @@ class DetailAccountView(HistoryListViewMixin):
     """
     Display a detail page for a single account.
     """
-    template_name = 'accounts/details.html'
+    template_name = 'accounts/mwsadmin/details.html'
     model = Account
     success_url_reverse_name = 'account_details'
 
@@ -65,7 +65,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     Base class for AddAccountView and EditAccountView.
     """
     # Default template and form
-    template_name = 'accounts/create_or_update.html'
+    template_name = 'accounts/mwsadmin/create_or_update.html'
     form_class = CreateUpdateAccountForm
 
     # Option for address formset
@@ -73,7 +73,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
 
     def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data.update({'addresses_formset': {'template': 'accounts/formset_address.html'}})
+        self.formset_data.update({'addresses_formset': {'template': 'accounts/mwsadmin/formset_address.html'}})
         self.formset_data.update({'websites_formset': {'label': _('Extra websites')}})
 
         return super(CreateUpdateAccountView, self).dispatch(request, *args, **kwargs)
@@ -131,7 +131,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddAccountQuickbuttonForm
-            self.template_name = 'accounts/quickbutton_form.html'
+            self.template_name = 'accounts/mwsadmin/quickbutton_form.html'
 
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
 

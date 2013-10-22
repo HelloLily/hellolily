@@ -30,7 +30,7 @@ class ListDealView(SortedListMixin, ListView):
     """
     Display a list of all deals
     """
-    template_name = 'deals/model_list.html'
+    template_name = 'deals/mwsadmin/model_list.html'
     model = Deal
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
@@ -42,7 +42,7 @@ class ListDealView(SortedListMixin, ListView):
         kwargs = super(ListDealView, self).get_context_data(**kwargs)
 
         kwargs.update({
-            'list_item_template': 'deals/model_list_item.html',
+            'list_item_template': 'deals/mwsadmin/model_list_item.html',
         })
 
         return kwargs
@@ -52,7 +52,7 @@ class DetailDealView(NoteDetailViewMixin):
     """
     Display a detail page for a single deal.
     """
-    template_name = 'deals/details.html'
+    template_name = 'deals/mwsadmin/details.html'
     model = Deal
     success_url_reverse_name = 'deal_details'
 
@@ -61,7 +61,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddDealView and EditDealView.
     """
-    template_name = 'deals/create_or_update.html'
+    template_name = 'deals/mwsadmin/create_or_update.html'
     form_class = CreateUpdateDealForm
 
     def form_valid(self, form):
@@ -95,7 +95,7 @@ class AddDealView(CreateUpdateDealView, CreateView):
         Overloading super().dispatch to change the template to be rendered.
         """
         if is_ajax(request):
-            self.template_name = 'deals/quickbutton_form.html'
+            self.template_name = 'deals/mwsadmin/quickbutton_form.html'
             self.form_class = AddDealQuickbuttonForm
 
         return super(AddDealView, self).dispatch(request, *args, **kwargs)

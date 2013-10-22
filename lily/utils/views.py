@@ -599,7 +599,7 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
         form = EmailAddressBaseForm
         prefix = 'email_addresses'
         label = _('E-mail addresses')
-        template = 'utils/formset_email_address.html'
+        template = 'utils/mwsadmin/formset_email_address.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(EmailAddressFormSetViewMixin, self).dispatch(request, *args, **kwargs)
@@ -812,7 +812,7 @@ class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
         form = PhoneNumberBaseForm
         prefix = 'phone_numbers'
         label = _('Phone numbers')
-        template = 'utils/formset_phone_number.html'
+        template = 'utils/mwsadmin/formset_phone_number.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(PhoneNumberFormSetViewMixin, self).dispatch(request, *args, **kwargs)
@@ -849,7 +849,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
         form = AddressBaseForm
         prefix = 'addresses'
         label = _('Addresses')
-        template = 'utils/formset_address.html'
+        template = 'utils/mwsadmin/formset_address.html'
 
         if hasattr(self, 'exclude_address_types'):
             form_attrs = {'exclude_address_types': self.exclude_address_types}
@@ -905,7 +905,7 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
         form = WebsiteBaseForm
         prefix = 'websites'
         label = _('Websites')
-        template = 'accounts/formset_website.html'
+        template = 'accounts/mwsadmin/formset_website.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(WebsiteFormSetViewMixin, self).dispatch(request, *args, **kwargs)
@@ -944,7 +944,7 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         form = AttachmentBaseForm
         prefix = 'attachments'
         label = _('Attachments')
-        template = 'utils/formset_attachment.html'
+        template = 'utils/mwsadmin/formset_attachment.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)

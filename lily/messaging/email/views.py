@@ -56,18 +56,18 @@ class EditEmailAccountView(TemplateView):
     """
     Edit an existing e-mail account.
     """
-    template_name = 'messaging/email/account_create.html'
+    template_name = 'messaging/email/mwsadmin/account_create.html'
 
 
 class DetailEmailAccountView(TemplateView):
     """
     Show the details of an existing e-mail account.
     """
-    template_name = 'messaging/email/account_create.html'
+    template_name = 'messaging/email/mwsadmin/account_create.html'
 
 
 class ListEmailTemplateView(SortedListMixin, FilteredListMixin, ListView):
-    template_name = 'messaging/email/email_template_list.html'
+    template_name = 'messaging/email/mwsadmin/email_template_list.html'
     model = EmailTemplate
     sortable = [1, 2]
     default_order_by = 2
@@ -79,7 +79,7 @@ class ListEmailTemplateView(SortedListMixin, FilteredListMixin, ListView):
         kwargs = super(ListEmailTemplateView, self).get_context_data(**kwargs)
 
         kwargs.update({
-            'list_item_template': 'messaging/email/email_template_list_item.html',
+            'list_item_template': 'messaging/email/mwsadmin/email_template_list_item.html',
         })
 
         return kwargs
@@ -89,7 +89,7 @@ class AddEmailTemplateView(DeleteBackAddSaveFormViewMixin, CreateView):
     """
     Create a new e-mail template that can be used for sending emails.
     """
-    template_name = 'messaging/email/template_create_or_update.html'
+    template_name = 'messaging/email/mwsadmin/template_create_or_update.html'
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
@@ -118,7 +118,7 @@ class EditEmailTemplateView(DeleteBackAddSaveFormViewMixin, UpdateView):
     """
     Parse an uploaded template for variables and return a generated form/
     """
-    template_name = 'messaging/email/template_create_or_update.html'
+    template_name = 'messaging/email/mwsadmin/template_create_or_update.html'
     model = EmailTemplate
     form_class = CreateUpdateEmailTemplateForm
 
@@ -155,7 +155,7 @@ class ParseEmailTemplateView(FormView):
     """
     Parse an uploaded template for variables and return a generated form
     """
-    template_name = 'messaging/email/template_create_or_update_base_form.html'
+    template_name = 'messaging/email/mwsadmin/template_create_or_update_base_form.html'
     form_class = EmailTemplateFileForm
 
     def form_valid(self, form):
@@ -180,7 +180,7 @@ class EmailFolderView(ListView):
     """
     Show a list of e-mail messages in a certain folder.
     """
-    template_name = 'messaging/email/model_list.html'
+    template_name = 'messaging/email/mwsadmin/model_list.html'
     paginate_by = 10
     folder_name = None
     folder_identifier = None
@@ -227,7 +227,7 @@ class EmailFolderView(ListView):
         """
         kwargs = super(EmailFolderView, self).get_context_data(**kwargs)
         kwargs.update({
-            'list_item_template': 'messaging/email/model_list_item.html',
+            'list_item_template': 'messaging/email/mwsadmin/model_list_item.html',
             'list_title': ', '.join([email_account.email.email_address for email_account in self.email_accounts]),
         })
 
@@ -327,7 +327,7 @@ class BaseJSONViewMixin(View):
     Show most attributes of an EmailMessage in JSON format.
     """
     http_method_names = ['get']
-    template_name = 'messaging/email/email_heading.html'
+    template_name = 'messaging/email/mwsadmin/email_heading.html'
     mark_as_read = True
     use_rich_body = True
 
@@ -499,7 +499,7 @@ class EmailMessageHTMLView(View):
     Return the HTML for single e-mail message.
     """
     http_method_names = ['get']
-    template_name = 'messaging/email/email_body.html'
+    template_name = 'messaging/email/mwsadmin/email_body.html'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -662,7 +662,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
     """
     View where you compose e-mail messages and either send or save them.
     """
-    template_name = 'messaging/email/email_compose.html'
+    template_name = 'messaging/email/mwsadmin/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = ()
     remove_old_message = True
@@ -1019,7 +1019,7 @@ class EmailComposeView(AttachmentFormSetViewMixin, FormView):
 
 
 class EmailCreateView(EmailComposeView):
-    template_name = 'messaging/email/email_compose.html'
+    template_name = 'messaging/email/mwsadmin/email_compose.html'
     form_class = ComposeEmailForm
     message_object_query_args = (Q(folder_identifier=DRAFTS.lstrip('\\')) | Q(flags__icontains='draft'))
 
@@ -1071,7 +1071,7 @@ class EmailForwardView(EmailReplyView):
 
 
 class EmailBodyPreviewView(TemplateView):
-    template_name = 'messaging/email/email_compose_frame.html'  # default for non-templated e-mails
+    template_name = 'messaging/email/mwsadmin/email_compose_frame.html'  # default for non-templated e-mails
 
     def dispatch(self, request, *args, **kwargs):
         self.object_id = kwargs.get('object_id', None)
@@ -1177,11 +1177,11 @@ class EmailConfigurationWizardTemplate(TemplateView):
     """
     View to provide html for wizard form skeleton to configure e-mail accounts.
     """
-    template_name = 'messaging/email/wizard_configuration_form.html'
+    template_name = 'messaging/email/mwsadmin/wizard_configuration_form.html'
 
 
 class EmailConfigurationView(SessionWizardView):
-    template_name = 'messaging/email/wizard_configuration_form_step.html'
+    template_name = 'messaging/email/mwsadmin/wizard_configuration_form_step.html'
 
     def dispatch(self, request, *args, **kwargs):
         # Verify email address exists
@@ -1308,7 +1308,7 @@ class EmailShareView(FormView):
     """
     Display a form to share an email account with everybody or certain people only.
     """
-    template_name = 'messaging/email/wizard_share_form.html'
+    template_name = 'messaging/email/mwsadmin/wizard_share_form.html'
     form_class = EmailShareForm
 
     def dispatch(self, request, *args, **kwargs):

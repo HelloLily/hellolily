@@ -1,7 +1,9 @@
+from urlparse import urlparse
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -10,7 +12,6 @@ from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from urlparse import urlparse
 
 from lily.cases.forms import CreateUpdateCaseForm, AddCaseQuickbuttonForm
 from lily.cases.models import Case
@@ -24,7 +25,6 @@ class ListCaseView(SortedListMixin, ListView):
     """
     Display a list of all deals
     """
-    template_name = 'cases/mwsadmin/model_list.html'
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
     default_order_by = 1
@@ -158,18 +158,19 @@ class DeleteCaseView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Case
-    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
-        """
-        Overloading super().delete to add a message of successful removal of this instance.
-        """
-        response = super(DeleteCaseView, self).delete(request)
+        self.object = self.get_object()
+        self.object.delete()
 
         # Show delete message
         messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
-        return response
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            return HttpResponse(redirect_url)
+
+        return HttpResponseRedirect(redirect_url)
 
     def get_success_url(self):
         return reverse('case_list')

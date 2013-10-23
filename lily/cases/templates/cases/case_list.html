@@ -1,0 +1,55 @@
+{% extends 'list.html' %}
+
+{% load i18n utils %}
+
+{% block model-list-title %}{% trans 'Cases' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="priority">{% trans 'Priority' %}</th>
+    <th class="subject">{% trans 'Subject' %}</th>
+    <th class="account_contact">{% trans 'Client' %}</th>
+    <th class="status">{% trans 'Status' %}</th>
+    <th class="assigned-to">{% trans 'Assigned to' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+{% endblock %}
+
+{% block list %}
+{% for item in object_list %}
+<tr>
+    <td class="">
+        <a href="{% url case_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        {% if not item|has_user_in_group:'account_admin' %}
+        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        {% endif %}
+    </td>
+    <td class="priority">
+        <span class="label label-sm label-{{ item|priority }}">{{ item.get_priority_display|lower }}</span>
+    </td>
+    <td class="subject">
+        <a href="{% url case_details pk=item.pk %}">{{ item.subject }}</a>
+    </td>
+    <td class="contact_account">
+        <div>
+        {% if item.contact %}<a href="{% url contact_details pk=item.contact.pk %}">{{ item.contact.full_name }}</a>{% endif %}
+        {% if item.contact and item.account %}at{% endif %}
+        {% if item.account %}<a href="{% url account_details pk=item.account.pk %}">{{ item.account.name }}</a>{% endif %}
+        </div>
+    </td>
+    <td class="status">
+        {{ item.get_status_display }}
+    </td>
+    <td class="assigned-to">
+        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">{{ item.assigned_to }}</a>
+    </td>
+    <td class="datetime created hide_on_small_screen">
+        {{ item.created|date:"d/m/Y H:i:s" }}
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "sType": "date-euro", "aTargets": [6] }
+{% endblock %}

@@ -8,6 +8,6 @@ urlpatterns = patterns('',
     url(r'^add/$', add_case_view, name='case_add'),
     url(r'^edit/(?P<pk>[\w-]+)/$', edit_case_view, name='case_edit'),
     url(r'^details/(?P<pk>[\w-]+)/$', detail_case_view, name='case_details'),
-    url(r'^delete/xhr/(?P<pk>[\w-]+)/$', delete_case_view, name='case_delete'),
+    url(r'^delete/(?P<pk>[\w-]+)/$', delete_case_view, name='case_delete'),
     url(r'^$', list_case_view, name='case_list'),
 )

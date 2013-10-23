@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% load media i18n activelink %}
+
+{% block page-header %}
+    <ul class="nav navbar-nav pull-right">
+    <li class="dropdown user">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+        <span class="username">{% trans 'Hello' %}, {{ user }}</span>
+        <i class="icon-angle-down"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="{% url contact_details pk=user.contact.pk %}"><i class="icon-user"></i> {% trans 'Profile' %}</a>
+            </li>
+            <li><a href="{% url logout %}"><i class="icon-key"></i> {% trans 'Log out' %}</a>
+            </li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}
+
+{% block sidebar %}
+<div class="page-sidebar navbar-collapse collapse">
+    <ul class="page-sidebar-menu">
+        <li>
+            <div class="sidebar-toggler hidden-phone"></div>
+        </li>
+        <li class="start {% ifactive "dashboard" %}active{% endifactive %}">
+            <a href="{% url dashboard %}">
+            <i class="icon-home"></i>
+            <span class="title">{% trans 'Dashboard' %}</span>
+            <span class="{% ifactive "dashboard" %}selected{% else %}arrow{% endifactive %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "contact_list" %}active{% endifstartswith %}">
+            <a href="{% url contact_list %}">
+            <i class="icon-user"></i>
+            <span class="title">{% trans 'Contacts' %}</span>
+            <span class="{% ifstartswith "contact_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "account_list" %}active{% endifstartswith %}">
+            <a href="{% url account_list %}">
+            <i class="icon-briefcase"></i>
+            <span class="title">{% trans 'Accounts' %}</span>
+            <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "deal_list" %}active{% endifstartswith %}">
+            <a href="{% url deal_list %}">
+            <i class="icon-money"></i>
+            <span class="title">{% trans 'Deals' %}</span>
+            <span class="{% ifstartswith "deal_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "case_list" %}active{% endifstartswith %}">
+            <a href="{% url case_list %}">
+            <i class="icon-archive"></i>
+            <span class="title">{% trans 'Cases' %}</span>
+            <span class="{% ifstartswith "case_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'app.js' %}
+<script>
+$(function($){
+    App.init();
+});
+</script>
+{% endblock %}

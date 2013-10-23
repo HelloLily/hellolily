@@ -160,7 +160,7 @@ def priority(obj):
     """
     Return the appropriate css class for given priority.
     """
-    css_classes = ['green', 'yellow', 'orange', 'red']
+    css_classes = ['success', 'info', 'warning', 'danger']
     return css_classes[obj.priority]
 
 

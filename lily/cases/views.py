@@ -22,7 +22,7 @@ from lily.utils.templatetags.messages import tag_mapping
 
 class ListCaseView(SortedListMixin, ListView):
     """
-    Display a list of all deals
+    Display a list of all cases.
     """
     template_name = 'cases/model_list.html'
     model = Case
@@ -45,7 +45,7 @@ class ListCaseView(SortedListMixin, ListView):
 
 class DetailCaseView(NoteDetailViewMixin):
     """
-    Display a detail page for a single deal.
+    Display a detail page for a single case.
     """
     template_name = 'cases/details.html'
     model = Case

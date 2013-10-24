@@ -39,12 +39,13 @@ class TagsFormMixin(forms.ModelForm):
         tags = self.cleaned_data.get('tags')
         for tag in tags:
             # Create relationship with Tag if it's a new tag
-            object, created = Tag.objects.get_or_create(name=tag,
-                                    object_id=getattr(instance, instance.__class__._meta.pk.column),
-                                    content_type=ContentType.objects.get_for_model(instance.__class__),
-                                    )
+            tag_object, created = Tag.objects.get_or_create(
+                name=tag,
+                object_id=getattr(instance, instance.__class__._meta.pk.column),
+                content_type=ContentType.objects.get_for_model(instance.__class__),
+            )
             if created:
-                instance.tags.add(object)
+                instance.tags.add(tag_object)
 
         # Remove tags with any relationships to instance that weren't included in POST data
         tags_to_remove = Tag.objects.filter(~Q(name__in=tags), object_id=instance.pk)

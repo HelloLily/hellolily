@@ -2,7 +2,7 @@
 
 {% load i18n utils %}
 
-{% block item-edit-url %}{% url case_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url case_update pk=item.pk %}{% endblock %}
 
 {% block item-delete-url %}{% url case_delete pk=item.pk %}{% endblock %}
 

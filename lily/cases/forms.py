@@ -24,8 +24,8 @@ class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
                                      empty_label=_('an account'),
                                      required=False,
                                      widget=forms.Select(attrs={
-                                                         'class': 'contact_account'
-                                                         }))
+                                        'class': 'contact_account'
+                                     }))
 
     contact = forms.ModelChoiceField(label=_('Contact'),
                                      queryset=Contact.objects,
@@ -101,40 +101,6 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
         })
 
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
-        self.helper = DeleteBackAddSaveFormHelper(self)
-        self.helper.layout = Layout()
-        self.helper.add_columns(
-            Column('priority', size=2, first=True),
-        )
-        self.helper.add_columns(
-            Column('subject', first=True),
-        )
-        self.helper.layout.append(Row('description')),
-        self.helper.add_columns(
-            Column('status', size=2, first=True)
-        )
-        self.helper.add_columns(
-            Column(Div(HTML(_('Select')), css_class='text-in-row'), size=1, first=True),
-            Column('contact', size=3),
-            Column(Div(HTML(_('and/or')), css_class='text-in-row center'), size=1),
-            Column('account', size=3),
-            label=_('Client'),
-        )
-        self.helper.add_columns(
-            Column('assigned_to', first=True)
-        )
-        self.helper.insert_after(Divider(), 'status', 'contact')
-
-        # Provide filtered query set for account/contact/assigned_to
-        self.fields['account'].queryset = Account.objects.all()
-        self.fields['contact'].queryset = Contact.objects.all()
-        self.fields['contact'].widget = ContactAccountSelect(
-            self.fields['contact'].queryset,
-            attrs={
-                'class': 'contact_account',
-            },
-        )
-        self.helper.inputs = []
 
     class Meta:
         model = Case

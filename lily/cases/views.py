@@ -49,12 +49,12 @@ class CreateUpdateCaseView(object):
         Provide an url to go back to.
         """
         kwargs = super(CreateUpdateCaseView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'back_url': self.get_success_url(),
-        })
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
 
         return kwargs
-
 
     def get_success_url(self):
         """
@@ -66,77 +66,58 @@ class CreateUpdateCaseView(object):
 class CreateCaseView(CreateUpdateCaseView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
-        Change the form class for ajax requests.
+        Change the form class and template for ajax requests.
         """
         if is_ajax(request):
-            self.template_name = 'cases/mwsadmin/quickbutton_form.html'
+            self.template_name_suffix = '_form_ajax'
             self.form_class = CreateCaseQuickbuttonForm
 
         return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to show a success message after adding.
-        """
         # Saves the instance
         response = super(CreateCaseView, self).form_valid(form)
 
-        message = _('%s (Case) has been saved.') % self.object.subject
+        # Show save message
+        message = _('%s (Case) has been created.') % self.object.subject
+        messages.success(self.request, message)
 
         if is_ajax(self.request):
-            # Redirect if in the list view
-            url_obj = urlparse(self.request.META['HTTP_REFERER'])
-            if url_obj.path.endswith(reverse('case_list')):
-                # Show save message
-                messages.success(self.request, message)
+            # Reload when user is in the case list
+            redirect_url = None
+            parse_result = urlparse(self.request.META['HTTP_REFERER'])
+            if parse_result.path == reverse('case_list'):
+                redirect_url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
 
-                do_redirect = True
-                url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
-                notification = False
-                html_response = ''
-            else:
-                do_redirect = False
-                url = ''
-                html_response = ''
-                notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-
-            # Return response
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
-
-        # Show save message
-        messages.success(self.request, message)
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return response
 
     def form_invalid(self, form):
-        """
-        Overloading super().form_invalid to return json for an ajax request.
-        """
+        response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+                'html': response.rendered_content
+            })
+            return HttpResponse(response, mimetype='application/json')
 
-        return super(CreateCaseView, self).form_invalid(form)
+        return response
 
 
-class EditCaseView(CreateUpdateCaseView, UpdateView):
+class UpdateCaseView(CreateUpdateCaseView, UpdateView):
     model = Case
 
     def form_valid(self, form):
-        # Save instance
-        response = super(CreateUpdateCaseView, self).form_valid(form)
+        # Saves the instance
+        response = super(UpdateCaseView, self).form_valid(form)
 
-        # Add message
-        messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject)
+        # Show save message
+        messages.success(self.request, _('%s (Case) has been updated.') % self.object.subject)
 
         return response
 
@@ -156,7 +137,11 @@ class DeleteCaseView(DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            return HttpResponse(redirect_url)
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return HttpResponseRedirect(redirect_url)
 
@@ -165,8 +150,8 @@ class DeleteCaseView(DeleteView):
 
 
 # Perform logic here instead of in urls.py
-add_case_view = login_required(CreateCaseView.as_view())
+create_case_view = login_required(CreateCaseView.as_view())
 detail_case_view = login_required(DetailCaseView.as_view())
 delete_case_view = login_required(DeleteCaseView.as_view())
-edit_case_view = login_required(EditCaseView.as_view())
+update_case_view = login_required(UpdateCaseView.as_view())
 list_case_view = login_required(ListCaseView.as_view())

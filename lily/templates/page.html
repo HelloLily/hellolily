@@ -2,8 +2,20 @@
 
 {% load media i18n activelink %}
 
+{% block css %}
+{{ block.super }}
+{% include_media 'modal.css' %}
+{% endblock %}
+
 {% block page-header %}
-    <ul class="nav navbar-nav pull-right">
+<div class="hor-menu">
+    <ul class="nav navbar-nav">
+        <li>
+            <a href="{% url case_create %}" data-target="#quickbutton-create" data-source="{% url case_create %}" >{% trans 'Add case' %}</a>
+        </li>
+    </ul>
+</div>
+<ul class="nav navbar-nav pull-right">
     <li class="dropdown user">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span class="username">{% trans 'Hello' %}, {{ user }}</span>
@@ -64,9 +76,17 @@
 </div>
 {% endblock %}
 
+{% block modals %}
+<div class="hidden">
+    <div id="quickbutton-create" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static"></div>
+</div>
+{% endblock %}
+
 {% block scripts %}
 {{ block.super }}
 {% include_media 'app.js' %}
+{% include_media 'modal.js' %}
+{% include_media 'ajax-submit.js' %}
 <script>
 $(function($){
     App.init();

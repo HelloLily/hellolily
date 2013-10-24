@@ -1,0 +1,19 @@
+{% extends 'form.html' %}
+
+{% load i18n %}
+
+{% block page-title %}
+{% if object.pk %}
+    {% trans 'Edit case' %}
+{% else %}
+    {% trans 'Create case' %}
+{% endif %}
+{% endblock %}
+
+{% block form-title %}
+{% if object.pk %}
+    {% trans 'Edit case' %}
+{% else %}
+    {% trans 'Create case' %}
+{% endif %}
+{% endblock %}

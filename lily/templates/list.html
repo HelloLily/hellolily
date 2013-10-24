@@ -11,7 +11,7 @@
 {% block container %}
 <div class="portlet">
     <div class="portlet-title">
-         <div class="caption"><i class="icon-th-list"></i>{% block model-list-title %}{% endblock %}</div>
+         <div class="caption"><i class="icon-th-list"></i>{% block list-title %}{% endblock %}</div>
     </div>
     <div class="portlet-body">
         <table class="table table-striped table-bordered table-hover data-table">
@@ -67,7 +67,7 @@ $(function($){
         '</div>';
 
     // remove any results from other modals
-    $('body').on('show.bs.modal', '.modal', function(e) {
+    $('body').on('show.bs.modal', '.modal', function() {
         $(this).find('[data-async-response]').html('');
     });
 
@@ -91,7 +91,7 @@ $(function($){
     });
 
     // ajax submit
-    $('body').on('submit', 'form[data-async]', function() {
+    $('body').on('submit', 'form[data-async]', function(event) {
         var form = $(this);
         $(form).ajaxStart(function() {
             $(form).find('[type="submit"]').button('loading');

@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from lily.cases.forms import CreateUpdateCaseForm, AddCaseQuickbuttonForm
+from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.views import NoteDetailViewMixin
 from lily.utils.views import DeleteBackAddSaveFormViewMixin, SortedListMixin
@@ -23,69 +23,63 @@ from lily.utils.templatetags.messages import tag_mapping
 
 class ListCaseView(SortedListMixin, ListView):
     """
-    Display a list of all deals
+    Display a list of cases.
     """
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
     default_order_by = 1
     default_sort_order = SortedListMixin.DESC
 
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListCaseView, self).get_context_data(**kwargs)
-
-        kwargs.update({
-            'list_item_template': 'cases/mwsadmin/model_list_item.html',
-        })
-
-        return kwargs
-
 
 class DetailCaseView(NoteDetailViewMixin):
     """
-    Display a detail page for a single deal.
+    Display a detail page for a single case.
     """
     template_name = 'cases/mwsadmin/details.html'
     model = Case
     success_url_reverse_name = 'case_details'
 
 
-class CreateUpdateCaseView(DeleteBackAddSaveFormViewMixin):
-    """
-    Base class for AddCaseView and EditCaseView.
-    """
-    template_name = 'cases/mwsadmin/create_or_update.html'
+class CreateUpdateCaseView(object):
     form_class = CreateUpdateCaseForm
+    model = Case
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(CreateUpdateCaseView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'back_url': self.get_success_url(),
+        })
+
+        return kwargs
+
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Redirect to case list after creating or updating a case.
         """
         return '%s?order_by=6&sort_order=desc' % (reverse('case_list'))
 
 
-class AddCaseView(CreateUpdateCaseView, CreateView):
-    """
-    View to add a case.
-    """
+class CreateCaseView(CreateUpdateCaseView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
-        Overloading super().dispatch to change the template to be rendered.
+        Change the form class for ajax requests.
         """
         if is_ajax(request):
             self.template_name = 'cases/mwsadmin/quickbutton_form.html'
-            self.form_class = AddCaseQuickbuttonForm
+            self.form_class = CreateCaseQuickbuttonForm
 
-        return super(AddCaseView, self).dispatch(request, *args, **kwargs)
+        return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         """
         Overloading super().form_valid to show a success message after adding.
         """
-        # Save instance
-        response = super(AddCaseView, self).form_valid(form)
+        # Saves the instance
+        response = super(CreateCaseView, self).form_valid(form)
 
         message = _('%s (Case) has been saved.') % self.object.subject
 
@@ -131,23 +125,17 @@ class AddCaseView(CreateUpdateCaseView, CreateView):
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
 
-        return super(AddCaseView, self).form_invalid(form)
+        return super(CreateCaseView, self).form_invalid(form)
 
 
 class EditCaseView(CreateUpdateCaseView, UpdateView):
-    """
-    View to edit a case.
-    """
     model = Case
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to add success message after editing.
-        """
         # Save instance
         response = super(CreateUpdateCaseView, self).form_valid(form)
 
-        # Show save message
+        # Add message
         messages.success(self.request, _('%s (Case) has been edited.') % self.object.subject)
 
         return response
@@ -177,7 +165,7 @@ class DeleteCaseView(DeleteView):
 
 
 # Perform logic here instead of in urls.py
-add_case_view = login_required(AddCaseView.as_view())
+add_case_view = login_required(CreateCaseView.as_view())
 detail_case_view = login_required(DetailCaseView.as_view())
 delete_case_view = login_required(DeleteCaseView.as_view())
 edit_case_view = login_required(EditCaseView.as_view())

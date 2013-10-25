@@ -253,4 +253,10 @@ MEDIA_BUNDLES = (
     ('ajax-submit.js',
         'plugins/jquery-validation/lib/jquery.form.js',
     ),
+    ('notifications.js',
+        'plugins/bootstrap-toastr/toastr.min.js',
+    ),
+    ('notifications.css',
+        'plugins/bootstrap-toastr/toastr.min.css',
+    ),
 )

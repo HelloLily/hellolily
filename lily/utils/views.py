@@ -19,7 +19,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 from templated_email import send_templated_mail
 
@@ -1002,5 +1002,19 @@ class AjaxUpdateView(View):
         return HttpResponse(simplejson.dumps({}), mimetype='application/json')
 
 
+class NotificationsView(TemplateView):
+    """
+    Renders template with javascript to show messages from django.contrib.
+    messages as notifications.
+    """
+    http_method_names = ['get']
+    template_name = 'utils/notifications.js'
+
+    def get(self, request, *args, **kwargs):
+        response = super(NotificationsView, self).get(request, *args, **kwargs)
+        return HttpResponse(response.rendered_content, mimetype='application/javascript')
+
+
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
+notifications_view = login_required(NotificationsView.as_view())

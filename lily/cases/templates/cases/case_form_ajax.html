@@ -11,7 +11,7 @@
         <div class="form-body">
             {% block form-fields %}
                 {% for field in form.visible_fields %}
-                    {% bootstrap_field field field_class="col-md-8" label_class="col-md-4 control-label" %}
+                    {% bootstrap_field field layout="horizontal" field_class="col-md-8" label_class="col-md-4" %}
                 {% endfor %}
             {% endblock %}
         </div>

@@ -14,7 +14,7 @@
     {% endblock %}
     {% include_media 'metronic-theme.css' %}
     <link rel="shortcut icon" href="favicon.ico" />
-    <title>{% block page-title %}{% endblock %}</title>
+    <title>{% block head-title %}{% endblock %}</title>
 </head>
 
 <body class="page-header-fixed">
@@ -26,15 +26,31 @@
     </div>
     <div class="clearfix"></div>
     <div class="page-container">
-        {% block sidebar %}
-        {% endblock %}
+        {% block page-sidebar %}{% endblock %}
         <div class="page-content">
-        {% block body %}
+        {% block page-content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="page-title pull-left">{% block page-title %}{% endblock %}</h3>
+                    {% block page-actions-button %}{% endblock %}
+                </div>
+            </div>
             {% block container %}{% endblock %}
-            {% block page-footer %}{% endblock %}
         {% endblock %}
         </div>
     </div>
+    {% block page-footer %}
+    <div class="footer">
+        <div class="footer-inner">
+            2012 &copy; HelloLily
+        </div>
+        <div class="footer-tools">
+            <span class="go-top">
+                <i class="icon-angle-up"></i>
+            </span>
+        </div>
+   </div>
+    {% endblock %}
 
     {% block modals %}{% endblock %}
 

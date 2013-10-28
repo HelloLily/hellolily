@@ -2,7 +2,7 @@
 
 {% load bootstrap3 i18n %}
 
-{% block container %}
+{% block page-container %}
 <div class="portlet">
     <div class="portlet-title">
          <div class="caption">{% block form-title %}{% endblock %}</div>
@@ -18,7 +18,7 @@
             <div class="form-body">
             {% block form-fields %}
                 {% for field in form.visible_fields %}
-                    {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
+                    {% bootstrap_field field layout="horizontal" %}
                 {% endfor %}
             {% endblock %}
             </div>

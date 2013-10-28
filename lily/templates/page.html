@@ -31,7 +31,7 @@
 </ul>
 {% endblock %}
 
-{% block sidebar %}
+{% block page-sidebar %}
 <div class="page-sidebar navbar-collapse collapse">
     <ul class="page-sidebar-menu">
         <li>
@@ -73,6 +73,14 @@
             </a>
         </li>
     </ul>
+</div>
+{% endblock %}
+
+{% block container %}
+<div class="row">
+    <div class="col-md-12">
+        {% block page-container %}{% endblock %}
+    </div>
 </div>
 {% endblock %}
 

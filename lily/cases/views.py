@@ -35,7 +35,6 @@ class DetailCaseView(NoteDetailViewMixin):
     """
     Display a detail page for a single case.
     """
-    template_name = 'cases/mwsadmin/details.html'
     model = Case
     success_url_reverse_name = 'case_details'
 

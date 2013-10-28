@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView, FormMixin
 
 from lily.contacts.models import Contact
@@ -73,7 +73,7 @@ class EditNoteView(UpdateView):
         return super(EditNoteView, self).form_invalid(form)
 
 
-class NoteDetailViewMixin(FormMixin, SingleObjectMixin, TemplateResponseMixin, View):
+class NoteDetailViewMixin(FormMixin, DetailView):
     """
     DetailView for models including a NoteForm to quickly add notes.
     """

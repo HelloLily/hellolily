@@ -2386,6 +2386,9 @@
                 sSearch = $('<div>').html(sSearch).text();
             }
 
+            if(window['__removeDiacritics'])
+                sSearch = __removeDiacritics(sSearch);
+
             // Strip newline characters
             return sSearch.replace( /[\n\r]/g, " " );
         }
@@ -2402,6 +2405,9 @@
         function _fnFilterCreateSearch( sSearch, bRegex, bSmart, bCaseInsensitive )
         {
             var asSearch, sRegExpString;
+
+            if(window['__removeDiacritics'])
+                 sSearch = __removeDiacritics(sSearch);
 
             if ( bSmart )
             {

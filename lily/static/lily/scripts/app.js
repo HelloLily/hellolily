@@ -52,15 +52,21 @@ $(function($) {
                         if(response.html) {
                             $(form).find('.modal-body').html($(response.html).find('.modal-body').html());
                         }
+                        // loads notifications if any
+                        load_notifications();
                     } else if(response.redirect_url) {
                         window.location.replace(response.redirect_url);
                         window.location.reload(true);
                     } else {
                         $(form).closest('.modal').modal('hide');
+                        // loads notifications if any
+                        load_notifications();
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     $(form).find('[data-async-response]').html(jqXHR.responseText);
+                    // loads notifications if any
+                    load_notifications();
                 }
             });
 

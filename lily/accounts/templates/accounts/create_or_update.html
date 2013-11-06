@@ -1,0 +1,112 @@
+{% extends 'form.html' %}
+
+{% load i18n field_extras %}
+
+{% block hidden-dialogs %}
+    {% if item.pk %}
+        {% include 'accounts/mwsadmin/delete_dialog.html' with item=item %}
+    {% endif %}
+
+    <div id="dialog-email-configuration-wizard" class="dialog configuration" title="{% trans 'E-mail configuration wizard' %}"></div>
+    <div id="dialog-email-share-wizard" class="dialog share" title="{% trans 'E-mail share options' %}"></div>
+{% endblock %}
+
+{% block form-title %}
+    {% with item=form.instance %}
+        {% if item.pk %}
+            {% trans 'Edit account' %}
+        {% else %}
+            {% trans 'Add account' %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+
+{% block form-content %}
+    <div id="enrich-busy" style="display: none;">
+        <div id="enrich-busy-message"></div>
+        <img src="http://localhost/~allard/hellolily/generated_media_dir/static/mwsadmin/extra/images/blue-loading-ff2e53ccb215b7ce2874e978618d3d6804442640.gif" alt="">
+        <p>
+            <a href="javascript:" id="enrich-account-cancel">Cancel</a>
+        </p>
+    </div>
+
+    <div class="mws-form-row">
+        <div class="ctrlHolder">
+            {{ form.primary_website.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8  alpha">
+                        <div id="div_id_primary_website" class="ctrlHolder ">
+                            {{ form.primary_website }}
+                            {{ form.primary_website.errors }}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-2-8 ">
+                        <input type="button" name="enrich" value="Enrich" class="btn tabbable mws-button blue" id="enrich-account-button" css-id="enrich-account-button" tabindex="6">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mws-form-row">
+        <div class="ctrlHolder">
+            {{ form.name.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-cols clearfix">
+                    <div class="mws-form-col-4-8  alpha">
+                        <div id="div_id_name" class="ctrlHolder ">
+                            {{ form.name }}
+                            {{ form.name.errors }}
+                        </div>
+                    </div>
+                    <div class="mws-form-col-2-8 ">
+                        <a href="#" id="" class="existing-account-link hidden" title="">Edit existing account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mws-form-row">
+        <div id="div_id_description" class="ctrlHolder ">
+            {{ form.description.label_tag }}
+
+            <div class="mws-form-item">
+                {% if form.description.value %}
+                    {{ form.description }}
+                {% else %}
+                    <a href="javascript:" class="click-show" data-click-show="id_description_full_form_wrapper">Add description</a>
+                    <div id="id_description_full_form_wrapper" class="hidden">
+                        {{ form.description }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {{ form.legalentity }}
+    {{ form.taxnumber }}
+    {{ form.bankaccountnumber }}
+    {{ form.cocnumber }}
+    {{ form.iban }}
+    {{ form.bic }}
+    <div class="mws-form-row">
+        <div id="div_id_tags" class="ctrlHolder ">
+            {{ form.tags.label_tag }}
+            <div class="mws-form-item">
+                <div class="mws-form-col-row">
+                    <div class="float-left">
+                        <div class="input-and-choice">
+                            <div>
+                                <input type="text" id="id_tags" class="mws-textinput input-and-choice-input tabbable ui-autocomplete-input" placeholder="Tag" tabindex="9" style="width: 134px;" autocomplete="off" role="textbox" aria-autocomplete="list" aria-haspopup="true">
+                                <input type="button" class="input-and-choice-button mws-button blue tabbable" value="Add" tabindex="10">
+                            </div>
+                        <div>
+                        {{ form.tags }}
+                        <ul class="input-and-choice-list clearfix chzn-results search-field" style="width: 181px;"></ul>
+                    </div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

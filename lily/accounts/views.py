@@ -65,7 +65,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     Base class for AddAccountView and EditAccountView.
     """
     # Default template and form
-    template_name = 'accounts/mwsadmin/create_or_update.html'
+    template_name = 'accounts/create_or_update.html'
     form_class = CreateUpdateAccountForm
 
     # Option for address formset
@@ -73,7 +73,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
 
     def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        self.formset_data.update({'addresses_formset': {'template': 'accounts/mwsadmin/formset_address.html'}})
+        #self.formset_data.update({'addresses_formset': {'template': 'accounts/mwsadmin/formset_address.html'}})
         self.formset_data.update({'websites_formset': {'label': _('Extra websites')}})
 
         return super(CreateUpdateAccountView, self).dispatch(request, *args, **kwargs)
@@ -118,6 +118,17 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
                     pass
 
         return super(CreateUpdateAccountView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(CreateUpdateAccountView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'back_url': self.get_success_url(),
+        })
+
+        return kwargs
 
 
 class AddAccountView(CreateUpdateAccountView, CreateView):

@@ -72,7 +72,7 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
         fields = ('website', 'name', 'email', 'phone')
 
 
-class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
+class CreateUpdateAccountForm(TagsFormMixin, FieldInitFormMixin):
     """
     Form for creating or updating an account.
     """
@@ -85,22 +85,6 @@ class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
         """
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
 
-        # Customize form layout
-        self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.replace('primary_website',
-            self.helper.create_columns(
-                Column('primary_website', size=4, first=True),
-                Column(Button('enrich', _('Enrich'), css_id='enrich-account-button'), size=2),
-            )
-        )
-        self.helper.replace('name',
-            self.helper.create_columns(
-                Column('name', size=4, first=True),
-                Column(Anchor('#', _('Edit existing account'), css_class='existing-account-link hidden'), size=2),
-            )
-        )
-        self.helper.wrap_by_names(Row, 'description', 'tags')
-
         # Provide initial data for primary website
         try:
             self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
@@ -109,7 +93,7 @@ class CreateUpdateAccountForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
 
     class Meta:
         model = Account
-        fields = ('primary_website', 'name', 'description' , 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic') # TODO: status field
+        fields = ('primary_website', 'name', 'description', 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')  # TODO: status field
         exclude = ('is_deleted', 'tenant', 'tags')
 
         widgets = {
@@ -133,18 +117,18 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(WebsiteBaseForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = False
-        self.helper.replace('website', self.helper.create_columns(
-            Column('website', size=4, first=True),
-            Column(
-                Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-                size=1,
-                css_class='formset-delete'
-            ),
-            label=None,
-            inline=True,
-        ))
+        #self.helper = LilyFormHelper(self)
+        #self.helper.form_tag = False
+        #self.helper.replace('website', self.helper.create_columns(
+        #    Column('website', size=4, first=True),
+        #    Column(
+        #        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
+        #        size=1,
+        #        css_class='formset-delete'
+        #    ),
+        #    label=None,
+        #    inline=True,
+        #))
 
     class Meta:
         model = Website

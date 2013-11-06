@@ -39,7 +39,10 @@ redis==2.6.2
 South>=0.7.6
 
 # New theme packages
-django-bootstrap3
+# Untill dyve accepts our pull request we use our own fork
+#django-bootstrap3
+https://github.com/HelloLily/django-bootstrap3/archive/master.zip
+
 
 # Remove after new theme
 https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms  # replace by django-bootstrap3/betteform ?

@@ -1,0 +1,41 @@
+{% load i18n bootstrap3 %}
+
+<div class="phone_number_formset_wrapper">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{{ label }}</label>
+        <div class="col-md-10">
+            {% for form in formset %}
+                <div class="form-group {{ formset.prefix }} {{ formset.prefix }}-formset">
+                    {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                    {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+
+                    {% if formset.can_delete %}
+                        <div class="col-md-1">
+                            <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
+                                <i class="icon-trash"></i>
+                            </a>
+                            {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="{{ formset.prefix }} {{ formset.prefix }}-formset"></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Formset template -->
+    <div class="hidden">
+        <div class="form-group {{ formset.prefix }} formset-custom-template" id="{{ formset.prefix }}-form-template">
+            {% bootstrap_field formset.empty_form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+            {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+            <div class="col-md-1">
+                <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
+                    <i class="icon-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{ formset.management_form }}
+</div>

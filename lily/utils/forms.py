@@ -136,38 +136,6 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
     """
     def __init__(self, *args, **kwargs):
         super(EmailAddressBaseForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = False
-        self.helper.add_layout(Layout(
-            MultiField(
-                None,
-                ColumnedRow(
-                    Column('email_address', size=2, first=True),
-                    Column(
-                        HTML('''
-                            <label>
-                                <input class="hidden" type="radio" value="{{ form.prefix }}" name="{{ formset.prefix }}_primary-email" {% if form.instance.is_primary %}checked="checked"{% endif %}/>
-                                <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable">''' + _('primary') + '''</span>
-                            </label>'''),
-                        size=2,
-                        css_class='center email_is_primary'),
-                    Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-setting blue'),
-                        size=1,
-                        css_class='email-configuration-wizard',
-                        title=_('Start wizard to set up incoming and outgoing email for this address')),
-                    Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-share blue'),
-                        size=1,
-                        css_class='email-share-wizard',
-                        title=_('Share this email address with others')),
-                    Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-                        size=1,
-                        css_class='formset-delete'),
-                )
-            )
-        ))
 
         self.fields['email_address'].label = ''
         self.fields['is_primary'].label = ''
@@ -188,11 +156,7 @@ class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
-    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', required=False,
-        widget=forms.Select(attrs={
-            'class': 'other chzn-select-no-search tabbable'
-        }
-    ))
+    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', required=False)
 
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
@@ -200,23 +164,6 @@ class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(PhoneNumberBaseForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = False
-        self.helper.add_layout(Layout(
-            MultiField(
-                None,
-                ColumnedRow(
-                    Column('raw_input', size=2, first=True),
-                    Column('type', size=2),
-                    Column('other_type', size=2),
-                    Column(
-                        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-                        size=1,
-                        css_class='formset-delete'
-                    ),
-                )
-            )
-        ))
 
         self.fields['raw_input'].label = ''
         self.fields['type'].label = ''
@@ -253,46 +200,6 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
                 if choices[i][0] in self.exclude_address_types:
                     del choices[i]
             self.fields['type'].choices = choices
-
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = False
-        self.helper.add_layout(Layout(
-            MultiField(
-                None,
-                ColumnedRow(
-                    Column(
-                        MultiField(
-                            None,
-                            InlineRow(ColumnedRow(
-                                Column('street', size=3, first=True),
-                                Column('street_number', size=2),
-                                Column('complement', size=2),
-                                Column(
-                                    Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-                                    size=1,
-                                    css_class='formset-delete'
-                                ),
-                            )),
-                            InlineRow(ColumnedRow(
-                                Column('postal_code', size=3, first=True),
-                                Column('city', size=4),
-                            )),
-                            InlineRow(ColumnedRow(
-                                Column('country', size=4, first=True),
-                                Column('type', size=3),
-                            )),
-                        ),
-                        size=7,
-                        first=True
-                    ),
-                    Column(
-                        HTML('<br /><hr />'),
-                        size=6,
-                        first=True,
-                    ),
-                ),
-            )
-        ))
 
         self.fields['street'].label = ''
         self.fields['street_number'].label = ''

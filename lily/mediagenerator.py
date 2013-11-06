@@ -252,4 +252,15 @@ MEDIA_BUNDLES = (
     ('ajax-submit.js',
         'plugins/jquery-validation/lib/jquery.form.js',
     ),
+    ('forms.js',
+        'lily/scripts/plugins/custom/formset/jquery.formset.js',
+        'lily/scripts/plugins/custom/clickfocus/jquery.clickfocus.js',
+        'lily/scripts/plugins/custom/tabthis/jquery.tabthis.js',
+        'lily/scripts/forms/formset_init.js',
+
+
+        'lily/scripts/app.js',  #  Move to general app js
+
+        {'filter': 'mediagenerator.filters.i18n.I18N'},
+    ),
 )

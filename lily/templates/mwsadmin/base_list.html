@@ -1,16 +1,17 @@
 {% comment %}
 Use {% include 'mwsadmin/base_list.html' with list=list list_item_template=path_to_item_template %} to use this file.
+NOTE: object=item is added for compatibility reasons while mwsadmin is not fully removed yet.
 {% endcomment %}
 
 {% if empty_template %}
 
     {% for item in list %}
 
-        {% include list_item_template with item=item %}
+        {% include list_item_template with item=item object=item %}
 
     {% empty %}
 
-        {% include empty_template with list=list %}
+        {% include empty_template with list=list object=item %}
 
     {% endfor %}
 
@@ -18,7 +19,7 @@ Use {% include 'mwsadmin/base_list.html' with list=list list_item_template=path_
 
     {% for item in list %}
 
-        {% include list_item_template with item=item %}
+        {% include list_item_template with item=item object=item %}
 
     {% endfor %}
 

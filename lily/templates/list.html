@@ -5,10 +5,9 @@
 {% block css %}
 {{ block.super }}
 {% include_media 'tables.css' %}
-{% include_media 'modal.css' %}
 {% endblock %}
 
-{% block container %}
+{% block page-container %}
 <div class="portlet">
     <div class="portlet-title">
          <div class="caption"><i class="icon-th-list"></i>{% block list-title %}{% endblock %}</div>
@@ -25,8 +24,6 @@
 {% block scripts %}
 {{ block.super }}
 {% include_media 'tables.js' %}
-{% include_media 'modal.js' %}
-{% include_media 'ajax-submit.js' %}
 <script>
 $(function($){
     $('.page-content .data-table').dataTable({
@@ -57,64 +54,12 @@ $(function($){
     $('.page-content .dataTables_length select').addClass("form-control input-xsmall");
     // initialize select2 dropdown
     $('.page-content .dataTables_length select').select2({minimumResultsForSearch: -1});
-
-    // spinner template for bootstrap 3
-    $.fn.modal.defaults.spinner = $.fn.modalmanager.defaults.spinner =
-        '<div class="loading-spinner" style="width: 200px; margin-left: -100px;">' +
-            '<div class="progress progress-striped active">' +
-                '<div class="progress-bar" style="width: 100%;"></div>' +
-            '</div>' +
-        '</div>';
-
-    // remove any results from other modals
-    $('body').on('show.bs.modal', '.modal', function() {
-        $(this).find('[data-async-response]').html('');
-    });
-
-    // remove focus from element that triggered modal
-    $('body').on('hide.bs.modal', '.modal', function() {
-        $(':focus').blur();
-    });
-
-    $('[data-source]').on('click', function() {
-        var button = $(this);
-        var modal = $($(button).data('target'));
-
-        // create the backdrop and wait for next modal to be triggered
-        $('body').modalmanager('loading');
-
-        setTimeout(function() {
-            modal.load($(button).data('source'), '', function() {
-                modal.modal();
-            });
-        }, 300);
-    });
-
-    // ajax submit
-    $('body').on('submit', 'form[data-async]', function(event) {
-        var form = $(this);
-        $(form).ajaxStart(function() {
-            $(form).find('[type="submit"]').button('loading');
-        }).ajaxStop(function() {
-            setTimeout(function() {
-                $(form).find('[type="submit"]').button('reset');
-            }, 300);
-        }).ajaxSubmit({
-            success: function(redirect_url) {
-                window.location.replace(redirect_url);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $(form).find('[data-async-response]').html(jqXHR.responseText);
-            }
-        });
-
-        event.preventDefault();
-    });
 });
 </script>
 {% endblock %}
 
 {% block modals %}
+{{ block.super }}
 <div class="hidden">
     <div id="confirm-delete" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static"></div>
 </div>

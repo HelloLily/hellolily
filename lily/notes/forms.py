@@ -34,9 +34,9 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
         }
 
 
-class EditNoteForm(forms.ModelForm, FieldInitFormMixin):
+class UpdateNoteForm(forms.ModelForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
-        super(EditNoteForm, self).__init__(*args, **kwargs)
+        super(UpdateNoteForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)
         self.helper.form_tag = True
         self.helper.replace('content',

@@ -1,12 +1,11 @@
-{% load i18n %}
+{% load bootstrap3 %}
 
-<form class="form" action="{% url case_delete pk=object.pk %}" method="post" data-async role="form">
+<form class="form" action="{% url note_delete pk=object.pk %}" method="post" data-async role="form">
+    {% csrf_token %}
     <div class="modal-body">
-        {% csrf_token %}
-        <div class="note note-danger">
-            {% trans 'Deleting this case cannot be undone. Are you sure?' %}
-        </div>
-        <div data-async-response></div>
+        {% for field in form.visible_fields %}
+            {% bootstrap_field field show_label=False %}
+        {% endfor %}
     </div>
     <div class="modal-footer">
         <button type="button" data-dismiss="modal" class="btn btn-default">{% trans 'Cancel' %}</button>

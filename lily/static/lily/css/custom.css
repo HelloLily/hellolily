@@ -1,0 +1,34 @@
+/* here you can put your own css to customize and override the theme */
+
+.summary-list li:first-child {
+    border-top: none;
+}
+
+.summary-list li {
+    padding: 10px 0;
+    overflow: hidden;
+    border-top: 1px solid #EEE;
+    min-height: 49px;
+}
+
+.summary-list .summary-label {
+    color: #646464;
+    font-size: 14px;
+}
+
+.summary-list .summary-info {
+    color: #169EF4;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.history-list-item .media-heading {
+    position: relative;
+}
+
+.history-list-item .media-heading .author {
+    color: #777;
+    font-size: 12px;
+    position: absolute;
+    top: 3px;
+}

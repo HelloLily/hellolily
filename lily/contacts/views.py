@@ -23,7 +23,6 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
-from lily.notes.views import HistoryListViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber
@@ -31,7 +30,7 @@ from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin, HistoryListViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
@@ -67,8 +66,6 @@ class DetailContactView(HistoryListViewMixin):
     """
     template_name = 'contacts/mwsadmin/details.html'
     model = Contact
-    success_url_reverse_name = 'contact_details'
-    page_size = 15
 
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):

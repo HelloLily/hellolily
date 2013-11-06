@@ -2,19 +2,18 @@
 
 {% load media bootstrap3 i18n %}
 
-{% block container %}
+{% block page-container %}
     <div class="portlet">
         <div class="portlet-title">
              <div class="caption">{% block form-title %}{% endblock %}</div>
         </div>
-        <div class="portlet-body form">
+        <div class="portlet-body">
             {% block form %}
-            <form class="form-horizontal" action="{{ form_action_url }}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
+            <form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
                 {% csrf_token %}
                 {% for field in form.hidden_fields %}
                     {{ field }}
                 {% endfor %}
-    
                 <div class="form-body">
                     {% block form-fields %}
                         {% for field in form.visible_fields %}

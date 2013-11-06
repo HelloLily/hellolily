@@ -5,7 +5,7 @@
 {% ifisajax %}
 	<div class="mws-form-block">
 {% else %}
-	{% ifactive 'note_edit' pk=note.pk %}
+	{% ifactive 'note_update' pk=note.pk %}
 		<div class="mws-form-inline">
 	{% else %}
 		<div class="mws-form-block">
@@ -14,18 +14,18 @@
 	{% ifisajax %}
 		<div>
 	{% else %}
-	    {% ifactive "note_edit" pk=note.pk %}
+	    {% ifactive 'note_update' pk=note.pk %}
 	    	<div class="mws-form-row">
 	    {% else %}
 	    	<div>
 	    {% endifactive %}
 	{% endifisajax %}
     	{% ifnotisajax %}
-			{% ifactive 'note_edit' pk=note.pk %}
+			{% ifactive 'note_update' pk=note.pk %}
             	<label for="id_note_{{ note.pk }}">{% trans 'Note' %}</label>
 			{% endifactive %}
 		{% endifnotisajax %}
-		
+
         {% if note.errors %}
             <div class="mws-form-item large">
                 <span class="field_error">

@@ -1,0 +1,10 @@
+<hr />
+
+{% for object in object_list %}
+    {% include object.get_list_item_template %}
+
+    {% if not forloop.last %}
+    <hr />
+    {% endif %}
+{% endfor %}
+

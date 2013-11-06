@@ -60,11 +60,14 @@
     <![endif]-->
     {% include_media 'core-js.js' %}
     {% include_media 'notifications.js' %}
-    {% if messages %}
     <script>
-    $.getScript('{% url notifications %}');
-    </script>
+    var load_notifications = function() {
+        $.getScript('{% url notifications %}');
+    }
+    {% if messages %}
+    load_notifications();
     {% endif %}
+    </script>
     {% endblock %}
     <script>
     var _gaq = _gaq || [];

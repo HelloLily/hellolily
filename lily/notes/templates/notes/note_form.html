@@ -3,7 +3,9 @@
 <form method="post">
     {% csrf_token %}
 
-    {% bootstrap_form form %}
+    {% for field in form.visible_fields %}
+        {% bootstrap_field field show_label=False %}
+    {% endfor %}
 
     <button type="submit" class="btn btn-primary">{% trans 'Add note' %}</button>
 </form>

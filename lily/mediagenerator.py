@@ -261,4 +261,7 @@ MEDIA_BUNDLES = (
     ('notifications.css',
         'plugins/bootstrap-toastr/toastr.min.css',
     ),
+    ('history_list.js',
+        'lily/scripts/history_list.js',
+    ),
 )

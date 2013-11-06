@@ -1,0 +1,9 @@
+{% load bootstrap3 i18n %}
+
+<form method="post">
+    {% csrf_token %}
+
+    {% bootstrap_form form %}
+
+    <button type="submit" class="btn btn-primary">{% trans 'Add note' %}</button>
+</form>

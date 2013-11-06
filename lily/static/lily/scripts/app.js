@@ -21,7 +21,7 @@ $(function($) {
         });
 
         // open modal with remote content
-        $('[data-source]').on('click', function(event) {
+        $('body').on('click', '[data-source]', function(event) {
             var button = $(this);
             var modal = $($(button).data('target'));
 
@@ -54,6 +54,7 @@ $(function($) {
                         }
                     } else if(response.redirect_url) {
                         window.location.replace(response.redirect_url);
+                        window.location.reload(true);
                     } else {
                         $(form).closest('.modal').modal('hide');
                     }
@@ -73,4 +74,11 @@ $(function($) {
             positionClass: 'toast-bottom-right'
         };
     }
+
+    // update address bar with target
+    // - this helps showing the correct tab immediately on page load after
+    // trying to post a form but receiving errors for instance
+    $('[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        window.location.hash = e.target.hash;
+    });
 });

@@ -1,15 +1,18 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from hashlib import sha256
 import base64
+import operator
 import pickle
 
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
@@ -21,15 +24,17 @@ from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
+from python_imap.folder import ALLMAIL
 from templated_email import send_templated_mail
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
+from lily.notes.views import NoteDetailViewMixin
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax
-from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
+from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, HistoryListItem
 
 
 class CustomSingleObjectMixin(object):
@@ -1013,6 +1018,80 @@ class NotificationsView(TemplateView):
     def get(self, request, *args, **kwargs):
         response = super(NotificationsView, self).get(request, *args, **kwargs)
         return HttpResponse(response.rendered_content, mimetype='application/javascript')
+
+
+class HistoryListViewMixin(NoteDetailViewMixin):
+    """
+    Mix in a paginated list of history list items.
+    Supports AJAX calls to show more older items.
+    """
+    page_size = 15
+
+    def dispatch(self, request, *args, **kwargs):
+        if is_ajax(request):
+            self.template_name = 'utils/history_list.html'
+
+        return super(HistoryListViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """
+        For AJAX calls, reply with a JSON response.
+        """
+        response = super(HistoryListViewMixin, self).get(request, *args, **kwargs)
+
+        if is_ajax(request):
+            html = ''
+            if len(response.context_data.get('object_list')) > 0:
+                html = response.rendered_content
+
+            response = simplejson.dumps({
+                'html': html,
+                'show_more': response.context_data.get('show_more')
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        """
+        Build list of history items, i.e. notes/email messages.
+        """
+        kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
+        note_content_type = ContentType.objects.get_for_model(self.model)
+
+        # Build initial list with just notes
+        object_list = HistoryListItem.objects.filter(
+            (Q(note__content_type=note_content_type) & Q(note__object_id=self.object.pk))
+        )
+
+        # Expand list with email messages if possible
+        if hasattr(self.object, 'email_addresses'):
+            email_address_list = [x.email_address for x in self.object.email_addresses.all()]
+            if len(email_address_list) > 0:
+                filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
+                object_list = object_list | HistoryListItem.objects.filter(
+                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
+                    Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                    reduce(operator.or_, filter_list)
+                )
+
+        # Filter list by timestamp from request.GET
+        epoch = self.request.GET.get('datetime')
+        if epoch is not None:
+            try:
+                filter_date = datetime.fromtimestamp(int(epoch))
+                object_list = object_list.filter(sort_by_date__lt=filter_date)
+            except ValueError:
+                pass
+
+        # Paginate list
+        object_list = object_list.distinct().order_by('-sort_by_date')
+        kwargs.update({
+            'object_list': object_list[:self.page_size],
+            'show_more': len(object_list) > self.page_size
+        })
+
+        return kwargs
 
 
 # Perform logic here instead of in urls.py

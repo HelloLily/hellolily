@@ -94,7 +94,7 @@
 
                                 {% block history-tab-content %}
                                     <div id="history_list">
-                                        {% include 'mwsadmin/base_list.html' with list=history_list list_item_template='mwsadmin/base_details_history_list_item.html' %}
+                                        {% include 'mwsadmin/base_list.html' with list=object_list list_item_template='mwsadmin/base_details_history_list_item.html' %}
                                     </div>
                                     <div class="object-list-buttons">
                                         <button type="button" class="mws-button blue" data-url="{{ request.path }}" id="load-more">

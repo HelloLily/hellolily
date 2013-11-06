@@ -15,8 +15,7 @@ from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
-from lily.notes.views import NoteDetailViewMixin
-from lily.utils.views import DeleteBackAddSaveFormViewMixin, SortedListMixin
+from lily.utils.views import DeleteBackAddSaveFormViewMixin, SortedListMixin, HistoryListViewMixin
 from lily.utils.functions import is_ajax
 from lily.utils.templatetags.messages import tag_mapping
 
@@ -31,12 +30,11 @@ class ListCaseView(SortedListMixin, ListView):
     default_sort_order = SortedListMixin.DESC
 
 
-class DetailCaseView(NoteDetailViewMixin):
+class DetailCaseView(HistoryListViewMixin):
     """
     Display a detail page for a single case.
     """
     model = Case
-    success_url_reverse_name = 'case_details'
 
 
 class CreateUpdateCaseView(object):
@@ -65,7 +63,7 @@ class CreateUpdateCaseView(object):
 class CreateCaseView(CreateUpdateCaseView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
-        Change the form class and template for ajax requests.
+        For AJAX calls, use a different form and template.
         """
         if is_ajax(request):
             self.template_name_suffix = '_form_ajax'

@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div class="media history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
+    <div class="media-body">
+        <h4 class="media-heading">
+            {{ object.created|date:"l d-m-Y G:i" }}
+            <span class="author">
+                &nbsp; {% trans 'by' %} {{ object.author }}
+            </span>
+            <div class="pull-right">
+                <a href="{% url note_update pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}"><i class="icon-edit"></i></a>
+                <a href="{% url note_delete pk=object.pk %}" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}"><i class="icon-trash"></i></a>
+            </div>
+        </h4>
+        <p>{{ object.content|linebreaksbr }}</p>
+    </div>
+</div>

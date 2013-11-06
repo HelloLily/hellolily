@@ -21,3 +21,14 @@
     font-size: 20px;
     font-weight: 300;
 }
+
+.history-list-item .media-heading {
+    position: relative;
+}
+
+.history-list-item .media-heading .author {
+    color: #777;
+    font-size: 12px;
+    position: absolute;
+    top: 3px;
+}

@@ -1,10 +1,10 @@
 {% load i18n %}
 
-<form class="form" action="{% url case_delete pk=object.pk %}" method="post" data-async role="form">
+<form class="form" action="{% url note_delete pk=object.pk %}" method="post" data-async role="form">
+    {% csrf_token %}
     <div class="modal-body">
-        {% csrf_token %}
         <div class="note note-danger">
-            {% trans 'Deleting this case cannot be undone. Are you sure?' %}
+            {% trans 'Deleting this note cannot be undone. Are you sure?' %}
         </div>
         <div data-async-response></div>
     </div>

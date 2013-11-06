@@ -1,0 +1,19 @@
+{% load bootstrap3 i18n %}
+
+<form class="form form-horizontal" action="{% url note_update object.pk %}" method="post" data-async role="form">
+    <div class="modal-body">
+        {% csrf_token %}
+        <div class="form-body">
+            {% block form-fields %}
+                {% for field in form.visible_fields %}
+                    {% bootstrap_field field show_label=False %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+        <div data-async-response></div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default">{% trans 'Cancel' %}</button>
+        <button type="submit" class="btn btn-primary" data-loading-text="<i class='icon-spinner icon-spin icon-large'></i> {% trans 'Sending..' %}">{% trans 'Continue' %}</button>
+    </div>
+</form>

@@ -1,6 +1,6 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils %}
+{% load i18n utils media %}
 
 {% block head-title %}{% trans 'Case details' %}{% endblock %}
 {% block page-title %}{% trans 'Case details' %}{% endblock %}
@@ -9,6 +9,11 @@
 {% block page-actions %}
 <li><a href="{% url case_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
 <li><a href="{% url case_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url case_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+{% endblock %}
+
+{% block details-tabs %}
+{{ block.super }}
+<li><a href="#history" data-toggle="tab">{% trans 'History' %}</a></li>
 {% endblock %}
 
 {% block details-content %}
@@ -77,4 +82,30 @@
         </div>
     </div>
 </div>
+<div class="tab-pane" id="history">
+    <div class="row">
+        <div class="col-md-10 col-lg-6">
+            <div class="portlet">
+                <div class="portlet-body">
+                    {% include 'notes/note_form.html' %}
+
+                    <div id="history">
+                        <div id="history-list">
+                            {% include 'utils/history_list.html' %}
+                        </div>
+
+                        {% if show_more %}
+                        <button class="btn btn-primary btn-block margin-top-20 show-more" data-remote="{{ request.path }}#history" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Loading..' %}" data-disabled-text="{% trans 'End of list' %}">{% trans 'Show more' %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'history_list.js' %}
 {% endblock %}

@@ -12,7 +12,7 @@
 {% block detail-title %}{{ object }}{% endblock %}
 
 {% block page-actions %}
-<li><a href="{% url deal_edit pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li><a href="{% url deal_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
 <li><a href="{% url deal_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url deal_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
 {% endblock %}
 

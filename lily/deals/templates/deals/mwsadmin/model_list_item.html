@@ -2,7 +2,7 @@
 
 {% load i18n thumbnail utils %}
 
-{% block item-edit-url %}{% url deal_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url deal_update pk=item.pk %}{% endblock %}
 
 {% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}
 

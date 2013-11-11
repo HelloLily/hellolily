@@ -8,7 +8,7 @@
 
 {% block dialog-title %}{% trans 'New deal' %}{% endblock %}
 
-{% block dialog-form-url %}{% url deal_add %}{% endblock %}
+{% block dialog-form-url %}{% url deal_create %}{% endblock %}
 
 {% block dialog-form %}{% include 'deals/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.deal %}{% endblock %}
 

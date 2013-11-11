@@ -17,7 +17,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from pytz import timezone
 
-from lily.deals.forms import CreateUpdateDealForm, AddDealQuickbuttonForm
+from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.templatetags.messages import tag_mapping
@@ -38,13 +38,12 @@ class DetailDealView(HistoryListViewMixin):
     """
     Display a detail page for a single deal.
     """
-    #template_name = 'deals/mwsadmin/details.html'
     model = Deal
 
 
 class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
     """
-    Base class for AddDealView and EditDealView.
+    Base class for CreateDealView and UpdateDealView.
     """
     form_class = CreateUpdateDealForm
     model = Deal
@@ -84,7 +83,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
 
 
-class AddDealView(CreateUpdateDealView, CreateView):
+class CreateDealView(CreateUpdateDealView, CreateView):
     """
     View to add a deal.
     """
@@ -94,16 +93,16 @@ class AddDealView(CreateUpdateDealView, CreateView):
         """
         if is_ajax(request):
             self.template_name_suffix = '_form_ajax'
-            self.form_class = AddDealQuickbuttonForm
+            self.form_class = CreateDealQuickbuttonForm
 
-        return super(AddDealView, self).dispatch(request, *args, **kwargs)
+        return super(CreateDealView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         """
         Overloading super().form_valid to return json for an ajax request.
         """
         # Save instance
-        response = super(AddDealView, self).form_valid(form)
+        response = super(CreateDealView, self).form_valid(form)
 
         # Show save message
         message = _('%s (Deal) has been saved.') % self.object.name
@@ -139,7 +138,7 @@ class AddDealView(CreateUpdateDealView, CreateView):
         return response        
 
 
-class EditDealView(CreateUpdateDealView, UpdateView):
+class UpdateDealView(CreateUpdateDealView, UpdateView):
     """
     View to edit a deal.
     """
@@ -150,10 +149,10 @@ class EditDealView(CreateUpdateDealView, UpdateView):
         Overloading super().form_valid to show success message on edit.
         """
         # Save instance
-        response = super(EditDealView, self).form_valid(form)
+        response = super(UpdateDealView, self).form_valid(form)
 
         # Show save message
-        messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name)
+        messages.success(self.request, _('%s (Deal) has been updated.') % self.object.name)
 
         return response
 
@@ -185,7 +184,7 @@ class DeleteDealView(DeleteView):
         return reverse('deal_list')
 
 
-class EditStageAjaxView(AjaxUpdateView):
+class UpdateStageAjaxView(AjaxUpdateView):
     """
     View that updates the stage-field of a Deal.
     """
@@ -226,9 +225,9 @@ class EditStageAjaxView(AjaxUpdateView):
 
 
 # Perform logic here instead of in urls.py
-add_deal_view = login_required(AddDealView.as_view())
+create_deal_view = login_required(CreateDealView.as_view())
 detail_deal_view = login_required(DetailDealView.as_view())
 delete_deal_view = login_required(DeleteDealView.as_view())
-edit_deal_view = login_required(EditDealView.as_view())
+update_deal_view = login_required(UpdateDealView.as_view())
 list_deal_view = login_required(ListDealView.as_view())
-edit_stage_view = login_required(EditStageAjaxView.as_view())
+update_stage_view = login_required(UpdateStageAjaxView.as_view())

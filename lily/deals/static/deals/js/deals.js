@@ -8,7 +8,7 @@ $(document).ready(function() {
             if( radio_element.attr('id') != currentStage ) {
                 // try this
                 var jqXHR = $.ajax({
-                    url: '/deals/edit/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
+                    url: '/deals/update/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
                     type: 'POST',
                     data: {
                         'stage': $(radio_element).val()

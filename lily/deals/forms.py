@@ -63,7 +63,7 @@ class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
         }
 
 
-class AddDealQuickbuttonForm(CreateUpdateDealForm):
+class CreateDealQuickbuttonForm(CreateUpdateDealForm):
     """
     Form that is used for adding a new Deal through a quickbutton form.
     """
@@ -76,7 +76,7 @@ class AddDealQuickbuttonForm(CreateUpdateDealForm):
             'auto_id': 'id_deal_quickbutton_%s',
         })
         
-        super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
+        super(CreateDealQuickbuttonForm, self).__init__(*args, **kwargs)
     
     class Meta:
         model = Deal

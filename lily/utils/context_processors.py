@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 from lily.accounts.forms import AddAccountQuickbuttonForm
 from lily.cases.forms import CreateCaseQuickbuttonForm
 from lily.contacts.forms import AddContactQuickbuttonForm
-from lily.deals.forms import AddDealQuickbuttonForm
+from lily.deals.forms import CreateDealQuickbuttonForm
 
 
 def quickbutton_forms(request):
@@ -11,7 +11,7 @@ def quickbutton_forms(request):
         'quickbutton_formsets': {
             'account': AddAccountQuickbuttonForm,
             'contact': AddContactQuickbuttonForm,
-            'deal': AddDealQuickbuttonForm,
+            'deal': CreateDealQuickbuttonForm,
             'case': CreateCaseQuickbuttonForm,
         }
     }

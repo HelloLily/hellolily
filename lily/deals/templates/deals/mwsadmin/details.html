@@ -10,7 +10,7 @@
 
 {% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}
 
-{% block item-edit-url %}{% url deal_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url deal_update pk=item.pk %}{% endblock %}
 
 {% block dialog-delete %}
     {% include 'deals/mwsadmin/delete_dialog.html' %}

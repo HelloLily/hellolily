@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -27,31 +27,18 @@ from lily.utils.views import SortedListMixin, AjaxUpdateView,\
 
 class ListDealView(SortedListMixin, ListView):
     """
-    Display a list of all deals
+    Display a list of all deals.
     """
-    template_name = 'deals/mwsadmin/model_list.html'
     model = Deal
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListDealView, self).get_context_data(**kwargs)
-
-        kwargs.update({
-            'list_item_template': 'deals/mwsadmin/model_list_item.html',
-        })
-
-        return kwargs
 
 
 class DetailDealView(HistoryListViewMixin):
     """
     Display a detail page for a single deal.
     """
-    template_name = 'deals/mwsadmin/details.html'
+    #template_name = 'deals/mwsadmin/details.html'
     model = Deal
 
 
@@ -59,8 +46,20 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddDealView and EditDealView.
     """
-    template_name = 'deals/mwsadmin/create_or_update.html'
     form_class = CreateUpdateDealForm
+    model = Deal
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(CreateUpdateDealView, self).get_context_data(**kwargs)
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
+
+        return kwargs
 
     def form_valid(self, form):
         """
@@ -84,6 +83,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         """
         return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
 
+
 class AddDealView(CreateUpdateDealView, CreateView):
     """
     View to add a deal.
@@ -93,7 +93,7 @@ class AddDealView(CreateUpdateDealView, CreateView):
         Overloading super().dispatch to change the template to be rendered.
         """
         if is_ajax(request):
-            self.template_name = 'deals/mwsadmin/quickbutton_form.html'
+            self.template_name_suffix = '_form_ajax'
             self.form_class = AddDealQuickbuttonForm
 
         return super(AddDealView, self).dispatch(request, *args, **kwargs)
@@ -105,36 +105,22 @@ class AddDealView(CreateUpdateDealView, CreateView):
         # Save instance
         response = super(AddDealView, self).form_valid(form)
 
+        # Show save message
         message = _('%s (Deal) has been saved.') % self.object.name
+        messages.success(self.request, message)
 
         if is_ajax(self.request):
-            # Redirect if in the list view
-            url_obj = urlparse(self.request.META['HTTP_REFERER'])
-            if url_obj.path.endswith(reverse('deal_list')):
-                # Show save message
-                messages.success(self.request, message)
+            # Reload when user is in the case list
+            redirect_url = None
+            parse_result = urlparse(self.request.META['HTTP_REFERER'])
+            if parse_result.path == reverse('deal_list'):
+                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
 
-                do_redirect = True
-                url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
-                notification = False
-                html_response = ''
-            else:
-                do_redirect = False
-                url = ''
-                html_response = ''
-                notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-
-            # Return response
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
-
-        # Show save message
-        messages.success(self.request, message)
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return response
 
@@ -142,14 +128,15 @@ class AddDealView(CreateUpdateDealView, CreateView):
         """
         Overloading super().form_invalid to return json for an ajax request.
         """
+        response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+                'html': response.rendered_content
+            })
+            return HttpResponse(response, mimetype='application/json')
 
-        return super(AddDealView, self).form_invalid(form)
+        return response        
 
 
 class EditDealView(CreateUpdateDealView, UpdateView):
@@ -176,19 +163,23 @@ class DeleteDealView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Deal
-    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
-        """
-        Overloading super().delete to add a message of successful removal of this instance.
-        """
-        # Delete instance
-        response = super(DeleteDealView, self).delete(request)
+        self.object = self.get_object()
+        self.object.delete()
 
         # Show delete message
         messages.success(self.request, _('%s (Deal) has been deleted.') % self.object.name)
 
-        return response
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return HttpResponseRedirect(redirect_url)
 
     def get_success_url(self):
         return reverse('deal_list')
@@ -218,10 +209,14 @@ class EditStageAjaxView(AjaxUpdateView):
 
                 instance.save()
             else:
+                messages.error(self.request, _('Stage could not be changed'))
                 raise Http404()
         except:
+            messages.error(self.request, _('Stage could not be changed'))
             raise Http404()
         else:
+            message = _('Stage has been changed to') + ' ' + Deal.STAGE_CHOICES[instance.stage][1]
+            messages.success(self.request, message)
             # Return response
             if instance.closed_date is None:
                 return HttpResponse(simplejson.dumps({}), mimetype='application/json')

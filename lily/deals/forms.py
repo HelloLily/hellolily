@@ -33,30 +33,7 @@ class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
         helper.
         """
         super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
-        self.helper = DeleteBackAddSaveFormHelper(self)
-        self.helper.layout = Layout()
-        self.helper.add_columns(
-            Column('name', first=True),
-        )
-        self.helper.layout.append(Row('description')),
-        self.helper.add_columns(
-            Column('account', first=True),
-        )
-        self.helper.add_columns(
-            Column('currency', size=2, first=True),
-            Column('amount', size=2),
-            label = self.fields['amount'].label,
-        )
-        self.helper.add_columns(
-            Column('expected_closing_date', size=2, first=True)
-        )
-        self.helper.add_columns(
-            Column('stage', size=2, first=True),
-        )
-        self.helper.add_columns(
-            Column('assigned_to', first=True)
-        )
-        
+
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
         # FIXME: WORKAROUND FOR TENANT FILTER.
@@ -100,7 +77,6 @@ class AddDealQuickbuttonForm(CreateUpdateDealForm):
         })
         
         super(AddDealQuickbuttonForm, self).__init__(*args, **kwargs)
-        self.helper.inputs = []
     
     class Meta:
         model = Deal

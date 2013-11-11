@@ -1,0 +1,85 @@
+{% extends 'list.html' %}
+
+{% load i18n utils %}
+
+{% block page-title %}{% trans 'Deals' %}{% endblock %}
+
+{% block list-title %}{% trans 'Deals' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="name">{% trans 'Name' %}</th>
+    <th class="account">{% trans 'Account' %}</th>
+    <th class="stage">{% trans 'Stage' %}</th>
+    <th class="amount">{% trans 'Amount' %}</th>
+    <th class="assigned-to">{% trans 'Assigned to' %}</th>
+    <th class="closed hide_on_small_screen">{% trans 'Closed' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+{% endblock %}
+
+{% block list %}
+{% for item in object_list %}
+<tr>
+    <td class="">
+        <a href="{% url deal_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        {% if not item|has_user_in_group:'account_admin' %}
+        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url deal_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        {% endif %}
+    </td>
+    <td class="name">
+        <a href="{% url deal_details pk=item.pk %}">
+            {{ item.name }}
+        </a>
+    </td>
+    <td class="account">
+        <div>
+            <a href="{% url account_details pk=item.account.pk %}">
+                {{ item.account.name }}
+            </a>
+        </div>
+        {% with item.account.get_address as address %}
+            {% if address.street %}
+                <div class="address">{{ address.city }}</div>
+            {% endif %}
+            {% if address.country %}
+                <div class="country">{{ address.get_country_display }}</div>
+            {% endif %}
+        {% endwith %}
+    </td>
+    <td class="stage">
+        {{ item.get_stage_display }}
+    </td>
+    <td class="amount">
+        {{ item.currency }}&nbsp;{{ item.amount }}
+    </td>
+    <td class="assigned-to">
+        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+            {{ item.assigned_to }}
+        </a>
+    </td>
+    <td class="datetime closed hide_on_small_screen">
+        <div>
+            {% if item.closed_date %}
+                {{ item.closed_date|date:"d/m/Y" }}
+            {% else %}
+                {{ item.expected_closing_date|date:"d/m/Y" }}
+            {% endif %}
+        </div>
+    </td>
+    <td class="datetime created hide_on_small_screen">
+        <div>
+            {{ item.created|date:"d/m/Y" }}
+        </div>
+        <div>
+            {{ item.created|date:"H:i:s" }}
+        </div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "sType": "date-euro", "aTargets": [6] },
+    { "sType": "date-euro", "aTargets": [7] }
+{% endblock %}

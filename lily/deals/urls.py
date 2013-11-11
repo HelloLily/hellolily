@@ -9,6 +9,6 @@ urlpatterns = patterns('',
     url(r'^edit/(?P<pk>[\w-]+)/$', edit_deal_view, name='deal_edit'),
     url(r'^edit/stage/(?P<pk>[\w-]+)/$', edit_stage_view, name='deal_edit_stage'),
     url(r'^details/(?P<pk>[\w-]+)/$', detail_deal_view, name='deal_details'),
-    url(r'^delete/xhr/(?P<pk>[\w-]+)/$', delete_deal_view, name='deal_delete'),
+    url(r'^delete/(?P<pk>[\w-]+)/$', delete_deal_view, name='deal_delete'),
     url(r'^$', list_deal_view, name='deal_list'),
 )

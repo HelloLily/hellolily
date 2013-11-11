@@ -115,21 +115,6 @@ class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
     """
     website = forms.URLField(max_length=255, initial='http://', required=False)
 
-    def __init__(self, *args, **kwargs):
-        super(WebsiteBaseForm, self).__init__(*args, **kwargs)
-        #self.helper = LilyFormHelper(self)
-        #self.helper.form_tag = False
-        #self.helper.replace('website', self.helper.create_columns(
-        #    Column('website', size=4, first=True),
-        #    Column(
-        #        Anchor(href='javascript:void(0)', css_class='i-16 i-trash-1 blue {{ formset.prefix }}-delete-row'),
-        #        size=1,
-        #        css_class='formset-delete'
-        #    ),
-        #    label=None,
-        #    inline=True,
-        #))
-
     class Meta:
         model = Website
         fields = ('website',)

@@ -178,6 +178,7 @@ INSTALLED_APPS = (
     'storages',
     'crispy_forms',
     'django_extensions',
+    'djangoformsetjs',
     # 'template_debug',  # in-template tags for debugging purposes
 
     # Lily

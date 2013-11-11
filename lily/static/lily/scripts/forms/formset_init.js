@@ -1,28 +1,19 @@
 $(document).ready(function() {
-    // enable js formsets on all the following formsets
-    form_prefices = {
-        'websites': gettext('Add a website'),
-        'email_addresses': gettext('Add an e-mail address'),
-        'phone_numbers': gettext('Add a phone number'),
-        'addresses': gettext('Add an address'),
-        'attachments': gettext('Add an attachment')
-    };
-    for(var form_prefix in form_prefices) {
-        var formset_identifier = form_prefix + '-formset';
-        var formset_element = $('.' + formset_identifier).not('.formsetted');
-        if( formset_element.length ) {
-            $(formset_element).formset( {
-                formTemplate: $('#' + form_prefix + '-form-template'), // needs to be unique per formset
-                prefix: form_prefix, // needs to be unique per formset
-                addText: form_prefices[form_prefix],
-                formCssClass: formset_identifier, // needs to be unique per formset
-                addCssClass: form_prefix + '-add-row', // needs to be unique per formset
-                added: function(row) {
-                    $.tabthisbody();
-                },
-                deleteCssClass: form_prefix + '-delete-row', // needs to be unique per formset
-            });
-            $('.' + formset_identifier).addClass('formsetted');
-        }
-    }
+   $('.formset').formset();
+
+   $('body').on('formDeleted', '[data-formset-form]', function() {
+       $(this).stop().slideDown();
+       $(this).find(':input:enabled:visible').attr('data-formset-disabled', true).attr('readonly', 'readonly');
+       $(this).find('[data-formset-delete-button]').toggleClass('hidden');
+       $(this).find('[data-formset-undo-delete]').toggleClass('hidden');
+   });
+
+    $('[data-formset-undo-delete]').live('click', function() {
+        var formset = $(this).closest('[data-formset-form]');
+
+        formset.find('[data-formset-disabled=true]').removeAttr('data-formset-disabled').removeAttr('readonly');
+        formset.find('input[name$="DELETE"]').attr('checked', false).change();
+        formset.find('[data-formset-delete-button]').toggleClass('hidden');
+        $(this).toggleClass('hidden');
+    });
 });

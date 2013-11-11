@@ -3,39 +3,58 @@
 <div class="phone_number_formset_wrapper">
     <div class="form-group">
         <label class="col-md-2 control-label">{{ label }}</label>
-        <div class="col-md-10">
-            {% for form in formset %}
-                <div class="form-group {{ formset.prefix }} {{ formset.prefix }}-formset">
-                    {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                    {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+        <div class="col-md-10 formset" data-formset-prefix="{{ formset.prefix }}">
+            {{ formset.management_form }}
 
-                    {% if formset.can_delete %}
+            <div data-formset-body>
+                <!-- New forms will be inserted in here -->
+                {% for form in formset %}
+                    <div data-formset-form>
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="form-group">
+                            {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+
+                            {% if formset.can_delete %}
+                                <div class="col-md-1">
+                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                        <i class="icon-undo"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                        <i class="icon-trash"></i>
+                                    </a>
+                                    {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <a href="javascript:void(0)" data-formset-add>{% trans 'Add a phone number' %}</a>
+                </div>
+            </div>
+            <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+            <script type="form-template" data-formset-empty-form>
+                <div data-formset-form>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
                         <div class="col-md-1">
-                            <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
+                            <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                <i class="icon-undo"></i>
+                            </a>
+                            <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
                                 <i class="icon-trash"></i>
                             </a>
-                            {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                            {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
-            {% empty %}
-                <div class="{{ formset.prefix }} {{ formset.prefix }}-formset"></div>
-            {% endfor %}
+            </script>
         </div>
     </div>
-
-    <!-- Formset template -->
-    <div class="hidden">
-        <div class="form-group {{ formset.prefix }} formset-custom-template" id="{{ formset.prefix }}-form-template">
-            {% bootstrap_field formset.empty_form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-            {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-            <div class="col-md-1">
-                <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
-                    <i class="icon-trash"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{ formset.management_form }}
 </div>

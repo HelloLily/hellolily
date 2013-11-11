@@ -42,6 +42,7 @@ South>=0.7.6
 # Untill dyve accepts our pull request we use our own fork
 #django-bootstrap3
 https://github.com/HelloLily/django-bootstrap3/archive/master.zip
+django-formset-js
 
 
 # Remove after new theme

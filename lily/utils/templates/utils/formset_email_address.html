@@ -4,56 +4,78 @@
 <div class="email_address_formset_wrapper">
     <div class="form-group">
         <label class="col-md-2 control-label">{{ label }}</label>
-        <div class="col-md-10">
-            {% for form in formset %}
-                <div class="form-group {{ formset.prefix }} {{ formset.prefix }}-formset">
-                    {% bootstrap_field form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                    <div class="col-md-2 email_is_primary">
-                        <label>
-                            {% bootstrap_field form.is_primary form_group_class="form-group-inline hidden" %}
-                            <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable" tabindex="11">primary</span>
-                        </label>
-                    </div>
-                    <div class="col-md-1 email-configuration-wizard" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
-                        <a href="javascript:void(0)" class="btn btn-sm yellow">
-                            <i class="icon-cog"></i>
-                        </a>
-                    </div>
-                    <div class="col-md-1 email-share-wizard" title="{% trans 'Share this email address with others' %}">
-                        <a href="javascript:void(0)" class="btn btn-sm blue">
-                            <i class="icon-unlock"></i>
-                        </a>
-                    </div>
-                    {% if formset.can_delete %}
-                        <div class="col-md-1">
-                            <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
-                                <i class="icon-trash"></i>
-                            </a>
-                            {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+        <div class="col-md-10 formset" data-formset-prefix="{{ formset.prefix }}">
+            {{ formset.management_form }}
+
+            <div data-formset-body>
+                <!-- New forms will be inserted in here -->
+                {% for form in formset %}
+                    <div data-formset-form>
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="form-group">
+                            {% bootstrap_field form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% if form.instance.pk %}
+                                <div class="col-md-2 email_is_primary">
+                                    <label>
+                                        {% bootstrap_field form.is_primary form_group_class="form-group-inline hidden" %}
+                                        <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable" tabindex="11">primary</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-1 email-configuration-wizard" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
+                                    <a href="javascript:void(0)" class="btn btn-sm yellow">
+                                        <i class="icon-cog"></i>
+                                    </a>
+                                </div>
+                                <div class="col-md-1 email-share-wizard" title="{% trans 'Share this email address with others' %}">
+                                    <a href="javascript:void(0)" class="btn btn-sm blue">
+                                        <i class="icon-unlock"></i>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="col-md-4"></div>
+                            {% endif %}
+                            {% if formset.can_delete %}
+                                <div class="col-md-1">
+                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                        <i class="icon-undo"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                        <i class="icon-trash"></i>
+                                    </a>
+                                    {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <a href="javascript:void(0)" data-formset-add>{% trans 'Add an e-mail address' %}</a>
                 </div>
-            {% empty %}
-                <div class="{{ formset.prefix }} {{ formset.prefix }}-formset"></div>
-            {% endfor %}
+            </div>
+            <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+            <script type="form-template" data-formset-empty-form>
+                <div data-formset-form>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        <div class="col-md-4"></div>
+                        {% if formset.can_delete %}
+                            <div class="col-md-1">
+                                <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                    <i class="icon-undo"></i>
+                                </a>
+                                <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                    <i class="icon-trash"></i>
+                                </a>
+                                {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </script>
         </div>
     </div>
-
-    <!-- Formset template -->
-    <div class="hidden">
-        <div class="form-group {{ formset.prefix }} formset-custom-template" id="{{ formset.prefix }}-form-template">
-                {% bootstrap_field formset.empty_form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-1 email-configuration-wizard" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}"></div>
-            <div class="col-md-1 email-share-wizard" title="{% trans 'Share this email address with others' %}"></div>
-            <div class="col-md-1">
-                <a href="javascript:void(0)" id="" class="{{ formset.prefix }}-delete-row btn btn-sm red" title="">
-                    <i class="icon-trash"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{ formset.management_form }}
 </div>

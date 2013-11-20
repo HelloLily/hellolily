@@ -67,11 +67,17 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     form_class = CreateUpdateAccountForm
 
     # Option for address formset
-    exclude_address_types = ['home']
+    address_form_attrs = {
+        'exclude_address_types': ['home'],
+        'extra_form_kwargs': {
+            'initial': {
+                'type': 'visiting',
+            }
+        }
+    }
 
     def dispatch(self, request, *args, **kwargs):
         # Override default formset template to adjust choices for address_type
-        #self.formset_data.update({'addresses_formset': {'template': 'accounts/mwsadmin/formset_address.html'}})
         self.formset_data.update({'websites_formset': {'label': _('Extra websites')}})
 
         return super(CreateUpdateAccountView, self).dispatch(request, *args, **kwargs)

@@ -27,7 +27,7 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         other forms.
         """
         kwargs.update({
-            'auto_id':'id_contact_quickbutton_%s'
+            'auto_id': 'id_contact_quickbutton_%s'
         })
 
         super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
@@ -82,34 +82,6 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
-
-        # Customize form layout
-        self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.layout.pop(0)  # salutation
-        self.helper.layout.pop(0)  # gender
-        self.helper.layout.pop(0)  # first name
-        self.helper.layout.pop(0)  # preposition
-        self.helper.layout.pop(0)  # last name
-        self.helper.layout.insert(0,
-            self.helper.create_multi_row(
-                (
-                    Column('salutation', size=2, first=True),
-                    Column('gender', size=2),
-                ),
-                (
-                    Column('first_name', size=3, first=True),
-                    Column('preposition', size=1),
-                    Column('last_name'),
-                ),
-                label=_('Name'),
-            )
-        )
-        self.helper.replace('account',
-            self.helper.create_columns(
-                Column('account', first=True),
-            ),
-        )
-        self.helper.wrap_by_names(Row, 'description', 'tags')
 
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()

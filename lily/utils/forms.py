@@ -192,6 +192,8 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
     country = forms.ChoiceField(choices=COUNTRIES, required=False)
 
     def __init__(self, *args, **kwargs):
+        kwargs.update(getattr(self, 'extra_form_kwargs', {}))
+
         super(AddressBaseForm, self).__init__(*args, **kwargs)
 
         if hasattr(self, 'exclude_address_types'):

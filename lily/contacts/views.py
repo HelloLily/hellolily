@@ -74,16 +74,17 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
     """
 
     # Default template and form
-    template_name = 'contacts/mwsadmin/create_or_update.html'
+    template_name = 'contacts/create_or_update.html'
     form_class = CreateUpdateContactForm
 
-    exclude_address_types = ['visiting']
-
-    def dispatch(self, request, *args, **kwargs):
-        # Override default formset template to adjust choices for address_type
-        self.formset_data.update({'addresses_formset': {'template': 'contacts/mwsadmin/formset_address.html'}})
-
-        return super(CreateUpdateContactView, self).dispatch(request, *args, **kwargs)
+    address_form_attrs = {
+        'exclude_address_types': ['visiting'],
+        'extra_form_kwargs': {
+            'initial': {
+                'type': 'home',
+            }
+        }
+    }
 
     def form_valid(self, form):
         self.object = form.save()  # copied from ModelFormMixin

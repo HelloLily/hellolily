@@ -856,8 +856,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
         label = _('Addresses')
         template = 'utils/formset_address.html'
 
-        if hasattr(self, 'exclude_address_types'):
-            form_attrs = {'exclude_address_types': self.exclude_address_types}
+        form_attrs = getattr(self, 'address_form_attrs', {})
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix, **form_attrs)
         return super(AddressFormSetViewMixin, self).dispatch(request, *args, **kwargs)

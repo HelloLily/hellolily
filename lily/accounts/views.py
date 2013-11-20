@@ -63,7 +63,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
     Base class for AddAccountView and EditAccountView.
     """
     # Default template and form
-    template_name = 'accounts/create_or_update.html'
+    template_name = 'accounts/account_form.html'
     form_class = CreateUpdateAccountForm
 
     # Option for address formset
@@ -146,7 +146,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddAccountQuickbuttonForm
-            self.template_name = 'accounts/mwsadmin/quickbutton_form.html'
+            self.template_name = 'accounts/account_form_ajax.html'
 
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
 

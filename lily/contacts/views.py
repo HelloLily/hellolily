@@ -74,7 +74,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
     """
 
     # Default template and form
-    template_name = 'contacts/create_or_update.html'
+    template_name = 'contacts/contact_form.html'
     form_class = CreateUpdateContactForm
 
     address_form_attrs = {
@@ -119,7 +119,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddContactQuickbuttonForm
-            self.template_name = 'contacts/mwsadmin/quickbutton_form.html'
+            self.template_name = 'contacts/contact_form_ajax.html'
 
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
 

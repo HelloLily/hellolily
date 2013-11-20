@@ -32,21 +32,6 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
 
         super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
 
-        # Customize form layout
-        self.helper = LilyFormHelper(self)
-        self.helper.layout = Layout()
-        self.helper.layout.insert(0, Hidden('submit_button', 'add', id='add-contact-submit'))
-        self.helper.add_columns(
-            Column('first_name', size=3, first=True),
-            Column('preposition', size=1),
-            Column('last_name', size=4),
-            label=_('Name'),
-        )
-        self.helper.add_columns(
-            Column('account', size=4, first=True),
-        )
-        self.helper.add_large_fields('email', 'phone')
-
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
 

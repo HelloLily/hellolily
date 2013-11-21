@@ -11,15 +11,6 @@ from lily.utils.layout import MultiField
 class NoteForm(forms.ModelForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = True
-        self.helper.replace('content',
-           MultiField(
-                None,
-                'content',
-                Submit('note-submit', _('Add note'), css_id='add-note-button', css_class='small')
-           )
-        )
 
     class Meta:
         model = Note
@@ -37,14 +28,6 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
 class UpdateNoteForm(forms.ModelForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(UpdateNoteForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = True
-        self.helper.replace('content',
-            self.helper.create_large_field('content')
-        )
-
-        self.helper.add_input(Submit('submit', _('Save'), css_class='red'))
-        self.helper.add_input(Reset('reset', _('Reset'), css_class='gray'))
 
     class Meta:
         model = Note

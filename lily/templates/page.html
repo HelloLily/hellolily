@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load media i18n activelink %}
+{% load media i18n email activelink %}
 
 {% block css %}
 {{ block.super }}
@@ -24,7 +24,56 @@
         </li>
     </ul>
 </div>
+
+<a href="javascript:;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+    <img src="{% media_url 'img/menu-toggler.png' %}" alt="" />
+</a>
+
 <ul class="nav navbar-nav pull-right">
+    {% if unread_emails.count %}
+    <li class="dropdown" id="header_inbox_bar">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+      data-close-others="true">
+            <i class="icon-envelope"></i>
+            <span class="badge">{{ unread_emails.count }}</span>
+        </a>
+        <ul class="dropdown-menu extended inbox">
+            <li>
+                <p>{% blocktrans count unread_emails.count as counter %}You have one new message{% plural %}You have {{ counter }} new messages{% endblocktrans %}</p>
+            </li>
+            <li>
+                <ul class="dropdown-menu-list scroller" style="height: 250px;">
+                    {% for unread_email in unread_emails.object_list %}
+                    <li>
+                        <a href="{% url messaging_email_inbox %}">
+                            <span class="subject clearfix">
+                                <span class="from">{{ unread_email.from }}</span>
+                                <span class="time">{{ unread_email.time|pretty_datetime }}</span>
+                            </span>
+                            <span class="message">
+                            {{ unread_email.message_excerpt }}
+                            </span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% if unread_emails.count_more %}
+                    <li>
+                        <a href="{% url messaging_email_inbox %}">
+                            <span class="message">
+                                {% blocktrans with count=unread_emails.count_more %}And {{ count }} more new messages!{% endblocktrans %}
+                            </span>
+                        </a>
+                    </li>
+                    {% endif %}
+                 </ul>
+            </li>
+            <li class="external">
+                <a href="{% url messaging_email_inbox %}">{% trans 'See all messages' %} <i class="m-icon-swapright"></i></a>
+            </li>
+        </ul>
+    </li>
+    {% endif %}
+
     <li class="dropdown user">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
         <span class="username">{% trans 'Hello' %}, {{ user }}</span>
@@ -64,6 +113,13 @@
             <a href="{% url account_list %}">
             <i class="icon-briefcase"></i>
             <span class="title">{% trans 'Accounts' %}</span>
+            <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
+            <a href="{% url messaging_email_inbox %}">
+            <i class="icon-inbox"></i>
+            <span class="title">{% trans 'E-mail' %}</span>
             <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>

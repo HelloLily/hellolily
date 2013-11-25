@@ -32,3 +32,92 @@
     position: absolute;
     top: 3px;
 }
+
+/* css to support dropdown-submenu (removed in BS3.0) */
+.dropdown-submenu {
+    position:relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top:0;
+    left:100%;
+    margin-top:-6px;
+    margin-left:-1px;
+    -webkit-border-radius:0 6px 6px 6px;
+    -moz-border-radius:0 6px 6px 6px;
+    border-radius:0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display:block;
+}
+
+.dropdown-submenu > a:after {
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#428bca;
+    margin-top:3px;
+}
+
+.dropdown-submenu:hover > a:after {
+    border-left-color:#428bca;
+}
+
+.dropdown-submenu.pull-left {
+    float:none;
+}
+
+.dropdown-submenu.pull-left > .dropdown-menu {
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
+}
+
+/* add padding to the right in dropdown-menu items */
+.dropdown-menu li>a {
+    padding-right: 13px;
+}
+
+/* vertical align fixes without stock images */
+.inbox-view-info .inbox-info-btn {
+    height: 29px;
+}
+.inbox-view-info > .row > .col-md-9 {
+    line-height: 29px;
+}
+
+.header .navbar-nav > li.dropdown.user .dropdown-toggle {
+    padding-top: 10px;
+    padding-bottom: 12px;
+}
+
+/* make badges readable again */
+.badge {
+    font-weight: bold;
+}
+
+/* declare these classes after metronic theme css to make them work (from fontawesome) */
+.icon-2x {
+    font-size: 2em;
+    line-height: normal;
+}
+.icon-3x {
+    font-size: 3em;
+    line-height: normal;
+}
+.icon-4x {
+    font-size: 4em;
+    line-height: normal;
+}
+.icon-5x {
+    font-size: 5em;
+    line-height: normal;
+}

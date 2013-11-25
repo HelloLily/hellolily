@@ -8,12 +8,14 @@ from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_conn
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Field
+from django.db.models.query_utils import Q
 from django.template import Context, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from python_imap.server import IMAP
 
 from lily.messaging.email.decorators import get_safe_template
+from lily.tenant.middleware import get_current_user
 
 
 _EMAIL_PARAMETER_DICT = {}
@@ -88,6 +90,17 @@ def get_email_parameter_choices():
                         })
 
     return _EMAIL_PARAMETER_CHOICES
+
+
+def get_folder_unread_count(folder, email_accounts=None):
+    """
+    Return the number of unread email messages in folder for given email accounts.
+    """
+    from lily.messaging.email.models import EmailAccount, EmailMessage  # prevent circular dependency
+    if email_accounts is None:
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
+
+    return EmailMessage.objects.filter(Q(folder_identifier=folder) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
 
 class TemplateParser(object):

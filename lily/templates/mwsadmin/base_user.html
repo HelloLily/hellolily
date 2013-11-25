@@ -1,6 +1,6 @@
 {% extends 'mwsadmin/base_app.html' %}
 
-{% load i18n media activelink email %}
+{% load i18n media activelink %}
 
 {% block body %}
 
@@ -109,7 +109,6 @@
                                     <li><a href="{% url messaging_email_compose %}" class="i-16 i-compose" title="Compose e-mail">
                                         Compose
                                     </a></li>
-                                    {% email_folder_tree %}
 
                                     {% ifstartswith "messaging_dashboard" %}
                                         {% ifstartswith "messaging_email_compose" %}

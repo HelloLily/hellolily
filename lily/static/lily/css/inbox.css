@@ -1,0 +1,20 @@
+.inbox .emailmessage-list td i.icon-paper-clip {
+    color: #777;
+}
+
+.inbox .emailmessage-detail .inbox-loading {
+    display: block;
+}
+
+.inbox .emailmessage-detail .inbox-view {
+    display: none;
+}
+
+.inbox .emailmessage-detail .inbox-view iframe {
+    border: none;
+}
+
+.inbox .emailmessage-detail .inbox-header small,
+.inbox .emailmessage-list .inbox-header small {
+    font-weight: 300;
+}

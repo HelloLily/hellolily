@@ -276,4 +276,18 @@ MEDIA_BUNDLES = (
 
         {'filter': 'mediagenerator.filters.i18n.I18N'},
     ),
+    ('inbox.css',
+        'css/pages/inbox.css',
+        'lily/css/inbox.css',
+    ),
+    ('inbox.js',
+        'lily/scripts/inbox.js',
+        'lily/scripts/inbox-folders.js',
+    ),
+    ('tree.css',
+        'plugins/fuelux/css/tree-metronic.css',
+    ),
+    ('scroll.js',
+        'plugins/jquery-slimscroll/jquery.slimscroll.js',
+    ),
 )

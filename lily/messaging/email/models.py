@@ -93,7 +93,7 @@ class EmailMessage(Message):
         """
         messages = []
         message = self.headers.filter(name='In-Reply-To')
-        while message != None:
+        while message is not None:
             messages.append(message)
             try:
                 message_id = message.headers.filter(name='In-Reply-To')
@@ -181,10 +181,12 @@ class EmailMessage(Message):
         else:
             headers = self.headers.filter(name='To')
             self._to_headers = headers
+
         if headers:
             to_emails = []
             for header in headers:
-                to_emails.append(email.utils.parseaddr(header.value)[1])
+                for address in email.utils.getaddresses(header.value.split(',')):
+                    to_emails.append(address[1])
             return u', '.join(to_emails)
         return u'<%s>' % _(u'No address')
 

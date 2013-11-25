@@ -36,6 +36,9 @@ def convert_html_to_text(html, keep_linebreaks=False):
     Convert html encoded in utf-8 to text using BeautifulSoup by cleaning it up
     and replacing <br> tags with \n or whitespace.
     """
+    if html is None:
+        return ''
+
     soup = BeautifulSoup(html)
 
     # Remove doctype and html comments to prevent these from being included in

@@ -33,8 +33,7 @@ $(function($) {
             if(response.html) {
                 $('#history-list').append(response.html);
             } else if(response.redirect_url) {
-                window.location.replace(response.redirect_url);
-                window.location.reload(true);
+                redirect_to(response.redirect_url);
             }
 
             // put the last date in the url

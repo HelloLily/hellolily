@@ -1,0 +1,69 @@
+{% extends 'list.html' %}
+
+{% load media i18n email activelink %}
+{% load url from future %}
+
+{% block css %}
+{{ block.super }}
+{% include_media 'inbox.css' %}
+{% include_media 'tree.css' %}
+{% endblock %}
+
+{% block page-content %}
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="page-title">{% block page-title %}{% trans 'Mailbox' %} <small>{{ list_title }}</small>{% endblock %}</h3>
+        {% block page-actions-button %}{% endblock %}
+    </div>
+</div>
+{% block container %}
+<div class="row inbox">
+    <div class="col-md-2">
+        <div class="tree tree-no-line">
+            <div class="tree-folder">
+            {% for folder in default_mailbox_folders %}
+                <div class="tree-folder-header {% ifactive folder.folder_url %}tree-selected{% endifactive %}" data-href="{{ folder.folder_url }}">
+                    <i class="icon-folder-{% if folder.folder_active %}open{% else %}close{% endif %}"></i>
+                    <div class="tree-folder-name">{{ folder.folder_name }} ({% unread_emails_folder_count folder.folder_identifier %})</div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <hr />
+        <div class="tree tree-no-line mailbox-folders">
+            <div class="tree-folder">
+            {% for email_account in account_mailboxes %}
+                <div class="tree-folder-header">
+                    <i class="icon-folder-{% if email_account.email.email_address == active_email_address %}open{% else %}close{% endif %}"></i>
+                    <div class="tree-folder-name">{{ email_account.email.email_address }}</div>
+                </div>
+                <div class="tree-folder-content {% if email_account.email.email_address != active_email_address %}hide{% endif %}">
+                    {% if email_account.folders|length %}
+                        {% for folder in default_mailbox_folders %}
+                            <div class="tree-item {% ifactive folder.folder_account_url_name account_id=email_account.pk %}tree-selected{% endifactive %}" data-href="{% url folder.folder_account_url_name account_id=email_account.pk %}">
+                                <div class="tree-item-name">{{ folder.folder_name }} ({% unread_emails_folder_count folder.folder_identifier email_account %})</div>
+                            </div>
+                        {% endfor %}
+
+                        {{ email_account|other_mailbox_folders:request.path|safe }}
+                    {% else %}
+                        <div class="tree-item">
+                            <div class="tree-item-name">{% trans 'Please be patient for the mail from this account will be retrieved soon.' %}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% block inbox %}{% endblock %}
+</div>
+{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'inbox.js' %}
+{% include_media 'scroll.js' %}
+{% endblock %}
+

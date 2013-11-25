@@ -178,22 +178,6 @@ def save_email_messages(messages, account, folder, new_messages=False):
             # update_email_attachments = {}
             task_logger.info('Looping through %s messages' % len(messages))
             for message in messages:
-                # UPDATE messaging_message
-                # SET is_seen = FALSE
-                # FROM email_emailmessage as email
-                # WHERE email.message_ptr_id = historylistitem_ptr_id
-                # AND email.account_id = 1
-                # AND email.uid = 1
-                # AND email.folder_name = 'Inbox';
-
-                # UPDATE email_emailmessage
-                # SET flags = ('NotJunk', '$NotJunk', '\\Seen')
-                # FROM messaging_message as message
-                # WHERE message.historylistitem_ptr_id = message_ptr_id
-                # AND account_id = 1
-                # AND uid = 1
-                # AND folder_name = 'Inbox';
-
                 query_string = 'UPDATE email_emailmessage SET '
                 if message.get_flags() is not None:
                     query_string += 'flags = %s, '
@@ -215,9 +199,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                 if query_string.endswith(', '):
                     query_string = query_string.rstrip(', ')
-                    query_string += ' FROM messaging_message as message'
-                    query_string += ' WHERE message.historylistitem_ptr_id = message_ptr_id AND message.tenant_id = %s AND account_id = %s AND uid = %s AND folder_name = %s;\n'
-                    param_list.append(account.tenant_id)
+                    query_string += ' WHERE account_id = %s AND uid = %s AND folder_name = %s;\n'
                     param_list.append(account.id)
                     param_list.append(message.uid)
                     param_list.append(folder.name_on_server)
@@ -237,9 +219,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         param_list.append(datetime.datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M:%S'))
 
                     query_string = query_string.rstrip(', ')
-                    query_string += ' FROM email_emailmessage as email'
-                    query_string += ' WHERE email.message_ptr_id = historylistitem_ptr_id AND tenant_id = %s AND email.account_id = %s and email.uid = %s and email.folder_name = %s;\n'
-                    param_list.append(account.tenant_id)
+                    query_string += ' WHERE historylistitem_ptr_id = (SELECT message_ptr_id FROM email_emailmessage WHERE account_id = %s AND uid = %s AND folder_name = %s);\n'
                     param_list.append(account.id)
                     param_list.append(message.uid)
                     param_list.append(folder.name_on_server)

@@ -1,6 +1,5 @@
 import datetime
 import email
-from django.template.defaultfilters import truncatechars
 import os
 import traceback
 import urllib
@@ -21,11 +20,14 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.context import RequestContext
+from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
@@ -50,6 +52,88 @@ from lily.utils.views import AttachmentFormSetViewMixin, DeleteBackAddSaveFormVi
 
 
 log = logging.getLogger('django.request')
+
+
+class EmailBaseView(View):
+    """
+    Base for EmailMessageDetailView and EmailFolderView.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Determine which accounts to show messages from.
+        """
+        self.all_email_accounts = request.user.get_messages_accounts(EmailAccount)
+        if kwargs.get('account_id'):
+            self.active_email_accounts = request.user.get_messages_accounts(EmailAccount, pk__in=[kwargs.get('account_id')])
+        else:
+            self.active_email_accounts = self.all_email_accounts
+
+        return super(EmailBaseView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(EmailBaseView, self).get_context_data(**kwargs)
+
+        # EmailAccounts user has access to
+        kwargs.update({
+            'list_title': ', '.join([email_account.email.email_address for email_account in self.all_email_accounts]),
+        })
+
+        # Folders for default mailboxes
+        default_folder_pairs = [
+            (INBOX, _(u'Inbox')),
+            (SENT, _(u'Sent')),
+            (DRAFTS, _(u'Drafts')),
+            (TRASH, _(u'Trash')),
+            (SPAM, _(u'Spam')),
+        ]
+        default_folders_reverse_names = {
+            INBOX: 'messaging_email_inbox',
+            SENT: 'messaging_email_sent',
+            DRAFTS: 'messaging_email_drafts',
+            TRASH: 'messaging_email_trash',
+            SPAM: 'messaging_email_spam',
+        }
+        default_account_folders_reverse_names = {
+            INBOX: 'messaging_email_account_inbox',
+            SENT: 'messaging_email_account_sent',
+            DRAFTS: 'messaging_email_account_drafts',
+            TRASH: 'messaging_email_account_trash',
+            SPAM: 'messaging_email_account_spam',
+        }
+        def is_active_folder(folder_url):
+            """
+            Check if *folder_url* is currently being displayed by checking against *self.request.path*
+            """
+            return urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(self.request.path)
+
+        default_mailbox_folders = []
+        for folder_identifier, folder_name in default_folder_pairs:
+            folder_url = reverse(default_folders_reverse_names.get(folder_identifier))
+            folder_account_url_name = default_account_folders_reverse_names.get(folder_identifier)
+            default_mailbox_folders.append({
+                'folder_identifier': folder_identifier,
+                'folder_active': is_active_folder(folder_url),
+                'folder_name': folder_name,
+                'folder_url': folder_url,
+                'folder_account_url_name': folder_account_url_name,
+            })
+
+        kwargs.update({
+            'default_mailbox_folders': default_mailbox_folders
+        })
+
+        # EmailAccount mailboxes
+        kwargs.update({
+            'account_mailboxes': [email_account for email_account in self.all_email_accounts],
+        })
+
+        # Currently selected mailbox
+        if len(self.active_email_accounts) == 1:
+            kwargs.update({
+                'active_email_address': self.active_email_accounts[0].email.email_address
+            })
+
+        return kwargs
 
 
 class EditEmailAccountView(TemplateView):
@@ -176,25 +260,99 @@ class ParseEmailTemplateView(FormView):
         }), mimetype="application/json")
 
 
-class EmailFolderView(ListView):
+class EmailFolderView(EmailBaseView, ListView):
     """
     Show a list of e-mail messages in a certain folder.
     """
-    template_name = 'messaging/email/mwsadmin/model_list.html'
-    paginate_by = 10
+    paginate_by = 20
     folder_name = None
     folder_identifier = None
 
     def get(self, request, *args, **kwargs):
-        # Determine which accounts to show messages from
-        if kwargs.get('account_id'):
-            self.email_accounts = request.user.get_messages_accounts(EmailAccount, pk__in=[kwargs.get('account_id')])
-        else:
-            self.email_accounts = request.user.get_messages_accounts(EmailAccount)
-
-        # Deteremine which folder to show messages from
+        # Determine which folder to show messages from
         if kwargs.get('folder') and not any([self.folder_name, self.folder_identifier]):
-            self.folder_name = self.folder_identifier = urllib.unquote_plus(kwargs.get('folder'))
+            self.folder_name = urllib.unquote_plus(kwargs.get('folder'))
+
+        # If there is no folder in kwargs, try to detect using self.folder_identifier
+        default_folder_pairs = {
+            INBOX: _(u'Inbox'),
+            SENT: _(u'Sent'),
+            DRAFTS: _(u'Drafts'),
+            TRASH: _(u'Trash'),
+            SPAM: _(u'Spam'),
+            ALLMAIL: _(u'All mail'),
+        }
+
+        # if self.folder_name is None and self.folder_identifier is not None:
+        #     self.folder_name = default_folder_pairs.get(self.folder_identifier)
+        # else:
+        # Get other mailbox folder name
+        # if self.folder_name is None:
+        #     # Fallback to ALLMAIL
+        #     self.folder_identifier = ALLMAIL
+        #     self.folder_name = default_folder_pairs.get(self.folder_identifier)
+        # else:
+        # Strip away parent's folder name
+        # self.folder_name = self.folder_name.split('/')[-1:][0]
+
+        # Check if folder name exists for email_accounts
+        # XXX: currently checks just one level of nesting
+        folder_found = False
+        for email_account in self.all_email_accounts:
+            for folder_name, folder in email_account.folders.items():
+                if self.folder_identifier in folder.get('flags'):
+                    folder_found = True
+
+                    # Show the name on the server for default mailbox folders
+                    if self.folder_name is None:
+                        self.folder_name = folder.get('full_name')
+                    break
+
+                if self.folder_name in [folder_name, folder.get('full_name')]:
+                    folder_found = True
+
+                    # Try to match folder_identifier
+                    if self.folder_identifier is None:
+                        if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(folder.get('flags')))) > 0:
+                            self.folder_identifier = set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(folder.get('flags'))).pop()
+                    break
+
+        #         if self.folder_identifier is not None:
+        #             if folder_name == self.folder_identifier.lstrip('\\'):
+        #                 folder_found = True
+        #                 self.folder_locale_name = folder_name
+        #                 break
+
+                sub_folders = folder.get('children', {})
+                for sub_folder_name, sub_folder in sub_folders.items():
+                    if self.folder_identifier in sub_folder.get('flags'):
+                        folder_found = True
+
+                        # Show the name on the server for default mailbox folders
+                        if self.folder_name is None:
+                            self.folder_name = sub_folder_name
+                        break
+
+                    if self.folder_name in [sub_folder_name, sub_folder.get('full_name')]:
+                        folder_found = True
+
+                        # Try to match folder_identifier
+                        if self.folder_identifier is None:
+                            if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(sub_folder.get('flags')))) > 0:
+                                self.folder_identifier = set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(sub_folder.get('flags'))).pop()
+
+                        # Need full name to find the folder on the server
+                        self.folder_name = sub_folder.get('full_name')
+                        break
+
+        #             if self.folder_identifier is not None:
+        #                 if sub_folder_name == self.folder_identifier.lstrip('\\'):
+        #                     folder_found = True
+        #                     self.folder_name = sub_folder_name
+        #                     break
+
+            if not folder_found:
+                raise Http404()
 
         return super(EmailFolderView, self).get(request, *args, **kwargs)
 
@@ -209,35 +367,27 @@ class EmailFolderView(ListView):
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
-        qs = qs.filter(account__in=self.email_accounts).extra(select={
+        qs = qs.filter(account__in=self.active_email_accounts).extra(select={
             'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
         }).order_by('-sent_date')
 
         # Try remote fetch when no results have been found locally
         if not tried_remote and len(qs) == 0:
-            for account in self.email_accounts:
-                get_remote_messages(account, self.folder_identifier or self.folder_name)
+            for email_account in self.active_email_accounts:
+                get_remote_messages(email_account, self.folder_identifier or self.folder_name)
             qs = self.get_queryset(tried_remote=True)
 
         return qs
 
     def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
         kwargs = super(EmailFolderView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'list_item_template': 'messaging/email/mwsadmin/model_list_item.html',
-            'list_title': ', '.join([email_account.email.email_address for email_account in self.email_accounts]),
-        })
 
-        from collections import OrderedDict
-        folders = OrderedDict()
-
+        folders = SortedDict()
         folders['Postvak In'] = 'Postvak IN'
+
         if self.folder_identifier not in [SENT, TRASH]:
             # Find folders for visible accounts
-            for account in self.email_accounts:
+            for account in self.active_email_accounts:
                 def get_folders_from_tree(tree):
                     for name, folder in tree.items():
                         if folder.get('is_parent'):
@@ -262,12 +412,12 @@ class EmailFolderView(ListView):
                 get_folders_from_tree(account.folders)
 
         # Sort dictionary by value (folder name)
-        folders = OrderedDict(sorted(folders.items(), key=lambda t: t[1]))
+        folders = SortedDict(sorted(folders.items(), key=lambda t: t[1]))
 
         # Find active folder
         active_move_to_folder = ''
         if self.folder_identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
-            for account in self.email_accounts:
+            for account in self.active_email_accounts:
                 for name, folder in account.folders.items():
                     if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
                         active_move_to_folder = folder.get('full_name')
@@ -282,6 +432,8 @@ class EmailFolderView(ListView):
             'email_search_key': self.kwargs.get('search_key', ''),
             'move_to_folders': folders,
             'active_move_to_folder': active_move_to_folder,
+
+            'folder_name': self.folder_name,
         })
 
         return kwargs
@@ -289,35 +441,35 @@ class EmailFolderView(ListView):
 
 class EmailInboxView(EmailFolderView):
     """
-    Show INBOX folder for all accessible messages accounts.
+    Show contents of INBOX folder.
     """
     folder_identifier = INBOX
 
 
 class EmailDraftsView(EmailFolderView):
     """
-    Show DRAFTS folder for all accessible messages accounts.
+    Show contents of DRAFTS folder.
     """
     folder_identifier = DRAFTS
 
 
 class EmailSentView(EmailFolderView):
     """
-    Show SENT folder for all accessible messages accounts.
+    Show contents of SENT folder.
     """
     folder_identifier = SENT
 
 
 class EmailTrashView(EmailFolderView):
     """
-    Show TRASH folder for all accessible messages accounts.
+    Show contents of TRASH folder.
     """
     folder_identifier = TRASH
 
 
 class EmailSpamView(EmailFolderView):
     """
-    Show SPAM folder for all accessible messages accounts.
+    Show contents of SPAM folder.
     """
     folder_identifier = SPAM
 
@@ -494,95 +646,119 @@ class HistoryListEmailMessageJSONView(BaseJSONViewMixin):
         return instance.textify().strip('&nbsp;\n\r\n ').replace('\n', '<br />')
 
 
-class EmailMessageHTMLView(View):
+class EmailMessageHTMLView(EmailBaseView, DetailView):
     """
-    Return the HTML for single e-mail message.
+    Display an email body in an isolated html.
     """
     http_method_names = ['get']
-    template_name = 'messaging/email/mwsadmin/email_body.html'
+    model = EmailMessage
+    template_name_suffix = '_isolated'
 
-    def get(self, request, *args, **kwargs):
-        try:
-            instance = EmailMessage.objects.get(id=kwargs.get('pk'))
+    def get_context_data(self, **kwargs):
+        # Skip context_data from EmailBaseView
+        kwargs = super(EmailBaseView, self).get_context_data(**kwargs)
+        is_plain = not bool(self.object.body_html)
+        body = u''
+        if self.object.body_html:
+            body = self.object.body_html.encode('utf-8')
+        elif self.object.body_text:
+            body = self.object.body_text.encode('utf-8')
 
-            if instance.body_html:
-                body = render_to_string(self.template_name, {'is_plain': False, 'body': instance.body_html.encode('utf-8')})
-            else:
-                body = render_to_string(self.template_name, {'is_plain': True, 'body': instance.body_text.encode('utf-8')})
+        kwargs.update({
+            'is_plain': is_plain,
+            'body': body,
+        })
 
-            return HttpResponse(body, mimetype='text/html; charset=utf-8')
-        except EmailMessage.DoesNotExist:
-            raise Http404()
+        return kwargs
 
 
-class MessageUpdateView(View):
+class EmailMessageUpdateBaseView(View):
     """
-    Handle various AJAX calls for n messages.
+    Base for classes that update an EmailMessage in various ways:
+    - move to a folder
+    - move to trash
+    - mark as (un)read
+
+    Can handle more than a single EmailMessage at once.
     """
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
+        """
+        Find out which messages to update.
+        """
         try:
             message_ids = request.POST.getlist('ids[]')
+
+            # Wrap it in a list if necessary
             if not isinstance(message_ids, list):
                 message_ids = [message_ids]
+
+            # "Handle" these messages. The action to perform is determined
+            # by the subclass.
             if len(message_ids) > 0:
                 self.handle_message_update(message_ids)
         except:
             raise Http404()
 
-        # Return response
-        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+        # Return to whereever the request came from unless a "next" is provided
+        if 'next' in request.POST:
+            redirect_url = request.POST.get('next')
+        else:
+            redirect_url = request.META.get('HTTP_REFERER')
+
+        return redirect(redirect_url)
 
     def handle_message_update(self, message_ids):
-        raise NotImplementedError("Implement by subclassing MessageUpdateView")
+        raise NotImplementedError('Implement by subclassing %s' % self.__class__.__name__)
 
 
-class MarkReadAjaxView(MessageUpdateView):
+class MarkEmailMessageAsReadView(EmailMessageUpdateBaseView):
     """
-    Mark messages as read.
+    Mark message as read.
     """
     def handle_message_update(self, message_ids):
         mark_messages.delay(message_ids, read=True)
 
 
-class MarkUnreadAjaxView(MessageUpdateView):
+class MarkEmailMessageAsUnreadView(EmailMessageUpdateBaseView):
     """
-    Mark messages as unread.
+    Mark message as unread.
     """
     def handle_message_update(self, message_ids):
         mark_messages.delay(message_ids, read=False)
 
 
-class MoveTrashAjaxView(MessageUpdateView):
+class TrashEmailMessageView(EmailMessageUpdateBaseView):
     """
-    Move messages to trash.
+    Move message to trash.
     """
     def handle_message_update(self, message_ids):
         delete_messages.delay(message_ids)
 
 
-class MoveMessagesView(MessageUpdateView):
+class MoveEmailMessageView(View):
     """
     Move messages to selected folder.
+
+    Can handle more than a single EmailMessage at once.
     """
+    http_method_names = ['post']
     def post(self, request, *args, **kwargs):
-        if not request.META.get('HTTP_REFERER'):
-            raise Http404()
+        pass
+        # try:
+        #     message_ids = request.POST.get('ids')
+        #     if not isinstance(message_ids, list):
+        #         message_ids = message_ids.split(',')
 
-        try:
-            message_ids = request.POST.get('ids')
-            if not isinstance(message_ids, list):
-                message_ids = message_ids.split(',')
+        #     if len(message_ids) > 0:
+        #         if request.POST.get('move-to-folder-select', False):
+        #             move_messages(message_ids, request.POST.get('move-to-folder-select'), request)
+        # except:
+        #     raise Http404()
 
-            if len(message_ids) > 0:
-                if request.POST.get('move-to-folder-select', False):
-                    move_messages(message_ids, request.POST.get('move-to-folder-select'), request)
-        except:
-            raise Http404()
-
-        # Simply return back to the page the request originated from
-        return redirect(request.META.get('HTTP_REFERER'))
+        # # Simply return back to the page the request originated from
+        # return redirect(request.META.get('HTTP_REFERER'))
 
 
 class ForceFolderSyncView(View):
@@ -1422,7 +1598,6 @@ class EmailSearchView(EmailFolderView):
             self.folder_locale_name = None
             self.folder_identifier = folder_flag
 
-
         # Check if folder is from account
         folder_found = False
         for account in accounts_qs:
@@ -1550,6 +1725,7 @@ class EmailAttachmentProxy(View):
         response['Content-Length'] = attachment.size
         return response
 
+
 class EmailAttachmentRemoval(View):
     def get(request, *args, **kwargs):
         """
@@ -1565,6 +1741,80 @@ class EmailAttachmentRemoval(View):
         return redirect(reverse('messaging_email_compose', kwargs={'pk': message_pk}))
 
 
+class EmailMessageDetailView(EmailBaseView, DetailView):
+    model = EmailMessage
+
+    def get_object(self, queryset=None):
+        """
+        Verify this email message belongs to an account request.user has access to.
+        """
+        object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+        if object.account not in self.all_email_accounts:
+            raise Http404()
+
+        if object.body_html is None or len(object.body_html.strip()) == 0 and (object.body_text is None or len(object.body_text.strip()) == 0):
+            server = self.get_from_imap(object)
+            server.logout()
+
+            # Re-fetch
+            object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+
+        # Mark as read
+        object.is_seen = True
+        object.save()
+
+        return object
+
+    def get_context_data(self, **kwargs):
+        """
+        Remove any parent folder for default mailbox folders
+        """
+        kwargs = super(EmailMessageDetailView, self).get_context_data(**kwargs)
+
+        default_folder_identifiers = [
+            INBOX,
+            SENT,
+            DRAFTS,
+            TRASH,
+            SPAM,
+        ]
+        folder_name = self.object.folder_name
+        if self.object.folder_identifier in default_folder_identifiers:
+            folder_name = folder_name.split('/')[-1:][0]
+
+        kwargs.update({
+              'folder_name': folder_name,
+        })
+
+        # Pass message's email account e-mail address
+        kwargs.update({
+            'active_email_address': self.object.account.email.email_address,
+            'active_email_account': self.object.account,
+        })
+
+        return kwargs
+
+    def get_from_imap(self, email_message):
+        """
+        Download an email message from IMAP.
+        """
+        host = email_message.account.provider.imap_host
+        port = email_message.account.provider.imap_port
+        ssl = email_message.account.provider.imap_ssl
+        server = IMAP(host, port, ssl)
+        server.login(email_message.account.username, email_message.account.password)
+
+        imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
+
+        message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                     server.get_folder(email_message.folder_name), readonly=False)
+        if message is not None:
+            imap_logger.info('Message retrieved, saving in database')
+            save_email_messages([message], email_message.account, message.folder)
+
+        return server
+
+
 # E-mail folder views
 email_inbox_view = login_required(EmailInboxView.as_view())
 email_sent_view = login_required(EmailSentView.as_view())
@@ -1577,16 +1827,17 @@ email_account_folder_view = login_required(EmailFolderView.as_view())
 email_html_view = login_required(EmailMessageHTMLView.as_view())
 email_json_view = login_required(EmailMessageJSONView.as_view())
 history_list_email_json_view = login_required(HistoryListEmailMessageJSONView.as_view())
-mark_read_view = login_required(MarkReadAjaxView.as_view())
-mark_unread_view = login_required(MarkUnreadAjaxView.as_view())
-move_trash_view = login_required(MoveTrashAjaxView.as_view())
 
 # E-mail interaction views
+email_detail_view = login_required(EmailMessageDetailView.as_view())
 email_compose_view = login_required(EmailCreateView.as_view())
 email_body_preview_view = login_required(EmailBodyPreviewView.as_view())
 email_reply_view = login_required(EmailReplyView.as_view())
 email_forward_view = login_required(EmailForwardView.as_view())
-move_messages_view = login_required(MoveMessagesView.as_view())
+mark_read_view = login_required(MarkEmailMessageAsReadView.as_view())
+mark_unread_view = login_required(MarkEmailMessageAsUnreadView.as_view())
+move_trash_view = login_required(TrashEmailMessageView.as_view())
+move_messages_view = login_required(MoveEmailMessageView.as_view())
 
 # E-mail account wizard views
 email_configuration_wizard_template = login_required(EmailConfigurationWizardTemplate.as_view())

@@ -81,8 +81,7 @@ $(function($) {
                         // loads notifications if any
                         load_notifications();
                     } else if(response.redirect_url) {
-                        window.location.replace(response.redirect_url);
-                        window.location.reload(true);
+                        redirect_to(response.redirect_url);
                     } else {
                         $(form).closest('.modal').modal('hide');
                         // loads notifications if any
@@ -113,4 +112,22 @@ $(function($) {
     $('[data-toggle="tab"]').on('shown.bs.tab', function(e) {
         window.location.hash = e.target.hash;
     });
+
+    // submit forms with other elements
+    $('[data-form-submit]').click(function(event) {
+        $($(this).data('form-selector')).submit();
+        event.preventDefault();
+    });
 });
+
+// go to redirect_url, reload if redirect_url is current and/or if it contains an anchor reference
+function redirect_to(redirect_url) {
+    var current = window.location.href;
+    var index = current.indexOf(redirect_url);
+
+    window.location = redirect_url;
+    if(index == current.length - redirect_url.length ||
+       redirect_url.indexOf('#') != -1) {
+        window.location.reload(true);
+    }
+}

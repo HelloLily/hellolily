@@ -2,8 +2,8 @@
 
 {% load i18n utils %}
 
+{% block head-title %}{% trans 'Deals' %}{% endblock %}
 {% block page-title %}{% trans 'Deals' %}{% endblock %}
-
 {% block list-title %}{% trans 'Deals' %}{% endblock %}
 
 {% block list-headings %}
@@ -67,12 +67,7 @@
         </div>
     </td>
     <td class="datetime created hide_on_small_screen">
-        <div>
-            {{ item.created|date:"d/m/Y" }}
-        </div>
-        <div>
-            {{ item.created|date:"H:i:s" }}
-        </div>
+        {{ item.created|date:"d/m/Y H:i:s" }}
     </td>
 </tr>
 {% endfor %}

@@ -4,20 +4,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.utils import simplejson
-from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
-from lily.utils.views import DeleteBackAddSaveFormViewMixin, SortedListMixin, HistoryListViewMixin
 from lily.utils.functions import is_ajax
-from lily.utils.templatetags.messages import tag_mapping
+from lily.utils.views import SortedListMixin, HistoryListViewMixin
 
 
 class ListCaseView(SortedListMixin, ListView):

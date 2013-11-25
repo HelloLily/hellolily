@@ -6,11 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.utils import simplejson
-from django.utils.html import escapejs
 from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -20,8 +16,7 @@ from pytz import timezone
 from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
-from lily.utils.templatetags.messages import tag_mapping
-from lily.utils.views import SortedListMixin, AjaxUpdateView,\
+from lily.utils.views import SortedListMixin, AjaxUpdateView, \
     DeleteBackAddSaveFormViewMixin, HistoryListViewMixin
 
 
@@ -68,9 +63,9 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         response = super(CreateUpdateDealView, self).form_valid(form)
 
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
-        if self.object.stage in [1,3]:
+        if self.object.stage in [1, 3]:
             self.object.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
-        elif self.object.stage in [0,2]:
+        elif self.object.stage in [0, 2]:
             self.object.closed_date = None
         self.object.save()
 
@@ -84,12 +79,9 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
 
 
 class CreateDealView(CreateUpdateDealView, CreateView):
-    """
-    View to add a deal.
-    """
     def dispatch(self, request, *args, **kwargs):
         """
-        Overloading super().dispatch to change the template to be rendered.
+        For AJAX calls, use a different form and template.
         """
         if is_ajax(request):
             self.template_name_suffix = '_form_ajax'
@@ -98,18 +90,15 @@ class CreateDealView(CreateUpdateDealView, CreateView):
         return super(CreateDealView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to return json for an ajax request.
-        """
-        # Save instance
+        # Saves the instance
         response = super(CreateDealView, self).form_valid(form)
 
         # Show save message
-        message = _('%s (Deal) has been saved.') % self.object.name
+        message = _('%s (Deal) has been created.') % self.object.name
         messages.success(self.request, message)
 
         if is_ajax(self.request):
-            # Reload when user is in the case list
+            # Reload when user is in the deal list
             redirect_url = None
             parse_result = urlparse(self.request.META['HTTP_REFERER'])
             if parse_result.path == reverse('deal_list'):
@@ -124,9 +113,6 @@ class CreateDealView(CreateUpdateDealView, CreateView):
         return response
 
     def form_invalid(self, form):
-        """
-        Overloading super().form_invalid to return json for an ajax request.
-        """
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
             response = simplejson.dumps({
@@ -135,20 +121,14 @@ class CreateDealView(CreateUpdateDealView, CreateView):
             })
             return HttpResponse(response, mimetype='application/json')
 
-        return response        
+        return response
 
 
 class UpdateDealView(CreateUpdateDealView, UpdateView):
-    """
-    View to edit a deal.
-    """
     model = Deal
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to show success message on edit.
-        """
-        # Save instance
+        # Saves the instance
         response = super(UpdateDealView, self).form_valid(form)
 
         # Show save message

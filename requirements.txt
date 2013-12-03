@@ -34,19 +34,19 @@ psycopg2>=2.4.5
 pycrypto==2.6
 python-dateutil==1.5
 pytz==2012c
-readline==6.2.4.1
+#readline==6.2.4.1  # For MacOSX only
 redis==2.6.2
 South>=0.7.6
 
 # New theme packages
-# Untill dyve accepts our pull request we use our own fork
+# Until dyve accepts our pull request we use our own fork
 #django-bootstrap3
-https://github.com/HelloLily/django-bootstrap3/archive/master.zip
+git+https://github.com/HelloLily/django-bootstrap3/#egg=bootstrap3
 django-formset-js
 
 
 # Remove after new theme
-https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms  # replace by django-bootstrap3/betteform ?
+https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms  # replace by django-bootstrap3/betterform ?
 
 # To be replaced in the near future
 https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip

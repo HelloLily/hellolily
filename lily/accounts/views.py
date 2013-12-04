@@ -27,7 +27,6 @@ from lily.utils.views import SortedListMixin, FilteredListMixin,\
 
 
 class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
-    template_name = 'accounts/mwsadmin/model_list.html'
     sortable = [2, 4, 5]
     model = Account
     prefetch_related = [
@@ -36,18 +35,6 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
         'user'
     ]
     default_order_by = 2
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListAccountView, self).get_context_data(**kwargs)
-
-        kwargs.update({
-            'list_item_template': 'accounts/mwsadmin/model_list_item.html',
-        })
-
-        return kwargs
 
 
 class DetailAccountView(HistoryListViewMixin):

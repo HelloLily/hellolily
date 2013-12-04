@@ -1,0 +1,105 @@
+{% extends 'list.html' %}
+
+{% load i18n media thumbnail utils %}
+
+{% block head-title %}{% trans 'Accounts' %}{% endblock %}
+{% block page-title %}{% trans 'Accounts' %}{% endblock %}
+{% block list-title %}{% trans 'Accounts' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="item-image account hide_on_small_screen"></th>
+    <th class="name">{% trans 'Account' %}</th>
+    <th class="details">{% trans 'Contact' %}</th>
+    <th class="datetime created hide_on_small_screen">{% trans 'Created' %}</th>
+    <th class="datetime modified hide_on_small_screen">{% trans 'Modified' %}</th>
+    <th class="tags">{% trans 'Tags' %}</th>
+{% endblock %}
+
+{% block list %}
+{% for item in object_list %}
+<tr>
+    <td class="">
+        <a href="{% url account_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        {% if not item|has_user_in_group:'account_admin' %}
+        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url account_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        {% endif %}
+    </td>
+    <td class="item-image account hide_on_small_screen item-image account">
+        {% if item.logo %}
+            <img src="{% thumbnail item.logo 36x36 %}" alt="" />
+        {% else %}
+            <img src="{% media_url 'mwsadmin/extra/images/core/unknown_account.png' %}" alt="" />
+        {% endif %}
+    </td>
+    <td class="name">
+        <div>
+            <a href="{% url account_details pk=item.pk %}">
+                {{ item.name }}
+            </a>
+        </div>
+        {% with item.get_address as address %}
+            {% if address.street %}
+                <div class="address">{{ address.city }}</div>
+            {% endif %}
+            {% if address.country %}
+                <div class="country">{{ address.get_country_display }}</div>
+            {% endif %}
+        {% endwith %}
+    </td>
+    <td class="details">
+        {% if item.primary_email %}
+            <div class="i-16 i-mail blue">
+                <a href="mailto:{{ item.primary_email }}" title="{{ item.primary_email }}">{{ item.primary_email|truncatechars:"35" }}</a>
+            </div>
+        {% endif %}
+
+        {% with item.get_work_phone as phone %}
+            {% if phone.raw_input %}
+                <div class="i-16 i-phone blue">
+                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% with item.get_mobile_phone as phone %}
+            {% if phone.raw_input %}
+                <div class="i-16 i-mobile blue">
+                    <a href="tel:{{ phone.number }}">{{ phone.raw_input }}</a>
+                </div>
+            {% endif %}
+        {% endwith %}
+    </td>
+    <td class="datetime created hide_on_small_screen">
+        <div>
+            {{ item.created|date:"d/m/Y" }}
+        </div>
+        <div>
+            {{ item.created|date:"H:i:s" }}
+        </div>
+    </td>
+    <td class="datetime modified hide_on_small_screen">
+        <div>
+            {{ item.modified|date:"d/m/Y" }}
+        </div>
+        <div>
+            {{ item.modified|date:"H:i:s" }}
+        </div>
+    </td>
+    <td class="tags">
+        {% for tag in item.get_tags %}
+            <a href="javascript:void(0)" class="tag">{{ tag }}</a><br />
+        {% endfor %}
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "bSearchable": false, "bSortable": false, "aTargets": [1] },
+    { "bSortable": false, "aTargets": [3] },
+    { "sType": "date-euro", "aTargets": [4] },
+    { "sType": "date-euro", "aTargets": [5] },
+    { "bSearchable": false, "bSortable": false, "aTargets": [6] }
+{% endblock %}

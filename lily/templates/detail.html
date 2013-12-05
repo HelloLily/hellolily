@@ -1,6 +1,12 @@
 {% extends 'page.html' %}
 
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n media %}
+
+{% block css %}
+    {{ block.super }}
+    {% include_media 'profile.css' %}
+    {% include_media 'timeline.css' %}
+{% endblock %}
 
 {% block page-actions-button %}
 <div class="btn-group pull-right">

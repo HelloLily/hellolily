@@ -37,7 +37,7 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
-    template_name = 'contacts/mwsadmin/model_list.html'
+    template_name = 'contacts/contact_list.html'
     model = Contact
     prefetch_related = [
         'functions__account',
@@ -64,7 +64,7 @@ class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
-    template_name = 'contacts/mwsadmin/details.html'
+    template_name = 'contacts/contact_detail.html'
     model = Contact
 
 
@@ -242,7 +242,6 @@ class DeleteContactView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Contact
-    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
         """

@@ -1,10 +1,14 @@
-<hr />
+{% load i18n %}
 
-{% for object in object_list %}
-    {% include object.get_list_item_template %}
-
-    {% if not forloop.last %}
-    <hr />
-    {% endif %}
-{% endfor %}
-
+<div class="row" id="history">
+    <div class="col-md-12">
+        <ul class="timeline" id="history-list">
+            {% for object in object_list %}
+                {% include object.get_list_item_template %}
+            {% endfor %}
+        </ul>
+    </div>
+ </div>
+{% if show_more %}
+    <button class="btn btn-primary btn-block margin-top-20 show-more" data-remote="{{ request.path }}#history" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Loading..' %}" data-disabled-text="{% trans 'End of list' %}">{% trans 'Show more' %}</button>
+{% endif %}

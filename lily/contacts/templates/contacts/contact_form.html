@@ -2,12 +2,6 @@
 
 {% load i18n bootstrap3 field_extras media %}
 
-{% block css %}
-    {% include_media 'lily.contacts.css' %}
-
-    {{ block.super }}
-{% endblock %}
-
 {% block hidden-dialogs %}
     {% if item.pk %}
         {% include 'accounts/mwsadmin/delete_dialog.html' with item=item %}

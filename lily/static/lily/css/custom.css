@@ -1,4 +1,7 @@
 /* here you can put your own css to customize and override the theme */
+.no-margin {
+    margin: 0;
+}
 
 .summary-list li:first-child {
     border-top: none;
@@ -120,4 +123,41 @@
 .icon-5x {
     font-size: 5em;
     line-height: normal;
+}
+
+/* Make the timeline more pleasant for the eyes */
+.timeline:before {
+    left: 140px;
+}
+.timeline>li .timeline-time {
+    width: 90px;
+}
+.timeline li.timeline-red .timeline-time span.date,
+.timeline li.timeline-yellow .timeline-time span.date,
+.timeline li.timeline-green .timeline-time span.date,
+.timeline li.timeline-blue .timeline-time span.date,
+.timeline li.timeline-purple .timeline-time span.date,
+.timeline li.timeline-grey .timeline-time span.date {
+    font-size: 20px;
+}
+.timeline>li .timeline-time span.time {
+    font-size: 36px;
+}
+.timeline>li .timeline-icon {
+    left: 140px;
+}
+.timeline>li .timeline-body {
+    margin: 0 0 15px 190px;
+}
+.timeline>li .timeline-body a.nav-link.pull-right {
+    margin-left: 15px;
+}
+@media (max-width: 767px) {
+    .timeline>li .timeline-icon {
+        margin: -55px 8px 0 0;
+        left: auto;
+    }
+    .timeline>li .timeline-body {
+        margin: 0 0 30px 0;
+    }
 }

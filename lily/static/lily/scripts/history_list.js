@@ -29,7 +29,9 @@ $(function($) {
             data: {'datetime': last_sort_date},
             type: 'GET',
             dataType: 'json'
-        }).done(function(response) {
+        });
+
+        jqXHR.done(function(response) {
             if(response.html) {
                 $('#history-list').append(response.html);
             } else if(response.redirect_url) {
@@ -76,39 +78,4 @@ $(function($) {
 
     // attempt to show more history on load if necessary
     check_history_dates();
-
-    $('.object-list-item-options > .emailmessage-view').live('click', function(e) {
-        var link = $(this);
-        var loading = link.parent().find('.emailmessage-loading');
-        var url = link.attr('href');
-        var text_div = link.closest('.object-list-item').find('.object-list-item-text');
-
-        link.remove();
-        loading.show();
-
-        var jqXHR = $.ajax({
-            'url': url,
-            'type': 'GET',
-            'dataType': 'json'
-        });
-
-        jqXHR.done(function(response) {
-            text_div.html(response.subject + '<br />' + response.flat_body);
-        });
-
-        jqXHR.fail(function(response) {
-            console.log('There was an error loading the email message.');
-        });
-
-        jqXHR.always(function(response) {
-            loading.remove();
-        });
-
-        e.preventDefault();
-    });
-
-    $('.object-list-buttons > button#load-more').live('click', function(e) {
-        load_more_history();
-        e.preventDefault();
-    });
 });

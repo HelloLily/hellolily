@@ -1,17 +1,46 @@
 {% load i18n %}
 
-<div class="media history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
-    <div class="media-body">
-        <h4 class="media-heading">
-            {{ object.created|date:"l d-m-Y G:i" }}
-            <span class="author">
-                &nbsp; {% trans 'by' %} {{ object.author }}
-            </span>
-            <div class="pull-right">
-                <a href="{% url note_update pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}"><i class="icon-edit"></i></a>
-                <a href="{% url note_delete pk=object.pk %}" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}"><i class="icon-trash"></i></a>
-            </div>
-        </h4>
-        <p>{{ object.content|linebreaksbr }}</p>
+{#<div class="media history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">#}
+{#    <div class="media-body">#}
+{#        <h4 class="media-heading">#}
+{#            {{ object.created|date:"l d-m-Y G:i" }}#}
+{#            <span class="author">#}
+{#                &nbsp; {% trans 'by' %} {{ object.author }}#}
+{#            </span>#}
+{#            <div class="pull-right">#}
+{#                <a href="{% url note_update pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}"><i class="icon-edit"></i></a>#}
+{#                <a href="{% url note_delete pk=object.pk %}" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}"><i class="icon-trash"></i></a>#}
+{#            </div>#}
+{#        </h4>#}
+{#        <p>{{ object.content|linebreaksbr }}</p>#}
+{#    </div>#}
+{#</div>#}
+
+<li class="timeline-yellow history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
+    <div class="timeline-time">
+        <span class="date">{{ object.created|date:"d M y" }}</span>
+        <span class="time">{{ object.created|date:"G:i" }}</span>
     </div>
-</div>
+    <div class="timeline-icon">
+        <i class="icon-comment"></i>
+    </div>
+    <div class="timeline-body">
+        <h2>{% trans 'Note' %}</h2>
+        <div class="timeline-content">
+            {{ object.content|linebreaksbr }}
+        </div>
+        <div class="timeline-footer">
+            <a href="{% url note_update pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}">
+                {% trans 'Edit' %}
+                <i class="icon-edit"></i>
+            </a>
+            <a href="{% url note_delete pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}">
+                {% trans 'Delete' %}
+                <i class="icon-trash"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="icon-user"></i>
+                {{ object.author }}
+            </a>
+    </div>
+</li>

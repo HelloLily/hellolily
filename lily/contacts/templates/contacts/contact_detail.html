@@ -1,0 +1,167 @@
+{% extends 'detail.html' %}
+
+{% load i18n utils media %}
+
+{% block head-title %}{% trans 'Contact details' %}{% endblock %}
+{% block page-title %}{% trans 'Contact details' %}{% endblock %}
+{% block detail-title %}{{ object.subject }}{% endblock %}
+
+{% block page-actions %}
+    <li><a href="{% url contact_edit pk=object.pk %}">{% trans 'Edit' %}</a></li>
+    <li><a href="{% url contact_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+{% endblock %}
+
+{% block page-container %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled summary-list">
+                            <li>
+                                <span class="summary-label">{% trans 'Name' %}</span>
+                                <span class="pull-right">{{ object.full_name }}</span>
+                            </li>
+                            <li>
+                                <span class="summary-label">{% trans 'Works at' %}</span>
+                                <span class="pull-right">
+                                    {% if function %}
+                                        <a href="{% url account_details pk=object.get_primary_function.account.pk %}">
+                                            {{ object.get_primary_function.account }}
+                                        </a>
+                                    {% else %}
+                                        {% trans 'Unknown' %}
+                                    {% endif %}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled summary-list">
+                            <li>
+                                <span class="summary-label">{% trans 'E-mail address' %}</span>
+                                <span class="pull-right">{{ object.primary_email|default:_('Unknown') }}</span>
+                            </li>
+                            <li>
+                                <span class="summary-label">{% trans 'Phone number' %}</span>
+                                <span class="pull-right">{{ object.get_phone_number|default:_('Unknown') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="tabbable tabbable-custom tabbable-custom-profile">
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a href="#history" data-toggle="tab">
+                                        {% trans 'History' %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#colleagues" data-toggle="tab">
+                                        {% trans 'Colleagues' %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#other" data-toggle="tab">
+                                        {% trans 'Other' %}
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane active">
+                                    {% include 'notes/note_form.html' %}
+                                    {% include 'utils/history_list.html' %}
+                                </div>
+                                <div class="tab-pane" id="colleagues">
+                                    {% for function in object.functions.all %}
+                                        <h4>{{ function.account }}</h4>
+                                        <div class="well well-sm">
+                                            <div class="row no-margin">
+                                                <table class="table no-margin">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>{% trans 'Name' %}</th>
+                                                            <th>{% trans 'E-mail address' %}</th>
+                                                            <th>{% trans 'Phone number' %}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for colleague_function in function.account.functions.all %}
+                                                            <tr>
+                                                                <td>{{ colleague_function.contact.full_name }}</td>
+                                                                <td>{{ colleague_function.contact.primary_email|default:_('Unknown') }}</td>
+                                                                <td>{{ colleague_function.contact.get_phone_number|default:_('Unknown') }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="tab-pane" id="other">
+                                    <div class="row no-margin">
+                                        <h4>{% trans 'Description' %}</h4>
+                                        <p>
+                                            {{ object.description }}
+                                        </p>
+                                    </div>
+                                    <div class="row no-margin">
+                                        <h4>{% trans 'General' %}</h4>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled summary-list">
+                                                <li>
+                                                    <span class="summary-label">{% trans 'Title' %}</span>
+                                                    <span class="pull-right">{{ object.title }}</span>
+                                                </li>
+                                                <li>
+                                                    <span class="summary-label">{% trans 'Salutation' %}</span>
+                                                    <span class="pull-right">{{ object.get_salutation_display }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled summary-list">
+                                                <li>
+                                                    <span class="summary-label">{% trans 'Gender' %}</span>
+                                                    {% if object.gender != 3 %}
+                                                        <span class="pull-right">{{ object.get_gender_display }}</span>
+                                                    {% else %}
+                                                        <span class="pull-right">{% trans 'Unknown' %}</span>
+                                                    {% endif %}
+                                                </li>
+                                                <li>
+                                                    <span class="summary-label">{% trans 'Function' %}</span>
+                                                    <span class="pull-right">{{ object.get_primary_function }}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 profile">
+                <ul class="list-unstyled profile-nav">
+                    <li><a href="#">E-mails <span>{{ object.email_addresses.all|length }}</span></a></li>
+                    <li><a href="#">Tasks <span>NaN</span></a></li>
+                    <li><a href="#">Deals <span>NaN</span></a></li>
+                    <li><a href="#">Cases <span>NaN</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_media 'history_list.js' %}
+{% endblock %}

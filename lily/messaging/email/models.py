@@ -82,7 +82,8 @@ class EmailMessage(Message):
         """
         Return the template that must be used for history list rendering
         """
-        return 'messaging/email/mwsadmin/history_list_item.html'
+        #return 'messaging/email/mwsadmin/history_list_item.html'
+        return 'messaging/email/email_message_list_single_object.html'
 
     def has_attachments(self):
         return self.attachments.count() > 0

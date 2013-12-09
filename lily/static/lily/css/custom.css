@@ -1,6 +1,41 @@
 /* here you can put your own css to customize and override the theme */
 .no-margin {
-    margin: 0;
+    margin: 0 !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.label-btn {
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: default;
+    font-weight: normal;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.label-btn-default {
+    color: #333;
+    text-shadow: none;
+    background-color: #e5e5e5;
+}
+.label-btn-sm, .label-btn-xs {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.label-btn-xs {
+    padding: 1px 5px;
+}
+.label-btn-md {
+    line-height: 1.428571429;
+}
+.label-btn-lg {
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.33;
+    vertical-align: middle;
 }
 
 .summary-list li:first-child {
@@ -25,15 +60,21 @@
     font-weight: 300;
 }
 
-.history-list-item .media-heading {
-    position: relative;
+.summary-list.small-summary-list li {
+    min-height: inherit;
+    padding: 6px 0;
 }
 
-.history-list-item .media-heading .author {
-    color: #777;
-    font-size: 12px;
-    position: absolute;
-    top: 3px;
+.block-list a,
+.block-list li {
+    margin-bottom: 3px;
+    max-width: 100%
+}
+.block-list li .btn,
+.block-list li span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* css to support dropdown-submenu (removed in BS3.0) */

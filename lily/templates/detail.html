@@ -19,17 +19,29 @@
 </div>
 {% endblock %}
 
-{% block page-container %}
-<div class="tabbable tabbable-custom tabbable-full-width">
-    <ul class="nav nav-tabs">
-        {% block details-tabs %}
-        <li class="active"><a href="#overview" data-toggle="tab">{% trans 'Overview' %}</a></li>
-        {% endblock %}
-    </ul>
-    <div class="tab-content">
-        {% block details-content %}{% endblock %}
-    </div>
-</div>
+{% block content %}
+    {% block details-main %}{% endblock %}
+    {% block details-tabs %}
+        <div class="tabbable tabbable-custom tabbable-full-width">
+            <ul class="nav nav-tabs">
+                {% block details-tab-headers %}
+                    <li class="active">
+                        <a href="#tab-history" data-toggle="tab">
+                            {% trans 'History' %}
+                        </a>
+                    </li>
+                {% endblock %}
+            </ul>
+            <div class="tab-content">
+                {% block details-tab-content %}
+                    <div class="tab-pane active" id="tab-history">
+                        {% include 'notes/note_form.html' %}
+                        {% include 'utils/history_list.html' %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
 {% endblock %}
 
 {% block modals %}

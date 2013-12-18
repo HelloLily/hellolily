@@ -14,7 +14,6 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
-from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -26,10 +25,9 @@ from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber
-from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import SortedListMixin, FilteredListMixin,\
-    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
+from lily.utils.views import SortedListMixin, FilteredListMixin, \
+    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, \
     AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin, HistoryListViewMixin
 
 
@@ -37,7 +35,6 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
-    template_name = 'contacts/contact_list.html'
     model = Contact
     prefetch_related = [
         'functions__account',
@@ -47,17 +44,6 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     ]
     sortable = [2, 4, 5, 6]
     default_order_by = 2
-
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListContactView, self).get_context_data(**kwargs)
-
-        kwargs.update({
-            'list_item_template': 'contacts/mwsadmin/model_list_item.html',
-        })
-        return kwargs
 
 
 class DetailContactView(HistoryListViewMixin):
@@ -130,6 +116,8 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         self.object = form.save()  # copied from ModelFormMixin
 
         message = _('%s (Contact) has been saved.') % self.object.full_name()
+        # Show save message
+        messages.success(self.request, message)
 
         if is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -152,43 +140,20 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
-                do_redirect = True
-                url = reverse('contact_edit', kwargs={
+                redirect_url = reverse('contact_edit', kwargs={
                     'pk': self.object.pk,
                 })
-                notification = False
-                html_response = ''
-            else:
-                # Redirect if in the list view or dashboard
-                url_obj = urlparse(self.request.META['HTTP_REFERER'])
-                if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
-                    # Show save message
-                    messages.success(self.request, message)
+            else:  # redirect if in the list view or dashboard
+                redirect_url = None
+                parse_result = urlparse(self.request.META['HTTP_REFERER'])
+                if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
+                    redirect_url = self.get_success_url()
 
-                    do_redirect = True
-                    if url_obj.path.endswith(reverse('contact_list')):
-                        url = '%s?order_by=5&sort_order=desc' % reverse('contact_list')
-                    else:
-                        url = self.request.META['HTTP_REFERER']
-                    notification = False
-                    html_response = ''
-                else:
-                    do_redirect = False
-                    url = ''
-                    html_response = ''
-                    notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-
-            # Return response
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
-
-        # Show save message
-        messages.success(self.request, message)
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return super(AddContactView, self).form_valid(form)
 
@@ -266,7 +231,18 @@ class DeleteContactView(DeleteView):
 
         self.object.delete()
 
-        return redirect(reverse('contact_list'))
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return redirect(redirect_url)
+
+    def get_success_url(self):
+        return reverse('contact_list')
 
 
 class ConfirmContactEmailView(TemplateView):

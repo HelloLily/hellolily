@@ -8,7 +8,6 @@ from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
-from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
@@ -19,7 +18,6 @@ from lily.accounts.models import Account, Website
 from lily.contacts.models import Function
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
-from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin, \
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
@@ -149,6 +147,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         """
         self.object = form.save()  # copied from ModelFormMixin
         message = _('%s (Account) has been saved.') % self.object.name
+        # Show save message
         messages.success(self.request, message)
 
         if is_ajax(self.request):
@@ -185,9 +184,6 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                 'redirect_url': redirect_url
             })
             return HttpResponse(response, mimetype='application/json')
-
-        # Show save message
-        messages.success(self.request, message)
 
         return super(AddAccountView, self).form_valid(form)
 
@@ -277,6 +273,7 @@ class DeleteAccountView(DeleteView):
 
     def get_success_url(self):
         return reverse('account_list')
+
 
 class ExistsAccountView(View):
     """

@@ -415,7 +415,7 @@ class AcceptInvitationView(FormView):
         try:
             # Check if it's a valid pk and try to retrieve the corresponding account
             self.account = Account.objects.get(pk=base36_to_int(self.aidb36))
-        except ValueError, Account.DoesNotExist:
+        except (ValueError, Account.DoesNotExist):
             return self.valid_link
         else:
             if not self.account.name == self.account_name:

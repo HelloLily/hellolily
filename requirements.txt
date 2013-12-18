@@ -39,9 +39,7 @@ redis==2.6.2
 South>=0.7.6
 
 # New theme packages
-# Until dyve accepts our pull request we use our own fork
-#django-bootstrap3
-git+https://github.com/HelloLily/django-bootstrap3/#egg=bootstrap3
+django-bootstrap3
 django-formset-js
 
 

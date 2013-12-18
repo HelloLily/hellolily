@@ -1,4 +1,3 @@
-from crispy_forms.layout import Layout
 from django import forms
 from django.conf import settings
 from django.forms.models import ModelForm
@@ -8,12 +7,9 @@ from lily.accounts.models import Account
 from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
-from lily.utils.layout import Column, Row
 
 
-class CreateUpdateDealForm(ModelForm, FieldInitFormMixin):
+class CreateUpdateDealForm(ModelForm):
     """
     Form for adding or editing a deal.
     """

@@ -1,4 +1,3 @@
-from crispy_forms.layout import HTML, Layout
 from django import forms
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
@@ -7,15 +6,11 @@ from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
-from lily.contacts.widgets import ContactAccountSelect
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Row, Divider, Column, Div
 
 
-class CreateUpdateCaseForm(ModelForm, FieldInitFormMixin):
+class CreateUpdateCaseForm(ModelForm):
     """
     Form for adding or editing a case.
     """

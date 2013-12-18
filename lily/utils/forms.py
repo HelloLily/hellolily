@@ -2,135 +2,17 @@ from crispy_forms.layout import Layout, HTML
 from django import forms
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm
-from django.forms.widgets import CheckboxInput, PasswordInput, DateInput, TextInput, Select, Textarea, HiddenInput
 from django.utils.translation import ugettext as _
 
-from lily.cases.widgets import PrioritySelect
-from lily.contacts.widgets import ContactAccountSelect
 from lily.messaging.email.widgets import EmailAttachmentWidget
 from lily.messaging.email.models import EmailAttachment
 from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column, InlineRow
+from lily.utils.layout import MultiField, Anchor, ColumnedRow, Column
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
-from lily.utils.widgets import JqueryPasswordInput
-
-
-# Mixins
-class FieldInitFormMixin(forms.BaseForm):
-    """
-    FormMixin to set default widget attributes
-    """
-    default_widget_attrs = {
-        CheckboxInput: {
-            'class': {
-                'append': True,
-                'value': 'tabbable',
-            },
-        },
-        ContactAccountSelect: {
-            'class': {
-                'append': True,
-                'value': 'chzn-select tabbable',
-            },
-        },
-        DateInput: {
-            'class': {
-                'append': True,
-                'value': 'mws-textinput tabbable datepicker',
-            },
-            'placeholder': {
-                'value': 'dd/mm/yyyy',
-            },
-        },
-        JqueryPasswordInput: {
-            'class': {
-                'append': True,
-                'value': 'mws-textinput tabbable',
-            },
-        },
-        PasswordInput: {
-            'class': {
-                'append': True,
-                'value': 'mws-textinput tabbable',
-            },
-        },
-        PrioritySelect: {
-            'class': {
-                'append': True,
-                'value': 'priority-select tabbable',
-            },
-        },
-        Select: {
-            'class': {
-                'append': True,
-                'value': 'chzn-select tabbable',
-            },
-        },
-        TextInput: {
-            'class': {
-                'append': True,
-                'value': 'mws-textinput tabbable',
-            },
-        },
-        Textarea: {
-            'class': {
-                'append': True,
-                'value': 'mws-textinput tabbable',
-            },
-            'rows': {
-                'overwrite_defaults': True,
-                'value': '4',
-            },
-            'cols': {
-                'overwrite_defaults': True,
-                'value': '55',
-            },
-        },
-    }
-
-    def __init__(self, *args, **kwargs):
-        super(FieldInitFormMixin, self).__init__(*args, **kwargs)
-        self.update_fields()
-
-    def update_fields(self):
-        for name, field in self.fields.items():
-            w = field.widget
-            if issubclass(w.__class__, HiddenInput):
-                continue  # ignore
-
-            # set placeholder if not already and field has an initial value or label
-            if not 'placeholder' in w.attrs:
-                if isinstance(w, TextInput) and field.initial is not None:
-                    w.attrs['placeholder'] = field.initial
-                elif field.label is not None:
-                    if w.__class__ in [JqueryPasswordInput, PasswordInput, TextInput, Textarea]:
-                        w.attrs['placeholder'] = field.label
-
-            if w.__class__ is Textarea:
-                # Text for click-show plugin
-                if w.attrs.get('click_show_text', False):
-                    w.click_show_text = w.attrs['click_show_text']
-                else:
-                    w.click_show_text = _('Add')
-                w.click_and_show = w.attrs.get('click_and_show', True)
-
-            # append certain default attributes
-            attrs = self.default_widget_attrs.get(w.__class__, [])
-            for attr in attrs:
-                if attrs[attr].get('append', False):
-                    w.attrs[attr] = (w.attrs.get(attr, '') + ' ' + attrs[attr]['value']).strip()
-                elif attrs[attr].get('overwrite_defaults', False):
-                    w.attrs[attr] = attrs[attr]['value']
-                else:
-                    w.attrs[attr] = w.attrs.get(attr, attrs[attr]['value'])
-
-            # add class for required fields
-            if field.required:
-                w.attrs['class'] = (w.attrs.get('class', '') + ' required').strip()
 
 
 # Forms
-class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
+class EmailAddressBaseForm(ModelForm):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
@@ -152,7 +34,7 @@ class EmailAddressBaseForm(ModelForm, FieldInitFormMixin):
         }
 
 
-class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
+class PhoneNumberBaseForm(ModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
@@ -180,7 +62,7 @@ class PhoneNumberBaseForm(ModelForm, FieldInitFormMixin):
         }
 
 
-class AddressBaseForm(ModelForm, FieldInitFormMixin):
+class AddressBaseForm(ModelForm):
     """
     Form for adding an address which includes all fields available.
     """
@@ -216,7 +98,7 @@ class AddressBaseForm(ModelForm, FieldInitFormMixin):
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
         exclude = ('state_provice',)
 
-class AttachmentBaseForm(ModelForm, FieldInitFormMixin):
+class AttachmentBaseForm(ModelForm):
     """
     Form for uploading files.
     """

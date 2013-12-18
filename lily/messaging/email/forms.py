@@ -19,12 +19,11 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.fields import EmailProviderChoiceField
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Column, Divider, Button, Row
 from lily.utils.widgets import EmailProviderSelect
 
 
-class CreateUpdateEmailTemplateForm(ModelForm, FieldInitFormMixin):
+class CreateUpdateEmailTemplateForm(ModelForm):
     """
     Form used for creating and updating email templates.
     """
@@ -176,7 +175,7 @@ class EmailTemplateFileForm(Form):
         return cleaned_data
 
 
-class ComposeEmailForm(ModelForm, FieldInitFormMixin):
+class ComposeEmailForm(ModelForm):
     """
     Form that lets a user compose an e-mail message.
     """
@@ -321,7 +320,7 @@ class ComposeEmailForm(ModelForm, FieldInitFormMixin):
         }
 
 
-class EmailConfigurationStep1Form(Form, FieldInitFormMixin):
+class EmailConfigurationStep1Form(Form):
     """
     Fields in e-mail configuration wizard step 1.
     """
@@ -335,7 +334,7 @@ class EmailConfigurationStep1Form(Form, FieldInitFormMixin):
         super(EmailConfigurationStep1Form, self).__init__(*args, **kwargs)
 
 
-class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
+class EmailConfigurationStep2Form(Form):
     """
     Fields in e-mail configuration wizard step 2.
     """
@@ -431,7 +430,7 @@ class EmailConfigurationStep2Form(Form, FieldInitFormMixin):
         return data
 
 
-class EmailConfigurationStep3Form(Form, FieldInitFormMixin):
+class EmailConfigurationStep3Form(Form):
     """
     Fields in e-mail configuration wizard step 3.
     """

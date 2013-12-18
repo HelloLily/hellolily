@@ -1,16 +1,12 @@
-from crispy_forms.layout import Hidden, Layout
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import Anchor, Column, Row, Button
 
 
-class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
+class AddAccountQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -58,7 +54,7 @@ class AddAccountQuickbuttonForm(ModelForm, FieldInitFormMixin):
         fields = ('website', 'name', 'email', 'phone')
 
 
-class CreateUpdateAccountForm(TagsFormMixin, FieldInitFormMixin):
+class CreateUpdateAccountForm(TagsFormMixin):
     """
     Form for creating or updating an account.
     """
@@ -95,7 +91,7 @@ class CreateUpdateAccountForm(TagsFormMixin, FieldInitFormMixin):
         }
 
 
-class WebsiteBaseForm(ModelForm, FieldInitFormMixin):
+class WebsiteBaseForm(ModelForm):
     """
     Base form for adding multiple websites to an account.
     """

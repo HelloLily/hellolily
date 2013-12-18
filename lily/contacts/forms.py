@@ -1,4 +1,3 @@
-from crispy_forms.layout import Layout, Hidden
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
@@ -6,12 +5,9 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.layout import Row, Column
 
 
-class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
+class AddContactQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -57,7 +53,7 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
 
 
-class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
+class CreateUpdateContactForm(TagsFormMixin, ModelForm):
     """
     Form to add a contact which all fields available.
     """

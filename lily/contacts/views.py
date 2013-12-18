@@ -26,9 +26,10 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import SortedListMixin, FilteredListMixin, \
-    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, \
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin, HistoryListViewMixin
+
+from lily.utils.views import SortedListMixin, FilteredListMixin,\
+    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
@@ -178,7 +179,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
-class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
+class EditContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
     """
     View to edit a contact.
     """

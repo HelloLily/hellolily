@@ -20,12 +20,11 @@ class EmailAddressBaseForm(ModelForm):
         super(EmailAddressBaseForm, self).__init__(*args, **kwargs)
 
         self.fields['email_address'].label = ''
-        self.fields['is_primary'].label = ''
 
     class Meta:
         model = EmailAddress
-        fields = ('email_address', 'is_primary')
-        exclude = ('status')
+        fields = ('email_address', )
+        exclude = ('status', 'is_primary', )
         widgets = {
             'email_address': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',

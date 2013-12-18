@@ -16,13 +16,8 @@
                         {% endfor %}
                         <div class="form-group">
                             {% bootstrap_field form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            <div class="col-md-2"></div>
                             {% if form.instance.pk %}
-                                <div class="col-md-2 email_is_primary">
-                                    <label>
-                                        {% bootstrap_field form.is_primary form_group_class="form-group-inline hidden" %}
-                                        <span class="{% if form.instance.is_primary %}checked {% endif %}tabbable" tabindex="11">primary</span>
-                                    </label>
-                                </div>
                                 <div class="col-md-1 email-configuration-wizard" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
                                     <a href="javascript:void(0)" class="btn btn-sm yellow">
                                         <i class="icon-cog"></i>

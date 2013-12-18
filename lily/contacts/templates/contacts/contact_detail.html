@@ -22,9 +22,13 @@
                 <li>
                     <span class="summary-label">{% trans 'Works at' %}</span>
                     <span class="pull-right">
-                        <a href="{% url account_details pk=object.get_primary_function.account.pk %}">
-                            {{ object.get_primary_function.account|default:_('Unknown') }}
-                        </a>
+                        {% if object.get_primary_function.account %}
+                            <a href="{% url account_details pk=object.get_primary_function.account.pk %}">
+                                {{ object.get_primary_function.account }}
+                            </a>
+                        {% else %}
+                            {% trans 'Unknown' %}
+                        {% endif %}
                     </span>
                 </li>
             </ul>
@@ -87,6 +91,25 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% empty %}
+            <div class="well well-sm">
+                <div class="row no-margin">
+                    <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Name' %}</th>
+                                <th>{% trans 'E-mail address' %}</th>
+                                <th>{% trans 'Phone number' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3">{% trans 'There are no known colleagues for this contact' %}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -188,9 +211,4 @@
             <li><a href="#">Cases <span>NaN</span></a></li>
         </ul>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    {% include_media 'history_list.js' %}
 {% endblock %}

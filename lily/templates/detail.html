@@ -53,3 +53,8 @@
     <div id="object-update" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:first"></div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_media 'history_list.js' %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'list.html' %}
+
+{% load i18n utils %}
+
+{% block head-title %}{% trans 'Email templates' %}{% endblock %}
+{% block page-title %}{% trans 'Email templates' %}{% endblock %}
+{% block list-title %}{% trans 'Email templates' %}{% endblock %}
+
+{% block hor-menu %}
+{{ block.super }}
+<li>
+    <a href="{% url emailtemplate_list %}">{% trans 'View e-mail templates' %}</a>
+</li>
+<li>
+    <a href="{% url emailtemplate_create %}">{% trans 'Add an e-mail template' %}</a>
+</li>
+{% endblock %}
+
+{% block list-headings %}
+    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="name">{% trans 'Name' %}</th>
+    <th class="description">{% trans 'Description' %}</th>
+{% endblock %}
+
+{% block list %}
+{% for item in object_list %}
+<tr>
+    <td class="">
+        <a href="{% url emailtemplate_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+    </td>
+    <td class="name">
+        <div>
+            <a href="{% url emailtemplate_update pk=item.pk %}">{{ item.name }}</a>
+        </div>
+    </td>
+    <td class="description">
+        <div>{{ item.description }}</div>
+    </td>
+</tr>
+{% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+{% endblock %}

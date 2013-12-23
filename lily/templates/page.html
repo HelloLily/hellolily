@@ -10,6 +10,7 @@
 {% block page-header %}
 <div class="hor-menu">
     <ul class="nav navbar-nav">
+        {% block hor-menu %}
         <li>
             <a href="{% url contact_add %}" data-target="#quickbutton-create" data-source="{% url contact_add %}" >{% trans 'Add contact' %}</a>
         </li>
@@ -22,6 +23,7 @@
         <li>
             <a href="{% url deal_create %}" data-target="#quickbutton-create" data-source="{% url deal_create %}" >{% trans 'Add deal' %}</a>
         </li>
+        {% endblock %}
     </ul>
 </div>
 
@@ -45,13 +47,13 @@
                 <ul class="dropdown-menu-list scroller" style="height: 250px;">
                     {% for unread_email in unread_emails.object_list %}
                     <li>
-                        <a href="{% url messaging_email_inbox %}">
+                        <a href="{% url messaging_email_detail pk=unread_email.id %}">
                             <span class="subject clearfix">
                                 <span class="from">{{ unread_email.from }}</span>
                                 <span class="time">{{ unread_email.time|pretty_datetime }}</span>
                             </span>
                             <span class="message">
-                            {{ unread_email.message_excerpt }}
+                                {{ unread_email.message_excerpt }}
                             </span>
                         </a>
                     </li>

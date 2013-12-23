@@ -5,17 +5,16 @@
 {% block inbox %}
 <div class="col-md-10 emailmessage-list">
     <div class="inbox-header">
-        <h1 class="pull-left">{{ folder_name }} {% if active_email_address %}<small>{% trans 'in' %} {{ active_email_address }}</small>{% endif %}</h1>
-        {% comment %}
-        <form class="form-inline pull-right" method="post">
+        <h1 class="pull-left">{{ folder_name }} {% if active_email_address %}<small>{% trans 'in' %} {{ active_email_address }}</small>{% endif %} {% if search_key %}<small>{% blocktrans count counter=page_obj.paginator.count %}with {{ counter }} result for `{{ search_key }}`{% plural %}with {{ counter }} results for `{{ search_key }}`{% endblocktrans %}</small>{% endif %}</h1>
+        <form class="form-inline pull-right search-form" method="post" action="{{ search_action_url }}">
+            {% csrf_token %}
             <div class="input-group input-medium">
-                <input type="text" class="form-control" placeholder="{% trans 'Search..' %}">
+                <input type="text" class="form-control" name="search_key" placeholder="{% trans 'Search..' %}" value="{{ search_key }}">
                 <span class="input-group-btn">
-                    <button type="submit" class="btn green"><i class="icon-search"></i></button>
+                    <button type="submit" class="btn green" data-loading-text="<i class='icon-spin icon-spinner'></i>"><i class="icon-search"></i></button>
                 </span>
             </div>
         </form>
-        {% endcomment %}
     </div>
     <div class="inbox-loading">
         <i class="icon-spinner icon-spin"></i> {% trans 'Loading..' %}
@@ -48,7 +47,12 @@
                                 </li>
                                 {% if move_to_folders.items|length %}
                                 <li class="dropdown-submenu">
-                                    <a href="#">{% trans 'Move to' %}</a>
+                                    <form action="{% url move_messages_view %}" method="post" id="move-messages-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                                    <input type="hidden" name="folder" value="">
+                                    </form>
+                                    <a href="javascript:;"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
                                     <ul class="dropdown-menu">
                                         {% for value, label in move_to_folders.items %}
                                         <li {% if active_move_to_folder == value %}class="active"{% endif %}><a href="#" data-folder="{{ value }}">{{ label }}</a></li>
@@ -57,7 +61,7 @@
                                 <li>
                                 {% else %}
                                 <li class="disabled">
-                                    <a href="#"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
+                                    <a href="javascript:;"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
                                 </li>
                                 {% endif %}
                                 <li class="divider"></li>
@@ -84,7 +88,7 @@
             </thead>
             <tbody>
                 {% for object in object_list %}
-                <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% url messaging_email_detail object.pk %}">
+                <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url messaging_email_compose pk=object.pk %}{% else %}{% url messaging_email_detail object.pk %}{% endif %}">
                     <td class="inbox-small-cells">
                         <input type="checkbox" class="mail-checkbox" value="{{ object.id }}">
                     </td>
@@ -105,10 +109,19 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-$('[data-form-submit]').click(function() {
+$('[data-form-submit], #move-messages-form .dropdown-menu a').click(function() {
     // waiting for response from server so a redirect will 'unblock' the UI
     $('.mail-actions').button('loading');
     App.blockUI($('.inbox-content'), false, '');
+});
+
+$('#move-messages-form').closest('li').find('.dropdown-menu a').click(function() {
+    // waiting for response from server so a redirect will 'unblock' the UI
+    $('.mail-actions').button('loading');
+    App.blockUI($('.inbox-content'), false, '');
+
+    $('#move-messages-form').find('[name=folder]').val($(this).data('folder'));
+    $('#move-messages-form').submit();
 });
 </script>
 {% endblock %}

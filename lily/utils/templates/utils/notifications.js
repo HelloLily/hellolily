@@ -4,7 +4,7 @@
 {% if messages %}
 $(function($){
     {% for message in messages|unique_messages %}
-    toastr['{{ message.tags }}']("{{ message.message|safe }}")
+    toastr['{{ message.tags }}']("{{ message.message|escapejs }}")
     {% endfor %}
 });
 {% endif %}

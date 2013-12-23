@@ -6,16 +6,6 @@
 <div class="col-md-10 emailmessage-detail">
     <div class="inbox-header">
         <h1 class="pull-left">{{ folder_name }} {% if active_email_address %}<small>{% trans 'in' %} {{ active_email_account.email.email_address }}</small>{% endif %}</h1>
-        {% comment %}
-        <form class="form-inline pull-right" method="post">
-            <div class="input-group input-medium">
-                <input type="text" class="form-control" placeholder="{% trans 'Search..' %}">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn green"><i class="icon-search"></i></button>
-                </span>
-            </div>
-        </form>
-        {% endcomment %}
     </div>
     <div class="inbox-content">
         <div class="inbox-header inbox-view-header">
@@ -40,15 +30,15 @@
                         </button>
                         <ul class="dropdown-menu pull-right">
                             <li>
-                                <a href="{% url messaging_email_reply pk=object.id %}"><i class="icon-reply reply-btn"></i> {% trans 'Reply' %}</a>
+                                <a href="{% url messaging_email_reply pk=object.id %}"><i class="icon-reply"></i> {% trans 'Reply' %}</a>
                             </li>
                             {% comment %}
                             <li>
-                                <a href="#"><i class="icon-reply-all reply-btn"></i> {% trans 'Reply All' %}</a>
+                                <a href="#"><i class="icon-reply-all"></i> {% trans 'Reply All' %}</a>
                             </li>
                             {% endcomment %}
                             <li>
-                                <a href="{% url messaging_email_forward pk=object.id %}"><i class="icon-arrow-right reply-btn"></i> {% trans 'Forward' %}</a>
+                                <a href="{% url messaging_email_forward pk=object.id %}"><i class="icon-arrow-right"></i> {% trans 'Forward' %}</a>
                             </li>
                             {% comment %}
                             <li>
@@ -61,7 +51,7 @@
                                 <input type="hidden" name="ids[]" value="{{ object.id }}">
                                 <input type="hidden" name="next" value="{% url messaging_email_account_folder account_id=active_email_account.id folder=object.folder_name|urlencode %}">
                                 </form>
-                                <a href="{% url messaging_mark_unread %}" data-form-submit data-form-selector="#mark-read-form-{{ object.id }}"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
+                                <a href="{% url messaging_mark_unread %}" data-form-submit data-form-selector="#mark-unread-form-{{ object.id }}"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
                             </li>
                             <li class="divider"></li>
                             <li>
@@ -97,7 +87,7 @@
                 <div>
                     <strong>{{ attachment }}</strong>
                     <span>{{ attachment.size|filesizeformat }}</span>
-                    <a href="{% url email_proxy_view pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
+                    <a href="{% url email_attachment_proxy_view pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
                 </div>
             </div>
             {% endfor %}

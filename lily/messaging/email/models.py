@@ -56,7 +56,9 @@ class EmailAccount(MessagesAccount):
     folders = JSONField()
 
     def __unicode__(self):
-        return self.from_name if self.from_name else self.email
+        if self.from_name:
+            return '%s (%s)' % (self.from_name, self.email.email_address)
+        return self.email
 
     class Meta:
         verbose_name = _('e-mail account')
@@ -330,7 +332,7 @@ class EmailAttachment(TenantMixin):
     A single attachment linked to an e-mail message.
     """
     inline = models.BooleanField(default=False)
-    attachment = models.FileField(upload_to=get_attachment_upload_path)
+    attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
     size = models.PositiveIntegerField(default=0)
     message = models.ForeignKey(EmailMessage, related_name='attachments')
 

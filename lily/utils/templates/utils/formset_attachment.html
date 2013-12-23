@@ -1,0 +1,57 @@
+{% load i18n bootstrap3 %}
+
+<div class="attachment_formset_wrapper" id="attachments">
+    <div class="col-md-12 formset" data-formset-prefix="{{ formset.prefix }}">
+        {{ formset.management_form }}
+
+        <div data-formset-body>
+            <!-- New forms will be inserted in here -->
+            {% for form in formset %}
+                <div data-formset-form>
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    <div class="form-group row">
+                        {% bootstrap_field form.attachment layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 form-control-static" show_label=False %}
+
+                        {% if formset.can_delete %}
+                            <div class="col-md-1">
+                                <a href="javascript:;" data-formset-undo-delete class="btn btn-sm green hidden">
+                                    <i class="icon-undo"></i>
+                                </a>
+                                <a href="javascript:;" data-formset-delete-button class="btn btn-sm red">
+                                    <i class="icon-trash"></i>
+                                </a>
+                                {% bootstrap_field form.DELETE form_group_class="hidden" %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            <p class="form-control-static">
+                <a href="javascript:;" data-formset-add>{% trans 'Add an attachment' %}</a>
+            </p>
+        </div>
+        <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+        <script type="form-template" data-formset-empty-form>
+            <div data-formset-form>
+                <div class="form-group row">
+                    {% bootstrap_field formset.empty_form.attachment layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 form-control-static" show_label=False %}
+
+
+                    <div class="col-md-1">
+                        <a href="javascript:;" data-formset-undo-delete class="btn btn-sm green hidden">
+                            <i class="icon-undo"></i>
+                        </a>
+                        <a href="javascript:;" data-formset-delete-button class="btn btn-sm red">
+                            <i class="icon-trash"></i>
+                        </a>
+                        {% bootstrap_field formset.empty_form.DELETE form_group_class="hidden" %}
+                    </div>
+                </div>
+            </div>
+        </script>
+    </div>
+</div>

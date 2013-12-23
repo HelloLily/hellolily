@@ -486,13 +486,6 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
-
-    :param server:          The server with the connection to an account.
-    :param folder:          The folder to sync.
-    :param criteria:        The criteria used for searching and specified syncing.
-    :param modifiers_old:   The modifiers
-    :param modifiers_new:
-    :param new_only:
     """
     task_logger.debug('sync start for %s' % unicode(folder.get_name()))
 
@@ -557,21 +550,28 @@ def synchronize_email_for_account(account_id):
 
     TODO: load balance the workload for multiple workers. Per account or per page per account.
     """
+    task_logger.warning('transaction start')
     try:
         account = EmailAccount.objects.get(id=account_id)
-    except Exception, e:
+    except EmailAccount.DoesNotExist, e:
+        task_logger.warning('transaction end 1')
+        transaction.rollback()
         print traceback.format_exc(e)
     else:
-        now_utc_date = datetime.datetime.now(tzutc())
+        try:
+            now_utc_date = datetime.datetime.now(tzutc())
 
-        # Check for account inactivity, by checking last login for all users of the account's tenant
-        last_login_date = CustomUser.objects.filter(tenant=account.tenant).order_by('-last_login').values_list('last_login')[0][0]
-        last_login_delta = now_utc_date - last_login_date
-        if last_login_delta.total_seconds() > 14 * 86400:  # 14 days
-            # Complete current open transaction
-            transaction.commit()
-            task_logger.debug('skipping sync because of 14 days of inactivity')
-            return
+            # Check for account inactivity, by checking last login for all users of the account's tenant
+            last_login_date = CustomUser.objects.filter(tenant=account.tenant).order_by('-last_login').values_list('last_login')[0][0]
+            last_login_delta = now_utc_date - last_login_date
+            if last_login_delta.total_seconds() > 14 * 86400:  # 14 days
+                # Complete current open transaction
+                transaction.rollback()
+                task_logger.debug('skipping sync because of 14 days of inactivity')
+                return
+        except Exception, e:
+            transaction.rollback()
+            print traceback.format_exc(e)
 
         # Retrieve all messages every 15 minutes
         last_sync_date = account.last_sync_date
@@ -614,6 +614,9 @@ def synchronize_email_for_account(account_id):
             finally:
                 if server:
                     server.logout()
+        else:
+            transaction.commit()
+    task_logger.warning('transaction end')
 
 
 @celery.task.periodic_task(run_every=datetime.timedelta(seconds=60), expires=120)
@@ -769,7 +772,7 @@ def delete_messages(message_ids):
 
 
 @celery.task
-def move_messages(message_ids, target_folder_name, request=None):
+def move_messages(message_ids, target_folder_name):
     """
     Move n messages in the background.
     """
@@ -831,9 +834,6 @@ def move_messages(message_ids, target_folder_name, request=None):
 
                         # Delete from origin folder locally
                         EmailMessage.objects.filter(id__in=message_ids).delete()
-
-                    if request is not None:
-                        messages.success(request, _('Messages have been moved in %s') % account.email.email_address)
 
                     # Synchronize with target_folder
                     synchronize_folder(account, server, target_folder, new_only=True)

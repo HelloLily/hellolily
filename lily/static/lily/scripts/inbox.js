@@ -1,4 +1,4 @@
-// var Inbox = function () {
+var Inbox = function () {
 
 //     var content = $('.inbox-content');
 //     var loading = $('.inbox-loading');
@@ -71,11 +71,18 @@
     //     });
     // }
 
-    // var initWysihtml5 = function () {
-    //     $('.inbox-wysihtml5').wysihtml5({
-    //         "stylesheets": ["assets/plugins/bootstrap-wysihtml5/wysiwyg-color.css"]
-    //     });
-    // }
+    var initWysihtml5 = function () {
+        $('.inbox-wysihtml5').wysihtml5({
+            "stylesheets": [media_url('wysiwyg-color.css')],
+            "font-styles": true, //Font styling, e.g. h1, h2, etc.
+            "color": false, //Button to change color of font
+            "emphasis": true, //Italics, bold, etc.
+            "lists": true, //(Un)ordered lists, e.g. Bullets, Numbers.
+            "html": true, //Button which allows you to edit the generated HTML.
+            "link": true, //Button to insert a link.
+            "image": false, //Button to insert an image.
+        });
+    };
 
     // var initFileupload = function () {
 
@@ -209,28 +216,28 @@
     //     });
     // }
 
-    // var handleCCInput = function () {
-    //     var the = $('.inbox-compose .mail-to .inbox-cc');
-    //     var input = $('.inbox-compose .input-cc');
-    //     the.hide();
-    //     input.show();
-    //     $('.close', input).click(function () {
-    //         input.hide();
-    //         the.show();
-    //     });
-    // }
+    var handleCCInput = function () {
+        var the = $('.inbox-compose .mail-to .inbox-cc');
+        var input = $('.inbox-compose .input-cc');
+        the.hide();
+        input.show();
+        $('.close', input).click(function () {
+            input.hide();
+            the.show();
+        });
+    };
 
-    // var handleBCCInput = function () {
+    var handleBCCInput = function () {
 
-    //     var the = $('.inbox-compose .mail-to .inbox-bcc');
-    //     var input = $('.inbox-compose .input-bcc');
-    //     the.hide();
-    //     input.show();
-    //     $('.close', input).click(function () {
-    //         input.hide();
-    //         the.show();
-    //     });
-    // }
+        var the = $('.inbox-compose .mail-to .inbox-bcc');
+        var input = $('.inbox-compose .input-bcc');
+        the.hide();
+        input.show();
+        $('.close', input).click(function () {
+            input.hide();
+            the.show();
+        });
+    };
 
     // var toggleButton = function(el) {
     //     if (typeof el == 'undefined') {
@@ -243,9 +250,9 @@
     //     }
     // }
 
-    // return {
-    //     //main function to initiate the module
-    //     init: function () {
+    return {
+        //main function to initiate the module
+        init: function () {
 
     //         // handle compose btn click
     //         $('.inbox .compose-btn a').live('click', function () {
@@ -282,15 +289,15 @@
     //             loadInbox($(this), 'trash');
     //         });
 
-    //         //handle compose/reply cc input toggle
-    //         $('.inbox-compose .mail-to .inbox-cc').live('click', function () {
-    //             handleCCInput();
-    //         });
+            //handle compose/reply cc input toggle
+            $('.inbox-compose .mail-to .inbox-cc').live('click', function () {
+                handleCCInput();
+            });
 
-    //         //handle compose/reply bcc input toggle
-    //         $('.inbox-compose .mail-to .inbox-bcc').live('click', function () {
-    //             handleBCCInput();
-    //         });
+            //handle compose/reply bcc input toggle
+            $('.inbox-compose .mail-to .inbox-bcc').live('click', function () {
+                handleBCCInput();
+            });
 
     //         //handle loading content based on URL parameter
     //         if (App.getURLParameter("a") === "view") {
@@ -301,11 +308,15 @@
     //            $('.inbox-nav > li.inbox > a').click();
     //         }
 
-    //     }
+            initWysihtml5();
+            App.fixContentHeight();
+            App.initUniform();
 
-    // };
+        }
 
-// }();
+    };
+
+}();
 
 $(function($) {
     // open single message
@@ -406,7 +417,7 @@ $(function($) {
         for(var i = 0; i < selected.length; i++) {
             selected_ids.push($(selected[i]).val());
         }
-        $('.bulk-ids').val(JSON.stringify(selected_ids));
+        $('.bulk-ids').val(selected_ids.join(','));
     }
     // on load
     toggle_actions_button();
@@ -425,5 +436,10 @@ $(function($) {
         $('.inbox-view').hide();
         $('.inbox-loading').show();
         redirect_to($(this).data('href'));
+    });
+
+    $('.search-form [type="submit"]').click(function() {
+        App.blockUI($('.inbox-content'), false, '');
+        $(this).button('loading');
     });
 });

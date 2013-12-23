@@ -9,7 +9,7 @@
 {% block item-columns %}
     <td class="name">
         <div>
-            <a href="{% url messaging_email_template_edit pk=item.pk %}">
+            <a href="{% url emailtemplate_update pk=item.pk %}">
                 {{ item.name }}
             </a>
         </div>

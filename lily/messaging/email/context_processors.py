@@ -15,7 +15,7 @@ def unread_emails(request):
 
     LIMIT_LIST = 10
     LIMIT_EXCERPT = 5
-    unread_emails = []
+    unread_emails_list = []
 
     # Look up the last few unread e-mail messages for these accounts
     email_accounts = request.user.get_messages_accounts(EmailAccount)
@@ -30,7 +30,8 @@ def unread_emails(request):
 
     # show excerpt for LIMIT_EXCERPT messages
     for email_message in email_messages[:LIMIT_EXCERPT]:
-        unread_emails.append({
+        unread_emails_list.append({
+            'id': email_message.pk,
             'from': email_message.from_name,
             'time': email_message.sent_date,
             'message_excerpt': truncatechars(email_message.textify().lstrip('&nbsp;\n\r\n '), 100),
@@ -39,7 +40,8 @@ def unread_emails(request):
     if len(email_messages) > LIMIT_EXCERPT:
         # for more messages up to LIMIT_LIST don't show excerpt
         for email_message in email_messages[LIMIT_EXCERPT:]:
-            unread_emails.append({
+            unread_emails_list.append({
+                'id': email_message.pk,
                 'from': email_message.from_name,
                 'time': email_message.sent_date,
             })
@@ -47,7 +49,7 @@ def unread_emails(request):
     return {
         'unread_emails': {
             'count': unread_count,
-            'count_more': unread_count - len(unread_emails),
-            'object_list': unread_emails,
+            'count_more': unread_count - len(unread_emails_list),
+            'object_list': unread_emails_list,
         }
     }

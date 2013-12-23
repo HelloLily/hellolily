@@ -13,7 +13,7 @@ from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 from python_imap.server import IMAP
 
-from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
+from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailMessage
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
@@ -21,303 +21,6 @@ from lily.utils.fields import EmailProviderChoiceField
 from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
 from lily.utils.layout import Column, Divider, Button, Row
 from lily.utils.widgets import EmailProviderSelect
-
-
-class CreateUpdateEmailTemplateForm(ModelForm):
-    """
-    Form used for creating and updating email templates.
-    """
-    variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
-    values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
-
-    def __init__(self, *args, **kwargs):
-        """
-        Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
-        """
-        self.draft_id = kwargs.pop('draft_id', None)
-        self.message_type = kwargs.pop('message_type', 'reply')
-        super(CreateUpdateEmailTemplateForm, self).__init__(*args, **kwargs)
-
-        # Customize form layout
-        self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.layout = Layout()
-
-        self.helper.add_columns(Column('name', size=4, first=True))
-        self.helper.add_columns(Column('description', size=8, first=True))
-        self.helper.add_columns(Column('subject', size=4, first=True))
-
-        self.helper.add_columns(
-            Column('variables', size=2, first=True),
-            Column('values', size=2),
-            HTML('<span id="id_text_value"></span>'),
-            Button(name='variable_submit', value=_('Insert'), css_id='id_insert_button'),
-            label=_('Insert variable'),
-        )
-
-        self.helper.add_columns(Column('body_text', size=8, first=True))
-
-        self.helper.insert_after(Divider(), 'subject', )
-
-        body_file_upload = self.helper.create_columns(
-            Column(HTML('Type your template below or upload your template file <a href="#" id="body_file_upload" class="body_file_upload" title="upload">here</a>'), size=8, first=True),
-            label=''
-        )
-        self.helper.insert_before(body_file_upload, 'variables')
-
-        email_parameter_choices = get_email_parameter_choices()
-
-        self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
-
-        if self.draft_id:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'object_id': self.draft_id})
-        else:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': 'new'})
-
-        self.helper.layout.append(
-            Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
-        )
-
-        for value in email_parameter_choices:
-            for val in email_parameter_choices[value]:
-                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
-
-    def clean(self):
-        """
-        Make sure the form is valid.
-        """
-        cleaned_data = super(CreateUpdateEmailTemplateForm, self).clean()
-        html_part = cleaned_data.get('body_html')
-        text_part = cleaned_data.get('body_text')
-
-        if not html_part and not text_part:
-            self._errors['body_html'] = _('Please fill in the html part or the text part, at least one of these is required.')
-        elif html_part:
-            parsed_template = TemplateParser(html_part)
-            if parsed_template.is_valid():
-                cleaned_data.update({
-                    'body_html': parsed_template.get_text(),
-                })
-            else:
-                self._errors['body_html'] = parsed_template.error.message
-                del cleaned_data['body_html']
-        elif text_part:
-            parsed_template = TemplateParser(text_part)
-            if parsed_template.is_valid():
-                cleaned_data.update({
-                    'body_text': parsed_template.get_text(),
-                })
-            else:
-                self._errors['body_text'] = parsed_template.error.message
-                del cleaned_data['body_text']
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        instance = super(CreateUpdateEmailTemplateForm, self).save(False)
-        instance.body_html = linebreaksbr(instance.body_html.strip())
-
-        if commit:
-            instance.save()
-        return instance
-
-
-    class Meta:
-        model = EmailTemplate
-        fields = ('name', 'description', 'subject', 'variables', 'values', 'body_html', 'body_text', )
-        widgets = {
-            'values': forms.Select(attrs={
-                'disabled': 'disabled',
-            }),
-            'body_html': forms.Textarea(attrs={
-                'placeholder': _('Write your html message body here'),
-                'click_and_show': False,
-            }),
-            'body_text': forms.Textarea(attrs={
-                'placeholder': _('Write your plain text message body here'),
-            }),
-            'body_html': forms.HiddenInput(),
-        }
-
-
-class EmailTemplateFileForm(Form):
-    """
-    Form that is used to parse uploaded template files.
-    """
-    body_file = forms.FileField(label=_('Message body'))
-
-    def clean(self):
-        """
-        Form validation: message body_file should be a valid html file.
-        """
-        valid_formats = ['text/html', 'text/plain']
-
-        cleaned_data = super(EmailTemplateFileForm, self).clean()
-        body_file = cleaned_data.get('body_file', False)
-
-        file_error = '%s %s.' % (_('Upload a valid template file. Format can be any of these:'), ', '.join(valid_formats))
-        syntax_error = _('There was an error parsing your template file:')
-
-        if body_file:
-            body_file_type = body_file.content_type
-            if body_file_type in valid_formats:
-                parsed_file = TemplateParser(body_file.read().decode('utf-8'))
-                if parsed_file.is_valid():
-                    default_part = 'html_part' if body_file_type == 'text/html' else 'text_part'
-                    cleaned_data.update(parsed_file.get_parts(default_part=default_part))
-                else:
-                    self._errors['body_file'] = syntax_error + ' "' + parsed_file.error.message + '"'
-            else:
-                self._errors['body_file'] = file_error
-            del cleaned_data['body_file']
-        else:
-            self._errors['body_file'] = file_error
-
-        return cleaned_data
-
-
-class ComposeEmailForm(ModelForm):
-    """
-    Form that lets a user compose an e-mail message.
-    """
-    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
-
-    def __init__(self, *args, **kwargs):
-        """
-        Overload super().__init__ to change the appearance of the form.
-        """
-        self.draft_id = kwargs.pop('draft_id', None)
-        self.message_type = kwargs.pop('message_type', 'reply')
-        super(ComposeEmailForm, self).__init__(*args, **kwargs)
-
-        # Customize form layout
-        self.helper = LilyFormHelper(form=self)
-        self.helper.form_tag = False
-
-        # self.helper.all().wrap(Row)
-        self.helper.wrap_by_names(Row, 'send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_text')
-        self.helper.replace('send_from',
-            self.helper.create_columns(
-                Column('send_from', size=4, first=True),
-            ),
-        )
-        self.helper.replace('subject',
-            self.helper.create_columns(
-                Column('subject', size=6, first=True),
-            ),
-        )
-        self.helper.replace('send_to_normal',
-            self.helper.create_columns(
-                Column('send_to_normal', size=6, first=True),
-            ),
-        )
-        self.helper.replace('send_to_cc',
-            self.helper.create_columns(
-                Column('send_to_cc', size=6, first=True),
-            ),
-        )
-        self.helper.replace('send_to_bcc',
-            self.helper.create_columns(
-                Column('send_to_bcc', size=6, first=True),
-            ),
-        )
-
-        self.helper.replace('template',
-            self.helper.create_columns(
-               Column('template', size=6, first=True),
-            )
-        )
-
-        if self.draft_id:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type, 'object_id': self.draft_id})
-        else:
-            email_template_url = reverse('messaging_email_body_preview', kwargs={'message_type': self.message_type})
-
-        self.helper.layout.append(
-            Row(HTML('<iframe id="email-body" src="%s"></iframe>' % email_template_url))
-        )
-
-        self.helper.add_input(Submit('submit-back', _('Back')))
-        self.helper.add_input(Submit('submit-discard', _('Discard')))
-        self.helper.add_input(Submit('submit-save', _('Save')))
-        self.helper.add_input(Submit('submit-send', _('Send')))
-
-        user = get_current_user()
-        email_accounts = user.get_messages_accounts(EmailAccount)
-
-        # Filter choices by ctype for EmailAccount
-        self.fields['send_from'].empty_label = None
-        self.fields['send_from'].choices = [(email_account.pk, '"%s" <%s>' % (email_account.from_name, email_account.email.email_address)) for email_account in email_accounts]
-
-        # Set user's primary_email as default choice if no initial was provided
-        initial_email_account = None
-        for email_account in email_accounts:
-            if self.initial.get('send_from', None) not in [None, '']:
-                if email_account.email == self.initial.get('send_from'):
-                    initial_email_account = email_account
-            elif email_account.email == user.primary_email.email_address:
-                initial_email_account = email_account
-        self.initial['send_from'] = initial_email_account
-
-    def is_multipart(self):
-        """
-        AttachmentFormset might upload files.
-        """
-        return True
-
-    def clean(self):
-        """
-        Make sure at least one of the send_to fields is filled in when sending it.
-        """
-        cleaned_data = super(ComposeEmailForm, self).clean()
-
-        if 'submit-send' in self.data:
-            if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
-                raise forms.ValidationError(_('Please provide at least one recipient.'))
-
-        # Clean send_to addresses
-        cleaned_data['send_to_normal'] = cleaned_data.get('send_to_normal').rstrip(', ')
-        cleaned_data['send_to_cc'] = cleaned_data.get('send_to_cc').rstrip(', ')
-        cleaned_data['send_to_bcc'] = cleaned_data.get('send_to_bcc').rstrip(', ')
-
-        return cleaned_data
-
-    def clean_send_from(self):
-        """
-        Verify send_from is a valid account the user can send from.
-        """
-        cleaned_data = self.cleaned_data
-        send_from = cleaned_data.get('send_from')
-
-        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
-        if send_from.pk not in [account.pk for account in email_accounts]:
-            self._errors['send_from'] = _(u'Invalid email account selected to use as sender.')
-
-        return send_from
-
-    class Meta:
-        model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'body_html', 'template', 'body_html', 'body_text', )
-        widgets = {
-            'send_to_normal': forms.Textarea(attrs={
-                'placeholder': _('Add recipient'),
-                'click_and_show': False,
-                'field_classes': 'sent-to-recipients',
-            }),
-            'send_to_cc': forms.Textarea(attrs={
-                'placeholder': _('Add Cc'),
-                'click_show_text': _('Add Cc'),
-                'field_classes': 'sent-to-recipients',
-            }),
-            'send_to_bcc': forms.Textarea(attrs={
-                'placeholder': _('Add Bcc'),
-                'click_show_text': _('Add Bcc'),
-                'field_classes': 'sent-to-recipients',
-            }),
-            'body_html': forms.HiddenInput(),
-            'body_text': forms.Textarea(attrs={
-                'placeholder': _('Write your plain text message body here'),
-            })
-        }
 
 
 class EmailConfigurationStep1Form(Form):
@@ -504,3 +207,199 @@ class EmailShareForm(ModelForm):
             'shared_with': RadioSelect(),
             'user_group': SelectMultiple(attrs={'class': 'chzn-select'})
         }
+
+
+class ComposeEmailForm(ModelForm):
+    """
+    Form for writing an EmailMessage as a draft, reply or forwarded message.
+    """
+    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.draft_id = kwargs.pop('draft_id', None)
+        self.message_type = kwargs.pop('message_type', 'reply')
+        super(ComposeEmailForm, self).__init__(*args, **kwargs)
+
+        user = get_current_user()
+        email_accounts = user.get_messages_accounts(EmailAccount)
+
+        self.fields['send_from'].empty_label = None
+
+        # Set user's primary_email as default choice if there is no initial value
+        initial_email_account = self.initial.get('send_from', None)
+        if not initial_email_account:
+            for email_account in email_accounts:
+                if email_account.email.email_address == user.primary_email.email_address:
+                    initial_email_account = email_account
+        self.initial['send_from'] = initial_email_account
+
+    def is_multipart(self):
+        """
+        Return True since file uploads are possible.
+        """
+        return True
+
+    def clean(self):
+        cleaned_data = super(ComposeEmailForm, self).clean()
+
+        # Make sure at least one of the send_to_X fields is filled in when sending it.
+        if 'submit-send' in self.data:
+            if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
+                self._errors["send_to_normal"] = self.error_class([_('Please provide at least one recipient.')])
+
+        # Clean send_to addresses
+        cleaned_data['send_to_normal'] = cleaned_data.get('send_to_normal').rstrip(', ')
+        cleaned_data['send_to_cc'] = cleaned_data.get('send_to_cc').rstrip(', ')
+        cleaned_data['send_to_bcc'] = cleaned_data.get('send_to_bcc').rstrip(', ')
+
+        return cleaned_data
+
+    def clean_send_from(self):
+        """
+        Verify send_from is a valid account the user has access to.
+        """
+        cleaned_data = self.cleaned_data
+        send_from = cleaned_data.get('send_from')
+
+        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
+        if send_from.pk not in [account.pk for account in email_accounts]:
+            self._errors['send_from'] = _(u'Invalid email account selected to use as sender.')
+
+        return send_from
+
+    class Meta:
+        model = EmailDraft
+        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',)
+        widgets = {
+            'send_to_normal': forms.Textarea(attrs={
+                'rows': 1,
+            }),
+            'send_to_cc': forms.Textarea(attrs={
+                'rows': 1,
+            }),
+            'send_to_bcc': forms.Textarea(attrs={
+                'rows': 1,
+            }),
+            'body_html': forms.Textarea(attrs={
+                'rows': 12,
+                'class': 'inbox-editor inbox-wysihtml5 form-control',
+            }),
+        }
+
+
+class CreateUpdateEmailTemplateForm(ModelForm):
+    """
+    Form used for creating and updating email templates.
+    """
+    variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
+    values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
+
+    def __init__(self, *args, **kwargs):
+        """
+        Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
+        """
+        self.draft_id = kwargs.pop('draft_id', None)
+        self.message_type = kwargs.pop('message_type', 'reply')
+        super(CreateUpdateEmailTemplateForm, self).__init__(*args, **kwargs)
+
+        email_parameter_choices = get_email_parameter_choices()
+        self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
+
+        for value in email_parameter_choices:
+            for val in email_parameter_choices[value]:
+                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+
+    def clean(self):
+        """
+        Make sure the form is valid.
+        """
+        cleaned_data = super(CreateUpdateEmailTemplateForm, self).clean()
+        html_part = cleaned_data.get('body_html')
+        text_part = cleaned_data.get('body_text')
+
+        if not html_part and not text_part:
+            self._errors['body_html'] = _('Please fill in the html part or the text part, at least one of these is required.')
+        elif html_part:
+            parsed_template = TemplateParser(html_part)
+            if parsed_template.is_valid():
+                cleaned_data.update({
+                    'body_html': parsed_template.get_text(),
+                })
+            else:
+                self._errors['body_html'] = parsed_template.error.message
+                del cleaned_data['body_html']
+        elif text_part:
+            parsed_template = TemplateParser(text_part)
+            if parsed_template.is_valid():
+                cleaned_data.update({
+                    'body_text': parsed_template.get_text(),
+                })
+            else:
+                self._errors['body_text'] = parsed_template.error.message
+                del cleaned_data['body_text']
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super(CreateUpdateEmailTemplateForm, self).save(False)
+        instance.body_html = linebreaksbr(instance.body_html.strip())
+
+        if commit:
+            instance.save()
+        return instance
+
+    class Meta:
+        model = EmailTemplate
+        fields = ('name', 'description', 'subject', 'variables', 'values', 'body_html',)
+        widgets = {
+            'values': forms.Select(attrs={
+                'disabled': 'disabled',
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 2,
+            }),
+            'body_html': forms.Textarea(attrs={
+                'rows': 12,
+                'class': 'inbox-editor inbox-wysihtml5 form-control',
+            }),
+        }
+
+
+class EmailTemplateFileForm(Form):
+    """
+    Form that is used to parse uploaded template files.
+    """
+    accepted_content_types = ['text/html', 'text/plain']
+    body_file = forms.FileField(label=_('Email Template file'))
+    default_error_messages = {
+        'invalid': _(u'Upload a valid template file. Valid files are: %s.'),
+        'syntax': _(u'There was an error in your file:<br> %s'),
+    }
+
+    def clean(self):
+        """
+        Form validation: message body_file should be a valid html file.
+        """
+        cleaned_data = super(EmailTemplateFileForm, self).clean()
+        body_file = cleaned_data.get('body_file', False)
+
+        if body_file:
+            if body_file.content_type in self.accepted_content_types:
+                parsed_file = TemplateParser(body_file.read().decode('utf-8'))
+                if parsed_file.is_valid():
+                    # Add body_html to cleaned_data
+                    cleaned_data.update(parsed_file.get_parts(default_part='body_html'))
+                    print cleaned_data
+                else:
+                    # Syntax error in the template tags/variables
+                    self._errors['body_file'] = self.default_error_messages.get('syntax') % parsed_file.error.message
+            else:
+                # When it doesn't seem like an text/html or text/plain file
+                self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
+
+            del cleaned_data['body_file']
+        else:
+            # When there is no file at all
+            self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
+
+        return cleaned_data

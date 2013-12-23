@@ -30,6 +30,7 @@ from templated_email import send_templated_mail
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
+from lily.messaging.email.utils import get_attachment_filename_from_url
 from lily.notes.views import NoteDetailViewMixin
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
@@ -771,31 +772,45 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         related_name = 'attachments'
         form = AttachmentBaseForm
         prefix = 'attachments'
-        label = _('Attachments')
-        template = 'utils/mwsadmin/formset_attachment.html'
+        label = _('Files')
+        template = 'utils/formset_attachment.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def get_attachments_queryset(self, instance):
-        return EmailAttachment.objects.filter(message_id=self.message_id)
+        return EmailAttachment.objects.filter(message=self.object)
 
     def form_valid(self, form):
         context_name = 'attachments_formset'
         formset = self.get_formset(context_name)
-
         form_kwargs = self.get_form_kwargs()
-        for formset_form in formset:
-            # Check if existing instance has been marked for deletion
-            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
-                self.object.attachments.remove(formset_form.instance)
-                if hasattr(formset, 'instance'):
-                    if formset.instance.pk:
-                        formset.instance.delete()
-                continue
 
-                formset_form.save()
-                self.object.attachments.add(formset_form.instance)
+        for formset_form in formset.forms:
+            # Remove any unwanted (already existing) attachments
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                if formset_form.instance.pk:
+                    formset_form.instance.delete()
+                else:
+                    # Don't see a way to this properly: new attachments
+                    # don't exist as formset_form.instances -> no primary key
+                    # to compare to decide removal of an attachment, but
+                    # this is something at the very least, so:
+                    #                     #
+                    # Clear attachments by filename
+                    # Files in self.request.FILES have already been added to
+                    # self.object.attachments. Check whether or not to 'cancel' attaching
+                    # a file to self.object
+                    for field_name, file_in_memory in self.request.FILES.items():
+                        if field_name.startswith(formset_form.prefix):
+                            for attachment in self.object.attachments.all():
+                                if get_attachment_filename_from_url(attachment.attachment.name) == file_in_memory.name:
+                                    attachment.delete()
+
+            elif formset_form.instance.attachment:
+                # Establish a link to a new message instance
+                formset_form.instance.message = self.object
+                formset_form.instance.save()
 
         return super(AttachmentFormSetViewMixin, self).form_valid(form)
 

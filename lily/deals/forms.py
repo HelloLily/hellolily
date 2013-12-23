@@ -13,16 +13,29 @@ class CreateUpdateDealForm(ModelForm):
     """
     Form for adding or editing a deal.
     """
-    account = forms.ModelChoiceField(label=_('Account'), queryset=Account.objects.none(), 
-        empty_label=_('Select an account'), widget=forms.Select())
-    
-    assigned_to = forms.ModelChoiceField(label=_('Assigned to'), queryset=CustomUser.objects.none(),
-        empty_label=None, widget=forms.Select())
-    
-    expected_closing_date = forms.DateField(label=_('Expected closing date'), input_formats=settings.DATE_INPUT_FORMATS, 
-        widget=forms.DateInput(format=settings.DATE_INPUT_FORMATS[0], 
-            attrs={'class': 'expected_closing_date'}))
-    
+    account = forms.ModelChoiceField(
+        label=_('Account'),
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=forms.Select()
+    )
+
+    assigned_to = forms.ModelChoiceField(
+        label=_('Assigned to'),
+        queryset=CustomUser.objects.none(),
+        empty_label=None,
+        widget=forms.Select()
+    )
+
+    expected_closing_date = forms.DateField(
+        label=_('Expected closing date'),
+        input_formats=settings.DATE_INPUT_FORMATS,
+        widget=forms.DateInput(
+            format=settings.DATE_INPUT_FORMATS[0],
+            attrs={'class': 'expected_closing_date'}
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Overloading super().__init__() to make accounts available as assignees and add a form
@@ -40,12 +53,12 @@ class CreateUpdateDealForm(ModelForm):
         #
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
-        
+
     class Meta:
         model = Deal
         fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
         exclude = ('is_deleted', 'closed_date', 'tenant')
-        
+
         widgets = {
             'description': forms.Textarea(attrs={
                 'click_show_text': _('Add description'),
@@ -65,20 +78,20 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
     """
     def __init__(self, *args, **kwargs):
         """
-        Overload super().__init__ to change auto_id to prevent clashing form field id's with 
+        Overload super().__init__ to change auto_id to prevent clashing form field id's with
         other forms.
         """
         kwargs.update({
             'auto_id': 'id_deal_quickbutton_%s',
         })
-        
+
         super(CreateDealQuickbuttonForm, self).__init__(*args, **kwargs)
-    
+
     class Meta:
         model = Deal
         fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
         exclude = ('is_deleted', 'closed_date', 'tenant')
-        
+
         widgets = {
             'description': forms.Textarea(attrs={
                 'click_and_show': False,

@@ -118,6 +118,12 @@ $(function($) {
         $($(this).data('form-selector')).submit();
         event.preventDefault();
     });
+
+    // $('body').on('click', '.btn[data-loading-text]', function(event) {
+    //     if(!$(this).next().hasClass('dropdown-menu')) {
+    //         $(this).button('loading');
+    //     }
+    // });
 });
 
 // go to redirect_url, reload if redirect_url is current and/or if it contains an anchor reference

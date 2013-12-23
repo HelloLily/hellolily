@@ -20,11 +20,11 @@
                             {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
                         {% endfor %}
                     {% endblock %}
-    
+
                     {% if formsets %}
                         <hr>
-                        {% for name, formset_dict in formsets.items %}
-                            {% include formset_dict.template with formset=formset_dict.instance label=formset_dict.label %}
+                        {% for context_name, formset in formsets.items %}
+                            {% include formset.template with formset=formset.instance label=formset.label %}
                         {% endfor %}
                     {% endif %}
                 </div>

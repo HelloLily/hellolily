@@ -328,41 +328,6 @@ $(function($) {
 
     var frame = $('.inbox-view iframe')[0];
     function email_frame_autogrow() {
-        var ifDoc, ifRef = frame;
-
-        // set ifDoc to 'document' from frame
-        try {
-            ifDoc = ifRef.contentWindow.document.documentElement;
-        } catch(e1) {
-            try {
-                ifDoc = ifRef.contentDocument.documentElement;
-            } catch(e2) {}
-        }
-
-        // calculate and set max height for frame
-        if(ifDoc) {
-            var subtract_heights = [
-                $(frame).offset().top,
-                $('.footer').outerHeight(),
-            ];
-
-            var max_height = $('body').outerHeight();
-            for(var height in subtract_heights) {
-                max_height = max_height - height;
-            }
-
-            if(ifDoc.scrollHeight > max_height) {
-                ifRef.height = max_height;
-            } else {
-                ifRef.height = ifDoc.scrollHeight;
-            }
-        }
-
-        // max_height == 834px
-        // no scroll at 867px (+ 33px)
-        // padding-top: 15px (+ 18px)
-        //
-
         setTimeout(function() {
             $('.inbox-loading').hide();
             $('.inbox-view').show();
@@ -372,6 +337,37 @@ $(function($) {
             $('.mail-checkbox:not(.mail-group-checkbox)').change(function(){
                  $(this).parents('tr').toggleClass('active');
             });
+
+            // do this after .inbox-view is visible
+            var ifDoc, ifRef = frame;
+
+            // set ifDoc to 'document' from frame
+            try {
+                ifDoc = ifRef.contentWindow.document.documentElement;
+            } catch(e1) {
+                try {
+                    ifDoc = ifRef.contentDocument.documentElement;
+                } catch(e2) {}
+            }
+
+            // calculate and set max height for frame
+            if(ifDoc) {
+                var subtract_heights = [
+                    $(frame).offset().top,
+                    $('.footer').outerHeight(),
+                ];
+
+                var max_height = $('body').outerHeight();
+                for(var height in subtract_heights) {
+                    max_height = max_height - height;
+                }
+
+                if(ifDoc.scrollHeight > max_height) {
+                    ifRef.height = max_height;
+                } else {
+                    ifRef.height = ifDoc.scrollHeight;
+                }
+            }
         }, 300);
     }
 

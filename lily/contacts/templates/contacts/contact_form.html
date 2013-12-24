@@ -1,22 +1,35 @@
 {% extends 'form.html' %}
 
-{% load i18n bootstrap3 field_extras media %}
+{% load i18n %}
 
-{% block hidden-dialogs %}
-    {% if item.pk %}
-        {% include 'accounts/mwsadmin/delete_dialog.html' with item=item %}
-    {% endif %}
+{% block head-title %}
+{% if object.pk %}
+    {% trans 'Edit contact' %}
+{% else %}
+    {% trans 'Add contact' %}
+{% endif %}
+{% endblock %}
 
-    <div id="dialog-email-configuration-wizard" class="dialog configuration" title="{% trans 'E-mail configuration wizard' %}"></div>
-    <div id="dialog-email-share-wizard" class="dialog share" title="{% trans 'E-mail share options' %}"></div>
+{% block page-title %}
+{% if object.pk %}
+    {% trans 'Edit contact' %}
+{% else %}
+    {% trans 'Add contact' %}
+{% endif %}
 {% endblock %}
 
 {% block form-title %}
-    {% with item=form.instance %}
-        {% if item.pk %}
-            {% trans 'Edit contact' %}
-        {% else %}
-            {% trans 'Add contact' %}
-        {% endif %}
-    {% endwith %}
+{% if object.pk %}
+    {% trans 'Edit contact' %}
+{% else %}
+    {% trans 'Add contact' %}
+{% endif %}
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div class="hidden">
+    <div id="emailaccount-configure" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+    <div id="emailaccount-share" class="modal fade" tabindex="-1" role="dialog"></div>
+</div>
 {% endblock %}

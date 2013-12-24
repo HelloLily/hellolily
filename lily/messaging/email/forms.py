@@ -3,27 +3,24 @@ import traceback
 from smtplib import SMTPAuthenticationError
 from urlparse import urlparse
 
-from crispy_forms.layout import HTML, Layout, Submit
 from django import forms
+from django.db.models import Q
 from django.core.mail import get_connection
-from django.core.urlresolvers import reverse
 from django.forms import Form, ModelForm
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 from python_imap.server import IMAP
 
-from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailMessage
+from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.fields import EmailProviderChoiceField
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.layout import Column, Divider, Button, Row
 from lily.utils.widgets import EmailProviderSelect
 
 
-class EmailConfigurationStep1Form(Form):
+class EmailConfigurationWizard_1(Form):
     """
     Fields in e-mail configuration wizard step 1.
     """
@@ -33,17 +30,12 @@ class EmailConfigurationStep1Form(Form):
     username = forms.CharField(max_length=255, label=_('Username'))
     password = forms.CharField(max_length=255, label=_('Password'), widget=forms.PasswordInput())
 
-    def __init__(self, *args, **kwargs):
-        super(EmailConfigurationStep1Form, self).__init__(*args, **kwargs)
 
-
-class EmailConfigurationStep2Form(Form):
+class EmailConfigurationWizard_2(Form):
     """
     Fields in e-mail configuration wizard step 2.
     """
-    presets = EmailProviderChoiceField(queryset=EmailProvider.objects.none(), widget=EmailProviderSelect(attrs={
-        'class': 'chzn-select-no-search'
-    }), required=False)
+    presets = EmailProviderChoiceField(queryset=EmailProvider.objects.none(), widget=EmailProviderSelect(), required=False)
     imap_host = forms.URLField(max_length=255, label=_('Incoming server (IMAP)'))
     imap_port = forms.IntegerField(label=_('Incoming port'))
     imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
@@ -54,9 +46,10 @@ class EmailConfigurationStep2Form(Form):
     def __init__(self, *args, **kwargs):
         self.username = kwargs.pop('username', '')
         self.password = kwargs.pop('password', '')
-        super(EmailConfigurationStep2Form, self).__init__(*args, **kwargs)
+        super(EmailConfigurationWizard_2, self).__init__(*args, **kwargs)
 
-        self.fields['presets'].queryset = EmailProvider.objects.all()
+        # EmailProviders without names are the ones actually used for EmailAccounts
+        self.fields['presets'].queryset = EmailProvider.objects.filter(~Q(name=None))
 
     def clean(self):
         data = self.cleaned_data
@@ -133,16 +126,14 @@ class EmailConfigurationStep2Form(Form):
         return data
 
 
-class EmailConfigurationStep3Form(Form):
+class EmailConfigurationWizard_3(Form):
     """
     Fields in e-mail configuration wizard step 3.
     """
     name = forms.CharField(max_length=255, label=_('Your name'), widget=forms.TextInput(attrs={
         'placeholder': _('First Last')
     }))
-    signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(attrs={
-        'click_and_show': False,
-    }), required=False)
+    # signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(), required=False)
 
 
 class EmailShareForm(ModelForm):
@@ -167,10 +158,6 @@ class EmailShareForm(ModelForm):
 
         # Only a required field when selecting 'Specific users'
         self.fields['user_group'].required = False
-
-        # Customize form layout
-        self.helper = LilyFormHelper(form=self)
-        self.helper.all().wrap(Row)
 
     def clean(self):
         """

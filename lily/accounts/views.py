@@ -189,8 +189,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
 
     def form_invalid(self, form):
         """
-        Overloading super().form_invalid to return a different response to ajax requests. For normal
-        request.
+        Overloading super().form_invalid to return a different response to ajax requests.
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))

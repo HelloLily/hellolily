@@ -179,7 +179,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'django_extensions',
     'djangoformsetjs',
-    # 'template_debug',  # in-template tags for debugging purposes
+    'template_debug',  # in-template tags for debugging purposes
 
     # Lily
     'lily',  # required for management command

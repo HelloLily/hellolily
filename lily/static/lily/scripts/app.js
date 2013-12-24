@@ -63,6 +63,18 @@ $(function($) {
             event.preventDefault();
         });
 
+        var updateModal = function(current, update) {
+            if($(current).find('.modal-header').length && $(update).find('.modal-header').length) {
+                $(current).find('.modal-header').html($(update).find('.modal-header').html());
+            }
+            if($(current).find('.modal-body').length && $(update).find('.modal-body').length) {
+                $(current).find('.modal-body').html($(update).find('.modal-body').html());
+            }
+            if($(current).find('.modal-footer').length && $(update).find('.modal-footer').length) {
+                $(current).find('.modal-footer').html($(update).find('.modal-footer').html());
+            }
+        };
+
         // ajax submit
         $('body').on('submit', 'form[data-async]', function(event) {
             var form = $(this);
@@ -76,14 +88,18 @@ $(function($) {
                 success: function(response) {
                     if(response.error) {
                         if(response.html) {
-                            $(form).find('.modal-body').html($(response.html).find('.modal-body').html());
+                            updateModal($(form), response.html);
                         }
                         // loads notifications if any
                         load_notifications();
                     } else if(response.redirect_url) {
                         redirect_to(response.redirect_url);
                     } else {
-                        $(form).closest('.modal').modal('hide');
+                        if(response.html) {
+                            updateModal($(form), response.html);
+                        } else {
+                            $(form).closest('.modal').modal('hide');
+                        }
                         // loads notifications if any
                         load_notifications();
                     }

@@ -68,12 +68,9 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm):
         self.fields['account'].queryset = Account.objects.all()
 
         # Try providing initial account info
-        try:
-            is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
-            if len(is_working_at) == 1:
-                self.fields['account'].initial = is_working_at[0]
-        except:
-            pass
+        is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
+        if len(is_working_at) == 1:
+            self.fields['account'].initial = is_working_at[0]
 
     def clean(self):
         """
@@ -91,15 +88,8 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm):
         model = Contact
         fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description')
         exclude = ('tags',)
-
         widgets = {
-            'salutation': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'gender': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
             'description': forms.Textarea(attrs={
-                'click_show_text': _('Add description')
+                'rows': 3,
             }),
         }

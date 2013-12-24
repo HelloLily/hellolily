@@ -70,7 +70,7 @@ class CreateUpdateAccountForm(TagsFormMixin):
         # Provide initial data for primary website
         try:
             self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
-        except Exception:
+        except:
             pass
 
     class Meta:
@@ -80,7 +80,7 @@ class CreateUpdateAccountForm(TagsFormMixin):
 
         widgets = {
             'description': forms.Textarea({
-                'click_show_text': _('Add description')
+                'rows': 3,
             }),
             'legalentity': forms.HiddenInput(),
             'taxnumber': forms.HiddenInput(),

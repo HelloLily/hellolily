@@ -1,13 +1,27 @@
 {% extends 'form.html' %}
 
-{% load i18n field_extras %}
+{% load i18n %}
+
+{% block head-title %}
+{% if object.pk %}
+    {% trans 'Edit account' %}
+{% else %}
+    {% trans 'Add account' %}
+{% endif %}
+{% endblock %}
+
+{% block page-title %}
+{% if object.pk %}
+    {% trans 'Edit account' %}
+{% else %}
+    {% trans 'Add account' %}
+{% endif %}
+{% endblock %}
 
 {% block form-title %}
-    {% with item=form.instance %}
-        {% if item.pk %}
-            {% trans 'Edit account' %}
-        {% else %}
-            {% trans 'Add account' %}
-        {% endif %}
-    {% endwith %}
+{% if object.pk %}
+    {% trans 'Edit account' %}
+{% else %}
+    {% trans 'Add account' %}
+{% endif %}
 {% endblock %}

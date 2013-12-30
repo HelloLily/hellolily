@@ -3,28 +3,21 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 
 from lily.tags.models import Tag
-from lily.utils.fields import MultipleInputAndChoiceField
-from lily.utils.widgets import InputAndSelectMultiple
+from lily.utils.fields import TagsField
 
 
 class TagsFormMixin(forms.ModelForm):
     """
     Mixin that adds tags to a ModelForm.
     """
-    tags = MultipleInputAndChoiceField(choices=[], required=False,
-        widget=InputAndSelectMultiple(attrs={
-            'class': 'input-and-choice-select',
-    }))
+    tags = TagsField()
 
     def __init__(self, *args, **kwargs):
-        """
-        Set the initial values for tags.
-        """
         super(TagsFormMixin, self).__init__(*args, **kwargs)
 
         # Provide autocomplete suggestions and already linked tags
-        self.fields['tags'].initial = self.instance.tags.all().values_list('name', flat=True)
-        self.fields['tags'].choices = [(tag, tag) for tag in Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct()]
+        self.fields['tags'].initial = ",".join(str(tag) for tag in self.instance.tags.all().values_list('name', flat=True))
+        self.fields['tags'].choices = list(Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct())
 
     def save(self, commit=True):
         """
@@ -37,6 +30,7 @@ class TagsFormMixin(forms.ModelForm):
 
         # Save tags
         tags = self.cleaned_data.get('tags')
+
         for tag in tags:
             # Create relationship with Tag if it's a new tag
             tag_object, created = Tag.objects.get_or_create(

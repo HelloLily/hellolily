@@ -225,7 +225,7 @@ MEDIA_BUNDLES = (
     ),
     ('timeline.css',
         'css/pages/timeline.css',
-    ),    
+    ),
     ('ie9-javascript.js',
         'plugins/respond.min.js',
         'plugins/excanvas.min.js',
@@ -281,12 +281,18 @@ MEDIA_BUNDLES = (
     ('deals.js',
         'deals/js/deals.js',
     ),
+    ('forms.css',
+        'plugins/select2/select2_metro.css',
+    ),
     ('forms.js',
         'js/jquery.formset.js',
 
         'lily/scripts/plugins/custom/clickfocus/jquery.clickfocus.js',
         'lily/scripts/plugins/custom/tabthis/jquery.tabthis.js',
         'lily/scripts/forms/formset_init.js',
+
+        'plugins/select2/select2.js',
+        'lily/scripts/forms/select2.js',
 
         {'filter': 'mediagenerator.filters.i18n.I18N'},
     ),

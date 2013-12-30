@@ -1,33 +1,29 @@
-from django.core.exceptions import ValidationError
-from django.forms import ModelChoiceField, MultipleChoiceField
+from django.forms import ModelChoiceField, CharField
 
-from lily.utils.functions import uniquify
-from lily.utils.widgets import EmailProviderSelect
+from lily.utils.widgets import EmailProviderSelect, TagInput
 
 
-class MultipleInputAndChoiceField(MultipleChoiceField):
+class TagsField(CharField):
     """
-    A subclass of MultipleChoiceField to allow new values being added to the otherwise
-    fixed set of values.
+    The field used for selecting tags
     """
-    empty_label = None
+    widget = TagInput
 
-    def clean(self, value):
-        """
-        Overloading super().clean to allow submitting choices that don't exist in the given queryset.
-        """
-        if self.required and not value:
-            raise ValidationError(self.error_messages['required'])
-        elif not self.required and not value:
-            return []
-        if not isinstance(value, (list, tuple)):
-            raise ValidationError(self.error_messages['list'])
+    def __init__(self, choices=(), *args, **kwargs):
+        super(TagsField, self).__init__(*args, **kwargs)
+        self.choices = choices
 
-        # Remove duplicate value, ignore case
-        filter = lambda x: x.lower()
-        uniquify(value, filter=filter)
+    def _get_choices(self):
+        return self._choices
 
-        return value
+    def _set_choices(self, value):
+        self._choices = self.widget.choices = list(value)
+
+    choices = property(_get_choices, _set_choices)
+
+    def to_python(self, value):
+        value = super(TagsField, self).to_python(value)
+        return value.split(',')
 
 
 class EmailProviderChoiceField(ModelChoiceField):

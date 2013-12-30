@@ -493,7 +493,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
     """
     This view shows the dashboard of the logged in user.
     """
-    template_name = 'users/mwsadmin/dashboard.html'
+    template_name = 'users/dashboard.html'
     models = [Account, Contact, BlogEntry]
     page_size = 10
 

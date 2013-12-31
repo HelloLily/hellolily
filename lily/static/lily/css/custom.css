@@ -202,3 +202,10 @@
         margin: 0 0 30px 0;
     }
 }
+
+.microblog-item hr {
+    margin: 10px 0 10px 0 !important;
+}
+.microblog-item .replies {
+    margin-left: 30px;
+}

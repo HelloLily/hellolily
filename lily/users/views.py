@@ -489,13 +489,13 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(MultipleModelListView, AddBlogEntryView):
+class DashboardView(MultipleModelListView, TemplateView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
     models = [Account, Contact, BlogEntry]
-    page_size = 10
+    page_size = 100000000  # TODO: temporarily remove pagination
 
     def post(self, request, *args, **kwargs):
         """
@@ -559,6 +559,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
             'blogentry_form': CreateBlogEntryForm,
             'has_tag_filter': 'tag' in self.kwargs,
             'tag': self.kwargs.get('tag', None),
+            'form': CreateBlogEntryForm(self.request.POST or None)
         })
 
         return context

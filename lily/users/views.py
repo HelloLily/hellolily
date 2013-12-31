@@ -44,7 +44,7 @@ class RegistrationView(FormView):
     """
     This view shows and handles the registration form, when valid register a new user.
     """
-    template_name = 'users/registration.html'
+    template_name = 'users/mwsadmin/registration.html'
     form_class = RegistrationForm
 
     def form_valid(self, form):
@@ -132,7 +132,7 @@ class ActivationView(TemplateView):
     This view checks whether the activation link is valid and acts accordingly.
     """
     # Template is only shown when something went wrong
-    template_name = 'users/activation_failed.html'
+    template_name = 'users/mwsadmin/activation_failed.html'
     tgen = PasswordResetTokenGenerator()
 
     def get(self, request, *args, **kwargs):
@@ -174,7 +174,7 @@ class ActivationResendView(FormView):
     """
     This view is used by an user to request a new activation e-mail.
     """
-    template_name = 'users/activation_resend_form.html'
+    template_name = 'users/mwsadmin/activation_resend_form.html'
     form_class = ResendActivationForm
 
     def form_valid(self, form):
@@ -230,7 +230,7 @@ class LoginView(View):
     """
     This view extends the default login view with a 'remember me' feature.
     """
-    template_name = 'users/login_form.html'
+    template_name = 'users/mwsadmin/login_form.html'
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -252,8 +252,8 @@ class SendInvitationView(FormSetView):
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
     form, to use ajax append ?xhr to the url.
     """
-    template_name = 'users/invitation/invite.html'
-    form_template_name = 'users/invitation/invite_form.html'
+    template_name = 'users/mwsadmin/invitation/invite.html'
+    form_template_name = 'users/mwsadmin/invitation/invite_form.html'
     form_class = InvitationForm
     formset_class = InvitationFormset
     extra = 1
@@ -338,8 +338,8 @@ class AcceptInvitationView(FormView):
     This is the view that handles the invatation link and registers the new user if everything
     goes according to plan, otherwise redirect the user to a failure template.
     """
-    template_name = 'users/invitation/accept.html'
-    template_failure = 'users/invitation/accept_invalid.html'
+    template_name = 'users/mwsadmin/invitation/accept.html'
+    template_failure = 'users/mwsadmin/invitation/accept_invalid.html'
     form_class = UserRegistrationForm
     valid_link = False
 
@@ -415,7 +415,7 @@ class AcceptInvitationView(FormView):
         try:
             # Check if it's a valid pk and try to retrieve the corresponding account
             self.account = Account.objects.get(pk=base36_to_int(self.aidb36))
-        except ValueError, Account.DoesNotExist:
+        except (ValueError, Account.DoesNotExist):
             return self.valid_link
         else:
             if not self.account.name == self.account_name:
@@ -489,13 +489,13 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(MultipleModelListView, AddBlogEntryView):
+class DashboardView(MultipleModelListView, TemplateView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
     models = [Account, Contact, BlogEntry]
-    page_size = 10
+    page_size = 100000000  # TODO: temporarily remove pagination
 
     def post(self, request, *args, **kwargs):
         """
@@ -559,6 +559,7 @@ class DashboardView(MultipleModelListView, AddBlogEntryView):
             'blogentry_form': CreateBlogEntryForm,
             'has_tag_filter': 'tag' in self.kwargs,
             'tag': self.kwargs.get('tag', None),
+            'form': CreateBlogEntryForm(self.request.POST or None)
         })
 
         return context
@@ -573,8 +574,8 @@ class CustomSetPasswordView(FormView):
     """
     form_class = CustomSetPasswordForm
     token_generator = default_token_generator
-    template_name_invalid = 'users/password_reset/confirm_invalid.html'
-    template_name_valid = 'users/password_reset/confirm_valid.html'
+    template_name_invalid = 'users/mwsadmin/password_reset/confirm_invalid.html'
+    template_name_valid = 'users/mwsadmin/password_reset/confirm_valid.html'
     success_url = reverse_lazy('password_reset_complete')
 
     def dispatch(self, request, *args, **kwargs):

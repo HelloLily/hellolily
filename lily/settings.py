@@ -116,7 +116,6 @@ MIDDLEWARE_CLASSES = (
 
     # Lily
     'lily.tenant.middleware.TenantMiddleware',
-    'lily.messaging.email.middleware.EmailMiddleware',
     # 'lily.utils.middleware.PrettifyMiddleware',  # Nice for debugging html source, but places whitespace in textareas
 )
 
@@ -134,6 +133,7 @@ TEMPLATE_DIRS = (
 # overwriting defaults, to leave out media and static context processors
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'django.core.context_processors.request',
+    'lily.messaging.email.context_processors.unread_emails',
     'lily.utils.context_processors.quickbutton_forms',
     'lily.utils.context_processors.current_site',
 )
@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 
     # 3rd party
+    'bootstrap3',
     'templated_email',
     'easy_thumbnails',
     'gunicorn',
@@ -177,7 +178,8 @@ INSTALLED_APPS = (
     'storages',
     'crispy_forms',
     'django_extensions',
-    # 'template_debug',  # in-template tags for debugging purposes
+    'djangoformsetjs',
+    #'template_debug',  # in-template tags for debugging purposes
 
     # Lily
     'lily',  # required for management command
@@ -404,7 +406,5 @@ AWS_HEADERS = {
     'Expires': expires,
 }
 
-
-
 # cripsy-forms
-CRISPY_TEMPLATE_PACK = 'mws-admin'
+CRISPY_TEMPLATE_PACK = 'mwsadmin/mws-admin'

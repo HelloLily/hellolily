@@ -1,0 +1,214 @@
+{% extends 'detail.html' %}
+
+{% load i18n utils media %}
+
+{% block head-title %}{% trans 'Contact' %} - {{ object.full_name }}{% endblock %}
+{% block page-title %}{% trans 'Contact' %} - {{ object.full_name }}{% endblock %}
+{% block detail-title %}{{ object.subject }}{% endblock %}
+
+{% block page-actions %}
+    <li><a href="{% url contact_edit pk=object.pk %}">{% trans 'Edit' %}</a></li>
+    <li><a href="{% url contact_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+{% endblock %}
+
+{% block details-main %}
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'Name' %}</span>
+                    <span class="pull-right">{{ object.full_name }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Works at' %}</span>
+                    <span class="pull-right">
+                        {% if object.get_primary_function.account %}
+                            <a href="{% url account_details pk=object.get_primary_function.account.pk %}">
+                                {{ object.get_primary_function.account }}
+                            </a>
+                        {% else %}
+                            {% trans 'Unknown' %}
+                        {% endif %}
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'E-mail address' %}</span>
+                    <span class="pull-right">{{ object.primary_email|default:_('Unknown') }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Phone number' %}</span>
+                    <span class="pull-right">{{ object.get_phone_number|default:_('Unknown') }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block details-tab-headers %}
+    {{ block.super }}
+    <li>
+        <a href="#tab-colleagues" data-toggle="tab">
+            {% trans 'Colleagues' %}
+        </a>
+    </li>
+    <li>
+        <a href="#tab-other" data-toggle="tab">
+            {% trans 'Other' %}
+        </a>
+    </li>
+{% endblock %}
+
+{% block details-tab-content %}
+    {{ block.super }}
+    <div class="tab-pane" id="tab-colleagues">
+        {% for function in object.functions.all %}
+            <h4>{{ function.account }}</h4>
+            <div class="well well-sm">
+                <div class="row no-margin">
+                    <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Name' %}</th>
+                                <th>{% trans 'E-mail address' %}</th>
+                                <th>{% trans 'Phone number' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for colleague_function in function.account.functions.all %}
+                                {% if colleague_function.contact != object %}
+                                    <tr>
+                                        <td>{{ colleague_function.contact.full_name }}</td>
+                                        <td>{{ colleague_function.contact.primary_email|default:_('Unknown') }}</td>
+                                        <td>{{ colleague_function.contact.get_phone_number|default:_('Unknown') }}</td>
+                                    </tr>
+                                {% elif forloop.counter == 1 and forloop.revcounter0 == 0 %}
+                                    <tr>
+                                        <td colspan="3">{% trans 'This is the only known contact for this company' %}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% empty %}
+            <div class="well well-sm">
+                <div class="row no-margin">
+                    <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Name' %}</th>
+                                <th>{% trans 'E-mail address' %}</th>
+                                <th>{% trans 'Phone number' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3">{% trans 'There are no known colleagues for this contact' %}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="tab-pane" id="tab-other">
+        <div class="row no-margin">
+            <h4>{% trans 'General information' %}</h4>
+        </div>
+        <div class="row no-margin">
+            <p>
+                {{ object.description|default:_('No description') }}
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-xs-6">
+                <ul class="list-unstyled summary-list small-summary-list">
+                    <li>
+                        <span class="summary-label">{% trans 'Title' %}</span>
+                        <span class="pull-right">{{ object.title|default:_('Unkown') }}</span>
+                    </li>
+                    <li>
+                        <span class="summary-label">{% trans 'Salutation' %}</span>
+                        <span class="pull-right">{{ object.get_salutation_display }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <ul class="list-unstyled summary-list small-summary-list">
+                    <li>
+                        <span class="summary-label">{% trans 'Gender' %}</span>
+                        {% if object.gender != 2 %}
+                            <span class="pull-right">{{ object.get_gender_display }}</span>
+                        {% else %}
+                            <span class="pull-right">{% trans 'Unknown' %}</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <span class="summary-label">{% trans 'Function' %}</span>
+                        <span class="pull-right">{{ object.get_primary_function|default:_('Unkown') }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-xs-6">
+                <h4>{% trans 'Tags' %}</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    {% for tag in object.tags.all %}
+                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ tag }}</span></li>
+                    {% empty %}
+                        <li class="no-padding"><a href="{% url contact_edit pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h4>{% trans 'E-mail addresses' %}</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    {% for email_address in object.email_addresses.all %}
+                        <li class="no-padding"><a href="#" class="btn btn-sm default">{{ email_address }}</a></li>
+                    {% empty %}
+                        <li class="no-padding"><a href="{% url contact_edit pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-xs-6">
+               <h4>{% trans 'Phone numbers' %}</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    {% for phone_number in object.phone_numbers.all %}
+                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>
+                    {% empty %}
+                        <li class="no-padding"><a href="{% url contact_edit pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h4>{% trans 'Addresses' %}</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    {% for address in object.addresses.all %}
+                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ address }}</span></li>
+                    {% empty %}
+                        <li class="no-padding"><a href="{% url contact_edit pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+    <div class="profile">
+        <ul class="list-unstyled profile-nav">
+            <li><a href="#">E-mails <span>{{ object.email_addresses.all|length }}</span></a></li>
+            <li><a href="#">Tasks <span>NaN</span></a></li>
+            <li><a href="#">Deals <span>NaN</span></a></li>
+            <li><a href="#">Cases <span>NaN</span></a></li>
+        </ul>
+    </div>
+{% endblock %}

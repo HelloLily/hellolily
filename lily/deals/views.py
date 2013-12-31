@@ -5,64 +5,55 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
-from django.shortcuts import redirect
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
-from django.utils.html import escapejs
 from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from pytz import timezone
 
-from lily.deals.forms import CreateUpdateDealForm, AddDealQuickbuttonForm
+from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
-from lily.notes.views import NoteDetailViewMixin
 from lily.utils.functions import is_ajax
-from lily.utils.templatetags.messages import tag_mapping
-from lily.utils.views import SortedListMixin, AjaxUpdateView,\
-    DeleteBackAddSaveFormViewMixin
+from lily.utils.views import SortedListMixin, AjaxUpdateView, \
+    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin
 
 
 class ListDealView(SortedListMixin, ListView):
     """
-    Display a list of all deals
+    Display a list of all deals.
     """
-    template_name = 'deals/model_list.html'
     model = Deal
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
 
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListDealView, self).get_context_data(**kwargs)
 
-        kwargs.update({
-            'list_item_template': 'deals/model_list_item.html',
-        })
-
-        return kwargs
-
-
-class DetailDealView(NoteDetailViewMixin):
+class DetailDealView(HistoryListViewMixin):
     """
     Display a detail page for a single deal.
     """
-    template_name = 'deals/details.html'
     model = Deal
-    success_url_reverse_name = 'deal_details'
 
 
 class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
     """
-    Base class for AddDealView and EditDealView.
+    Base class for CreateDealView and UpdateDealView.
     """
-    template_name = 'deals/create_or_update.html'
     form_class = CreateUpdateDealForm
+    model = Deal
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(CreateUpdateDealView, self).get_context_data(**kwargs)
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
+
+        return kwargs
 
     def form_valid(self, form):
         """
@@ -72,9 +63,9 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         response = super(CreateUpdateDealView, self).form_valid(form)
 
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
-        if self.object.stage in [1,3]:
+        if self.object.stage in [1, 3]:
             self.object.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
-        elif self.object.stage in [0,2]:
+        elif self.object.stage in [0, 2]:
             self.object.closed_date = None
         self.object.save()
 
@@ -86,89 +77,62 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         """
         return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
 
-class AddDealView(CreateUpdateDealView, CreateView):
-    """
-    View to add a deal.
-    """
+
+class CreateDealView(CreateUpdateDealView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
-        Overloading super().dispatch to change the template to be rendered.
+        For AJAX calls, use a different form and template.
         """
         if is_ajax(request):
-            self.template_name = 'deals/quickbutton_form.html'
-            self.form_class = AddDealQuickbuttonForm
+            self.template_name_suffix = '_form_ajax'
+            self.form_class = CreateDealQuickbuttonForm
 
-        return super(AddDealView, self).dispatch(request, *args, **kwargs)
+        return super(CreateDealView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to return json for an ajax request.
-        """
-        # Save instance
-        response = super(AddDealView, self).form_valid(form)
-
-        message = _('%s (Deal) has been saved.') % self.object.name
-
-        if is_ajax(self.request):
-            # Redirect if in the list view
-            url_obj = urlparse(self.request.META['HTTP_REFERER'])
-            if url_obj.path.endswith(reverse('deal_list')):
-                # Show save message
-                messages.success(self.request, message)
-
-                do_redirect = True
-                url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
-                notification = False
-                html_response = ''
-            else:
-                do_redirect = False
-                url = ''
-                html_response = ''
-                notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-
-            # Return response
-            return HttpResponse(simplejson.dumps({
-                'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
+        # Saves the instance
+        response = super(CreateDealView, self).form_valid(form)
 
         # Show save message
+        message = _('%s (Deal) has been created.') % self.object.name
         messages.success(self.request, message)
+
+        if is_ajax(self.request):
+            # Reload when user is in the deal list
+            redirect_url = None
+            parse_result = urlparse(self.request.META['HTTP_REFERER'])
+            if parse_result.path == reverse('deal_list'):
+                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
+
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return response
 
     def form_invalid(self, form):
-        """
-        Overloading super().form_invalid to return json for an ajax request.
-        """
+        response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+                'html': response.rendered_content
+            })
+            return HttpResponse(response, mimetype='application/json')
 
-        return super(AddDealView, self).form_invalid(form)
+        return response
 
 
-class EditDealView(CreateUpdateDealView, UpdateView):
-    """
-    View to edit a deal.
-    """
+class UpdateDealView(CreateUpdateDealView, UpdateView):
     model = Deal
 
     def form_valid(self, form):
-        """
-        Overloading super().form_valid to show success message on edit.
-        """
-        # Save instance
-        response = super(EditDealView, self).form_valid(form)
+        # Saves the instance
+        response = super(UpdateDealView, self).form_valid(form)
 
         # Show save message
-        messages.success(self.request, _('%s (Deal) has been edited.') % self.object.name)
+        messages.success(self.request, _('%s (Deal) has been updated.') % self.object.name)
 
         return response
 
@@ -178,25 +142,29 @@ class DeleteDealView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Deal
-    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
-        """
-        Overloading super().delete to add a message of successful removal of this instance.
-        """
-        # Delete instance
-        response = super(DeleteDealView, self).delete(request)
+        self.object = self.get_object()
+        self.object.delete()
 
         # Show delete message
         messages.success(self.request, _('%s (Deal) has been deleted.') % self.object.name)
 
-        return response
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return HttpResponseRedirect(redirect_url)
 
     def get_success_url(self):
         return reverse('deal_list')
 
 
-class EditStageAjaxView(AjaxUpdateView):
+class UpdateStageAjaxView(AjaxUpdateView):
     """
     View that updates the stage-field of a Deal.
     """
@@ -220,10 +188,14 @@ class EditStageAjaxView(AjaxUpdateView):
 
                 instance.save()
             else:
+                messages.error(self.request, _('Stage could not be changed'))
                 raise Http404()
         except:
+            messages.error(self.request, _('Stage could not be changed'))
             raise Http404()
         else:
+            message = _('Stage has been changed to') + ' ' + Deal.STAGE_CHOICES[instance.stage][1]
+            messages.success(self.request, message)
             # Return response
             if instance.closed_date is None:
                 return HttpResponse(simplejson.dumps({}), mimetype='application/json')
@@ -233,9 +205,9 @@ class EditStageAjaxView(AjaxUpdateView):
 
 
 # Perform logic here instead of in urls.py
-add_deal_view = login_required(AddDealView.as_view())
+create_deal_view = login_required(CreateDealView.as_view())
 detail_deal_view = login_required(DetailDealView.as_view())
 delete_deal_view = login_required(DeleteDealView.as_view())
-edit_deal_view = login_required(EditDealView.as_view())
+update_deal_view = login_required(UpdateDealView.as_view())
 list_deal_view = login_required(ListDealView.as_view())
-edit_stage_view = login_required(EditStageAjaxView.as_view())
+update_stage_view = login_required(UpdateStageAjaxView.as_view())

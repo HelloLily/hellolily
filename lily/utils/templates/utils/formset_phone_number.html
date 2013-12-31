@@ -1,30 +1,60 @@
-{% extends 'base_formset.html' %}
+{% load i18n bootstrap3 %}
 
-{% load i18n crispy_forms_tags %}
+<div class="phone_number_formset_wrapper" id="phone_numbers">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{{ label }}</label>
+        <div class="col-md-10 formset" data-formset-prefix="{{ formset.prefix }}">
+            {{ formset.management_form }}
 
-{% block template %}
-    <div class="mws-form-item large">
-        <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-2-8 alpha">
-                <input name="{{ formset.prefix }}-0-raw_input" placeholder="{% trans 'Phone number' %}" class="mws-textinput tabbable" type="text" id="id_{{ formset.prefix }}-0-raw_input" />
-            </div>    
-            <div class="mws-form-col-2-8">
-                <select id="id_{{ formset.prefix }}-0-type" class="other chzn-select-no-search tabbable" name="{{ formset.prefix }}-0-type">
-                    {% block phone_number_types %}
-                        <option value="work" selected="selected">{% trans 'Work' %}</option>
-                        <option value="mobile">{% trans 'Mobile' %}</option>
-                        <option value="other">{% trans 'Other' %}</option>
-                    {% endblock %}
-                </select>
+            <div data-formset-body>
+                <!-- New forms will be inserted in here -->
+                {% for form in formset %}
+                    <div data-formset-form>
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="form-group">
+                            {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+
+                            {% if formset.can_delete %}
+                                <div class="col-md-1">
+                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                        <i class="icon-undo"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                        <i class="icon-trash"></i>
+                                    </a>
+                                    {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            {% block other_phone_number_type %}
-                <div class="mws-form-col-2-8">
-                    <input id="id_{{ formset.prefix }}-0-other_type" type="text" class="mws-textinput other hidden tabbable" name="{{ formset.prefix }}-0-other_type" maxlength="15" />
+            <div class="form-group">
+                <div class="col-md-12 form-control-static">
+                    <a href="javascript:;" data-formset-add>{% trans 'Add a phone number' %}</a>
                 </div>
-            {% endblock %}
-            <div class="mws-form-col-1-8 formset-delete">
-                <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
             </div>
+            <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+            <script type="form-template" data-formset-empty-form>
+                <div data-formset-form>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.raw_input layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        <div class="col-md-1">
+                            <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                <i class="icon-undo"></i>
+                            </a>
+                            <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                <i class="icon-trash"></i>
+                            </a>
+                            {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
+                        </div>
+                    </div>
+                </div>
+            </script>
         </div>
     </div>
-{% endblock %}
+</div>

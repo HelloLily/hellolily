@@ -13,12 +13,11 @@ from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
 from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column
 from lily.utils.widgets import JqueryPasswordInput
 
 
-class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
+class CustomAuthenticationForm(AuthenticationForm):
     """
     This form is a subclass from the default AuthenticationForm. Necessary to set CSS classes and
     custom error_messages.
@@ -51,7 +50,7 @@ class CustomAuthenticationForm(AuthenticationForm, FieldInitFormMixin):
         self.helper.delete_label_for('username', 'password')
 
 
-class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
+class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
     CustomUser is used for validation instead of User.
@@ -144,7 +143,7 @@ class CustomPasswordResetForm(PasswordResetForm, FieldInitFormMixin):
             send_mail(subject, email, from_email, [str(user.primary_email)])
 
 
-class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
+class CustomSetPasswordForm(SetPasswordForm):
     """
     This form is a subclass from the default SetPasswordForm.
     CustomUser is used for validation instead of User.
@@ -175,7 +174,7 @@ class CustomSetPasswordForm(SetPasswordForm, FieldInitFormMixin):
         self.helper.delete_label_for('new_password1', 'new_password2')
 
 
-class ResendActivationForm(Form, FieldInitFormMixin):
+class ResendActivationForm(Form):
     """
     Form that allows a user to retry sending the activation e-mail.
     """
@@ -222,7 +221,7 @@ class ResendActivationForm(Form, FieldInitFormMixin):
         return email
 
 
-class RegistrationForm(Form, FieldInitFormMixin):
+class RegistrationForm(Form):
     """
     This form allows new user registration.
     """
@@ -314,7 +313,7 @@ class RegistrationForm(Form, FieldInitFormMixin):
         return cleaned_data
 
 
-class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
+class UserRegistrationForm(RegistrationForm):
     """
     Form for accepting invitations.
     """
@@ -351,7 +350,7 @@ class UserRegistrationForm(RegistrationForm, FieldInitFormMixin):
         return cleaned_data
 
 
-class InvitationForm(Form, FieldInitFormMixin):
+class InvitationForm(Form):
     """
     This is the invitation form, it is used to invite new users to join an account.
     """

@@ -1,0 +1,60 @@
+{% extends 'page.html' %}
+
+{% load bootstrap3 i18n media %}
+
+{% block css %}
+    {{ block.super }}
+    {% include_media 'profile.css' %}
+    {% include_media 'timeline.css' %}
+{% endblock %}
+
+{% block page-actions-button %}
+<div class="btn-group pull-right">
+     <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
+     <span>{% trans 'Actions' %}</span> <i class="icon-angle-down"></i>
+     </button>
+     <ul class="dropdown-menu" role="menu">
+        {% block page-actions %}{% endblock %}
+     </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+    {% block details-main %}{% endblock %}
+    {% block details-tabs %}
+        <div class="tabbable tabbable-custom tabbable-full-width">
+            <ul class="nav nav-tabs">
+                {% block details-tab-headers %}
+                    <li class="active">
+                        <a href="#tab-history" data-toggle="tab">
+                            {% trans 'History' %}
+                        </a>
+                    </li>
+                {% endblock %}
+            </ul>
+            <div class="tab-content">
+                {% block details-tab-content %}
+                    <div class="tab-pane active" id="tab-history">
+                        {% include 'notes/note_form.html' %}
+                        {% include 'utils/history_list.html' %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div class="hidden">
+    <div id="confirm-delete" class="modal fade" tabindex="-1" role="dialog"></div>
+</div>
+<div class="hidden">
+    <div id="object-update" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:first"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_media 'history_list.js' %}
+{% endblock %}

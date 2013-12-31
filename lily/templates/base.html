@@ -1,0 +1,84 @@
+{% load media i18n %}<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="MobileOptimized" content="320">
+    {% include_media 'font-awesome.css' %}
+    {% include_media 'metronic-core.css' %}
+    {% block css %}
+    {% include_media 'notifications.css' %}
+    {% endblock %}
+    {% include_media 'metronic-theme.css' %}
+    {% include_media 'jquery.js' %}
+    <link rel="shortcut icon" href="favicon.ico" />
+    <title>{% block head-title %}{% endblock %}</title>
+</head>
+
+<body class="page-header-fixed page-sidebar-fixed">
+    <div class="header navbar navbar-inverse navbar-fixed-top">
+        <div class="header-inner">
+            <a class="navbar-brand" href="{% url dashboard %}"><img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+            {% block page-header %}{% endblock %}
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="page-container">
+        {% block page-menu-bar %}{% endblock %}
+        <div class="page-content">
+        {% block page-content %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="page-title pull-left">{% block page-title %}{% endblock %}</h3>
+                    {% block page-actions-button %}{% endblock %}
+                </div>
+            </div>
+            {% block container %}{% endblock %}
+        {% endblock %}
+        </div>
+    </div>
+    {% block page-footer %}
+    <div class="footer">
+        <div class="footer-inner">
+            2012 &copy; HelloLily
+        </div>
+        <div class="footer-tools">
+            <span class="go-top">
+                <i class="icon-angle-up"></i>
+            </span>
+        </div>
+   </div>
+    {% endblock %}
+
+    {% block modals %}{% endblock %}
+
+    {% block scripts %}
+    <!--[if lt IE 9]>
+    {% include_media 'ie9-javascript.js' %}
+    <![endif]-->
+    {% include_media 'core-js.js' %}
+    {% include_media 'notifications.js' %}
+    <script>
+    var load_notifications = function() {
+        $.getScript('{% url notifications %}');
+    }
+    {% if messages %}
+    load_notifications();
+    {% endif %}
+    </script>
+    {% endblock %}
+    <script>
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-401436-20']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+</body>
+</html>

@@ -1,25 +1,14 @@
+// Handle the stage selection.
 $(document).ready(function() {
-	// set focus on name
-    set_focus('id_name');
-
     // inner function to protect the scope for currentStage
     (function($) {
-        var currentStage = null;
-
-        $('#deal-stage :radio').button({
-            create: function(event, ui) {
-                if( event.target.checked ) {
-                    currentStage = event.target.id;
-                }
-            }
-        });
-
-        $('#deal-stage .ui-button').click(function(event) {
+        var currentStage = $('input[name=radio]:checked', '#deal-stage').closest('label').attr('for');
+        $('#deal-stage').click(function(event) {
             var radio_element = $('#' + $(event.target).closest('label').attr('for'));
             if( radio_element.attr('id') != currentStage ) {
                 // try this
                 var jqXHR = $.ajax({
-                    url: '/deals/edit/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
+                    url: '/deals/update/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
                     type: 'POST',
                     data: {
                         'stage': $(radio_element).val()
@@ -29,30 +18,27 @@ $(document).ready(function() {
                 })
                 // on success
                 jqXHR.done(function(data, status, xhr) {
-                    $.jGrowl(gettext('Stage has been changed to') + ' ' + $(event.target).text(), {
-                        theme: 'info mws-ic-16 ic-accept'
-                    });
-                    currentStage = radio_element.attr('id');
-
+                    currentStage = radio_element.attr('id'); 
                     // check for won/lost and closing date
                     if( data.closed_date ) {
-                        $('.closed-date.actual span').text(data.closed_date);
-                        $('.closed-date.actual').removeClass('hidden');
+                        $('#closed-date').text(data.closed_date);
+                        $('#closed-date-li').removeClass('hide');
                     } else {
-                        $('.closed-date.actual span').text('');
-                        $('.closed-date.actual:visible').addClass('hidden');
+                        $('#closed-date').text('');
+                        $('#closed-date-li:visible').addClass('hide');
                     }
+                    // loads notifications if any
+                    load_notifications();                    
                 });
                 // on error
                 jqXHR.fail(function() {
-                    $.jGrowl(gettext('Stage could not be changed to') + ' ' + $(event.target).text(), {
-                        sticky: true,
-                        theme: 'info mws-ic-16 ic-error'
-                    });
                     // reset selected stage
                     $(radio_element).attr('checked', false);
+                    $(radio_element).closest('label').removeClass('active');
                     $('#' + currentStage).attr('checked', true);
-                    $('#deal-stage :radio').button('refresh');
+                    $('#' + currentStage).closest('label').addClass('active');
+                    // loads notifications if any
+                    load_notifications();                    
                 });
                 // finally do this
                 jqXHR.always(function() {
@@ -61,6 +47,42 @@ $(document).ready(function() {
                 });
             }
         });
-
     })($);
 });
+
+// Next functions together enable CSRF Tokens being sent with AJAX requests.
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+function sameOrigin(url) {
+    // url could be relative or scheme relative or absolute
+    var host = document.location.host; // host + port
+    var protocol = document.location.protocol;
+    var sr_origin = '//' + host;
+    var origin = protocol + sr_origin;
+    // Allow absolute or scheme relative URLs to same origin
+    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+        // or any other URL that isn't scheme relative or absolute i.e relative.
+        !(/^(\/\/|http:|https:).*/.test(url));
+}
+function safeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+function addCSRFHeader(jqXHR, settings) {
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        jqXHR.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+    }
+}

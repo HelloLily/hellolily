@@ -133,20 +133,19 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         return ' '.join([self.first_name, self.last_name]).strip()
 
     def get_primary_function(self):
-        try:
-            return self.functions.all().order_by('-created')[0]
-        except:
-            return ''
-
+        if not hasattr(self, '_primary_function'):
+            try:
+                self._primary_function = self.functions.all().order_by('-created')[0]
+            except IndexError:
+                self._primary_function = self.functions.none()
+        return self._primary_function
+    
     def get_assigned_cases(self):
         from lily.cases.models import Case
         try:
             return Case.objects.filter(assigned_to=self.user.all()[0]).order_by('-created')
         except:
             return None
-
-    def get_history_list(self):
-        pass
 
     def __unicode__(self):
         return self.full_name()
@@ -196,7 +195,7 @@ def post_save_contact_handler(sender, **kwargs):
     overwrite the existing one.
     """
     instance = kwargs['instance']
-    if instance.__dict__.has_key('primary_email'):
+    if 'primary_email' in instance.__dict__:
         new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
             try:

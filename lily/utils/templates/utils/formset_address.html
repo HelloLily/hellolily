@@ -1,84 +1,79 @@
-{% extends 'base_formset.html' %}
+{% load i18n bootstrap3 formset_tags %}
 
-{% load i18n %}
+<div class="phone_number_formset_wrapper" id="addresses">
+    <div class="form-group">
+        <label class="col-md-2 control-label">{{ label }}</label>
+        <div class="col-md-10 formset" data-formset-prefix="{{ formset.prefix }}">
+            {{ formset.management_form }}
 
-{% block template %}
-    <div class="mws-form-item large">
-        <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-7-8 alpha">
-                <div class="mws-form-item large">
-                    <div class="mws-form-cols clearfix">
-                        <div class="mws-form-col-3-8 alpha">
-                            <div class="mws-form-item">
-                                <input name="{{ formset.prefix }}-0-street" maxlength="255" placeholder="{% trans 'Street' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset.prefix }}-0-street" />
-                            </div>
+            <div data-formset-body>
+                <!-- New forms will be inserted in here -->
+                {% for form in formset %}
+                    <div data-formset-form>
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="form-group">
+                            {% bootstrap_field form.street layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+                            {% bootstrap_field form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+
+                            {% if formset.can_delete %}
+                                <div class="col-md-1">
+                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                        <i class="icon-undo"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                        <i class="icon-trash"></i>
+                                    </a>
+                                    {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="mws-form-col-2-8">
-                             <div class="mws-form-item">
-                                <input id="id_{{ formset.prefix }}-0-street_number" type="text" placeholder="{% trans 'Street number' %}" class="mws-textinput tabbable" name="{{ formset.prefix }}-0-street_number" />
-                            </div>
+                        <div class="form-group">
+                            {% bootstrap_field form.postal_code layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.city layout="horizontal" form_group_class="form-group-inline" show_label=False %}
                         </div>
-                        <div class="mws-form-col-2-8">
-                            <div class="mws-form-item">
-                                <input name="{{ formset.prefix }}-0-complement" maxlength="10" placeholder="{% trans 'Complement' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset.prefix }}-0-complement" />
-                            </div>
-                        </div>
-                        <div class="mws-form-col-1-8 formset-delete">
-                            <a href="javascript:" class="i-16 i-trash-1 blue {{ formset.prefix }}-delete-row"></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="mws-form-item large">
-                    <div class="mws-form-cols clearfix">
-                        <div class="mws-form-col-3-8 alpha">
-                            <div class="mws-form-item">
-                                <input name="{{ formset.prefix }}-0-postal_code" maxlength="10" placeholder="{% trans 'Postal code' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset.prefix }}-0-postal_code" />
-                            </div>
-                        </div>
-                        <div class="mws-form-col-4-8">
-                            <div class="mws-form-item">
-                                <input name="{{ formset.prefix }}-0-city" maxlength="100" placeholder="{% trans 'City' %}" type="text" class="mws-textinput tabbable" id="id_{{ formset.prefix }}-0-city" />
-                            </div>
+                        <div class="form-group">
+                            {% bootstrap_field form.country layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
                         </div>
                     </div>
-                </div>
-                <div class="mws-form-item large">
-                    <div class="mws-form-cols clearfix">
-                        <div class="mws-form-col-4-8 alpha">
-                            <div class="mws-form-item">
-                                <select name="{{ formset.prefix }}-0-country" id="id_{{ formset.prefix }}-0-country" class="chzn-select tabbable">
-                                    {% block countries %}
-                                        {% for value, text in countries %}
-                                            <option value="{{ value }}">{{ text }}</option>
-                                        {% endfor %}
-                                    {% endblock %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mws-form-col-3-8">
-                            <div class="mws-form-item">
-                                <select name="{{ formset.prefix }}-0-type" id="id_{{ formset.prefix }}-0-type" class="chzn-select-no-search tabbable">
-                                    {% block address_types %}
-                                        <option value="visiting" selected="selected">{% trans 'Visiting address' %}</option>
-                                        <option value="billing">{% trans 'Billing address' %}</option>
-                                        <option value="shipping">{% trans 'Shipping address' %}</option>
-                                        <option value="home">{% trans 'Home address' %}</option>
-                                        <option value="other">{% trans 'Other' %}</option>
-                                    {% endblock %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <div class="col-md-12 form-control-static">
+                    <a href="javascript:;" data-formset-add>{% trans 'Add an address' %}</a>
                 </div>
             </div>
+            <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+            <script type="form-template" data-formset-empty-form>
+                <div data-formset-form>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.street layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+                        {% bootstrap_field formset.empty_form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+
+                        <div class="col-md-1">
+                            <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                <i class="icon-undo"></i>
+                            </a>
+                            <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red" title="">
+                                <i class="icon-trash"></i>
+                            </a>
+                            {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.postal_code layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.city layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                    </div>
+                    <div class="form-group">
+                        {% bootstrap_field formset.empty_form.country layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                    </div>
+                </div>
+            </script>
         </div>
     </div>
-    <div class="mws-form-item large">
-        <div class="mws-form-cols clearfix">
-            <div class="mws-form-col-6-8 alpha">
-                <br />
-                <hr />
-            </div>
-        </div>
-    </div>
-{% endblock %}
+</div>

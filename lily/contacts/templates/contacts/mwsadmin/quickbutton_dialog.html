@@ -1,0 +1,72 @@
+{% extends 'mwsadmin/base_quickbutton_dialog.html' %}
+
+{% load i18n %}
+
+{% block dialog-id %}-contact{% endblock %}
+
+{% block dialog-class %} contact{% endblock %}
+
+{% block dialog-title %}{% trans 'New contact' %}{% endblock %}
+
+{% block dialog-form-url %}{% url contact_add %}{% endblock %}
+
+{% block dialog-form %}{% include 'contacts/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.contact %}{% endblock %}
+
+{% block quick-button-scripts %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // add contact dialog
+            $('#quickbutton-dialog-contact').dialog({
+                autoOpen: false,
+                modal: true,
+                width: 640,
+                open: function() {
+                    enableChosen($(this));
+                },
+                buttons: [
+                    {
+                        'class': 'mws-button red float-left',
+                        text: gettext('Cancel'),
+                        click: function() {
+                            $(this).dialog('close');
+                        }
+                    },
+                    {
+                        'class': 'mws-button green',
+                        text: gettext('Add more details'),
+                        click: function() {
+                            // set form input to edit so we get a redirect to the extendend edit page
+                            $('#add-contact-submit').val('edit');
+                            sendForm( $(this) );
+                        },
+                        name: 'submit',
+                        value: 'edit'
+                    },
+                    {
+                        'class': 'mws-button green',
+                        text: gettext('Save'),
+                        click: function() {
+                            sendForm( $(this) );
+                        },
+                        name: 'submit',
+                        value: 'add'
+                    },
+                ],
+                close: function() {
+                    clearForm( $(this).find('form') );
+                }
+            });
+
+            $('#quickbutton-dialog-contact form').submit(function(event) {
+                sendForm( $('#quickbutton-dialog-contact') );
+                event.preventDefault();
+            });
+
+            // show add contact dialog
+            $('.quickbutton.contact').click(function(event) {
+                $('#quickbutton-dialog-contact').dialog('open');
+                event.preventDefault();
+            });
+        });
+    </script>
+{% endblock %}

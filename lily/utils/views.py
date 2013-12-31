@@ -1,15 +1,18 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from hashlib import sha256
 import base64
+import operator
 import pickle
 
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
@@ -19,17 +22,20 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
-from django.views.generic.base import TemplateResponseMixin, View
+from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
+from python_imap.folder import ALLMAIL
 from templated_email import send_templated_mail
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
+from lily.messaging.email.utils import get_attachment_filename_from_url
+from lily.notes.views import NoteDetailViewMixin
 from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax
-from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
+from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, HistoryListItem
 
 
 class CustomSingleObjectMixin(object):
@@ -617,188 +623,12 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
                     formset_form.instance.delete()
                 continue
 
-            # Check for e-mail address selected as primary
-            primary = form_kwargs['data'].get(formset.prefix + '_primary-email')
-            if formset_form.prefix == primary:
-                formset_form.instance.is_primary = True
-            else:
-                formset_form.instance.is_primary = False
-
             # Save e-mail address if an email address is filled in
             if formset_form.instance.email_address:
                 formset_form.save()
                 self.object.email_addresses.add(formset_form.instance)
 
         return super(EmailAddressFormSetViewMixin, self).form_valid(form)
-
-    def form_invalid(self, form):
-        context_name = 'email_addresses_formset'
-        formset = self.get_formset(context_name)
-
-        form_kwargs = self.get_form_kwargs()
-        primary = form_kwargs['data'].get(formset.prefix + '_primary-email')
-        for formset_form in formset:
-            if formset_form.prefix == primary:
-                # Mark as selected
-                formset_form.instance.is_primary = True
-
-        return super(EmailAddressFormSetViewMixin, self).form_invalid(form)
-
-
-class ValidateEmailAddressFormSetViewMixin(EmailAddressFormSetViewMixin):
-    """
-    FormMixin for adding an e-mail address formset to a form.
-    Under certain conditions the user may need to validate an e-mail address
-    before changes will be saved. It manages this by sending an e-mail to both e-mail addresses.
-    """
-    def form_valid(self, form):
-        context_name = 'email_addresses_formset'
-        formset = self.get_formset(context_name)
-
-        # Check conditions for validating changed primary e-mail address
-        form_kwargs = self.get_form_kwargs()
-
-        # First, retrieve e-mail addresses.
-        current_email_addresses = form.instance.email_addresses.all()
-        posted_email_addresses = [formset_form.instance for formset_form in formset.forms]
-
-        # Second, find out the which e-mail address is primary
-        for formset_form in formset:
-            # Check for e-mail address selected as primary
-            primary = form_kwargs['data'].get(formset.prefix + '_primary-email')
-            if formset_form.prefix == primary:
-                formset_form.instance.is_primary = True
-            else:
-                formset_form.instance.is_primary = False
-
-        linked_to_user = False  # If the contact is linked to a user
-        allow_change = False  # Whether changes are allowed at all
-        validate_on_change = False  # When changing primary e-mail address needs to be validated by e-mail
-        send_validation_emails = False  # E-mails for confirming and saving primary e-mail change
-        send_notification_email = False  # E-mails for notifying a user of his primary/login e-mail change
-
-        # Third, check if the user is allowed to change e-mail addressess in the first place
-        try:
-            user = CustomUser.objects.get(contact=form.instance)
-            linked_to_user = True
-        except CustomUser.DoesNotExist:
-            allow_change = True
-        else:
-            if user == self.request.user:  # User is allowed to change it's own address
-                allow_change = True
-                validate_on_change = True
-            elif 'account_admin' in self.request.user.groups.values_list('name', flat=True):  # Users in this group can change other users e-mail addresses without validation
-                allow_change = True
-
-        # Fourth, check for primary e-mail addresses
-        try:
-            current_primary_email_address = current_email_addresses.get(is_primary=True)
-        except:
-            current_primary_email_address = None
-        try:
-            posted_primary_email_address = [email_address for email_address in posted_email_addresses if email_address.is_primary][0]
-        except:
-            posted_primary_email_address = None
-        try:
-            # Check if the primary e-mail address was deleted in the form, if there is a match, fake there is no posted primary e-mail address
-            if posted_primary_email_address.email_address == [formset_form.instance for formset_form in formset.forms if form_kwargs['data'].get(formset_form.prefix + '-DELETE')][0].email_address:
-                posted_primary_email_address = None
-        except:
-            pass
-
-        # Check if the primary e-mail address was deleted (if there was any before)
-        if linked_to_user and current_primary_email_address is not None and posted_primary_email_address is None:
-            messages.error(self.request, _('The e-mail address %s was not removed because it\'s the login for this user.' % current_primary_email_address.email_address))
-            allow_change = False
-        # Check if the primary e-mail address was changed:
-        elif linked_to_user and not None in [current_primary_email_address, posted_primary_email_address] and current_primary_email_address.email_address != posted_primary_email_address.email_address:
-            if validate_on_change:
-                send_validation_emails = True
-            else:
-                send_notification_email = True
-
-        # Fifth, process information
-        if allow_change:  # Changes are allowed at this time
-            for formset_form in formset.forms:
-                if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
-                    # Delete primary e-mail address only for this contact when it's not linked to a user (deletes non-primary e-mail addresses regardless)
-                    if not (linked_to_user and formset_form.instance.is_primary):
-                        form.instance.email_addresses.remove(formset_form.instance)
-                        if formset_form.instance.pk:
-                            formset_form.instance.delete()
-                # Save e-mail address if an address was provided
-                elif formset_form.instance.email_address:
-                    # Allow saving, when:
-                    # - The e-mail address is not a primary e-mail address (old or new)
-                    # - There is no need to send validation e-mails
-                    # - The e-mail address is a primary e-mail address but hasn't changed.
-                    if not (send_validation_emails and formset_form.instance.email_address in [current_primary_email_address.email_address, posted_primary_email_address.email_address]):
-                        if not (send_validation_emails and formset_form.instance.is_primary and formset_form.instance.pk is not None and current_primary_email_address == posted_primary_email_address):
-                            formset_form.save()
-                            form.instance.email_addresses.add(formset_form.instance)
-        else:  # Changes are not allowed
-            pass
-
-        if send_validation_emails:  # Changes will be made after validation
-            # Get contact pk
-            pk = self.object.pk
-
-            # Calculate expire date
-            expire_date = date.today() + timedelta(days=settings.EMAIL_CONFIRM_TIMEOUT_DAYS)
-            expire_date_pickled = pickle.dumps(expire_date)
-
-            # Get link to site
-            protocol = self.request.is_secure() and 'https' or 'http'
-            site = Site.objects.get_current()
-
-            # Build data dict
-            verification_email_data = base64.urlsafe_b64encode(pickle.dumps({
-                'contact_pk': self.object.pk,
-                'old_email_address': current_primary_email_address.email_address,
-                'email_address': pickle.dumps(posted_primary_email_address),
-                'expire_date': expire_date_pickled,
-                'hash': sha256('%s%s%d%s' % (current_primary_email_address.email_address, posted_primary_email_address.email_address, pk, expire_date_pickled)).hexdigest(),
-            })).strip('=')
-
-            # Build verification link
-            verification_link = "%s://%s%s" % (protocol, site, reverse('contact_confirm_email', kwargs={
-                'data': verification_email_data
-            }))
-
-            # Send an e-mail asking the user to validate changing his primary e-mail address
-            send_templated_mail(
-                template_name='email_confirm',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[current_primary_email_address.email_address, posted_primary_email_address.email_address],
-                context={
-                    'current_site': site,
-                    'full_name': self.object.full_name(),
-                    'verification_link': verification_link,
-                    'email_address': posted_primary_email_address.email_address,
-                }
-            )
-
-            # Add message
-            messages.info(self.request, _('An e-mail was sent to %s and %s with a link to verify your new primary e-mail address.' % (current_primary_email_address.email_address, posted_primary_email_address.email_address)))
-
-        if allow_change and send_notification_email:  # Changes were made and the user will be notified on both e-mail addresses
-            # Get link to site
-            protocol = self.request.is_secure() and 'https' or 'http'
-            site = Site.objects.get_current()
-
-            # Send an e-mail informing the user his primary e-mail address has been changed.
-            send_templated_mail(
-                template_name='login_change',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[current_primary_email_address.email_address, posted_primary_email_address.email_address],
-                context={
-                    'current_site': site,
-                    'full_name': self.object.full_name(),
-                    'email_address': posted_primary_email_address.email_address,
-                }
-            )
-
-        return super(ValidateEmailAddressFormSetViewMixin, self).form_valid(form)
 
 
 class PhoneNumberFormSetViewMixin(ModelFormSetViewMixin):
@@ -851,8 +681,7 @@ class AddressFormSetViewMixin(ModelFormSetViewMixin):
         label = _('Addresses')
         template = 'utils/formset_address.html'
 
-        if hasattr(self, 'exclude_address_types'):
-            form_attrs = {'exclude_address_types': self.exclude_address_types}
+        form_attrs = getattr(self, 'address_form_attrs', {})
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix, **form_attrs)
         return super(AddressFormSetViewMixin, self).dispatch(request, *args, **kwargs)
@@ -905,7 +734,7 @@ class WebsiteFormSetViewMixin(ModelFormSetViewMixin):
         form = WebsiteBaseForm
         prefix = 'websites'
         label = _('Websites')
-        template = 'accounts/formset_website.html'
+        template = 'utils/formset_website.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(WebsiteFormSetViewMixin, self).dispatch(request, *args, **kwargs)
@@ -943,31 +772,45 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         related_name = 'attachments'
         form = AttachmentBaseForm
         prefix = 'attachments'
-        label = _('Attachments')
+        label = _('Files')
         template = 'utils/formset_attachment.html'
 
         self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
         return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)
 
     def get_attachments_queryset(self, instance):
-        return EmailAttachment.objects.filter(message_id=self.message_id)
+        return EmailAttachment.objects.filter(message=self.object)
 
     def form_valid(self, form):
         context_name = 'attachments_formset'
         formset = self.get_formset(context_name)
-
         form_kwargs = self.get_form_kwargs()
-        for formset_form in formset:
-            # Check if existing instance has been marked for deletion
-            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
-                self.object.attachments.remove(formset_form.instance)
-                if hasattr(formset, 'instance'):
-                    if formset.instance.pk:
-                        formset.instance.delete()
-                continue
 
-                formset_form.save()
-                self.object.attachments.add(formset_form.instance)
+        for formset_form in formset.forms:
+            # Remove any unwanted (already existing) attachments
+            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
+                if formset_form.instance.pk:
+                    formset_form.instance.delete()
+                else:
+                    # Don't see a way to this properly: new attachments
+                    # don't exist as formset_form.instances -> no primary key
+                    # to compare to decide removal of an attachment, but
+                    # this is something at the very least, so:
+                    #                     #
+                    # Clear attachments by filename
+                    # Files in self.request.FILES have already been added to
+                    # self.object.attachments. Check whether or not to 'cancel' attaching
+                    # a file to self.object
+                    for field_name, file_in_memory in self.request.FILES.items():
+                        if field_name.startswith(formset_form.prefix):
+                            for attachment in self.object.attachments.all():
+                                if get_attachment_filename_from_url(attachment.attachment.name) == file_in_memory.name:
+                                    attachment.delete()
+
+            elif formset_form.instance.attachment:
+                # Establish a link to a new message instance
+                formset_form.instance.message = self.object
+                formset_form.instance.save()
 
         return super(AttachmentFormSetViewMixin, self).form_valid(form)
 
@@ -1002,5 +845,93 @@ class AjaxUpdateView(View):
         return HttpResponse(simplejson.dumps({}), mimetype='application/json')
 
 
+class NotificationsView(TemplateView):
+    """
+    Renders template with javascript to show messages from django.contrib.
+    messages as notifications.
+    """
+    http_method_names = ['get']
+    template_name = 'utils/notifications.js'
+
+    def get(self, request, *args, **kwargs):
+        response = super(NotificationsView, self).get(request, *args, **kwargs)
+        return HttpResponse(response.rendered_content, mimetype='application/javascript')
+
+
+class HistoryListViewMixin(NoteDetailViewMixin):
+    """
+    Mix in a paginated list of history list items.
+    Supports AJAX calls to show more older items.
+    """
+    page_size = 15
+
+    def dispatch(self, request, *args, **kwargs):
+        if is_ajax(request):
+            self.template_name = 'utils/history_list.html'
+
+        return super(HistoryListViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """
+        For AJAX calls, reply with a JSON response.
+        """
+        response = super(HistoryListViewMixin, self).get(request, *args, **kwargs)
+
+        if is_ajax(request):
+            html = ''
+            if len(response.context_data.get('object_list')) > 0:
+                html = response.rendered_content
+
+            response = simplejson.dumps({
+                'html': html,
+                'show_more': response.context_data.get('show_more')
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        """
+        Build list of history items, i.e. notes/email messages.
+        """
+        kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
+        note_content_type = ContentType.objects.get_for_model(self.model)
+
+        # Build initial list with just notes
+        object_list = HistoryListItem.objects.filter(
+            (Q(note__content_type=note_content_type) & Q(note__object_id=self.object.pk))
+        )
+
+        # Expand list with email messages if possible
+        if hasattr(self.object, 'email_addresses'):
+            email_address_list = [x.email_address for x in self.object.email_addresses.all()]
+            if len(email_address_list) > 0:
+                filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
+                object_list = object_list | HistoryListItem.objects.filter(
+                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
+                    Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                    reduce(operator.or_, filter_list)
+                )
+
+        # Filter list by timestamp from request.GET
+        epoch = self.request.GET.get('datetime')
+        if epoch is not None:
+            try:
+                filter_date = datetime.fromtimestamp(int(epoch))
+                object_list = object_list.filter(sort_by_date__lt=filter_date)
+            except ValueError:
+                pass
+
+        # Paginate list
+        object_list = object_list.distinct().order_by('-sort_by_date')
+        kwargs.update({
+            'object_list': object_list[:self.page_size],
+            'show_more': len(object_list) > self.page_size
+        })
+
+        return kwargs
+
+
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
+notifications_view = login_required(NotificationsView.as_view())

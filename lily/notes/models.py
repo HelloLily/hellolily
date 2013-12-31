@@ -15,13 +15,13 @@ class Note(HistoryListItem, Deleted):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    subject = generic.GenericForeignKey('content_type','object_id')
+    subject = generic.GenericForeignKey('content_type', 'object_id')
 
     def get_list_item_template(self):
         """
         Return the template that must be used for history list rendering
         """
-        return 'notes/list_item.html'
+        return 'notes/note_list_single_object.html'
 
     def save(self, *args, **kwargs):
         self.sort_by_date = self.created

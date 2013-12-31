@@ -1,0 +1,211 @@
+/* here you can put your own css to customize and override the theme */
+.no-margin {
+    margin: 0 !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.label-btn {
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: default;
+    font-weight: normal;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.label-btn-default {
+    color: #333;
+    text-shadow: none;
+    background-color: #e5e5e5;
+}
+.label-btn-sm, .label-btn-xs {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.label-btn-xs {
+    padding: 1px 5px;
+}
+.label-btn-md {
+    line-height: 1.428571429;
+}
+.label-btn-lg {
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.33;
+    vertical-align: middle;
+}
+
+.summary-list li:first-child {
+    border-top: none;
+}
+
+.summary-list li {
+    padding: 10px 0;
+    overflow: hidden;
+    border-top: 1px solid #EEE;
+    min-height: 49px;
+}
+
+.summary-list .summary-label {
+    color: #646464;
+    font-size: 14px;
+}
+
+.summary-list .summary-info {
+    color: #169EF4;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.summary-list.small-summary-list li {
+    min-height: inherit;
+    padding: 6px 0;
+}
+
+.block-list a,
+.block-list li {
+    margin-bottom: 3px;
+    max-width: 100%
+}
+.block-list li .btn,
+.block-list li span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* css to support dropdown-submenu (removed in BS3.0) */
+.dropdown-submenu {
+    position:relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top:0;
+    left:100%;
+    margin-top:-6px;
+    margin-left:-1px;
+    -webkit-border-radius:0 6px 6px 6px;
+    -moz-border-radius:0 6px 6px 6px;
+    border-radius:0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display:block;
+}
+
+.dropdown-submenu > a:after {
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#428bca;
+    margin-top:3px;
+}
+
+.dropdown-submenu:hover > a:after {
+    border-left-color:#428bca;
+}
+
+.dropdown-submenu.pull-left {
+    float:none;
+}
+
+.dropdown-submenu.pull-left > .dropdown-menu {
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
+}
+
+/* add padding to the right in dropdown-menu items */
+.dropdown-menu li>a {
+    padding-right: 13px;
+}
+
+/* vertical align fixes without stock images */
+.inbox-view-info .inbox-info-btn {
+    height: 29px;
+}
+.inbox-view-info > .row > .col-md-9 {
+    line-height: 29px;
+}
+
+.header .navbar-nav > li.dropdown.user .dropdown-toggle {
+    padding-top: 10px;
+    padding-bottom: 12px;
+}
+
+/* make badges readable again */
+.badge {
+    font-weight: bold;
+}
+
+/* declare these classes after metronic theme css to make them work (from fontawesome) */
+.icon-2x {
+    font-size: 2em;
+    line-height: normal;
+}
+.icon-3x {
+    font-size: 3em;
+    line-height: normal;
+}
+.icon-4x {
+    font-size: 4em;
+    line-height: normal;
+}
+.icon-5x {
+    font-size: 5em;
+    line-height: normal;
+}
+
+/* Make the timeline more pleasant for the eyes */
+.timeline:before {
+    left: 140px;
+}
+.timeline>li .timeline-time {
+    width: 90px;
+}
+.timeline li.timeline-red .timeline-time span.date,
+.timeline li.timeline-yellow .timeline-time span.date,
+.timeline li.timeline-green .timeline-time span.date,
+.timeline li.timeline-blue .timeline-time span.date,
+.timeline li.timeline-purple .timeline-time span.date,
+.timeline li.timeline-grey .timeline-time span.date {
+    font-size: 20px;
+}
+.timeline>li .timeline-time span.time {
+    font-size: 36px;
+}
+.timeline>li .timeline-icon {
+    left: 140px;
+}
+.timeline>li .timeline-body {
+    margin: 0 0 15px 190px;
+}
+.timeline>li .timeline-body a.nav-link.pull-right {
+    margin-left: 15px;
+}
+@media (max-width: 767px) {
+    .timeline>li .timeline-icon {
+        margin: -55px 8px 0 0;
+        left: auto;
+    }
+    .timeline>li .timeline-body {
+        margin: 0 0 30px 0;
+    }
+}
+
+.microblog-item hr {
+    margin: 10px 0 10px 0 !important;
+}
+.microblog-item .replies {
+    margin-left: 30px;
+}

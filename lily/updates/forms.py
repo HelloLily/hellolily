@@ -4,11 +4,10 @@ from django.utils.translation import ugettext as _
 
 from lily.updates.models import BlogEntry
 from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.forms import FieldInitFormMixin
 from lily.utils.layout import MultiField
 
 
-class CreateBlogEntryForm(forms.ModelForm, FieldInitFormMixin):
+class CreateBlogEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateBlogEntryForm, self).__init__(*args, **kwargs)
         self.helper = LilyFormHelper(self)

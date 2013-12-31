@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% load media i18n email activelink %}
+
+{% block css %}
+{{ block.super }}
+{% include_media 'modal.css' %}
+{% endblock %}
+
+{% block page-header %}
+<div class="hor-menu">
+    <ul class="nav navbar-nav">
+        {% block hor-menu %}
+        <li>
+            <a href="{% url contact_add %}" data-target="#quickbutton-create" data-source="{% url contact_add %}" >{% trans 'Add contact' %}</a>
+        </li>
+        <li>
+            <a href="{% url account_add %}" data-target="#quickbutton-create" data-source="{% url account_add %}" >{% trans 'Add account' %}</a>
+        </li>
+        <li>
+            <a href="{% url case_create %}" data-target="#quickbutton-create" data-source="{% url case_create %}" >{% trans 'Add case' %}</a>
+        </li>
+        <li>
+            <a href="{% url deal_create %}" data-target="#quickbutton-create" data-source="{% url deal_create %}" >{% trans 'Add deal' %}</a>
+        </li>
+        {% endblock %}
+    </ul>
+</div>
+
+<a href="javascript:;" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+    <img src="{% media_url 'img/menu-toggler.png' %}" alt="" />
+</a>
+
+<ul class="nav navbar-nav pull-right">
+    {% if unread_emails.count %}
+    <li class="dropdown" id="header_inbox_bar">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown"
+      data-close-others="true">
+            <i class="icon-envelope"></i>
+            <span class="badge">{{ unread_emails.count }}</span>
+        </a>
+        <ul class="dropdown-menu extended inbox">
+            <li>
+                <p>{% blocktrans count unread_emails.count as counter %}You have one new message{% plural %}You have {{ counter }} new messages{% endblocktrans %}</p>
+            </li>
+            <li>
+                <ul class="dropdown-menu-list scroller" style="height: 250px;">
+                    {% for unread_email in unread_emails.object_list %}
+                    <li>
+                        <a href="{% url messaging_email_detail pk=unread_email.id %}">
+                            <span class="subject clearfix">
+                                <span class="from">{{ unread_email.from }}</span>
+                                <span class="time">{{ unread_email.time|pretty_datetime }}</span>
+                            </span>
+                            <span class="message">
+                                {{ unread_email.message_excerpt }}
+                            </span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% if unread_emails.count_more %}
+                    <li>
+                        <a href="{% url messaging_email_inbox %}">
+                            <span class="message">
+                                {% blocktrans with count=unread_emails.count_more %}And {{ count }} more new messages!{% endblocktrans %}
+                            </span>
+                        </a>
+                    </li>
+                    {% endif %}
+                 </ul>
+            </li>
+            <li class="external">
+                <a href="{% url messaging_email_inbox %}">{% trans 'See all messages' %} <i class="m-icon-swapright"></i></a>
+            </li>
+        </ul>
+    </li>
+    {% endif %}
+
+    <li class="dropdown user">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+        <span class="username">{% trans 'Hello' %}, {{ user }}</span>
+        <i class="icon-angle-down"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="{% url contact_details pk=user.contact.pk %}"><i class="icon-user"></i> {% trans 'Profile' %}</a>
+            </li>
+            <li><a href="{% url logout %}"><i class="icon-key"></i> {% trans 'Log out' %}</a>
+            </li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}
+
+{% block page-menu-bar %}
+<div class="page-sidebar navbar-collapse collapse">
+    <ul class="page-sidebar-menu">
+        <li>
+            <div class="sidebar-toggler hidden-phone"></div>
+        </li>
+        <li class="start {% ifactive "dashboard" %}active{% endifactive %}">
+            <a href="{% url dashboard %}">
+            <i class="icon-home"></i>
+            <span class="title">{% trans 'Dashboard' %}</span>
+            <span class="{% ifactive "dashboard" %}selected{% else %}arrow{% endifactive %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "contact_list" %}active{% endifstartswith %}">
+            <a href="{% url contact_list %}">
+            <i class="icon-user"></i>
+            <span class="title">{% trans 'Contacts' %}</span>
+            <span class="{% ifstartswith "contact_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "account_list" %}active{% endifstartswith %}">
+            <a href="{% url account_list %}">
+            <i class="icon-briefcase"></i>
+            <span class="title">{% trans 'Accounts' %}</span>
+            <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
+            <a href="{% url messaging_email_inbox %}">
+            <i class="icon-inbox"></i>
+            <span class="title">{% trans 'E-mail' %}</span>
+            <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "deal_list" %}active{% endifstartswith %}">
+            <a href="{% url deal_list %}">
+            <i class="icon-money"></i>
+            <span class="title">{% trans 'Deals' %}</span>
+            <span class="{% ifstartswith "deal_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+        <li class="start {% ifstartswith "case_list" %}active{% endifstartswith %}">
+            <a href="{% url case_list %}">
+            <i class="icon-archive"></i>
+            <span class="title">{% trans 'Cases' %}</span>
+            <span class="{% ifstartswith "case_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            </a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block container %}
+<div class="row">
+    <div class="col-md-12">
+        {% block page-container %}
+            <div class="row">
+                <div class="col-md-8">
+                    {% block content %}{% endblock %}
+                </div>
+                <div class="col-md-4">
+                    {% block sidebar %}{% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div class="hidden">
+    <div id="quickbutton-create" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'app.js' %}
+{% include_media 'modal.js' %}
+{% include_media 'ajax-submit.js' %}
+<script>
+$(function($){
+    App.init();
+});
+</script>
+{% endblock %}

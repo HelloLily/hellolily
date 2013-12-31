@@ -1,0 +1,17 @@
+{% extends 'mwsadmin/base_visitor_portal.html' %}
+
+{% load i18n media %}
+
+{% block page-title %}{% trans 'Resend activation e-mail' %} - {% endblock %}
+
+{% block styles %}
+    {% include_media 'lily.users.css' %}
+
+    {{ block.super }}
+{% endblock %}
+
+{% block portal-title %}{% trans 'Resend activation e-mail' %}{% endblock %}
+
+{% block portal-bottom-links %}
+    <a href="{% url login %}" class="float-right" id="sub-panel-link">{% trans 'Go to log in' %}</a>
+{% endblock %}

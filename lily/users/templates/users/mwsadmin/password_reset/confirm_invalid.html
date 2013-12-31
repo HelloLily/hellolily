@@ -1,0 +1,21 @@
+{% extends 'users/mwsadmin/password_reset/base.html' %}
+
+{% load i18n %}
+
+{% block portal-title %}{% trans 'Password reset unsuccessful' %}{% endblock %}
+
+{% block portal-form %}
+    <div class="mws-form-row mws-message-container">
+        <div class="mws-form-row mws-reset-message">
+            {% trans 'The password reset link was invalid, possibly because it has already been used. Please request a new password reset.' %}
+        </div>
+    </div>
+
+    <div class="mws-button-row">
+        <a href="{% url password_reset %}">
+            <button type="button" class="mws-button blue mws-reset-button tabbable">
+                {% trans 'Try again' %}
+            </button>
+        </a>
+    </div>
+{% endblock %}

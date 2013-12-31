@@ -1,0 +1,36 @@
+.inbox .emailmessage-list td i.icon-paper-clip {
+    color: #777;
+}
+
+.inbox .emailmessage-detail .inbox-loading {
+    display: block;
+}
+
+.inbox .emailmessage-detail .inbox-view {
+    display: none;
+}
+
+.inbox .emailmessage-detail .inbox-view iframe {
+    border: none;
+}
+
+.inbox .emailmessage-detail .inbox-header small,
+.inbox .emailmessage-list .inbox-header small {
+    font-weight: 300;
+}
+
+.inbox-form-group.has-error {
+    border: 1px solid #B94A48;
+}
+
+.inbox-form-group .form-control {
+    border: none;
+}
+
+.compose-btn .btn {
+    text-align: left;
+}
+
+.compose-btn .btn {
+    padding: 7px 14px;
+}

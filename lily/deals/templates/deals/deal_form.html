@@ -1,0 +1,27 @@
+{% extends 'form.html' %}
+
+{% load i18n %}
+
+{% block head-title %}
+{% if object.pk %}
+    {% trans 'Edit deal' %}
+{% else %}
+    {% trans 'Create deal' %}
+{% endif %}
+{% endblock %}
+
+{% block page-title %}
+{% if object.pk %}
+    {% trans 'Edit deal' %}
+{% else %}
+    {% trans 'Create deal' %}
+{% endif %}
+{% endblock %}
+
+{% block form-title %}
+{% if object.pk %}
+    {% trans 'Edit deal' %}
+{% else %}
+    {% trans 'Create deal' %}
+{% endif %}
+{% endblock %}

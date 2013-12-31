@@ -1,4 +1,3 @@
-from crispy_forms.layout import Layout, Hidden
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
@@ -6,12 +5,9 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.formhelpers import DeleteBackAddSaveFormHelper, LilyFormHelper
-from lily.utils.layout import Row, Column
 
 
-class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
+class AddContactQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -27,25 +23,10 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         other forms.
         """
         kwargs.update({
-            'auto_id':'id_contact_quickbutton_%s'
+            'auto_id': 'id_contact_quickbutton_%s'
         })
 
         super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
-
-        # Customize form layout
-        self.helper = LilyFormHelper(self)
-        self.helper.layout = Layout()
-        self.helper.layout.insert(0, Hidden('submit_button', 'add', id='add-contact-submit'))
-        self.helper.add_columns(
-            Column('first_name', size=3, first=True),
-            Column('preposition', size=1),
-            Column('last_name', size=4),
-            label=_('Name'),
-        )
-        self.helper.add_columns(
-            Column('account', size=4, first=True),
-        )
-        self.helper.add_large_fields('email', 'phone')
 
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
@@ -72,7 +53,7 @@ class AddContactQuickbuttonForm(ModelForm, FieldInitFormMixin):
         fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
 
 
-class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
+class CreateUpdateContactForm(TagsFormMixin, ModelForm):
     """
     Form to add a contact which all fields available.
     """
@@ -83,44 +64,13 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
 
-        # Customize form layout
-        self.helper = DeleteBackAddSaveFormHelper(form=self)
-        self.helper.layout.pop(0)  # salutation
-        self.helper.layout.pop(0)  # gender
-        self.helper.layout.pop(0)  # first name
-        self.helper.layout.pop(0)  # preposition
-        self.helper.layout.pop(0)  # last name
-        self.helper.layout.insert(0,
-            self.helper.create_multi_row(
-                (
-                    Column('salutation', size=2, first=True),
-                    Column('gender', size=2),
-                ),
-                (
-                    Column('first_name', size=3, first=True),
-                    Column('preposition', size=1),
-                    Column('last_name'),
-                ),
-                label=_('Name'),
-            )
-        )
-        self.helper.replace('account',
-            self.helper.create_columns(
-                Column('account', first=True),
-            ),
-        )
-        self.helper.wrap_by_names(Row, 'description', 'tags')
-
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
 
         # Try providing initial account info
-        try:
-            is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
-            if len(is_working_at) == 1:
-                self.fields['account'].initial = is_working_at[0]
-        except:
-            pass
+        is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
+        if len(is_working_at) == 1:
+            self.fields['account'].initial = is_working_at[0]
 
     def clean(self):
         """
@@ -138,15 +88,8 @@ class CreateUpdateContactForm(TagsFormMixin, ModelForm, FieldInitFormMixin):
         model = Contact
         fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description')
         exclude = ('tags',)
-
         widgets = {
-            'salutation': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'gender': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
             'description': forms.Textarea(attrs={
-                'click_show_text': _('Add description')
+                'rows': 3,
             }),
         }

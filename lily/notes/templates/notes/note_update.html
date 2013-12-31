@@ -1,0 +1,14 @@
+{% load bootstrap3 %}
+
+<form class="form" action="{% url note_delete pk=object.pk %}" method="post" data-async role="form">
+    {% csrf_token %}
+    <div class="modal-body">
+        {% for field in form.visible_fields %}
+            {% bootstrap_field field show_label=False %}
+        {% endfor %}
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default">{% trans 'Cancel' %}</button>
+        <button type="submit" class="btn red" data-loading-text="<i class='icon-spinner icon-spin icon-large'></i> {% trans 'Sending..' %}">{% trans 'Continue' %}</button>
+    </div>
+</form>

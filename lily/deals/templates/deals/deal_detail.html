@@ -1,0 +1,96 @@
+{% extends 'detail.html' %}
+
+{% load i18n utils media %}
+
+{% block css %}
+    {{ block.super }}
+    {% include_media 'lily.deals.css' %}
+{% endblock %}
+
+{% block head-title %}{% trans 'Deal' %} - {{ object }}{% endblock %}
+{% block page-title %}{% trans 'Deal' %} - {{ object }}{% endblock %}
+{% block detail-title %}{{ object }}{% endblock %}
+
+{% block page-actions %}
+<li><a href="{% url deal_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li><a href="{% url deal_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url deal_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'Account' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url account_details pk=object.account.pk %}">
+                            {{ object.account.name }}
+                        </a>
+                    </span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Deal name' %}</span>
+                    <span class="pull-right">{{ object }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Created' %}</span>
+                    <span class="pull-right">{{ object.created|date:"d M y H:i" }}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'Assigned to' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url contact_details pk=object.assigned_to.contact.pk %}">
+                            {{ object.assigned_to }}
+                        </a>
+                    </span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Amount' %}</span>
+                    <span class="pull-right">{{ object.amount }}&nbsp;{{ object.get_currency_display }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Closing date' %}</span>
+                    {% if object.closed_date %}
+                        <span class="pull-right">{{ object.closed_date|date:"d M y H:i" }}</span>
+                    {% else %}
+                        <span class="pull-right">{{ object.expected_closing_date|date:"d M y" }} ({% trans 'expected' %})</span>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12 summary-info text-center">
+            <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ object.pk }}">
+                {% for value, stage in object.STAGE_CHOICES %}
+                    <label for="stage-{{ stage|lower }}" class="btn default{% if object.stage == value %} active{% endif %}">
+                        <input class="toggle" type="radio" id="stage-{{ stage|lower }}" name="radio" value="{{ value }}" {% if object.stage == value %}checked="checked"{% endif %}>
+                        {{ stage }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% if object.description %}
+        <div class="row no-margin">
+            <div class="well well-md">
+                <h4>{% trans 'Description' %}</h4>
+                <p>{{ object.description }}</p>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row no-margin" id="tab-history">
+        {% include 'notes/note_form.html' %}
+        {% include 'utils/history_list.html' %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'deals.js' %}
+{% endblock %}

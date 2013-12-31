@@ -56,7 +56,9 @@ class EmailAccount(MessagesAccount):
     folders = JSONField()
 
     def __unicode__(self):
-        return self.from_name if self.from_name else self.email
+        if self.from_name:
+            return '%s (%s)' % (self.from_name, self.email.email_address)
+        return self.email
 
     class Meta:
         verbose_name = _('e-mail account')
@@ -82,7 +84,8 @@ class EmailMessage(Message):
         """
         Return the template that must be used for history list rendering
         """
-        return 'messaging/email/history_list_item.html'
+        #return 'messaging/email/mwsadmin/history_list_item.html'
+        return 'messaging/email/email_message_list_single_object.html'
 
     def has_attachments(self):
         return self.attachments.count() > 0
@@ -93,7 +96,7 @@ class EmailMessage(Message):
         """
         messages = []
         message = self.headers.filter(name='In-Reply-To')
-        while message != None:
+        while message is not None:
             messages.append(message)
             try:
                 message_id = message.headers.filter(name='In-Reply-To')
@@ -181,10 +184,12 @@ class EmailMessage(Message):
         else:
             headers = self.headers.filter(name='To')
             self._to_headers = headers
+
         if headers:
             to_emails = []
             for header in headers:
-                to_emails.append(email.utils.parseaddr(header.value)[1])
+                for address in email.utils.getaddresses(header.value.split(',')):
+                    to_emails.append(address[1])
             return u', '.join(to_emails)
         return u'<%s>' % _(u'No address')
 
@@ -327,7 +332,7 @@ class EmailAttachment(TenantMixin):
     A single attachment linked to an e-mail message.
     """
     inline = models.BooleanField(default=False)
-    attachment = models.FileField(upload_to=get_attachment_upload_path)
+    attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
     size = models.PositiveIntegerField(default=0)
     message = models.ForeignKey(EmailMessage, related_name='attachments')
 

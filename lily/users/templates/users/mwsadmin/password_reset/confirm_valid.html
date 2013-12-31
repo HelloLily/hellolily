@@ -1,0 +1,11 @@
+{% extends 'users/mwsadmin/password_reset/base.html' %}
+
+{% load i18n %}
+
+{% block scripts %}
+    {{ block.super }}
+
+    {{ form.media }}
+{% endblock %}
+
+{% block portal-title %}{% trans 'Enter your new password' %}{% endblock %}

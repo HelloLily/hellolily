@@ -1,25 +1,12 @@
-from crispy_forms.layout import Submit, Reset
 from django import forms
 from django.utils.translation import ugettext as _
 
 from lily.notes.models import Note
-from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.forms import FieldInitFormMixin
-from lily.utils.layout import MultiField
 
 
-class NoteForm(forms.ModelForm, FieldInitFormMixin):
+class NoteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = True
-        self.helper.replace('content',
-           MultiField(
-                None,
-                'content',
-                Submit('note-submit', _('Add note'), css_id='add-note-button', css_class='small')
-           )
-        )
 
     class Meta:
         model = Note
@@ -34,17 +21,9 @@ class NoteForm(forms.ModelForm, FieldInitFormMixin):
         }
 
 
-class EditNoteForm(forms.ModelForm, FieldInitFormMixin):
+class UpdateNoteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(EditNoteForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = True
-        self.helper.replace('content',
-            self.helper.create_large_field('content')
-        )
-
-        self.helper.add_input(Submit('submit', _('Save'), css_class='red'))
-        self.helper.add_input(Reset('reset', _('Reset'), css_class='gray'))
+        super(UpdateNoteForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Note

@@ -1,0 +1,66 @@
+{% extends 'page.html' %}
+
+{% load media i18n %}
+
+{% block css %}
+{{ block.super }}
+{% include_media 'tables.css' %}
+{% endblock %}
+
+{% block page-container %}
+<div class="portlet">
+    <div class="portlet-title">
+         <div class="caption"><i class="icon-th-list"></i>{% block list-title %}{% endblock %}</div>
+    </div>
+    <div class="portlet-body">
+        <table class="table table-striped table-bordered table-hover data-table">
+            <thead><tr>{% block list-headings %}{% endblock %}</tr></thead>
+            <tbody>{% block list %}{% endblock %}</tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'tables.js' %}
+<script>
+$(function($){
+    $('.page-content .data-table').dataTable({
+        'aLengthMenu': [
+            [5, 15, 20, -1],
+            [5, 15, 20, '{% trans 'All' %}'] // change per page values here
+        ],
+        // set the initial value
+        'iDisplayLength': 5,
+        'sPaginationType': 'bootstrap',
+        'oLanguage': {
+            'sLengthMenu': '_MENU_ records',
+            'oPaginate': {
+                'sPrevious': '{% trans 'Prev' %}',
+                'sNext': '{% trans 'Next' %}'
+            }
+        },
+        'bAutoWidth': false,
+        'aaSorting': [[{{ order_by }}, '{{ sort_order }}']],
+        'aoColumnDefs': [
+            {% block list-definition %}{% endblock %}
+        ]
+    });
+
+    // modify table search input
+    $('.page-content .dataTables_filter input').addClass("form-control input-small");
+    // modify table per page dropdown
+    $('.page-content .dataTables_length select').addClass("form-control input-xsmall");
+    // initialize select2 dropdown
+    $('.page-content .dataTables_length select').select2({minimumResultsForSearch: -1});
+});
+</script>
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div class="hidden">
+    <div id="confirm-delete" class="modal fade" tabindex="-1" role="dialog"></div>
+</div>
+{% endblock %}

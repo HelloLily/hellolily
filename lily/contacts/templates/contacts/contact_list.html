@@ -1,0 +1,93 @@
+{% extends 'list.html' %}
+
+{% load i18n utils %}
+
+{% block head-title %}{% trans 'Contacts' %}{% endblock %}
+{% block page-title %}{% trans 'Contacts' %}{% endblock %}
+{% block list-title %}{% trans 'Contacts' %}{% endblock %}
+
+{% block list-headings %}
+    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="personal">{% trans 'Personal' %}</th>
+    <th class="contact">{% trans 'Contact' %}</th>
+    <th class="account">{% trans 'Works at' %}</th>
+    <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+    <th class="modified hide_on_small_screen">{% trans 'Modified' %}</th>
+{% endblock %}
+
+{% block list %}
+    {% for item in object_list %}
+        <tr>
+            <td class="">
+                <a href="{% url contact_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}">
+                    <i class="icon-edit"></i>
+                </a>
+                {% if not item|has_user_in_group:'account_admin' %}
+                    <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=item.pk %}" >
+                        <i class="icon-trash"></i>
+                    </button>
+                {% endif %}
+            </td>
+            <td class="personal">
+                <a href="{% url contact_details pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a>
+                <span class="social">
+                    {% for sm in item.get_social %}
+                        <a href="{{ sm.profile_url }}">
+                            <i class="icon-{{ sm.name }}">{{ sm.name }}</i>
+                        </a>
+                    {% endfor %}
+                </span>
+            </td>
+            <td class="contact">
+                {% if item.primary_email %}
+                    <div>
+                         <a href="mailto:{{ item.primary_email }}"title="{{ item.primary_email }}">
+                             <i class="icon-envelope-alt"></i>
+                             {{ item.primary_email|truncatechars:"35" }}
+                        </a>
+                    </div>
+                 {% endif %}
+
+                {% with item.get_work_phone as phone %}
+                    {% if phone.raw_input %}
+                        <div>
+                            <a href="tel:{{ phone.number }}">
+                                <i class="icon-phone"></i>
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% with item.get_mobile_phone as phone %}
+                    {% if phone.raw_input %}
+                        <div>
+                            <a href="tel:{{ phone.number }}">
+                                <i class="icon-mobile-phone"></i>
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td class="account">
+                {% if item.functions.count > 0 %}
+                    {% with item.functions.all|first as function %}
+                        <a href="{% url account_details pk=function.account_id %}">{{ function.account }}</a>
+                    {% endwith %}
+                {% endif %}
+            </td>
+            <td class="datetime created hide_on_small_screen">
+                {{ item.created|date:"d/m/Y H:i:s" }}
+            </td>
+            <td class="datetime modified hide_on_small_screen">
+                {{ item.modified|date:"d/m/Y H:i:s" }}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0, 2] },
+    { "sType": "date-euro", "aTargets": [4, 5] }
+{% endblock %}

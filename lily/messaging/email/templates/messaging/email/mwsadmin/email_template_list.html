@@ -1,0 +1,31 @@
+{% extends 'mwsadmin/base_model_list.html' %}
+
+{% load i18n media %}
+
+{% block styles %}
+    {{ block.super }}
+    <style type="text/css">
+        a#add_new_template {
+            float: right;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
+    { "bSearchable": true, "bSortable": true, "aTargets": [1] },
+    { "bSearchable": true, "bSortable": true, "aTargets": [2] },
+{% endblock %}
+
+{% block model-list-title %}
+    <a href="{% url messaging_email_template_add %}" id="add_new_template">Add template</a>
+    {% trans 'E-mail templates' %}
+{% endblock %}
+
+{% block list-headings %}
+    <th class="controls"></th>
+    <th class="name">{% trans 'Name' %}</th>
+    <th class="details">{% trans 'Description' %}</th>
+{% endblock %}

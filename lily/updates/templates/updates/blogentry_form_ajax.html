@@ -1,0 +1,38 @@
+{% load bootstrap3 i18n utils %}
+
+<form class="form form-horizontal" action="{% if reply_to %}{% url blogentry_reply pk=reply_to.pk %}{% else %}{% url blogentry_add %}{% endif %}" method="post" data-async role="form">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+        {% if reply_to %}
+            <h4>{% trans 'Reply to' %}: {{ reply_to.author }}</h4>
+        {% else %}
+            <h4>{% trans 'Create Blogpost' %}</h4>
+        {% endif %}
+    </div>
+    <div class="modal-body">
+        {% csrf_token %}
+
+        <div class="form-body">
+            {% if reply_to %}
+                <div class="original-post">
+                    <p>
+                        {{ reply_to.author }} {% trans 'wrote on' %} {{ reply_to.created|date:"d M Y" }}:
+                    </p>
+                    <p>
+                        {{ reply_to.content|linebreaksbr|uri_detect|tags_to_uri|safe }}
+                    </p>
+                </div>
+            {% endif %}
+            {% block form-fields %}
+                {% for field in form.visible_fields %}
+                    {% bootstrap_field field layout="horizontal" field_class="col-md-8" show_label=False %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+        <div data-async-response></div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-dismiss="modal" class="btn btn-default">{% trans 'Cancel' %}</button>
+        <button type="submit" class="btn btn-primary" data-loading-text="<i class='icon-spinner icon-spin icon-large'></i> {% trans 'Sending..' %}">{% trans 'Continue' %}</button>
+    </div>
+</form>

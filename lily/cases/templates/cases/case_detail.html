@@ -1,0 +1,78 @@
+{% extends 'detail.html' %}
+
+{% load i18n utils media %}
+
+{% block head-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
+{% block page-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
+{% block detail-title %}{{ object.subject }}{% endblock %}
+
+{% block page-actions %}
+<li><a href="{% url case_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li><a href="{% url case_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url case_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+{% endblock %}
+
+{% block details-tabs %}
+{{ block.super }}
+<li><a href="#history" data-toggle="tab">{% trans 'History' %}</a></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'Account' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url account_details pk=object.account.pk %}">
+                            {{ object.account.name }}
+                        </a>
+                    </span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Case name' %}</span>
+                    <span class="pull-right">{{ object }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Created' %}</span>
+                    <span class="pull-right">{{ object.created|date:"d M y H:i" }}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">{% trans 'Priority' %}</span>
+                    <span class="pull-right">
+                        <span class="label label-sm label-{{ object|priority }}">
+                            {{ object.get_priority_display|lower }}
+                        </span>
+                    </span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Assigned to' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url contact_details pk=object.assigned_to.contact.pk %}">
+                            {{ object.assigned_to.contact.full_name }}
+                        </a>
+                    </span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Status' %}</span>
+                    <span class="pull-right">{{ object.get_status_display }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% if object.description %}
+        <div class="row no-margin">
+            <div class="well well-md">
+                <h4>{% trans 'Description' %}</h4>
+                <p>{{ object.description }}</p>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row no-margin" id="tab-history">
+        {% include 'notes/note_form.html' %}
+        {% include 'utils/history_list.html' %}
+    </div>
+{% endblock %}

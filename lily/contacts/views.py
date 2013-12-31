@@ -14,7 +14,6 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
-from django.utils.html import escapejs
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -23,22 +22,20 @@ from django.views.generic.list import ListView
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from lily.contacts.models import Contact, Function
-from lily.notes.views import HistoryListViewMixin
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber
-from lily.utils.templatetags.messages import tag_mapping
 from lily.utils.templatetags.utils import has_user_in_group
+
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, ValidateEmailAddressFormSetViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
 
 
 class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
-    template_name = 'contacts/model_list.html'
     model = Contact
     prefetch_related = [
         'functions__account',
@@ -49,26 +46,13 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     sortable = [2, 4, 5, 6]
     default_order_by = 2
 
-    def get_context_data(self, **kwargs):
-        """
-        Overloading super().get_context_data to provide the list item template.
-        """
-        kwargs = super(ListContactView, self).get_context_data(**kwargs)
-
-        kwargs.update({
-            'list_item_template': 'contacts/model_list_item.html',
-        })
-        return kwargs
-
 
 class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
-    template_name = 'contacts/details.html'
+    template_name = 'contacts/contact_detail.html'
     model = Contact
-    success_url_reverse_name = 'contact_details'
-    page_size = 15
 
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
@@ -77,16 +61,17 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
     """
 
     # Default template and form
-    template_name = 'contacts/create_or_update.html'
+    template_name = 'contacts/contact_form.html'
     form_class = CreateUpdateContactForm
 
-    exclude_address_types = ['visiting']
-
-    def dispatch(self, request, *args, **kwargs):
-        # Override default formset template to adjust choices for address_type
-        self.formset_data.update({'addresses_formset': {'template': 'contacts/formset_address.html'}})
-
-        return super(CreateUpdateContactView, self).dispatch(request, *args, **kwargs)
+    address_form_attrs = {
+        'exclude_address_types': ['visiting'],
+        'extra_form_kwargs': {
+            'initial': {
+                'type': 'home',
+            }
+        }
+    }
 
     def form_valid(self, form):
         self.object = form.save()  # copied from ModelFormMixin
@@ -121,7 +106,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         # Change form and template for ajax calls or create formset instances for the normal form
         if is_ajax(request):
             self.form_class = AddContactQuickbuttonForm
-            self.template_name = 'contacts/quickbutton_form.html'
+            self.template_name = 'contacts/contact_form_ajax.html'
 
         return super(AddContactView, self).dispatch(request, *args, **kwargs)
 
@@ -132,6 +117,8 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         self.object = form.save()  # copied from ModelFormMixin
 
         message = _('%s (Contact) has been saved.') % self.object.full_name()
+        # Show save message
+        messages.success(self.request, message)
 
         if is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -154,43 +141,20 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
             # Check if the user wants to 'add & edit'
             submit_action = form_kwargs['data'].get('submit_button', None)
             if submit_action == 'edit':
-                do_redirect = True
-                url = reverse('contact_edit', kwargs={
+                redirect_url = reverse('contact_edit', kwargs={
                     'pk': self.object.pk,
                 })
-                notification = False
-                html_response = ''
-            else:
-                # Redirect if in the list view or dashboard
-                url_obj = urlparse(self.request.META['HTTP_REFERER'])
-                if url_obj.path.endswith(reverse('contact_list')) or url_obj.path == reverse('dashboard'):
-                    # Show save message
-                    messages.success(self.request, message)
+            else:  # redirect if in the list view or dashboard
+                redirect_url = None
+                parse_result = urlparse(self.request.META['HTTP_REFERER'])
+                if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
+                    redirect_url = self.get_success_url()
 
-                    do_redirect = True
-                    if url_obj.path.endswith(reverse('contact_list')):
-                        url = '%s?order_by=5&sort_order=desc' % reverse('contact_list')
-                    else:
-                        url = self.request.META['HTTP_REFERER']
-                    notification = False
-                    html_response = ''
-                else:
-                    do_redirect = False
-                    url = ''
-                    html_response = ''
-                    notification = [{ 'message': escapejs(message), 'tags': tag_mapping.get('success') }]
-
-            # Return response
-            return HttpResponse(simplejson.dumps({
+            response = simplejson.dumps({
                 'error': False,
-                'html': html_response,
-                'redirect': do_redirect,
-                'notification': notification,
-                'url': url
-            }), mimetype='application/json')
-
-        # Show save message
-        messages.success(self.request, message)
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
 
         return super(AddContactView, self).form_valid(form)
 
@@ -215,7 +179,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
-class EditContactView(DeleteBackAddSaveFormViewMixin, ValidateEmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
+class EditContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
     """
     View to edit a contact.
     """
@@ -244,7 +208,6 @@ class DeleteContactView(DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Contact
-    http_method_names = ['post']
 
     def delete(self, request, *args, **kwargs):
         """
@@ -269,7 +232,18 @@ class DeleteContactView(DeleteView):
 
         self.object.delete()
 
-        return redirect(reverse('contact_list'))
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            response = simplejson.dumps({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, mimetype='application/json')
+
+        return redirect(redirect_url)
+
+    def get_success_url(self):
+        return reverse('contact_list')
 
 
 class ConfirmContactEmailView(TemplateView):

@@ -1,0 +1,60 @@
+{% extends 'page.html' %}
+
+{% load media bootstrap3 i18n %}
+
+{% block css %}
+    {{ block.super }}
+    {% include_media 'forms.css' %}
+{% endblock %}
+
+{% block page-container %}
+    <div class="portlet">
+        <div class="portlet-title">
+             <div class="caption">{% block form-title %}{% endblock %}</div>
+        </div>
+        <div class="portlet-body">
+            {% block form %}
+            <form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
+                {% csrf_token %}
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+                <div class="form-body">
+                    {% block form-fields %}
+                        {% for field in form.visible_fields %}
+                            {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
+                        {% endfor %}
+                    {% endblock %}
+
+                    {% if formsets %}
+                        <hr>
+                        {% for context_name, formset in formsets.items %}
+                            {% include formset.template with formset=formset.instance label=formset.label %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% block form-actions %}
+                    <div class="clearfix"></div>
+                    <div class="form-actions fluid">
+                        <div class="col-md-offset-2 col-md-10">
+                            {% block form-buttons %}
+                                <button type="submit" class="btn btn-primary" name="submit">
+                                    <i class="icon-ok"></i> {% trans 'Save' %}
+                                </button>
+                                <a href="{{ back_url }}" class="btn btn-default">
+                                    {% trans 'Back' %}
+                                </a>
+                            {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_media 'forms.js' language='en' %}
+{% endblock %}

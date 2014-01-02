@@ -10,7 +10,7 @@ class TagsFormMixin(forms.ModelForm):
     """
     Mixin that adds tags to a ModelForm.
     """
-    tags = TagsField()
+    tags = TagsField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(TagsFormMixin, self).__init__(*args, **kwargs)

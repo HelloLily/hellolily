@@ -220,7 +220,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
-            # '()': 'django.utils.log.RequireDebugFalse'
+            '()': 'django.utils.log.RequireDebugFalse'
         }
     },
     'formatters': {
@@ -239,7 +239,8 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
         }
     },
     'loggers': {
@@ -253,11 +254,6 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
         '': {
             'handlers': ['console'],
             'level': 'DEBUG',
@@ -265,6 +261,18 @@ LOGGING = {
         },
     }
 }
+
+if DEBUG:
+    LOGGING['handlers']['console'].update({
+        'filters': [],
+    })
+    LOGGING['loggers'].update({
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    })
 
 # Messaging framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'

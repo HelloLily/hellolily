@@ -7,6 +7,7 @@ from lily.accounts.models import Account
 from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
+from lily.utils.widgets import DatePicker
 
 
 class CreateUpdateDealForm(ModelForm):
@@ -30,9 +31,14 @@ class CreateUpdateDealForm(ModelForm):
     expected_closing_date = forms.DateField(
         label=_('Expected closing date'),
         input_formats=settings.DATE_INPUT_FORMATS,
-        widget=forms.DateInput(
+        widget=DatePicker(
+            options={
+                'autoclose': 'true',
+            },
             format=settings.DATE_INPUT_FORMATS[0],
-            attrs={'class': 'expected_closing_date'}
+            attrs={
+                'placeholder': DatePicker.conv_datetime_format_py2js(settings.DATE_INPUT_FORMATS[0]),
+            },
         )
     )
 
@@ -61,7 +67,7 @@ class CreateUpdateDealForm(ModelForm):
 
         widgets = {
             'description': forms.Textarea(attrs={
-                'click_show_text': _('Add description'),
+                'rows': 3,
             }),
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
@@ -94,7 +100,7 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
 
         widgets = {
             'description': forms.Textarea(attrs={
-                'click_and_show': False,
+                'rows': 3,
             }),
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',

@@ -1,32 +1,5 @@
 {% load i18n %}
 
-{#<div class="media history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">#}
-{#    <div class="media-body">#}
-{#        <h4 class="media-heading">#}
-{#            {{ object.sent_date|date:"l d-m-Y G:i" }}#}
-{#            <span class="author">#}
-{#                &nbsp; {% trans 'by' %} {{ object.from_combined|truncatechars:"59" }}#}
-{#            </span>#}
-{#            {% if object.textify %}#}
-{#                <div class="pull-right">#}
-{#                    <a href="{% url messaging_email_reply pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Reply' %}"><i class="icon-reply"></i></a>#}
-{#                    <a href="{% url messaging_email_forward pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Forward' %}"><i class="icon-share-alt"></i></a>#}
-{#                    <a href="{% url messaging_history_list_email_json pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'View' %}"><i class="icon-eye-open"></i></a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#        </h4>#}
-{#        <p>#}
-{#            {{ object.subject }} <br />#}
-{#            {% if object.textify %}#}
-{#                {{ object.textify|truncatechars:175 }}#}
-{#            {% else %}#}
-{#                <a href="">{% trans 'Go to e-mail' %}</a>#}
-{#            {% endif %}#}
-{#        </p>#}
-{#    </div>#}
-{#</div>#}
-
-
 <li class="timeline-green history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
     <div class="timeline-time">
         <span class="date">{{ object.sent_date|date:"d M y" }}</span>
@@ -51,7 +24,7 @@
                     <i class="icon-arrow-right"></i>
                 </a>
             {% endif %}
-            <a href="{% url messaging_history_list_email_json pk=object.pk %}" class="nav-link pull-right">
+            <a href="{% url messaging_email_detail pk=object.pk %}" class="nav-link pull-right">
                 View
                 <i class="icon-envelope"></i>
             </a>

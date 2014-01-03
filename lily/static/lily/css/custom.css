@@ -209,3 +209,7 @@
 .microblog-item .replies {
     margin-left: 30px;
 }
+
+.select2-container.tags {
+    width: 100%;
+}

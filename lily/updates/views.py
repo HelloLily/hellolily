@@ -22,6 +22,7 @@ class AddBlogEntryView(CreateView):
         Overloading super().dispatch to change the template to be rendered for ajax requests.
         """
         # Change form and template for ajax calls or create formset instances for the normal form
+        self.reply_to = None
         if kwargs.get('pk'):
             self.reply_to = get_object_or_404(BlogEntry, pk=kwargs.get('pk'))
 

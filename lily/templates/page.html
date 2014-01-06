@@ -5,6 +5,7 @@
 {% block css %}
 {{ block.super }}
 {% include_media 'modal.css' %}
+{% include_media 'forms.css' %}  {# this also includes styles used in quickbutton forms #}
 {% endblock %}
 
 {% block page-header %}
@@ -171,6 +172,7 @@
 {% include_media 'app.js' %}
 {% include_media 'modal.js' %}
 {% include_media 'ajax-submit.js' %}
+{% include_media 'forms.js' language='en' %} {# this also includes scripts used in quickbutton forms #}
 <script>
 $(function($){
     App.init();

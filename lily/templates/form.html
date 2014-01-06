@@ -2,11 +2,6 @@
 
 {% load media bootstrap3 i18n %}
 
-{% block css %}
-    {{ block.super }}
-    {% include_media 'forms.css' %}
-{% endblock %}
-
 {% block page-container %}
     <div class="portlet">
         <div class="portlet-title">
@@ -52,9 +47,4 @@
             {% endblock %}
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    {% include_media 'forms.js' language='en' %}
 {% endblock %}

@@ -210,6 +210,9 @@ class ComposeEmailForm(ModelForm):
         user = get_current_user()
         email_accounts = user.get_messages_accounts(EmailAccount)
 
+        # Only provide choices you have access to
+        self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
+
         self.fields['send_from'].empty_label = None
 
         # Set user's primary_email as default choice if there is no initial value

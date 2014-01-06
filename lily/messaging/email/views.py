@@ -1452,6 +1452,42 @@ class EmailConfigurationWizardView(SessionWizardView):
         return response
 
     def done(self, form_list, **kwargs):
+        data = {}
+
+        for form in self.form_list.keys():
+            data[form] = self.get_cleaned_data_for_step(form)
+
+        # Save provider and emailaccount instances
+        provider = EmailProvider()
+        provider.__dict__.update(data['1'])
+        # provider.imap_host = data['1']['imap_host']
+        # provider.imap_port = data['1']['imap_port']
+        # provider.imap_ssl = data['1']['imap_ssl']
+        # provider.smtp_host = data['1']['smtp_host']
+        # provider.smtp_port = data['1']['smtp_port']
+        # provider.smtp_ssl = data['1']['smtp_ssl']
+
+        provider.save()
+
+        try:
+            account = EmailAccount.objects.get(email=self.email_address)
+        except EmailAccount.DoesNotExist:
+            account = EmailAccount()
+            account.email = self.email_address
+
+        account.account_type = 'email'
+        account.from_name = data['2']['name']
+        #account.signature = data['2']['signature']
+        account.signature = None
+        account.username = data['0']['username']
+        account.password = data['0']['password']
+        account.provider = provider
+        account.last_sync_date = datetime.datetime.now(tzutc()) - datetime.timedelta(days=1)
+        account.save()
+
+        # Authorize current user to emailaccount
+        account.user_group.add(get_current_user())
+
         messages.success(self.request, _('Email address %s has been configured successfully.') % self.email_address.email_address)
 
         response = render_to_response('email/emailaccount_configuration_wizard_done.html', {

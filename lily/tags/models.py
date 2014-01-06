@@ -13,8 +13,8 @@ class Tag(TenantMixin):
     name = models.CharField(max_length=50, verbose_name=_('tag'))
 
     content_type = models.ForeignKey(ContentType)
-    object_id  = models.PositiveIntegerField()
-    subject = generic.GenericForeignKey('content_type','object_id')
+    object_id = models.PositiveIntegerField()
+    subject = generic.GenericForeignKey('content_type', 'object_id')
 
     def __unicode__(self):
         return self.name
@@ -30,11 +30,9 @@ class TaggedObjectMixin(models.Model):
     """
     Tagged Mixin, supplying a relation with tags
     """
-    
-    tags = generic.GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id', 
+
+    tags = generic.GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id',
                                    verbose_name=_('list of tags'))
-    
+
     class Meta:
         abstract = True
-    
-

@@ -140,6 +140,10 @@ $(function($) {
     //         $(this).button('loading');
     //     }
     // });
+
+    if($.fn.datepicker) {
+        $('body').removeClass('modal-open'); // fix bug when inline picker is used in modal
+    }
 });
 
 // go to redirect_url, reload if redirect_url is current and/or if it contains an anchor reference

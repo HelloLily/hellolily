@@ -10,13 +10,13 @@ class TagsFormMixin(forms.ModelForm):
     """
     Mixin that adds tags to a ModelForm.
     """
-    tags = TagsField()
+    tags = TagsField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(TagsFormMixin, self).__init__(*args, **kwargs)
 
         # Provide autocomplete suggestions and already linked tags
-        self.fields['tags'].initial = ",".join(str(tag) for tag in self.instance.tags.all().values_list('name', flat=True))
+        self.fields['tags'].initial = ','.join(str(tag) for tag in self.instance.tags.all().values_list('name', flat=True))
         self.fields['tags'].choices = list(Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct())
 
     def save(self, commit=True):

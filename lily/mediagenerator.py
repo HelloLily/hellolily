@@ -216,10 +216,10 @@ MEDIA_BUNDLES = (
     ),
     ('blog.css',
         'css/pages/blog.css',
-    ),    
+    ),
     ('news.css',
         'css/pages/news.css',
-    ),    
+    ),
     ('profile.css',
         'css/pages/profile.css',
     ),
@@ -283,6 +283,7 @@ MEDIA_BUNDLES = (
     ),
     ('forms.css',
         'plugins/select2/select2_metro.css',
+        'plugins/bootstrap-datepicker/css/datepicker.css',
     ),
     ('forms.js',
         'js/jquery.formset.js',
@@ -293,6 +294,7 @@ MEDIA_BUNDLES = (
 
         'plugins/select2/select2.js',
         'lily/scripts/forms/select2.js',
+        'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
 
         {'filter': 'mediagenerator.filters.i18n.I18N'},
     ),

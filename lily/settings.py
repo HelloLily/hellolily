@@ -5,8 +5,11 @@ from urlparse import urlparse, uses_netloc
 import django.conf.global_settings as DEFAULT_SETTINGS
 import djcelery
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import gettext_noop
 
+# Provide a dummy translation function without importing it from
+# django.utils.translation, because that module is depending on
+# settings itself possibly resulting in a circular import
+gettext_noop = lambda s: s
 
 # Don't share this with anybody
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
@@ -173,6 +176,7 @@ INSTALLED_APPS = (
     'activelink',
     'south',
     'djcelery',
+    'djcelery.transport',
     'debug_toolbar',
     'mediagenerator',
     'storages',
@@ -304,42 +308,45 @@ CELERY_SEND_TASK_ERROR_EMAILS = boolean(os.environ.get('CELERY_SEND_TASK_ERROR_E
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_TASK_RESULT_EXPIRES = 172800  # 48 hours.
 
+BROKER_BACKEND = 'django'
+INSTALLED_APPS += ('kombu.transport.django',)
+
 # Settings that use Redis
-redis = os.environ.get('REDISTOGO_URL', False)
-if redis:
-    # django-celery
-    BROKER_URL = redis
-    CELERY_RESULT_BACKEND = 'redis'
-    CELERY_REDIS_HOST = 'localhost'
-    CELERY_REDIS_PORT = 6379
-    CELERY_REDIS_DB = 0
+# redis = os.environ.get('REDISTOGO_URL', False)
+# if redis:
+#     # django-celery
+#     BROKER_URL = redis
+#     CELERY_RESULT_BACKEND = 'redis'
+#     CELERY_REDIS_HOST = 'localhost'
+#     CELERY_REDIS_PORT = 6379
+#     CELERY_REDIS_DB = 0
 
-    if boolean(os.environ.get('ENABLE_CACHE', 0)):
-        # django-redis-cache
-        url = urlparse(os.environ['REDISTOGO_URL'])
-        CACHES = {
-            'default': {
-                'BACKEND': 'redis_cache.RedisCache',
-                'LOCATION': "{0.hostname}:{0.port}".format(url),
-                'OPTIONS': {
-                    'PASSWORD': url.password,
-                    'DB': 0
-                }
-            }
-        }
-else:
-    # django-celery
-    INSTALLED_APPS += (
-        'kombu.transport.django',
-        )
-    BROKER_BACKEND = 'django'
+#     if boolean(os.environ.get('ENABLE_CACHE', 0)):
+#         # django-redis-cache
+#         url = urlparse(os.environ['REDISTOGO_URL'])
+#         CACHES = {
+#             'default': {
+#                 'BACKEND': 'redis_cache.RedisCache',
+#                 'LOCATION': "{0.hostname}:{0.port}".format(url),
+#                 'OPTIONS': {
+#                     'PASSWORD': url.password,
+#                     'DB': 0
+#                 }
+#             }
+#         }
+# else:
+#     # django-celery
+#     INSTALLED_APPS += (
+#         'kombu.transport.django',
+#         )
+#     BROKER_BACKEND = 'django'
 
-    if boolean(os.environ.get('ENABLE_CACHE', 0)):
-        CACHES = {
-             'default': {
-                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-                 }
-         }
+#     if boolean(os.environ.get('ENABLE_CACHE', 0)):
+#         CACHES = {
+#              'default': {
+#                  'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#                  }
+#          }
 UNIQUE_TASKS = [
     'lily.messaging.email.tasks.synchronize_email',
 ]

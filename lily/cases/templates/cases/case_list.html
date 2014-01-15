@@ -27,6 +27,7 @@
         {% endif %}
     </td>
     <td class="priority">
+        <span title="{{ item.priority }}"></span>
         <span class="label label-sm label-{{ item|priority }}">{{ item.get_priority_display|lower }}</span>
     </td>
     <td class="subject">
@@ -58,5 +59,6 @@
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
     { "sType": "date-euro", "aTargets": [6] },
-    { "sType": "date-uk", "aTargets": [7] }
+    { "sType": "date-uk", "aTargets": [7] },
+    { "sType": "title-numeric", "aTargets": [1] },
 {% endblock %}

@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django import forms
+from django.conf import settings
 from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
 
@@ -8,6 +11,7 @@ from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
+from lily.utils.widgets import DatePicker
 
 
 class CreateUpdateCaseForm(ModelForm):
@@ -31,6 +35,20 @@ class CreateUpdateCaseForm(ModelForm):
                                          queryset=CustomUser.objects.none(),
                                          empty_label=None)
 
+    expires = forms.DateField(
+        label=_('Expires'),
+        input_formats=settings.DATE_INPUT_FORMATS,
+        widget=DatePicker(
+            options={
+                'autoclose': 'true',
+            },
+            format=settings.DATE_INPUT_FORMATS[0],
+            attrs={
+                'placeholder': DatePicker.conv_datetime_format_py2js(settings.DATE_INPUT_FORMATS[0]),
+            },
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Set queryset and initial for *assign_to*
@@ -45,6 +63,7 @@ class CreateUpdateCaseForm(ModelForm):
         #
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
+        self.fields['expires'].initial = datetime.today()
 
     def clean(self):
         """
@@ -66,7 +85,7 @@ class CreateUpdateCaseForm(ModelForm):
 
     class Meta:
         model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to')
+        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
@@ -86,6 +105,21 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
     """
     Form that is used for adding a new Case through a quickbutton form.
     """
+
+    expires = forms.DateField(
+        label=_('Expires'),
+        input_formats=settings.DATE_INPUT_FORMATS,
+        widget=DatePicker(
+            options={
+                'autoclose': 'true',
+            },
+            format=settings.DATE_INPUT_FORMATS[0],
+            attrs={
+                'placeholder': DatePicker.conv_datetime_format_py2js(settings.DATE_INPUT_FORMATS[0]),
+            },
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change auto_id to prevent clashing form field id's with
@@ -97,9 +131,11 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
 
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
 
+        self.fields['expires'].initial = datetime.today()
+
     class Meta:
         model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to')
+        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {

@@ -14,6 +14,7 @@
     <th class="status">{% trans 'Status' %}</th>
     <th class="assigned-to">{% trans 'Assigned to' %}</th>
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
+    <th class="expires hide_on_small_screen">{% trans 'Expires' %}</th>
 {% endblock %}
 
 {% block list %}
@@ -47,11 +48,15 @@
     <td class="datetime created hide_on_small_screen">
         {{ item.created|date:"d/m/Y H:i:s" }}
     </td>
+    <td class="datetime expires hide_on_small_screen">
+        {{ item.expires|date:"d/m/y" }}
+    </td>
 </tr>
 {% endfor %}
 {% endblock %}
 
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-    { "sType": "date-euro", "aTargets": [6] }
+    { "sType": "date-euro", "aTargets": [6] },
+    { "sType": "date-uk", "aTargets": [7] }
 {% endblock %}

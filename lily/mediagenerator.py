@@ -256,6 +256,7 @@ MEDIA_BUNDLES = (
         'lily/plugins/data-tables/search-filter_diacritics.js',
         'lily/plugins/data-tables/jquery.dataTables.js',
         'lily/plugins/data-tables/column-sort_date-euro.js',
+        'lily/plugins/data-tables/column-sort_date-uk.js',
         'plugins/data-tables/DT_bootstrap.js',
     ),
     ('modal.css',

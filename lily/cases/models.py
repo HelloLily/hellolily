@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -39,6 +41,8 @@ class Case(TenantMixin, Deleted):
     
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
+
+    expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
     
     def __unicode__(self):
         return self.subject

@@ -52,7 +52,7 @@ class EmailAccount(MessagesAccount):
     username = EncryptedCharField(max_length=255)
     password = EncryptedCharField(max_length=255)
     provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
-    last_sync_date = models.DateTimeField()
+    last_sync_date = models.DateTimeField(default=None, null=True)
     folders = JSONField()
 
     def __unicode__(self):

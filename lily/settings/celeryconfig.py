@@ -40,27 +40,41 @@ CELERY_ROUTES = (
     {'retrieve_low_priority_emails_for': {  # emails not in INBOX
         'queue': 'queue2'
     }},
-    {'manually_trigged_email_synchronization': {  # email headers from one folder
-        'queue': 'queue3'
-    }},
     {'retrieve_all_flags_for': {  # email flags from all folders, except DRAFTS
-        'queue': 'queue2'
+        'queue': 'queue3'
     }},
     {'synchronize_folder': {  # email from single folder
         'queue': 'queue3'
     }},
 )
-CELERYBEAT_SCHEDULE = {
-    'sychronize_email': {
-        'task': 'synchronize_email_scheduler',
-        'schedule': timedelta(seconds=120),
-    },
-    'sychronize_low_priority_email': {
-        'task': 'synchronize_low_priority_email_scheduler',
-        'schedule': timedelta(seconds=300),
-    },
-    'synchronize_email_flags': {
-        'task': 'synchronize_email_flags_scheduler',
-        'schedule': timedelta(seconds=210),
-    },
-}
+
+if DEBUG:
+    CELERYBEAT_SCHEDULE = {
+        'sychronize_email': {
+            'task': 'synchronize_email_scheduler',
+            'schedule': timedelta(seconds=12),
+        },
+        'sychronize_low_priority_email': {
+            'task': 'synchronize_low_priority_email_scheduler',
+            'schedule': timedelta(seconds=30),
+        },
+        'synchronize_email_flags': {
+            'task': 'synchronize_email_flags_scheduler',
+            'schedule': timedelta(seconds=21),
+        },
+    }
+else:
+    CELERYBEAT_SCHEDULE = {
+        'sychronize_email': {
+            'task': 'synchronize_email_scheduler',
+            'schedule': timedelta(seconds=120),
+        },
+        'sychronize_low_priority_email': {
+            'task': 'synchronize_low_priority_email_scheduler',
+            'schedule': timedelta(seconds=300),
+        },
+        'synchronize_email_flags': {
+            'task': 'synchronize_email_flags_scheduler',
+            'schedule': timedelta(seconds=210),
+        },
+    }

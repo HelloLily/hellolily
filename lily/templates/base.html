@@ -14,7 +14,7 @@
     {% endblock %}
     {% include_media 'metronic-theme.css' %}
     {% include_media 'jquery.js' %}
-    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="shortcut icon" href="{% media_url 'img/favicon.ico' %}" />
     <title>{% block head-title %}{% endblock %}</title>
 </head>
 

@@ -241,12 +241,12 @@ class InvitationForm(Form):
     """
     first_name = forms.CharField(label=_('First name'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-register-name',
+            'placeholder': _('First name')
         }
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': _('Email Address')
+            'placeholder': _('Email Adress')
         }
     ))
 

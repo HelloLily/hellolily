@@ -21,12 +21,14 @@
                         {% endfor %}
                     {% endblock %}
 
-                    {% if formsets %}
-                        <hr>
-                        {% for context_name, formset in formsets.items %}
-                            {% include formset.template with formset=formset.instance label=formset.label %}
-                        {% endfor %}
-                    {% endif %}
+                    {% block form-formsets %}
+                      {% if formsets %}
+                          <hr>
+                          {% for context_name, formset in formsets.items %}
+                              {% include formset.template with formset=formset.instance label=formset.label %}
+                          {% endfor %}
+                      {% endif %}
+                    {% endblock %}
                 </div>
                 {% block form-actions %}
                     <div class="clearfix"></div>

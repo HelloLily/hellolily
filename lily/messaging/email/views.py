@@ -1002,10 +1002,10 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                         messages.success(self.request, _('E-mail sent to %s') % truncatechars(recipients, 140))
 
                 # Remove an old draft when sending an e-mail message or saving a new draft
-                if hasattr(self, 'instance') and success and self.remove_old_message:
+                if self.object and success and self.remove_old_message:
                     self.remove_draft(server)
 
-            if 'submit-discard' in self.request.POST and hasattr(self, 'instance') and self.remove_old_message:
+            if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
                 self.remove_draft(server)
         except Exception, e:
             log.error(traceback.format_exc(e))
@@ -1062,8 +1062,8 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         """
         # Check for attachments
         email_message = self.attach_request_files(email_message)
-        if hasattr(self, 'instance') and self.instance.pk:
-            email_message = self.attach_stored_files(email_message, self.instance.pk)
+        if self.object and self.object.pk:
+            email_message = self.attach_stored_files(email_message, self.object.pk)
 
         message_string = unicode(email_message.message().as_string(unixfrom=False))
 
@@ -1147,16 +1147,16 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
         :param server: The server from which the old message needs to be removed.
         """
-        if self.instance.uid:
+        if self.object and self.object.uid:
             folder = server.get_folder(DRAFTS)
             is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
             if is_selected:
-                server.client.delete_messages([self.instance.uid])
+                server.client.delete_messages([self.object.uid])
                 server.client.close_folder()
 
         # Delete local attachments
-        self.instance.attachments.all().delete()
-        self.instance.delete()
+        self.object.attachments.all().delete()
+        self.object.delete()
 
     def get_email_headers(self):
         """
@@ -1233,10 +1233,11 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
     def get_form_kwargs(self, **kwargs):
         kwargs = super(EmailMessageReplyView, self).get_form_kwargs(**kwargs)
 
-        if hasattr(self, 'instance'):
-            kwargs['initial']['subject'] = 'Re: %s' % self.instance.subject
-            kwargs['initial']['send_to_normal'] = self.instance.from_combined
-            kwargs['message_type'] = 'reply'
+        kwargs['message_type'] = 'reply'
+
+        if self.object:
+            kwargs['initial']['subject'] = 'Re: %s' % self.object.subject
+            kwargs['initial']['send_to_normal'] = self.object.from_combined
 
         return kwargs
 
@@ -1245,7 +1246,7 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if hasattr(self.instance, 'send_from'):
+        if self.object and self.object.send_from:
             sender = email.utils.parseaddr(self.message.send_from)
             reply_to_name = sender[0]
             reply_to_address = sender[1]
@@ -1268,9 +1269,10 @@ class EmailMessageForwardView(EmailMessageReplyView):
         """
         kwargs = super(EmailMessageForwardView, self).get_form_kwargs(**kwargs)
 
-        if hasattr(self, 'instance'):
-            kwargs['initial']['subject'] = 'Fwd: %s' % self.instance.subject
-            kwargs['message_type'] = 'forward'
+        kwargs['message_type'] = 'forward'
+
+        if self.object:
+            kwargs['initial']['subject'] = 'Fwd: %s' % self.object.subject
 
         return kwargs
 email_forward_view = login_required(EmailMessageForwardView.as_view())

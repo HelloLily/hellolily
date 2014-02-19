@@ -3,7 +3,6 @@ import logging
 import StringIO
 import traceback
 from datetime import datetime, timedelta
-from imaplib import IMAP4
 
 from celery import task
 from dateutil.tz import tzutc
@@ -11,21 +10,24 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.files import File
 from django.core.files.storage import default_storage
-from django.db import connection
+from django.db import connection, transaction
 from django.utils.html import escape
 from imapclient import SEEN, DELETED
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
-from python_imap.server import IMAP
+from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text
 
-from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment
-from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html
+from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH
+from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html, get_task_count
 from lily.users.models import CustomUser
+
+# while profiling
+import resource
 
 
 task_logger = logging.getLogger('celery_task')
 
-LOCK_EXPIRE = 120  # lock expires in 2 minutes
+LOCK_EXPIRE = 300  # lock expire in seconds
 # cache.add failes if the key already exists
 acquire_lock = lambda (lock_id): cache.add(lock_id, "true", LOCK_EXPIRE)
 release_lock = lambda (lock_id): cache.delete(lock_id)
@@ -43,21 +45,33 @@ def synchronize_email_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.all().order_by('-last_sync_date')
+            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
             for emailaccount in emailaccounts:
                 emailaccount_id = emailaccount.id
                 email_address = emailaccount.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
 
+                retrieve_all_emails_task_count = get_task_count('retrieve_all_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
+                retrieve_new_emails_task_count = get_task_count('retrieve_new_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
+                in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
+
                 if not emailaccount.last_sync_date:
-                    retrieve_all_emails_for.apply_async(
-                        args=(emailaccount_id,)
-                    )
+                    if retrieve_all_emails_task_count == 0:
+                        retrieve_all_emails_for.apply_async(
+                            args=(emailaccount_id,),
+                            eta=in_a_moment
+                        )
+                    else:
+                        task_logger.info('skipping task "retrieve_all_emails_for" for %s', email_address)
                 else:
-                    retrieve_new_emails_for.apply_async(
-                        args=(emailaccount_id,)
-                    )
+                    if retrieve_new_emails_task_count == 0:
+                        retrieve_new_emails_for.apply_async(
+                            args=(emailaccount_id,),
+                            eta=in_a_moment
+                        )
+                    else:
+                        task_logger.info('skipping task "retrieve_new_emails_for" for %s', email_address)
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -115,26 +129,13 @@ def retrieve_new_emails_for(emailaccount_id):
                             port = emailaccount.provider.imap_port
                             ssl = emailaccount.provider.imap_ssl
                             server = IMAP(host, port, ssl)
-                            try:
-                                server.login(emailaccount.username, emailaccount.password)
-                            except IMAP4.error, e:
-                                catch_these = [
-                                    '[AUTHENTICATIONFAILED]'
-                                ]
-                                caught = False
-                                for exception in catch_these:
-                                    if e.message.startswith(exception):
-                                        caught = True
 
-                                if caught:
-                                    task_logger.info('IMAP login failed for %s (%s)', emailaccount.email.email_address, e.message)
-                                else:
-                                    raise
-                            else:
+                            if server.login(emailaccount.username, emailaccount.password):
+                                emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
+
                                 # Update folder list
                                 before = datetime.now()
                                 emailaccount.folders = get_account_folders_from_server(server)
-                                emailaccount.save()
                                 task_logger.info('Retrieving IMAP folder list for %s in %ss', emailaccount.email.email_address, (datetime.now() - before).total_seconds())
 
                                 # Download full email messages from INBOX
@@ -155,7 +156,11 @@ def retrieve_new_emails_for(emailaccount_id):
                                 task_logger.info('Retrieving new messages in folder %s since %s list in %ss', folder, datetime_since, (datetime.now() - before).total_seconds())
 
                                 emailaccount.last_sync_date = now_utc
-                                emailaccount.save()
+                            else:
+                                task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
+                                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                                    emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
+                            emailaccount.save()
                         finally:
                             if server:
                                 server.logout()
@@ -176,16 +181,22 @@ def synchronize_low_priority_email_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.all().order_by('-last_sync_date')
+            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
             for emailaccount in emailaccounts:
                 emailaccount_id = emailaccount.id
                 email_address = emailaccount.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
 
-                retrieve_low_priority_emails_for.apply_async(
-                    args=(emailaccount_id,)
-                )
+                retrieve_low_priority_task_count = get_task_count('retrieve_low_priority_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
+                if retrieve_low_priority_task_count == 0:
+                    in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
+                    retrieve_low_priority_emails_for.apply_async(
+                        args=(emailaccount_id,),
+                        eta=in_a_moment
+                    )
+                else:
+                    task_logger.info('skipping task "retrieve_low_priority_emails_for" for %s', email_address)
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -207,6 +218,8 @@ def retrieve_low_priority_emails_for(emailaccount_id):
           by a normal contact/account)
     The downloaded emails are 47h59s old at max.
     """
+    rusage = resource.getrusage(resource.RUSAGE_SELF)
+    task_logger.warn('rusage in retrieve_low_priority_emails_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
@@ -240,43 +253,37 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                         port = emailaccount.provider.imap_port
                         ssl = emailaccount.provider.imap_ssl
                         server = IMAP(host, port, ssl)
-                        try:
-                            server.login(emailaccount.username, emailaccount.password)
-                        except IMAP4.error, e:
-                            catch_these = [
-                                '[AUTHENTICATIONFAILED]'
-                            ]
-                            caught = False
-                            for exception in catch_these:
-                                if e.message.startswith(exception):
-                                    caught = True
 
-                            if caught:
-                                task_logger.info('IMAP login failed for %s (%s)', emailaccount.email.email_address, e.message)
-                            else:
-                                raise
-                        else:
+                        if server.login(emailaccount.username, emailaccount.password):
+                            emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
+
                             # Update folder list
                             emailaccount.folders = get_account_folders_from_server(server)
-                            emailaccount.save()
 
                             # Download email headers from messages in all folders except INBOX, DRAFTS, ALLMAIL
                             modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                            # folders = server.get_folders(exclude=[INBOX, DRAFTS, ALLMAIL])
                             folders = server.get_folders(exclude=[DRAFTS])
                             for folder in folders:
+                                task_logger.warn('rusage in retrieve_low_priority_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                                 before = datetime.now()
                                 synchronize_folder(emailaccount, server, folder, criteria=['SINCE "%s"' % datetime_since], modifiers_new=modifiers_new, new_only=True)
                                 task_logger.info('Retrieving new messages in folder %s list in %ss', folder, (datetime.now() - before).total_seconds())
 
                             # Download full messags from DRAFTS
+                            task_logger.warn('rusage in retrieve_low_priority_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                             modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                             synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                        else:
+                            task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
+                            if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                                emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
+                        emailaccount.save()
                     finally:
                         if server:
                             server.logout()
             finally:
                 release_lock(lock_id)
+    task_logger.warn('rusage in retrieve_low_priority_emails_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='retrieve_all_emails_for')
@@ -285,6 +292,8 @@ def retrieve_all_emails_for(emailaccount_id):
     Download all emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails.
     """
+    rusage = resource.getrusage(resource.RUSAGE_SELF)
+    task_logger.warn('rusage in retrieve_all_emails_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
@@ -301,42 +310,36 @@ def retrieve_all_emails_for(emailaccount_id):
                     port = emailaccount.provider.imap_port
                     ssl = emailaccount.provider.imap_ssl
                     server = IMAP(host, port, ssl)
-                    try:
-                        server.login(emailaccount.username, emailaccount.password)
-                    except IMAP4.error, e:
-                        catch_these = [
-                            '[AUTHENTICATIONFAILED]'
-                        ]
-                        caught = False
-                        for exception in catch_these:
-                            if e.message.startswith(exception):
-                                caught = True
 
-                        if caught:
-                            task_logger.info('IMAP login failed for %s (%s)', emailaccount.email.email_address, e.message)
-                        else:
-                            raise
-                    else:
+                    if server.login(emailaccount.username, emailaccount.password):
+                        emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
+
                         # Update folder list
                         emailaccount.folders = get_account_folders_from_server(server)
-                        emailaccount.save()
 
                         modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                         folders = server.get_folders(exclude=[DRAFTS])
                         for folder in folders:
+                            task_logger.warn('rusage in retrieve_all_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                             synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_new=modifiers_new, new_only=True)
 
+                        task_logger.warn('rusage in retrieve_all_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                         modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                         synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
                         emailaccount.last_sync_date = now_utc
-                        emailaccount.save()
+                    else:
+                        task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
+                        if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                            emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
+                    emailaccount.save()
                 finally:
                     if server:
                         server.logout()
 
             finally:
                 release_lock(lock_id)
+    task_logger.warn('rusage in retrieve_all_emails_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='synchronize_email_flags_scheduler')
@@ -351,16 +354,22 @@ def synchronize_email_flags_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.all().order_by('-last_sync_date')
+            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
             for emailaccount in emailaccounts:
                 emailaccount_id = emailaccount.id
                 email_address = emailaccount.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
 
-                retrieve_all_flags_for.apply_async(
-                    args=(emailaccount_id,)
-                )
+                retrieve_all_flags_task_count = get_task_count('retrieve_all_flags_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
+                if retrieve_all_flags_task_count == 0:
+                    in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
+                    retrieve_all_flags_for.apply_async(
+                        args=(emailaccount_id,),
+                        eta=in_a_moment
+                    )
+                else:
+                    task_logger.info('skipping task "retrieve_all_flags_for" for %s', email_address)
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -375,51 +384,48 @@ def retrieve_all_flags_for(emailaccount_id):
     Download all FLAGS for emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails but only updates the status UNSEEN, DELETED etc.
     """
+    rusage = resource.getrusage(resource.RUSAGE_SELF)
+    task_logger.warn('rusage in retrieve_all_flags_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
         pass
     else:
-        # lock_id = 'EmailAccount(%d)' % emailaccount_id
+        lock_id = 'EmailAccount(%d)-flags' % emailaccount_id
 
-        # if acquire_lock(lock_id):
-        #     try:
-        server = None
-        try:
-            host = emailaccount.provider.imap_host
-            port = emailaccount.provider.imap_port
-            ssl = emailaccount.provider.imap_ssl
-            server = IMAP(host, port, ssl)
+        if acquire_lock(lock_id):
             try:
-                server.login(emailaccount.username, emailaccount.password)
-            except IMAP4.error, e:
-                catch_these = [
-                    '[AUTHENTICATIONFAILED]'
-                ]
-                caught = False
-                for exception in catch_these:
-                    if e.message.startswith(exception):
-                        caught = True
+                server = None
+                try:
+                    host = emailaccount.provider.imap_host
+                    port = emailaccount.provider.imap_port
+                    ssl = emailaccount.provider.imap_ssl
+                    server = IMAP(host, port, ssl)
 
-                if caught:
-                    task_logger.info('IMAP login failed for %s (%s)', emailaccount.email.email_address, e.message)
-                else:
-                    raise
-            else:
-                # Update folder list
-                emailaccount.folders = get_account_folders_from_server(server)
-                emailaccount.save()
+                    if server.login(emailaccount.username, emailaccount.password):
+                        emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
 
-                modifiers_old = ['FLAGS', 'INTERNALDATE']
-                folders = server.get_folders(exclude=[DRAFTS, TRASH, SENT])
-                for folder in folders:
-                    synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old, old_only=True)
-        finally:
-            if server:
-                server.logout()
+                        # Update folder list
+                        emailaccount.folders = get_account_folders_from_server(server)
 
-            # finally:
-            #     release_lock(lock_id)
+                        modifiers_old = ['FLAGS', 'INTERNALDATE']
+                        folders = server.get_folders(exclude=[DRAFTS, TRASH, SENT])
+                        for folder in folders:
+                            task_logger.warn('rusage in retrieve_all_flags_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
+                            # synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old, old_only=True)
+                            synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old)
+                    else:
+                        task_logger.warn('IMAP login failed for %s', emailaccount.email.email_address)
+                        if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                            emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
+                    emailaccount.save()
+                finally:
+                    if server:
+                        server.logout()
+
+            finally:
+                release_lock(lock_id)
+    task_logger.warn('rusage in retrieve_all_flags_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='mark_messages')
@@ -458,22 +464,10 @@ def mark_messages(message_ids, read=True):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                try:
-                    server.login(account.username, account.password)
-                except IMAP4.error, e:
-                    catch_these = [
-                        '[AUTHENTICATIONFAILED]'
-                    ]
-                    caught = False
-                    for exception in catch_these:
-                        if e.message.startswith(exception):
-                            caught = True
 
-                    if caught:
-                        task_logger.info('IMAP login failed for %s (%s)', account.email.email_address, e.message)
-                    else:
-                        raise
-                else:
+                if server.login(account.username, account.password):
+                    account.auth_ok = OK_EMAILACCOUNT_AUTH
+
                     for folder_name, uids in folders.items():
                         folder = server.get_folder(folder_name)
                         is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
@@ -487,6 +481,12 @@ def mark_messages(message_ids, read=True):
                                 server.client.remove_flags(uids, [SEEN])
 
                             server.client.close_folder()
+                else:
+                    task_logger.info('IMAP login failed for %s', account.email.email_address)
+                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        account.auth_ok = NO_EMAILACCOUNT_AUTH
+                account.save()
+
             finally:
                 if server:
                     server.logout()
@@ -528,22 +528,10 @@ def delete_messages(message_ids):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                try:
-                    server.login(account.username, account.password)
-                except IMAP4.error, e:
-                    catch_these = [
-                        '[AUTHENTICATIONFAILED]'
-                    ]
-                    caught = False
-                    for exception in catch_these:
-                        if e.message.startswith(exception):
-                            caught = True
 
-                    if caught:
-                        task_logger.info('IMAP login failed for %s (%s)', account.email.email_address, e.message)
-                    else:
-                        raise
-                else:
+                if server.login(account.username, account.password):
+                    account.auth_ok = OK_EMAILACCOUNT_AUTH
+
                     for folder_name, uids in folders.items():
                         folder = server.get_folder(folder_name)
                         is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
@@ -554,6 +542,11 @@ def delete_messages(message_ids):
                             server.client.add_flags(uids, DELETED)
 
                             server.client.close_folder()
+                else:
+                    task_logger.info('IMAP login failed for %s', account.email.email_address)
+                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        account.auth_ok = NO_EMAILACCOUNT_AUTH
+                account.save()
             except Exception, e:
                 print traceback.format_exc(e)
             finally:
@@ -594,29 +587,16 @@ def move_messages(message_ids, target_folder_name):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                try:
-                    server.login(account.username, account.password)
-                except IMAP4.error, e:
-                    catch_these = [
-                        '[AUTHENTICATIONFAILED]'
-                    ]
-                    caught = False
-                    for exception in catch_these:
-                        if e.message.startswith(exception):
-                            caught = True
 
-                    if caught:
-                        task_logger.info('IMAP login failed for %s (%s)', account.email.email_address, e.message)
-                    else:
-                        raise
-                else:
+                if server.login(account.username, account.password):
+                    account.auth_ok = OK_EMAILACCOUNT_AUTH
+
                     # Get or create folder *target_folder_name*
                     target_folder = server.get_folder(target_folder_name)
                     if target_folder is None:
                         # Update folders for account
                         server.client.create_folder(target_folder_name)
                         account.folders = get_account_folders_from_server(server)
-                        account.save()
 
                         target_folder = server.get_folder(target_folder_name)
 
@@ -641,6 +621,11 @@ def move_messages(message_ids, target_folder_name):
 
                         # Synchronize with target_folder
                         synchronize_folder(account, server, target_folder, new_only=True)
+                else:
+                    task_logger.info('IMAP login failed for %s', account.email.email_address)
+                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        account.auth_ok = NO_EMAILACCOUNT_AUTH
+                account.save()
             except Exception, e:
                 print traceback.format_exc(e)
             finally:
@@ -750,11 +735,12 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
     task_logger.debug('sync done for %s', unicode(folder.get_name()))
 
 
+@transaction.commit_on_success
 def save_email_messages(messages, account, folder, new_messages=False):
     """
     Save messages in database for account. Folder_name needs to be the server name.
     """
-    task_logger.info('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
+    task_logger.warn('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
     try:
         query_batch_size = 10000
         new_email_attachments = {}

@@ -38,7 +38,7 @@ from lily.contacts.models import Contact
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationWizard_1, \
     EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
-from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider
+from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH
 from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
@@ -1288,6 +1288,7 @@ class EmailConfigurationWizardView(SessionWizardView):
         account.password = data['0']['password']
         account.provider = provider
         account.last_sync_date = datetime.datetime.now(tzutc()) - datetime.timedelta(days=1)
+        account.auth_ok = OK_EMAILACCOUNT_AUTH
         account.save()
 
         # Authorize current user to emailaccount

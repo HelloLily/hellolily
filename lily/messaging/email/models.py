@@ -42,6 +42,14 @@ class EmailProvider(TenantMixin):
         verbose_name_plural = _('e-mail providers')
 
 
+NO_EMAILACCOUNT_AUTH, OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH = range(3)
+EMAILACCOUNT_AUTH_CHOICES = (
+    (NO_EMAILACCOUNT_AUTH, _('No (working) credentials')),
+    (OK_EMAILACCOUNT_AUTH, _('Working credentials')),
+    (UNKNOWN_EMAILACCOUNT_AUTH, _('Credentials needs testing')),
+)
+
+
 class EmailAccount(MessagesAccount):
     """
     An e-mail account.
@@ -51,6 +59,7 @@ class EmailAccount(MessagesAccount):
     email = models.ForeignKey(EmailAddress, related_name='email', unique=True)
     username = EncryptedCharField(max_length=255)
     password = EncryptedCharField(max_length=255)
+    auth_ok = models.IntegerField(choices=EMAILACCOUNT_AUTH_CHOICES, default=NO_EMAILACCOUNT_AUTH)
     provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     last_sync_date = models.DateTimeField(default=None, null=True)
     folders = JSONField()
@@ -84,7 +93,6 @@ class EmailMessage(Message):
         """
         Return the template that must be used for history list rendering
         """
-        #return 'messaging/email/mwsadmin/history_list_item.html'
         return 'messaging/email/email_message_list_single_object.html'
 
     def has_attachments(self):

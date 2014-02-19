@@ -17,6 +17,7 @@ CELERY_DEFAULT_QUEUE = 'celery'
 CELERY_ENABLE_UTC = True
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_SEND_TASK_ERROR_EMAILS = not DEBUG
+# CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_QUEUES = (
@@ -31,6 +32,9 @@ CELERY_ROUTES = (
     {'sychronize_low_priority_email': {  # schedule non-priority email tasks without interference
         'queue': 'celery'
     }},
+    {'synchronize_email_flags_scheduler': {  # schedule email flags tasks without interference
+        'queue': 'celery'
+    }},
     {'retrieve_new_emails_for': {  # UNSEEN emails in INBOX
         'queue': 'queue1'
     }},
@@ -43,9 +47,9 @@ CELERY_ROUTES = (
     {'retrieve_all_flags_for': {  # email flags from all folders, except DRAFTS
         'queue': 'queue3'
     }},
-    {'synchronize_folder': {  # email from single folder
-        'queue': 'queue3'
-    }},
+    # {'synchronize_folder': {  # email from single folder
+    #     'queue': 'queue3'
+    # }},
 )
 
 if DEBUG:

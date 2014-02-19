@@ -1,32 +1,54 @@
 from imapclient.imapclient import IMAPClient
+from imaplib import IMAP4
 
-from folder import Folder, XLIST_FOLDER_FLAGS
-from logger import logger
-from message import Message
+from .folder import Folder, XLIST_FOLDER_FLAGS
+from .logger import logger
+from .message import Message
+
+
+CATCH_LOGIN_ERRORS = [
+    '[ALERT] Invalid credentials',
+    '[ALERT] Too many simultaneous connections',
+    '[AUTHENTICATIONFAILED]',
+    'Invalid credentials',
+]
 
 
 class IMAP(object):
     client = None
     _folders = None
     _folders_reverse = None
+    _login_failed_reason = None
 
     def __init__(self, host, port=None, ssl=True, use_uid=True, stream=False):
         self.client = IMAPClient(host, port, use_uid, ssl, stream)
 
     def login(self, username, password):
-        if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
-            self.client.login(username, password)
-
-        if self.client._imap.state in ('SELECTED', 'AUTH'):
-            logger.debug('imap login success')
-            return True
+        try:
+            if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
+                self.client.login(username, password)
+        except IMAP4.error, e:
+            caught = False
+            for error in CATCH_LOGIN_ERRORS:
+                if e.message.startswith(error):
+                    self._login_failed_reason = error
+                    caught = True
+            if not caught:
+                raise
+        else:
+            if self.client._imap.state in ('SELECTED', 'AUTH'):
+                logger.debug('imap login success')
+                return True
 
         logger.debug('imap login fail')
         return False
 
     def logout(self):
         if self.client._imap.state in ('SELECTED', 'AUTH'):
-            self.client.logout()
+            try:
+                self.client.logout()
+            except:
+                pass
 
         if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
             logger.debug('imap logout success')

@@ -10,7 +10,7 @@ beat: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h
 worker1: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h
 
 ## worker: Execute tasks in queue 'queue2'
-worker2: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h
+worker2: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h --maxtasksperchild=5 --autoscale=4,2
 
 ## worker: Execute tasks in queue 'queue3'
 worker3: celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h

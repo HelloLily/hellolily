@@ -213,3 +213,7 @@
 .select2-container.tags {
     width: 100%;
 }
+
+.inbox tr.unread td{
+  font-weight: 900;
+}

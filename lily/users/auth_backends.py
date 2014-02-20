@@ -21,7 +21,7 @@ class EmailAuthenticationBackend(ModelBackend):
                                 contact__email_addresses__email_address__iexact=email, 
                                 contact__email_addresses__is_primary=True
             )
-            
+
             if(user.is_active) and (user.check_password(password) or no_pass):
                 return user
             return None

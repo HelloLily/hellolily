@@ -1,3 +1,9 @@
+from __future__ import absolute_import
+
+# This will make sure the app is always imported when
+# Django starts so that shared_task will use this app.
+from .celery import app as celery_app
+
 #===================================================================================================
 #
 # Enable stripping whitespace for input on all forms.
@@ -12,7 +18,7 @@ from django.forms.forms import BaseForm
 from lily.utils.functions import autostrip
 
 
-local_installed_apps = filter(lambda item: item.startswith('%s.' % __name__), settings.INSTALLED_APPS)
+local_installed_apps = [app for app in settings.INSTALLED_APPS if app.startswith('%s.' % __name__)]
 
 
 def is_form(member):

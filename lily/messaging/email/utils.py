@@ -3,6 +3,7 @@ from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
+from celery.task.control import inspect
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
 from django.core.urlresolvers import reverse
@@ -391,9 +392,55 @@ class EmailMultiRelated(EmailMultiAlternatives):
         attachment = super(EmailMultiRelated, self)._create_attachment(filename, content, mimetype)
         if filename:
             mimetype = attachment['Content-Type']
-            del(attachment['Content-Type'])
-            del(attachment['Content-Disposition'])
+            del attachment['Content-Type']
+            del attachment['Content-Disposition']
             attachment.add_header('Content-Disposition', 'inline', filename=filename)
             attachment.add_header('Content-Type', mimetype, name=filename)
             attachment.add_header('Content-ID', '<%s>' % filename)
         return attachment
+
+
+def get_task_count(name, statuses, arguments=None):
+    """
+    Do a count of tasks in celery by task name, task status and optionally task arguments.
+    *statuses* is a list with at least one of ['scheduled', 'reserved'].
+    """
+    count = 0
+    inspection = inspect()
+
+    if not isinstance(statuses, list):
+        statuses = [statuses]
+
+    if 'scheduled' in statuses:
+        all_tasks = inspection.scheduled()
+        if all_tasks:
+            workers = all_tasks.keys()
+            for worker in workers:
+                worker_tasks = all_tasks.get(worker)
+                for task in worker_tasks:
+                    request = task.get('request')
+                    if request:
+                        if request.get('name') == name:
+                            task_args = request.get('args')
+                            if arguments:
+                                if task_args == arguments:
+                                    count += 1
+                            else:
+                                count += 1
+
+    if 'reserved' in statuses:
+        all_tasks = inspection.reserved()
+        if all_tasks:
+            workers = all_tasks.keys()
+            for worker in workers:
+                worker_tasks = all_tasks.get(worker)
+                for task in worker_tasks:
+                    if task.get('name') == name:
+                        task_args = task.get('args')
+                        if arguments:
+                            if task_args == arguments:
+                                count += 1
+                        else:
+                            count += 1
+
+    return count

@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
 import django.conf.global_settings as DEFAULT_SETTINGS
-import djcelery
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import gettext_noop
 
+# Provide a dummy translation function without importing it from
+# django.utils.translation, because that module is depending on
+# settings itself possibly resulting in a circular import
+gettext_noop = lambda s: s
 
 # Don't share this with anybody
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
@@ -19,7 +21,7 @@ uses_netloc.append('redis')
 boolean = lambda value: bool(int(value))
 
 # Get local path for any given folder/path
-local_path = lambda path: os.path.join(os.path.dirname(__file__), path)
+local_path = lambda path: os.path.join(os.path.dirname(__file__), os.pardir, path)
 
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
@@ -166,19 +168,18 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 
     # 3rd party
-    'bootstrap3',
-    'templated_email',
-    'easy_thumbnails',
-    'gunicorn',
     'activelink',
-    'south',
-    'djcelery',
+    'bootstrap3',
     'debug_toolbar',
-    'mediagenerator',
-    'storages',
     'crispy_forms',
     'django_extensions',
     'djangoformsetjs',
+    'easy_thumbnails',
+    'gunicorn',
+    'mediagenerator',
+    'templated_email',
+    'storages',
+    'south',
     #'template_debug',  # in-template tags for debugging purposes
 
     # Lily
@@ -298,52 +299,6 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
-# django-celery
-djcelery.setup_loader()
-CELERY_SEND_TASK_ERROR_EMAILS = boolean(os.environ.get('CELERY_SEND_TASK_ERROR_EMAILS', 0))
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-CELERY_TASK_RESULT_EXPIRES = 172800  # 48 hours.
-
-# Settings that use Redis
-redis = os.environ.get('REDISTOGO_URL', False)
-if redis:
-    # django-celery
-    BROKER_URL = redis
-    CELERY_RESULT_BACKEND = 'redis'
-    CELERY_REDIS_HOST = 'localhost'
-    CELERY_REDIS_PORT = 6379
-    CELERY_REDIS_DB = 0
-
-    if boolean(os.environ.get('ENABLE_CACHE', 0)):
-        # django-redis-cache
-        url = urlparse(os.environ['REDISTOGO_URL'])
-        CACHES = {
-            'default': {
-                'BACKEND': 'redis_cache.RedisCache',
-                'LOCATION': "{0.hostname}:{0.port}".format(url),
-                'OPTIONS': {
-                    'PASSWORD': url.password,
-                    'DB': 0
-                }
-            }
-        }
-else:
-    # django-celery
-    INSTALLED_APPS += (
-        'kombu.transport.django',
-        )
-    BROKER_BACKEND = 'django'
-
-    if boolean(os.environ.get('ENABLE_CACHE', 0)):
-        CACHES = {
-             'default': {
-                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-                 }
-         }
-UNIQUE_TASKS = [
-    'lily.messaging.email.tasks.synchronize_email',
-]
-
 # New relic
 NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
 NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
@@ -361,20 +316,6 @@ NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
     'session': 'Http session',
 }
 
-# django-redis-cache
-if os.environ.get('REDISTOGO_URL', '') and boolean(os.environ.get('ENABLE_CACHE', 1)):
-    url = urlparse(os.environ['REDISTOGO_URL'])
-    CACHES = {
-        'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': "{0.hostname}:{0.port}".format(url),
-            'OPTIONS': {
-                'PASSWORD': url.password,
-                'DB': 0,
-            }
-        }
-    }
-
 # django-mediagenerator
 MEDIA_DEV_MODE = boolean(os.environ.get('MEDIA_DEV_MODE', DEBUG))
 IGNORE_APP_MEDIA_DIRS = ()  # empty to include admin media
@@ -384,15 +325,14 @@ GENERATED_MEDIA_DIRS = (local_path('generated_media_dir'),)
 DEV_MEDIA_URL = os.environ.get('DEV_MEDIA_URL', '/static/')
 PRODUCTION_MEDIA_URL = os.environ.get('PRODUCTION_MEDIA_URL', DEV_MEDIA_URL)
 
-YUICOMPRESSOR_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'lib', 'yuicompressor-2.4.7.jar')
+YUICOMPRESSOR_PATH = local_path(os.path.join('..', 'lib', 'yuicompressor-2.4.7.jar'))
 ROOT_MEDIA_FILTERS = {
     'js': 'mediagenerator.filters.yuicompressor.YUICompressor',
     'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
 }
 
 try:
-    import mediagenerator
-    MEDIA_BUNDLES = mediagenerator.MEDIA_BUNDLES
+    from lily.mediagenerator import MEDIA_BUNDLES
 except ImportError:
     raise Exception("Missing MEDIA_BUNDLES: define your media_bundles in mediagenerator.py")
 
@@ -416,3 +356,29 @@ AWS_HEADERS = {
 
 # cripsy-forms
 CRISPY_TEMPLATE_PACK = 'mwsadmin/mws-admin'
+
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': '/var/tmp/django_cache',
+            'TIMEOUT': 60,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000
+            }
+        }
+    }
+else:
+    redis_url = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'))
+    CACHES = {
+        'default': {
+            'BACKEND': 'redis_cache.RedisCache',
+            'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+            'TIMEOUT': 60,
+            'OPTIONS': {
+                'DB': 0,
+                'PASSWORD': redis_url.password,
+                'PARSER_CLASS': 'redis.connection.HiredisParser'
+            },
+        }
+    }

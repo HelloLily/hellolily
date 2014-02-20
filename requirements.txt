@@ -1,30 +1,34 @@
-amqplib>=1.0.2
+amqp>=1.4.1
 anyjson>=0.3.3
-beautifulsoup4==4.3.1
-billiard==2.7.3.12
+beautifulsoup4>=4.3.1
+billiard>=3.3.0.13
 boto==2.5.2
-celery==3.0.8
+celery>=3.1.7
 chardet==2.1.1
-dj-database-url==0.2.0
+dj-database-url>=0.2.2
 Django>1.4.5,<1.5
 django-activelink==0.3
-django-celery>=3.0.6
+django-bootstrap3
+django-bootstrap3-datetimepicker
 django-debug-toolbar>=0.9.4
 django-extensions>=0.9
 django-extra-views>=0.2.5
 django-fields>=0.2.0
+django-formset-js
 django-newrelic-extensions>=0.0.1
 django-picklefield>=0.2.1
 django-polymorphic>=0.4.2
-django-redis-cache>=0.9.5
+django-redis-cache>=0.10.2
 django-storages==1.1.5
 django-templated-email>=0.4.7
 easy-thumbnails>=1.1
 gevent>=0.13.7
-greenlet==0.4.0
+greenlet>=0.4.0
 gunicorn>=0.14.6
-IMAPClient==0.9.2
-kombu==2.4.5
+hiredis>=0.1.2
+IMAPClient>=0.10.2
+iron_celery>=0.4.0
+kombu>=3.0.9
 lxml==3.2.3
 MarkupSafe==0.18
 newrelic>=1.2.1.265
@@ -34,17 +38,11 @@ psycopg2>=2.4.5
 pycrypto==2.6
 python-dateutil==1.5
 pytz==2012c
-#readline==6.2.4.1  # For MacOSX only
-redis==2.6.2
+redis>=2.9.0
 South>=0.7.6
 
-# New theme packages
-django-bootstrap3
-django-formset-js
-django-bootstrap3-datetimepicker
-
 # Remove after new theme
-https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms  # replace by django-bootstrap3/betterform ?
+https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms
 
 # To be replaced in the near future
 https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip

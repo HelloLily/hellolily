@@ -36,6 +36,12 @@
                     <span class="summary-label">{% trans 'Created' %}</span>
                     <span class="pull-right">{{ object.created|date:"d M y H:i" }}</span>
                 </li>
+                {% if object.expires %}
+                    <li>
+                        <span class="summary-label">{% trans 'Expires' %}</span>
+                        <span class="pull-right">{{ object.expires|date:"d M y" }}</span>
+                    </li>
+                {% endif %}
             </ul>
         </div>
         <div class="col-md-6 col-xs-6">

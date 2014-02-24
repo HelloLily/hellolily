@@ -15,7 +15,6 @@ class EmailAddressBaseForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(EmailAddressBaseForm, self).__init__(*args, **kwargs)
 
-        self.fields['email_address'].label = ''
 
     class Meta:
         model = EmailAddress
@@ -24,7 +23,6 @@ class EmailAddressBaseForm(ModelForm):
         widgets = {
             'email_address': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
-                'placeholder': _('E-mail address'),
             }),
         }
 
@@ -42,9 +40,7 @@ class PhoneNumberBaseForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PhoneNumberBaseForm, self).__init__(*args, **kwargs)
 
-        self.fields['raw_input'].label = ''
-        self.fields['type'].label = ''
-        self.fields['other_type'].label = ''
+        self.fields['raw_input'].label = _('Phone Number')
 
     class Meta:
         model = PhoneNumber
@@ -81,14 +77,6 @@ class AddressBaseForm(ModelForm):
                 if choices[i][0] in self.exclude_address_types:
                     del choices[i]
             self.fields['type'].choices = choices
-
-        self.fields['street'].label = ''
-        self.fields['street_number'].label = ''
-        self.fields['complement'].label = ''
-        self.fields['postal_code'].label = ''
-        self.fields['city'].label = ''
-        self.fields['country'].label = ''
-        self.fields['type'].label = ''
 
     class Meta:
         model = Address

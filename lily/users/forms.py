@@ -12,8 +12,6 @@ from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
-from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.layout import Row, InlineRow, FormMessage, PasswordStrengthIndicator, Column
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -129,14 +127,8 @@ class CustomSetPasswordForm(SetPasswordForm):
     This form is a subclass from the default SetPasswordForm.
     CustomUser is used for validation instead of User.
     """
-    new_password1 = forms.CharField(label=_('New password'),
-        widget=JqueryPasswordInput(attrs={
-            'class': 'mws-reset-password',
-    }))
-    new_password2 = forms.CharField(label=_('Confirmation'),
-        widget=forms.PasswordInput(attrs={
-            'class': 'mws-reset-password',
-    }))
+    new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput())
+    new_password2 = forms.CharField(label=_('Confirmation'), widget=forms.PasswordInput())
 
 
 class ResendActivationForm(Form):
@@ -150,10 +142,7 @@ class ResendActivationForm(Form):
                     "account that is already active."),
     }
 
-    email = forms.EmailField(label=_('E-mail address'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-reset-email',
-    }))
+    email = forms.EmailField(label=_('E-mail address'), max_length=255)
 
     def clean_email(self):
         """
@@ -177,41 +166,15 @@ class RegistrationForm(Form):
     """
     This form allows new user registration.
     """
-    email = forms.EmailField(label=_('E-mail'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-email',
-        }
-    ))
+    email = forms.EmailField(label=_('E-mail'), max_length=255)
     password = forms.CharField(label=_('Password'), min_length=6,
-        widget=JqueryPasswordInput(attrs={
-            'class': 'mws-register-password',
-        }
-    ))
+        widget=JqueryPasswordInput())
     password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6,
-        widget=forms.PasswordInput(attrs={
-            'class': 'mws-register-password',
-        }
-    ))
-    first_name = forms.CharField(label=_('First name'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-first-name',
-        }
-    ))
-    preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-preposition',
-        }
-    ))
-    last_name = forms.CharField(label=_('Last name'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-last-name',
-        }
-    ))
-    company = forms.CharField(label=_('Company'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-company',
-        }
-    ))
+        widget=forms.PasswordInput())
+    first_name = forms.CharField(label=_('First name'), max_length=255)
+    preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
+    last_name = forms.CharField(label=_('Last name'), max_length=255)
+    company = forms.CharField(label=_('Company'), max_length=255)
 
     def clean(self):
         """

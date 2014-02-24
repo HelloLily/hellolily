@@ -4,13 +4,14 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
+from lily.utils.widgets import DataProviderInput
 
 
 class AddAccountQuickbuttonForm(ModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
-    website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False)
+    website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False, widget=DataProviderInput())
     name = forms.CharField(label=_('Company name'), max_length=255)
     email = forms.EmailField(label=_('E-mail address'), max_length=255)
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
@@ -58,7 +59,7 @@ class CreateUpdateAccountForm(TagsFormMixin):
     """
     Form for creating or updating an account.
     """
-    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False)
+    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False, widget=DataProviderInput())
 
     def __init__(self, *args, **kwargs):
         """

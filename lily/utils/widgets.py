@@ -1,10 +1,13 @@
 from bootstrap3_datetime.widgets import DateTimePicker
+
 from django import forms
 from django.forms.models import model_to_dict
 from django.forms.widgets import Select, TextInput
+from django.forms.util import flatatt
 from django.utils import simplejson, translation
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_unicode, force_text
 from django.utils.html import escape, conditional_escape
+from django.utils.safestring import mark_safe
 
 from lily.messaging.email.models import EmailProvider
 
@@ -138,3 +141,58 @@ class DatePicker(DateTimePicker):
             self.options['language'] = translation.get_language()
             if format and not self.options.get('format') and not self.attrs.get('date-format'):
                 self.options['format'] = self.conv_datetime_format_py2js(format)
+
+
+class DataProviderInput(TextInput):
+    html_template = '''
+        <div%(div_attrs)s>
+            <input%(input_attrs)s/>
+            <span class="input-group-btn">
+                <button%(button_attrs)s><i%(icon_attrs)s></i></button>
+            </span>
+        </div>'''
+
+    def __init__(self, attrs=None, div_attrs=None, button_attrs=None, icon_attrs=None):
+        if not icon_attrs:
+            icon_attrs = {'class': 'icon-globe'}
+
+        button_attrs = {} if not button_attrs else button_attrs
+        if not button_attrs.get('class'):
+            button_attrs.update({'class': 'btn default dataprovider'})
+        if not button_attrs.get('type'):
+            button_attrs.update({'type': 'button'})
+        if not button_attrs.get('data-loading-text'):
+            button_attrs.update({'data-loading-text': 'loading...'})
+        if not button_attrs.get('autocomplete'):
+            button_attrs.update({'autocomplete': 'off'})
+
+        if not div_attrs:
+            div_attrs = {'class': 'input-group dataprovider'}
+
+        super(DataProviderInput, self).__init__(attrs)
+
+        self.div_attrs = div_attrs and div_attrs.copy() or {}
+        self.button_attrs = button_attrs and button_attrs.copy() or {}
+        self.icon_attrs = icon_attrs and icon_attrs.copy() or {}
+
+    def render(self, name, value, attrs=None):
+        if value is None:
+            value = ''
+
+        input_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+
+        if value != '':
+            # Only add the 'value' attribute if a value is non-empty.
+            input_attrs['value'] = force_text(self._format_value(value))
+        input_attrs = dict([(key, conditional_escape(val)) for key, val in input_attrs.items()])  # python2.6 compatible
+
+        div_attrs = dict([(key, conditional_escape(val)) for key, val in self.div_attrs.items()])  # python2.6 compatible
+        icon_attrs = dict([(key, conditional_escape(val)) for key, val in self.icon_attrs.items()])
+        button_attrs = dict([(key, conditional_escape(val)) for key, val in self.button_attrs.items()])
+
+        html = self.html_template % dict(div_attrs=flatatt(div_attrs),
+                                         input_attrs=flatatt(input_attrs),
+                                         button_attrs=flatatt(button_attrs),
+                                         icon_attrs=flatatt(icon_attrs))
+
+        return mark_safe(force_text(html))

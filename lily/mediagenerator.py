@@ -298,6 +298,8 @@ MEDIA_BUNDLES = (
         'lily/scripts/forms/select2.js',
         'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
 
+        'lily/scripts/forms/dataprovider.js',
+
         {'filter': 'mediagenerator.filters.i18n.I18N'},
     ),
     ('inbox.css',

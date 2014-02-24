@@ -1,0 +1,32 @@
+{% load i18n media %}<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="MobileOptimized" content="320">
+    {% include_media 'font-awesome.css' %}
+    {% include_media 'jquery.js' %}
+    {% include_media 'metronic-core.css' %}
+    {% include_media 'metronic-theme.css' %}
+    {% block css %}{% endblock %}
+    <link rel="shortcut icon" href="favicon.ico" />
+    <title>{% block head-title %}{% endblock %}</title>
+</head>
+
+<body class="{% block body-class %}login{% endblock %}">
+    {% block body-content %}{% endblock %}
+    <script>
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-401436-20']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>    
+</body>
+</html>

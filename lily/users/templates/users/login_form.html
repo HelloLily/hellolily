@@ -1,0 +1,13 @@
+{% extends 'anonymous/form.html' %}
+
+{% load i18n %}
+
+{% block head-title %}HelloLily {% trans 'Log in' %}{% endblock %}
+{% block form-title %}HelloLily {% trans 'Log in' %}{% endblock %}
+{% block submit-label %}{% trans 'Login' %}{% endblock %}
+{% block bottom-links %}
+<div class="panel">
+	<a class="btn" href="{% url password_reset %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
+	<a class="btn" href="{% url activation_resend %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Resend activation e-mail' %}</a>
+</div>	
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'anonymous/form.html' %}
+
+{% load i18n %}
+
+{% block head-title %}{% trans 'Reset password' %}{% endblock %}
+{% block form-title %}{% trans 'Enter your new password' %}{% endblock %}
+{% block help-text %}
+<p>{% trans 'Please enter your new password twice so we can verify you typed it in correctly.' %}</p>
+{% endblock %}
+{% block submit-label %}{% trans 'Change my password' %}{% endblock %}

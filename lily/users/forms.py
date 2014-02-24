@@ -30,24 +30,17 @@ class CustomAuthenticationForm(AuthenticationForm):
         'inactive': _("This account is inactive."),
     }
 
-    username = forms.CharField(label=_('E-mail address'), max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-login-email',
+    username = forms.CharField(label=_('Email address'), max_length=255, widget=forms.TextInput(attrs={
+        'class': 'form-control placeholder-no-fix',
+        'autocomplete': 'off',
+        'placeholder': _('Email address'),
     }))
     password = forms.CharField(label=_('Password'), widget=forms.PasswordInput(attrs={
-        'class': 'mws-login-password',
+        'class': 'form-control placeholder-no-fix',
+        'autocomplete': 'off',
+        'placeholder': _('Password'),
     }))
     remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(CustomAuthenticationForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(form=self)
-        self.helper.form_style = 'default'
-        self.helper.add_input(Submit('submit', _('Log in')))
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
-        self.helper.wrap_by_names(Row, 'username', 'password')
-
-        self.helper.delete_label_for('username', 'password')
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -57,23 +50,11 @@ class CustomPasswordResetForm(PasswordResetForm):
     """
     inactive_error_message = _('You cannot request a password reset for an account that is inactive.')
 
-    email = forms.EmailField(label=_('E-mail address'), max_length=255,
+    email = forms.EmailField(label=_('Email address'), max_length=255,
         widget=forms.TextInput(attrs={
-            'class': 'mws-reset-email',
+            'class': 'form-control placeholder-no-fix',
+            'placeholder': _('Email address'),
     }))
-
-    def __init__(self, *args, **kwargs):
-        super(CustomPasswordResetForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(form=self)
-        self.helper.form_style = 'default'
-        self.helper.layout.insert(0,
-            FormMessage(_('Forgotten your password? Enter your e-mail address below, and we\'ll e-mail instructions for setting a new one.'))
-        )
-        self.helper.add_input(Submit('submit', _('Reset my password')))
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-
-        self.helper.delete_label_for('email')
 
     def form_valid(self, form):
         """
@@ -157,22 +138,6 @@ class CustomSetPasswordForm(SetPasswordForm):
             'class': 'mws-reset-password',
     }))
 
-    def __init__(self, *args, **kwargs):
-        super(CustomSetPasswordForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(form=self)
-        self.helper.form_style = 'default'
-        self.helper.layout.insert(0,
-            FormMessage(_('Please enter your new password twice so we can verify you typed it in correctly.'))
-        )
-        self.helper.layout.insert(3,
-            PasswordStrengthIndicator()
-        )
-        self.helper.add_input(Submit('submit', _('Change my password')))
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-
-        self.helper.delete_label_for('new_password1', 'new_password2')
-
 
 class ResendActivationForm(Form):
     """
@@ -189,19 +154,6 @@ class ResendActivationForm(Form):
         widget=forms.TextInput(attrs={
             'class': 'mws-reset-email',
     }))
-
-    def __init__(self, *args, **kwargs):
-        super(ResendActivationForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(form=self)
-        self.helper.form_style = 'default'
-        self.helper.layout.insert(0,
-            FormMessage(_('Didn\'t receive your activation e-mail? Enter your e-mail address below, and we\'ll e-mail it again, free of charge!'))
-        )
-        self.helper.add_input(Submit('submit', _('Resend activation e-mail')))
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(InlineRow)
-        self.helper.exclude_by_widget(forms.HiddenInput).wrap(Row)
-
-        self.helper.delete_label_for('email')
 
     def clean_email(self):
         """
@@ -260,30 +212,6 @@ class RegistrationForm(Form):
             'class': 'mws-register-company',
         }
     ))
-
-    def __init__(self, *args, **kwargs):
-        super(RegistrationForm, self).__init__(*args, **kwargs)
-
-        # Customize layout
-        self.helper = LilyFormHelper(self)
-        self.helper.layout = Layout()
-        self.helper.add_columns(
-            Column('first_name', size=3, first=True),
-            Column('preposition', size=2),
-            Column('last_name', size=3),
-            label=_('Name'),
-        )
-        self.helper.add_large_fields('email', 'company')
-        self.helper.add_columns(
-            Column('password', size=3, first=True),
-            Column('password_repeat', size=3),
-        )
-        self.helper.layout.append(
-            InlineRow(
-                PasswordStrengthIndicator()
-            ),
-        )
-        self.helper.add_input(Submit('submit', _('Register')))
 
     def clean(self):
         """
@@ -361,7 +289,7 @@ class InvitationForm(Form):
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': _('Email Adress')
+            'placeholder': _('Email Address')
         }
     ))
 

@@ -43,7 +43,7 @@ $(function() {
             // Ask the user whether to overwrite or not
             var overwrite = confirm('Do you wish to overwrite the following fields?\n' + check_overwrite_fields.join('\n'));
             // Check what user said
-            if (overwrite ===  true) {
+            if (overwrite === true) {
                 // Loop through fields that need to be overwritten
                 check_overwrite_fields.forEach(function(field) {
                     var input = $(form).find('[name="' + field + '"]');
@@ -62,7 +62,7 @@ $(function() {
                 var new_formsets = data[formset];
                 var found_input;
 
-                for (var j = 0; j < new_formsets.length; j ++) {
+                for (var j = 0; j < new_formsets.length; j++) {
                     var new_formset = new_formsets[j];
                     var insert_new_formset = false;
                     var new_element;

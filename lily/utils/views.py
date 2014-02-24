@@ -1,3 +1,4 @@
+import csv
 from datetime import date, datetime, timedelta
 from hashlib import sha256
 import base64
@@ -263,6 +264,46 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
+
+
+class ExportListViewMixin(object):
+    """
+    Mixin that makes it possible to export current list view
+
+    post to view key 'export' with value what to export
+    currently supported: csv
+
+    setup view with fields_to_export like:
+    [ (field1, description_of_field1), (field2, description_of_field2) ]
+    will use queryset to iterate over objects and uses above fields to generate export file
+    """
+
+    fields_to_export = []
+
+    def post(self, request, *args, **kwargs):
+        export_type = request.POST.get('export', False)
+        if export_type == 'csv':
+            items = list(self.get_queryset())
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
+
+            writer = csv.writer(response)
+            header = [v for k, v in iter(self.fields_to_export)]
+            fields = [k for k, v in iter(self.fields_to_export)]
+            writer.writerow(header)
+            for item in items:
+                row = []
+                for key in fields:
+                    try:
+                        value = getattr(item, key)()
+                    except TypeError:
+                        value = getattr(item, key)
+                    row.append(value)
+                writer.writerow(row)
+
+            return response
+
+        return super(ExportListViewMixin, self).post(request, *args, **kwargs)
 
 
 class MultipleModelListView(object):

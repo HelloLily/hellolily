@@ -13,6 +13,7 @@
          <div class="caption"><i class="icon-th-list"></i>{% block list-title %}{% endblock %}</div>
     </div>
     <div class="portlet-body">
+        {% block list-tools %}{% endblock %}
         <table class="table table-striped table-bordered table-hover data-table">
             <thead><tr>{% block list-headings %}{% endblock %}</tr></thead>
             <tbody>{% block list %}{% endblock %}</tbody>

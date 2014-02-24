@@ -21,10 +21,11 @@ from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin, \
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
-    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
+    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, \
+    ExportListViewMixin
 
 
-class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
+class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListMixin, ListView):
     sortable = [2, 4, 5]
     model = Account
     prefetch_related = [
@@ -33,6 +34,14 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
         'user'
     ]
     default_order_by = 2
+    fields_to_export = [
+        ('name', 'Name'),
+        ('primary_email', 'Primary E-mail'),
+        ('get_work_phone', 'Work Phone'),
+        ('get_mobile_phone', 'Mobile Phone'),
+        ('created', 'Created'),
+        ('modified', 'Modified'),
+    ]
 
 
 class DetailAccountView(HistoryListViewMixin):

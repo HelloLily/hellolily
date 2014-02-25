@@ -328,13 +328,7 @@ class ExportListViewMixin(object):
 
     post to view key 'export' with value what to export
     currently supported: csv
-
-    setup view with fields_to_export like:
-    [ (field1, description_of_field1), (field2, description_of_field2) ]
-    will use queryset to iterate over objects and uses above fields to generate export file
     """
-
-    fields_to_export = []
 
     def post(self, request, *args, **kwargs):
         """
@@ -346,10 +340,12 @@ class ExportListViewMixin(object):
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
             writer = csv.writer(response)
-            header = [v for k, v in iter(self.fields_to_export)]
+            filtered_fields = request.POST.getlist('exportable_fields', None)
+            exportable_fields = self._get_fields_to_export(filtered_fields)
+            header = [v for k, v in exportable_fields]
             writer.writerow(header)
 
-            fields = [k for k, v in iter(self.fields_to_export)]
+            fields = [k for k, v in exportable_fields]
             for item in self.get_queryset():
                 row = []
                 for field in fields:
@@ -366,6 +362,15 @@ class ExportListViewMixin(object):
 
         # nothing to export, this post is not for us
         return super(ExportListViewMixin, self).post(request, *args, **kwargs)
+
+    def _get_fields_to_export(self, filtered_fields=None):
+        exportable_fields = []
+        for field in filtered_fields:
+            if hasattr(self, 'filter_%s' % field):
+                exportable_fields += getattr(self, 'filter_%s' % field)()
+            else:
+                exportable_fields.append((field, field))
+        return exportable_fields
 
 
 class FilteredListMixin(object):

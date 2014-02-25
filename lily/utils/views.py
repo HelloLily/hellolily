@@ -342,7 +342,6 @@ class ExportListViewMixin(object):
         """
         export_type = request.POST.get('export', False)
         if export_type == 'csv':
-            items = list(self.get_queryset())
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
@@ -351,19 +350,14 @@ class ExportListViewMixin(object):
             writer.writerow(header)
 
             fields = [k for k, v in iter(self.fields_to_export)]
-            for item in items:
+            for item in self.get_queryset():
                 row = []
-                for key in fields:
-                    try:
-                        # check if item is callable
-                        value = getattr(item, key)()
-                        # check if callable returns a list of objects and joins on unicode if it is
-                        if isinstance(value, list):
-                            unicoded_objects = [unicode(item) for item in value]
-                            value = ",".join(unicoded_objects)
-                    # no callable, but attr
-                    except TypeError:
-                        value = getattr(item, key)
+                for field in fields:
+                    if hasattr(self, 'export_%s' % field):
+                        value = getattr(self, 'export_%s' % field)(item)
+                    else:
+                        value = getattr(item, field)
+
                     row.append(value)
 
                 writer.writerow(row)

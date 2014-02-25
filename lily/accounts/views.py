@@ -37,12 +37,24 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListMixin, L
     fields_to_export = [
         ('name', 'Name'),
         ('primary_email', 'Primary E-mail'),
-        ('get_work_phone', 'Work Phone'),
-        ('get_mobile_phone', 'Mobile Phone'),
+        ('work_phone', 'Work Phone'),
+        ('mobile_phone', 'Mobile Phone'),
         ('created', 'Created'),
         ('modified', 'Modified'),
-        ('get_tags', 'Tags'),
+        ('tags', 'Tags'),
     ]
+
+    def export_primary_email(self, account):
+        return unicode(account.primary_email())
+
+    def export_work_phone(self, account):
+        return unicode(account.get_work_phone())
+
+    def export_mobile_phone(self, account):
+        return unicode(account.get_mobile_phone())
+
+    def export_tags(self, account):
+        return ','.join([tag.name for tag in account.get_tags()])
 
 
 class DetailAccountView(HistoryListViewMixin):

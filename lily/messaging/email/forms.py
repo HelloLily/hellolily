@@ -221,6 +221,11 @@ class ComposeEmailForm(ModelForm):
             for email_account in email_accounts:
                 if email_account.email.email_address == user.primary_email.email_address:
                     initial_email_account = email_account
+        elif isinstance(initial_email_account, basestring):
+            for email_account in email_accounts:
+                if email_account.email.email_address == initial_email_account:
+                    initial_email_account = email_account
+
         self.initial['send_from'] = initial_email_account
 
     def is_multipart(self):

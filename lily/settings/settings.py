@@ -171,7 +171,6 @@ INSTALLED_APPS = (
     'activelink',
     'bootstrap3',
     'debug_toolbar',
-    'crispy_forms',
     'django_extensions',
     'djangoformsetjs',
     'easy_thumbnails',
@@ -353,9 +352,6 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age=1314000',
     'Expires': expires,
 }
-
-# cripsy-forms
-CRISPY_TEMPLATE_PACK = 'mwsadmin/mws-admin'
 
 if DEBUG:
     CACHES = {

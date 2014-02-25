@@ -1,4 +1,3 @@
-from crispy_forms.layout import Submit, Layout
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
@@ -220,11 +219,6 @@ class UserRegistrationForm(RegistrationForm):
             'readonly': 'readonly'
         }
     ))
-
-    def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
-        self.helper.inputs = []
-        self.helper.add_input(Submit('submit', _('Accept')))
 
     def clean(self):
         initial_email = self.initial['email']

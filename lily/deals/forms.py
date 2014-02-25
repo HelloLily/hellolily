@@ -44,8 +44,7 @@ class CreateUpdateDealForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Overloading super().__init__() to make accounts available as assignees and add a form
-        helper.
+        Overloading super().__init__() to make accounts available as assignees
         """
         super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
 

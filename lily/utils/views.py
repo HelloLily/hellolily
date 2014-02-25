@@ -453,22 +453,7 @@ class ValidateFormSetViewMixin(object):
             return self.form_invalid(form)
 
 
-class FormSetViewContextMixin(object):
-    def get_form(self, form_class):
-        """
-        Pass formset instances to the FormHelper. It's a workaround to get these available in the
-        context available to the TEMPLATE_PACK templates when rendered.
-        """
-        form = super(FormSetViewContextMixin, self).get_form(form_class)
-
-        # Make all 'regular' context data available in crispy forms templates as well
-        if hasattr(form, 'helper'):
-            form.helper.__dict__.update(self.get_context_data())
-
-        return form
-
-
-class ModelFormSetViewMixin(FormSetViewContextMixin):
+class ModelFormSetViewMixin(object):
     """
     Mixin base class to add a formset to a FormView in an easier fashion.
 

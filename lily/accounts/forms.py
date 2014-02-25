@@ -64,7 +64,6 @@ class CreateUpdateAccountForm(TagsFormMixin):
     def __init__(self, *args, **kwargs):
         """
         Overloading super().__init__() to set the initial value for the primary website if possible
-        and add a form helper.
         """
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
 

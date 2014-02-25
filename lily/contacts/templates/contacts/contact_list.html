@@ -7,18 +7,32 @@
 {% block list-title %}{% trans 'Contacts' %}{% endblock %}
 
 {% block list-tools %}
-        <div class="table-toolbar">
-            <div class="btn-group pull-right">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">{% trans 'Tools' %}<i class="icon-angle-down"></i>
-                </button>
-                <ul class="dropdown-menu pull-right">
-                    <form method="post" id="form_export_csv">{% csrf_token %}
-                        <input type="hidden" name="export" value="csv" />
-                    <li><a href="" id="link_export_csv">{% trans 'Export to csv' %}</a></li>
-                    </form>
-                </ul>
-            </div>
-        </div>
+<form method="post" id="form_export_csv">
+{% csrf_token %}
+<input type="hidden" name="export" value="csv" />
+<div class="btn-group">
+    <a class="btn green" href="#" data-toggle="dropdown">
+        <i class="icon-cogs"></i> {% trans 'Tools' %}
+        <i class="icon-angle-down"></i>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li><a href="" id="link_export_csv"><i class="icon-download"></i> {% trans 'Export to csv' %}</a></li>
+    </ul>
+</div>
+<div class="btn-group">
+    <a class="btn default" href="#" data-toggle="dropdown">
+        Columns
+        <i class="icon-angle-down"></i>
+    </a>
+    <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
+        <label><input type="checkbox" checked data-column="1" name="exportable_fields" value="personal">{% trans 'Personal' %}</label>
+        <label><input type="checkbox" checked data-column="2" name="exportable_fields" value="contact">{% trans 'Contact' %}</label>
+        <label><input type="checkbox" checked data-column="3" name="exportable_fields" value="account">{% trans 'Works at' %}</label>
+        <label><input type="checkbox" checked data-column="4" name="exportable_fields" value="created">{% trans 'Created' %}</label>
+        <label><input type="checkbox" checked data-column="5" name="exportable_fields" value="modified">{% trans 'Modified' %}</label>
+    </div>
+</div>
+</form>
 {% endblock %}
 
 {% block list-headings %}
@@ -110,6 +124,17 @@
 {% block scripts %}
 {{ block.super }}
 <script>
+    jQuery(document).ready(function() {
+        var oTable =  $('.page-content .data-table').dataTable();
+
+        $('#list_column_toggler input[type="checkbox"]').change(function(){
+            /* Get the DataTables object again - this is not a recreation, just a get of the object */
+            var iCol = parseInt($(this).attr("data-column"));
+            var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+            oTable.fnSetColumnVis(iCol, (bVis ? false : true));
+        });
+    });
+
 $(function($){
     $('#link_export_csv').click(function( event ){
         event.preventDefault();

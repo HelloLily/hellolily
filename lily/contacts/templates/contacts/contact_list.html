@@ -6,6 +6,21 @@
 {% block page-title %}{% trans 'Contacts' %}{% endblock %}
 {% block list-title %}{% trans 'Contacts' %}{% endblock %}
 
+{% block list-tools %}
+        <div class="table-toolbar">
+            <div class="btn-group pull-right">
+                <button class="btn dropdown-toggle" data-toggle="dropdown">{% trans 'Tools' %}<i class="icon-angle-down"></i>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <form method="post" id="form_export_csv">{% csrf_token %}
+                        <input type="hidden" name="export" value="csv" />
+                    <li><a href="" id="link_export_csv">{% trans 'Export to csv' %}</a></li>
+                    </form>
+                </ul>
+            </div>
+        </div>
+{% endblock %}
+
 {% block list-headings %}
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
     <th class="personal">{% trans 'Personal' %}</th>
@@ -90,4 +105,16 @@
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0, 2] },
     { "sType": "date-euro", "aTargets": [4, 5] }
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function($){
+    $('#link_export_csv').click(function( event ){
+        event.preventDefault();
+        $('#form_export_csv').submit();
+    });
+});
+</script>
 {% endblock %}

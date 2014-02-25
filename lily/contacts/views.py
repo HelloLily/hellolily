@@ -29,10 +29,10 @@ from lily.utils.templatetags.utils import has_user_in_group
 
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, ExportListViewMixin
 
 
-class ListContactView(SortedListMixin, FilteredListMixin, ListView):
+class ListContactView(SortedListMixin, FilteredListMixin, ListView, ExportListViewMixin):
     """
     Display a list of all contacts
     """
@@ -45,6 +45,31 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
     ]
     sortable = [2, 4, 5, 6]
     default_order_by = 2
+    fields_to_export = [
+        ('full_name', 'Personal'),
+        ('primary_email', 'Primary E-mail'),
+        ('work_phone', 'Work Phone'),
+        ('mobile_phone', 'Mobile Phone'),
+        ('account', 'Works at'),
+        ('created', 'Created'),
+        ('modified', 'Modified'),
+    ]
+
+    def export_full_name(self, contact):
+        return unicode(contact.full_name())
+
+    def export_primary_email(self, contact):
+        return unicode(contact.primary_email())
+
+    def export_work_phone(self, contact):
+        return unicode(contact.get_work_phone())
+
+    def export_mobile_phone(self, contact):
+        return unicode(contact.get_mobile_phone())
+
+    def export_account(self, contact):
+        function = contact.get_primary_function()
+        return function.account.name
 
 
 class DetailContactView(HistoryListViewMixin):

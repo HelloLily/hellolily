@@ -41,6 +41,7 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListMixin, L
         ('get_mobile_phone', 'Mobile Phone'),
         ('created', 'Created'),
         ('modified', 'Modified'),
+        ('get_tags', 'Tags'),
     ]
 
 

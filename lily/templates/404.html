@@ -1,20 +1,25 @@
-{% extends 'mwsadmin/base_empty.html' %}
+{% extends 'anonymous/page_wide.html' %}
 
 {% load i18n media %}
 
-{% block styles %}
-    {% include_media 'error.css' %}
-
-    {{ block.super }}
-{% endblock %}
-
-{% block body %}
-    <div class="container">
-        <div id="mws-error-container">
-            <div id="mws-error-code">
-                <h1>Error <span>404</span></h1>
-            </div>
-            <p id="mws-error-message">{% trans 'Page not found' %}</p>
+{% block css %}{% include_media 'error.css' %}{% endblock %}
+{% block head-title %}Error 404{% endblock %}
+{% block page-title %}Error 404{% endblock %}
+{% block body-class %}page-404-full-page{% endblock %}
+{% block page-content %}
+<div class="row">
+    <div class="col-md-12 page-404">
+        <div class="number">
+        404
+        </div>
+        <div class="details">
+            <h3>{% blocktrans %}Oops! You're lost.{% endblocktrans %}</h3>
+            <p>
+               {% blocktrans %}We can not find the page you're looking for.{% endblocktrans %}<br />
+               <a href="/">{% blocktrans %}Return home{% endblocktrans %}</a>
+               {% blocktrans %}or try the search bar below.{% endblocktrans %}
+            </p>
         </div>
     </div>
+</div>
 {% endblock %}

@@ -1,23 +1,24 @@
-{% extends 'mwsadmin/base_empty.html' %}
+{% extends 'anonymous/page_wide.html' %}
 
 {% load i18n media %}
 
-{% block styles %}
-    {% include_media 'error.css' %}
-
-    {{ block.super }}
-{% endblock %}
-
-{% block body %}
-    <div class="container">
-        <div id="mws-error-container">
-            <div id="mws-error-code">
-                <h1>Error <span>500</span></h1>
-            </div>
-            <p id="mws-error-message">
-                {% blocktrans %}Something went wrong!{% endblocktrans %}<br />
-                {% blocktrans %}Tell us about what you were trying to do via the feedback tab on the right the and we'll try to fix it as soon as we can!{% endblocktrans %}
+{% block css %}{% include_media 'error.css' %}{% endblock %}
+{% block head-title %}Error 500{% endblock %}
+{% block page-title %}Error 500{% endblock %}
+{% block body-class %}page-500-full-page{% endblock %}
+{% block page-content %}
+<div class="row">
+    <div class="col-md-12 page-500">
+        <div class="number">
+        500
+        </div>
+        <div class="details">
+            <h3>{% blocktrans %}Oops! Something went wrong.{% endblocktrans %}</h3>
+            <p>
+               {% blocktrans %}We are fixing it!{% endblocktrans %}<br />
+               {% blocktrans %}Please come back in a while.{% endblocktrans %}<br />
             </p>
         </div>
     </div>
+</div>
 {% endblock %}

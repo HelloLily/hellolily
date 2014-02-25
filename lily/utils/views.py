@@ -1,17 +1,11 @@
-from datetime import date, datetime, timedelta
-from hashlib import sha256
-import base64
 import operator
-import pickle
 
-from django.conf import settings
-from django.contrib.sites.models import Site
-from django.contrib import messages
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
@@ -25,14 +19,12 @@ from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 from python_imap.folder import ALLMAIL
-from templated_email import send_templated_mail
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
 from lily.messaging.email.utils import get_attachment_filename_from_url
 from lily.notes.views import NoteDetailViewMixin
-from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, HistoryListItem

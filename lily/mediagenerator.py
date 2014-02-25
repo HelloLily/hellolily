@@ -150,7 +150,7 @@ MEDIA_BUNDLES = (
         'users/mwsadmin/css/password_reset.css',
     ),
     ('error.css',
-        'mwsadmin/css/core/error.css',
+        'css/pages/error.css',
     ),
     ('main.js',
         # {'filter': 'mediagenerator.filters.media_url.MediaURL'}, makes +/- 430 KB difference

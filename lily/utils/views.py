@@ -17,7 +17,7 @@ from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
@@ -25,6 +25,7 @@ from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
+from lily.tags.models import Tag
 from python_imap.folder import ALLMAIL
 from templated_email import send_templated_mail
 
@@ -374,6 +375,43 @@ class ExportListViewMixin(object):
         return exportable_fields
 
 
+class FilteredListByTagMixin(object):
+    """
+    Mixin that enables filtering objects by tag, based on given tag kwarg
+    """
+
+    tag = None
+
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        queryset = super(FilteredListByTagMixin, self).get_queryset()
+        if queryset is not None:
+            # if tag id is supplied, filter list on tagname
+            if self.kwargs.get('tag', None):
+                self.tag = get_object_or_404(Tag, pk=self.kwargs.get('tag'))
+                content_type_of_model = ContentType.objects.get_for_model(self.model)
+                tags = Tag.objects.filter(name=self.tag.name, content_type=content_type_of_model.pk)
+                queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset'"
+                                       % self.__class__.__name__)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        add extra context if there is a tag filter
+        """
+        kwargs = super(FilteredListByTagMixin, self).get_context_data(**kwargs)
+        if self.tag:
+            kwargs.update({
+                'tag': self.tag
+            })
+        return kwargs
+
+
 class FilteredListMixin(object):
     """
     Mixin that enables filtering objects by url, based on their primary keys.
@@ -435,7 +473,7 @@ class SortedListMixin(object):
         """
         Add sorting information from instance variables or request.GET.
         """
-
+        kwargs = super(SortedListMixin, self).get_context_data(**kwargs)
         try:
             if int(self.request.GET.get('order_by')) in self.sortable:
                 self.order_by = self.request.GET.get('order_by')

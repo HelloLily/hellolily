@@ -47,29 +47,33 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView, ExportListVi
     default_order_by = 2
 
     def export_full_name(self, contact):
-        return unicode(contact.full_name())
+        return contact.full_name()
 
     def export_primary_email(self, contact):
-        return unicode(contact.primary_email())
+        return contact.primary_email()
 
     def export_work_phone(self, contact):
-        return unicode(contact.get_work_phone())
+        return contact.get_work_phone()
 
     def export_mobile_phone(self, contact):
-        return unicode(contact.get_mobile_phone())
+        return contact.get_mobile_phone()
 
     def export_account(self, contact):
         function = contact.get_primary_function()
         return function.account.name
 
     def filter_personal(self):
-        return [('full_name', 'Personal')]
+        return [('full_name', _('personal'))]
 
     def filter_contact(self):
-        return [('primary_email', 'primary e-mail'), ('work_phone', 'work phone'), ('mobile_phone', 'mobile phone')]
+        return [
+            ('primary_email', _('primary e-mail')),
+            ('work_phone', _('work phone')),
+            ('mobile_phone', _('mobile phone'))
+        ]
 
     def filter_account(self):
-        return [('account', 'Works at')]
+        return [('account', _('works at'))]
 
 
 class DetailContactView(HistoryListViewMixin):

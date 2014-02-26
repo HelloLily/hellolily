@@ -45,13 +45,17 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListMixin, L
         return account.get_mobile_phone()
 
     def export_tags(self, account):
-        return ','.join([tag.name for tag in account.get_tags()])
+        return '\r\n'.join([tag.name for tag in account.get_tags()])
 
     def filter_account(self):
-        return [('name', 'Name')]
+        return [('name', _('name'))]
 
     def filter_contact(self):
-        return [('primary_email', 'primary e-mail'), ('work_phone', 'work phone'), ('mobile_phone', 'mobile phone')]
+        return [
+            ('primary_email', _('primary e-mail')),
+            ('work_phone', _('work phone')),
+            ('mobile_phone', _('mobile phone'))
+        ]
 
 
 class DetailAccountView(HistoryListViewMixin):

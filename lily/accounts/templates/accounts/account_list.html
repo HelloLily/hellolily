@@ -25,11 +25,11 @@
         <i class="icon-angle-down"></i>
     </a>
     <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
-        <label><input type="checkbox" checked data-column="2" name="exportable_fields" value="account">{% trans 'Account' %}</label>
-        <label><input type="checkbox" checked data-column="3" name="exportable_fields" value="contact">{% trans 'Contact' %}</label>
-        <label><input type="checkbox" checked data-column="4" name="exportable_fields" value="created">{% trans 'Created' %}</label>
-        <label><input type="checkbox" checked data-column="5" name="exportable_fields" value="modified">{% trans 'Modified' %}</label>
-        <label><input type="checkbox" checked data-column="6" name="exportable_fields" value="tags">{% trans 'Tags' %}</label>
+        <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="account">{% trans 'Account' %}</label>
+        <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="contact">{% trans 'Contact' %}</label>
+        <label><input type="checkbox" checked data-column="4" name="exportable_fields[]" value="created">{% trans 'Created' %}</label>
+        <label><input type="checkbox" checked data-column="5" name="exportable_fields[]" value="modified">{% trans 'Modified' %}</label>
+        <label><input type="checkbox" checked data-column="6" name="exportable_fields[]" value="tags">{% trans 'Tags' %}</label>
     </div>
 </div>
 </form>

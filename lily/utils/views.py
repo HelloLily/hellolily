@@ -340,30 +340,31 @@ class ExportListViewMixin(object):
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
             writer = csv.writer(response)
-            filtered_fields = request.POST.getlist('exportable_fields', None)
+            filtered_fields = request.POST.getlist('exportable_fields[]', [])
             exportable_fields = self._get_fields_to_export(filtered_fields)
-            header = [v for k, v in exportable_fields]
-            writer.writerow(header)
+            if len(exportable_fields) > 0:
+                header = [v for k, v in exportable_fields]
+                writer.writerow(header)
 
-            fields = [k for k, v in exportable_fields]
-            for item in self.get_queryset():
-                row = []
-                for field in fields:
-                    if hasattr(self, 'export_%s' % field):
-                        value = getattr(self, 'export_%s' % field)(item)
-                    else:
-                        value = getattr(item, field)
+                fields = [k for k, v in exportable_fields]
+                for item in self.get_queryset():
+                    row = []
+                    for field in fields:
+                        if hasattr(self, 'export_%s' % field):
+                            value = getattr(self, 'export_%s' % field)(item)
+                        else:
+                            value = getattr(item, field)
 
-                    row.append(value)
+                        row.append(value)
 
-                writer.writerow(row)
+                    writer.writerow(row)
 
             return response
 
         # nothing to export, this post is not for us
         return super(ExportListViewMixin, self).post(request, *args, **kwargs)
 
-    def _get_fields_to_export(self, filtered_fields=None):
+    def _get_fields_to_export(self, filtered_fields=[]):
         exportable_fields = []
         for field in filtered_fields:
             if hasattr(self, 'filter_%s' % field):

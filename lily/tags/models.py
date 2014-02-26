@@ -36,3 +36,10 @@ class TaggedObjectMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_tags(self):
+        try:
+            tags = self.tags.all()[:3]
+        except:
+            tags = ('',)
+        return tags

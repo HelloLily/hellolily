@@ -4,7 +4,36 @@
 
 {% block head-title %}{% trans 'Accounts' %}{% endblock %}
 {% block page-title %}{% trans 'Accounts' %}{% endblock %}
-{% block list-title %}{% trans 'Accounts' %}{% endblock %}
+{% block list-title %}{% trans 'Accounts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url account_list %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
+
+{% block list-tools %}
+<form method="post" id="form_export_csv">
+{% csrf_token %}
+<input type="hidden" name="export" value="csv" />
+<div class="btn-group">
+    <a class="btn green" href="#" data-toggle="dropdown">
+        <i class="icon-cogs"></i> {% trans 'Tools' %}
+        <i class="icon-angle-down"></i>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li><a href="" id="link_export_csv"><i class="icon-download"></i> {% trans 'Export to csv' %}</a></li>
+    </ul>
+</div>
+<div class="btn-group">
+    <a class="btn default" href="#" data-toggle="dropdown">
+        Columns
+        <i class="icon-angle-down"></i>
+    </a>
+    <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
+        <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="account">{% trans 'Account' %}</label>
+        <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="contact">{% trans 'Contact' %}</label>
+        <label><input type="checkbox" checked data-column="4" name="exportable_fields[]" value="created">{% trans 'Created' %}</label>
+        <label><input type="checkbox" checked data-column="5" name="exportable_fields[]" value="modified">{% trans 'Modified' %}</label>
+        <label><input type="checkbox" checked data-column="6" name="exportable_fields[]" value="tags">{% trans 'Tags' %}</label>
+    </div>
+</div>
+</form>
+{% endblock %}
 
 {% block list-headings %}
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
@@ -91,7 +120,7 @@
     </td>
     <td class="tags">
         {% for tag in item.get_tags %}
-            <a href="javascript:void(0)" class="tag">{{ tag }}</a><br />
+            <a href="{% url account_list_filtered_by_tag tag.pk %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}" class="tag">{{ tag }}</a><br />
         {% endfor %}
     </td>
 </tr>
@@ -105,4 +134,28 @@
     { "sType": "date-euro", "aTargets": [4] },
     { "sType": "date-euro", "aTargets": [5] },
     { "bSearchable": false, "bSortable": false, "aTargets": [6] }
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    jQuery(document).ready(function() {
+        var oTable =  $('.page-content .data-table').dataTable();
+
+        $('#list_column_toggler input[type="checkbox"]').change(function(){
+            /* Get the DataTables object again - this is not a recreation, just a get of the object */
+            var iCol = parseInt($(this).attr("data-column"));
+            var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+            oTable.fnSetColumnVis(iCol, (bVis ? false : true));
+        });
+    });
+</script>
+<script>
+$(function($){
+    $('#link_export_csv').click(function( event ){
+        event.preventDefault();
+        $('#form_export_csv').submit();
+    });
+});
+</script>
 {% endblock %}

@@ -29,10 +29,11 @@ from lily.utils.templatetags.utils import has_user_in_group
 
 from lily.utils.views import SortedListMixin, FilteredListMixin,\
     DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
+    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, ExportListViewMixin,\
+    FilteredListByTagMixin
 
 
-class ListContactView(SortedListMixin, FilteredListMixin, ListView):
+class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, ListView):
     """
     Display a list of all contacts
     """
@@ -41,10 +42,43 @@ class ListContactView(SortedListMixin, FilteredListMixin, ListView):
         'functions__account',
         'email_addresses',
         'phone_numbers',
-        'user'
+        'user',
+        'tags',
     ]
     sortable = [2, 4, 5, 6]
     default_order_by = 2
+
+    def export_full_name(self, contact):
+        return contact.full_name()
+
+    def export_primary_email(self, contact):
+        return contact.primary_email()
+
+    def export_work_phone(self, contact):
+        return contact.get_work_phone()
+
+    def export_mobile_phone(self, contact):
+        return contact.get_mobile_phone()
+
+    def export_account(self, contact):
+        function = contact.get_primary_function()
+        return function.account.name
+
+    def export_tags(self, account):
+        return '\r\n'.join([tag.name for tag in account.get_tags()])
+
+    def filter_personal(self):
+        return [('full_name', _('personal'))]
+
+    def filter_contact(self):
+        return [
+            ('primary_email', _('primary e-mail')),
+            ('work_phone', _('work phone')),
+            ('mobile_phone', _('mobile phone'))
+        ]
+
+    def filter_account(self):
+        return [('account', _('works at'))]
 
 
 class DetailContactView(HistoryListViewMixin):

@@ -1,0 +1,42 @@
+{% extends 'anonymous/page_wide.html' %}
+
+{% load bootstrap3 i18n %}
+
+{% block head-title %}{% trans 'Registration' %}{% endblock %}
+{% block page-title %}{% trans 'Registration' %}{% endblock %}
+{% block page-container %}
+<div class="portlet">
+    <div class="portlet-title">
+         <div class="caption">{% block form-title %}{% endblock %}</div>
+    </div>
+    <div class="portlet-body">
+        {% block form %}
+        <form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+            <div class="form-body">
+                {% block form-fields %}
+                    {% for field in form.visible_fields %}
+                        {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
+                    {% endfor %}
+                {% endblock %}
+            </div>
+            {% block form-actions %}
+            <div class="clearfix"></div>
+            <div class="form-actions fluid">
+                <div class="col-md-offset-2 col-md-10">
+                    {% block form-buttons %}
+                        <button type="submit" class="btn btn-primary" name="submit">
+                            {% trans 'Register' %} <i class="m-icon-swapright m-icon-white"></i>
+                        </button>
+                    {% endblock %}
+                </div>
+            </div>
+            {% endblock %}
+        </form>
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

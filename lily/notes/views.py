@@ -2,15 +2,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
-from django.views.generic.base import TemplateResponseMixin, View
-from django.views.generic.detail import BaseDetailView, DetailView, SingleObjectMixin
-from django.views.generic.edit import DeleteView, UpdateView, FormMixin, BaseFormView, FormView, CreateView, SingleObjectTemplateResponseMixin, BaseCreateView, ProcessFormView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeleteView, UpdateView, BaseFormView
 
-from lily.contacts.models import Contact
 from lily.notes.forms import UpdateNoteForm, NoteForm
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax

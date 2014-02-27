@@ -36,15 +36,15 @@ urlpatterns += patterns('django.contrib.auth.views',
     url(r'^logout/$', 'logout_then_login', name='logout'),
 
     url(r'^password_reset/$', 'password_reset', {
-        'template_name': 'users/mwsadmin/password_reset/form.html',
+        'template_name': 'users/password_reset/form.html',
         'password_reset_form': CustomPasswordResetForm,
     }, name='password_reset'),
 
     url(r'^password_reset/done/$', 'password_reset_done', {
-        'template_name': 'users/mwsadmin/password_reset/done.html',
+        'template_name': 'users/password_reset/done.html',
     }, name='password_reset_done'),
 
     url(r'^reset/complete/$', 'password_reset_complete', {
-        'template_name': 'users/mwsadmin/password_reset/complete.html',
+        'template_name': 'users/password_reset/complete.html',
     }, name='password_reset_complete'),
 )

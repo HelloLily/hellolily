@@ -160,13 +160,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return ''
 
-    def get_tags(self):
-        try:
-            tags = self.tags.all()[:3]
-        except:
-            tags = ('',)
-        return tags
-
     def get_contacts(self):
         functions = self.functions.all()
         contacts = []

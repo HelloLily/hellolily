@@ -1,22 +1,17 @@
-from datetime import date, datetime, timedelta
-from hashlib import sha256
-import base64
+import csv
 import operator
-import pickle
 
-from django.conf import settings
-from django.contrib.sites.models import Site
-from django.contrib import messages
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
@@ -24,15 +19,14 @@ from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
+from lily.tags.models import Tag
 from python_imap.folder import ALLMAIL
-from templated_email import send_templated_mail
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
 from lily.messaging.email.utils import get_attachment_filename_from_url
 from lily.notes.views import NoteDetailViewMixin
-from lily.users.models import CustomUser
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, HistoryListItem
@@ -321,6 +315,95 @@ class MultipleModelListView(object):
 #===================================================================================================
 # Mixins
 #===================================================================================================
+class ExportListViewMixin(object):
+    """
+    Mixin that makes it possible to export current list view
+
+    post to view key 'export' with value what to export
+    currently supported: csv
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        does a check if post has value of 'export' and handles export
+        """
+        export_type = request.POST.get('export', False)
+        if export_type == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
+
+            writer = csv.writer(response)
+            filtered_fields = request.POST.getlist('exportable_fields[]', [])
+            exportable_fields = self._get_fields_to_export(filtered_fields)
+            if len(exportable_fields) > 0:
+                header = [v for k, v in exportable_fields]
+                writer.writerow(header)
+
+                fields = [k for k, v in exportable_fields]
+                for item in self.get_queryset():
+                    row = []
+                    for field in fields:
+                        if hasattr(self, 'export_%s' % field):
+                            value = getattr(self, 'export_%s' % field)(item)
+                        else:
+                            value = getattr(item, field)
+
+                        row.append(value)
+
+                    writer.writerow(row)
+
+            return response
+
+        # nothing to export, this post is not for us
+        return super(ExportListViewMixin, self).post(request, *args, **kwargs)
+
+    def _get_fields_to_export(self, filtered_fields=[]):
+        exportable_fields = []
+        for field in filtered_fields:
+            if hasattr(self, 'filter_%s' % field):
+                exportable_fields += getattr(self, 'filter_%s' % field)()
+            else:
+                exportable_fields.append((field, field))
+        return exportable_fields
+
+
+class FilteredListByTagMixin(object):
+    """
+    Mixin that enables filtering objects by tag, based on given tag kwarg
+    """
+
+    tag = None
+
+    def get_queryset(self):
+        """
+        Overriding super().get_queryset to limit the queryset based on a kwarg when provided.
+        """
+        queryset = super(FilteredListByTagMixin, self).get_queryset()
+        if queryset is not None:
+            # if tag id is supplied, filter list on tagname
+            if self.kwargs.get('tag', None):
+                self.tag = get_object_or_404(Tag, pk=self.kwargs.get('tag'))
+                content_type_of_model = ContentType.objects.get_for_model(self.model)
+                tags = Tag.objects.filter(name=self.tag.name, content_type=content_type_of_model.pk)
+                queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+        else:
+            raise ImproperlyConfigured(u"'%s' must define 'queryset'"
+                                       % self.__class__.__name__)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        add extra context if there is a tag filter
+        """
+        kwargs = super(FilteredListByTagMixin, self).get_context_data(**kwargs)
+        if self.tag:
+            kwargs.update({
+                'tag': self.tag
+            })
+        return kwargs
+
+
 class FilteredListMixin(object):
     """
     Mixin that enables filtering objects by url, based on their primary keys.
@@ -382,7 +465,7 @@ class SortedListMixin(object):
         """
         Add sorting information from instance variables or request.GET.
         """
-
+        kwargs = super(SortedListMixin, self).get_context_data(**kwargs)
         try:
             if int(self.request.GET.get('order_by')) in self.sortable:
                 self.order_by = self.request.GET.get('order_by')
@@ -453,22 +536,7 @@ class ValidateFormSetViewMixin(object):
             return self.form_invalid(form)
 
 
-class FormSetViewContextMixin(object):
-    def get_form(self, form_class):
-        """
-        Pass formset instances to the FormHelper. It's a workaround to get these available in the
-        context available to the TEMPLATE_PACK templates when rendered.
-        """
-        form = super(FormSetViewContextMixin, self).get_form(form_class)
-
-        # Make all 'regular' context data available in crispy forms templates as well
-        if hasattr(form, 'helper'):
-            form.helper.__dict__.update(self.get_context_data())
-
-        return form
-
-
-class ModelFormSetViewMixin(FormSetViewContextMixin):
+class ModelFormSetViewMixin(object):
     """
     Mixin base class to add a formset to a FormView in an easier fashion.
 

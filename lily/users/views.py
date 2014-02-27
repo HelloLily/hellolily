@@ -27,7 +27,6 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.updates.forms import CreateBlogEntryForm
 from lily.updates.models import BlogEntry
-from lily.updates.views import AddBlogEntryView
 from lily.users.decorators import group_required
 from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
     InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
@@ -44,7 +43,7 @@ class RegistrationView(FormView):
     """
     This view shows and handles the registration form, when valid register a new user.
     """
-    template_name = 'users/mwsadmin/registration.html'
+    template_name = 'users/registration.html'
     form_class = RegistrationForm
 
     def form_valid(self, form):
@@ -132,7 +131,7 @@ class ActivationView(TemplateView):
     This view checks whether the activation link is valid and acts accordingly.
     """
     # Template is only shown when something went wrong
-    template_name = 'users/mwsadmin/activation_failed.html'
+    template_name = 'users/activation_failed.html'
     tgen = PasswordResetTokenGenerator()
 
     def get(self, request, *args, **kwargs):
@@ -174,7 +173,7 @@ class ActivationResendView(FormView):
     """
     This view is used by an user to request a new activation e-mail.
     """
-    template_name = 'users/mwsadmin/activation_resend_form.html'
+    template_name = 'users/activation_resend_form.html'
     form_class = ResendActivationForm
 
     def form_valid(self, form):
@@ -230,7 +229,7 @@ class LoginView(View):
     """
     This view extends the default login view with a 'remember me' feature.
     """
-    template_name = 'users/mwsadmin/login_form.html'
+    template_name = 'users/login_form.html'
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -574,8 +573,8 @@ class CustomSetPasswordView(FormView):
     """
     form_class = CustomSetPasswordForm
     token_generator = default_token_generator
-    template_name_invalid = 'users/mwsadmin/password_reset/confirm_invalid.html'
-    template_name_valid = 'users/mwsadmin/password_reset/confirm_valid.html'
+    template_name_invalid = 'users/password_reset/confirm_invalid.html'
+    template_name_valid = 'users/password_reset/confirm_valid.html'
     success_url = reverse_lazy('password_reset_complete')
 
     def dispatch(self, request, *args, **kwargs):

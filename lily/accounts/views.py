@@ -1,8 +1,13 @@
 from urlparse import urlparse
+import datetime
+import operator
+
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
@@ -13,18 +18,21 @@ from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from python_imap.folder import ALLMAIL
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from lily.accounts.models import Account, Website
-from lily.contacts.models import Function
+from lily.contacts.models import Function, Contact
 from lily.utils.functions import flatten, is_ajax
+from lily.utils.models import HistoryListItem
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin, \
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
-    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin
+    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, \
+    ExportListViewMixin, FilteredListByTagMixin
 
 
-class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
+class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, ListView):
     sortable = [2, 4, 5]
     model = Account
     prefetch_related = [
@@ -34,12 +42,88 @@ class ListAccountView(SortedListMixin, FilteredListMixin, ListView):
     ]
     default_order_by = 2
 
+    def export_primary_email(self, account):
+        return account.primary_email()
+
+    def export_work_phone(self, account):
+        return account.get_work_phone()
+
+    def export_mobile_phone(self, account):
+        return account.get_mobile_phone()
+
+    def export_tags(self, account):
+        return '\r\n'.join([tag.name for tag in account.get_tags()])
+
+    def filter_account(self):
+        return [('name', _('name'))]
+
+    def filter_contact(self):
+        return [
+            ('primary_email', _('primary e-mail')),
+            ('work_phone', _('work phone')),
+            ('mobile_phone', _('mobile phone'))
+        ]
+
 
 class DetailAccountView(HistoryListViewMixin):
     """
     Display a detail page for a single account.
     """
     model = Account
+
+    def get_context_data(self, **kwargs):
+        """
+        The get_context_data for HistoryListViewMixin returns an object list
+        containing all notes and all messages related to this Account. For the
+        Account overview we also want to show all notes and messages related to
+        Contacts related to this Account.
+        """
+        kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
+        note_content_type = ContentType.objects.get_for_model(self.model)
+        note_content_type_contacts = ContentType.objects.get_for_model(Contact)
+
+        notes_query = [x.pk for x in self.object.get_contacts()]
+
+        # Build initial list with just notes
+        object_list = HistoryListItem.objects.filter(
+            (Q(note__content_type=note_content_type) & Q(note__object_id=self.object.pk)) |
+            (Q(note__content_type=note_content_type_contacts) & Q(note__object_id__in=notes_query))
+        )
+        extra_mail_adresses = []
+        for contact in self.object.get_contacts():
+            for email_address in contact.email_addresses.all():
+                extra_mail_adresses.append(email_address.email_address)
+
+
+        # Expand list with email messages if possible
+        if hasattr(self.object, 'email_addresses'):
+            email_address_list = [x.email_address for x in self.object.email_addresses.all()]
+            email_address_list += extra_mail_adresses
+            if len(email_address_list) > 0:
+                filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
+                object_list = object_list | HistoryListItem.objects.filter(
+                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
+                    Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                    reduce(operator.or_, filter_list)
+                )
+
+        # Filter list by timestamp from request.GET
+        epoch = self.request.GET.get('datetime')
+        if epoch is not None:
+            try:
+                filter_date = datetime.fromtimestamp(int(epoch))
+                object_list = object_list.filter(sort_by_date__lt=filter_date)
+            except ValueError:
+                pass
+
+        # Paginate list
+        object_list = object_list.distinct().order_by('-sort_by_date')
+        kwargs.update({
+            'object_list': object_list[:self.page_size],
+            'show_more': len(object_list) > self.page_size
+        })
+
+        return kwargs
 
 
 class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin):
@@ -308,3 +392,5 @@ delete_account_view = login_required(DeleteAccountView.as_view())
 edit_account_view = login_required(EditAccountView.as_view())
 list_account_view = login_required(ListAccountView.as_view())
 exist_account_view = login_required(ExistsAccountView.as_view())
+
+

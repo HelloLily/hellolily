@@ -1,9 +1,11 @@
 import os
+
 from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
-import django.conf.global_settings as DEFAULT_SETTINGS
+from django.conf import global_settings as DEFAULT_SETTINGS
 from django.core.urlresolvers import reverse_lazy
+
 
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
@@ -171,7 +173,6 @@ INSTALLED_APPS = (
     'activelink',
     'bootstrap3',
     'debug_toolbar',
-    'crispy_forms',
     'django_extensions',
     'djangoformsetjs',
     'easy_thumbnails',
@@ -353,9 +354,6 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age=1314000',
     'Expires': expires,
 }
-
-# cripsy-forms
-CRISPY_TEMPLATE_PACK = 'mwsadmin/mws-admin'
 
 if DEBUG:
     CACHES = {

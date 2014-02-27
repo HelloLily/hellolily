@@ -150,7 +150,7 @@ MEDIA_BUNDLES = (
         'users/mwsadmin/css/password_reset.css',
     ),
     ('error.css',
-        'mwsadmin/css/core/error.css',
+        'css/pages/error.css',
     ),
     ('main.js',
         # {'filter': 'mediagenerator.filters.media_url.MediaURL'}, makes +/- 430 KB difference
@@ -216,6 +216,10 @@ MEDIA_BUNDLES = (
     ),
     ('blog.css',
         'css/pages/blog.css',
+    ),
+    ('login.css',
+        'css/pages/login.css',
+        'css/pages/login-soft.css',
     ),
     ('news.css',
         'css/pages/news.css',
@@ -297,6 +301,8 @@ MEDIA_BUNDLES = (
         'plugins/select2/select2.js',
         'lily/scripts/forms/select2.js',
         'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
+
+        'lily/scripts/forms/dataprovider.js',
 
         {'filter': 'mediagenerator.filters.i18n.I18N'},
     ),

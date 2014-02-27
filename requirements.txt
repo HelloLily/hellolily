@@ -41,8 +41,5 @@ pytz==2012c
 redis>=2.9.0
 South>=0.7.6
 
-# Remove after new theme
-https://github.com/maraujop/django-crispy-forms/zipball/dev#django-crispy-forms
-
 # To be replaced in the near future
 https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip

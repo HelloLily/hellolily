@@ -1,0 +1,15 @@
+{% extends 'anonymous/form.html' %}
+
+{% load i18n %}
+
+{% block head-title %}{% trans 'Reset password' %}{% endblock %}
+{% block form-title %}{% trans 'Reset my password' %}{% endblock %}
+{% block help-text %}
+<p>{% trans "Forgotten your password? Enter your e-mail address below, and we\'ll e-mail instructions for setting a new one." %}</p>
+{% endblock %}
+{% block submit-label %}{% trans 'Reset my password' %}{% endblock %}
+{% block bottom-links %}
+<div class="panel">
+	<a class="btn" href="{% url login %}" class="float-right" id="sub-panel-link">{% trans 'Go to log in' %}</a>
+</div>
+{% endblock %}

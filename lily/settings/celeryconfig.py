@@ -5,6 +5,7 @@ from kombu import Queue
 
 from .settings import DEBUG, TIME_ZONE
 
+
 # Using IronMQ when available
 if os.environ.get('IRON_MQ_PROJECT_ID') and os.environ.get('IRON_MQ_TOKEN'):
     BROKER_URL = 'ironmq://%s:%s@' % (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))

@@ -1,0 +1,13 @@
+{% extends 'anonymous/base.html' %}
+
+{% load media %}
+
+{% block css %}{% include_media 'login.css' %}{% endblock %}
+{% block body-content %}
+<div class="logo">
+    <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="hide_on_small_screen" />
+</div>
+<div class="content">
+    {% block content %}{% endblock %}        
+</div>
+{% endblock %}

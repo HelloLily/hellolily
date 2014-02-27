@@ -1,25 +1,10 @@
-from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import ugettext as _
 
 from lily.updates.models import BlogEntry
-from lily.utils.formhelpers import LilyFormHelper
-from lily.utils.layout import MultiField
 
 
 class CreateBlogEntryForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(CreateBlogEntryForm, self).__init__(*args, **kwargs)
-        self.helper = LilyFormHelper(self)
-        self.helper.form_tag = True
-        self.helper.set_form_action('dashboard')
-        self.helper.replace('content',
-           MultiField(
-                None,
-                'content',
-                Submit('blogentry-submit', _('Post'), css_class='small add-blogentry-button')
-           )
-        )
 
     class Meta:
         model = BlogEntry

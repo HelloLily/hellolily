@@ -155,6 +155,9 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         object.is_seen = True
         object.save()
 
+        # Force fetching from header, for some reason this doesn't happen in the templates
+        object.from_email
+
         return object
 
     def get_context_data(self, **kwargs):
@@ -1042,6 +1045,7 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
 
         if self.object:
             kwargs['initial']['subject'] = 'Re: %s' % self.object.subject
+            kwargs['initial']['send_from'] = self.object.to_email
             kwargs['initial']['send_to_normal'] = self.object.from_combined
 
         return kwargs
@@ -1051,8 +1055,8 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if self.object and self.object.send_from:
-            sender = email.utils.parseaddr(self.message.send_from)
+        if self.object and self.object.from_email:
+            sender = email.utils.parseaddr(self.object.from_email)
             reply_to_name = sender[0]
             reply_to_address = sender[1]
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
@@ -1078,8 +1082,22 @@ class EmailMessageForwardView(EmailMessageReplyView):
 
         if self.object:
             kwargs['initial']['subject'] = 'Fwd: %s' % self.object.subject
+            kwargs['initial']['send_from'] = self.object.to_email
+            kwargs['initial']['send_to_normal'] = ''
 
         return kwargs
+
+    def get_email_headers(self):
+        """
+        Return reply-to e-mail header.
+        """
+        email_headers = {}
+        if self.object and self.object.to_email:
+            sender = email.utils.parseaddr(self.object.to_email)
+            reply_to_name = sender[0]
+            reply_to_address = sender[1]
+            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
+        return email_headers
 email_forward_view = login_required(EmailMessageForwardView.as_view())
 
 

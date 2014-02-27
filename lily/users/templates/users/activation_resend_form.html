@@ -1,0 +1,15 @@
+{% extends 'anonymous/form.html' %}
+
+{% load i18n %}
+
+{% block head-title %}{% trans 'Resend activation e-mail' %}{% endblock %}
+{% block form-title %}{% trans 'Resend activation e-mail' %}{% endblock %}
+{% block help-text %}
+<p>{% trans "Didn\'t receive your activation e-mail? Enter your e-mail address below, and we\'ll e-mail it again, free of charge!" %}</p>
+{% endblock %}
+{% block submit-label %}{% trans 'Resend activation e-mail' %}{% endblock %}
+{% block bottom-links %}
+<div class="panel">
+	<a class="btn" href="{% url login %}" class="float-right" id="sub-panel-link">{% trans 'Go to log in' %}</a>
+</div>
+{% endblock %}

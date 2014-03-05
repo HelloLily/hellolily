@@ -59,12 +59,14 @@
                     {% bootstrap_field form.subject layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
                 </div>
             </div>
+            {% if template_list %}
             <div class="inbox-form-group">
                 <label class="control-label">{% trans 'Template' %}:</label>
                 <div class="controls">
                     {% bootstrap_field form.template layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
                 </div>
             </div>
+            {% endif %}
             <div class="inbox-form-group margin-bottom-10">
                 {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class=" " form_group_class="" %}
             </div>
@@ -95,7 +97,7 @@
 <script>
 $(function($) {
     Inbox.init();
-
+{% if template_list %}
     var template_list = {{ template_list|safe }};
 
     var last_selected = $("#id_template option:selected");
@@ -126,6 +128,7 @@ $(function($) {
             last_selected = $("#id_template option:selected");
         }
     });
+{% endif %}
 });
 </script>
 {% endblock %}

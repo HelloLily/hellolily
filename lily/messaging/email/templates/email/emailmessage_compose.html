@@ -59,6 +59,12 @@
                     {% bootstrap_field form.subject layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
                 </div>
             </div>
+            <div class="inbox-form-group">
+                <label class="control-label">{% trans 'Template' %}:</label>
+                <div class="controls">
+                    {% bootstrap_field form.template layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
+                </div>
+            </div>
             <div class="inbox-form-group margin-bottom-10">
                 {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class=" " form_group_class="" %}
             </div>
@@ -89,6 +95,37 @@
 <script>
 $(function($) {
     Inbox.init();
+
+    var template_list = {{ template_list|safe }};
+
+    var last_selected = $("#id_template option:selected");
+    $('#id_template').change(function(e) {
+        var value = $(this).val();
+        var text = $(this).find('option:selected').text();
+        var subject_field = $('#id_subject');
+        var html_field = $('#id_body_html');
+        var wysihtml5Editor = html_field.data("wysihtml5").editor;
+        var confirmation_text = '{% trans 'This will cause you to loose all data already entered within the email body and subject. Click "OK" to continue or "Cancel" to prevent this.' %}';
+
+        if(subject_field.val() !== '' || html_field.val() !== '') {
+            if(confirm(confirmation_text)) {
+                if (value == '') {
+                    subject_field.val('');
+                    wysihtml5Editor.setValue('');
+                } else {
+                    subject_field.val(template_list[value]['subject']);
+                    wysihtml5Editor.setValue(template_list[value]['html_part']);
+                }
+                last_selected = $("#id_template option:selected");
+            } else {
+                last_selected.attr('selected', true);
+            }
+        } else {
+            subject_field.val(template_list[value]['subject']);
+            wysihtml5Editor.setValue(template_list[value]['html_part']);
+            last_selected = $("#id_template option:selected");
+        }
+    });
 });
 </script>
 {% endblock %}

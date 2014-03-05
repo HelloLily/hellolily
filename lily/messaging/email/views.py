@@ -999,7 +999,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 template.pk: {
                     'subject': template.subject,
                     'html_part': TemplateParser(template.body_html).render(self.request),
-                    'text_part': TemplateParser(template.body_text).render(self.request),
+                    #'text_part': TemplateParser(template.body_text).render(self.request),
                 }
             })
 

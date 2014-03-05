@@ -22,10 +22,12 @@ $(document).ready(function() {
                     // check for won/lost and closing date
                     if( data.closed_date ) {
                         $('#closed-date').text(data.closed_date);
-                        $('#closed-date-li').removeClass('hide');
+                        $('#closed-date').removeClass('hide');
+                        $('#expected-closing-date:visible').addClass('hide');
                     } else {
                         $('#closed-date').text('');
-                        $('#closed-date-li:visible').addClass('hide');
+                        $('#closed-date:visible').addClass('hide');
+                        $('#expected-closing-date').removeClass('hide');
                     }
                     // loads notifications if any
                     load_notifications();                    

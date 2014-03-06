@@ -26,12 +26,21 @@
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">
                 <li>
+                    {% if object.account %}
                     <span class="summary-label">{% trans 'Account' %}</span>
                     <span class="pull-right">
                         <a href="{% url account_details pk=object.account.pk %}">
                             {{ object.account.name }}
                         </a>
                     </span>
+                    {% elif object.contact %}
+                    <span class="summary-label">{% trans 'Contact' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url contact_details pk=object.contact.pk %}">
+                            {{ object.contact.full_name }}
+                        </a>
+                    </span>
+                    {% endif %}
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Case name' %}</span>

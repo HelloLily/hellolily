@@ -7,6 +7,7 @@ from lily.cases.views import detail_case_view, list_case_view, create_case_view,
 urlpatterns = patterns(
     '',
     url(r'^create/$', create_case_view, name='case_create'),
+    url(r'^create/from_note/(?P<note_pk>[\w-]+)/$', create_case_view, name='case_create'),
     url(r'^update/(?P<pk>[\w-]+)/$', update_case_view, name='case_update'),
     url(r'^update/status/(?P<pk>[\w-]+)/$', update_status_view, name='case_update_status'),
     url(r'^details/(?P<pk>[\w-]+)/$', detail_case_view, name='case_details'),

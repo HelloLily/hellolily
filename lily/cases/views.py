@@ -11,6 +11,7 @@ from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
+from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView
 
@@ -65,6 +66,28 @@ class CreateCaseView(CreateUpdateCaseView, CreateView):
             self.form_class = CreateCaseQuickbuttonForm
 
         return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        '''
+        If the Case is created from a Note, initialize the form with data from that Note:
+        Note content -> description, Note subject -> account or contact, depending on the content type.
+        '''
+        kwargs = super(CreateCaseView, self).get_form_kwargs()
+        note_pk = self.kwargs.get('note_pk', None)
+        print kwargs
+        if note_pk:
+            note = Note.objects.get(pk=note_pk)
+            # If note.subject is None, then the Note's subject is linked to another tenant, e.g. when the note_pk is
+            # entered manually in the url. In that case, do nothing. Otherwise, pre-fill the description and account
+            # or contact field.
+            if note.subject is not None:
+                kwargs['initial'].update({'description': note.content})
+                if note.content_type.model == 'account':
+                    kwargs['initial'].update({'account': note.subject})
+                elif note.content_type.model == 'contact':
+                    kwargs['initial'].update({'contact': note.subject})
+
+        return kwargs
 
     def form_valid(self, form):
         # Saves the instance

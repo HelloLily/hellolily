@@ -17,10 +17,21 @@ register = template.Library()
 
 
 @register.filter(name='pretty_datetime')
-def pretty_datetime(time, format=None):
+def pretty_datetime(time, format=None, long=False):
     """
+    Format date to a relative string format from now.
+
     Returns a string telling how long ago datetime differs from now or format
     it accordingly. Time is an UTC datetime.
+
+    Args:
+        time (str or datetime): Time value that needs to be turned to a pretty string.
+            Can parse a date string and works with a python ``datetime`` object.
+        format (str, optional): format of what the outputted date string must be.
+        long (boolean, optional): adds a time to dates older than today.
+
+    Returns:
+        str: A pretty formatted string.
     """
     # Convert to utc
     if isinstance(time, basestring):
@@ -39,13 +50,52 @@ def pretty_datetime(time, format=None):
     if isinstance(format, basestring):
         return datetime.strftime(localized_time, format)
 
-    # Format based on local times
-    if localized_now.toordinal() - localized_time.toordinal() == 0:  # same day
-        return datetime.strftime(localized_time, '%H:%M')
-    elif localized_now.year != localized_time.year:
-        return datetime.strftime(localized_time, '%d-%m-%y')
+    diff = localized_now - localized_time
+    s = diff.seconds
+    if diff.days > 2 or diff.days < 0:
+        if diff.days > 365:
+            if long:
+                return _('%s on %s') % (utc_time.strftime('%H:%M'), utc_time.strftime('%d %b.'))
+            else:
+                return utc_time.strftime('%d %b.')
+        else:
+            if long:
+                return _('%s on %s') % (utc_time.strftime('%H:%M'), utc_time.strftime('%d %B %Y'))
+            else:
+                return utc_time.strftime('%d %b %y')
+    elif diff.days == 1:
+        if long:
+            return _('yesterday at %s') % utc_time.strftime('%H:%M')
+        else:
+            return _('yesterday')
+    elif s <= 1:
+        return _('just now')
+    elif s < 60:
+        return _('%d seconds ago') % s
+    elif s < 120:
+        return _('1 minute ago')
+    elif s < 3600:
+        return _('%d minutes ago') % (s/60)
+    elif s < 7200:
+        return _('1 hour ago')
     else:
-        return datetime.strftime(localized_time, '%d-%b.')
+        return _('%d hours ago') % (s/3600)
+
+@register.filter(name='pretty_datetime_long')
+def pretty_datetime_long(time):
+    """
+    Makes a pretty long datetime str, with added time
+
+    Same as ``pretty_datetime``, but adds timestamps to date older than today
+
+    Args:
+        time (str or datetime): Time value that needs to be turned to a pretty string.
+            Can parse a date string and works with a python ``datetime`` object.
+
+    Returns:
+        str: A pretty formatted string.
+    """
+    return pretty_datetime(time, format, True)
 
 
 class UnreadMessagesNode(template.Node):

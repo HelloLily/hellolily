@@ -17,7 +17,7 @@
         <div class="inbox-view-info">
             <div class="row">
                 <div class="col-xs-8 col-md-9 col-lg-10">
-                    {% trans 'On' %} <span class="bold">{{ object.sent_date|pretty_datetime }}</span> <span class="bold">{{ object.from_name }}</span> {% trans 'from' %}
+                    <span class="bold"><abbr title="{{ object.sent_date|pretty_datetime:'%d %B %Y %H:%M' }}">{{ object.sent_date|pretty_datetime_long }}</abbr></span> {% trans 'by' %} <span class="bold">{{ object.from_name }}</span> {% trans 'from' %}
                     <span>&#60;{{ object.from_email }}&#62;</span> to <span>{{ object.to_email }}</span>
                 </div>
                 <div class="col-xs-4 col-md-3 col-lg-2 inbox-info-btn">

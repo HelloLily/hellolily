@@ -6,9 +6,8 @@ from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 import pytz
 from bs4 import BeautifulSoup, UnicodeDammit
 from dateutil.parser import parse
-from dateutil.tz import tzutc
+from dateutil.tz import tzutc, tzoffset
 
-from logger import logger
 from utils import convert_html_to_text, get_extensions_for_type
 
 
@@ -34,37 +33,6 @@ def decode_header_proper(value):
         header_fragments.append(fragment)
 
     return ''.join(header_fragments)
-
-
-def parse_sent_date(message, internaldate):
-    sent_date = None
-
-    if message is not None:
-        received_headers = message.get_all('Received')
-        date_header = message.get('Date')
-
-        if received_headers is not None:
-            for received_header in received_headers:
-                received_date = decode_header_proper(received_header.split(';')[-1].strip())
-
-                if sent_date is None or received_date < sent_date:
-                    sent_date = received_date
-        elif date_header is not None:
-            sent_date = decode_header_proper(message.get('Date'))
-
-    if sent_date is not None:
-        try:
-            parsed = parse(sent_date)
-            if parsed.tzinfo:
-                parsed.tzinfo._name = None
-            sent_date = parsed.astimezone(tzutc())
-        except ValueError:
-            sent_date = None
-
-    if sent_date is None and internaldate is not None:
-        sent_date = pytz.utc.localize(internaldate)
-
-    return sent_date
 
 
 def parse_headers(message):
@@ -357,6 +325,6 @@ class Message(object):
 
     def get_sent_date(self):
         if self.sent_date is None:
-            self.sent_date = parse_sent_date(self._message, self._imap_response.get('INTERNALDATE', None))
+            self.sent_date = self._imap_response.get('INTERNALDATE', None)
 
         return self.sent_date

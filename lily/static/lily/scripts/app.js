@@ -115,13 +115,6 @@ $(function($) {
         });
     }
 
-    if(toastr) {
-        toastr.options = {
-            closeButton: true,
-            positionClass: 'toast-bottom-right'
-        };
-    }
-
     // update address bar with target
     // - this helps showing the correct tab immediately on page load after
     // trying to post a form but receiving errors for instance

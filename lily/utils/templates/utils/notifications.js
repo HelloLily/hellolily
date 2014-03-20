@@ -1,12 +1,5 @@
 {% load messages %}
 
-if (toastr) {
-    toastr.options = {
-        closeButton: true,
-        positionClass: 'toast-bottom-right'
-    };
-}
-
 {# Generate notifications based on messages middleware #}
 {% if messages %}
 $(function($){

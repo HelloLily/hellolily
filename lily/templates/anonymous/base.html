@@ -30,6 +30,14 @@
     <script>
 
         var load_notifications = function() {
+
+            if (toastr) {
+                toastr.options = {
+                    closeButton: true,
+                    positionClass: 'toast-bottom-right'
+                };
+            }
+
             $.getScript('{% url notifications %}');
         }
 

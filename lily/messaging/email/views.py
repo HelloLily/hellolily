@@ -19,7 +19,6 @@ from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
-from django.template.context import RequestContext
 from django.template.defaultfilters import truncatechars
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
@@ -756,18 +755,10 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     headers=self.get_email_headers(),
                     alternatives=None,
                     cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
+                    body=convert_html_to_text(unsaved_form.body_html)
                 )
 
-                # When sending the e-mail, potentially convert the HTML to plain/text, but don't do this for drafts
-                if 'submit-send' in self.request.POST:
-                    kwargs.update({
-                        # TODO: replace inline images with filenames or alt/title attributes ? (should be attachments when viewing plain text e-mails)
-                        'body': unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),
-                    })
-                else:
-                    kwargs.update({
-                        'body': unsaved_form.body_text
-                    })
+                unsaved_form.body_html = soup.encode_contents()
 
                 # Use multipart/alternative when sending just text e-mails (plain and/or html)
                 if len(mapped_attachments.keys()) == 0:
@@ -795,7 +786,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                         inline_image['src'] = 'cid:%s' % filename
 
                     # Use new HTML
-                    unsaved_form.body_html = soup.encode_contents()
                     email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
                 success = True
@@ -873,14 +863,15 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         if self.object and self.object.pk:
             email_message = self.attach_stored_files(email_message, self.object.pk)
 
-        message_string = unicode(email_message.message().as_string(unixfrom=False))
-
+        message_string = email_message.message().as_string(unixfrom=False)
         try:
             # Save *email_message* as draft
             folder = server.get_folder(DRAFTS)
 
             # Save draft remotely
-            response = server.client.append(folder.name_on_server, message_string, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
+            response = server.client.append(folder.name_on_server,
+                                            message_string,
+                                            flags=[DRAFT])
 
             # Extract uid from response
             command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]
@@ -898,7 +889,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 folder,
                 new_messages=True
             )
-            self.object = self.new_draft = EmailMessage.objects.get(
+            self.new_draft = EmailMessage.objects.get(
                 account=account,
                 uid=uid,
                 folder_name=folder.name_on_server

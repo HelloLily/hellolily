@@ -923,7 +923,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
                     if message.get_sent_date() is not None:
                         query_string += 'sent_date = %s, '
-                        param_list.append(datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M:%S'))
+                        param_list.append(datetime.strftime(message.get_sent_date(), '%Y-%m-%d %H:%M:%S%z'))
 
                     query_string = query_string.rstrip(', ')
                     query_string += ' WHERE historylistitem_ptr_id = (SELECT message_ptr_id FROM email_emailmessage WHERE account_id = %s AND uid = %s AND folder_name = %s);\n'

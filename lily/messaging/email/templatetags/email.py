@@ -16,13 +16,7 @@ from lily.messaging.email.utils import get_folder_unread_count
 register = template.Library()
 
 
-@register.filter(name='pretty_datetime')
-def pretty_datetime(time, format=None):
-    """
-    Returns a string telling how long ago datetime differs from now or format
-    it accordingly. Time is an UTC datetime.
-    """
-    # Convert to utc
+def localized_times(time):
     if isinstance(time, basestring):
         parsed_time = parse(time)
         parsed_time.tzinfo._name = None  # clear tzname to rely solely on the offset (not all tznames are supported)
@@ -35,6 +29,17 @@ def pretty_datetime(time, format=None):
     # Convert to local
     localized_time = utc_time.astimezone(gettz(settings.TIME_ZONE))
     localized_now = datetime.now(tzutc()).astimezone(gettz(settings.TIME_ZONE))
+    return localized_time, localized_now
+
+
+@register.filter(name='pretty_datetime')
+def pretty_datetime(time, format=None):
+    """
+    Returns a string telling how long ago datetime differs from now or format
+    it accordingly. Time is an UTC datetime.
+    """
+    # Convert to local
+    localized_time, localized_now = localized_times(time)
 
     if isinstance(format, basestring):
         return datetime.strftime(localized_time, format)
@@ -46,6 +51,47 @@ def pretty_datetime(time, format=None):
         return datetime.strftime(localized_time, '%d-%m-%y')
     else:
         return datetime.strftime(localized_time, '%d-%b.')
+
+@register.filter(name='pretty_datetime_relative')
+def pretty_datetime_relative(time, format=None):
+    result = pretty_datetime(time, format)
+
+    if isinstance(time, basestring):
+        parsed_time = parse(time)
+        parsed_time.tzinfo._name = None  # clear tzname to rely solely on the offset (not all tznames are supported)
+        utc_time = parsed_time.astimezone(tzutc())
+    elif isinstance(time, datetime):
+        utc_time = time.astimezone(tzutc())
+    else:
+        return None
+
+    # Convert to local
+    localized_time, localized_now = localized_times(time)
+
+    diff = localized_now - localized_time
+    if diff.days > 14 or diff.days < 0:
+        return result
+    else:
+        s = diff.seconds
+        if diff.days > 1:
+            return _('%s (%s days ago)') % (result, diff.days)
+        elif diff.days == 1:
+            if localized_now.toordinal() - localized_time.toordinal() == 1:
+                return _('%s (yesterday)') % localized_time.strftime('%H:%M')
+            else:
+                return _('%s (2 days ago)') % result
+        elif s <= 1:
+            return _('%s (just now)') % result
+        elif s < 60:
+            return _('%s (%d seconds ago)') % (result, s)
+        elif s < 120:
+            return _('%s (1 minute ago)') % result
+        elif s < 3600:
+            return _('%s (%d minutes ago)') % (result, (s/60))
+        elif s < 7200:
+            return _('1 hour ago')
+        else:
+            return _('%s (%d hours ago)') % (result, (s/3600))
 
 
 class UnreadMessagesNode(template.Node):

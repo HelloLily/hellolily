@@ -992,6 +992,11 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
                 known_contact_addresses.append(contact_address)
 
+        context.update({
+            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
+        })
+
+        # find e-mail templates and add to context in json
         templates = EmailTemplate.objects.all()
         template_list = {}
         for template in templates:
@@ -999,14 +1004,15 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 template.pk: {
                     'subject': template.subject,
                     'html_part': TemplateParser(template.body_html).render(self.request),
-                    'text_part': TemplateParser(template.body_text).render(self.request),
+                    #'text_part': TemplateParser(template.body_text).render(self.request),
                 }
             })
 
-        context.update({
-            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
-            'template_list': simplejson.dumps(template_list),
-        })
+        # only add template_list to context if there are any templates
+        if template_list:
+            context.update({
+                'template_list': simplejson.dumps(template_list),
+            })
 
         return context
 

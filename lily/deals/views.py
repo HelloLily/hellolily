@@ -201,7 +201,7 @@ class UpdateStageAjaxView(AjaxUpdateView):
                 return HttpResponse(simplejson.dumps({}), mimetype='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                return HttpResponse(simplejson.dumps({'closed_date': closed_date_local.strftime('%d/%m/%Y %H:%M')}), mimetype='application/json')
+                return HttpResponse(simplejson.dumps({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), mimetype='application/json')
 
 
 # Perform logic here instead of in urls.py

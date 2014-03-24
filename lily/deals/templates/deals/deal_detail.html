@@ -4,7 +4,7 @@
 
 {% block css %}
     {{ block.super }}
-    {% include_media 'lily.deals.css' %}
+    {% include_media 'deals.css' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Deal' %} - {{ object }}{% endblock %}
@@ -52,13 +52,11 @@
                     <span class="summary-label">{% trans 'Amount' %}</span>
                     <span class="pull-right">{{ object.amount }}&nbsp;{{ object.get_currency_display }}</span>
                 </li>
+
                 <li>
                     <span class="summary-label">{% trans 'Closing date' %}</span>
-                    {% if object.closed_date %}
-                        <span class="pull-right">{{ object.closed_date|date:"d M y H:i" }}</span>
-                    {% else %}
-                        <span class="pull-right">{{ object.expected_closing_date|date:"d M y" }} ({% trans 'expected' %})</span>
-                    {% endif %}
+                    <span id="closed-date" class="pull-right{% if not object.closed_date %} hide{% endif %}">{{ object.closed_date|date:"d M y H:i" }}</span>
+                    <span id="expected-closing-date" class="pull-right{% if object.closed_date %} hide{% endif %}">{{ object.expected_closing_date|date:"d M y" }} ({% trans 'expected' %})</span>
                 </li>
             </ul>
         </div>

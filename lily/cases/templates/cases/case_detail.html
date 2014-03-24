@@ -2,6 +2,11 @@
 
 {% load i18n utils media %}
 
+{% block css %}
+    {{ block.super }}
+    {% include_media 'cases.css' %}
+{% endblock %}
+
 {% block head-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
 {% block page-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
 {% block detail-title %}{{ object.subject }}{% endblock %}
@@ -21,12 +26,21 @@
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">
                 <li>
+                    {% if object.account %}
                     <span class="summary-label">{% trans 'Account' %}</span>
                     <span class="pull-right">
                         <a href="{% url account_details pk=object.account.pk %}">
                             {{ object.account.name }}
                         </a>
                     </span>
+                    {% elif object.contact %}
+                    <span class="summary-label">{% trans 'Contact' %}</span>
+                    <span class="pull-right">
+                        <a href="{% url contact_details pk=object.contact.pk %}">
+                            {{ object.contact.full_name }}
+                        </a>
+                    </span>
+                    {% endif %}
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Case name' %}</span>
@@ -64,11 +78,24 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>
-                    <span class="pull-right">{{ object.get_status_display }}</span>
+                    <span id="status" class="pull-right">{{ object.get_status_display }}</span>
                 </li>
             </ul>
         </div>
     </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12 summary-info text-center">
+            <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ object.pk }}">
+                {% for value, status in object.STATUS_CHOICES %}
+                    <label for="status-{{ value }}" class="btn default{% if object.status == value %} active{% endif %}">
+                        <input class="toggle" type="radio" id="status-{{ value }}" name="radio" value="{{ value }}" {% if object.status == value %}checked="checked"{% endif %}>
+                        {{ status }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>    
     {% if object.description %}
         <div class="row no-margin">
             <div class="well well-md">
@@ -81,4 +108,9 @@
         {% include 'notes/note_form.html' %}
         {% include 'utils/history_list.html' %}
     </div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% include_media 'cases.js' %}
 {% endblock %}

@@ -3,7 +3,7 @@ from urlparse import urlparse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -11,8 +11,9 @@ from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
+from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin
+from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView
 
 
 class ListCaseView(SortedListMixin, ListView):
@@ -66,6 +67,28 @@ class CreateCaseView(CreateUpdateCaseView, CreateView):
 
         return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        '''
+        If the Case is created from a Note, initialize the form with data from that Note:
+        Note content -> description, Note subject -> account or contact, depending on the content type.
+        '''
+        kwargs = super(CreateCaseView, self).get_form_kwargs()
+        note_pk = self.kwargs.get('note_pk', None)
+        print kwargs
+        if note_pk:
+            note = Note.objects.get(pk=note_pk)
+            # If note.subject is None, then the Note's subject is linked to another tenant, e.g. when the note_pk is
+            # entered manually in the url. In that case, do nothing. Otherwise, pre-fill the description and account
+            # or contact field.
+            if note.subject is not None:
+                kwargs['initial'].update({'description': note.content})
+                if note.content_type.model == 'account':
+                    kwargs['initial'].update({'account': note.subject})
+                elif note.content_type.model == 'contact':
+                    kwargs['initial'].update({'contact': note.subject})
+
+        return kwargs
+
     def form_valid(self, form):
         # Saves the instance
         response = super(CreateCaseView, self).form_valid(form)
@@ -98,7 +121,7 @@ class CreateCaseView(CreateUpdateCaseView, CreateView):
             })
             return HttpResponse(response, mimetype='application/json')
 
-        return response
+        return response       
 
 
 class UpdateCaseView(CreateUpdateCaseView, UpdateView):
@@ -141,9 +164,41 @@ class DeleteCaseView(DeleteView):
         return reverse('case_list')
 
 
+class UpdateStatusAjaxView(AjaxUpdateView):
+    """
+    View that updates the status-field of a Case.
+    """
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        """
+        Overloading post to update the status attribute for a Case object.
+        """
+        try:
+            object_id = kwargs.pop('pk')
+            instance = Case.objects.get(pk=object_id)
+
+            if 'status' in request.POST.keys() and len(request.POST.keys()) == 1:
+                instance.status = int(request.POST['status'])
+                instance.save()
+            else:
+                messages.error(self.request, _('Status could not be changed'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Status could not be changed'))
+            raise Http404()
+        else:
+            status = Case.STATUS_CHOICES[instance.status][1]
+            message = _('Status has been changed to') + ' ' + status
+            messages.success(self.request, message)
+            # Return response
+            return HttpResponse(simplejson.dumps({'status': status}), mimetype='application/json')
+
+
 # Perform logic here instead of in urls.py
 create_case_view = login_required(CreateCaseView.as_view())
 detail_case_view = login_required(DetailCaseView.as_view())
 delete_case_view = login_required(DeleteCaseView.as_view())
 update_case_view = login_required(UpdateCaseView.as_view())
 list_case_view = login_required(ListCaseView.as_view())
+update_status_view = login_required(UpdateStatusAjaxView.as_view())

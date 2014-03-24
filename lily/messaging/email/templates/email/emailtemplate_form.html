@@ -89,6 +89,7 @@ $(function($) {
     Inbox.init();
 
     $('#id_values').change(function() {
+
         var text_value_input = $('#id_text_value');
         var text_value = $(this).val();
 
@@ -122,9 +123,10 @@ $(function($) {
                         });
 
                         // set the html
-                        $('[name="body_html"]').data('wysihtml5').editor.setValue(response.form.body_html);
-                        $('[name="body_html"]').data('wysihtml5').editor.focus();
-                        $('[name="body_html"]').data('wysihtml5').editor.composer.element.blur()
+                        var wedit = $('#id_body_html').data("wysihtml5").editor;
+                        wedit.setValue(response.form.body_html);
+                        wedit.focus();
+                        wedit.composer.element.blur()
                     }
 
                     // loads notifications if any

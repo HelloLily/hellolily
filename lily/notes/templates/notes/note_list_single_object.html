@@ -42,5 +42,11 @@
                 <i class="icon-user"></i>
                 {{ object.author }}
             </a>
+            {% if object.content_type.model == 'account' or object.content_type.model == 'contact' %}
+            <a href="{% url case_create note_pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Create Case' %}" data-target="#object-update" data-source="{% url case_create note_pk=object.pk %}">
+                {% trans 'Create Case' %}
+                <i class="icon-archive"></i>
+            </a>
+            {% endif %}
     </div>
 </li>

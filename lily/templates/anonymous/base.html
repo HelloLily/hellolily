@@ -10,6 +10,7 @@
     {% include_media 'font-awesome.css' %}
     {% include_media 'jquery.js' %}
     {% include_media 'metronic-core.css' %}
+    {% include_media 'notifications.css' %}
     {% include_media 'metronic-theme.css' %}
     {% block css %}{% endblock %}
     <link rel="shortcut icon" href="favicon.ico" />
@@ -18,15 +19,42 @@
 
 <body class="{% block body-class %}login{% endblock %}">
     {% block body-content %}{% endblock %}
+    {% block modals %}{% endblock %}
+    {% block scripts %}
+
+    <!--[if lt IE 9]>
+    {% include_media 'ie9-javascript.js' %}
+    <![endif]-->
+    {% include_media 'core-js.js' %}
+    {% include_media 'notifications.js' %}
     <script>
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-401436-20']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+
+        var load_notifications = function() {
+
+            if (toastr) {
+                toastr.options = {
+                    closeButton: true,
+                    positionClass: 'toast-bottom-right'
+                };
+            }
+
+            $.getScript('{% url notifications %}');
+        }
+
+        {% if messages %}
+            load_notifications();
+        {% endif %}
+    </script>
+    {% endblock %}
+    <script>
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-401436-20']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
     </script>    
 </body>
 </html>

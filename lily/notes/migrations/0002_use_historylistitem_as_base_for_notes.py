@@ -41,6 +41,8 @@ class Migration(DataMigration):
         db.commit_transaction()
 
         # Get the content type id for the Note model
+        from django.contrib.contenttypes.management import update_all_contenttypes
+        update_all_contenttypes()
         ctype_id = ContentType.objects.get(app_label='notes', model='note').pk
 
         # Create new notes

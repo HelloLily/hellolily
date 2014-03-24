@@ -95,7 +95,7 @@
                                 <tr>
                                     <td>{{ contact_function.contact.full_name }}</td>
                                     <td>{{ contact_function.contact.primary_email|default:_('Unknown') }}</td>
-                                    <td>{{ colleague_function.contact.get_phone_number|default:_('Unknown') }}</td>
+                                    <td>{{ contact_function.contact.get_phone_number|default:_('Unknown') }}</td>
                                 </tr>
                             {% endfor %}
                         {% empty %}

@@ -22,6 +22,7 @@ class IMAP(object):
 
     def __init__(self, host, port=None, ssl=True, use_uid=True, stream=False):
         self.client = IMAPClient(host, port, use_uid, ssl, stream)
+        self.client.normalise_times = False
 
     def login(self, username, password):
         try:

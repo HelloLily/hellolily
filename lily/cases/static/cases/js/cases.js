@@ -1,44 +1,35 @@
-// Handle the stage selection.
+// Handle the status selection.
 $(document).ready(function() {
-    // inner function to protect the scope for currentStage
+    // inner function to protect the scope for currentStatus
     (function($) {
-        var currentStage = $('input[name=radio]:checked', '#deal-stage').closest('label').attr('for');
-        $('#deal-stage').click(function(event) {
+        var currentStatus = $('input[name=radio]:checked', '#case-status').closest('label').attr('for');
+        $('#case-status').click(function(event) {
             var radio_element = $('#' + $(event.target).closest('label').attr('for'));
-            if( radio_element.attr('id') != currentStage ) {
+            if( radio_element.attr('id') != currentStatus ) {
                 // try this
                 var jqXHR = $.ajax({
-                    url: '/deals/update/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
+                    url: '/cases/update/status/' + $(radio_element).closest('#case-status').data('object-id') + '/',
                     type: 'POST',
                     data: {
-                        'stage': $(radio_element).val()
+                        'status': $(radio_element).val()
                     },
                     beforeSend: addCSRFHeader,
                     dataType: 'json',
                 })
                 // on success
                 jqXHR.done(function(data, status, xhr) {
-                    currentStage = radio_element.attr('id'); 
-                    // check for won/lost and closing date
-                    if( data.closed_date ) {
-                        $('#closed-date').text(data.closed_date);
-                        $('#closed-date').removeClass('hide');
-                        $('#expected-closing-date:visible').addClass('hide');
-                    } else {
-                        $('#closed-date').text('');
-                        $('#closed-date:visible').addClass('hide');
-                        $('#expected-closing-date').removeClass('hide');
-                    }
+                    currentStatus = radio_element.attr('id');
+                    $('#status').text(data.status);
                     // loads notifications if any
-                    load_notifications();                    
+                    load_notifications();
                 });
                 // on error
                 jqXHR.fail(function() {
-                    // reset selected stage
+                    // reset selected status
                     $(radio_element).attr('checked', false);
                     $(radio_element).closest('label').removeClass('active');
-                    $('#' + currentStage).attr('checked', true);
-                    $('#' + currentStage).closest('label').addClass('active');
+                    $('#' + currentStatus).attr('checked', true);
+                    $('#' + currentStatus).closest('label').addClass('active');
                     // loads notifications if any
                     load_notifications();                    
                 });

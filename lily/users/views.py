@@ -33,8 +33,6 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.views import MultipleModelListView
-
-
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
@@ -253,12 +251,11 @@ class SendInvitationView(FormSetView):
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
     form, to use ajax append ?xhr to the url.
     """
-    template_name = 'users/invitation/invitation_form.html'
-    form_template_name = 'utils/templates/formset_invitation.html'
+    template_name = 'users/mwsadmin/invitation/invite.html'
+    form_template_name = 'users/mwsadmin/invitation/invite_form.html'
     form_class = InvitationForm
     formset_class = InvitationFormset
     extra = 1
-    can_delete = True
 
     def formset_valid(self, formset):
         """
@@ -279,9 +276,6 @@ class SendInvitationView(FormSetView):
             self.current_site = ''
 
         for form in formset:
-            if form in formset.deleted_forms:
-                continue
-
             first_name = form.cleaned_data.get('first_name')
             email = form.cleaned_data.get('email')
             if email: # check that the email is not empty

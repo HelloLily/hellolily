@@ -23,7 +23,7 @@ class Tag(TenantMixin):
         ordering = ['name']
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
-        unique_together = ('name', 'object_id')
+        unique_together = ('name', 'object_id', 'content_type')
 
 
 class TaggedObjectMixin(models.Model):

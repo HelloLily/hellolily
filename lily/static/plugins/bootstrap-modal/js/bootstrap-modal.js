@@ -1,5 +1,5 @@
 /* ===========================================================
- * bootstrap-modal.js v2.2.0
+ * bootstrap-modal.js v2.2.4
  * ===========================================================
  * Copyright 2012 Jordan Schroter
  *
@@ -81,7 +81,7 @@
 
 			this.$element.trigger(e);
 
-			if (!this.isShown || e.isDefaultPrevented()) return (this.isShown = false);
+			if (!this.isShown || e.isDefaultPrevented()) return;
 
 			this.isShown = false;
 
@@ -136,7 +136,7 @@
 			}
 
 			var modalOverflow = $(window).height() - 10 < this.$element.height();
-
+            
 			if (modalOverflow || this.options.modalOverflow) {
 				this.$element
 					.css('margin-top', 0)
@@ -294,28 +294,26 @@
 
 		destroy: function () {
 			var e = $.Event('destroy');
+
 			this.$element.trigger(e);
+
 			if (e.isDefaultPrevented()) return;
 
-			this.teardown();
-		},
-
-		teardown: function () {
-			if (!this.$parent.length){
-				this.$element.remove();
-				this.$element = null;
-				return;
-			}
-
-			if (this.$parent !== this.$element.parent()){
-				this.$element.appendTo(this.$parent);
-			}
-
-			this.$element.off('.modal');
-			this.$element.removeData('modal');
 			this.$element
+				.off('.modal')
+				.removeData('modal')
 				.removeClass('in')
 				.attr('aria-hidden', true);
+			
+			if (this.$parent !== this.$element.parent()) {
+				this.$element.appendTo(this.$parent);
+			} else if (!this.$parent.length) {
+				// modal is not part of the DOM so remove it.
+				this.$element.remove();
+				this.$element = null;
+			}
+
+			this.$element.trigger('destroyed');
 		}
 	};
 

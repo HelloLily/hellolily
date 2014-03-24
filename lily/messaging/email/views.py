@@ -755,7 +755,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     headers=self.get_email_headers(),
                     alternatives=None,
                     cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
-                    body=convert_html_to_text(unsaved_form.body_html)
+                    body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
                 )
 
                 unsaved_form.body_html = soup.encode_contents()

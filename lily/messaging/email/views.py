@@ -700,7 +700,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     'send_to_normal': self.object.to_combined,
                     'send_to_cc': self.object.to_cc_combined,
                     'send_to_bcc': self.object.to_bcc_combined,
-                    # 'body_text': self.object.body_text,
                     'body_html': self.object.body_html,
                 },
             })
@@ -757,8 +756,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
                     body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
                 )
-
-                unsaved_form.body_html = soup.encode_contents()
 
                 # Use multipart/alternative when sending just text e-mails (plain and/or html)
                 if len(mapped_attachments.keys()) == 0:
@@ -995,7 +992,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 template.pk: {
                     'subject': template.subject,
                     'html_part': TemplateParser(template.body_html).render(self.request),
-                    #'text_part': TemplateParser(template.body_text).render(self.request),
                 }
             })
 

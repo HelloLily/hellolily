@@ -61,8 +61,11 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         return contact.get_mobile_phone()
 
     def export_account(self, contact):
-        function = contact.get_primary_function()
-        return function.account.name
+        try:
+            function = contact.get_primary_function()
+            return function.account.name
+        except AttributeError:
+            return None
 
     def export_tags(self, account):
         return '\r\n'.join([tag.name for tag in account.get_tags()])

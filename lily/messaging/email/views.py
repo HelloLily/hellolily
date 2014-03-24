@@ -193,11 +193,15 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Download an email message from IMAP.
         """
-        host = email_message.account.provider.imap_host
-        port = email_message.account.provider.imap_port
-        ssl = email_message.account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(email_message.account.username, email_message.account.password)
+        try:
+            host = email_message.account.provider.imap_host
+            port = email_message.account.provider.imap_port
+            ssl = email_message.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(email_message.account.username, email_message.account.password)
+        finally:
+            if server:
+                server.logout()
 
         imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
 
@@ -1189,12 +1193,16 @@ class EmailBodyPreviewView(TemplateView):
         """
         imap_logger.info('Connecting with IMAP')
 
-        pk = instance.pk
-        host = instance.account.provider.imap_host
-        port = instance.account.provider.imap_port
-        ssl = instance.account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(instance.account.username, instance.account.password)
+        try:
+            pk = instance.pk
+            host = instance.account.provider.imap_host
+            port = instance.account.provider.imap_port
+            ssl = instance.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(instance.account.username, instance.account.password)
+        finally:
+            if server:
+                server.logout()
 
         imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
 

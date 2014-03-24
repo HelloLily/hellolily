@@ -305,7 +305,7 @@ def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY
         port = account.provider.imap_port
         ssl = account.provider.imap_ssl
         server = IMAP(host, port, ssl)
-        server.login(account.username,  account.password)
+        server.login(account.username, account.password)
 
         folder = server.get_folder(folder_name)
 

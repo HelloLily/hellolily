@@ -31,6 +31,25 @@ def convert_br_to_newline(soup, newline='\n'):
         linebreak.replaceWith(newline)
 
 
+def convert_links_to_text(soup):
+    """
+    Replace all links with plain text links
+
+    Takes a soup instance and searches for all link instances in soup. Will replace all all off those links
+    with a textified version of that link.
+
+    Example:
+        input: '<a href="http://www.test.com">Test link title</a>'
+        returns: 'Test link title <http://www.test.com>'
+
+    Args:
+        soup (BeautifulSoup): soup instance
+    """
+    for link in soup.findAll('a'):
+        text = '%s <%s>' % (link.text, link['href'])
+        link.replaceWith(text)
+
+
 def convert_html_to_text(html, keep_linebreaks=False):
     """
     Convert html encoded in utf-8 to text using BeautifulSoup by cleaning it up
@@ -39,7 +58,11 @@ def convert_html_to_text(html, keep_linebreaks=False):
     if html is None:
         return ''
 
+    html = html.replace('&nbsp;', ' ')
     soup = BeautifulSoup(html)
+
+    # replace links with plain text, so that no info get lost
+    convert_links_to_text(soup)
 
     # Remove doctype and html comments to prevent these from being included in
     # the plain text version
@@ -64,7 +87,7 @@ def convert_html_to_text(html, keep_linebreaks=False):
 
     # Return text version of body without keeping whitespace
     body = soup.body if soup.body else soup
-    return body.get_text(separator=' ', strip=True)
+    return body.get_text()
 
 
 def parse_search_keys(search_string):

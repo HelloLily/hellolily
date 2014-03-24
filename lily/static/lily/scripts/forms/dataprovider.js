@@ -134,7 +134,6 @@ $(function() {
                 'cocnumber',
                 'iban',
                 'bic',
-                'tags',
             ];
             var formsets = [
                 'email_addresses',

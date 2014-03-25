@@ -4,12 +4,11 @@ from urlparse import urlparse
 import anyjson
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.datastructures import SortedDict
 from django.utils.timezone import utc
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
@@ -17,21 +16,26 @@ from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    DataTablesListView
+    ArchivedFilterMixin, ArchiveView, UnarchiveView, LoginRequiredMixin, DataTablesListView
 
 
-class ListDealView(SortedListMixin, DataTablesListView):
+class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
     """
     Display a list of all deals.
     """
     model = Deal
+    template_name = 'deals/deal_list_active.html'
 
     # SortedListMxin
-    sortable = [1, 2, 3, 4, 5, 6, 7]
-    default_order_by = 1
+    sortable = [2, 3, 4, 5, 6, 7, 8]
+    default_order_by = 2
 
     # DataTablesListView
     columns = SortedDict([
+        ('checkbox', {
+            'mData': 'checkbox',
+            'bSortable': False,
+        }),
         ('edit', {
             'mData': 'edit',
             'bSortable': False,
@@ -97,14 +101,51 @@ class ListDealView(SortedListMixin, DataTablesListView):
         return queryset
 
 
-class DetailDealView(HistoryListViewMixin):
+class ArchivedDealsView(ListDealView):
+    show_archived = True
+    template_name = 'deals/deal_list_archived.html'
+
+
+class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
+    """
+    Archives one or more deals.
+    """
+    model = Deal
+    success_url = reverse_lazy('deal_list')
+
+    def get_success_message(self, count):
+        message = ungettext(
+            _('Deal has been archived.'),
+            _('%d deals have been archived.') % count,
+            count
+        )
+        messages.success(self.request, message)
+
+
+class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
+    """
+    Unarchives one or more deals.
+    """
+    model = Deal
+    success_url = reverse_lazy('deal_archived_list')
+
+    def get_success_message(self, count):
+        message = ungettext(
+            _('Deal has been re-activated.'),
+            _('%d deals have been re-activated.') % count,
+            count
+        )
+        messages.success(self.request, message)
+
+
+class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single deal.
     """
     model = Deal
 
 
-class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
+class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
     """
     Base class for CreateDealView and UpdateDealView.
     """
@@ -143,7 +184,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
+        return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
 
 
 class CreateDealView(CreateUpdateDealView, CreateView):
@@ -170,7 +211,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
             redirect_url = None
             parse_result = urlparse(self.request.META['HTTP_REFERER'])
             if parse_result.path == reverse('deal_list'):
-                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
+                redirect_url = '%s?order_by=8&sort_order=desc' % reverse('deal_list')
 
             response = anyjson.serialize({
                 'error': False,
@@ -205,7 +246,7 @@ class UpdateDealView(CreateUpdateDealView, UpdateView):
         return response
 
 
-class DeleteDealView(DeleteView):
+class DeleteDealView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -269,13 +310,5 @@ class UpdateStageAjaxView(AjaxUpdateView):
                 return HttpResponse(anyjson.serialize({}), content_type='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                return HttpResponse(anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), content_type='application/json')
-
-
-# Perform logic here instead of in urls.py
-create_deal_view = login_required(CreateDealView.as_view())
-detail_deal_view = login_required(DetailDealView.as_view())
-delete_deal_view = login_required(DeleteDealView.as_view())
-update_deal_view = login_required(UpdateDealView.as_view())
-list_deal_view = login_required(ListDealView.as_view())
-update_stage_view = login_required(UpdateStageAjaxView.as_view())
+                response = anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')})
+                return HttpResponse(response, mimetype='application/json')

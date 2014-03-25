@@ -278,6 +278,16 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
+class ArchivedMixin(models.Model):
+    """
+    Archived model, if set to true, the instance is archived.
+    """
+    is_archived = models.BooleanField(default=False)
+
+    class Meta():
+        abstract = True
+
+
 class PhoneNumber(TenantMixin):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).

@@ -11,7 +11,7 @@ from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
@@ -24,16 +24,125 @@ from django.views.generic import ListView
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 
-from lily.tags.models import Tag
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment, EmailMessage
 from lily.messaging.email.utils import get_attachment_filename_from_url
 from lily.notes.models import Note
 from lily.notes.views import NoteDetailViewMixin
+from lily.tags.models import Tag
 from lily.utils.forms import EmailAddressBaseForm, PhoneNumberBaseForm, AddressBaseForm, AttachmentBaseForm
 from lily.utils.functions import is_ajax, combine_notes_qs_email_qs, get_emails_for_email_addresses
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
+
+
+class ArchiveView(View):
+    """
+    Abstract view that makes it possible to archive an item which redirects to success_url afterwards.
+
+    Needs a post, with one or more ids[] for the instance to be archived.
+    Subclass needs to set `success_url` or override `get_success_url`.
+    """
+    model = None
+    queryset = None
+    success_url = None  # Needs to be set in subclass, or override get_success_url.
+    http_method_names = ['post']
+
+    def get_object_pks(self):
+        """
+        Get primary key(s) from POST.
+
+        Raises:
+            AttributeError: If no object_pks can be retrieved.
+        """
+        object_pks = self.request.POST.get('ids[]', None)
+        if not object_pks:
+            # No objects posted.
+            raise AttributeError(
+                'Generic Archive view %s must be called with at least one object pk.'
+                % self.__class__.__name__
+            )
+        # Always return as a list.
+        return object_pks.split(',')
+
+    def get_queryset(self):
+        """
+        Default function from MultipleObjectMixin.get_queryset, and slightly modified.
+
+        Raises:
+            ImproperlyConfigured: If there is no queryset or model set.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(
+                "'%s' must define 'queryset' or 'model'"
+                % self.__class__.__name__
+            )
+
+        # Filter the queryset with the pk's posted.
+        queryset = queryset.filter(pk__in=self.get_object_pks())
+
+        return queryset
+
+    def get_success_message(self, n):
+        """
+        Should be overridden if there needs to be a success message after archiving objects.
+
+        Args:
+            n (int): Number of objects that were affected by the action.
+        """
+        pass
+
+    def get_success_url(self):
+        """
+        Returns the succes_url if set, otherwise will raise ImproperlyConfigured.
+
+        Returns:
+            the success_url.
+        """
+        self.success_url = self.request.POST.get('success_url', self.success_url)
+        if self.success_url is None:
+            raise ImproperlyConfigured(
+                "'%s' must define a success_url" % self.__class__.__name__
+            )
+        return self.success_url
+
+    def archive(self, archive=True):
+        """
+        Archives all objects found.
+
+        Returns:
+            HttpResponseRedirect object set to success_url.
+        """
+        queryset = self.get_queryset()
+        queryset.update(is_archived=archive)
+        self.get_success_message(len(queryset))
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        """
+        Catch post to start archive process.
+        """
+        return self.archive(archive=True)
+
+
+class UnarchiveView(ArchiveView):
+    """
+    Abstract view that makes it possible to un-archive an item which redirects to success_url afterwards.
+
+    Needs a post, with at least one pk for the instance to be archived.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Catch post to start un-archive process.
+        """
+        return self.archive(archive=False)
 
 
 class CustomSingleObjectMixin(object):
@@ -568,264 +677,12 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         return parsed_data
 
 
-class FilterQuerysetMixin(object):
-    """
-    Attributes:
-        search_fields (list of str): The fields of the queryset where the queryset will be filtered on. The filter
-            will match any object that has all the search strings on any of the fields of the object. If left empty,
-            no search field will be rendered.
-    """
-    search_fields = []
-
-    def filter_queryset(self, queryset, search_terms):
-        """
-        Filters the queryset given the search terms.
-
-        The filter will match any object that has all the search strings on any of the fields of the object.
-        Setup `search_fields` with strings of all the fieldnames you want to search on. For lookups that span
-        relationships, use the Django default search arguments.
-
-        Note: Lookups that span relationships with multiple search strings on siblings returns empty queryset.
-
-        Args:
-            queryset (QuerySet): QuerySet that needs to be filtered.
-            search_terms (list of strings): The strings that are used for searching.
-
-        Returns:
-            QuerySet: The filtered Queryset
-        """
-        complete_filter = []
-        # Loop through all the search items
-        for search_term in search_terms:
-            # Not searching for empty strings
-            if search_term != '':
-                partial_filter = []
-                # For each field, lets build a partial filter
-                for field in self.search_fields:
-                    partial_filter.append(Q(**{field: search_term}))
-                # Combine the partial filter to one filter per search item, any of the fields should match
-                complete_filter.append(reduce(operator.or_, partial_filter))
-        # If there is no filter, don't apply filter
-        if complete_filter:
-            # Combine the filters to one filter, they must all match.
-            queryset = queryset.filter(reduce(operator.and_, complete_filter)).distinct()
-        return queryset
-
-
-class DataTablesListView(FilterQuerysetMixin, ListView):
-    """
-    View that handles everything for server-side datatable processing.
-
-    Subclass needs to set `columns`.
-
-    Attributes:
-        columns (list of dict): Subclass needs to set `columns` with an dictionary with all information needed for
-            the setup of the Datatable columns. This must follow the aoColumns aoColumns parameter.
-            See: https://datatables.net/usage/columns
-        paginate_by (int): Initial view will load first 20 objects. TODO: make dynamic.
-    """
-    columns = []  # Dict setup like aoColumns
-    paginate_by = 20
-    _app_name = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        # Check if it is an DataTables AJAX call and redirect request.
-        """
-        self.request = request
-        self.args = args
-        self.kwargs = kwargs
-
-        # Get app_name from url.
-        self._app_name = resolve(request.path).app_name
-
-        if is_ajax(request) and request.GET.get('sEcho', False):
-            return self.get_ajax(request)
-
-        return super(DataTablesListView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """
-        It is not an DataTables AJAX call, setup pagination so that the resulting page will only
-        show the first page before making Ajax request.
-        """
-        self.kwargs.update({
-            'page': 1
-        })
-        return super(DataTablesListView, self).get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        """
-        Update the view to tell it needs to use DataTable on the serverside.
-        """
-        if not is_ajax(self.request):
-            # If there are no search fields, we don't need to show any search field.
-            show_search_field = 'false'
-            if self.search_fields:
-                show_search_field = 'true'
-            # We add the extra info for the view to setup DataTables.
-            kwargs.update({
-                'data_tables_server_side': True,
-                'data_tables_ajax_source': self.request.get_full_path,
-                'data_tables_columns': self.get_data_tables_columns(),
-                'data_tables_show_search_field': show_search_field,
-                'columns': self.columns,
-                'app_name': self._app_name,
-            })
-        return super(DataTablesListView, self).get_context_data(**kwargs)
-
-    def get_ajax(self, request):
-        """
-        Handles the Ajax call from DataTable.
-
-        Returns:
-            HttpResponse: JSON parsed response.
-        """
-        # Get columns sent by DataTable.
-        ajax_columns = self.get_columns(request.GET)
-
-        # Get initial queryset.
-        queryset = self.get_queryset()
-
-        # DataTable needs to know how big the set is without filters.
-        total_object_count = queryset.count()
-
-        # Filter queryset.
-        search_items = self.get_from_data_tables('search_items').split(' ')
-        queryset = self.filter_queryset(queryset, search_items)
-        filtered_object_count = queryset.count()
-
-        # Order queryset.
-        queryset = self.order_queryset(
-            queryset,
-            ajax_columns[int(self.get_from_data_tables('order_by'))],
-            self.get_from_data_tables('sort_order')
-        )
-
-        # Paginate queryset.
-        # NOTE In Django 1.4 you need to setup the page in the kwargs. (BOOH!)
-        page_size = int(self.get_from_data_tables('page_size'))
-        self.kwargs.update({
-            'page': int(self.get_from_data_tables('page')) / page_size + 1
-        })
-        paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
-
-        # Parse data to columns for table.
-        columns = self.parse_data_to_colums(queryset, ajax_columns)
-
-        # Return json parsed response.
-        return HttpResponse(anyjson.serialize({
-            'iTotalRecords': total_object_count,
-            'iTotalDisplayRecords': filtered_object_count,
-            'sEcho': self.get_from_data_tables('echo'),
-            'aaData': columns,
-        }), mimetype='application/json')
-
-    def get_columns(self, params):
-        """
-        Gets all columns from the ajax call and checks if it matches the columns in self.columns.
-
-        Args:
-            params (dict): The DataTables params sent by ajax request.
-
-        Returns:
-            list of dict: All matched columns.
-        """
-        ajax_columns = []
-        x = 0
-        while True:
-            # Check if there is still a mDataProp left in params.
-            param_name = 'mDataProp_%d' % x
-            column_name = params.get(param_name, None)
-            if column_name is None:
-                break
-            ajax_columns.append(column_name)
-            x += 1
-        return ajax_columns
-
-    def get_from_data_tables(self, what, default=None):
-        """
-        Retrieve parameter from GET.
-
-        Args:
-            what (str): Parameter asked.
-            default (optional): Default value if parameter doesn't exists.
-
-        Returns:
-            value from GET parameter.
-        """
-        return self.request.GET.get({
-            'page_size': 'iDisplayLength',
-            'echo': 'sEcho',
-            'order_by': 'iSortCol_0',
-            'sort_order': 'sSortDir_0',
-            'search_items': 'sSearch',
-            'page': 'iDisplayStart',
-        }.get(what), default)
-
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset.
-
-        On default, no ordering will occur. This function needs to be implemented by a subclass.
-
-        Args:
-            queryset (QuerySet): QuerySet that needs to be ordered.
-            column (str): Name of the column that needs ordering.
-            sort_order (str): Always 'asc' or 'desc'.
-
-        Returns:
-            QuerySet: The ordered QuerySet.
-        """
-        return queryset
-
-    def get_data_tables_columns(self):
-        """
-        Setup for the DataTable columns.
-
-        Returns:
-            json dict: A dictionary with all the columns and their properties.
-        """
-        if not self.columns:
-            raise ImproperlyConfigured(
-                'Need to setup columns attribute for DataTableListView to work'
-            )
-        return mark_safe(anyjson.serialize([value for value in self.columns.values()]))
-
-    def parse_data_to_colums(self, object_list, columns):
-        """
-        Parses the queryset to the columns.
-
-        Tries to render per column via a template, if there is no template found it will
-        try to return an attribute on the object with the same name as the column.
-        If both will not succeed, it will return an empty cell for the column.
-
-        Args:
-            object_list (QuerySet): The QuerySet with the objects needed to be parsed.
-            columns (list): A list with columns needed in the result.
-
-        Returns:
-            list: A list with dictionaries.
-        """
-        parsed_data = []
-        for item in object_list:
-            row_data = {}
-            for column in columns:
-                # Load template for column.
-                template = get_template('%s/data-tables/%s.html' % (self._app_name, column))
-                response = template.render(Context({'item': item}))
-                # Add response to row
-                row_data[column] = response
-            parsed_data.append(row_data)
-        return parsed_data
-
-
 #===================================================================================================
 # Mixins
 #===================================================================================================
 class LoginRequiredMixin(object):
     """
-    Use this mixin if you want that the view is only accessed when a user is logged in.
+    Apply the `login_required`-decorator to a class based view.
 
     This should be the first mixin as a superclass.
     """
@@ -833,6 +690,22 @@ class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls):
         return login_required(super(LoginRequiredMixin, cls).as_view())
+
+
+class ArchivedFilterMixin(object):
+    """
+    Filter the list based on the `is_archived` attribute
+
+    Attributes:
+        show_archived (bool): Switch between only or non-archived objects.
+    """
+    show_archived = False
+
+    def get_queryset(self):
+        """
+        Filters the queryset to only archived items or non-archived_items.
+        """
+        return super(ArchivedFilterMixin, self).get_queryset().filter(is_archived=self.show_archived)
 
 
 class ExportListViewMixin(FilterQuerysetMixin):
@@ -1442,7 +1315,7 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         return super(AttachmentFormSetViewMixin, self).form_valid(form)
 
 
-class AjaxUpdateView(View):
+class AjaxUpdateView(LoginRequiredMixin, View):
     """
     View that provides an option to update models based on a url and POST data.
     """

@@ -175,7 +175,7 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         """
         Used by ExportListViewMixin.
         """
-        if contact.functions.all():
+        if contact.functions.count() > 0:
             return contact.functions.all()[0].account
         return None
 

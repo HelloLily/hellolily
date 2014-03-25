@@ -1,11 +1,11 @@
 from urlparse import urlparse
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
@@ -13,22 +13,27 @@ from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, LoginRequiredMixin, \
-    DataTablesListView
+    ArchivedFilterMixin, ArchiveView, UnarchiveView, DataTablesListView
 
 
-class ListCaseView(LoginRequiredMixin, SortedListMixin, DataTablesListView):
+class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
     """
     Display a list of all cases.
     """
     model = Case
+    template_name = 'cases/case_list_active.html'
 
     # SortedListMxin
-    sortable = [1, 2, 3, 4, 5, 6, 7]
-    default_order_by = 1
+    sortable = [2, 3, 4, 5, 6, 7, 8]
+    default_order_by = 2
     default_sort_order = SortedListMixin.DESC
 
     # DataTablesListView
     columns = SortedDict([
+        ('checkbox', {
+            'mData': 'checkbox',
+            'bSortable': False,
+        }),
         ('edit', {
             'mData': 'edit',
             'bSortable': False,
@@ -118,7 +123,7 @@ class CreateUpdateCaseView(object):
         """
         Redirect to case list after creating or updating a case.
         """
-        return '%s?order_by=6&sort_order=desc' % (reverse('case_list'))
+        return '%s?order_by=7&sort_order=desc' % (reverse('case_list'))
 
 
 class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
@@ -166,7 +171,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
             redirect_url = None
             parse_result = urlparse(self.request.META['HTTP_REFERER'])
             if parse_result.path == reverse('case_list'):
-                redirect_url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
+                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('case_list')
 
             response = simplejson.dumps({
                 'error': False,
@@ -201,6 +206,43 @@ class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):
         return response
 
 
+class ArchivedCasesView(ListCaseView):
+    show_archived = True
+    template_name = 'cases/case_list_archived.html'
+
+
+class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
+    """
+    Archives one or more cases.
+    """
+    model = Case
+    success_url = reverse_lazy('case_list')
+
+    def get_success_message(self, count):
+        message = ungettext(
+            _('Case has been archived.'),
+            _('%d cases have been archived.') % count,
+            count
+        )
+        messages.success(self.request, message)
+
+
+class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
+    """
+    Unarchives one or more cases.
+    """
+    model = Case
+    success_url = reverse_lazy('case_archived_list')
+
+    def get_success_message(self, count):
+        message = ungettext(
+            _('Case has been re-activated.'),
+            _('%d cases have been re-activated.') % count,
+            count
+        )
+        messages.success(self.request, message)
+
+
 class DeleteCaseView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
@@ -228,7 +270,7 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
         return reverse('case_list')
 
 
-class UpdateStatusAjaxView(LoginRequiredMixin, AjaxUpdateView):
+class UpdateStatusAjaxView(AjaxUpdateView):
     """
     View that updates the status-field of a Case.
     """

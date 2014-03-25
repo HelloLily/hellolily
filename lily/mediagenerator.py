@@ -264,6 +264,7 @@ MEDIA_BUNDLES = (
         'lily/plugins/data-tables/column-sort_hidden-title-numeric.js',
         'plugins/data-tables/DT_bootstrap.js',
         'lily/scripts/datatable-export.js',
+        'lily/scripts/table-bulk-actions.js',
     ),
     ('modal.css',
         'plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css',

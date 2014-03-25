@@ -10,7 +10,7 @@ from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
@@ -315,6 +315,47 @@ class MultipleModelListView(object):
                 list_name: object_list
             })
         return kwargs
+
+
+class ArchiveView(View):
+    """
+    View that makes it possible to archive an item and redirects to succes_url
+
+    Needs an post, with an ID for the instance to be archived.
+    """
+
+    model = None
+    succes_url = None
+    http_method_names = ['post', 'get']
+
+    def get_succes_url(self):
+        """
+        make sure there is a succes_url set
+        """
+        if self.succes_url:
+            return self.succes_url
+        else:
+            raise ImproperlyConfigured(
+                "No URL to redirect to. Provide a succes_url."
+            )
+
+    def get_objects(self):
+        """
+        retrieves all pks from kwargs and finds them in the queryset
+        """
+    #     TODO: make it possible to retrieve multiple objects
+
+    def archive(self, request, *args, **kwargs):
+        """
+        archives all objects found
+        """
+        object = self.get_objects()
+        succes_url = self.get_success_url()
+        object.archive()
+        return HttpResponseRedirect(succes_url)
+
+    def post(self, request, *args, **kwargs):
+        return self.archive(self, request, *args, **kwargs)
 
 
 class FilterQuerysetMixin(object):

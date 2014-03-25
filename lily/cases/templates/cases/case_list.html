@@ -16,3 +16,5 @@
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
     <th class="expires hide_on_small_screen">{% trans 'Expires' %}</th>
 {% endblock %}
+
+        <button type="button" class="btn btn-xs red" title="{% trans 'Archive' %}" data-target="#confirm-archive" data-source="{% url case_archive pk=item.pk %}" ><i class="icon-archive"></i></button>

@@ -310,6 +310,21 @@ class ArchivedMixin(models.Model):
         abstract = True
 
 
+class Archived(TimeStampedModel):
+    """
+    Archived model, flags when an instance is archived.
+    """
+    archived = ModificationDateTimeField(_('archived'))
+    is_archived = models.BooleanField(default=False)
+
+    def archive(self):
+        self.is_archived = True
+        self.save()
+
+    class Meta:
+        abstract = True
+
+
 class PhoneNumber(TenantMixin):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).

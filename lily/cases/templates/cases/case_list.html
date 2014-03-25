@@ -24,6 +24,7 @@
     <td class="">
         <a href="{% url case_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
+        <button type="button" class="btn btn-xs red" title="{% trans 'Archive' %}" data-target="#confirm-archive" data-source="{% url case_archive pk=item.pk %}" ><i class="icon-archive"></i></button>
         <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>

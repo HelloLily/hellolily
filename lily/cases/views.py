@@ -12,19 +12,17 @@ from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView, ArchivedListMixin, \
-    UnarchiveView
+from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView
 
 
-class ListCaseView(ArchivedListMixin, SortedListMixin, ListView):
+class ListCaseView(SortedListMixin, ListView):
     """
     Display a list of all cases.
     """
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
-    default_order_by = 2
+    default_order_by = 1
     default_sort_order = SortedListMixin.DESC
-    template_name = 'cases/case_list_active.html'
 
 
 class DetailCaseView(HistoryListViewMixin):
@@ -138,41 +136,12 @@ class UpdateCaseView(CreateUpdateCaseView, UpdateView):
         return response
 
 
-class ArchivedCasesView(ListCaseView):
-    show_archived = True
-    template_name = 'cases/case_list_archived.html'
-
-
-class ArchiveCasesView(ArchiveView):
+class ArchiveCaseView(ArchiveView):
     """
-    Archives one or more cases
+    Archives an instance
     """
+
     model = Case
-    success_url = 'case_list'
-
-    def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Case has been archived.')
-        else:
-            message = _('%d cases have been archived.') % n
-        messages.success(self.request, message)
-
-
-class UnarchiveCasesView(UnarchiveView):
-    """
-    Archives one or more cases
-    """
-    model = Case
-    success_url = 'case_archived_list'
-
-    def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Case has been re-activated.')
-        else:
-            message = _('%d cases have been re-activated.') % n
-        messages.success(self.request, message)
 
 
 class DeleteCaseView(DeleteView):
@@ -234,12 +203,10 @@ class UpdateStatusAjaxView(AjaxUpdateView):
 
 
 # Perform logic here instead of in urls.py
-archive_cases_view = login_required(ArchiveCasesView.as_view())
-archived_cases_view = login_required(ArchivedCasesView.as_view())
+archive_case_view = login_required(ArchiveCaseView.as_view())
 create_case_view = login_required(CreateCaseView.as_view())
 detail_case_view = login_required(DetailCaseView.as_view())
 delete_case_view = login_required(DeleteCaseView.as_view())
 update_case_view = login_required(UpdateCaseView.as_view())
 list_case_view = login_required(ListCaseView.as_view())
 update_status_view = login_required(UpdateStatusAjaxView.as_view())
-unarchive_cases_view = login_required(UnarchiveCasesView.as_view())

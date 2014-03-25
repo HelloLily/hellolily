@@ -8,10 +8,10 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.tenant.models import TenantMixin
 from lily.users.models import CustomUser
-from lily.utils.models import Deleted, ArchivedMixin
+from lily.utils.models import Deleted, Archived
 
 
-class Case(ArchivedMixin, TenantMixin, Deleted):
+class Case(TenantMixin, Deleted, Archived):
     
     LOW_PRIO, MID_PRIO, HIGH_PRIO, CRIT_PRIO = range(4)
     PRIORITY_CHOICES = (
@@ -49,4 +49,4 @@ class Case(ArchivedMixin, TenantMixin, Deleted):
     
     class Meta:
         verbose_name = _('case')
-        verbose_name_plural = _('cases')
+        verbose_name_plural = _('cases') 

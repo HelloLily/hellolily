@@ -1,0 +1,34 @@
+{% extends 'cases/case_list.html' %}
+
+{% load i18n utils %}
+
+{% block head-title %}{% trans 'Archived Cases' %}{% endblock %}
+{#{% block page-title %}{% trans 'Archived Cases' %}{% endblock %}#}
+{% block list-title %}
+    <div class="btn-group">
+        <a class="btn-link btn-default" data-toggle="dropdown">
+            <i class="icon-reorder"></i> {% trans 'Archived Cases' %}
+            <i class="icon-angle-down"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="{% url case_list %}">{% trans 'Cases' %}</a></li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block list-actions %}
+    <div class="btn-group">
+        <a class="btn default actions" data-toggle="dropdown">
+            {% trans 'Actions' %}
+            <i class="icon-angle-down"></i>
+        </a>
+        <ul class="dropdown-menu pull-right">
+            <li><a href="{% url case_unarchive %}" data-form-submit data-form-selector="#case-unarchive-form"><i class="icon-check"></i> {% trans 'Activate' %}</a></li>
+        </ul>
+    </div>
+    <form action="{% url case_unarchive %}" method="post" id="case-unarchive-form">
+        {% csrf_token %}
+        <input type="hidden" name="ids[]" value="" class="bulk-ids">
+    </form>
+{% endblock %}
+

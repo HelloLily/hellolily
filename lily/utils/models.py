@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
+from model_utils.fields import MonitorField
 
 from functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
@@ -278,20 +279,38 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class Archived(TimeStampedModel):
+class ArchivedManager(models.Manager):
+    """
+    Custom manager which can be used to bulk archive instances
+    """
+
+    def get_query_set(self):
+        return super(ArchivedManager, self).get_query_set()
+
+    def archive(self):
+        """
+        Bulk action to flag all objects as archived
+        """
+        return self.get_query_set().update(is_archived=True)
+
+
+class ArchivedMixin(models.Model):
     """
     Archived model, flags when an instance is archived.
     """
-    archived = ModificationDateTimeField(_('archived'))
+    archived_at = MonitorField(monitor='is_archived', when=[True])
     is_archived = models.BooleanField(default=False)
 
+    objects = ArchivedManager()
+
     def archive(self):
-        self.is_archived = True
-        self.save()
+        """
+        Flag instance as archived
+        """
+        self.update(is_archived=True)
 
-    class Meta:
+    class Meta():
         abstract = True
-
 
 class PhoneNumber(TenantMixin):
     """

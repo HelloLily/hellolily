@@ -8,10 +8,10 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.tenant.models import TenantMixin
 from lily.users.models import CustomUser
-from lily.utils.models import Deleted, Archived
+from lily.utils.models import Deleted, ArchivedMixin
 
 
-class Case(TenantMixin, Deleted, Archived):
+class Case(ArchivedMixin, TenantMixin, Deleted):
     
     LOW_PRIO, MID_PRIO, HIGH_PRIO, CRIT_PRIO = range(4)
     PRIORITY_CHOICES = (

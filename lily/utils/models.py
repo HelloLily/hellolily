@@ -281,49 +281,38 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class ArchiveQuerySet(QuerySet):
+class ArchivedManager(models.Manager):
     """
-    Custom queryset which can be used to bulk archive instances
+    Custom manager which can be used to bulk archive instances
     """
+
+    def get_query_set(self):
+        return super(ArchivedManager, self).get_query_set()
+
     def archive(self):
         """
         Bulk action to flag all objects as archived
         """
-        return self.update(is_archived=True)
-
-    def unarchive(self):
-        """
-        Bulk action to flag all objects as active
-        """
-        return self.update(is_archived=False)
+        return self.get_query_set().update(is_archived=True)
 
 
 class ArchivedMixin(models.Model):
     """
     Archived model, flags when an instance is archived.
     """
+    archived_at = MonitorField(monitor='is_archived', when=[True])
     is_archived = models.BooleanField(default=False)
 
-    objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()
+    objects = ArchivedManager()
+
+    def archive(self):
+        """
+        Flag instance as archived
+        """
+        self.update(is_archived=True)
 
     class Meta():
         abstract = True
-
-
-class Archived(TimeStampedModel):
-    """
-    Archived model, flags when an instance is archived.
-    """
-    archived = ModificationDateTimeField(_('archived'))
-    is_archived = models.BooleanField(default=False)
-
-    def archive(self):
-        self.is_archived = True
-        self.save()
-
-    class Meta:
-        abstract = True
-
 
 class PhoneNumber(TenantMixin):
     """
@@ -358,9 +347,19 @@ class PhoneNumber(TenantMixin):
 
     def save(self, *args, **kwargs):
         # Save raw input as number only (for searching)
-        self.number = parse_phone_number(self.raw_input)
+        self.number = filter(type(self.raw_input).isdigit, self.raw_input)
+
+        # Replace starting digits
+        if self.number[:3] == '310':
+            self.number = self.number.replace('310', '31', 1)
+        if self.number[:2] == '06':
+            self.number = self.number.replace('06', '316', 1)
+        if self.number[:1] == '0':
+            self.number = self.number.replace('0', '31', 1)
 
         if len(self.number) > 0:
+            self.number = '+' + self.number
+
             # Overwrite user input
             self.raw_input = self.number # reserved field for future display based on locale
 
@@ -518,7 +517,7 @@ class CaseClientModelMixin(object):
         return self.get_cases(status=3)
 
 
-class HistoryListItem(PolymorphicTenantMixin):
+class HistoryListItem(PolymorphicModel):
     """
     An base model for all items that can appear in a History List
     """

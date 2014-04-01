@@ -323,6 +323,7 @@ class ArchiveView(View):
     """
 
     model = None
+    queryset = None
     succes_url = None
     http_method_names = ['post', 'get']
 
@@ -337,19 +338,45 @@ class ArchiveView(View):
                 "No URL to redirect to. Provide a succes_url."
             )
 
-    def get_objects(self):
+    def get_filtered_queryset(self):
         """
         retrieves all pks from kwargs and finds them in the queryset
         """
-    #     TODO: make it possible to retrieve multiple objects
+        # TODO: make it possible to retrieve multiple objects
+        object_pks = self.kwargs.getlist('pks', None)
+        if not object_pks:
+            raise AttributeError("Generic Archive view %s must be called with "
+                             "at least one object pk."
+                             % self.__class__.__name__)
+
+        queryset = self.get_queryset()
+
+        if not isinstance(object_pks, list):
+            object_pks = [object_pks]
+
+        queryset = queryset.filter(pk__in=object_pks)
+        return queryset
+
+    def get_queryset(self):
+        if self.queryset is None:
+            if self.model:
+                return self.model._default_manager.all()
+            else:
+                raise ImproperlyConfigured("%(cls)s is missing a queryset. Define "
+                                       "%(cls)s.model, %(cls)s.queryset, or override "
+                                       "%(cls)s.get_queryset()." % {
+                                            'cls': self.__class__.__name__})
+        return self.queryset._clone()
 
     def archive(self, request, *args, **kwargs):
         """
         archives all objects found
         """
-        object = self.get_objects()
         succes_url = self.get_success_url()
-        object.archive()
+
+        queryset = self.get_filtered_queryset()
+        queryset.objects.archive()
+
         return HttpResponseRedirect(succes_url)
 
     def post(self, request, *args, **kwargs):

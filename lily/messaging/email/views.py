@@ -144,8 +144,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             raise Http404()
 
         if object.body_html is None or len(object.body_html.strip()) == 0 and (object.body_text is None or len(object.body_text.strip()) == 0):
-            server = self.get_from_imap(object)
-            server.logout()
+            self.get_from_imap(object)
 
             # Re-fetch
             object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
@@ -198,19 +197,19 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             ssl = email_message.account.provider.imap_ssl
             server = IMAP(host, port, ssl)
             server.login(email_message.account.username, email_message.account.password)
+
+            imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
+
+            message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                         server.get_folder(email_message.folder_name), readonly=False)
+            if message is not None:
+                imap_logger.info('Message retrieved, saving in database')
+                save_email_messages([message], email_message.account, message.folder)
+
         finally:
             if server:
                 server.logout()
 
-        imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
-
-        message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                     server.get_folder(email_message.folder_name), readonly=False)
-        if message is not None:
-            imap_logger.info('Message retrieved, saving in database')
-            save_email_messages([message], email_message.account, message.folder)
-
-        return server
 email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 

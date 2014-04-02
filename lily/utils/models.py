@@ -281,29 +281,25 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class ArchivedManager(models.Manager):
+class ArchiveQuerySet(QuerySet):
     """
-    Custom manager which can be used to bulk archive instances
+    Custom queryset which can be used to bulk archive instances
     """
-
-    def get_query_set(self):
-        return super(ArchivedManager, self).get_query_set()
-
     def archive(self):
         """
         Bulk action to flag all objects as archived
         """
-        return self.get_query_set().update(is_archived=True)
+        return self.update(is_archived=True)
 
 
 class ArchivedMixin(models.Model):
     """
     Archived model, flags when an instance is archived.
     """
-    archived_at = MonitorField(monitor='is_archived', when=[True])
+    archived_at = MonitorField(monitor='is_archived')
     is_archived = models.BooleanField(default=False)
 
-    objects = ArchivedManager()
+    objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()
 
     def archive(self):
         """
@@ -313,6 +309,7 @@ class ArchivedMixin(models.Model):
 
     class Meta():
         abstract = True
+
 
 class PhoneNumber(TenantMixin):
     """

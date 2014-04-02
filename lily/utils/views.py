@@ -325,7 +325,6 @@ class ArchiveView(View):
     model = None
     queryset = None
     succes_url = None
-    http_method_names = ['post', 'get']
 
     def get_succes_url(self):
         """
@@ -342,8 +341,8 @@ class ArchiveView(View):
         """
         retrieves all pks from kwargs and finds them in the queryset
         """
-        # TODO: make it possible to retrieve multiple objects
-        object_pks = self.kwargs.getlist('pks', None)
+        # TODO: not returning list of pks
+        object_pks = self.request.POST.getlist('ids[]')
         if not object_pks:
             raise AttributeError("Generic Archive view %s must be called with "
                              "at least one object pk."
@@ -368,19 +367,19 @@ class ArchiveView(View):
                                             'cls': self.__class__.__name__})
         return self.queryset._clone()
 
-    def archive(self, request, *args, **kwargs):
+    def archive(self):
         """
         archives all objects found
         """
         succes_url = self.get_success_url()
 
         queryset = self.get_filtered_queryset()
-        queryset.objects.archive()
+        queryset.archive()
 
         return HttpResponseRedirect(succes_url)
 
     def post(self, request, *args, **kwargs):
-        return self.archive(self, request, *args, **kwargs)
+        return self.archive()
 
 
 class ArchiveView(View):

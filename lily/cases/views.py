@@ -21,7 +21,7 @@ class ListCaseView(SortedListMixin, ListView):
     """
     model = Case
     sortable = [1, 2, 3, 4, 5, 6]
-    default_order_by = 1
+    default_order_by = 2
     default_sort_order = SortedListMixin.DESC
 
 
@@ -142,6 +142,9 @@ class ArchiveCaseView(ArchiveView):
     """
 
     model = Case
+
+    def get_success_url(self):
+        return reverse('case_list')
 
 
 class DeleteCaseView(DeleteView):

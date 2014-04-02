@@ -2,6 +2,24 @@
 
 {% load i18n utils %}
 
+{% block list-tools %}
+<div class="btn-group">
+    <a class="btn green" href="#" data-toggle="dropdown">
+        <i class="icon-cogs"></i> {% trans 'Tools' %}
+        <i class="icon-angle-down"></i>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li>
+            <form action="{% url case_archive %}" method="post" id="case-archive-form">
+                {% csrf_token %}
+                <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+            </form>
+            <a href="{% url case_archive %}" data-form-submit data-form-selector="#case-archive-form"><i class="icon-fixed-width"></i> {% trans 'Archive' %}</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
 {% block list-headings %}
     <th class="table-checkbox">
         <input type="checkbox" class="case-checkbox case-group-checkbox" data-set=".data-table .case-checkbox" /></th>
@@ -24,7 +42,6 @@
     <td class="">
         <a href="{% url case_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs red" title="{% trans 'Archive' %}" data-target="#confirm-archive" data-source="{% url case_archive pk=item.pk %}" ><i class="icon-archive"></i></button>
         <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
@@ -88,7 +105,6 @@
         $.uniform.update(set);
 
         update_bulk_ids();
-        toggle_actions_button();
     });
 
     // update forms that have actions for selected cases
@@ -105,21 +121,9 @@
     $('.case-checkbox:not(.case-group-checkbox)').change(function(){
         $(this).parents('tr').toggleClass('active');
         update_bulk_ids();
-        toggle_actions_button();
     });
 
-    // enable/disable actions button when (no) items are selected
-    function toggle_actions_button() {
-        var selected = $(''+$('.case-group-checkbox').attr('data-set')+':checked');
-        if(selected.length) {
-            $('.case-actions').removeClass('disabled');
-        } else {
-            $('.case-actions').addClass('disabled');
-        }
-
-    }
     // onload
     update_bulk_ids();
-    toggle_actions_button();
    </script>
 {% endblock %}

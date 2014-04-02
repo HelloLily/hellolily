@@ -1,9 +1,11 @@
 from django.contrib.contenttypes import generic
 from django.db import models
+from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from model_utils.fields import MonitorField
+from model_utils.managers import PassThroughManager
 
 from functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
@@ -279,29 +281,25 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class ArchivedManager(models.Manager):
+class ArchiveQuerySet(QuerySet):
     """
-    Custom manager which can be used to bulk archive instances
+    Custom queryset which can be used to bulk archive instances
     """
-
-    def get_query_set(self):
-        return super(ArchivedManager, self).get_query_set()
-
     def archive(self):
         """
         Bulk action to flag all objects as archived
         """
-        return self.get_query_set().update(is_archived=True)
+        return self.update(is_archived=True)
 
 
 class ArchivedMixin(models.Model):
     """
     Archived model, flags when an instance is archived.
     """
-    archived_at = MonitorField(monitor='is_archived', when=[True])
+    archived_at = MonitorField(monitor='is_archived')
     is_archived = models.BooleanField(default=False)
 
-    objects = ArchivedManager()
+    objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()
 
     def archive(self):
         """
@@ -311,6 +309,7 @@ class ArchivedMixin(models.Model):
 
     class Meta():
         abstract = True
+
 
 class PhoneNumber(TenantMixin):
     """

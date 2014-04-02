@@ -12,6 +12,6 @@ urlpatterns = patterns(
     url(r'^update/status/(?P<pk>[\w-]+)/$', update_status_view, name='case_update_status'),
     url(r'^details/(?P<pk>[\w-]+)/$', detail_case_view, name='case_details'),
     url(r'^delete/(?P<pk>[\w-]+)/$', delete_case_view, name='case_delete'),
-    url(r'^archive/(?P<pk>[\w-]+)/$', archive_case_view, name='case_archive'),
+    url(r'^archive/$', archive_case_view, name='case_archive'),
     url(r'^$', list_case_view, name='case_list'),
 )

@@ -6,7 +6,27 @@
 {#{% block page-title %}{% trans 'Cases' %}{% endblock %}#}
 {% block list-title %}{% trans 'Cases' %}{% endblock %}
 
+{% block list-tools %}
+<div class="btn-group">
+    <a class="btn green" href="#" data-toggle="dropdown">
+        <i class="icon-cogs"></i> {% trans 'Tools' %}
+        <i class="icon-angle-down"></i>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li>
+            <form action="{% url case_archive %}" method="post" id="case-archive-form">
+                {% csrf_token %}
+                <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+            </form>
+            <a href="{% url case_archive %}" data-form-submit data-form-selector="#case-archive-form"><i class="icon-fixed-width"></i> {% trans 'Archive' %}</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
 {% block list-headings %}
+    <th class="table-checkbox">
+        <input type="checkbox" class="case-checkbox case-group-checkbox" data-set=".data-table .case-checkbox" /></th>
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
     <th class="priority">{% trans 'Priority' %}</th>
     <th class="subject">{% trans 'Subject' %}</th>
@@ -17,4 +37,52 @@
     <th class="expires hide_on_small_screen">{% trans 'Expires' %}</th>
 {% endblock %}
 
-        <button type="button" class="btn btn-xs red" title="{% trans 'Archive' %}" data-target="#confirm-archive" data-source="{% url case_archive pk=item.pk %}" ><i class="icon-archive"></i></button>
+    <td>
+        <input type="checkbox" class="case-checkbox" value="{{ item.id }}" />
+    </td>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+    <script>
+
+    // initialize uniform checkboxes
+    App.initUniform('.case-group-checkbox');
+
+    // handle group checkbox toggle
+    $('.case-group-checkbox').change(function() {
+        var set = $(this).attr('data-set');
+        var checked = $(this).is(':checked');
+        $(set).each(function () {
+            if(checked) {
+                $(this).attr('checked', true);
+                $(this).parents('tr').addClass('active');
+            } else {
+                $(this).attr('checked', false);
+                $(this).parents('tr').removeClass('active');
+            }
+        });
+        $.uniform.update(set);
+
+        update_bulk_ids();
+    });
+
+    // update forms that have actions for selected cases
+    function update_bulk_ids() {
+        var selected = $(''+$('.case-group-checkbox').attr('data-set')+':not(.case-group-checkbox):checked');
+        var selected_ids = [];
+        for(var i = 0; i < selected.length; i++) {
+            selected_ids.push($(selected[i]).val());
+        }
+        $('.bulk-ids').val(selected_ids.join(','));
+    }
+
+    // handle single checkbox toggle
+    $('.case-checkbox:not(.case-group-checkbox)').change(function(){
+        $(this).parents('tr').toggleClass('active');
+        update_bulk_ids();
+    });
+
+    // onload
+    update_bulk_ids();
+   </script>

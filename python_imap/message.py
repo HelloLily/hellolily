@@ -3,10 +3,7 @@ import re
 from email.header import decode_header
 from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 
-import pytz
 from bs4 import BeautifulSoup, UnicodeDammit
-from dateutil.parser import parse
-from dateutil.tz import tzutc, tzoffset
 
 from utils import convert_html_to_text, get_extensions_for_type
 

@@ -397,14 +397,12 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     @description: what is this template handy for?
     @subject: default subject for the e-mail using this template
     @body_html: html part of the e-mail
-    @body_text: text part of the e-mail
 
     """
     name = models.CharField(verbose_name=_('template name'), max_length=255)
     description = models.TextField(verbose_name=_('template description'), blank=True)
     subject = models.CharField(verbose_name=_('message subject'), max_length=255, blank=True)
     body_html = models.TextField(verbose_name=_('html part'), blank=True)
-    body_text = models.TextField(verbose_name=_('plain text part'), blank=True)
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -440,7 +438,6 @@ class EmailDraft(TimeStampedModel):
     send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
     body_html = models.TextField(null=True, blank=True, verbose_name=_('Html body'))
-    body_text = models.TextField(null=True, blank=True, verbose_name=_('Plain text body'))
 
     def __unicode__(self):
         return u'%s - %s' % (self.send_from, self.subject)

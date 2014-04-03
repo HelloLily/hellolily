@@ -40,6 +40,7 @@ python-dateutil==1.5
 pytz==2012c
 redis>=2.9.0
 South>=0.7.6
+unicodecsv==0.9.4
 
 # To be replaced in the near future
 https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip

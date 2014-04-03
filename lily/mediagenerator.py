@@ -271,6 +271,8 @@ MEDIA_BUNDLES = (
     ('modal.js',
         'plugins/bootstrap-modal/js/bootstrap-modalmanager.js',
         'plugins/bootstrap-modal/js/bootstrap-modal.js',
+
+        'lily/scripts/modals/prevent_accidental_close.js',
     ),
     ('ajax-submit.js',
         'plugins/jquery-validation/lib/jquery.form.js',

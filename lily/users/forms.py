@@ -246,7 +246,7 @@ class InvitationForm(Form):
     ))
     email = forms.EmailField(label=_('E-mail'), max_length=255, required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': _('Email Address')
+            'placeholder': _('Email Adress')
         }
     ))
 

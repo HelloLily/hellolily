@@ -343,8 +343,8 @@ class AcceptInvitationView(FormView):
     This is the view that handles the invatation link and registers the new user if everything
     goes according to plan, otherwise redirect the user to a failure template.
     """
-    template_name = 'users/mwsadmin/invitation/accept.html'
-    template_failure = 'users/mwsadmin/invitation/accept_invalid.html'
+    template_name = 'users/invitation/accept.html'
+    template_failure = 'users/invitation/accept_invalid.html'
     form_class = UserRegistrationForm
     valid_link = False
 

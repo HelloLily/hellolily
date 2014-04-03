@@ -19,7 +19,6 @@ from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
-from django.template.context import RequestContext
 from django.template.defaultfilters import truncatechars
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
@@ -145,8 +144,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             raise Http404()
 
         if object.body_html is None or len(object.body_html.strip()) == 0 and (object.body_text is None or len(object.body_text.strip()) == 0):
-            server = self.get_from_imap(object)
-            server.logout()
+            self.get_from_imap(object)
 
             # Re-fetch
             object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
@@ -193,21 +191,25 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Download an email message from IMAP.
         """
-        host = email_message.account.provider.imap_host
-        port = email_message.account.provider.imap_port
-        ssl = email_message.account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(email_message.account.username, email_message.account.password)
+        try:
+            host = email_message.account.provider.imap_host
+            port = email_message.account.provider.imap_port
+            ssl = email_message.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(email_message.account.username, email_message.account.password)
 
-        imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
+            imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
 
-        message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                     server.get_folder(email_message.folder_name), readonly=False)
-        if message is not None:
-            imap_logger.info('Message retrieved, saving in database')
-            save_email_messages([message], email_message.account, message.folder)
+            message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                         server.get_folder(email_message.folder_name), readonly=False)
+            if message is not None:
+                imap_logger.info('Message retrieved, saving in database')
+                save_email_messages([message], email_message.account, message.folder)
 
-        return server
+        finally:
+            if server:
+                server.logout()
+
 email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 
@@ -701,7 +703,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     'send_to_normal': self.object.to_combined,
                     'send_to_cc': self.object.to_cc_combined,
                     'send_to_bcc': self.object.to_bcc_combined,
-                    # 'body_text': self.object.body_text,
                     'body_html': self.object.body_html,
                 },
             })
@@ -756,18 +757,8 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     headers=self.get_email_headers(),
                     alternatives=None,
                     cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
+                    body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
                 )
-
-                # When sending the e-mail, potentially convert the HTML to plain/text, but don't do this for drafts
-                if 'submit-send' in self.request.POST:
-                    kwargs.update({
-                        # TODO: replace inline images with filenames or alt/title attributes ? (should be attachments when viewing plain text e-mails)
-                        'body': unsaved_form.body_text or convert_html_to_text(unsaved_form.body_html),
-                    })
-                else:
-                    kwargs.update({
-                        'body': unsaved_form.body_text
-                    })
 
                 # Use multipart/alternative when sending just text e-mails (plain and/or html)
                 if len(mapped_attachments.keys()) == 0:
@@ -795,7 +786,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                         inline_image['src'] = 'cid:%s' % filename
 
                     # Use new HTML
-                    unsaved_form.body_html = soup.encode_contents()
                     email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
                 success = True
@@ -873,14 +863,15 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         if self.object and self.object.pk:
             email_message = self.attach_stored_files(email_message, self.object.pk)
 
-        message_string = unicode(email_message.message().as_string(unixfrom=False))
-
+        message_string = email_message.message().as_string(unixfrom=False)
         try:
             # Save *email_message* as draft
             folder = server.get_folder(DRAFTS)
 
             # Save draft remotely
-            response = server.client.append(folder.name_on_server, message_string, flags=[DRAFT], msg_time=datetime.datetime.now(tzutc()))
+            response = server.client.append(folder.name_on_server,
+                                            message_string,
+                                            flags=[DRAFT])
 
             # Extract uid from response
             command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]
@@ -898,7 +889,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 folder,
                 new_messages=True
             )
-            self.object = self.new_draft = EmailMessage.objects.get(
+            self.new_draft = EmailMessage.objects.get(
                 account=account,
                 uid=uid,
                 folder_name=folder.name_on_server
@@ -1004,7 +995,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 template.pk: {
                     'subject': template.subject,
                     'html_part': TemplateParser(template.body_html).render(self.request),
-                    #'text_part': TemplateParser(template.body_text).render(self.request),
                 }
             })
 
@@ -1189,12 +1179,16 @@ class EmailBodyPreviewView(TemplateView):
         """
         imap_logger.info('Connecting with IMAP')
 
-        pk = instance.pk
-        host = instance.account.provider.imap_host
-        port = instance.account.provider.imap_port
-        ssl = instance.account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(instance.account.username, instance.account.password)
+        try:
+            pk = instance.pk
+            host = instance.account.provider.imap_host
+            port = instance.account.provider.imap_port
+            ssl = instance.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(instance.account.username, instance.account.password)
+        finally:
+            if server:
+                server.logout()
 
         imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
 

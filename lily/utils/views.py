@@ -1,4 +1,3 @@
-import csv
 import operator
 
 from datetime import datetime
@@ -19,6 +18,7 @@ from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
+import unicodecsv
 from lily.tags.models import Tag
 from python_imap.folder import ALLMAIL
 
@@ -332,7 +332,7 @@ class ExportListViewMixin(object):
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
-            writer = csv.writer(response)
+            writer = unicodecsv.writer(response)
             filtered_fields = request.POST.getlist('exportable_fields[]', [])
             exportable_fields = self._get_fields_to_export(filtered_fields)
             if len(exportable_fields) > 0:

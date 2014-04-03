@@ -168,6 +168,20 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
         return contacts
 
+    def get_emails(self):
+        from lily.messaging.email.models import EmailHeader
+        from django.db.models import Q
+        import operator
+
+        try:
+            filter_list = (Q(name__exact='From', message__folder_identifier__exact='\AllMail') |
+                           Q(name__exact='To', message__folder_identifier__exact='\Sent'))
+
+            return EmailHeader.objects.filter(filter_list).filter(
+                reduce(operator.or_, (Q(value__contains=emailaddress) for emailaddress in self.email_addresses.all())))
+        except:
+            return None
+
     def __unicode__(self):
         return self.name
 

@@ -343,18 +343,20 @@ class ArchiveView(View):
         """
         retrieves all pks from kwargs and finds them in the queryset
         """
-        # TODO: not returning list of pks
-        object_pks = self.request.POST.getlist('ids[]')
+        object_pks = self.request.POST.get('ids[]', None)
         if not object_pks:
+            # no objects posted
             raise AttributeError("Generic Archive view %s must be called with "
                              "at least one object pk."
                              % self.__class__.__name__)
-
-        queryset = self.get_queryset()
-
-        if not isinstance(object_pks, list):
+        elif object_pks.find(',') != -1:
+            # multi objects
+            object_pks = object_pks.split(',')
+        else:
+            # single object
             object_pks = [object_pks]
 
+        queryset = self.get_queryset()
         queryset = queryset.filter(pk__in=object_pks)
         return queryset
 

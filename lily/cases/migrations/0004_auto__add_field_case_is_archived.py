@@ -8,11 +8,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Case.archived_at'
-        db.add_column('cases_case', 'archived_at',
-                      self.gf('model_utils.fields.MonitorField')(default=datetime.datetime.now, monitor='is_archived'),
-                      keep_default=False)
-
         # Adding field 'Case.is_archived'
         db.add_column('cases_case', 'is_archived',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
@@ -20,9 +15,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting field 'Case.archived_at'
-        db.delete_column('cases_case', 'archived_at')
-
         # Deleting field 'Case.is_archived'
         db.delete_column('cases_case', 'is_archived')
 
@@ -86,13 +78,12 @@ class Migration(SchemaMigration):
         'cases.case': {
             'Meta': {'object_name': 'Case'},
             'account': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.Account']", 'null': 'True', 'blank': 'True'}),
-            'archived_at': ('model_utils.fields.MonitorField', [], {'default': 'datetime.datetime.now', u'monitor': "'is_archived'"}),
             'assigned_to': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['users.CustomUser']"}),
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contacts.Contact']", 'null': 'True', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'expires': ('django.db.models.fields.DateField', [], {'default': 'datetime.datetime(2014, 4, 1, 0, 0)'}),
+            'expires': ('django.db.models.fields.DateField', [], {'default': 'datetime.datetime(2014, 4, 4, 0, 0)'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_archived': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

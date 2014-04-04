@@ -8,7 +8,7 @@
 
 {% block list-tools %}
 <div class="btn-group">
-    <a class="btn green" href="#" data-toggle="dropdown">
+    <a class="btn green case-actions" href="#" data-toggle="dropdown">
         <i class="icon-cogs"></i> {% trans 'Tools' %}
         <i class="icon-angle-down"></i>
     </a>
@@ -65,6 +65,7 @@
         $.uniform.update(set);
 
         update_bulk_ids();
+        toggle_actions_button();
     });
 
     // update forms that have actions for selected cases
@@ -81,8 +82,20 @@
     $('.case-checkbox:not(.case-group-checkbox)').change(function(){
         $(this).parents('tr').toggleClass('active');
         update_bulk_ids();
+        toggle_actions_button();
     });
 
+    // enable/disable actions button when (no) items are selected
+    function toggle_actions_button() {
+        var selected = $(''+$('.case-group-checkbox').attr('data-set')+':checked');
+        if(selected.length) {
+            $('.case-actions').removeClass('disabled');
+        } else {
+            $('.case-actions').addClass('disabled');
+        }
+
+    }
     // onload
     update_bulk_ids();
+    toggle_actions_button();
    </script>

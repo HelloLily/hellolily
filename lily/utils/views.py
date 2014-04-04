@@ -893,100 +893,71 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
 #===================================================================================================
 # Mixins
 #===================================================================================================
-class LoginRequiredMixin(object):
+class ArchivedListMixin(object):
     """
-    Use this mixin if you want that the view is only accessed when a user is logged in.
+    Filters the list with non-archived item or just archived items
 
-    This should be the first mixin as a superclass.
+    use `show_archived` as a flag to switch between only archived or non-archived items
     """
+    show_archived = False
 
-    @classmethod
-    def as_view(cls):
-        return login_required(super(LoginRequiredMixin, cls).as_view())
+    def get_queryset(self):
+        """
+        Filters the queryset to only archived items or non-archived_items
+        """
+        return super(ArchivedListMixin, self).get_queryset().filter(is_archived=self.show_archived)
 
 
-class ExportListViewMixin(FilterQuerysetMixin):
+class ExportListViewMixin(object):
     """
     Mixin that makes it possible to export current list view
 
-    Post to view key 'export' with value what to export.
-    Currently supported: csv.
-
-    If `export_columns` in request.POST, only these will be exported.
-    If `export_filter` in request.POST, object_list will be searched.
-
-    Attributes:
-        exportable_columns (dict): List with info on the columns to be exported. Should look like:
-            exportable_columns = {
-                'column_name_1': {
-                    'headers': ['header_name_1',]  # Can be multiple columns.
-                    'columns_for_item': ['columns_for_item',]  # Can be multple columns, must match 'headers' in length.
-                },
-            }
-        search_fields (list of strings): The fields of the queryset where the queryset will be filtered on. The filter
-            will match any object that has all the search strings on any of the fields of the object.
+    post to view key 'export' with value what to export
+    currently supported: csv
     """
-    exportable_columns = []
-    search_fields = []
 
     def post(self, request, *args, **kwargs):
         """
-        Does a check if post has value of 'export' and handles export.
+        does a check if post has value of 'export' and handles export
         """
-        # Setup headers, columns and search
-        headers = []
-        columns = []
-        search_terms = request.POST.get('export_filter', None).split(' ')
-        export_columns = request.POST.get('export_columns[]', []).split(',')
-        if export_columns:
-            # There were columns in POST, check if they match self.exportable_columns.
-            for column in export_columns:
-                if self.exportable_columns.get(column):
-                    headers.extend(self.exportable_columns[column].get('headers', []))
-                    columns.extend(self.exportable_columns[column].get('columns_for_item', []))
-        else:
-            # Nothing in POST, we export every column set by view.
-            for key, value in self.exportable_columns:
-                headers.extend(value.get('headers', []))
-                columns.extend(value.get('columns_for_item', []))
-
-        # Find out what to export.
         export_type = request.POST.get('export', False)
-
-        # Export csv.
         if export_type == 'csv':
-
-            # Setup response type.
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
-            # Setup writer.
             writer = unicodecsv.writer(response)
+            filtered_fields = request.POST.getlist('exportable_fields[]', [])
+            exportable_fields = self._get_fields_to_export(filtered_fields)
+            if len(exportable_fields) > 0:
+                header = [v for k, v in exportable_fields]
+                writer.writerow(header)
 
-            # Add headers to response.
-            writer.writerow(headers)
+                fields = [k for k, v in exportable_fields]
+                for item in self.get_queryset():
+                    row = []
+                    for field in fields:
+                        if hasattr(self, 'export_%s' % field):
+                            value = getattr(self, 'export_%s' % field)(item)
+                        else:
+                            value = getattr(item, field)
 
-            # Get all items.
-            queryset = self.get_queryset()
+                        row.append(value)
 
-            # Filter items.
-            queryset = self.filter_queryset(queryset, search_terms)
+                    writer.writerow(row)
 
-            # For each item, make a row to export.
-            for item in queryset:
-                row = []
-                for column in columns:
-                    # Get the value from the item.
-                    value = getattr(self, 'value_for_column_%s' % column)(item)
-                    if value is None:
-                        value = ''
-                    row.append(value)
-                # Add complete row to response.
-                writer.writerow(row)
             return response
 
-        # nothing to export, this post is not for this view.
+        # nothing to export, this post is not for us
         return super(ExportListViewMixin, self).post(request, *args, **kwargs)
+
+    def _get_fields_to_export(self, filtered_fields=[]):
+        exportable_fields = []
+        for field in filtered_fields:
+            if hasattr(self, 'filter_%s' % field):
+                exportable_fields += getattr(self, 'filter_%s' % field)()
+            else:
+                exportable_fields.append((field, field))
+        return exportable_fields
 
 
 class FilteredListByTagMixin(object):
@@ -1107,6 +1078,7 @@ class SortedListMixin(object):
             'order_by': self.order_by,
             'sort_order': self.sort_order,
         })
+
         return kwargs
 
 

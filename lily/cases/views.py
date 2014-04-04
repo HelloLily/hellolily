@@ -12,10 +12,10 @@ from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView
+from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView, ArchivedListMixin
 
 
-class ListCaseView(SortedListMixin, ListView):
+class ListCaseView(ArchivedListMixin, SortedListMixin, ListView):
     """
     Display a list of all cases.
     """

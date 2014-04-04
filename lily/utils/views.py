@@ -321,7 +321,6 @@ class ArchiveView(View):
 
     Needs an post, with an ID for the instance to be archived.
     """
-
     model = None
     queryset = None
     succes_url = None
@@ -342,7 +341,6 @@ class ArchiveView(View):
         """
         get object_pks from POST info if not set
         """
-
         # PK already set
         if self.object_pks:
             return self.object_pks
@@ -367,7 +365,6 @@ class ArchiveView(View):
         """
         retrieves all pks from kwargs and finds them in the queryset
         """
-
         queryset = self.get_queryset()
         queryset = queryset.filter(pk__in=self.get_object_pks())
         return queryset
@@ -384,6 +381,10 @@ class ArchiveView(View):
         return self.queryset._clone()
 
     def get_succes_message(self, n):
+        """
+        Should be overridden if there needs to be an succesmessage after
+        archiving objects
+        """
         pass
 
     def archive(self):
@@ -399,6 +400,9 @@ class ArchiveView(View):
         return HttpResponseRedirect(succes_url)
 
     def post(self, request, *args, **kwargs):
+        """
+        Catch post to start archive process
+        """
         return self.archive()
 
 

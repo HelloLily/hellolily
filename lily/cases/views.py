@@ -140,7 +140,6 @@ class ArchiveCaseView(ArchiveView):
     """
     Archives one or more cases
     """
-
     model = Case
 
     def get_succes_message(self):

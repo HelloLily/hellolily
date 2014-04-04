@@ -296,7 +296,6 @@ class ArchivedMixin(models.Model):
     """
     Archived model, flags when an instance is archived.
     """
-    archived_at = MonitorField(monitor='is_archived')
     is_archived = models.BooleanField(default=False)
 
     objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()

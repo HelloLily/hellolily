@@ -138,10 +138,18 @@ class UpdateCaseView(CreateUpdateCaseView, UpdateView):
 
 class ArchiveCaseView(ArchiveView):
     """
-    Archives an instance
+    Archives one or more cases
     """
 
     model = Case
+
+    def get_succes_message(self):
+        n = len(self.get_object_pks())
+        if n == 1:
+            message = _('Case has been archived.')
+        else:
+            message = _('%d cases have been archived.') % n
+        messages.success(self.request, message)
 
     def get_success_url(self):
         return reverse('case_list')

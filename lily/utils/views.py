@@ -1,6 +1,7 @@
 import operator
 
 from datetime import datetime
+from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -327,6 +328,7 @@ class ArchiveView(View):
     model = None
     queryset = None
     succes_url = None
+    object_pks = None
 
     def get_succes_url(self):
         """
@@ -339,10 +341,16 @@ class ArchiveView(View):
                 "No URL to redirect to. Provide a succes_url."
             )
 
-    def get_filtered_queryset(self):
+    def get_object_pks(self):
         """
-        retrieves all pks from kwargs and finds them in the queryset
+        get object_pks from POST info if not set
         """
+
+        # PK already set
+        if self.object_pks:
+            return self.object_pks
+
+        # retreive from POST data
         object_pks = self.request.POST.get('ids[]', None)
         if not object_pks:
             # no objects posted
@@ -351,13 +359,20 @@ class ArchiveView(View):
                              % self.__class__.__name__)
         elif object_pks.find(',') != -1:
             # multi objects
-            object_pks = object_pks.split(',')
+            self.object_pks = object_pks.split(',')
         else:
             # single object
-            object_pks = [object_pks]
+            self.object_pks = [object_pks]
+
+        return self.object_pks
+
+    def get_filtered_queryset(self):
+        """
+        retrieves all pks from kwargs and finds them in the queryset
+        """
 
         queryset = self.get_queryset()
-        queryset = queryset.filter(pk__in=object_pks)
+        queryset = queryset.filter(pk__in=self.get_object_pks())
         return queryset
 
     def get_queryset(self):
@@ -371,6 +386,9 @@ class ArchiveView(View):
                                             'cls': self.__class__.__name__})
         return self.queryset._clone()
 
+    def get_succes_message(self, n):
+        pass
+
     def archive(self):
         """
         archives all objects found
@@ -379,6 +397,7 @@ class ArchiveView(View):
 
         queryset = self.get_filtered_queryset()
         queryset.archive()
+        self.get_succes_message()
 
         return HttpResponseRedirect(succes_url)
 

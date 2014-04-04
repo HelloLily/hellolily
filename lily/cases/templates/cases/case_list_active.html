@@ -1,0 +1,20 @@
+{% extends 'cases/case_list.html' %}
+
+{% load i18n utils %}
+
+{% block head-title %}{% trans 'Active Cases' %}{% endblock %}
+{% block page-title %}{% trans 'Active Cases' %}{% endblock %}
+{% block list-title %}{% trans 'Active Cases' %}{% endblock %}
+
+{% block list-tools %}
+<a class="btn dark case-actions" href="{% url case_archive %}" data-form-submit data-form-selector="#case-archive-form">
+    <i class="icon-check"></i> {% trans 'Archive' %}
+</a>
+<a class="btn dark" href="{% url case_archived_list %}">
+    <i class="icon-archive"></i> {% trans 'Archived Cases' %}
+</a>
+<form action="{% url case_archive %}" method="post" id="case-archive-form">
+    {% csrf_token %}
+    <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+</form>
+{% endblock %}

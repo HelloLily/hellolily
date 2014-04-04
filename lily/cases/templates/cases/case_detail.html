@@ -13,7 +13,23 @@
 
 {% block page-actions %}
 <li><a href="{% url case_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li>
+{% if object.is_archived %}
+    <a href="{% url case_unarchive %}" data-form-submit data-form-selector="#case-unarchive-form">{% trans 'Activate' %}</a>
+{% else %}
+    <a href="{% url case_archive %}" data-form-submit data-form-selector="#case-archive-form">{% trans 'Archive' %}</a>
+{% endif %}
+</li>
 <li><a href="{% url case_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url case_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+<form action="{% url case_archive %}" method="post" id="case-archive-form">
+    {% csrf_token %}
+    <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+</form>
+<form action="{% url case_unarchive %}" method="post" id="case-unarchive-form">
+    {% csrf_token %}
+    <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+    <input type="hidden" name="success_url" value="case_list">
+</form>
 {% endblock %}
 
 {% block details-tabs %}

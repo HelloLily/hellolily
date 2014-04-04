@@ -291,6 +291,12 @@ class ArchiveQuerySet(QuerySet):
         """
         return self.update(is_archived=True)
 
+    def unarchive(self):
+        """
+        Bulk action to flag all objects as active
+        """
+        return self.update(is_archived=False)
+
 
 class ArchivedMixin(models.Model):
     """
@@ -299,12 +305,6 @@ class ArchivedMixin(models.Model):
     is_archived = models.BooleanField(default=False)
 
     objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()
-
-    def archive(self):
-        """
-        Flag instance as archived
-        """
-        self.update(is_archived=True)
 
     class Meta():
         abstract = True

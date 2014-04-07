@@ -23,7 +23,7 @@ def unread_emails(request):
         folder_identifier=INBOX,
         account__in=email_accounts,
         is_seen=False,
-    )
+    ).order_by('-sort_by_date')
     unread_count = email_messages.count()
 
     email_messages = email_messages[:LIMIT_LIST]  # eval slice

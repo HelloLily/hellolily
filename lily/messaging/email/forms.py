@@ -384,7 +384,6 @@ class EmailTemplateFileForm(Form):
                 if parsed_file.is_valid():
                     # Add body_html to cleaned_data
                     cleaned_data.update(parsed_file.get_parts(default_part='body_html'))
-                    print cleaned_data
                 else:
                     # Syntax error in the template tags/variables
                     self._errors['body_file'] = self.default_error_messages.get('syntax') % parsed_file.error.message

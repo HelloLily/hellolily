@@ -73,6 +73,16 @@
                                     <a href="{% url messaging_move_trash %}" data-form-submit data-form-selector="#move-trash-form"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
                                 </li>
                             </ul>
+                            {% for value, label in move_to_folders.items %}
+                                {% if value == '\AllMail' and label != '' %}
+                                    <form action="{% url move_messages_view %}" method="post" id="move-archive-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                                        <input type="hidden" name="folder" value="{{ label }}">
+                                    </form>
+                                    <a class="btn btn-sm blue email-list-archive-btn" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </th>
                     <th class="pagination-control" colspan="3">

@@ -481,3 +481,17 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
   }
 
 }
+
+#move-archive-form {
+    display: none;
+}
+
+.email-list-archive-btn {
+    margin-left: 5px;
+}
+
+.archive-btn {
+    top: 2px;
+    margin-right: 5px;
+    padding: 2px 15px !important;
+}

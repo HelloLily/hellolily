@@ -115,6 +115,31 @@ def flatten(input):
     return pattern.sub('', re.escape(input)).lower()
 
 
+def get_object_pks(object):
+    """
+    Get object_pks from POST info if not set
+    """
+    # PK already set
+    if object.object_pks:
+       return object.object_pks
+
+    # retreive from POST data
+    object_pks = object.request.POST.get('ids[]', None)
+    if not object_pks:
+       # no objects posted
+       raise AttributeError("Generic Archive view %s must be called with "
+                        "at least one object pk."
+                        % object.__class__.__name__)
+    elif object_pks.find(',') != -1:
+       # multi objects
+       object.object_pks = object_pks.split(',')
+    else:
+       # single object
+       object.object_pks = [object_pks]
+
+    return object.object_pks
+
+
 def dummy_function(x, y=None):
     return x, y
 

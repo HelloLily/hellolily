@@ -30,16 +30,16 @@ from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
-from python_imap.server import IMAP
+from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text, parse_search_keys
 
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationWizard_1, \
     EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
-from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH
+from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH
 from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, smtp_connect, EmailMultiRelated
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, smtp_connect, EmailMultiRelated, get_full_folder_name_by_identifier
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -177,7 +177,11 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             folder_name = folder_name.split('/')[-1:][0]
 
         kwargs.update({
-              'folder_name': folder_name,
+            'folder_name': folder_name,
+        })
+
+        kwargs.update({
+            'all_mail_folder': get_full_folder_name_by_identifier(ALLMAIL, self.object.account.folders)
         })
 
         # Pass message's email account e-mail address
@@ -192,25 +196,32 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Download an email message from IMAP.
         """
+        server = None
         try:
             host = email_message.account.provider.imap_host
             port = email_message.account.provider.imap_port
             ssl = email_message.account.provider.imap_ssl
             server = IMAP(host, port, ssl)
-            server.login(email_message.account.username, email_message.account.password)
+            if server.login(email_message.account.username, email_message.account.password):
+                email_message.account.auth_ok = OK_EMAILACCOUNT_AUTH
 
-            imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
+                imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
 
-            message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                         server.get_folder(email_message.folder_name), readonly=False)
-            if message is not None:
-                imap_logger.info('Message retrieved, saving in database')
-                save_email_messages([message], email_message.account, message.folder)
-
+                message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                             server.get_folder(email_message.folder_name), readonly=False)
+                if message is not None:
+                    imap_logger.info('Message retrieved, saving in database')
+                    save_email_messages([message], email_message.account, message.folder)
+            else:
+                imap_logger.info('IMAP login failed for %s', email_message.account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    email_message.account.auth_ok = NO_EMAILACCOUNT_AUTH
+            email_message.account.save()
+        except:
+            pass
         finally:
             if server:
                 server.logout()
-
 email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 
@@ -409,6 +420,7 @@ class EmailFolderView(EmailBaseView, ListView):
             'active_move_to_folder': active_move_to_folder,
 
             'folder_name': self.folder_name,
+            'all_mail_folder_identifier': ALLMAIL
         })
 
         # Create an url to send search requests to
@@ -581,16 +593,17 @@ class EmailMessageUpdateBaseView(View):
         Find out which messages to update.
         """
         try:
-            message_ids = request.POST.getlist('ids[]')
-            # Wrap it in a list if necessary
-            if not isinstance(message_ids, list):
-                message_ids = [message_ids]
+            # Retrieve from POST data and split if possible
+            message_ids = request.POST.get('ids[]', '')
 
-            # "Handle" these messages. The action to perform is determined
-            # by the subclass.
-            if len(message_ids) > 0:
-                self.request = request
-                self.handle_message_update(message_ids)
+            if message_ids:
+                message_ids = message_ids.split(',')
+
+                # "Handle" these messages. The action to perform is determined
+                # by the subclass.
+                if len(message_ids) > 0:
+                    self.request = request
+                    self.handle_message_update(message_ids)
         except:
             raise Http404()
 
@@ -643,7 +656,6 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
     def handle_message_update(self, message_ids):
         if self.request.POST.get('folder', None):
             move_messages.delay(message_ids, self.request.POST.get('folder'))
-
             if len(message_ids) == 1:
                 message = _('Message has been moved')
             else:
@@ -721,85 +733,91 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
             port = account.provider.imap_port
             ssl = account.provider.imap_ssl
             server = IMAP(host, port, ssl)
-            server.login(account.username, account.password)
+            if server.login(account.username, account.password):
+                account.auth_ok = OK_EMAILACCOUNT_AUTH
 
-            # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
-            if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
-                soup = BeautifulSoup(unsaved_form.body_html, 'permissive')
+                # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
+                if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+                    soup = BeautifulSoup(unsaved_form.body_html, 'permissive')
 
-                # Replace the src attribute of inline images with a Content-ID for each image
-                inline_application_url = '/messaging/email/attachment/'
-                inline_application_images = soup.findAll('img', {
-                    'src': lambda src: src and src.startswith(inline_application_url)
-                })
+                    # Replace the src attribute of inline images with a Content-ID for each image
+                    inline_application_url = '/messaging/email/attachment/'
+                    inline_application_images = soup.findAll('img', {
+                        'src': lambda src: src and src.startswith(inline_application_url)
+                    })
 
-                # Mapping {attachment.pk : image element}
-                mapped_attachments = {}
-                for image in inline_application_images:
-                    # Parse attachment pks from image paths
-                    pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
-                    pk = int(pk_and_path.split('/')[0])
-                    mapped_attachments[pk] = image
+                    # Mapping {attachment.pk : image element}
+                    mapped_attachments = {}
+                    for image in inline_application_images:
+                        # Parse attachment pks from image paths
+                        pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
+                        pk = int(pk_and_path.split('/')[0])
+                        mapped_attachments[pk] = image
 
-                # Necessary arguments to create an EmailMultiAlternatives/EmailMultiRelated
-                kwargs = dict(
-                    subject=unsaved_form.subject,
-                    from_email=account.email.email_address,
-                    to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
-                    bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
-                    connection=None,
-                    attachments=None,
-                    headers=self.get_email_headers(),
-                    alternatives=None,
-                    cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
-                    body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
-                )
+                    # Necessary arguments to create an EmailMultiAlternatives/EmailMultiRelated
+                    kwargs = dict(
+                        subject=unsaved_form.subject,
+                        from_email=account.email.email_address,
+                        to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
+                        bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
+                        connection=None,
+                        attachments=None,
+                        headers=self.get_email_headers(),
+                        alternatives=None,
+                        cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
+                        body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
+                    )
 
-                # Use multipart/alternative when sending just text e-mails (plain and/or html)
-                if len(mapped_attachments.keys()) == 0:
-                    # Attach an HTML version as alternative to *body*
-                    email_message = EmailMultiAlternatives(**kwargs)
-                    email_message.attach_alternative(unsaved_form.body_html, 'text/html')
-                else:
-                    # Use multipart/related when sending inline images
-                    email_message = EmailMultiRelated(**kwargs)
+                    # Use multipart/alternative when sending just text e-mails (plain and/or html)
+                    if len(mapped_attachments.keys()) == 0:
+                        # Attach an HTML version as alternative to *body*
+                        email_message = EmailMultiAlternatives(**kwargs)
+                        email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                    else:
+                        # Use multipart/related when sending inline images
+                        email_message = EmailMultiRelated(**kwargs)
 
-                    # Put image content for attachments in *email_message*
-                    attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
-                    for attachment in attachments:
-                        storage_file = default_storage._open(attachment.attachment.name)
-                        filename = get_attachment_filename_from_url(attachment.attachment.name)
+                        # Put image content for attachments in *email_message*
+                        attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
+                        for attachment in attachments:
+                            storage_file = default_storage._open(attachment.attachment.name)
+                            filename = get_attachment_filename_from_url(attachment.attachment.name)
 
-                        # Add as inline attachment
-                        storage_file.open()
-                        content = storage_file.read()
-                        storage_file.close()
-                        email_message.attach_related(filename, content, storage_file.key.content_type)
+                            # Add as inline attachment
+                            storage_file.open()
+                            content = storage_file.read()
+                            storage_file.close()
+                            email_message.attach_related(filename, content, storage_file.key.content_type)
 
-                        # Update attribute src for inline image with the Content-ID
-                        inline_image = mapped_attachments[attachment.pk]
-                        inline_image['src'] = 'cid:%s' % filename
+                            # Update attribute src for inline image with the Content-ID
+                            inline_image = mapped_attachments[attachment.pk]
+                            inline_image['src'] = 'cid:%s' % filename
 
-                    # Use new HTML
-                    email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                        # Use new HTML
+                        email_message.attach_alternative(unsaved_form.body_html, 'text/html')
 
-                success = True
-                if 'submit-save' in self.request.POST:  # Save draft
-                    success = self.save_message(account, server, email_message)
-                elif 'submit-send' in self.request.POST:  # Send draft
-                    if self.object:
-                        email_message = self.attach_stored_files(email_message, self.object.pk)
-                    success = self.send_message(account, server, email_message)
-                    if success:
-                        recipients = ', '.join(email_message.to + email_message.cc + email_message.bcc)
-                        messages.success(self.request, _('E-mail sent to %s') % truncatechars(recipients, 140))
+                    success = True
+                    if 'submit-save' in self.request.POST:  # Save draft
+                        success = self.save_message(account, server, email_message)
+                    elif 'submit-send' in self.request.POST:  # Send draft
+                        if self.object:
+                            email_message = self.attach_stored_files(email_message, self.object.pk)
+                        success = self.send_message(account, server, email_message)
+                        if success:
+                            recipients = ', '.join(email_message.to + email_message.cc + email_message.bcc)
+                            messages.success(self.request, _('E-mail sent to %s') % truncatechars(recipients, 140))
 
-                # Remove an old draft when sending an e-mail message or saving a new draft
-                if self.object and success and self.remove_old_message:
+                    # Remove an old draft when sending an e-mail message or saving a new draft
+                    if self.object and success and self.remove_old_message:
+                        self.remove_draft(server)
+
+                if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
                     self.remove_draft(server)
-
-            if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
-                self.remove_draft(server)
+            else:
+                imap_logger.info('IMAP login failed for %s', account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    account.auth_ok = NO_EMAILACCOUNT_AUTH
+            account.save()
         except Exception, e:
             log.error(traceback.format_exc(e))
         finally:
@@ -1174,28 +1192,36 @@ class EmailBodyPreviewView(TemplateView):
         """
         imap_logger.info('Connecting with IMAP')
 
+        server = None
         try:
             pk = instance.pk
             host = instance.account.provider.imap_host
             port = instance.account.provider.imap_port
             ssl = instance.account.provider.imap_ssl
             server = IMAP(host, port, ssl)
-            server.login(instance.account.username, instance.account.password)
+            if server.login(instance.account.username, instance.account.password):
+                instance.account.auth_ok = OK_EMAILACCOUNT_AUTH
+                imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
+
+                message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                                             server.get_folder(instance.folder_name), readonly=False)
+                if message is not None:
+                    imap_logger.info('Message retrieved, saving in database')
+                    save_email_messages([message], instance.account, message.folder)
+
+                instance = EmailMessage.objects.get(pk=pk)
+
+                return server, instance
+            else:
+                imap_logger.info('IMAP login failed for %s', instance.account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    instance.account.auth_ok = NO_EMAILACCOUNT_AUTH
+            instance.account.save()
+        except:
+            pass
         finally:
             if server:
                 server.logout()
-
-        imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
-
-        message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                     server.get_folder(instance.folder_name), readonly=False)
-        if message is not None:
-            imap_logger.info('Message retrieved, saving in database')
-            save_email_messages([message], instance.account, message.folder)
-
-        instance = EmailMessage.objects.get(pk=pk)
-
-        return server, instance
 email_body_preview_view = login_required(EmailBodyPreviewView.as_view())
 
 
@@ -1642,23 +1668,31 @@ class EmailSearchView(EmailFolderView):
                 port = account.provider.imap_port
                 ssl = account.provider.imap_ssl
                 server = IMAP(host, port, ssl)
-                server.login(account.username,  account.password)
+                if server.login(account.username,  account.password):
+                    account.auth_ok = OK_EMAILACCOUNT_AUTH
 
-                folder = server.get_folder(self.folder_identifier or self.folder)
-                total_count, uids = server.get_uids(folder, search_criteria)
+                    folder = server.get_folder(self.folder_identifier or self.folder)
+                    total_count, uids = server.get_uids(folder, search_criteria)
 
-                if len(uids):
-                    qs = get_uids_from_local(uids, account)
-                    if len(qs) == 0:
-                        # Get actual messages for *uids* from *server* when they're not available locally
-                        modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                        folder_messages = server.get_messages(uids, modifiers, folder)
+                    if len(uids):
+                        qs = get_uids_from_local(uids, account)
+                        if len(qs) == 0:
+                            # Get actual messages for *uids* from *server* when they're not available locally
+                            modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                            folder_messages = server.get_messages(uids, modifiers, folder)
 
-                        if len(folder_messages) > 0:
-                            save_email_messages(folder_messages, account, folder, new_messages=True)
+                            if len(folder_messages) > 0:
+                                save_email_messages(folder_messages, account, folder, new_messages=True)
 
-                    pks = qs.values_list('pk', flat=True)
-                    self.resultset += list(pks)
+                        pks = qs.values_list('pk', flat=True)
+                        self.resultset += list(pks)
+                else:
+                    imap_logger.info('IMAP login failed for %s', account.email.email_address)
+                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        account.auth_ok = NO_EMAILACCOUNT_AUTH
+                account.save()
+            except:
+                pass
             finally:
                 if server:
                     server.logout()

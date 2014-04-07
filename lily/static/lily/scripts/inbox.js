@@ -71,6 +71,13 @@ var Inbox = function () {
     //     });
     // }
 
+    var customParser = (function() {
+        function parse(elementOrHtml, rules, context, cleanUp) {
+            return elementOrHtml;
+        }
+        return parse;
+        })();
+
     var initWysihtml5 = function () {
         $('.inbox-wysihtml5').wysihtml5({
             "stylesheets": [media_url('wysiwyg-color.css')],
@@ -81,6 +88,7 @@ var Inbox = function () {
             "html": true, //Button which allows you to edit the generated HTML.
             "link": true, //Button to insert a link.
             "image": false, //Button to insert an image.
+            parser: customParser,
         });
     };
 

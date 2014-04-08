@@ -1,7 +1,6 @@
 from urlparse import urlparse
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
@@ -13,10 +12,10 @@ from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView
+from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, LoginRequiredMixin
 
 
-class ListCaseView(SortedListMixin, ListView):
+class ListCaseView(LoginRequiredMixin, SortedListMixin, ListView):
     """
     Display a list of all cases.
     """
@@ -26,7 +25,7 @@ class ListCaseView(SortedListMixin, ListView):
     default_sort_order = SortedListMixin.DESC
 
 
-class DetailCaseView(HistoryListViewMixin):
+class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single case.
     """
@@ -56,7 +55,7 @@ class CreateUpdateCaseView(object):
         return '%s?order_by=6&sort_order=desc' % (reverse('case_list'))
 
 
-class CreateCaseView(CreateUpdateCaseView, CreateView):
+class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -124,7 +123,7 @@ class CreateCaseView(CreateUpdateCaseView, CreateView):
         return response       
 
 
-class UpdateCaseView(CreateUpdateCaseView, UpdateView):
+class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):
     model = Case
 
     def form_valid(self, form):
@@ -137,7 +136,7 @@ class UpdateCaseView(CreateUpdateCaseView, UpdateView):
         return response
 
 
-class DeleteCaseView(DeleteView):
+class DeleteCaseView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -164,7 +163,7 @@ class DeleteCaseView(DeleteView):
         return reverse('case_list')
 
 
-class UpdateStatusAjaxView(AjaxUpdateView):
+class UpdateStatusAjaxView(LoginRequiredMixin, AjaxUpdateView):
     """
     View that updates the status-field of a Case.
     """
@@ -193,12 +192,3 @@ class UpdateStatusAjaxView(AjaxUpdateView):
             messages.success(self.request, message)
             # Return response
             return HttpResponse(simplejson.dumps({'status': status}), mimetype='application/json')
-
-
-# Perform logic here instead of in urls.py
-create_case_view = login_required(CreateCaseView.as_view())
-detail_case_view = login_required(DetailCaseView.as_view())
-delete_case_view = login_required(DeleteCaseView.as_view())
-update_case_view = login_required(UpdateCaseView.as_view())
-list_case_view = login_required(ListCaseView.as_view())
-update_status_view = login_required(UpdateStatusAjaxView.as_view())

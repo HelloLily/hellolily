@@ -12,11 +12,11 @@ from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView, ArchivedListMixin, \
+from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, ArchiveView, ArchivedFilterMixin, \
     UnarchiveView
 
 
-class ListCaseView(ArchivedListMixin, SortedListMixin, ListView):
+class ListCaseView(ArchivedFilterMixin, SortedListMixin, ListView):
     """
     Display a list of all cases.
     """
@@ -235,7 +235,7 @@ class UpdateStatusAjaxView(AjaxUpdateView):
 
 # Perform logic here instead of in urls.py
 archive_cases_view = login_required(ArchiveCasesView.as_view())
-archived_cases_view = login_required(ArchivedCasesView.as_view())
+archived_list_cases_view = login_required(ArchivedCasesView.as_view())
 create_case_view = login_required(CreateCaseView.as_view())
 detail_case_view = login_required(DetailCaseView.as_view())
 delete_case_view = login_required(DeleteCaseView.as_view())

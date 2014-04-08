@@ -425,7 +425,7 @@ class UnarchiveView(ArchiveView):
 #===================================================================================================
 # Mixins
 #===================================================================================================
-class ArchivedListMixin(object):
+class ArchivedFilterMixin(object):
     """
     Filters the list with non-archived item or just archived items
 
@@ -437,7 +437,7 @@ class ArchivedListMixin(object):
         """
         Filters the queryset to only archived items or non-archived_items
         """
-        return super(ArchivedListMixin, self).get_queryset().filter(is_archived=self.show_archived)
+        return super(ArchivedFilterMixin, self).get_queryset().filter(is_archived=self.show_archived)
 
 
 class ExportListViewMixin(object):

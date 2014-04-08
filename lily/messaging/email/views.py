@@ -157,9 +157,12 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         object.from_email
 
         # Get the AllMail folder name so the email can be moved there
-        server = self.get_server(object)
-        object.all_mail_folder = server.get_folder_by_identifier('\AllMail')
-        server.logout()
+        try:
+            server = self.get_server(object)
+            object.all_mail_folder = server.get_folder_by_identifier('\AllMail')
+            server.logout()
+        except:
+            pass
 
         return object
 
@@ -206,17 +209,21 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             if message is not None:
                 imap_logger.info('Message retrieved, saving in database')
                 save_email_messages([message], email_message.account, message.folder)
-
+        except:
+            pass
         finally:
             if server:
                 server.logout()
 
     def get_server(self, email_message):
-        host = email_message.account.provider.imap_host
-        port = email_message.account.provider.imap_port
-        ssl = email_message.account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(email_message.account.username, email_message.account.password)
+        try:
+            host = email_message.account.provider.imap_host
+            port = email_message.account.provider.imap_port
+            ssl = email_message.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(email_message.account.username, email_message.account.password)
+        except:
+            pass
 
         return server
 
@@ -648,7 +655,8 @@ class TrashEmailMessageView(EmailMessageUpdateBaseView):
     Move message to trash.
     """
     def handle_message_update(self, message_ids):
-        delete_messages.delay(get_object_pks(self))
+        message_ids = get_object_pks(self.request)
+        delete_messages.delay(message_ids)
 move_trash_view = login_required(TrashEmailMessageView.as_view())
 
 
@@ -658,7 +666,7 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
     """
     def handle_message_update(self, message_ids):
         if self.request.POST.get('folder', None):
-            message_ids = get_object_pks(self)
+            message_ids = get_object_pks(self.request)
             move_messages.delay(message_ids, self.request.POST.get('folder'))
             if len(message_ids) == 1:
                 message = _('Message has been moved')

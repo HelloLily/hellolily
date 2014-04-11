@@ -167,9 +167,15 @@ class RegistrationForm(Form):
     """
     email = forms.EmailField(label=_('E-mail'), max_length=255)
     password = forms.CharField(label=_('Password'), min_length=6,
-        widget=JqueryPasswordInput())
+        widget=JqueryPasswordInput(attrs={
+            'placeholder': _('Password')
+        }
+    ))
     password_repeat = forms.CharField(label=_('Password confirmation'), min_length=6,
-        widget=forms.PasswordInput())
+        widget=forms.PasswordInput(attrs={
+            'placeholder': _('Password confirmation')
+        }
+    ))
     first_name = forms.CharField(label=_('First name'), max_length=255)
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)

@@ -401,8 +401,10 @@ $(function($) {
         var selected = $(''+$('.mail-group-checkbox').attr('data-set')+':checked');
         if(selected.length) {
             $('.mail-actions').removeClass('disabled');
+            $('.email-list-archive-btn').removeClass('disabled');
         } else {
             $('.mail-actions').addClass('disabled');
+            $('.email-list-archive-btn').addClass('disabled');
         }
 
     }

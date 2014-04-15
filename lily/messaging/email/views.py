@@ -430,6 +430,7 @@ class EmailFolderView(EmailBaseView, ListView):
             'active_move_to_folder': active_move_to_folder,
 
             'folder_name': self.folder_name,
+            'all_mail_folder_identifier': ALLMAIL
         })
 
         # Create an url to send search requests to

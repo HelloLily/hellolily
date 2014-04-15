@@ -74,13 +74,13 @@
                                 </li>
                             </ul>
                             {% for value, label in move_to_folders.items %}
-                                {% if value == '\AllMail' and label != '' %}
+                                {% if value == all_mail_folder_identifier and label != '' %}
                                     <form action="{% url move_messages_view %}" method="post" id="move-archive-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="{{ label }}">
                                     </form>
-                                    <a class="btn btn-sm blue email-list-archive-btn" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
+                                    <a class="btn btn-sm blue email-list-archive-btn" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form" data-loading-text="{% trans 'Archive' %} <i class='icon-spinner icon-spin'></i>"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -121,7 +121,14 @@
 <script>
 $('[data-form-submit], #move-messages-form .dropdown-menu a').click(function() {
     // waiting for response from server so a redirect will 'unblock' the UI
-    $('.mail-actions').button('loading');
+    if($(this).hasClass('email-list-archive-btn'))
+    {
+        $('.email-list-archive-btn').button('loading');
+    }
+    else
+    {
+        $('.mail-actions').button('loading');
+    }
     App.blockUI($('.inbox-content'), false, '');
 });
 

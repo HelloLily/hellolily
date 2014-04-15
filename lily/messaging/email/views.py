@@ -42,7 +42,7 @@ from lily.messaging.email.tasks import save_email_messages, mark_messages, delet
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
-from lily.utils.functions import is_ajax, get_object_pks
+from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.views import AttachmentFormSetViewMixin, FilteredListMixin, SortedListMixin
 
@@ -157,12 +157,19 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         object.from_email
 
         # Get the AllMail folder name so the email can be moved there
+        server = None
         try:
-            server = self.get_server(object)
-            object.all_mail_folder = server.get_folder_by_identifier('\AllMail')
-            server.logout()
+            host = email_message.account.provider.imap_host
+            port = email_message.account.provider.imap_port
+            ssl = email_message.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(email_message.account.username, email_message.account.password)
+            object.all_mail_folder = server.get_folder_by_identifier(ALLMAIL)
         except:
             pass
+        finally:
+            if server:
+                server.logout()
 
         return object
 
@@ -199,8 +206,13 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Download an email message from IMAP.
         """
+        server = None
         try:
-            server = self.get_server(email_message)
+            host = email_message.account.provider.imap_host
+            port = email_message.account.provider.imap_port
+            ssl = email_message.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(email_message.account.username, email_message.account.password)
 
             imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
 
@@ -214,19 +226,6 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         finally:
             if server:
                 server.logout()
-
-    def get_server(self, email_message):
-        try:
-            host = email_message.account.provider.imap_host
-            port = email_message.account.provider.imap_port
-            ssl = email_message.account.provider.imap_ssl
-            server = IMAP(host, port, ssl)
-            server.login(email_message.account.username, email_message.account.password)
-        except:
-            pass
-
-        return server
-
 email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 
@@ -597,16 +596,19 @@ class EmailMessageUpdateBaseView(View):
     Can handle more than a single EmailMessage at once.
     """
     http_method_names = ['post']
-    object_pks = []
 
     def post(self, request, *args, **kwargs):
         """
         Find out which messages to update.
         """
         try:
-            message_ids = request.POST.getlist('ids[]')
-            # Wrap it in a list if necessary
-            if not isinstance(message_ids, list):
+            # Retrieve from POST data
+            message_ids = request.POST.get('ids[]', None)
+            if message_ids.find(',') != -1:
+                # Multi objects
+                message_ids = message_ids.split(',')
+            else:
+                # Single object
                 message_ids = [message_ids]
 
             # "Handle" these messages. The action to perform is determined
@@ -655,7 +657,6 @@ class TrashEmailMessageView(EmailMessageUpdateBaseView):
     Move message to trash.
     """
     def handle_message_update(self, message_ids):
-        message_ids = get_object_pks(self.request)
         delete_messages.delay(message_ids)
 move_trash_view = login_required(TrashEmailMessageView.as_view())
 
@@ -666,7 +667,6 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
     """
     def handle_message_update(self, message_ids):
         if self.request.POST.get('folder', None):
-            message_ids = get_object_pks(self.request)
             move_messages.delay(message_ids, self.request.POST.get('folder'))
             if len(message_ids) == 1:
                 message = _('Message has been moved')
@@ -1198,6 +1198,7 @@ class EmailBodyPreviewView(TemplateView):
         """
         imap_logger.info('Connecting with IMAP')
 
+        server = None
         try:
             pk = instance.pk
             host = instance.account.provider.imap_host

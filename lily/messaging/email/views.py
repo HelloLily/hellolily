@@ -39,7 +39,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH
 from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax

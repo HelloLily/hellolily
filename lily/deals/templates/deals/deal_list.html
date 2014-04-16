@@ -7,6 +7,9 @@
 {% block list-title %}{% trans 'Deals' %}{% endblock %}
 
 {% block list-headings %}
+    <th class="table-checkbox">
+        <input type="checkbox" class="deal-checkbox deal-group-checkbox" data-set=".data-table .deal-checkbox">
+    </th>
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
     <th class="name">{% trans 'Name' %}</th>
     <th class="account">{% trans 'Account' %}</th>
@@ -16,3 +19,66 @@
     <th class="closed hide_on_small_screen">{% trans 'Closed' %}</th>
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
 {% endblock %}
+
+    <td>
+        <input type="checkbox" class="deal-checkbox" value="{{ item.id }}">
+    </td>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+    <script>
+
+    // initialize uniform checkboxes
+    App.initUniform('.deal-group-checkbox');
+
+    // handle group checkbox toggle
+    $('.deal-group-checkbox').change(function() {
+        var set = $(this).attr('data-set');
+        var checked = $(this).is(':checked');
+        $(set).each(function () {
+            if(checked) {
+                $(this).attr('checked', true);
+                $(this).parents('tr').addClass('active');
+            } else {
+                $(this).attr('checked', false);
+                $(this).parents('tr').removeClass('active');
+            }
+        });
+        $.uniform.update(set);
+
+        update_bulk_ids();
+        toggle_actions_button();
+    });
+
+    // update forms that have actions for selected deals
+    function update_bulk_ids() {
+        var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':not(.deal-group-checkbox):checked');
+        var selected_ids = [];
+        for(var i = 0; i < selected.length; i++) {
+            selected_ids.push($(selected[i]).val());
+        }
+        $('.bulk-ids').val(selected_ids.join(','));
+    }
+
+    // handle single checkbox toggle
+    $('.deal-checkbox:not(.deal-group-checkbox)').change(function(){
+        $(this).parents('tr').toggleClass('active');
+        update_bulk_ids();
+        toggle_actions_button();
+    });
+
+    // enable/disable actions button when (no) items are selected
+    function toggle_actions_button() {
+        var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':checked');
+        if(selected.length) {
+            $('.deal-actions').removeClass('disabled');
+        } else {
+            $('.deal-actions').addClass('disabled');
+        }
+
+    }
+    // onload
+    update_bulk_ids();
+    toggle_actions_button();
+   </script>

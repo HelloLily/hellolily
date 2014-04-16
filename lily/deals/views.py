@@ -17,84 +17,54 @@ from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    DataTablesListView
+    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, ArchivedFilterMixin, ArchiveView, UnarchiveView
 
 
-class ListDealView(SortedListMixin, DataTablesListView):
+class ListDealView(ArchivedFilterMixin, SortedListMixin, ListView):
     """
     Display a list of all deals.
     """
     model = Deal
-
-    # SortedListMxin
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
+    template_name = 'deals/deal_list_active.html'
 
-    # DataTablesListView
-    columns = SortedDict([
-        ('edit', {
-            'mData': 'edit',
-            'bSortable': False,
-        }),
-        ('name', {
-            'mData': 'name',
-        }),
-        ('account', {
-            'mData': 'account',
-        }),
-        ('stage', {
-            'mData': 'stage',
-        }),
-        ('amount', {
-            'mData': 'amount',
-        }),
-        ('assigned_to', {
-            'mData': 'assigned_to',
-        }),
-        ('closed_date', {
-            'mData': 'closed_date',
-        }),
-        ('created', {
-            'mData': 'created',
-        }),
-    ])
 
-    # DataTablesListView
-    search_fields = [
-        'name__icontains',
-        'account__name__icontains',
-        'assigned_to__contact__last_name__icontains',
-        'assigned_to__contact__first_name__icontains',
-    ]
+class ArchivedDealsView(ListDealView):
+    show_archived = True
+    template_name = 'deals/deal_list_archived.html'
 
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset based on given column and sort_order.
 
-        Used by DataTablesListView.
-        """
-        prefix = ''
-        if sort_order == 'desc':
-            prefix = '-'
-        if column in ('stage', 'amount', 'created'):
-            return queryset.order_by('%s%s' % (prefix, column))
-        elif column == 'name':
-            return queryset.order_by('%saccount' % prefix)
-        elif column == 'closed_date':
-            return queryset.order_by(
-                '%sexpected_closing_date' % prefix,
-                '%sclosed_date' % prefix,
-            )
-        elif column == 'account':
-            return queryset.order_by(
-                '%saccount__name' % prefix,
-            )
-        elif 'assigned_to':
-            return queryset.order_by(
-                '%sassigned_to__contact__last_name' % prefix,
-                '%sassigned_to__contact__first_name' % prefix,
-            )
-        return queryset
+class ArchiveDealsView(ArchiveView):
+    """
+    Archives one or more cases
+    """
+    model = Deal
+    success_url = 'deal_list'
+
+    def get_success_message(self):
+        n = len(self.get_object_pks())
+        if n == 1:
+            message = _('Deal has been archived.')
+        else:
+            message = _('%d deals have been archived.') % n
+        messages.success(self.request, message)
+
+
+class UnarchiveDealsView(UnarchiveView):
+    """
+    Archives one or more cases
+    """
+    model = Deal
+    success_url = 'deal_archived_list'
+
+    def get_success_message(self):
+        n = len(self.get_object_pks())
+        if n == 1:
+            message = _('Deal has been re-activated.')
+        else:
+            message = _('%d deals have been re-activated.') % n
+        messages.success(self.request, message)
 
 
 class DetailDealView(HistoryListViewMixin):
@@ -273,9 +243,12 @@ class UpdateStageAjaxView(AjaxUpdateView):
 
 
 # Perform logic here instead of in urls.py
+archive_deals_view = login_required(ArchiveDealsView.as_view())
+archived_list_deals_view = login_required(ArchivedDealsView.as_view())
 create_deal_view = login_required(CreateDealView.as_view())
 detail_deal_view = login_required(DetailDealView.as_view())
 delete_deal_view = login_required(DeleteDealView.as_view())
 update_deal_view = login_required(UpdateDealView.as_view())
 list_deal_view = login_required(ListDealView.as_view())
 update_stage_view = login_required(UpdateStageAjaxView.as_view())
+unarchive_deals_view = login_required(UnarchiveDealsView.as_view())

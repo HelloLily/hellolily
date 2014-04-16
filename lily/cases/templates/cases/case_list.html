@@ -4,7 +4,8 @@
 
 {% block list-headings %}
     <th class="table-checkbox">
-        <input type="checkbox" class="case-checkbox case-group-checkbox" data-set=".data-table .case-checkbox" /></th>
+        <input type="checkbox" class="case-checkbox case-group-checkbox" data-set=".data-table .case-checkbox">
+    </th>
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
     <th class="priority">{% trans 'Priority' %}</th>
     <th class="subject">{% trans 'Subject' %}</th>
@@ -19,7 +20,7 @@
 {% for item in object_list %}
 <tr>
     <td>
-        <input type="checkbox" class="case-checkbox" value="{{ item.id }}" />
+        <input type="checkbox" class="case-checkbox" value="{{ item.id }}">
     </td>
     <td class="">
         <a href="{% url case_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>

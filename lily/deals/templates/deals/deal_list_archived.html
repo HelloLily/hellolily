@@ -1,0 +1,20 @@
+{% extends 'deals/deal_list.html' %}
+
+{% load i18n utils %}
+
+{% block head-title %}{% trans 'Archived Deals' %}{% endblock %}
+{% block page-title %}{% trans 'Archived Deals' %}{% endblock %}
+{% block list-title %}{% trans 'Archived Deals' %}{% endblock %}
+
+{% block list-tools %}
+<a class="btn dark deal-actions" href="{% url deal_unarchive %}" data-form-submit data-form-selector="#deal-unarchive-form">
+    <i class="icon-check"></i> {% trans 'Activate' %}
+</a>
+<a class="btn dark" href="{% url deal_list %}">
+    <i class="icon-archive"></i> {% trans 'Active Deals' %}
+</a>
+<form action="{% url deal_unarchive %}" method="post" id="deal-unarchive-form">
+    {% csrf_token %}
+    <input type="hidden" name="ids[]" value="" class="bulk-ids">
+</form>
+{% endblock %}

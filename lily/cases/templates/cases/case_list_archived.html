@@ -15,7 +15,7 @@
 </a>
 <form action="{% url case_unarchive %}" method="post" id="case-unarchive-form">
     {% csrf_token %}
-    <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+    <input type="hidden" name="ids[]" value="" class="bulk-ids">
 </form>
 {% endblock %}
 

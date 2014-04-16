@@ -17,10 +17,11 @@ from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, ArchivedFilterMixin, ArchiveView, UnarchiveView
+    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, ArchivedFilterMixin, ArchiveView, UnarchiveView, \
+    LoginRequiredMixin
 
 
-class ListDealView(ArchivedFilterMixin, SortedListMixin, ListView):
+class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, ListView):
     """
     Display a list of all deals.
     """
@@ -30,12 +31,12 @@ class ListDealView(ArchivedFilterMixin, SortedListMixin, ListView):
     template_name = 'deals/deal_list_active.html'
 
 
-class ArchivedDealsView(ListDealView):
+class ArchivedDealsView(LoginRequiredMixin, ListDealView):
     show_archived = True
     template_name = 'deals/deal_list_archived.html'
 
 
-class ArchiveDealsView(ArchiveView):
+class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
     """
     Archives one or more cases
     """
@@ -51,7 +52,7 @@ class ArchiveDealsView(ArchiveView):
         messages.success(self.request, message)
 
 
-class UnarchiveDealsView(UnarchiveView):
+class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
     """
     Archives one or more cases
     """
@@ -67,7 +68,7 @@ class UnarchiveDealsView(UnarchiveView):
         messages.success(self.request, message)
 
 
-class DetailDealView(HistoryListViewMixin):
+class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single deal.
     """
@@ -116,7 +117,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
 
 
-class CreateDealView(CreateUpdateDealView, CreateView):
+class CreateDealView(LoginRequiredMixin, CreateUpdateDealView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -162,7 +163,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
         return response
 
 
-class UpdateDealView(CreateUpdateDealView, UpdateView):
+class UpdateDealView(LoginRequiredMixin, CreateUpdateDealView, UpdateView):
     model = Deal
 
     def form_valid(self, form):
@@ -175,7 +176,7 @@ class UpdateDealView(CreateUpdateDealView, UpdateView):
         return response
 
 
-class DeleteDealView(DeleteView):
+class DeleteDealView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -202,7 +203,7 @@ class DeleteDealView(DeleteView):
         return reverse('deal_list')
 
 
-class UpdateStageAjaxView(AjaxUpdateView):
+class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):
     """
     View that updates the stage-field of a Deal.
     """
@@ -240,15 +241,3 @@ class UpdateStageAjaxView(AjaxUpdateView):
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
                 return HttpResponse(simplejson.dumps({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), mimetype='application/json')
-
-
-# Perform logic here instead of in urls.py
-archive_deals_view = login_required(ArchiveDealsView.as_view())
-archived_list_deals_view = login_required(ArchivedDealsView.as_view())
-create_deal_view = login_required(CreateDealView.as_view())
-detail_deal_view = login_required(DetailDealView.as_view())
-delete_deal_view = login_required(DeleteDealView.as_view())
-update_deal_view = login_required(UpdateDealView.as_view())
-list_deal_view = login_required(ListDealView.as_view())
-update_stage_view = login_required(UpdateStageAjaxView.as_view())
-unarchive_deals_view = login_required(UnarchiveDealsView.as_view())

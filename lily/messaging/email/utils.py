@@ -292,42 +292,6 @@ def replace_anchors_in_html(html):
     return soup.encode_contents()
 
 
-def get_remote_messages(account, folder_name, criteria=['ALL'], modifiers=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']):
-    """
-    Fetch messages for page *page* in *folder* for *account*.
-    """
-    from lily.messaging.email.models import EmailMessage
-    from lily.messaging.email.tasks import save_email_messages
-
-    server = None
-    try:
-        host = account.provider.imap_host
-        port = account.provider.imap_port
-        ssl = account.provider.imap_ssl
-        server = IMAP(host, port, ssl)
-        server.login(account.username, account.password)
-
-        folder = server.get_folder(folder_name)
-
-        known_uids_qs = EmailMessage.objects.filter(account=account, folder_name=folder.name_on_server)
-        known_uids = set(known_uids_qs.values_list('uid', flat=True))
-
-        folder_count, remote_uids = server.get_uids(folder, criteria)
-
-        # Get the difference between local and server uids
-        new_uids = list(set(remote_uids).difference(known_uids))
-
-        if len(new_uids):
-            # Retrieve modifiers_new for new_uids
-            folder_messages = server.get_messages(new_uids, modifiers, folder)
-
-            if len(folder_messages) > 0:
-                save_email_messages(folder_messages, account, folder, new_messages=True)
-    finally:
-        if server:
-            server.logout()
-
-
 def smtp_connect(account, fail_silently=True):
     kwargs = {
         'host': account.provider.smtp_host,

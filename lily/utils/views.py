@@ -319,16 +319,17 @@ class ArchiveView(View):
     """
     View that makes it possible to archive an item and redirects to success_url
 
-    Needs an post, with an ID for the instance to be archived.
+    Needs a post, with an ID for the instance to be archived.
     """
     model = None
     queryset = None
     success_url = None  # not reversed jet!
     object_pks = None
+    http_method_names = ['post']
 
     def get_success_url(self):
         """
-        make sure there is a success_url set
+        Make sure there is a success_url set
         """
         try:
             print self.request.POST.get('success_url')
@@ -341,7 +342,7 @@ class ArchiveView(View):
 
     def get_object_pks(self):
         """
-        get object_pks from POST info if not set
+        Get object_pks from POST info if not set
         """
         # PK already set
         if self.object_pks:
@@ -363,24 +364,24 @@ class ArchiveView(View):
 
         return self.object_pks
 
-    def get_filtered_queryset(self):
-        """
-        retrieves all pks from kwargs and finds them in the queryset
-        """
-        queryset = self.get_queryset()
-        queryset = queryset.filter(pk__in=self.get_object_pks())
-        return queryset
-
     def get_queryset(self):
-        if self.queryset is None:
-            if self.model:
-                return self.model._default_manager.all()
-            else:
-                raise ImproperlyConfigured("%(cls)s is missing a queryset. Define "
-                                       "%(cls)s.model, %(cls)s.queryset, or override "
-                                       "%(cls)s.get_queryset()." % {
-                                            'cls': self.__class__.__name__})
-        return self.queryset._clone()
+        """
+        default function copied from MultipleObjectMixin
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
+                                       % self.__class__.__name__)
+
+        # Filter the queryset with the pk's posted
+        queryset = queryset.filter(pk__in=self.get_object_pks())
+
+        return queryset
 
     def get_success_message(self, n):
         """
@@ -391,11 +392,11 @@ class ArchiveView(View):
 
     def archive(self):
         """
-        archives all objects found
+        Archives all objects found
         """
         success_url = self.get_success_url()
 
-        queryset = self.get_filtered_queryset()
+        queryset = self.get_queryset()
         queryset.archive()
         self.get_success_message()
 
@@ -409,16 +410,28 @@ class ArchiveView(View):
 
 
 class UnarchiveView(ArchiveView):
+    """
+    View that makes it possible to un-archive one or more items and redirects to success_url
+
+    Needs a post, with an ID for the instance to be archived.
+    """
+
     def unarchive(self):
+        """
+        Unarchives all objects found
+        """
         success_url = self.get_success_url()
 
-        queryset = self.get_filtered_queryset()
+        queryset = self.get_queryset()
         queryset.unarchive()
         self.get_success_message()
 
         return HttpResponseRedirect(success_url)
 
     def post(self, request, *args, **kwargs):
+        """
+        Catch post to start un-archive process
+        """
         return self.unarchive()
 
 
@@ -429,7 +442,7 @@ class ArchivedFilterMixin(object):
     """
     Filters the list with non-archived item or just archived items
 
-    use `show_archived` as a flag to switch between only archived or non-archived items
+    Use `show_archived` as a flag to switch between only archived or non-archived items
     """
     show_archived = False
 

@@ -440,6 +440,18 @@ class ArchivedFilterMixin(object):
         return super(ArchivedFilterMixin, self).get_queryset().filter(is_archived=self.show_archived)
 
 
+class LoginRequiredMixin(object):
+    """
+    Use this mixin if you want that the view is only accessed when a user is logged in
+
+    This should be the first mixin as a superclass
+    """
+
+    @classmethod
+    def as_view(cls):
+        return login_required(super(LoginRequiredMixin, cls).as_view())
+
+
 class ExportListViewMixin(object):
     """
     Mixin that makes it possible to export current list view

@@ -13,7 +13,6 @@ from django.db.models.query_utils import Q
 from django.template import Context, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
-from python_imap.server import IMAP
 
 from lily.messaging.email.decorators import get_safe_template
 from lily.tenant.middleware import get_current_user

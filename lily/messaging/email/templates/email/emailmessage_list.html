@@ -88,17 +88,21 @@
             </thead>
             <tbody>
                 {% for object in object_list %}
-                <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url messaging_email_compose pk=object.pk %}{% else %}{% url messaging_email_detail object.pk %}{% endif %}">
-                    <td class="inbox-small-cells">
-                        <input type="checkbox" class="mail-checkbox" value="{{ object.id }}">
-                    </td>
-                    <td class="view-message hidden-xs">{{ object.from_combined }}</td>
-                    <td class="view-message">{{ object.subject|default:_('&lt;No subject&gt;') }}</td>
-                    <td class="view-message inbox-small-cells">
-                        {% if object.num_attachments > 0 %}<i class="icon-paper-clip"></i>{% endif %}
-                    </td>
-                    <td class="view-message text-right"><abbr title="{{ object.sent_date|pretty_datetime:'%d %B %Y %H:%M' }}">{{ object.sent_date|pretty_datetime }}</abbr></td>
-                </tr>
+                    <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url messaging_email_compose pk=object.pk %}{% else %}{% url messaging_email_detail object.pk %}{% endif %}">
+                        <td class="inbox-small-cells">
+                            <input type="checkbox" class="mail-checkbox" value="{{ object.id }}">
+                        </td>
+                        <td class="view-message hidden-xs">{{ object.from_combined }}</td>
+                        <td class="view-message">{{ object.subject|default:_('&lt;No subject&gt;') }}</td>
+                        <td class="view-message inbox-small-cells">
+                            {% if object.num_attachments > 0 %}<i class="icon-paper-clip"></i>{% endif %}
+                        </td>
+                        <td class="view-message text-right"><abbr title="{{ object.sent_date|pretty_datetime:'%d %B %Y %H:%M' }}">{{ object.sent_date|pretty_datetime }}</abbr></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">{% trans 'There are no messages in this folder.' %}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

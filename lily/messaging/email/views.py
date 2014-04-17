@@ -39,7 +39,7 @@ from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
 from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH
 from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, smtp_connect, EmailMultiRelated
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -96,6 +96,7 @@ class EmailBaseView(View):
             TRASH: 'messaging_email_account_trash',
             SPAM: 'messaging_email_account_spam',
         }
+
         def is_active_folder(folder_url):
             """
             Check if *folder_url* is currently being displayed by checking against *self.request.path*
@@ -351,12 +352,6 @@ class EmailFolderView(EmailBaseView, ListView):
         qs = qs.filter(account__in=self.active_email_accounts).extra(select={
             'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
         }).order_by('-sent_date')
-
-        # Try remote fetch when no results have been found locally
-        if not tried_remote and len(qs) == 0:
-            for email_account in self.active_email_accounts:
-                get_remote_messages(email_account, self.folder_identifier or self.folder_name)
-            qs = self.get_queryset(tried_remote=True)
 
         return qs
 

@@ -9,6 +9,7 @@ class Migration(DataMigration):
 
         for account in orm['email.EmailAccount'].objects.all():
             account.username = field.to_python(account.username)
+            account.password = field.to_python(account.password)
             account.save()
 
     def backwards(self, orm):

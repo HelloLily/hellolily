@@ -73,7 +73,6 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
         '''
         kwargs = super(CreateCaseView, self).get_form_kwargs()
         note_pk = self.kwargs.get('note_pk', None)
-        print kwargs
         if note_pk:
             note = Note.objects.get(pk=note_pk)
             # If note.subject is None, then the Note's subject is linked to another tenant, e.g. when the note_pk is

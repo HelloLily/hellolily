@@ -54,7 +54,7 @@ class CreateUpdateCaseView(object):
         """
         Redirect to case list after creating or updating a case.
         """
-        return '%s?order_by=6&sort_order=desc' % (reverse('case_list'))
+        return '%s?order_by=7&sort_order=desc' % (reverse('case_list'))
 
 
 class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
@@ -103,7 +103,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
             redirect_url = None
             parse_result = urlparse(self.request.META['HTTP_REFERER'])
             if parse_result.path == reverse('case_list'):
-                redirect_url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
+                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('case_list')
 
             response = simplejson.dumps({
                 'error': False,

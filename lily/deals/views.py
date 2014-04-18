@@ -115,7 +115,7 @@ class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
+        return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
 
 
 class CreateDealView(CreateUpdateDealView, CreateView):
@@ -142,7 +142,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
             redirect_url = None
             parse_result = urlparse(self.request.META['HTTP_REFERER'])
             if parse_result.path == reverse('deal_list'):
-                redirect_url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
+                redirect_url = '%s?order_by=8&sort_order=desc' % reverse('deal_list')
 
             response = simplejson.dumps({
                 'error': False,

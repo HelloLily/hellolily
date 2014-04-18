@@ -28,57 +28,57 @@
 {% block scripts %}
 {{ block.super }}
     <script>
+        $(function() {
+            // initialize uniform checkboxes
+            App.initUniform('.deal-group-checkbox');
 
-    // initialize uniform checkboxes
-    App.initUniform('.deal-group-checkbox');
+            // handle group checkbox toggle
+            $('.deal-group-checkbox').change(function() {
+                var set = $(this).attr('data-set');
+                var checked = $(this).is(':checked');
+                $(set).each(function () {
+                    if(checked) {
+                        $(this).attr('checked', true);
+                        $(this).parents('tr').addClass('active');
+                    } else {
+                        $(this).attr('checked', false);
+                        $(this).parents('tr').removeClass('active');
+                    }
+                });
+                $.uniform.update(set);
 
-    // handle group checkbox toggle
-    $('.deal-group-checkbox').change(function() {
-        var set = $(this).attr('data-set');
-        var checked = $(this).is(':checked');
-        $(set).each(function () {
-            if(checked) {
-                $(this).attr('checked', true);
-                $(this).parents('tr').addClass('active');
-            } else {
-                $(this).attr('checked', false);
-                $(this).parents('tr').removeClass('active');
+                update_bulk_ids();
+                toggle_actions_button();
+            });
+
+            // update forms that have actions for selected deals
+            function update_bulk_ids() {
+                var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':not(.deal-group-checkbox):checked');
+                var selected_ids = [];
+                for(var i = 0; i < selected.length; i++) {
+                    selected_ids.push($(selected[i]).val());
+                }
+                $('.bulk-ids').val(selected_ids.join(','));
             }
+
+            // handle single checkbox toggle
+            $('.deal-checkbox:not(.deal-group-checkbox)').change(function(){
+                $(this).parents('tr').toggleClass('active');
+                update_bulk_ids();
+                toggle_actions_button();
+            });
+
+            // enable/disable actions button when (no) items are selected
+            function toggle_actions_button() {
+                var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':checked');
+                if(selected.length) {
+                    $('.deal-actions').removeClass('disabled');
+                } else {
+                    $('.deal-actions').addClass('disabled');
+                }
+            }
+            // onload
+            update_bulk_ids();
+            toggle_actions_button();
         });
-        $.uniform.update(set);
-
-        update_bulk_ids();
-        toggle_actions_button();
-    });
-
-    // update forms that have actions for selected deals
-    function update_bulk_ids() {
-        var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':not(.deal-group-checkbox):checked');
-        var selected_ids = [];
-        for(var i = 0; i < selected.length; i++) {
-            selected_ids.push($(selected[i]).val());
-        }
-        $('.bulk-ids').val(selected_ids.join(','));
-    }
-
-    // handle single checkbox toggle
-    $('.deal-checkbox:not(.deal-group-checkbox)').change(function(){
-        $(this).parents('tr').toggleClass('active');
-        update_bulk_ids();
-        toggle_actions_button();
-    });
-
-    // enable/disable actions button when (no) items are selected
-    function toggle_actions_button() {
-        var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':checked');
-        if(selected.length) {
-            $('.deal-actions').removeClass('disabled');
-        } else {
-            $('.deal-actions').addClass('disabled');
-        }
-
-    }
-    // onload
-    update_bulk_ids();
-    toggle_actions_button();
    </script>

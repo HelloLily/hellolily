@@ -68,58 +68,58 @@
 {% block scripts %}
 {{ block.super }}
     <script>
+        $(function() {
+            // initialize uniform checkboxes
+            App.initUniform('.case-group-checkbox');
 
-    // initialize uniform checkboxes
-    App.initUniform('.case-group-checkbox');
+            // handle group checkbox toggle
+            $('.case-group-checkbox').change(function() {
+                var set = $(this).attr('data-set');
+                var checked = $(this).is(':checked');
+                $(set).each(function () {
+                    if(checked) {
+                        $(this).attr('checked', true);
+                        $(this).parents('tr').addClass('active');
+                    } else {
+                        $(this).attr('checked', false);
+                        $(this).parents('tr').removeClass('active');
+                    }
+                });
+                $.uniform.update(set);
 
-    // handle group checkbox toggle
-    $('.case-group-checkbox').change(function() {
-        var set = $(this).attr('data-set');
-        var checked = $(this).is(':checked');
-        $(set).each(function () {
-            if(checked) {
-                $(this).attr('checked', true);
-                $(this).parents('tr').addClass('active');
-            } else {
-                $(this).attr('checked', false);
-                $(this).parents('tr').removeClass('active');
+                update_bulk_ids();
+                toggle_actions_button();
+            });
+
+            // update forms that have actions for selected cases
+            function update_bulk_ids() {
+                var selected = $(''+$('.case-group-checkbox').attr('data-set')+':not(.case-group-checkbox):checked');
+                var selected_ids = [];
+                for(var i = 0; i < selected.length; i++) {
+                    selected_ids.push($(selected[i]).val());
+                }
+                $('.bulk-ids').val(selected_ids.join(','));
             }
+
+            // handle single checkbox toggle
+            $('.case-checkbox:not(.case-group-checkbox)').change(function(){
+                $(this).parents('tr').toggleClass('active');
+                update_bulk_ids();
+                toggle_actions_button();
+            });
+
+            // enable/disable actions button when (no) items are selected
+            function toggle_actions_button() {
+                var selected = $(''+$('.case-group-checkbox').attr('data-set')+':checked');
+                if(selected.length) {
+                    $('.case-actions').removeClass('disabled');
+                } else {
+                    $('.case-actions').addClass('disabled');
+                }
+            }
+            // onload
+            update_bulk_ids();
+            toggle_actions_button();
         });
-        $.uniform.update(set);
-
-        update_bulk_ids();
-        toggle_actions_button();
-    });
-
-    // update forms that have actions for selected cases
-    function update_bulk_ids() {
-        var selected = $(''+$('.case-group-checkbox').attr('data-set')+':not(.case-group-checkbox):checked');
-        var selected_ids = [];
-        for(var i = 0; i < selected.length; i++) {
-            selected_ids.push($(selected[i]).val());
-        }
-        $('.bulk-ids').val(selected_ids.join(','));
-    }
-
-    // handle single checkbox toggle
-    $('.case-checkbox:not(.case-group-checkbox)').change(function(){
-        $(this).parents('tr').toggleClass('active');
-        update_bulk_ids();
-        toggle_actions_button();
-    });
-
-    // enable/disable actions button when (no) items are selected
-    function toggle_actions_button() {
-        var selected = $(''+$('.case-group-checkbox').attr('data-set')+':checked');
-        if(selected.length) {
-            $('.case-actions').removeClass('disabled');
-        } else {
-            $('.case-actions').addClass('disabled');
-        }
-
-    }
-    // onload
-    update_bulk_ids();
-    toggle_actions_button();
-   </script>
+    </script>
 {% endblock %}

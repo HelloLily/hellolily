@@ -387,7 +387,7 @@ class ArchiveView(View):
             HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
-        queryset.archive()
+        queryset.update(is_archived=True)
         self.get_success_message()
 
         return HttpResponseRedirect(self.success_url)
@@ -414,7 +414,7 @@ class UnarchiveView(ArchiveView):
             HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
-        queryset.unarchive()
+        queryset.update(is_archived=False)
         self.get_success_message()
 
         return HttpResponseRedirect(self.success_url)

@@ -281,23 +281,6 @@ class Deleted(TimeStampedModel):
         abstract = True
 
 
-class ArchiveQuerySet(QuerySet):
-    """
-    Custom queryset which can be used to bulk archive instances
-    """
-    def archive(self):
-        """
-        Bulk action to flag all objects as archived
-        """
-        return self.update(is_archived=True)
-
-    def unarchive(self):
-        """
-        Bulk action to flag all objects as active
-        """
-        return self.update(is_archived=False)
-
-
 class ArchivedMixin(models.Model):
     """
     Archived model, if set to true, the instance is archived.
@@ -305,8 +288,6 @@ class ArchivedMixin(models.Model):
     Make sure this is the last Mixin that is subclassed.
     """
     is_archived = models.BooleanField(default=False)
-
-    objects = PassThroughManager.for_queryset_class(ArchiveQuerySet)()
 
     class Meta():
         abstract = True

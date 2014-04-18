@@ -143,7 +143,7 @@ class ArchivedCasesView(ListCaseView):
     template_name = 'cases/case_list_archived.html'
 
 
-class ArchiveCasesView(ArchiveView):
+class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     """
     Archives one or more cases
     """
@@ -159,7 +159,7 @@ class ArchiveCasesView(ArchiveView):
         messages.success(self.request, message)
 
 
-class UnarchiveCasesView(UnarchiveView):
+class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
     """
     Archives one or more cases
     """
@@ -175,7 +175,7 @@ class UnarchiveCasesView(UnarchiveView):
         messages.success(self.request, message)
 
 
-class DeleteCaseView(DeleteView):
+class DeleteCaseView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """

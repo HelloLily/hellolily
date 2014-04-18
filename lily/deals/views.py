@@ -31,7 +31,7 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Lis
     template_name = 'deals/deal_list_active.html'
 
 
-class ArchivedDealsView(LoginRequiredMixin, ListDealView):
+class ArchivedDealsView(ListDealView):
     show_archived = True
     template_name = 'deals/deal_list_archived.html'
 
@@ -75,7 +75,7 @@ class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
     model = Deal
 
 
-class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
+class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
     """
     Base class for CreateDealView and UpdateDealView.
     """
@@ -117,7 +117,7 @@ class CreateUpdateDealView(DeleteBackAddSaveFormViewMixin):
         return '%s?order_by=7&sort_order=desc' % (reverse('deal_list'))
 
 
-class CreateDealView(LoginRequiredMixin, CreateUpdateDealView, CreateView):
+class CreateDealView(CreateUpdateDealView, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -163,7 +163,7 @@ class CreateDealView(LoginRequiredMixin, CreateUpdateDealView, CreateView):
         return response
 
 
-class UpdateDealView(LoginRequiredMixin, CreateUpdateDealView, UpdateView):
+class UpdateDealView(CreateUpdateDealView, UpdateView):
     model = Deal
 
     def form_valid(self, form):

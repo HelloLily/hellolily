@@ -1,7 +1,7 @@
 from urlparse import urlparse
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.translation import ugettext as _, ungettext
@@ -148,7 +148,7 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     Archives one or more cases
     """
     model = Case
-    success_url = 'case_list'
+    success_url = reverse_lazy('case_list')
 
     def get_success_message(self):
         count = len(self.get_object_pks())
@@ -165,7 +165,7 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
     Archives one or more cases
     """
     model = Case
-    success_url = 'case_archived_list'
+    success_url = reverse_lazy('case_archived_list')
 
     def get_success_message(self):
         count = len(self.get_object_pks())

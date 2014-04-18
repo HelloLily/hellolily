@@ -300,7 +300,7 @@ class ArchiveQuerySet(QuerySet):
 
 class ArchivedMixin(models.Model):
     """
-    Archived model, flags when an instance is archived.
+    Archived model, if set to true, the instance is archived.
     """
     is_archived = models.BooleanField(default=False)
 

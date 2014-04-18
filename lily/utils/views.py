@@ -1,7 +1,5 @@
 import operator
-
 from datetime import datetime
-from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -317,28 +315,15 @@ class MultipleModelListView(object):
 
 class ArchiveView(View):
     """
-    View that makes it possible to archive an item and redirects to success_url
+    View that makes it possible to archive an item which redirects to success_url afterwards
 
     Needs a post, with an ID for the instance to be archived.
     """
     model = None
     queryset = None
-    success_url = None  # not reversed jet!
+    success_url = None
     object_pks = None
     http_method_names = ['post']
-
-    def get_success_url(self):
-        """
-        Make sure there is a success_url set
-        """
-        try:
-            print self.request.POST.get('success_url')
-            return reverse(self.request.POST.get('success_url'))
-        except NoReverseMatch:
-            if self.success_url:
-                return reverse(self.success_url)
-            else:
-                raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
 
     def get_object_pks(self):
         """
@@ -394,13 +379,11 @@ class ArchiveView(View):
         """
         Archives all objects found
         """
-        success_url = self.get_success_url()
-
         queryset = self.get_queryset()
         queryset.archive()
         self.get_success_message()
 
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.success_url)
 
     def post(self, request, *args, **kwargs):
         """
@@ -420,13 +403,11 @@ class UnarchiveView(ArchiveView):
         """
         Unarchives all objects found
         """
-        success_url = self.get_success_url()
-
         queryset = self.get_queryset()
         queryset.unarchive()
         self.get_success_message()
 
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.success_url)
 
     def post(self, request, *args, **kwargs):
         """

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from polymorphic import PolymorphicModel
 
 from lily.users.models import CustomUser
-from lily.tenant.models import TenantMixin
+from lily.tenant.models import PolymorphicTenantMixin
 from lily.utils.models import HistoryListItem
 
 
@@ -15,7 +15,7 @@ ACCOUNT_SHARE_CHOICES = [
 ]
 
 
-class MessagesAccount(PolymorphicModel, TimeStampedModel, TenantMixin):
+class MessagesAccount(PolymorphicTenantMixin, TimeStampedModel):
     """
     A social media account base class, all accounts are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
@@ -32,7 +32,7 @@ class MessagesAccount(PolymorphicModel, TimeStampedModel, TenantMixin):
         verbose_name_plural = _('messaging accounts')
 
 
-class Message(HistoryListItem, TenantMixin):
+class Message(HistoryListItem):
     """
     A message base class, all messages are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.

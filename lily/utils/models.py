@@ -3,10 +3,9 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
-from polymorphic import PolymorphicModel
 
 from functions import parse_phone_number
-from lily.tenant.models import TenantMixin
+from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
 
 
 # ISO 3166-1 country names and codes
@@ -472,7 +471,7 @@ class CaseClientModelMixin(object):
         return self.get_cases(status=3)
 
 
-class HistoryListItem(PolymorphicModel):
+class HistoryListItem(PolymorphicTenantMixin):
     """
     An base model for all items that can appear in a History List
     """

@@ -21,7 +21,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Lis
     Display a list of all cases.
     """
     model = Case
-    sortable = [1, 2, 3, 4, 5, 6]
+    sortable = [2, 3, 4, 5, 6]
     default_order_by = 2
     default_sort_order = SortedListMixin.DESC
     template_name = 'cases/case_list_active.html'

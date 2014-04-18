@@ -3,7 +3,6 @@ import datetime
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
@@ -26,8 +25,8 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Lis
     Display a list of all deals.
     """
     model = Deal
-    sortable = [1, 2, 3, 4, 5, 6, 7]
-    default_order_by = 1
+    sortable = [2, 3, 4, 5, 6, 7]
+    default_order_by = 2
     template_name = 'deals/deal_list_active.html'
 
 

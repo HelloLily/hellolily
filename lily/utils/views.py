@@ -315,7 +315,7 @@ class MultipleModelListView(object):
 
 class ArchiveView(View):
     """
-    View that makes it possible to archive an item which redirects to success_url afterwards
+    View that makes it possible to archive an item which redirects to success_url afterwards.
 
     Needs a post, with an ID for the instance to be archived.
     """
@@ -327,31 +327,31 @@ class ArchiveView(View):
 
     def get_object_pks(self):
         """
-        Get object_pks from POST info if not set
+        Get object_pks from POST info if not set.
+
+        Raises:
+            AttributeError: If no object_pks can be retrieved.
         """
-        # PK already set
-        if self.object_pks:
-            return self.object_pks
+        # check if PKs already have been set
+        if not self.object_pks:
 
-        # retreive from POST data
-        object_pks = self.request.POST.get('ids[]', None)
-        if not object_pks:
-            # no objects posted
-            raise AttributeError("Generic Archive view %s must be called with "
-                             "at least one object pk."
-                             % self.__class__.__name__)
-        elif object_pks.find(',') != -1:
-            # multi objects
-            self.object_pks = object_pks.split(',')
-        else:
-            # single object
-            self.object_pks = [object_pks]
-
+            # Retrieve from POST data
+            self.object_pks = self.request.POST.get('ids[]', None)
+            if not self.object_pks:
+                # no objects posted
+                raise AttributeError(
+                    'Generic Archive view %s must be called with at least one object pk.'
+                    % self.__class__.__name__
+                )
+            self.object_pks = self.object_pks.split(',')
         return self.object_pks
 
     def get_queryset(self):
         """
-        default function copied from MultipleObjectMixin
+        Default function overriden from MultipleObjectMixin.get_queryset.
+
+        Raises:
+            ImproperlyConfigured: If there is no queryset or model set.
         """
         if self.queryset is not None:
             queryset = self.queryset
@@ -360,8 +360,10 @@ class ArchiveView(View):
         elif self.model is not None:
             queryset = self.model._default_manager.all()
         else:
-            raise ImproperlyConfigured("'%s' must define 'queryset' or 'model'"
-                                       % self.__class__.__name__)
+            raise ImproperlyConfigured(
+                "'%s' must define 'queryset' or 'model'"
+                % self.__class__.__name__
+            )
 
         # Filter the queryset with the pk's posted
         queryset = queryset.filter(pk__in=self.get_object_pks())
@@ -370,14 +372,19 @@ class ArchiveView(View):
 
     def get_success_message(self, n):
         """
-        Should be overridden if there needs to be an succesmessage after
-        archiving objects
+        Should be overridden if there needs to be a success message after archiving objects.
+
+        Args:
+            n (int): Number of objects that were affected by the action.
         """
         pass
 
     def archive(self):
         """
-        Archives all objects found
+        Archives all objects found.
+
+        Returns:
+            HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
         queryset.archive()
@@ -387,21 +394,24 @@ class ArchiveView(View):
 
     def post(self, request, *args, **kwargs):
         """
-        Catch post to start archive process
+        Catch post to start archive process.
         """
         return self.archive()
 
 
 class UnarchiveView(ArchiveView):
     """
-    View that makes it possible to un-archive one or more items and redirects to success_url
+    View that makes it possible to un-archive an item which redirects to success_url afterwards.
 
-    Needs a post, with an ID for the instance to be archived.
+    Needs a post, with at least one pk for the instance to be archived.
     """
 
     def unarchive(self):
         """
-        Unarchives all objects found
+        Unarchives all objects found.
+
+        Returns:
+            HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
         queryset.unarchive()
@@ -411,7 +421,7 @@ class UnarchiveView(ArchiveView):
 
     def post(self, request, *args, **kwargs):
         """
-        Catch post to start un-archive process
+        Catch post to start un-archive process.
         """
         return self.unarchive()
 
@@ -421,9 +431,10 @@ class UnarchiveView(ArchiveView):
 #===================================================================================================
 class ArchivedFilterMixin(object):
     """
-    Filters the list with non-archived item or just archived items
+    Filter the list based on the `is_archived` attribute
 
-    Use `show_archived` as a flag to switch between only archived or non-archived items
+    Attributes:
+            show_archived (bool): switch between only or non-archived objects
     """
     show_archived = False
 
@@ -436,7 +447,7 @@ class ArchivedFilterMixin(object):
 
 class LoginRequiredMixin(object):
     """
-    Use this mixin if you want that the view is only accessed when a user is logged in
+    Apply the `login_required`-decorator to a class based view.
 
     This should be the first mixin as a superclass
     """

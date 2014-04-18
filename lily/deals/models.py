@@ -8,7 +8,7 @@ from lily.tenant.models import TenantMixin
 from lily.utils.models import Deleted, ArchivedMixin
 
 
-class Deal(ArchivedMixin, TenantMixin, Deleted):
+class Deal(TenantMixin, Deleted, ArchivedMixin):
     """
     Deal model
     """

@@ -11,7 +11,7 @@ from lily.users.models import CustomUser
 from lily.utils.models import Deleted, ArchivedMixin
 
 
-class Case(ArchivedMixin, TenantMixin, Deleted):
+class Case(TenantMixin, Deleted, ArchivedMixin):
     
     LOW_PRIO, MID_PRIO, HIGH_PRIO, CRIT_PRIO = range(4)
     PRIORITY_CHOICES = (

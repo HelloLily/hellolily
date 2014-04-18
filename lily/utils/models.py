@@ -301,6 +301,8 @@ class ArchiveQuerySet(QuerySet):
 class ArchivedMixin(models.Model):
     """
     Archived model, if set to true, the instance is archived.
+
+    Make sure this is the last Mixin that is subclassed.
     """
     is_archived = models.BooleanField(default=False)
 

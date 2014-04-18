@@ -5,6 +5,12 @@
 .no-padding {
     padding: 0 !important;
 }
+label.required::after {
+    color: #e02222;
+    content: '*';
+    display: inline;
+    padding-left: 4px;
+}
 .label-btn {
     padding: 7px 14px;
     font-size: 14px;

@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
-from django.utils.datastructures import SortedDict
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
@@ -151,11 +151,12 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     success_url = 'case_list'
 
     def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Case has been archived.')
-        else:
-            message = _('%d cases have been archived.') % n
+        count = len(self.get_object_pks())
+        message = ungettext(
+            _('Case has been archived.'),
+            _('%d cases have been archived.') % count,
+            count
+        )
         messages.success(self.request, message)
 
 
@@ -167,11 +168,12 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
     success_url = 'case_archived_list'
 
     def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Case has been re-activated.')
-        else:
-            message = _('%d cases have been re-activated.') % n
+        count = len(self.get_object_pks())
+        message = ungettext(
+            _('Case has been re-activated.'),
+            _('%d cases have been re-activated.') % count,
+            count
+        )
         messages.success(self.request, message)
 
 

@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.timezone import utc
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
@@ -43,11 +43,12 @@ class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
     success_url = 'deal_list'
 
     def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Deal has been archived.')
-        else:
-            message = _('%d deals have been archived.') % n
+        count = len(self.get_object_pks())
+        message = ungettext(
+            _('Deal has been archived.'),
+            _('%d deals have been archived.') % count,
+            count
+        )
         messages.success(self.request, message)
 
 
@@ -59,11 +60,12 @@ class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
     success_url = 'deal_archived_list'
 
     def get_success_message(self):
-        n = len(self.get_object_pks())
-        if n == 1:
-            message = _('Deal has been re-activated.')
-        else:
-            message = _('%d deals have been re-activated.') % n
+        count = len(self.get_object_pks())
+        message = ungettext(
+            _('Deal has been re-activated.'),
+            _('%d deals have been re-activated.') % count,
+            count
+        )
         messages.success(self.request, message)
 
 

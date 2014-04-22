@@ -11,8 +11,8 @@
 {% csrf_token %}
 <input type="hidden" name="export" value="csv" />
 <div class="btn-group">
-    <a class="btn green" href="#" data-toggle="dropdown">
-        <i class="icon-cogs"></i> {% trans 'Tools' %}
+    <a class="btn default" href="#" data-toggle="dropdown">
+        {% trans 'Tools' %}
         <i class="icon-angle-down"></i>
     </a>
     <ul class="dropdown-menu pull-right">
@@ -26,7 +26,7 @@
     </a>
     <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
         <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="account">{% trans 'Account' %}</label>
-        <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="contact">{% trans 'Contact' %}</label>
+        <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="contact_information">{% trans 'Contact information' %}</label>
         <label><input type="checkbox" checked data-column="4" name="exportable_fields[]" value="created">{% trans 'Created' %}</label>
         <label><input type="checkbox" checked data-column="5" name="exportable_fields[]" value="modified">{% trans 'Modified' %}</label>
         <label><input type="checkbox" checked data-column="6" name="exportable_fields[]" value="tags">{% trans 'Tags' %}</label>
@@ -37,9 +37,8 @@
 
 {% block list-headings %}
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-    <th class="item-image account hide_on_small_screen"></th>
     <th class="name">{% trans 'Account' %}</th>
-    <th class="details">{% trans 'Contact' %}</th>
+    <th class="contact_information">{% trans 'Contact information' %}</th>
     <th class="datetime created hide_on_small_screen">{% trans 'Created' %}</th>
     <th class="datetime modified hide_on_small_screen">{% trans 'Modified' %}</th>
     <th class="tags">{% trans 'Tags' %}</th>
@@ -49,16 +48,9 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url account_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url account_edit pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url account_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
-        {% endif %}
-    </td>
-    <td class="item-image account hide_on_small_screen item-image account">
-        {% if item.logo %}
-            <img src="{% thumbnail item.logo 36x36 %}" alt="" />
-        {% else %}
-            <img src="{% media_url 'mwsadmin/extra/images/core/unknown_account.png' %}" alt="" />
+            <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url account_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="name">
@@ -129,11 +121,11 @@
 
 {% block list-definition %}
     { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-    { "bSearchable": false, "bSortable": false, "aTargets": [1] },
-    { "bSortable": false, "aTargets": [3] },
+    { "bSortable": false, "aTargets": [1] },
+    { "bSortable": false, "aTargets": [2] },
+    { "sType": "date-euro", "aTargets": [3] },
     { "sType": "date-euro", "aTargets": [4] },
-    { "sType": "date-euro", "aTargets": [5] },
-    { "bSearchable": false, "bSortable": false, "aTargets": [6] }
+    { "bSearchable": false, "bSortable": false, "aTargets": [5] }
 {% endblock %}
 
 {% block scripts %}

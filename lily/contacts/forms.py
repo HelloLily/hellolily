@@ -1,13 +1,13 @@
 from django import forms
-from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
+from lily.utils.forms import HelloLilyModelForm
 
 
-class AddContactQuickbuttonForm(ModelForm):
+class AddContactQuickbuttonForm(HelloLilyModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -53,7 +53,7 @@ class AddContactQuickbuttonForm(ModelForm):
         fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
 
 
-class CreateUpdateContactForm(TagsFormMixin, ModelForm):
+class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form to add a contact which all fields available.
     """

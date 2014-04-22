@@ -4,11 +4,28 @@ from django.utils.translation import ugettext as _
 
 from lily.messaging.email.widgets import EmailAttachmentWidget
 from lily.messaging.email.models import EmailAttachment
+from form_utils.forms import BetterForm, BetterModelForm
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 
 
+class HelloLilyForm(BetterForm):
+    '''
+    Inherit from BetterForm django-form-utils.
+    We can add more custom form features here later.
+    '''
+    pass
+
+
+class HelloLilyModelForm(BetterModelForm):
+    '''
+    Inherit from BetterModelForm django-form-utils.
+    We can add more custom form features here later.
+    '''
+    pass
+
+
 # Forms
-class EmailAddressBaseForm(ModelForm):
+class EmailAddressBaseForm(HelloLilyModelForm):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
@@ -27,7 +44,7 @@ class EmailAddressBaseForm(ModelForm):
         }
 
 
-class PhoneNumberBaseForm(ModelForm):
+class PhoneNumberBaseForm(HelloLilyModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
@@ -53,7 +70,7 @@ class PhoneNumberBaseForm(ModelForm):
         }
 
 
-class AddressBaseForm(ModelForm):
+class AddressBaseForm(HelloLilyModelForm):
     """
     Form for adding an address which includes all fields available.
     """
@@ -84,7 +101,7 @@ class AddressBaseForm(ModelForm):
         exclude = ('state_provice',)
 
 
-class AttachmentBaseForm(ModelForm):
+class AttachmentBaseForm(HelloLilyModelForm):
     """
     Form for uploading files.
     """

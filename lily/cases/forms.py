@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.forms.models import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -11,10 +10,11 @@ from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
+from lily.utils.forms import HelloLilyModelForm
 from lily.utils.widgets import DatePicker
 
 
-class CreateUpdateCaseForm(ModelForm):
+class CreateUpdateCaseForm(HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """

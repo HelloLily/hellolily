@@ -10,13 +10,15 @@
 {% endif %}
 {% endblock %}
 
-{#{% block page-title %}#}
-{#{% if object.pk %}#}
-{#    {% trans 'Edit contact' %}#}
-{#{% else %}#}
-{#    {% trans 'Add contact' %}#}
-{#{% endif %}#}
-{#{% endblock %}#}
+{% comment %}
+{% block page-title %}
+{% if object.pk %}
+    {% trans 'Edit contact' %}
+{% else %}
+    {% trans 'Add contact' %}
+{% endif %}
+{% endblock %}
+{% endcomment %}
 
 {% block form-title %}
 {% if object.pk %}

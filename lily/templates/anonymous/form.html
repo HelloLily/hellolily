@@ -14,11 +14,7 @@
     {% csrf_token %}
     {% block form-fields %}
     {% for field in form.visible_fields %}
-        {% if field.field.required %}
-            {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label required" %}
-        {% else %}
-            {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
-        {% endif %}
+        {% bootstrap_field field form_group_class="form-group" show_label=False %}
     {% endfor %}
     {% endblock %}
     {% block form-actions %}

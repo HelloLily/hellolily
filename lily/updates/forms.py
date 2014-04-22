@@ -2,9 +2,10 @@ from django import forms
 from django.utils.translation import ugettext as _
 
 from lily.updates.models import BlogEntry
+from lily.utils.forms import HelloLilyModelForm
 
 
-class CreateBlogEntryForm(forms.ModelForm):
+class CreateBlogEntryForm(HelloLilyModelForm):
 
     class Meta:
         model = BlogEntry

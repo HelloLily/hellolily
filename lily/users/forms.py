@@ -4,13 +4,13 @@ from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, Set
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import get_current_site
-from django.forms import Form
 from django.forms.formsets import BaseFormSet
 from django.template import loader
 from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
+from lily.utils.forms import HelloLilyForm
 from lily.utils.widgets import JqueryPasswordInput
 
 
@@ -130,7 +130,7 @@ class CustomSetPasswordForm(SetPasswordForm):
     new_password2 = forms.CharField(label=_('Confirmation'), widget=forms.PasswordInput())
 
 
-class ResendActivationForm(Form):
+class ResendActivationForm(HelloLilyForm):
     """
     Form that allows a user to retry sending the activation e-mail.
     """
@@ -161,7 +161,7 @@ class ResendActivationForm(Form):
         return email
 
 
-class RegistrationForm(Form):
+class RegistrationForm(HelloLilyForm):
     """
     This form allows new user registration.
     """
@@ -241,7 +241,7 @@ class UserRegistrationForm(RegistrationForm):
         return cleaned_data
 
 
-class InvitationForm(Form):
+class InvitationForm(HelloLilyForm):
     """
     This is the invitation form, it is used to invite new users to join an account.
     """

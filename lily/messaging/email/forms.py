@@ -6,7 +6,6 @@ from urlparse import urlparse
 from django import forms
 from django.db.models import Q
 from django.core.mail import get_connection
-from django.forms import Form, ModelForm
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
@@ -17,10 +16,11 @@ from lily.messaging.email.utils import get_email_parameter_choices, TemplatePars
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.fields import EmailProviderChoiceField
+from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.widgets import EmailProviderSelect
 
 
-class EmailConfigurationWizard_1(Form):
+class EmailConfigurationWizard_1(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 1.
     """
@@ -31,7 +31,7 @@ class EmailConfigurationWizard_1(Form):
     password = forms.CharField(max_length=255, label=_('Password'), widget=forms.PasswordInput())
 
 
-class EmailConfigurationWizard_2(Form):
+class EmailConfigurationWizard_2(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 2.
     """
@@ -126,7 +126,7 @@ class EmailConfigurationWizard_2(Form):
         return data
 
 
-class EmailConfigurationWizard_3(Form):
+class EmailConfigurationWizard_3(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 3.
     """
@@ -136,7 +136,7 @@ class EmailConfigurationWizard_3(Form):
     # signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(), required=False)
 
 
-class EmailShareForm(ModelForm):
+class EmailShareForm(HelloLilyModelForm):
     """
     Form to share an e-mail account.
     """
@@ -196,7 +196,7 @@ class EmailShareForm(ModelForm):
         }
 
 
-class ComposeEmailForm(ModelForm):
+class ComposeEmailForm(HelloLilyModelForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
@@ -282,7 +282,7 @@ class ComposeEmailForm(ModelForm):
         }
 
 
-class CreateUpdateEmailTemplateForm(ModelForm):
+class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
     """
     Form used for creating and updating email templates.
     """
@@ -360,7 +360,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
         }
 
 
-class EmailTemplateFileForm(Form):
+class EmailTemplateFileForm(HelloLilyForm):
     """
     Form that is used to parse uploaded template files.
     """

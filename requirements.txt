@@ -11,6 +11,7 @@ django-activelink==0.3
 django-bootstrap3
 django-bootstrap3-datetimepicker
 django-debug-toolbar>=0.9.4
+django-form-utils==0.2.0  # various form tools, we use it for fieldsets
 django-extensions>=0.9
 django-extra-views>=0.2.5
 django-fields>=0.2.2

@@ -1,13 +1,13 @@
 from django import forms
-from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
+from lily.utils.forms import HelloLilyModelForm
 from lily.utils.widgets import DataProviderInput
 
 
-class AddAccountQuickbuttonForm(ModelForm):
+class AddAccountQuickbuttonForm(HelloLilyModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
@@ -91,7 +91,7 @@ class CreateUpdateAccountForm(TagsFormMixin):
         }
 
 
-class WebsiteBaseForm(ModelForm):
+class WebsiteBaseForm(HelloLilyModelForm):
     """
     Base form for adding multiple websites to an account.
     """

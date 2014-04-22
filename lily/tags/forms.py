@@ -1,12 +1,12 @@
-from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 
 from lily.tags.models import Tag
 from lily.utils.fields import TagsField
+from lily.utils.forms import HelloLilyModelForm
 
 
-class TagsFormMixin(forms.ModelForm):
+class TagsFormMixin(HelloLilyModelForm):
     """
     Mixin that adds tags to a ModelForm.
     """

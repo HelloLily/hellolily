@@ -10,6 +10,7 @@
 {% endif %}
 {% endblock %}
 
+{% comment %}
 {% block page-title %}
 {% if object.pk %}
     {% trans 'Edit case' %}
@@ -17,6 +18,7 @@
     {% trans 'Create case' %}
 {% endif %}
 {% endblock %}
+{% endcomment %}
 
 {% block form-title %}
 {% if object.pk %}

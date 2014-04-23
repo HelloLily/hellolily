@@ -3,7 +3,7 @@
 {% load i18n utils %}
 
 {% block head-title %}{% trans 'Cases' %}{% endblock %}
-{% block page-title %}{% trans 'Cases' %}{% endblock %}
+{#{% block page-title %}{% trans 'Cases' %}{% endblock %}#}
 {% block list-title %}{% trans 'Cases' %}{% endblock %}
 
 {% block list-headings %}
@@ -21,9 +21,9 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url case_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url case_update pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="priority">

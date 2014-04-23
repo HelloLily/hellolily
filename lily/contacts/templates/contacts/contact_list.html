@@ -3,7 +3,7 @@
 {% load i18n utils %}
 
 {% block head-title %}{% trans 'Contacts' %}{% endblock %}
-{% block page-title %}{% trans 'Contacts' %}{% endblock %}
+{#{% block page-title %}{% trans 'Contacts' %}{% endblock %}#}
 {% block list-title %}{% trans 'Contacts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url contact_list %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
 
 {% block list-tools %}
@@ -11,8 +11,8 @@
 {% csrf_token %}
 <input type="hidden" name="export" value="csv" />
 <div class="btn-group">
-    <a class="btn green" href="#" data-toggle="dropdown">
-        <i class="icon-cogs"></i> {% trans 'Tools' %}
+    <a class="btn default" href="#" data-toggle="dropdown">
+        {% trans 'Tools' %}
         <i class="icon-angle-down"></i>
     </a>
     <ul class="dropdown-menu pull-right">
@@ -21,12 +21,12 @@
 </div>
 <div class="btn-group">
     <a class="btn default" href="#" data-toggle="dropdown">
-        Columns
+        {% trans 'Columns' %}
         <i class="icon-angle-down"></i>
     </a>
     <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
-        <label><input type="checkbox" checked data-column="1" name="exportable_fields[]" value="personal">{% trans 'Personal' %}</label>
-        <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="contact">{% trans 'Contact' %}</label>
+        <label><input type="checkbox" checked data-column="1" name="exportable_fields[]" value="name">{% trans 'Name' %}</label>
+        <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="contact_information">{% trans 'Contact information' %}</label>
         <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="account">{% trans 'Works at' %}</label>
         <label><input type="checkbox" checked data-column="4" name="exportable_fields[]" value="created">{% trans 'Created' %}</label>
         <label><input type="checkbox" checked data-column="5" name="exportable_fields[]" value="modified">{% trans 'Modified' %}</label>
@@ -38,8 +38,8 @@
 
 {% block list-headings %}
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-    <th class="personal">{% trans 'Personal' %}</th>
-    <th class="contact">{% trans 'Contact' %}</th>
+    <th class="name">{% trans 'Name' %}</th>
+    <th class="contact_information">{% trans 'Contact information' %}</th>
     <th class="account">{% trans 'Works at' %}</th>
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
     <th class="modified hide_on_small_screen">{% trans 'Modified' %}</th>
@@ -50,11 +50,11 @@
     {% for item in object_list %}
         <tr>
             <td class="">
-                <a href="{% url contact_edit pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}">
+                <a href="{% url contact_edit pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}">
                     <i class="icon-edit"></i>
                 </a>
                 {% if not item|has_user_in_group:'account_admin' %}
-                    <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=item.pk %}" >
+                    <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=item.pk %}" >
                         <i class="icon-trash"></i>
                     </button>
                 {% endif %}

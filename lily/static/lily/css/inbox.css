@@ -35,11 +35,7 @@
     padding: 7px 14px;
 }
 
-#move-archive-form {
-    display: none;
-}
-
-.email-list-archive-btn {
+.btn-group .btn-group-spaced .btn {
     margin-left: 5px;
 }
 

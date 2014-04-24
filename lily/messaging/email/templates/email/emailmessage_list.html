@@ -26,7 +26,8 @@
                     <th colspan="2">
                         <input type="checkbox" class="mail-checkbox mail-group-checkbox" data-set=".inbox .mail-checkbox">
                         <div class="btn-group">
-                            <button class="btn btn-sm blue mail-actions" data-toggle="dropdown" data-loading-text="{% trans 'Actions' %} <i class='icon-spinner icon-spin'></i>">
+                            <button class="btn btn-sm blue mail-actions" data-toggle="dropdown" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Actions' %} <i class='icon-angle-down'></i>">
+                                <i class="icon-gears"></i>
                                 {% trans 'Actions' %}
                                 <i class="icon-angle-down"></i>
                             </button>
@@ -34,14 +35,14 @@
                                 <li>
                                     <form action="{% url messaging_mark_read %}" method="post" id="mark-read-form">
                                         {% csrf_token %}
-                                        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                                        <input type="hidden" name="ids[]" class="bulk-ids">
                                     </form>
                                     <a href="{% url messaging_mark_read %}" data-form-submit data-form-selector="#mark-read-form"><i class="icon-fixed-width"></i> {% trans 'Mark as read' %}</a>
                                 </li>
                                 <li>
                                     <form action="{% url messaging_mark_unread %}" method="post" id="mark-unread-form">
                                         {% csrf_token %}
-                                        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                                        <input type="hidden" name="ids[]" class="bulk-ids">
                                     </form>
                                     <a href="{% url messaging_mark_unread %}" data-form-submit data-form-selector="#mark-unread-form"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
                                 </li>
@@ -49,7 +50,7 @@
                                 <li class="dropdown-submenu">
                                     <form action="{% url move_messages_view %}" method="post" id="move-messages-form">
                                         {% csrf_token %}
-                                        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                                        <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="">
                                     </form>
                                     <a href="javascript:;"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
@@ -73,6 +74,8 @@
                                     <a href="{% url messaging_move_trash %}" data-form-submit data-form-selector="#move-trash-form"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
                                 </li>
                             </ul>
+                        </div>
+                        <div class="btn-group btn-group-spaced">
                             {% for value, label in move_to_folders.items %}
                                 {% if value == all_mail_folder_identifier and label != '' %}
                                     <form action="{% url move_messages_view %}" method="post" id="move-archive-form">
@@ -80,7 +83,7 @@
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="{{ label }}">
                                     </form>
-                                    <a class="btn btn-sm blue email-list-archive-btn" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form" data-loading-text="{% trans 'Archive' %} <i class='icon-spinner icon-spin'></i>"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
+                                    <a id="email-archive-btn" class="btn btn-sm blue" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Archiving' %}"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -121,9 +124,9 @@
 <script>
 $('[data-form-submit], #move-messages-form .dropdown-menu a').click(function() {
     // waiting for response from server so a redirect will 'unblock' the UI
-    if($(this).hasClass('email-list-archive-btn'))
+    if($(this).attr('id') == 'email-archive-btn')
     {
-        $('.email-list-archive-btn').button('loading');
+        $('#email-archive-btn').button('loading');
     }
     else
     {

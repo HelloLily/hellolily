@@ -115,26 +115,6 @@ def flatten(input):
     return pattern.sub('', re.escape(input)).lower()
 
 
-def get_object_pks(request):
-    """
-    Get object_pks from POST info if not set
-    """
-
-    # Retrieve from POST data
-    object_pks = request.POST.get('ids[]', None)
-    if not object_pks:
-        # No objects posted
-        raise AttributeError("View %s must be called with at least one object pk." % object.__class__.__name__)
-    elif object_pks.find(',') != -1:
-        # Multi objects
-        object_pks = object_pks.split(',')
-    else:
-        # Single object
-        object_pks = [object_pks]
-
-    return object_pks
-
-
 def dummy_function(x, y=None):
     return x, y
 

@@ -156,21 +156,6 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         # Force fetching from header, for some reason this doesn't happen in the templates
         object.from_email
 
-        # Get the AllMail folder name so the email can be moved there
-        server = None
-        try:
-            host = email_message.account.provider.imap_host
-            port = email_message.account.provider.imap_port
-            ssl = email_message.account.provider.imap_ssl
-            server = IMAP(host, port, ssl)
-            server.login(email_message.account.username, email_message.account.password)
-            object.all_mail_folder = server.get_folder_by_identifier(ALLMAIL)
-        except:
-            pass
-        finally:
-            if server:
-                server.logout()
-
         return object
 
     def get_context_data(self, **kwargs):
@@ -191,8 +176,26 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             folder_name = folder_name.split('/')[-1:][0]
 
         kwargs.update({
-              'folder_name': folder_name,
+            'folder_name': folder_name,
         })
+
+        server = None
+        try:
+            host = self.object.account.provider.imap_host
+            port = self.object.account.provider.imap_port
+            ssl = self.object.account.provider.imap_ssl
+            server = IMAP(host, port, ssl)
+            server.login(self.object.account.username, self.object.account.password)
+
+            kwargs.update({
+                # Get the AllMail folder name so the email can be moved there
+                'all_mail_folder': server.get_folder_by_identifier(ALLMAIL),
+            })
+        except:
+            pass
+        finally:
+            if server:
+                server.logout()
 
         # Pass message's email account e-mail address
         kwargs.update({
@@ -603,14 +606,8 @@ class EmailMessageUpdateBaseView(View):
         Find out which messages to update.
         """
         try:
-            # Retrieve from POST data
-            message_ids = request.POST.get('ids[]', None)
-            if message_ids.find(',') != -1:
-                # Multi objects
-                message_ids = message_ids.split(',')
-            else:
-                # Single object
-                message_ids = [message_ids]
+            # Retrieve from POST data and split
+            message_ids = request.POST.get('ids[]', None).split(',')
 
             # "Handle" these messages. The action to perform is determined
             # by the subclass.
@@ -1207,6 +1204,8 @@ class EmailBodyPreviewView(TemplateView):
             ssl = instance.account.provider.imap_ssl
             server = IMAP(host, port, ssl)
             server.login(instance.account.username, instance.account.password)
+        except:
+            pass
         finally:
             if server:
                 server.logout()

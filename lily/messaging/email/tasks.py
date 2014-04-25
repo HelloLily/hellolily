@@ -3,8 +3,10 @@ import logging
 import StringIO
 import traceback
 from datetime import datetime, timedelta
+from Crypto import Random
 
 from celery import task
+from celery.signals import task_prerun
 from dateutil.tz import tzutc
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -1153,3 +1155,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
         print traceback.format_exc(e)
 
     task_logger.info('Messages saved')
+
+
+def _task_prerun_listener(**kwargs):
+    task_logger.warning('Task prerun listener')
+    Random.atfork()
+
+
+task_prerun.connect(_task_prerun_listener)

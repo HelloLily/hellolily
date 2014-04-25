@@ -107,6 +107,23 @@ def parse_address(address):
     return street, street_number, complement
 
 
+def parse_phone_number(raw_number):
+    number = filter(type(raw_number).isdigit, raw_number)
+
+    # Replace starting digits
+    if number[:3] == '310':
+        number = number.replace('310', '31', 1)
+    if number[:2] == '06':
+        number = number.replace('06', '316', 1)
+    if number[:1] == '0':
+        number = number.replace('0', '31', 1)
+
+    if len(number) > 0:
+        number = '+' + number
+
+    return number
+
+
 def flatten(input):
     """
     Flatten the input so only alphanumeric characters remain.

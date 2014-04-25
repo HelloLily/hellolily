@@ -20,16 +20,22 @@ $(function() {
 
         // Loop through all fields
         fields.forEach(function(field) {
+            // Input is the field in the current form
+            var input = $(form).find('[name="' + field + '"]');
+            // Always clear the field if it's hidden
+            if (input.attr('type') == 'hidden') {
+                $(input).val('');
+            }
             // Check if there is data for the field, else do nothing
             if (data[field]) {
-                // Input is the field in the current form
-                var input = $(form).find('[name="' + field + '"]');
                 // Check if the field does not exist in the current form
-                if ($(input).val() !== undefined){
+                if ($(input).val() !== undefined) {
                     // Check if the field has a value and that value is not the field placeholder
                     if ($(input).val().length > 0 && $(input).val() !== $(input).attr('placeholder')) {
+                        // Display label of field instead of field name
+                        var label = input.parents('.form-group').find('label').text();
                         // Field is not empty, check before overwrite
-                        check_overwrite_fields.push(field);
+                        check_overwrite_fields.push('- ' + label);
                     } else {
                         // Field is empty, fill it with new data
                         fill_field(input, data[field]);
@@ -39,7 +45,7 @@ $(function() {
         });
 
         // Check if there are fields for which we need to do an overwrite check
-        if (check_overwrite_fields.length !== 0) {4
+        if (check_overwrite_fields.length !== 0) {
             // Ask the user whether to overwrite or not
             var overwrite = confirm('Do you wish to overwrite the following fields?\n' + check_overwrite_fields.join('\n'));
             // Check what user said
@@ -111,7 +117,7 @@ $(function() {
     }
 
     $('body').on('click', ':button.dataprovider', function(event) {
-        var button = $(this)
+        var button = $(this);
         var form = $(this).closest('form');
         var input = $(this).parents('.dataprovider').find(':input:first');
 
@@ -134,6 +140,8 @@ $(function() {
                 'cocnumber',
                 'iban',
                 'bic',
+                'primary_email',
+                'phone_number',
             ];
             var formsets = [
                 'email_addresses',
@@ -145,8 +153,8 @@ $(function() {
             toastr.success('We did it! Your new data should be right there waiting for you.', 'Yeah!');
         });
 
-        jqxhr.fail(function(){
-            toastr.error('There was an error trying to fetch your data, please don\'t be mad..', 'Oops!');
+        jqxhr.fail(function(data) {
+            toastr.error('There was an error trying to fetch your data, please don\'t be mad.', 'Oops!');
         });
 
         jqxhr.always(function() {

@@ -5,6 +5,7 @@ from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic import PolymorphicModel
 
+from functions import parse_phone_number
 from lily.tenant.models import TenantMixin
 
 
@@ -310,7 +311,6 @@ class PhoneNumber(TenantMixin):
         return self.number
 
     def save(self, *args, **kwargs):
-        from functions import parse_phone_number
         # Save raw input as number only (for searching)
         self.number = parse_phone_number(self.raw_input)
 

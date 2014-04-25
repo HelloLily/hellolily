@@ -17,6 +17,9 @@
                         {% bootstrap_field field layout="horizontal" field_class="col-md-8" label_class="col-md-4" %}
                     {% endif %}
                 {% endfor %}
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
             {% endblock %}
         </div>
         <div data-async-response></div>

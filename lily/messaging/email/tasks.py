@@ -1158,7 +1158,12 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
 
 def _task_prerun_listener(**kwargs):
-    task_logger.warning('Task prerun listener')
+    """
+    Because of a threading issue in the Crypto library (which seems to be intentional),
+    we need to call the atfork function to sync the worker with it's PID.
+
+    When this is not done we get exceptions during decryption of email username/password.
+    """
     Random.atfork()
 
 

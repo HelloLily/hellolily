@@ -6,12 +6,10 @@
 {#{% block page-title %}{% trans 'Contacts' %}{% endblock %}#}
 {% block list-title %}{% trans 'Contacts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url contact_list %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
 
-{% block list-tools %}
+{% block list-actions %}
 <form method="post" id="form_export">
     {% csrf_token %}
-    <input type="hidden" class="export_type" name="export" value="">
-    <input type="hidden" class="export_columns" name="export_columns[]" value="">
-    <input type="hidden" class="export_filter" name="export_filter" value="">
+    <input type="hidden" name="export" value="csv">
 </form>
 <div class="btn-group">
     <a class="btn default" href="#" data-toggle="dropdown">
@@ -19,7 +17,7 @@
         <i class="icon-angle-down"></i>
     </a>
     <ul class="dropdown-menu pull-right">
-        <li><a href="javascript:void(0)" class="export_link" data-export-type="csv"><i class="icon-download"></i> {% trans 'Export to csv' %}</a></li>
+        <li><a href="" id="link_export_csv"><i class="icon-download"></i> {% trans 'Export to csv' %}</a></li>
     </ul>
 </div>
 <div class="btn-group">
@@ -28,12 +26,12 @@
         <i class="icon-angle-down"></i>
     </a>
     <div id="list_column_toggler" class="dropdown-menu hold-on-click dropdown-checkboxes pull-right">
-        <label><input type="checkbox" checked data-column="1" name="export_column" value="name">{% trans 'Name' %}</label>
-        <label><input type="checkbox" checked data-column="2" name="export_column" value="contact_information">{% trans 'Contact information' %}</label>
-        <label><input type="checkbox" checked data-column="3" name="export_column" value="works_at">{% trans 'Works at' %}</label>
-        <label><input type="checkbox" checked data-column="4" name="export_column" value="created">{% trans 'Created' %}</label>
-        <label><input type="checkbox" checked data-column="5" name="export_column" value="modified">{% trans 'Modified' %}</label>
-        <label><input type="checkbox" checked data-column="6" name="export_column" value="tags">{% trans 'Tags' %}</label>
+        <label><input type="checkbox" checked data-column="1" name="exportable_fields[]" value="name">{% trans 'Name' %}</label>
+        <label><input type="checkbox" checked data-column="2" name="exportable_fields[]" value="contact_information">{% trans 'Contact information' %}</label>
+        <label><input type="checkbox" checked data-column="3" name="exportable_fields[]" value="account">{% trans 'Works at' %}</label>
+        <label><input type="checkbox" checked data-column="4" name="exportable_fields[]" value="created">{% trans 'Created' %}</label>
+        <label><input type="checkbox" checked data-column="5" name="exportable_fields[]" value="modified">{% trans 'Modified' %}</label>
+        <label><input type="checkbox" checked data-column="6" name="exportable_fields[]" value="tags">{% trans 'Tags' %}</label>
     </div>
 </div>
 {% endblock %}
@@ -46,4 +44,109 @@
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
     <th class="modified hide_on_small_screen">{% trans 'Modified' %}</th>
     <th class="tags">{% trans 'Tags' %}</th>
+{% endblock %}
+
+{% block list %}
+    {% for item in object_list %}
+        <tr>
+            <td class="">
+                <a href="{% url contact_edit pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}">
+                    <i class="icon-edit"></i>
+                </a>
+                {% if not item|has_user_in_group:'account_admin' %}
+                    <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=item.pk %}" >
+                        <i class="icon-trash"></i>
+                    </button>
+                {% endif %}
+            </td>
+            <td class="personal">
+                <a href="{% url contact_details pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a>
+                <span class="social">
+                    {% for sm in item.get_social %}
+                        <a href="{{ sm.profile_url }}">
+                            <i class="icon-{{ sm.name }}">{{ sm.name }}</i>
+                        </a>
+                    {% endfor %}
+                </span>
+            </td>
+            <td class="contact">
+                {% if item.primary_email %}
+                    <div>
+                         <a href="mailto:{{ item.primary_email }}"title="{{ item.primary_email }}">
+                             <i class="icon-envelope-alt"></i>
+                             {{ item.primary_email|truncatechars:"35" }}
+                        </a>
+                    </div>
+                 {% endif %}
+
+                {% with item.get_work_phone as phone %}
+                    {% if phone.raw_input %}
+                        <div>
+                            <a href="tel:{{ phone.number }}">
+                                <i class="icon-phone"></i>
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% with item.get_mobile_phone as phone %}
+                    {% if phone.raw_input %}
+                        <div>
+                            <a href="tel:{{ phone.number }}">
+                                <i class="icon-mobile-phone"></i>
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </td>
+            <td class="account">
+                {% if item.functions.count > 0 %}
+                    {% with item.functions.all|first as function %}
+                        <a href="{% url account_details pk=function.account_id %}">{{ function.account }}</a>
+                    {% endwith %}
+                {% endif %}
+            </td>
+            <td class="datetime created hide_on_small_screen">
+                {{ item.created|date:"d/m/Y H:i:s" }}
+            </td>
+            <td class="datetime modified hide_on_small_screen">
+                {{ item.modified|date:"d/m/Y H:i:s" }}
+            </td>
+            <td class="tags">
+                {% for tag in item.get_tags %}
+                    <a href="{% url contact_list_filtered_by_tag tag.pk %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}" class="tag">{{ tag }}</a><br />
+                {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block list-definition %}
+    { "bSearchable": false, "bSortable": false, "aTargets": [0, 2] },
+    { "sType": "date-euro", "aTargets": [4, 5] }
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    jQuery(document).ready(function() {
+        var oTable =  $('.page-content .data-table').dataTable();
+
+        $('#list_column_toggler input[type="checkbox"]').change(function(){
+            /* Get the DataTables object again - this is not a recreation, just a get of the object */
+            var iCol = parseInt($(this).attr("data-column"));
+            var bVis = oTable.fnSettings().aoColumns[iCol].bVisible;
+            oTable.fnSetColumnVis(iCol, (bVis ? false : true));
+        });
+    });
+
+$(function($){
+    $('#link_export_csv').click(function( event ){
+        event.preventDefault();
+        $('#form_export_csv').submit();
+    });
+});
+</script>
 {% endblock %}

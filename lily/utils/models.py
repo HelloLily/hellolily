@@ -1,11 +1,8 @@
 from django.contrib.contenttypes import generic
 from django.db import models
-from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
-from model_utils.fields import MonitorField
-from model_utils.managers import PassThroughManager
 
 from functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin

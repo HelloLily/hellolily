@@ -150,8 +150,7 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     model = Case
     success_url = reverse_lazy('case_list')
 
-    def get_success_message(self):
-        count = len(self.get_object_pks())
+    def get_success_message(self, count):
         message = ungettext(
             _('Case has been archived.'),
             _('%d cases have been archived.') % count,
@@ -167,8 +166,7 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
     model = Case
     success_url = reverse_lazy('case_archived_list')
 
-    def get_success_message(self):
-        count = len(self.get_object_pks())
+    def get_success_message(self, count):
         message = ungettext(
             _('Case has been re-activated.'),
             _('%d cases have been re-activated.') % count,

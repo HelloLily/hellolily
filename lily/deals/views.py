@@ -42,8 +42,7 @@ class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
     model = Deal
     success_url = reverse_lazy('deal_list')
 
-    def get_success_message(self):
-        count = len(self.get_object_pks())
+    def get_success_message(self, count):
         message = ungettext(
             _('Deal has been archived.'),
             _('%d deals have been archived.') % count,
@@ -59,8 +58,7 @@ class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
     model = Deal
     success_url = reverse_lazy('deal_archived_list')
 
-    def get_success_message(self):
-        count = len(self.get_object_pks())
+    def get_success_message(self, count):
         message = ungettext(
             _('Deal has been re-activated.'),
             _('%d deals have been re-activated.') % count,

@@ -315,14 +315,14 @@ class MultipleModelListView(object):
 
 class ArchiveView(View):
     """
-    View that makes it possible to archive an item which redirects to success_url afterwards.
+    Astract view that makes it possible to archive an item which redirects to success_url afterwards.
 
-    Needs a post, with an ID for the instance to be archived.
+    Needs a post, with one or more ids[] for the instance to be archived.
+    Subclass needs to set `success_url` or override `get_success_url`.
     """
     model = None
     queryset = None
-    success_url = None
-    object_pks = None
+    success_url = None  # Should to be set in subclass, or override get_success_url
     http_method_names = ['post']
 
     def get_object_pks(self):
@@ -332,23 +332,19 @@ class ArchiveView(View):
         Raises:
             AttributeError: If no object_pks can be retrieved.
         """
-        # check if PKs already have been set
-        if not self.object_pks:
-
-            # Retrieve from POST data
-            self.object_pks = self.request.POST.get('ids[]', None)
-            if not self.object_pks:
-                # no objects posted
-                raise AttributeError(
-                    'Generic Archive view %s must be called with at least one object pk.'
-                    % self.__class__.__name__
-                )
-            self.object_pks = self.object_pks.split(',')
-        return self.object_pks
+        object_pks = self.request.POST.get('ids[]', None)
+        if not object_pks:
+            # No objects posted
+            raise AttributeError(
+                'Generic Archive view %s must be called with at least one object pk.'
+                % self.__class__.__name__
+            )
+        # Always return as a list
+        return object_pks.split(',')
 
     def get_queryset(self):
         """
-        Default function overriden from MultipleObjectMixin.get_queryset.
+        Default function from MultipleObjectMixin.get_queryset, and slightly modified.
 
         Raises:
             ImproperlyConfigured: If there is no queryset or model set.
@@ -379,7 +375,20 @@ class ArchiveView(View):
         """
         pass
 
-    def archive(self):
+    def get_success_url(self):
+        """
+        Returns the succes_url if set, otherwise will raise ImproperlyConfigured.
+
+        Returns:
+            the success_url
+        """
+        if self.success_url is None:
+            raise ImproperlyConfigured(
+                "'%s' must define a success_url" % self.__class__.__name__
+            )
+        return self.success_url
+
+    def archive(self, archive=True):
         """
         Archives all objects found.
 
@@ -387,43 +396,29 @@ class ArchiveView(View):
             HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
-        queryset.update(is_archived=True)
-        self.get_success_message()
+        queryset.update(is_archived=archive)
+        self.get_success_message(len(queryset))
 
-        return HttpResponseRedirect(self.success_url)
+        return HttpResponseRedirect(self.get_success_url())
 
     def post(self, request, *args, **kwargs):
         """
         Catch post to start archive process.
         """
-        return self.archive()
+        return self.archive(archive=True)
 
 
 class UnarchiveView(ArchiveView):
     """
-    View that makes it possible to un-archive an item which redirects to success_url afterwards.
+    Abstract view that makes it possible to un-archive an item which redirects to success_url afterwards.
 
     Needs a post, with at least one pk for the instance to be archived.
     """
-
-    def unarchive(self):
-        """
-        Unarchives all objects found.
-
-        Returns:
-            HttpResponseRedirect object set to success_url.
-        """
-        queryset = self.get_queryset()
-        queryset.update(is_archived=False)
-        self.get_success_message()
-
-        return HttpResponseRedirect(self.success_url)
-
     def post(self, request, *args, **kwargs):
         """
         Catch post to start un-archive process.
         """
-        return self.unarchive()
+        return self.archive(archive=False)
 
 
 #===================================================================================================
@@ -1025,7 +1020,7 @@ class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
         return super(AttachmentFormSetViewMixin, self).form_valid(form)
 
 
-class AjaxUpdateView(View):
+class AjaxUpdateView(LoginRequiredMixin, View):
     """
     View that provides an option to update models based on a url and POST data.
     """

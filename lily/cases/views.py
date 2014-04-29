@@ -204,7 +204,7 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
         return reverse('case_list')
 
 
-class UpdateStatusAjaxView(LoginRequiredMixin, AjaxUpdateView):
+class UpdateStatusAjaxView(AjaxUpdateView):
     """
     View that updates the status-field of a Case.
     """

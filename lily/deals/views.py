@@ -204,7 +204,7 @@ class DeleteDealView(LoginRequiredMixin, DeleteView):
         return reverse('deal_list')
 
 
-class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):
+class UpdateStageAjaxView(AjaxUpdateView):
     """
     View that updates the stage-field of a Deal.
     """

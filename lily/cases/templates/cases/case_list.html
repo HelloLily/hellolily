@@ -23,9 +23,9 @@
         <input type="checkbox" class="case-checkbox" value="{{ item.id }}">
     </td>
     <td class="">
-        <a href="{% url case_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url case_update pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="priority">
@@ -94,11 +94,16 @@
             // update forms that have actions for selected cases
             function update_bulk_ids() {
                 var selected = $(''+$('.case-group-checkbox').attr('data-set')+':not(.case-group-checkbox):checked');
-                var selected_ids = [];
+                var selectedIds = [];
                 for(var i = 0; i < selected.length; i++) {
-                    selected_ids.push($(selected[i]).val());
+                    selectedIds.push($(selected[i]).val());
                 }
-                $('.bulk-ids').val(selected_ids.join(','));
+                $('.bulk-ids').val(selectedIds.join(','));
+
+                // set group checkbox unselected if all checkboxes are turned off
+                var totalSize = $('.case-checkbox').filter(':not(.case-group-checkbox)').size();
+                $('.case-group-checkbox').prop('checked', totalSize == selected.length);
+                $.uniform.update('.case-group-checkbox');
             }
 
             // handle single checkbox toggle

@@ -54,11 +54,16 @@
             // update forms that have actions for selected deals
             function update_bulk_ids() {
                 var selected = $(''+$('.deal-group-checkbox').attr('data-set')+':not(.deal-group-checkbox):checked');
-                var selected_ids = [];
+                var selectedIds = [];
                 for(var i = 0; i < selected.length; i++) {
-                    selected_ids.push($(selected[i]).val());
+                    selectedIds.push($(selected[i]).val());
                 }
-                $('.bulk-ids').val(selected_ids.join(','));
+                $('.bulk-ids').val(selectedIds.join(','));
+
+                // set group checkbox unselected if all checkboxes are turned off
+                var totalSize = $('.deal-checkbox').filter(':not(.deal-group-checkbox)').size();
+                $('.deal-group-checkbox').prop('checked', totalSize == selected.length);
+                $.uniform.update('.deal-group-checkbox');
             }
 
             // handle single checkbox toggle

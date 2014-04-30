@@ -382,6 +382,7 @@ class ArchiveView(View):
         Returns:
             the success_url
         """
+        self.success_url = self.request.POST.get('success_url', self.success_url)
         if self.success_url is None:
             raise ImproperlyConfigured(
                 "'%s' must define a success_url" % self.__class__.__name__

@@ -1,0 +1,13 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+<div>
+    {% if item.closed_date %}
+        {{ item.closed_date|date:"d/m/Y" }}
+    {% else %}
+        {{ item.expected_closing_date|date:"d/m/Y" }}
+    {% endif %}
+</div>
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

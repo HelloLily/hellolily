@@ -1,0 +1,36 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+{% if item.primary_email %}
+    <div>
+         <a href="mailto:{{ item.primary_email }}"title="{{ item.primary_email }}">
+             <i class="icon-envelope-alt"></i>
+             {{ item.primary_email|truncatechars:"35" }}
+        </a>
+    </div>
+ {% endif %}
+
+{% with item.get_work_phone as phone %}
+    {% if phone.raw_input %}
+        <div>
+            <a href="tel:{{ phone.number }}">
+                <i class="icon-phone"></i>
+                {{ phone.raw_input }}
+            </a>
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% with item.get_mobile_phone as phone %}
+    {% if phone.raw_input %}
+        <div>
+            <a href="tel:{{ phone.number }}">
+                <i class="icon-mobile-phone"></i>
+                {{ phone.raw_input }}
+            </a>
+        </div>
+    {% endif %}
+{% endwith %}
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

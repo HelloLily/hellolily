@@ -1,7 +1,9 @@
+import operator
 import re
 
 from django import forms
 from django.contrib import messages
+from django.db.models import Q
 
 
 def autostrip(cls):
@@ -73,6 +75,23 @@ def clear_messages(request):
     storage.used = True
 
 
+def parse_phone_number(raw_number):
+    number = filter(type(raw_number).isdigit, raw_number)
+
+    # Replace starting digits
+    if number[:3] == '310':
+        number = number.replace('310', '31', 1)
+    if number[:2] == '06':
+        number = number.replace('06', '316', 1)
+    if number[:1] == '0':
+        number = number.replace('0', '31', 1)
+
+    if len(number) > 0:
+        number = '+' + number
+
+    return number
+
+
 def parse_address(address):
     """
     Parse an address string and return street, number and complement
@@ -107,23 +126,6 @@ def parse_address(address):
     return street, street_number, complement
 
 
-def parse_phone_number(raw_number):
-    number = filter(type(raw_number).isdigit, raw_number)
-
-    # Replace starting digits
-    if number[:3] == '310':
-        number = number.replace('310', '31', 1)
-    if number[:2] == '06':
-        number = number.replace('06', '316', 1)
-    if number[:1] == '0':
-        number = number.replace('0', '31', 1)
-
-    if len(number) > 0:
-        number = '+' + number
-
-    return number
-
-
 def flatten(input):
     """
     Flatten the input so only alphanumeric characters remain.
@@ -134,5 +136,3 @@ def flatten(input):
 
 def dummy_function(x, y=None):
     return x, y
-
-

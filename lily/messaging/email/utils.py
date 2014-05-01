@@ -444,3 +444,21 @@ def get_task_count(name, statuses, arguments=None):
                             count += 1
 
     return count
+
+
+def get_full_folder_name_by_identifier(identifier, folder_data):
+    folder_data = folder_data.items()
+
+    for folder, values in folder_data:
+        flags = values.get('flags')
+
+        # Check if current flags contain identifier
+        if identifier in flags:
+            # Return folder name if found
+            return values.get('full_name')
+
+        # Otherwise check if the current folder has sub folders
+        if values.get('is_parent'):
+            # If folder has sub folders, recursive call to this function and check sub folders
+            return get_full_folder_name_by_identifier(identifier, values.get('children'))
+

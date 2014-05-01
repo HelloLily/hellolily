@@ -35,7 +35,7 @@
     padding: 7px 14px;
 }
 
-.btn-group .btn-group-spaced .btn {
+.btn-group.btn-group-spaced .btn:not(:first-child):not(.dropdown-toggle) {
     margin-left: 5px;
 }
 

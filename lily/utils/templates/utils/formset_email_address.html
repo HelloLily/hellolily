@@ -1,105 +1,103 @@
 {% load i18n bootstrap3 email %}
 
 <div class="email_address_formset_wrapper" id="email_addresses">
-    <div class="form-group">
-        <label class="col-md-2 control-label">{{ label }}</label>
-        <div class="col-md-10 formset" data-formset-prefix="{{ formset.prefix }}">
-            {{ formset.management_form }}
+    <div class="formset" data-formset-prefix="{{ formset.prefix }}">
+         {{ formset.management_form }}
 
-            <div data-formset-body>
-                <!-- New forms will be inserted in here -->
-                {% for form in formset %}
-                    <div data-formset-form>
-                        {% for field in form.hidden_fields %}
-                            {{ field }}
-                        {% endfor %}
-                        <div class="form-group">
-                            {% bootstrap_field form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                            {% if form.instance.pk %}
-                                <div class="col-md-offset-2 col-md-1 email-configuration-wizard">
-                                    <a href="javascript:;" class="btn btn-sm yellow" data-target="#emailaccount-configure" data-source="{% url messaging_email_account_wizard_template pk=form.instance.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
-                                        <i class="icon-cog"></i>
-                                    </a>
-                                </div>
-                                <div class="col-md-1 emailaccount-share-wizard">
-                                    <a href="javascript:;" class="{% if not form.instance|can_share %}hidden{% endif %} btn btn-sm blue" data-target="#emailaccount-share" data-source="{% url messaging_email_account_share_template pk=form.instance.pk %}" title="{% trans 'Share this email address with others' %}">
-                                        <i class="icon-unlock"></i>
-                                    </a>
-                                </div>
-                            {% endif %}
-                            {% if formset.can_delete %}
-                                <div class="{% if not form.instance.pk %}col-md-offset-4{% endif %} col-md-1">
-                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
-                                        <i class="icon-undo"></i>
-                                    </a>
-                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
-                                        <i class="icon-trash"></i>
-                                    </a>
-                                    {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                <div class="col-md-12 form-control-static">
-                    <a href="javascript:;" data-formset-add>{% trans 'Add an e-mail address' %}</a>
-                </div>
-            </div>
-            <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
-            <script type="form-template" data-formset-empty-form>
-                <div data-formset-form>
-                    <div class="form-group">
-                        {% bootstrap_field formset.empty_form.email_address layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                        {% if formset.can_delete %}
-                            <div class="col-md-offset-4 col-md-1">
-                                <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
-                                    <i class="icon-undo"></i>
-                                </a>
-                                <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
-                                    <i class="icon-trash"></i>
-                                </a>
-                                {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </script>
-        </div>
+         <div data-formset-body>
+             <!-- New forms will be inserted in here -->
+             {% for form in formset %}
+                 <div class="form-group" data-formset-form>
+                     {% for field in form.hidden_fields %}
+                         {{ field }}
+                     {% endfor %}
+                     {% bootstrap_field form.email_address layout="horizontal" form_group_class="form-group-inline" %}
+                     {% if form.instance.pk %}
+                         <div class="col-md-offset-1 col-md-1 email-configuration-wizard">
+                             <a href="javascript:;" class="btn btn-sm yellow" data-target="#emailaccount-configure" data-source="{% url messaging_email_account_wizard_template pk=form.instance.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
+                                 <i class="icon-cog"></i>
+                             </a>
+                         </div>
+                         <div class="col-md-1 emailaccount-share-wizard">
+                             <a href="javascript:;" class="{% if not form.instance|can_share %}hidden{% endif %} btn btn-sm blue" data-target="#emailaccount-share" data-source="{% url messaging_email_account_share_template pk=form.instance.pk %}" title="{% trans 'Share this email address with others' %}">
+                                 <i class="icon-unlock"></i>
+                             </a>
+                         </div>
+                     {% endif %}
+                     {% if formset.can_delete %}
+                         <div class="{% if not form.instance.pk %}col-md-offset-4{% endif %} col-md-1">
+                             <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                 <i class="icon-undo"></i>
+                             </a>
+                             <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                 <i class="icon-trash"></i>
+                             </a>
+                             {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
+                         </div>
+                     {% endif %}
+                 </div>
+             {% endfor %}
+         </div>
+         <div class="form-group add-link">
+             <label class="col-md-2 control-label{% if formset|length %} hide{% endif %}">
+                 {{ formset.empty_form.email_address.label }}
+             </label>
+             <div class="col-md-10 form-control-static{% if formset|length %} col-md-offset-2{% endif %}">
+                 <a href="javascript:;" data-formset-add>{% trans 'Add an e-mail address' %}</a>
+             </div>
+         </div>
+         <!-- The empty form template. By wrapping this in a <script> tag, the __prefix__ placeholder can easily be replaced in both attributes and any scripts -->
+         <script type="form-template" data-formset-empty-form>
+             <div data-formset-form>
+                 <div class="form-group">
+                     {% bootstrap_field formset.empty_form.email_address layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2 field_wrapper" label_class="col-md-2 control-label hide" %}
+                     {% if formset.can_delete %}
+                         <div class="col-md-offset-3 col-md-1">
+                             <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                 <i class="icon-undo"></i>
+                             </a>
+                             <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                 <i class="icon-trash"></i>
+                             </a>
+                             {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
+                         </div>
+                     {% endif %}
+                 </div>
+             </div>
+         </script>
     </div>
 </div>
 
 {% block scripts %}
-<script>
-$(function($) {
-    $('#emailaccount-configure').on('change', '[name="1-presets"]', function() {
-        try {
-            var prefix = '1-';
-            var json = $('#emailaccount-configure [name="' + prefix + 'presets"] :selected').data('serialized');
-            if(json) {
-                $.each(json, function(name, value) {
-                    // set value according to type of field
-                    var re = /^(?:color|date|datetime|email|hidden|month|number|password|range|search|tel|text|time|url|week)$/i; // matches <input />
-                    var input = $('#emailaccount-configure [name="' + prefix + name + '"]')[0];
-                    var t = input.type, tag = input.tagName.toLowerCase();
-                    if (re.test(t) || tag == 'textarea') {
-                        input.value = value;
+    <script>
+        $(function($) {
+            $('#emailaccount-configure').on('change', '[name="1-presets"]', function() {
+                try {
+                    var prefix = '1-';
+                    var json = $('#emailaccount-configure [name="' + prefix + 'presets"] :selected').data('serialized');
+                    if(json) {
+                        $.each(json, function(name, value) {
+                            // set value according to type of field
+                            var re = /^(?:color|date|datetime|email|hidden|month|number|password|range|search|tel|text|time|url|week)$/i; // matches <input />
+                            var input = $('#emailaccount-configure [name="' + prefix + name + '"]')[0];
+                            var t = input.type, tag = input.tagName.toLowerCase();
+                            if (re.test(t) || tag == 'textarea') {
+                                input.value = value;
+                            }
+                            else if (t == 'checkbox' || t == 'radio') {
+                                input.checked = value;
+                            }
+                            else if (tag == 'select') {
+                                input.selectedIndex = value;
+                            }
+                        });
+                    } else {
+                        // $('#emailaccount-configure :input').clearFields();
                     }
-                    else if (t == 'checkbox' || t == 'radio') {
-                        input.checked = value;
-                    }
-                    else if (tag == 'select') {
-                        input.selectedIndex = value;
-                    }
-                });
-            } else {
-                // $('#emailaccount-configure :input').clearFields();
-            }
-        } catch(error) {
-            // $('#emailaccount-configure :input').clearFields();
-        }
-    });
-});
-</script>
+                } catch(error) {
+                    // $('#emailaccount-configure :input').clearFields();
+                }
+            });
+        });
+    </script>
 {% endblock %}

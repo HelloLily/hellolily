@@ -1,4 +1,7 @@
+import operator
+
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
@@ -6,7 +9,8 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
-from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress, CaseClientModelMixin
+from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress, CaseClientModelMixin, HistoryListItem
+from python_imap.folder import ALLMAIL, SENT, IMPORTANT, INBOX
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
@@ -155,15 +159,15 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
             return None
 
     def get_emails(self):
-        from lily.messaging.email.models import EmailHeader
-        from django.db.models import Q
-        import operator
         try:
-            filter_list = (Q(name__exact='From', message__folder_identifier__exact='\AllMail') |
-                           Q(name__exact='To', message__folder_identifier__exact='\Sent'))
+            filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in self.email_addresses.all()]
+            object_list = HistoryListItem.objects.filter(
+                Q(message__emailmessage__folder_identifier__in=[ALLMAIL, SENT, IMPORTANT, INBOX]) &
+                Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                reduce(operator.or_, filter_list)
+            )
 
-            return EmailHeader.objects.filter(filter_list).filter(
-                reduce(operator.or_, (Q(value__contains=emailaddress) for emailaddress in self.email_addresses.all())))
+            return object_list
         except:
             return None
 

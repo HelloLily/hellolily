@@ -1,0 +1,25 @@
+#######################################################
+### Include                                         ###
+#######################################################
+
+-r requirements.txt
+
+#######################################################
+### Development                                     ###
+#######################################################
+
+django-debug-toolbar>=0.9.4
+
+ipython>=2.0.0
+ipdb>=0.8
+readline>=6.2.4.1
+gnureadline>=6.3.3
+
+#######################################################
+### Deployment                                      ###
+#######################################################
+
+#collectfast
+
+#closure==20121212  # Second to latest version, because mac doesnt have java 52 yet (need to figure out how to update)
+#yuicompressor>=2.4.8

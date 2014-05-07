@@ -14,14 +14,14 @@
                     <div class="form-group">
                         {% bootstrap_field form.street layout="horizontal" form_group_class="form-group-inline" %}
                         {% bootstrap_field form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
-                        {% bootstrap_field form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+                        {% bootstrap_field form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-1" show_label=False %}
 
                         {% if formset.can_delete %}
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                                <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden">
                                     <i class="icon-undo"></i>
                                 </a>
-                                <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red">
+                                <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default">
                                     <i class="icon-trash"></i>
                                 </a>
                                 {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
@@ -30,11 +30,11 @@
                     </div>
                     <div class="form-group">
                         {% bootstrap_field form.postal_code layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                        {% bootstrap_field form.city layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field form.city layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" show_label=False %}
                     </div>
                     <div class="form-group">
                         {% bootstrap_field form.country layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                        {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" show_label=False %}
                     </div>
                 </div>
             {% endfor %}
@@ -56,10 +56,10 @@
                     {% bootstrap_field formset.empty_form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
 
                     <div class="col-md-1">
-                        <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">
+                        <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden">
                             <i class="icon-undo"></i>
                         </a>
-                        <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm red" title="">
+                        <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="">
                             <i class="icon-trash"></i>
                         </a>
                         {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}

@@ -35,3 +35,7 @@ framework.
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+
+# TODO: once we use Django 1.7 this should go in apps.py (http://stackoverflow.com/a/16111968)
+from Crypto import Random
+Random.atfork()

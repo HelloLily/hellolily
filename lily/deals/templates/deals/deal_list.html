@@ -21,19 +21,19 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url deal_update pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url 'deal_update' pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url deal_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="name">
-        <a href="{% url deal_details pk=item.pk %}">
+        <a href="{% url 'deal_details' pk=item.pk %}">
             {{ item.name }}
         </a>
     </td>
     <td class="account">
         <div>
-            <a href="{% url account_details pk=item.account.pk %}">
+            <a href="{% url 'account_details' pk=item.account.pk %}">
                 {{ item.account.name }}
             </a>
         </div>
@@ -53,7 +53,7 @@
         {{ item.currency }}&nbsp;{{ item.amount }}
     </td>
     <td class="assigned-to">
-        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+        <a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>
     </td>

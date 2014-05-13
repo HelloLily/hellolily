@@ -39,7 +39,7 @@
             {% for item in contact_list %}
             <tr>
                 <td>
-                    <a href="{% url contact_details pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
+                    <a href="{% url 'contact_details' pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
                 </td>
                 <td>
                     {{ item.created|naturaltime }}
@@ -50,7 +50,7 @@
                 <td>
                 </td>
                 <td>
-                    <a href="{% url contact_list %}">{% trans 'All contacts' %}</a>
+                    <a href="{% url 'contact_list' %}">{% trans 'All contacts' %}</a>
                 </td>
             </tr>
         </table>
@@ -61,7 +61,7 @@
             {% for item in account_list %}
             <tr>
                 <td>
-                    <a href="{% url account_details pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
+                    <a href="{% url 'account_details' pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
                 </td>
                 <td>
                     {{ item.created|naturaltime }}
@@ -72,7 +72,7 @@
                 <td>
                 </td>
                 <td>
-                    <a href="{% url account_list %}">{% trans 'All accounts' %}</a>
+                    <a href="{% url 'account_list' %}">{% trans 'All accounts' %}</a>
                 </td>
             </tr>
         </table>
@@ -88,7 +88,7 @@
 
             <div id="microblog-form">
                 <div class="form-group">
-                    <form method="post" action="{% url blogentry_add %}">
+                    <form method="post" action="{% url 'blogentry_add' %}">
                         {% csrf_token %}
 
                         <div class="form-group">
@@ -130,16 +130,16 @@
                     <li class="paginator previous {% if not page.has_previous %}disabled{% endif %}">
                         {% if page.has_previous %}
                             {% if has_tag_filter %}
-                                <a href="{% url dashboard_tag page=page.previous_page_number tag=tag %}">
+                                <a href="{% url 'dashboard_tag' page=page.previous_page_number tag=tag %}">
                             {% else %}
-                                <a href="{% url dashboard page=page.previous_page_number %}">
+                                <a href="{% url 'dashboard' page=page.previous_page_number %}">
                             {% endif %}
                         {% endif %}
                             &laquo; Previous
                         {% if page.has_previous %}</a>{% endif %}
                     </li>
                     <li class="paginator page current mws-form">
-                        <form action="{% url dashboard %}" method="post" autocomplete="off">
+                        <form action="{% url 'dashboard' %}" method="post" autocomplete="off">
                             {% csrf_token %}
 
                             {% if has_tag_filter %}
@@ -153,9 +153,9 @@
                     <li class="paginator next {% if not page.has_next %}disabled{% endif %}">
                         {% if page.has_next %}
                             {% if has_tag_filter %}
-                                <a href="{% url dashboard_tag page=page.next_page_number tag=tag %}">
+                                <a href="{% url 'dashboard_tag' page=page.next_page_number tag=tag %}">
                             {% else %}
-                                <a href="{% url dashboard page=page.next_page_number %}">
+                                <a href="{% url 'dashboard' page=page.next_page_number %}">
                             {% endif %}
                         {% endif %}
                             Next &raquo;
@@ -167,12 +167,12 @@
             <p>
                 {% if blogentry_list and has_tag_filter %}
                     {% trans 'Filtered by' %} '#{{ tag }}',
-                    <a href="{% url dashboard %}">{% trans 'remove filter' %}</a>
+                    <a href="{% url 'dashboard' %}">{% trans 'remove filter' %}</a>
                     {% include 'microblog_list.html' with blogentry_list=blogentry_list %}
                 {% elif blogentry_list %}
                     {% include 'microblog_list.html' with blogentry_list=blogentry_list %}
                 {% elif has_tag_filter %}
-                    {% blocktrans with tag=tag %}No entries found for #{{ tag }}.{% endblocktrans %} <a href="{% url dashboard %}">{% trans 'Show everything' %}</a>.
+                    {% blocktrans with tag=tag %}No entries found for #{{ tag }}.{% endblocktrans %} <a href="{% url 'dashboard' %}">{% trans 'Show everything' %}</a>.
                 {% else %}
                     {% trans 'There are no entries in the microblog yet.' %}
                 {% endif %}
@@ -185,7 +185,7 @@
 <div class="row">
     <div class="col-md-12">
         <h3>Other things you can do</h3>
-        <a href="{% url invitation_invite %}">click</a> <span class="things-you-can-do">Send invitations to new users</span>
+        <a href="{% url 'invitation_invite' %}">click</a> <span class="things-you-can-do">Send invitations to new users</span>
     </div>
 </div>
 {% endif %}

@@ -4,7 +4,7 @@
 
 {% block head-title %}{% trans 'Accounts' %}{% endblock %}
 {#{% block page-title %}{% trans 'Accounts' %}{% endblock %}#}
-{% block list-title %}{% trans 'Accounts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url account_list %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
+{% block list-title %}{% trans 'Accounts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url 'account_list' %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
 
 {% block list-tools %}
 <form method="post" id="form_export_csv">
@@ -48,14 +48,14 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url account_edit pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url 'account_edit' pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-            <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url account_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+            <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="name">
         <div>
-            <a href="{% url account_details pk=item.pk %}">
+            <a href="{% url 'account_details' pk=item.pk %}">
                 {{ item.name }}
             </a>
         </div>
@@ -112,7 +112,7 @@
     </td>
     <td class="tags">
         {% for tag in item.get_tags %}
-            <a href="{% url account_list_filtered_by_tag tag.pk %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}" class="tag">{{ tag }}</a><br />
+            <a href="{% url 'account_list_filtered_by_tag' tag.pk %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}" class="tag">{{ tag }}</a><br />
         {% endfor %}
     </td>
 </tr>

@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<form class="form" action="{% url case_delete pk=object.pk %}" method="post" data-async role="form">
+<form class="form" action="{% url 'case_delete' pk=object.pk %}" method="post" data-async role="form">
     <div class="modal-body">
         {% csrf_token %}
         <div class="note note-danger">

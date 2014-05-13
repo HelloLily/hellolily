@@ -2,14 +2,14 @@
 
 {% load i18n media thumbnail utils %}
 
-{% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'account_edit' pk=item.pk %}{% endblock %}
 
-{% block item-delete-url %}{% url account_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'account_delete' pk=item.pk %}{% endblock %}
 
 {% block item-columns %}
     <td class="name">
         <div>
-            <a href="{% url emailtemplate_update pk=item.pk %}">
+            <a href="{% url 'emailtemplate_update' pk=item.pk %}">
                 {{ item.name }}
             </a>
         </div>

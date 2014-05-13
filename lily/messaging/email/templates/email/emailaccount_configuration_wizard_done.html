@@ -5,7 +5,7 @@
         <h4>{% trans 'Wizard finished' %}</h4>
     </div>
     <div class="modal-body">
-        {% url messaging_email_inbox as inbox_url %}
+        {% url 'messaging_email_inbox' as inbox_url %}
 
         {% blocktrans with inbox_url=inbox_url %}
         Looks like you've finished configuring this e-mail address. To read your e-mail, please give the system a few minutes before heading over to <a href="{{ inbox_url }}">your inbox</a>!

@@ -8,9 +8,9 @@
     {{ block.super }}
 {% endblock %}
 
-{% block item-delete-url %}{% url contact_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'contact_delete' pk=item.pk %}{% endblock %}
 
-{% block item-edit-url %}{% url contact_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'contact_edit' pk=item.pk %}{% endblock %}
 
 {% block dialog-delete %}
     {% include 'contacts/mwsadmin/delete_dialog.html' %}
@@ -31,7 +31,7 @@
         {% with item.get_primary_function as function %}
             {% if function %}
                 {% if function.title %}{{ function.title }}<br />{% endif %}
-                at <a href="{% url account_details pk=function.account.pk %}">{{ function.account }}</a>
+                at <a href="{% url 'account_details' pk=function.account.pk %}">{{ function.account }}</a>
             {% endif %}
         {% endwith %}
     </div>

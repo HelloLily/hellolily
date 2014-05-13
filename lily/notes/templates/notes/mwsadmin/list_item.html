@@ -15,10 +15,10 @@
         <div class="object-list-item-content">
             <div class="object-list-item-text">{{ item.content|linebreaksbr }}</div>
             <div class="object-list-item-options float-right">
-                <a href="{% url note_update pk=item.pk %}" class="iedit_button object_edit_link" data-edit-selector="#note_{{ item.pk }}">
+                <a href="{% url 'note_update' pk=item.pk %}" class="iedit_button object_edit_link" data-edit-selector="#note_{{ item.pk }}">
                     {% trans 'Edit' %}
                 </a>
-                <a href="{% url note_delete pk=item.pk %}" class="delete note">
+                <a href="{% url 'note_delete' pk=item.pk %}" class="delete note">
                     {% trans 'Delete' %}
                 </a>
             </div>
@@ -36,7 +36,7 @@
         </div>
         <div class="object-list-item-content">
             <div class="object-list-item-text">
-                <form class="mws-form tabthis" action="{% url note_update pk=item.pk %}" method="post">
+                <form class="mws-form tabthis" action="{% url 'note_update' pk=item.pk %}" method="post">
                     {% include 'notes/mwsadmin/update_form.html' %}
                 </form>
             </div>
@@ -44,7 +44,7 @@
                 <a href="#" class="iedit_button object_cancel_link" data-edit-selector="#note_{{ item.pk }}">
                     {% trans 'Cancel' %}
                 </a>
-                <a href="{% url note_update pk=item.pk %}" class="iedit_submit_button">
+                <a href="{% url 'note_update' pk=item.pk %}" class="iedit_submit_button">
                     {% trans 'Save' %}
                 </a>
             </div>

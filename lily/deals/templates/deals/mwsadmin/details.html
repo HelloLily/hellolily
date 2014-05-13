@@ -8,9 +8,9 @@
     {{ block.super }}
 {% endblock %}
 
-{% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'deal_delete' pk=item.pk %}{% endblock %}
 
-{% block item-edit-url %}{% url deal_update pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'deal_update' pk=item.pk %}{% endblock %}
 
 {% block dialog-delete %}
     {% include 'deals/mwsadmin/delete_dialog.html' %}
@@ -27,13 +27,13 @@
     </div>
     <div>
         <strong>{% trans 'Account' %}:</strong>
-        <a href="{% url account_details pk=item.account.pk %}">
+        <a href="{% url 'account_details' pk=item.account.pk %}">
             {{ item.account.name }}
         </a>
     </div>
     <div>
         <strong>{% trans 'Assigned to' %}:</strong>
-         <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+         <a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>
     </div>

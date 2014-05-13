@@ -21,9 +21,9 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url case_update pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url 'case_update' pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
         {% if not item|has_user_in_group:'account_admin' %}
-        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url case_delete pk=item.pk %}" ><i class="icon-trash"></i></button>
+        <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=item.pk %}" ><i class="icon-trash"></i></button>
         {% endif %}
     </td>
     <td class="priority">
@@ -31,20 +31,20 @@
         <span class="label label-sm label-{{ item|priority }}">{{ item.get_priority_display|lower }}</span>
     </td>
     <td class="subject">
-        <a href="{% url case_details pk=item.pk %}">{{ item.subject }}</a>
+        <a href="{% url 'case_details' pk=item.pk %}">{{ item.subject }}</a>
     </td>
     <td class="contact_account">
         <div>
-        {% if item.contact %}<a href="{% url contact_details pk=item.contact.pk %}">{{ item.contact.full_name }}</a>{% endif %}
+        {% if item.contact %}<a href="{% url 'contact_details' pk=item.contact.pk %}">{{ item.contact.full_name }}</a>{% endif %}
         {% if item.contact and item.account %}at{% endif %}
-        {% if item.account %}<a href="{% url account_details pk=item.account.pk %}">{{ item.account.name }}</a>{% endif %}
+        {% if item.account %}<a href="{% url 'account_details' pk=item.account.pk %}">{{ item.account.name }}</a>{% endif %}
         </div>
     </td>
     <td class="status">
         {{ item.get_status_display }}
     </td>
     <td class="assigned-to">
-        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">{{ item.assigned_to }}</a>
+        <a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">{{ item.assigned_to }}</a>
     </td>
     <td class="datetime created hide_on_small_screen">
         {{ item.created|date:"d/m/Y H:i:s" }}

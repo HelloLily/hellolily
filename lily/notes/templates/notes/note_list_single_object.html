@@ -8,8 +8,8 @@
 {#                &nbsp; {% trans 'by' %} {{ object.author }}#}
 {#            </span>#}
 {#            <div class="pull-right">#}
-{#                <a href="{% url note_update pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}"><i class="icon-edit"></i></a>#}
-{#                <a href="{% url note_delete pk=object.pk %}" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}"><i class="icon-trash"></i></a>#}
+{#                <a href="{% url 'note_update' pk=object.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url 'note_update' pk=object.pk %}"><i class="icon-edit"></i></a>#}
+{#                <a href="{% url 'note_delete' pk=object.pk %}" class="btn btn-xs red" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'note_delete' pk=object.pk %}"><i class="icon-trash"></i></a>#}
 {#            </div>#}
 {#        </h4>#}
 {#        <p>{{ object.content|linebreaksbr }}</p>#}
@@ -30,11 +30,11 @@
             {{ object.content|linebreaksbr }}
         </div>
         <div class="timeline-footer">
-            <a href="{% url note_update pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url note_update pk=object.pk %}">
+            <a href="{% url 'note_update' pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Edit' %}" data-target="#object-update" data-source="{% url 'note_update' pk=object.pk %}">
                 {% trans 'Edit' %}
                 <i class="icon-edit"></i>
             </a>
-            <a href="{% url note_delete pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url note_delete pk=object.pk %}">
+            <a href="{% url 'note_delete' pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'note_delete' pk=object.pk %}">
                 {% trans 'Delete' %}
                 <i class="icon-trash"></i>
             </a>
@@ -43,7 +43,7 @@
                 {{ object.author }}
             </a>
             {% if object.content_type.model == 'account' or object.content_type.model == 'contact' %}
-            <a href="{% url case_create note_pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Create Case' %}" data-target="#object-update" data-source="{% url case_create note_pk=object.pk %}">
+            <a href="{% url 'case_create' note_pk=object.pk %}" class="nav-link pull-right" title="{% trans 'Create Case' %}" data-target="#object-update" data-source="{% url 'case_create' note_pk=object.pk %}">
                 {% trans 'Create Case' %}
                 <i class="icon-archive"></i>
             </a>

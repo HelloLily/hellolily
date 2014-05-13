@@ -19,9 +19,9 @@
                 {% endif %}
             </div>
             <div class="object-list-item-options float-right">
-                <a href="{% url messaging_email_reply pk=item.pk %}">Reply</a>
-                <a href="{% url messaging_email_forward pk=item.pk %}">Forward</a>
-                <a href="{% url messaging_history_list_email_json pk=item.pk %}" class="emailmessage-view">View</a>
+                <a href="{% url 'messaging_email_reply' pk=item.pk %}">Reply</a>
+                <a href="{% url 'messaging_email_forward' pk=item.pk %}">Forward</a>
+                <a href="{% url 'messaging_history_list_email_json' pk=item.pk %}" class="emailmessage-view">View</a>
                 <span class="emailmessage-loading" style="display:none;">Loading</span>
             </div>
             <div class="object-list-item-footer">{{ item.from_combined|truncatechars:"59" }}</div>

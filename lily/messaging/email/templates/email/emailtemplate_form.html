@@ -35,10 +35,10 @@
 {% block hor-menu %}
 {{ block.super }}
 <li>
-    <a href="{% url emailtemplate_list %}">{% trans 'View e-mail templates' %}</a>
+    <a href="{% url 'emailtemplate_list' %}">{% trans 'View e-mail templates' %}</a>
 </li>
 <li>
-    <a href="{% url emailtemplate_create %}">{% trans 'Add an e-mail template' %}</a>
+    <a href="{% url 'emailtemplate_create' %}">{% trans 'Add an e-mail template' %}</a>
 </li>
 {% endblock %}
 
@@ -112,7 +112,7 @@ $(function($) {
             }).ajaxSubmit({
                 type: 'post',
                 dataType: 'json',
-                url: '{% url messaging_email_template_parse %}',
+                url: '{% url 'messaging_email_template_parse' %}',
                 success: function(response) {
                     if(!response.error && response.form) {
                         var fields = ['name', 'description', 'subject'];
@@ -140,7 +140,7 @@ $(function($) {
             // $(form).ajaxSubmit({
             //     type: 'post',
             //     dataType: 'json',
-            //     url: '{% url messaging_email_template_parse %}',
+            //     url: '{% url 'messaging_email_template_parse' %}',
             //     success: function(response) {
             //         if (response.valid) {
             //             if (response.name !== undefined) {

@@ -13,16 +13,16 @@
     <ul class="nav navbar-nav">
         {% block hor-menu %}
         <li>
-            <a href="{% url contact_add %}" data-target="#quickbutton-create" data-source="{% url contact_add %}" >{% trans 'Add contact' %}</a>
+            <a href="{% url 'contact_add' %}" data-target="#quickbutton-create" data-source="{% url 'contact_add' %}" >{% trans 'Add contact' %}</a>
         </li>
         <li>
-            <a href="{% url account_add %}" data-target="#quickbutton-create" data-source="{% url account_add %}" >{% trans 'Add account' %}</a>
+            <a href="{% url 'account_add' %}" data-target="#quickbutton-create" data-source="{% url 'account_add' %}" >{% trans 'Add account' %}</a>
         </li>
         <li>
-            <a href="{% url case_create %}" data-target="#quickbutton-create" data-source="{% url case_create %}" >{% trans 'Add case' %}</a>
+            <a href="{% url 'case_create' %}" data-target="#quickbutton-create" data-source="{% url 'case_create' %}" >{% trans 'Add case' %}</a>
         </li>
         <li>
-            <a href="{% url deal_create %}" data-target="#quickbutton-create" data-source="{% url deal_create %}" >{% trans 'Add deal' %}</a>
+            <a href="{% url 'deal_create' %}" data-target="#quickbutton-create" data-source="{% url 'deal_create' %}" >{% trans 'Add deal' %}</a>
         </li>
         {% endblock %}
     </ul>
@@ -48,7 +48,7 @@
                 <ul class="dropdown-menu-list scroller" style="height: 250px;">
                     {% for unread_email in unread_emails.object_list %}
                     <li>
-                        <a href="{% url messaging_email_detail pk=unread_email.id %}">
+                        <a href="{% url 'messaging_email_detail' pk=unread_email.id %}">
                             <span class="subject clearfix">
                                 <span class="from">{{ unread_email.from }}</span>
                                 <span class="time">{{ unread_email.time|pretty_datetime }}</span>
@@ -61,7 +61,7 @@
                     {% endfor %}
                     {% if unread_emails.count_more %}
                     <li>
-                        <a href="{% url messaging_email_inbox %}">
+                        <a href="{% url 'messaging_email_inbox' %}">
                             <span class="message">
                                 {% blocktrans with count=unread_emails.count_more %}And {{ count }} more new messages!{% endblocktrans %}
                             </span>
@@ -71,7 +71,7 @@
                  </ul>
             </li>
             <li class="external">
-                <a href="{% url messaging_email_inbox %}">{% trans 'See all messages' %} <i class="m-icon-swapright"></i></a>
+                <a href="{% url 'messaging_email_inbox' %}">{% trans 'See all messages' %} <i class="m-icon-swapright"></i></a>
             </li>
         </ul>
     </li>
@@ -83,9 +83,9 @@
         <i class="icon-angle-down"></i>
         </a>
         <ul class="dropdown-menu">
-            <li><a href="{% url contact_details pk=user.contact.pk %}"><i class="icon-user"></i> {% trans 'Profile' %}</a>
+            <li><a href="{% url 'contact_details' pk=user.contact.pk %}"><i class="icon-user"></i> {% trans 'Profile' %}</a>
             </li>
-            <li><a href="{% url logout %}"><i class="icon-key"></i> {% trans 'Log out' %}</a>
+            <li><a href="{% url 'logout' %}"><i class="icon-key"></i> {% trans 'Log out' %}</a>
             </li>
         </ul>
     </li>
@@ -99,42 +99,42 @@
             <div class="sidebar-toggler hidden-phone"></div>
         </li>
         <li class="start {% ifactive "dashboard" %}active{% endifactive %}">
-            <a href="{% url dashboard %}">
+            <a href="{% url 'dashboard' %}">
             <i class="icon-home"></i>
             <span class="title">{% trans 'Dashboard' %}</span>
             <span class="{% ifactive "dashboard" %}selected{% else %}arrow{% endifactive %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "contact_list" %}active{% endifstartswith %}">
-            <a href="{% url contact_list %}">
+            <a href="{% url 'contact_list' %}">
             <i class="icon-user"></i>
             <span class="title">{% trans 'Contacts' %}</span>
             <span class="{% ifstartswith "contact_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "account_list" %}active{% endifstartswith %}">
-            <a href="{% url account_list %}">
+            <a href="{% url 'account_list' %}">
             <i class="icon-briefcase"></i>
             <span class="title">{% trans 'Accounts' %}</span>
             <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
-            <a href="{% url messaging_email_inbox %}">
+            <a href="{% url 'messaging_email_inbox' %}">
             <i class="icon-inbox"></i>
             <span class="title">{% trans 'E-mail' %}</span>
             <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "deal_list" %}active{% endifstartswith %}">
-            <a href="{% url deal_list %}">
+            <a href="{% url 'deal_list' %}">
             <i class="icon-money"></i>
             <span class="title">{% trans 'Deals' %}</span>
             <span class="{% ifstartswith "deal_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "case_list" %}active{% endifstartswith %}">
-            <a href="{% url case_list %}">
+            <a href="{% url 'case_list' %}">
             <i class="icon-archive"></i>
             <span class="title">{% trans 'Cases' %}</span>
             <span class="{% ifstartswith "case_list" %}selected{% else %}arrow{% endifstartswith %}"></span>

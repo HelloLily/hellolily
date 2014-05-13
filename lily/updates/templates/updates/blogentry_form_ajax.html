@@ -1,6 +1,6 @@
 {% load bootstrap3 i18n utils %}
 
-<form class="form form-horizontal" action="{% if reply_to %}{% url blogentry_reply pk=reply_to.pk %}{% else %}{% url blogentry_add %}{% endif %}" method="post" data-async role="form">
+<form class="form form-horizontal" action="{% if reply_to %}{% url 'blogentry_reply' pk=reply_to.pk %}{% else %}{% url 'blogentry_add' %}{% endif %}" method="post" data-async role="form">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
         {% if reply_to %}

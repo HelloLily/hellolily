@@ -8,9 +8,9 @@
     {{ block.super }}
 {% endblock %}
 
-{% block item-delete-url %}{% url account_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'account_delete' pk=item.pk %}{% endblock %}
 
-{% block item-edit-url %}{% url account_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'account_edit' pk=item.pk %}{% endblock %}
 
 {% block dialog-delete %}
     {% include 'accounts/mwsadmin/delete_dialog.html' %}
@@ -30,14 +30,14 @@
     <div id="contact_function">
         {% with item.get_contacts as contacts %}
             {% if contacts|length == 1 %}
-                {% url contact_details pk=contacts.0.pk as contact_link  %}
+                {% url 'contact_details' pk=contacts.0.pk as contact_link  %}
 
                 {% blocktrans with contacts|first as first_contact and contact_link as link %}
                     <a href="{{ link }}">{{ first_contact }}</a> works here
                 {% endblocktrans %}
             {% elif contacts|length > 0 %}
                 {% with contacts|joinby:';' as contacts_csv %}
-                    {% url contact_list_filtered b36_pks=contacts_csv as contacts_link %}
+                    {% url 'contact_list_filtered' b36_pks=contacts_csv as contacts_link %}
 
                     {% with link=contacts_link count=contacts|length %}
                         <a href="{{ link }}">{{ count }} {% trans 'contacts' %}</a>

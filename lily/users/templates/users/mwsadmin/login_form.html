@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block portal-bottom-links %}
-    <a href="{% url password_reset %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
+    <a href="{% url 'password_reset' %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Forgot your password?' %}</a>
     <div class="clearfix"></div>
-    <a href="{% url activation_resend %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Resend activation e-mail' %}</a>
+    <a href="{% url 'activation_resend' %}" class="float-right tabbable" id="sub-panel-link">{% trans 'Resend activation e-mail' %}</a>
 {% endblock %}

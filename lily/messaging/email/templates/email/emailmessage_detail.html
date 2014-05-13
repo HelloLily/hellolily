@@ -9,7 +9,7 @@
     </div>
     <div class="inbox-content">
         <div class="inbox-header inbox-view-header">
-            <h1 class="pull-left">{{ object.subject }} <a href="{% url messaging_email_account_folder account_id=active_email_account.id folder=object.folder_name|urlencode %}">{{ object.folder_name }}</a></h1>
+            <h1 class="pull-left">{{ object.subject }} <a href="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">{{ object.folder_name }}</a></h1>
             {% comment %}
             <div class="pull-right"><i class="icon-print"></i></div>
             {% endcomment %}
@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-xs-4 col-md-3 col-lg-2 inbox-info-btn">
                     <div class="btn-group">
-                        <button class="btn blue reply-btn" data-href="{% url messaging_email_reply pk=object.id %}">
+                        <button class="btn blue reply-btn" data-href="{% url 'messaging_email_reply' pk=object.id %}">
                             <i class="icon-reply"></i> {% trans 'Reply' %}
                         </button>
                         <button class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown">
@@ -30,7 +30,7 @@
                         </button>
                         <ul class="dropdown-menu pull-right">
                             <li>
-                                <a href="{% url messaging_email_reply pk=object.id %}"><i class="icon-reply"></i> {% trans 'Reply' %}</a>
+                                <a href="{% url 'messaging_email_reply' pk=object.id %}"><i class="icon-reply"></i> {% trans 'Reply' %}</a>
                             </li>
                             {% comment %}
                             <li>
@@ -38,7 +38,7 @@
                             </li>
                             {% endcomment %}
                             <li>
-                                <a href="{% url messaging_email_forward pk=object.id %}"><i class="icon-arrow-right"></i> {% trans 'Forward' %}</a>
+                                <a href="{% url 'messaging_email_forward' pk=object.id %}"><i class="icon-arrow-right"></i> {% trans 'Forward' %}</a>
                             </li>
                             {% comment %}
                             <li>
@@ -46,21 +46,21 @@
                             </li>
                             {% endcomment %}
                             <li>
-                                <form action="{% url messaging_mark_unread %}" method="post" id="mark-unread-form-{{ object.id }}">
+                                <form action="{% url 'messaging_mark_unread' %}" method="post" id="mark-unread-form-{{ object.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="ids[]" value="{{ object.id }}">
-                                <input type="hidden" name="next" value="{% url messaging_email_account_folder account_id=active_email_account.id folder=object.folder_name|urlencode %}">
+                                <input type="hidden" name="next" value="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">
                                 </form>
-                                <a href="{% url messaging_mark_unread %}" data-form-submit data-form-selector="#mark-unread-form-{{ object.id }}"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
+                                <a href="{% url 'messaging_mark_unread' %}" data-form-submit data-form-selector="#mark-unread-form-{{ object.id }}"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
                             </li>
                             <li class="divider"></li>
                             <li>
-                                <form action="{% url messaging_move_trash %}" method="post" id="delete-form-{{ object.id }}">
+                                <form action="{% url 'messaging_move_trash' %}" method="post" id="delete-form-{{ object.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="ids[]" value="{{ object.id }}">
-                                <input type="hidden" name="next" value="{% url messaging_email_account_folder account_id=active_email_account.id folder=object.folder_name|urlencode %}">
+                                <input type="hidden" name="next" value="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">
                                 </form>
-                                <a href="{% url messaging_move_trash %}" data-form-submit data-form-selector="#delete-form-{{ object.id }}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
+                                <a href="{% url 'messaging_move_trash' %}" data-form-submit data-form-selector="#delete-form-{{ object.id }}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
                             </li>
                         </ul>
                     </div>
@@ -72,9 +72,9 @@
         </div>
         <div class="inbox-view">
             {% comment %}
-            <iframe src="{% url messaging_email_html object.pk %}" class="col-xs-12 col-md-12" data-scroller="true" data-always-visible="1" data-rail-visible="1" scrolling="no"></iframe>
+            <iframe src="{% url 'messaging_email_html' object.pk %}" class="col-xs-12 col-md-12" data-scroller="true" data-always-visible="1" data-rail-visible="1" scrolling="no"></iframe>
             {% endcomment %}
-            <iframe src="{% url messaging_email_html object.pk %}" class="col-xs-12 col-md-12"></iframe>
+            <iframe src="{% url 'messaging_email_html' object.pk %}" class="col-xs-12 col-md-12"></iframe>
         </div>
         {% if object.attachments.count > 0 %}
         <hr>
@@ -87,7 +87,7 @@
                 <div>
                     <strong>{{ attachment }}</strong>
                     <span>{{ attachment.size|filesizeformat }}</span>
-                    <a href="{% url email_attachment_proxy_view pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
+                    <a href="{% url 'email_attachment_proxy_view' pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
                 </div>
             </div>
             {% endfor %}

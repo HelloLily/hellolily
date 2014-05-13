@@ -29,7 +29,7 @@
             {% endif %}
             <div class="message email{% if item.is_draft %} draft{% endif %}">
                 {% if item.is_draft %}
-                    <a href="{% url messaging_email_compose pk=item.pk %}" class="message-draft-link clearfix">
+                    <a href="{% url 'messaging_email_compose' pk=item.pk %}" class="message-draft-link clearfix">
                 {% endif %}
                     <div class="sender-time-email">
                         <div class="time inline" title="{{ item.sent_date|pretty_datetime:"%d %B %Y %H:%M" }}">{{ item.sent_date|pretty_datetime }} </div>

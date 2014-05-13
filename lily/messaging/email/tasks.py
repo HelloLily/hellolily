@@ -62,7 +62,10 @@ def synchronize_email_scheduler():
                     if retrieve_all_emails_task_count == 0:
                         retrieve_all_emails_for.apply_async(
                             args=(emailaccount_id,),
-                            eta=in_a_moment
+                            eta=in_a_moment,
+                            time_limit=3600,
+                            max_retries=1,
+                            default_retry_delay=100
                         )
                     else:
                         task_logger.info('skipping task "retrieve_all_emails_for" for %s', email_address)
@@ -70,7 +73,9 @@ def synchronize_email_scheduler():
                     if retrieve_new_emails_task_count == 0:
                         retrieve_new_emails_for.apply_async(
                             args=(emailaccount_id,),
-                            eta=in_a_moment
+                            eta=in_a_moment,
+                            time_limit=3600,
+                            default_retry_delay=100
                         )
                     else:
                         task_logger.info('skipping task "retrieve_new_emails_for" for %s', email_address)
@@ -195,7 +200,9 @@ def synchronize_low_priority_email_scheduler():
                     in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
                     retrieve_low_priority_emails_for.apply_async(
                         args=(emailaccount_id,),
-                        eta=in_a_moment
+                        eta=in_a_moment,
+                        time_limit=3600,
+                        default_retry_delay=100
                     )
                 else:
                     task_logger.info('skipping task "retrieve_low_priority_emails_for" for %s', email_address)
@@ -368,7 +375,9 @@ def synchronize_email_flags_scheduler():
                     in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
                     retrieve_all_flags_for.apply_async(
                         args=(emailaccount_id,),
-                        eta=in_a_moment
+                        eta=in_a_moment,
+                        time_limit=3600,
+                        default_retry_delay=100
                     )
                 else:
                     task_logger.info('skipping task "retrieve_all_flags_for" for %s', email_address)

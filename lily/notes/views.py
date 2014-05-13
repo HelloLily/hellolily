@@ -29,7 +29,7 @@ class DeleteNoteView(DeleteView):
                 'error': False,
                 'redirect_url': self.get_success_url()
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -69,7 +69,7 @@ class UpdateNoteView(UpdateView):
                 'error': False,
                 'redirect_url': self.get_success_url()
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -80,7 +80,7 @@ class UpdateNoteView(UpdateView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 

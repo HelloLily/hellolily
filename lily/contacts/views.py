@@ -191,7 +191,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return super(AddContactView, self).form_valid(form)
 
@@ -205,7 +205,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
             return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return super(AddContactView, self).form_invalid(form)
 
@@ -275,7 +275,7 @@ class DeleteContactView(DeleteView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return redirect(redirect_url)
 

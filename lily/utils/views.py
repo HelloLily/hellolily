@@ -922,7 +922,7 @@ class AjaxUpdateView(View):
             raise Http404()
 
         # Return response
-        return HttpResponse(anyjson.serialize({}), mimetype='application/json')
+        return HttpResponse(anyjson.serialize({}), content_type='application/json')
 
 
 class NotificationsView(TemplateView):
@@ -935,7 +935,7 @@ class NotificationsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         response = super(NotificationsView, self).get(request, *args, **kwargs)
-        return HttpResponse(response.rendered_content, mimetype='application/javascript')
+        return HttpResponse(response.rendered_content, content_type='application/javascript')
 
 
 class HistoryListViewMixin(NoteDetailViewMixin):
@@ -966,7 +966,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
                 'html': html,
                 'show_more': response.context_data.get('show_more')
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 

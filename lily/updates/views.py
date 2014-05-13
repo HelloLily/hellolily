@@ -52,7 +52,7 @@ class AddBlogEntryView(CreateView):
                 'error': False,
                 'redirect_url': reverse('dashboard')
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return super(AddBlogEntryView, self).form_valid(form)
 
@@ -63,7 +63,7 @@ class AddBlogEntryView(CreateView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -105,7 +105,7 @@ class DeleteBlogEntryView(DeleteView):
             return HttpResponse(anyjson.serialize({
                 'error': False,
                 'redirect_url': url
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return redirect(request.META.get('HTTP_REFERER', reverse('dashboard')))
 

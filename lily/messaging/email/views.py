@@ -552,7 +552,7 @@ class ParseEmailTemplateView(FormView):
         return HttpResponse(anyjson.serialize({
             'error': False,
             'form': form.cleaned_data
-        }), mimetype='application/json')
+        }), content_type='application/json')
 
     def form_invalid(self, form):
         # Every form error will show up as a notification later
@@ -561,7 +561,7 @@ class ParseEmailTemplateView(FormView):
 
         return HttpResponse(anyjson.serialize({
             'error': True
-        }), mimetype='application/json')
+        }), content_type='application/json')
 parse_emailtemplate_view = login_required(ParseEmailTemplateView.as_view())
 
 
@@ -1267,7 +1267,7 @@ class EmailConfigurationWizardView(SessionWizardView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -1319,7 +1319,7 @@ class EmailConfigurationWizardView(SessionWizardView):
                 'error': False,
                 'html': response.content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -1511,7 +1511,7 @@ class EmailShareView(FormView):
             # Return response
             return HttpResponse(anyjson.serialize({
                 'error': False,
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return super(EmailShareView, self).form_valid(form)
 
@@ -1522,7 +1522,7 @@ class EmailShareView(FormView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 

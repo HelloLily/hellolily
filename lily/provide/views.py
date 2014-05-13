@@ -213,7 +213,7 @@ class DataproviderView(ProvideBaseView):
         return anyjson.serialize(self.view_output)
 
     def get_view_output(self):
-        return HttpResponse(self.view_output, mimetype='application/json')
+        return HttpResponse(self.view_output, content_type='application/json')
 
     def get_error_output(self):
         raise Http404()

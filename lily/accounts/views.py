@@ -267,7 +267,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return super(AddAccountView, self).form_valid(form)
 
@@ -280,7 +280,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
             return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return super(AddAccountView, self).form_invalid(form)
 
@@ -350,7 +350,7 @@ class DeleteAccountView(DeleteView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return redirect(redirect_url)
 
@@ -382,7 +382,7 @@ class ExistsAccountView(View):
         return HttpResponse(anyjson.serialize({
             'exists': exists,
             'edit_url': edit_url
-        }), mimetype='application/json')
+        }), content_type='application/json')
 
 
 # Perform logic here instead of in urls.py

@@ -107,7 +107,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -118,7 +118,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response       
 
@@ -155,7 +155,7 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return HttpResponseRedirect(redirect_url)
 
@@ -191,4 +191,4 @@ class UpdateStatusAjaxView(LoginRequiredMixin, AjaxUpdateView):
             message = _('Status has been changed to') + ' ' + status
             messages.success(self.request, message)
             # Return response
-            return HttpResponse(anyjson.serialize({'status': status}), mimetype='application/json')
+            return HttpResponse(anyjson.serialize({'status': status}), content_type='application/json')

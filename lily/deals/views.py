@@ -109,7 +109,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -120,7 +120,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -157,7 +157,7 @@ class DeleteDealView(DeleteView):
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return HttpResponseRedirect(redirect_url)
 
@@ -199,10 +199,10 @@ class UpdateStageAjaxView(AjaxUpdateView):
             messages.success(self.request, message)
             # Return response
             if instance.closed_date is None:
-                return HttpResponse(anyjson.serialize({}), mimetype='application/json')
+                return HttpResponse(anyjson.serialize({}), content_type='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                return HttpResponse(anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), mimetype='application/json')
+                return HttpResponse(anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), content_type='application/json')
 
 
 # Perform logic here instead of in urls.py

@@ -286,9 +286,6 @@ MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 
 # django debug toolbar
 INTERNAL_IPS = (['127.0.0.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')

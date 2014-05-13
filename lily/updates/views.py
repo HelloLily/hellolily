@@ -1,10 +1,11 @@
+import anyjson
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.edit import CreateView, DeleteView
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 
 from lily.updates.forms import CreateBlogEntryForm
@@ -47,7 +48,7 @@ class AddBlogEntryView(CreateView):
         messages.success(self.request, _('Post successful.'))
 
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': reverse('dashboard')
             })
@@ -58,7 +59,7 @@ class AddBlogEntryView(CreateView):
     def form_invalid(self, form):
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
@@ -101,7 +102,7 @@ class DeleteBlogEntryView(DeleteView):
             url = request.META.get('HTTP_REFERER', reverse('dashboard'))
 
             # Return response
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': False,
                 'redirect_url': url
             }), mimetype='application/json')

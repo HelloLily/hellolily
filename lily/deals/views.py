@@ -1,12 +1,13 @@
-from urlparse import urlparse
+import anyjson
 import datetime
+
+from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -104,7 +105,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
             if parse_result.path == reverse('deal_list'):
                 redirect_url = '%s?order_by=7&sort_order=desc' % reverse('deal_list')
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
@@ -115,7 +116,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
     def form_invalid(self, form):
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
@@ -152,7 +153,7 @@ class DeleteDealView(DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
@@ -198,10 +199,10 @@ class UpdateStageAjaxView(AjaxUpdateView):
             messages.success(self.request, message)
             # Return response
             if instance.closed_date is None:
-                return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+                return HttpResponse(anyjson.serialize({}), mimetype='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                return HttpResponse(simplejson.dumps({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), mimetype='application/json')
+                return HttpResponse(anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')}), mimetype='application/json')
 
 
 # Perform logic here instead of in urls.py

@@ -1,10 +1,12 @@
+import anyjson
+
 from bootstrap3_datetime.widgets import DateTimePicker
 
 from django import forms
 from django.forms.models import model_to_dict
 from django.forms.widgets import Select, TextInput
 from django.forms.util import flatatt
-from django.utils import simplejson, translation
+from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
@@ -65,7 +67,7 @@ class EmailProviderSelect(Select):
     def render_option(self, selected_choices, option_value, option_label):
         json_html = u''
         if isinstance(option_value, EmailProvider):
-            json_html = u' data-serialized="%s"' % escape(simplejson.dumps(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
+            json_html = u' data-serialized="%s"' % escape(anyjson.serialize(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
             option_value = option_value.pk
         option_value = force_unicode(option_value)
         if option_value in selected_choices:

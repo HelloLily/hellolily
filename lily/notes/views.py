@@ -1,8 +1,9 @@
+import anyjson
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView, BaseFormView
@@ -24,7 +25,7 @@ class DeleteNoteView(DeleteView):
         messages.success(self.request, message)
 
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': self.get_success_url()
             })
@@ -64,7 +65,7 @@ class UpdateNoteView(UpdateView):
         messages.success(self.request, message)
 
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': self.get_success_url()
             })
@@ -75,7 +76,7 @@ class UpdateNoteView(UpdateView):
     def form_invalid(self, form):
         response = super(UpdateNoteView, self).form_invalid(form)
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })

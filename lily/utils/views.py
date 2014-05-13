@@ -1,3 +1,4 @@
+import anyjson
 import operator
 
 from datetime import datetime
@@ -11,7 +12,6 @@ from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
@@ -922,7 +922,7 @@ class AjaxUpdateView(View):
             raise Http404()
 
         # Return response
-        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+        return HttpResponse(anyjson.serialize({}), mimetype='application/json')
 
 
 class NotificationsView(TemplateView):
@@ -962,7 +962,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
             if len(response.context_data.get('object_list')) > 0:
                 html = response.rendered_content
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'html': html,
                 'show_more': response.context_data.get('show_more')
             })

@@ -1,3 +1,4 @@
+import anyjson
 from datetime import date
 from hashlib import sha256
 from urlparse import urlparse
@@ -12,7 +13,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
@@ -187,7 +187,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
                 if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
                     redirect_url = self.get_success_url()
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
@@ -202,7 +202,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
@@ -271,7 +271,7 @@ class DeleteContactView(DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })

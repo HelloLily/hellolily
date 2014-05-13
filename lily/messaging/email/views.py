@@ -1,3 +1,4 @@
+import anyjson
 import datetime
 import email
 import os
@@ -20,7 +21,6 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template.defaultfilters import truncatechars
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
@@ -500,7 +500,7 @@ class CreateUpdateEmailTemplateView(object):
         """
         kwargs = super(CreateUpdateEmailTemplateView, self).get_context_data(**kwargs)
         kwargs.update({
-            'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
+            'parameter_choices': anyjson.serialize(get_email_parameter_choices()),
             'back_url': self.get_success_url(),
         })
         return kwargs
@@ -549,7 +549,7 @@ class ParseEmailTemplateView(FormView):
     form_class = EmailTemplateFileForm
 
     def form_valid(self, form):
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'error': False,
             'form': form.cleaned_data
         }), mimetype='application/json')
@@ -559,7 +559,7 @@ class ParseEmailTemplateView(FormView):
         for field, error in form.errors.items():
             messages.warning(self.request, error)
 
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'error': True
         }), mimetype='application/json')
 parse_emailtemplate_view = login_required(ParseEmailTemplateView.as_view())
@@ -979,7 +979,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 known_contact_addresses.append(contact_address)
 
         context.update({
-            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
+            'known_contact_addresses': anyjson.serialize(known_contact_addresses),
         })
 
         # find e-mail templates and add to context in json
@@ -996,7 +996,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         # only add template_list to context if there are any templates
         if template_list:
             context.update({
-                'template_list': simplejson.dumps(template_list),
+                'template_list': anyjson.serialize(template_list),
             })
 
         return context
@@ -1263,7 +1263,7 @@ class EmailConfigurationWizardView(SessionWizardView):
         form = form or self.get_form()
         response = self.render_to_response(self.get_context_data(form=form, **kwargs))
         if is_ajax(self.request) and self.request.method.lower() == 'post':
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
@@ -1315,7 +1315,7 @@ class EmailConfigurationWizardView(SessionWizardView):
             'form_data': [form.cleaned_data for form in form_list],
         })
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'html': response.content
             })
@@ -1509,7 +1509,7 @@ class EmailShareView(FormView):
 
         if is_ajax(self.request):
             # Return response
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': False,
             }), mimetype='application/json')
 
@@ -1518,7 +1518,7 @@ class EmailShareView(FormView):
     def form_invalid(self, form):
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })

@@ -1,6 +1,7 @@
 from urlparse import urlparse
 import datetime
 import operator
+import anyjson
 
 
 from django.contrib import messages
@@ -12,7 +13,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
@@ -263,7 +263,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                 if parse_result.path in (reverse('account_list'), reverse('dashboard')):
                     redirect_url = self.get_success_url()
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
@@ -277,7 +277,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
             }), mimetype='application/json')
@@ -346,7 +346,7 @@ class DeleteAccountView(DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
@@ -379,7 +379,7 @@ class ExistsAccountView(View):
         else:
             raise Http404()
 
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'exists': exists,
             'edit_url': edit_url
         }), mimetype='application/json')

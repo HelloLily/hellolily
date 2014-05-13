@@ -243,12 +243,12 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                                        account=self.object, is_primary=True)
 
             # Add e-mail address to account as primary
-            self.object.primary_email = form.cleaned_data.get('email')
+            self.object.primary_email = form.cleaned_data.get('primary_email')
             self.object.save()
 
             # Save phone number
-            if form.cleaned_data.get('phone'):
-                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
+            if form.cleaned_data.get('phone_number'):
+                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone_number'))
                 self.object.phone_numbers.add(phone)
 
             # Check if the user wants to 'add & edit'

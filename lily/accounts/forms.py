@@ -13,8 +13,8 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
     """
     website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False, widget=DataProviderInput())
     name = forms.CharField(label=_('Company name'), max_length=255)
-    email = forms.EmailField(label=_('E-mail address'), max_length=255)
-    phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
+    primary_email = forms.EmailField(label=_('E-mail address'), max_length=255)
+    phone_number = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
     def __init__(self, *args, **kwargs):
         """
@@ -39,9 +39,9 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
                 self._errors['name'] = self.error_class([_('Company name already in use.')])
 
         # Prevent multiple accounts with the same e-mail adress when adding
-        if cleaned_data.get('email'):
-            if Account.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
-                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
+        if cleaned_data.get('primary_email'):
+            if Account.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('primary_email')).exists():
+                self._errors['primary_email'] = self.error_class([_('E-mail address already in use.')])
 
         # Prevent multiple accounts with the same primary website when adding
         if cleaned_data.get('website'):
@@ -52,7 +52,20 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
 
     class Meta:
         model = Account
-        fields = ('website', 'name', 'email', 'phone')
+        fields = ('website', 'name', 'description', 'primary_email', 'phone_number', 'legalentity', 'taxnumber', 'bankaccountnumber',
+                  'cocnumber', 'iban', 'bic')
+
+        widgets = {
+            'description': forms.Textarea({
+                'rows': 3,
+            }),
+            'legalentity': forms.HiddenInput(),
+            'taxnumber': forms.HiddenInput(),
+            'bankaccountnumber': forms.HiddenInput(),
+            'cocnumber': forms.HiddenInput(),
+            'iban': forms.HiddenInput(),
+            'bic': forms.HiddenInput(),
+        }
 
 
 class CreateUpdateAccountForm(TagsFormMixin):

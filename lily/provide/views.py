@@ -5,7 +5,7 @@ import urllib
 import urllib2
 
 from lily import settings
-from lily.utils.functions import parse_address
+from lily.utils.functions import parse_address, parse_phone_number
 
 
 class ProvideBaseView(View):
@@ -107,7 +107,6 @@ class DataproviderView(ProvideBaseView):
         # Expected api output is json
         self.api_output = simplejson.loads(self.api_output)
 
-
         # Raise exception when the api returned an error
         if self.api_output.get('error'):
             raise Exception(self.api_output.get('error').get('message'))
@@ -119,33 +118,78 @@ class DataproviderView(ProvideBaseView):
         # Filter useful data
         result = self.api_output['data'][0]
 
+        # Get company name
+        company = result.get('company')
 
-        company = result.get('company').replace('\\', '') if result.get('company') else None
-        description = result.get('description').replace('\\', '') if result.get('description') else None
-        tags = result.get('keywords').strip().rstrip(',').split(',') if result.get('keywords') else []
-        email_addresses = [result.get('emails')] if result.get('emails') else []
-        phone_numbers = [result.get('phonenumber')] if result.get('phonenumber') else []
-        legalentity = result.get('legalentity') if result.get('legalentity') else None
-        taxnumber = result.get('taxnumber') if result.get('taxnumber') else None
-        bankaccountnumber = result.get('bankaccountnumber') if result.get('bankaccountnumber') else None
-        cocnumber = result.get('cocnumber') if result.get('cocnumber') else None
-        iban = result.get('iban') if result.get('iban') else None
-        bic = result.get('bic') if result.get('bic') else None
+        # Get website description
+        description = result.get('description')
 
-        address = result.get('address') if result.get('address') else None
+        # Get the keywords and convert to list
+        tags = result.get('keywords')
+        if tags:
+            tags = result.get('keywords').strip().rstrip(',').split(',')
+
+        # Get email addressess and convert to a list if needed
+        email_addresses = result.get('emailaddresses', []) or []
+        if not isinstance(email_addresses, list):
+            email_addresses = [email_addresses]
+
+        # Determine primary email since Dataprovider doesn't provide it
+        primary_email = None
+        if email_addresses:
+            primary_email = self.get_primary_email(email_addresses)
+
+        # Get phone numbers and convert to list if needed
+        raw_phone_numbers = result.get('phonenumbers', []) or []
+        if not isinstance(raw_phone_numbers, list):
+            raw_phone_numbers = [raw_phone_numbers]
+
+        # Convert all phone numbers to a nicer representation
+        phone_numbers = []
+        for raw_phone_number in raw_phone_numbers:
+            phone_numbers.append(parse_phone_number(raw_phone_number))
+
+        # Get primary phone number and convert to a nicer representation
+        phone_number = result.get('phonenumber')
+        if phone_number:
+            phone_number = parse_phone_number(result.get('phonenumber'))
+
+        # Get what kind of company it is (e.g. LLC)
+        legalentity = result.get('legalentity')
+
+        # Get the VAT (Value Added Tax) identifaction number
+        taxnumber = result.get('taxnumber')
+
+        # Get bank account number
+        bankaccountnumber = result.get('bankaccountnumber')
+
+        # Get the CoC (Chamber of Commerce) number
+        cocnumber = result.get('cocnumber')
+
+        # Get the IBAN (Internation Bank Account Number)
+        iban = result.get('iban')
+
+        # Get the BIC (Bank Identifier Code)
+        bic = result.get('bic')
+
+        # Try to parse the address
+        address = result.get('address')
         if address:
             street, street_number, complement = parse_address(address)
         else:
             street, street_number, complement = None, None, None
 
-        addresses = [{
-            'street': street,
-            'street_number': street_number,
-            'complement': complement,
-            'city': result.get('city'),
-            'country': result.get('country'),
-            'postal_code': result.get('zipcode'),
-        }] if address or result.get('city') or result.get('zipcode') or result.get('country') else []
+        # Make the full address
+        addresses = []
+        if address or result.get('city') or result.get('zipcode') or result.get('country'):
+            addresses = [{
+                'street': street,
+                'street_number': street_number,
+                'complement': complement,
+                'city': result.get('city'),
+                'country': result.get('country'),
+                'postal_code': result.get('zipcode'),
+            }]
 
         # Build dict with account information
         self.view_output = {
@@ -153,7 +197,9 @@ class DataproviderView(ProvideBaseView):
             'description': description,
             'tags': tags,
             'email_addresses': email_addresses,
+            'primary_email': primary_email,
             'phone_numbers': phone_numbers,
+            'phone_number': phone_number,
             'addresses': addresses,
             'legalentity': legalentity,
             'taxnumber': taxnumber,
@@ -170,3 +216,13 @@ class DataproviderView(ProvideBaseView):
 
     def get_error_output(self):
         raise Http404()
+
+    def get_primary_email(self, emails):
+        if len(emails) > 1:
+            for email in emails:
+                # The main email address of a company usually starts with info@ or contact@ so check if that exists
+                if email.startswith('info') or email.startswith('contact'):
+                    return email
+
+        # Return the first email address in the list if no info@ or contact@ email could be found
+        return emails[0]

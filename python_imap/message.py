@@ -212,7 +212,7 @@ class Message(object):
             if key.startswith('BODY[HEADER'):
                 message_string_key = key
 
-        message_string = self._imap_response.get(message_string_key, '')
+        message_string = self._imap_response.get(message_string_key, '').encode('utf-8')
         if len(message_string) > 0:
             self._message = email.message_from_string(message_string)
 

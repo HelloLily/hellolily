@@ -881,8 +881,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         for header in headers:
                             new_header_obj_list.append(header)
 
-                    for i in range(0, len(new_header_obj_list), query_batch_size):
-                        EmailHeader.objects.bulk_create(new_header_obj_list[i:i + query_batch_size])
+                    EmailHeader.objects.bulk_create(new_header_obj_list, batch_size=query_batch_size)
 
         elif not new_messages:
             task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')

@@ -60,6 +60,9 @@ SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))  # F
 SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0))  # For production this needs to be set to True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 0))
 X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')  # For production this needs to be set to DENY
+ALLOWED_HOSTS = [
+    'hellolily.herokuapp.com',
+]
 
 # Media and static file locations
 

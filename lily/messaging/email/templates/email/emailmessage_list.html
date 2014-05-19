@@ -81,7 +81,7 @@
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="{{ label }}">
                                     </form>
-                                    <a class="btn btn-sm blue email-list-archive-btn" href="{% url move_messages_view %}" data-form-submit data-form-selector="#move-archive-form" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Archiving' %}"><i class="icon-archive"></i> {% trans 'Archive' %}</a>
+                                    <button class="btn btn-sm blue email-list-archive-btn" data-form-submit data-form-selector="#move-archive-form" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Archiving' %}"><i class="icon-archive"></i> {% trans 'Archive' %}</button>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -124,11 +124,11 @@ $(function($) {
     $('[data-form-submit], #move-messages-form .dropdown-menu a').click(function() {
         // Waiting for response from server so a redirect will 'unblock' the UI
         if($(this).hasClass('email-list-archive-btn')) {
-            // Set loading text on archive button when it's pressed
-            $('.email-list-archive-button').button('loading');
+            // Set loading text on archive button when it's clicked
+            $('.email-list-archive-btn').button('loading');
         }
         else {
-            // Otherwise one of the other buttons is pressed, so set loading text on the actions button
+            // Otherwise one of the other buttons is clicked, so set loading text on the actions button
             $('.mail-actions').button('loading');
         }
         App.blockUI($('.inbox-content'), false, '');

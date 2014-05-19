@@ -316,6 +316,115 @@ class MultipleModelListView(object):
         return kwargs
 
 
+class ArchiveView(View):
+    """
+    Astract view that makes it possible to archive an item which redirects to success_url afterwards.
+
+    Needs a post, with one or more ids[] for the instance to be archived.
+    Subclass needs to set `success_url` or override `get_success_url`.
+    """
+    model = None
+    queryset = None
+    success_url = None  # Should to be set in subclass, or override get_success_url
+    http_method_names = ['post']
+
+    def get_object_pks(self):
+        """
+        Get object_pks from POST info if not set.
+
+        Raises:
+            AttributeError: If no object_pks can be retrieved.
+        """
+        object_pks = self.request.POST.get('ids[]', None)
+        if not object_pks:
+            # No objects posted
+            raise AttributeError(
+                'Generic Archive view %s must be called with at least one object pk.'
+                % self.__class__.__name__
+            )
+        # Always return as a list
+        return object_pks.split(',')
+
+    def get_queryset(self):
+        """
+        Default function from MultipleObjectMixin.get_queryset, and slightly modified.
+
+        Raises:
+            ImproperlyConfigured: If there is no queryset or model set.
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+            if hasattr(queryset, '_clone'):
+                queryset = queryset._clone()
+        elif self.model is not None:
+            queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(
+                "'%s' must define 'queryset' or 'model'"
+                % self.__class__.__name__
+            )
+
+        # Filter the queryset with the pk's posted
+        queryset = queryset.filter(pk__in=self.get_object_pks())
+
+        return queryset
+
+    def get_success_message(self, n):
+        """
+        Should be overridden if there needs to be a success message after archiving objects.
+
+        Args:
+            n (int): Number of objects that were affected by the action.
+        """
+        pass
+
+    def get_success_url(self):
+        """
+        Returns the succes_url if set, otherwise will raise ImproperlyConfigured.
+
+        Returns:
+            the success_url
+        """
+        self.success_url = self.request.POST.get('success_url', self.success_url)
+        if self.success_url is None:
+            raise ImproperlyConfigured(
+                "'%s' must define a success_url" % self.__class__.__name__
+            )
+        return self.success_url
+
+    def archive(self, archive=True):
+        """
+        Archives all objects found.
+
+        Returns:
+            HttpResponseRedirect object set to success_url.
+        """
+        queryset = self.get_queryset()
+        queryset.update(is_archived=archive)
+        self.get_success_message(len(queryset))
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        """
+        Catch post to start archive process.
+        """
+        return self.archive(archive=True)
+
+
+class UnarchiveView(ArchiveView):
+    """
+    Abstract view that makes it possible to un-archive an item which redirects to success_url afterwards.
+
+    Needs a post, with at least one pk for the instance to be archived.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Catch post to start un-archive process.
+        """
+        return self.archive(archive=False)
+
+
 class FilterQuerysetMixin(object):
     """
     Attributes:
@@ -566,115 +675,6 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
                 row_data[column] = response
             parsed_data.append(row_data)
         return parsed_data
-
-
-class ArchiveView(View):
-    """
-    Astract view that makes it possible to archive an item which redirects to success_url afterwards.
-
-    Needs a post, with one or more ids[] for the instance to be archived.
-    Subclass needs to set `success_url` or override `get_success_url`.
-    """
-    model = None
-    queryset = None
-    success_url = None  # Should to be set in subclass, or override get_success_url
-    http_method_names = ['post']
-
-    def get_object_pks(self):
-        """
-        Get object_pks from POST info if not set.
-
-        Raises:
-            AttributeError: If no object_pks can be retrieved.
-        """
-        object_pks = self.request.POST.get('ids[]', None)
-        if not object_pks:
-            # No objects posted
-            raise AttributeError(
-                'Generic Archive view %s must be called with at least one object pk.'
-                % self.__class__.__name__
-            )
-        # Always return as a list
-        return object_pks.split(',')
-
-    def get_queryset(self):
-        """
-        Default function from MultipleObjectMixin.get_queryset, and slightly modified.
-
-        Raises:
-            ImproperlyConfigured: If there is no queryset or model set.
-        """
-        if self.queryset is not None:
-            queryset = self.queryset
-            if hasattr(queryset, '_clone'):
-                queryset = queryset._clone()
-        elif self.model is not None:
-            queryset = self.model._default_manager.all()
-        else:
-            raise ImproperlyConfigured(
-                "'%s' must define 'queryset' or 'model'"
-                % self.__class__.__name__
-            )
-
-        # Filter the queryset with the pk's posted
-        queryset = queryset.filter(pk__in=self.get_object_pks())
-
-        return queryset
-
-    def get_success_message(self, n):
-        """
-        Should be overridden if there needs to be a success message after archiving objects.
-
-        Args:
-            n (int): Number of objects that were affected by the action.
-        """
-        pass
-
-    def get_success_url(self):
-        """
-        Returns the succes_url if set, otherwise will raise ImproperlyConfigured.
-
-        Returns:
-            the success_url
-        """
-        self.success_url = self.request.POST.get('success_url', self.success_url)
-        if self.success_url is None:
-            raise ImproperlyConfigured(
-                "'%s' must define a success_url" % self.__class__.__name__
-            )
-        return self.success_url
-
-    def archive(self, archive=True):
-        """
-        Archives all objects found.
-
-        Returns:
-            HttpResponseRedirect object set to success_url.
-        """
-        queryset = self.get_queryset()
-        queryset.update(is_archived=archive)
-        self.get_success_message(len(queryset))
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        """
-        Catch post to start archive process.
-        """
-        return self.archive(archive=True)
-
-
-class UnarchiveView(ArchiveView):
-    """
-    Abstract view that makes it possible to un-archive an item which redirects to success_url afterwards.
-
-    Needs a post, with at least one pk for the instance to be archived.
-    """
-    def post(self, request, *args, **kwargs):
-        """
-        Catch post to start un-archive process.
-        """
-        return self.archive(archive=False)
 
 
 #===================================================================================================

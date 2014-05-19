@@ -91,6 +91,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
             )
         return queryset
 
+
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single case.

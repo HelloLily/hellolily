@@ -49,4 +49,4 @@ class Case(TenantMixin, Deleted, ArchivedMixin):
     
     class Meta:
         verbose_name = _('case')
-        verbose_name_plural = _('cases') 
+        verbose_name_plural = _('cases')

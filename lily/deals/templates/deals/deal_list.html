@@ -20,11 +20,6 @@
     <th class="created hide_on_small_screen">{% trans 'Created' %}</th>
 {% endblock %}
 
-    <td>
-        <input type="checkbox" class="deal-checkbox" value="{{ item.id }}">
-    </td>
-{% endblock %}
-
 {% block scripts %}
 {{ block.super }}
     <script>
@@ -87,3 +82,4 @@
             toggle_actions_button();
         });
    </script>
+{% endblock %}

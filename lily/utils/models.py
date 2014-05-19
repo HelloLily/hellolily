@@ -323,18 +323,9 @@ class PhoneNumber(TenantMixin):
 
     def save(self, *args, **kwargs):
         # Save raw input as number only (for searching)
-        self.number = filter(type(self.raw_input).isdigit, self.raw_input)
-
-        # Replace starting digits
-        if self.number[:3] == '310':
-            self.number = self.number.replace('310', '31', 1)
-        if self.number[:2] == '06':
-            self.number = self.number.replace('06', '316', 1)
-        if self.number[:1] == '0':
-            self.number = self.number.replace('0', '31', 1)
+        self.number = parse_phone_number(self.raw_input)
 
         if len(self.number) > 0:
-            self.number = '+' + self.number
 
             # Overwrite user input
             self.raw_input = self.number # reserved field for future display based on locale
@@ -493,7 +484,7 @@ class CaseClientModelMixin(object):
         return self.get_cases(status=3)
 
 
-class HistoryListItem(PolymorphicModel):
+class HistoryListItem(PolymorphicTenantMixin):
     """
     An base model for all items that can appear in a History List
     """

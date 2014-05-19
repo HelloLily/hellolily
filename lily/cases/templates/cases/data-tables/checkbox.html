@@ -1,0 +1,7 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+        <input type="checkbox" class="case-checkbox" value="{{ item.id }}">
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

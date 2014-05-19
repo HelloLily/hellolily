@@ -4,28 +4,92 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, LoginRequiredMixin, \
-    ArchivedFilterMixin, ArchiveView, UnarchiveView
+    ArchivedFilterMixin, ArchiveView, UnarchiveView, DataTablesListView
 
 
-class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, ListView):
+class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
     """
     Display a list of all cases.
     """
     model = Case
-    sortable = [2, 3, 4, 5, 6]
-    default_order_by = 2
-    default_sort_order = SortedListMixin.DESC
     template_name = 'cases/case_list_active.html'
 
+    # SortedListMxin
+    sortable = [1, 2, 3, 4, 5, 6, 7]
+    default_order_by = 2
+    default_sort_order = SortedListMixin.DESC
+
+    # DataTablesListView
+    columns = SortedDict([
+        ('edit', {
+            'mData': 'edit',
+            'bSortable': False,
+        }),
+        ('priority', {
+            'mData': 'priority',
+        }),
+        ('subject', {
+            'mData': 'subject',
+        }),
+        ('contact_account', {
+            'mData': 'contact_account',
+        }),
+        ('status', {
+            'mData': 'status',
+        }),
+        ('assigned_to', {
+            'mData': 'assigned_to',
+        }),
+        ('created', {
+            'mData': 'created',
+        }),
+        ('expires', {
+            'mData': 'expires',
+        }),
+    ])
+
+    # DataTablesListView
+    search_fields = [
+        'subject__icontains',
+        'contact__last_name__icontains',
+        'contact__first_name__icontains',
+        'account__name__icontains',
+        'assigned_to__contact__last_name__icontains',
+        'assigned_to__contact__first_name__icontains',
+        ]
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset based on given column and sort_order.
+
+        Used by DataTablesListView.
+        """
+        prefix = ''
+        if sort_order == 'desc':
+            prefix = '-'
+        if column in ('priority', 'subject', 'status', 'created', 'expires'):
+            return queryset.order_by('%s%s' % (prefix, column))
+        elif column == 'contact_account':
+            return queryset.order_by(
+                '%saccount__name' % prefix,
+                '%scontact__last_name' % prefix,
+                '%scontact__first_name' % prefix,
+                )
+        elif 'assigned_to':
+            return queryset.order_by(
+                '%sassigned_to__contact__last_name' % prefix,
+                '%sassigned_to__contact__first_name' % prefix,
+                )
+        return queryset
 
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     """
@@ -75,7 +139,6 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
         '''
         kwargs = super(CreateCaseView, self).get_form_kwargs()
         note_pk = self.kwargs.get('note_pk', None)
-        print kwargs
         if note_pk:
             note = Note.objects.get(pk=note_pk)
             # If note.subject is None, then the Note's subject is linked to another tenant, e.g. when the note_pk is

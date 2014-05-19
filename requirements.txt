@@ -7,32 +7,81 @@ django-extensions>=0.9
 
 gevent>=0.13.7
 greenlet>=0.4.0
+gunicorn>=0.14.6
+
+python-dateutil>=1.5
+pytz>=2012c
+
+#######################################################
+### Database & Models                               ###
+#######################################################
+
+psycopg2>=2.4.5
+dj-database-url>=0.2.2
+
+South>=0.7.6
+
 django-newrelic-extensions>=0.0.1
 django-picklefield>=0.2.1
 django-polymorphic>=0.4.2
-django-redis-cache>=0.10.2
-django-storages==1.1.5
-django-templated-email>=0.4.7
-easy-thumbnails>=1.1
-gevent>=0.13.7
-greenlet>=0.4.0
-gunicorn>=0.14.6
-hiredis>=0.1.2
-IMAPClient>=0.10.2
-iron_celery>=0.4.0
-kombu>=3.0.9
-lxml==3.2.3
-MarkupSafe==0.18
-newrelic>=1.2.1.265
-ordereddict==1.1
-Pillow==2.1.0
-psycopg2>=2.4.5
-pycrypto==2.6
-python-dateutil==1.5
-pytz==2012c
+
+#######################################################
+### Caching & Templates                             ###
+#######################################################
+
 redis>=2.9.0
-South>=0.7.6
-unicodecsv==0.9.4
+hiredis>=0.1.2
+django-redis-cache>=0.10.2
+MarkupSafe>=0.18
+django-activelink>=0.3
+
+#######################################################
+### Views & Forms                                   ###
+#######################################################
+
+django-extra-views>=0.2.5
+
+django-bootstrap3
+django-bootstrap3-datetimepicker
+django-fields>=0.2.2
+django-formset-js>=0.4.0
+django-form-utils>=0.2.0  # various form tools, we use it for fieldsets
+
+#######################################################
+### Asset management                                ###
+#######################################################
+
+boto>=2.5.2
+django-storages>=1.1.5
+
+Pillow>=2.1.0
+easy-thumbnails>=1.1
 
 # To be replaced in the near future
 https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip
+
+#######################################################
+### Celery & Email                                  ###
+#######################################################
+amqp>=1.4.1
+billiard>=3.3.0.13
+celery>=3.1.7
+
+iron_celery>=0.4.0
+kombu>=3.0.9
+
+IMAPClient>=0.10.2
+beautifulsoup4>=4.3.1
+
+lxml==3.2.3
+
+#######################################################
+### Random                                          ###
+#######################################################
+chardet>=2.1.1
+ordereddict>=1.1
+pycrypto>=2.6
+anyjson>=0.3.3
+unicodecsv>=0.9.4
+
+newrelic>=1.2.1.265

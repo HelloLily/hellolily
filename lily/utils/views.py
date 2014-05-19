@@ -5,17 +5,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import resolve
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
+from django.template import Context
+from django.template.loader import get_template
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from django.views.generic import ListView
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 import unicodecsv
@@ -256,8 +260,259 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
         return context
 
     def form_invalid(self, form):
-        return self.render_to_response(
-            self.get_context_data(object=self.object, form=form, object_list=self.object_list))
+        return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
+
+
+class FilterQuerysetMixin(object):
+    """
+    Attributes:
+        search_fields (list of str): The fields of the queryset where the queryset will be filtered on. The filter
+            will match any object that has all the search strings on any of the fields of the object. If left empty,
+            no search field will be rendered.
+    """
+    search_fields = []
+
+    def filter_queryset(self, queryset, search_terms):
+        """
+        Filters the queryset given the search terms.
+
+        The filter will match any object that has all the search strings on any of the fields of the object.
+        Setup `search_fields` with strings of all the fieldnames you want to search on. For lookups that span
+        relationships, use the Django default search arguments.
+
+        Note: Lookups that span relationships with multiple search strings on siblings returns empty queryset.
+
+        Args:
+            queryset (QuerySet): QuerySet that needs to be filtered.
+            search_terms (list of strings): The strings that are used for searching.
+
+        Returns:
+            QuerySet: The filtered Queryset
+        """
+        complete_filter = []
+        # Loop through all the search items
+        for search_term in search_terms:
+            # Not searching for empty strings
+            if search_term != '':
+                partial_filter = []
+                # For each field, lets build a partial filter
+                for field in self.search_fields:
+                    partial_filter.append(Q(**{field: search_term}))
+                # Combine the partial filter to one filter per search item, any of the fields should match
+                complete_filter.append(reduce(operator.or_, partial_filter))
+        # If there is no filter, don't apply filter
+        if complete_filter:
+            # Combine the filters to one filter, they must all match.
+            queryset = queryset.filter(reduce(operator.and_, complete_filter)).distinct()
+        return queryset
+
+
+
+
+class DataTablesListView(FilterQuerysetMixin, ListView):
+    """
+    View that handles everything for server-side datatable processing.
+
+    Subclass needs to set `columns`.
+
+    Attributes:
+        columns (list of dict): Subclass needs to set `columns` with an dictionary with all information needed for
+            the setup of the Datatable columns. This must follow the aoColumns aoColumns parameter.
+            See: https://datatables.net/usage/columns
+        paginate_by (int): Initial view will load first 20 objects. TODO: make dynamic.
+    """
+    columns = []  # Dict setup like aoColumns
+    paginate_by = 20
+    _app_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        # Check if it is an DataTables AJAX call and redirect request.
+        """
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+
+        # Get app_name from url.
+        self._app_name = resolve(request.path).app_name
+
+        if is_ajax(request) and request.GET.get('sEcho', False):
+            return self.get_ajax(request)
+
+        return super(DataTablesListView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        """
+        It is not an DataTables AJAX call, setup pagination so that the resulting page will only
+        show the first page before making Ajax request.
+        """
+        self.kwargs.update({
+            'page': 1
+        })
+        return super(DataTablesListView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        """
+        Update the view to tell it needs to use DataTable on the serverside.
+        """
+        if not is_ajax(self.request):
+            # If there are no search fields, we don't need to show any search field.
+            show_search_field = 'false'
+            if self.search_fields:
+                show_search_field = 'true'
+            # We add the extra info for the view to setup DataTables.
+            kwargs.update({
+                'data_tables_server_side': True,
+                'data_tables_ajax_source': self.request.get_full_path,
+                'data_tables_columns': self.get_data_tables_columns(),
+                'data_tables_show_search_field': show_search_field,
+                'columns': self.columns,
+                'app_name': self._app_name,
+            })
+        return super(DataTablesListView, self).get_context_data(**kwargs)
+
+    def get_ajax(self, request):
+        """
+        Handles the Ajax call from DataTable.
+
+        Returns:
+            HttpResponse: JSON parsed response.
+        """
+        # Get columns sent by DataTable.
+        ajax_columns = self.get_columns(request.GET)
+
+        # Get initial queryset.
+        queryset = self.get_queryset()
+
+        # DataTable needs to know how big the set is without filters.
+        total_object_count = queryset.count()
+
+        # Filter queryset.
+        search_items = self.get_from_data_tables('search_items').split(' ')
+        queryset = self.filter_queryset(queryset, search_items)
+        filtered_object_count = queryset.count()
+
+        # Order queryset.
+        queryset = self.order_queryset(
+            queryset,
+            ajax_columns[int(self.get_from_data_tables('order_by'))],
+            self.get_from_data_tables('sort_order')
+        )
+
+        # Paginate queryset.
+        # NOTE In Django 1.4 you need to setup the page in the kwargs. (BOOH!)
+        page_size = int(self.get_from_data_tables('page_size'))
+        self.kwargs.update({
+            'page': int(self.get_from_data_tables('page')) / page_size + 1
+        })
+        paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
+
+        # Parse data to columns for table.
+        columns = self.parse_data_to_colums(queryset, ajax_columns)
+
+        # Return json parsed response.
+        return HttpResponse(simplejson.dumps({
+            'iTotalRecords': total_object_count,
+            'iTotalDisplayRecords': filtered_object_count,
+            'sEcho': self.get_from_data_tables('echo'),
+            'aaData': columns,
+        }), mimetype='application/json')
+
+    def get_columns(self, params):
+        """
+        Gets all columns from the ajax call and checks if it matches the columns in self.columns.
+
+        Args:
+            params (dict): The DataTables params sent by ajax request.
+        Returns:
+            list of dict: All matched columns.
+         """
+        ajax_columns = []
+        x = 0
+        while True:
+            # Check if there is still a mDataProp left in params.
+            param_name = 'mDataProp_%d' % x
+            column_name = params.get(param_name, None)
+            if column_name is None:
+                break
+            ajax_columns.append(column_name)
+            x += 1
+        return ajax_columns
+
+    def get_from_data_tables(self, what, default=None):
+        """
+        Retrieve parameter from GET.
+
+        Args:
+            what (str): Parameter asked.
+            default (optional): Default value if parameter doesn't exists.
+
+        Returns:
+            value from GET parameter.
+        """
+        return self.request.GET.get({
+            'page_size': 'iDisplayLength',
+            'echo': 'sEcho',
+            'order_by': 'iSortCol_0',
+            'sort_order': 'sSortDir_0',
+            'search_items': 'sSearch',
+            'page': 'iDisplayStart',
+        }.get(what), default)
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset.
+
+        On default, no ordering will occur. This function needs to be implemented by a subclass.
+        Args:
+            queryset (QuerySet): QuerySet that needs to be ordered.
+            column (str): Name of the column that needs ordering.
+            sort_order (str): Always 'asc' or 'desc'.
+
+        Returns:
+            QuerySet: The ordered QuerySet.
+         """
+        return queryset
+
+    def get_data_tables_columns(self):
+        """
+        Setup for the DataTable columns.
+
+        Returns:
+            json dict: A dictionary with all the columns and their properties.
+         """
+        if not self.columns:
+             raise ImproperlyConfigured(
+                'Need to setup columns attribute for DataTableListView to work'
+             )
+        return mark_safe(simplejson.dumps([value for value in self.columns.values()]))
+
+    def parse_data_to_colums(self, object_list, columns):
+        """
+        Parses the queryset to the columns.
+
+        Tries to render per column via a template, if there is no template found it will
+        try to return an attribute on the object with the same name as the column.
+        If both will not succeed, it will return an empty cell for the column.
+
+        Args:
+            object_list (QuerySet): The QuerySet with the objects needed to be parsed.
+            columns (list): A list with columns needed in the result.
+
+        Returns:
+            list: A list with dictionaries.
+        """
+        parsed_data = []
+        for item in object_list:
+            row_data = {}
+            for column in columns:
+                # Load template for column.
+                template = get_template('%s/data-tables/%s.html' % (self._app_name, column))
+                response = template.render(Context({'item': item}))
+                # Add response to row
+                row_data[column] = response
+            parsed_data.append(row_data)
+        return parsed_data
 
 
 class MultipleModelListView(object):
@@ -443,9 +698,9 @@ class ArchivedFilterMixin(object):
 
 class LoginRequiredMixin(object):
     """
-    Apply the `login_required`-decorator to a class based view.
+    Use this mixin if you want that the view is only accessed when a user is logged in.
 
-    This should be the first mixin as a superclass
+    This should be the first mixin as a superclass.
     """
 
     @classmethod
@@ -453,56 +708,87 @@ class LoginRequiredMixin(object):
         return login_required(super(LoginRequiredMixin, cls).as_view())
 
 
-class ExportListViewMixin(object):
+class ExportListViewMixin(FilterQuerysetMixin):
     """
     Mixin that makes it possible to export current list view
 
-    post to view key 'export' with value what to export
-    currently supported: csv
+    Post to view key 'export' with value what to export.
+    Currently supported: csv.
+
+    If `export_columns` in request.POST, only these will be exported.
+    If `export_filter` in request.POST, object_list will be searched.
+
+    Attributes:
+        exportable_columns (dict): List with info on the columns to be exported. Should look like:
+            exportable_columns = {
+                'column_name_1': {
+                    'headers': ['header_name_1',]  # Can be multiple columns.
+                    'columns_for_item': ['columns_for_item',]  # Can be multple columns, must match 'headers' in length.
+                },
+            }
+        search_fields (list of strings): The fields of the queryset where the queryset will be filtered on. The filter
+            will match any object that has all the search strings on any of the fields of the object.
     """
+    exportable_columns = []
+    search_fields = []
 
     def post(self, request, *args, **kwargs):
         """
-        does a check if post has value of 'export' and handles export
+        Does a check if post has value of 'export' and handles export.
         """
+        # Setup headers, columns and search
+        headers = []
+        columns = []
+        search_terms = request.POST.get('export_filter', None).split(' ')
+        export_columns = request.POST.get('export_columns[]', []).split(',')
+        if export_columns:
+            # There were columns in POST, check if they match self.exportable_columns.
+            for column in export_columns:
+                if self.exportable_columns.get(column):
+                    headers.extend(self.exportable_columns[column].get('headers', []))
+                    columns.extend(self.exportable_columns[column].get('columns_for_item', []))
+        else:
+            # Nothing in POST, we export every column set by view.
+            for key, value in self.exportable_columns:
+                headers.extend(value.get('headers', []))
+                columns.extend(value.get('columns_for_item', []))
+
+        # Find out what to export.
         export_type = request.POST.get('export', False)
+
+        # Export csv.
         if export_type == 'csv':
+
+            # Setup response type.
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
 
+            # Setup writer.
             writer = unicodecsv.writer(response)
-            filtered_fields = request.POST.getlist('exportable_fields[]', [])
-            exportable_fields = self._get_fields_to_export(filtered_fields)
-            if len(exportable_fields) > 0:
-                header = [v for k, v in exportable_fields]
-                writer.writerow(header)
+            # Add headers to response.
+            writer.writerow(headers)
 
-                fields = [k for k, v in exportable_fields]
-                for item in self.get_queryset():
-                    row = []
-                    for field in fields:
-                        if hasattr(self, 'export_%s' % field):
-                            value = getattr(self, 'export_%s' % field)(item)
-                        else:
-                            value = getattr(item, field)
+            # Get all items.
+            queryset = self.get_queryset()
 
-                        row.append(value)
+            # Filter items.
+            queryset = self.filter_queryset(queryset, search_terms)
 
-                    writer.writerow(row)
-
+            # For each item, make a row to export.
+            for item in queryset:
+                row = []
+                for column in columns:
+                    # Get the value from the item.
+                    value = getattr(self, 'value_for_column_%s' % column)(item)
+                    if value is None:
+                        value = ''
+                    row.append(value)
+                # Add complete row to response.
+                writer.writerow(row)
             return response
 
-        # nothing to export, this post is not for us
+        # nothing to export, this post is not for this view.
         return super(ExportListViewMixin, self).post(request, *args, **kwargs)
-
-    def _get_fields_to_export(self, filtered_fields=[]):
-        exportable_fields = []
-        for field in filtered_fields:
-            if hasattr(self, 'filter_%s' % field):
-                exportable_fields += getattr(self, 'filter_%s' % field)()
-            else:
-                exportable_fields.append((field, field))
-        return exportable_fields
 
 
 class FilteredListByTagMixin(object):
@@ -623,7 +909,6 @@ class SortedListMixin(object):
             'order_by': self.order_by,
             'sort_order': self.sort_order,
         })
-
         return kwargs
 
 

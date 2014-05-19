@@ -45,6 +45,10 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
 
     # DataTablesListView
     columns = SortedDict([
+        ('checkbox', {
+            'mData': 'checkbox',
+            'bSortable': False,
+        }),
         ('edit', {
             'mData': 'edit',
             'bSortable': False,

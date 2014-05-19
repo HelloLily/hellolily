@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from polymorphic import PolymorphicManager, PolymorphicModel
 
 from lily.tenant.middleware import get_current_user
 
@@ -9,7 +10,7 @@ class TenantManager(models.Manager):
 
     def get_query_set(self):
         """
-        Manipulate the returned query set by adding a filter for tenant using the tenant linked
+        Manipulate the returned queryset by adding a filter for tenant using the tenant linked
         to the current logged in user (received via custom middleware).
         """
         user = get_current_user()
@@ -17,6 +18,10 @@ class TenantManager(models.Manager):
             return super(TenantManager, self).get_query_set().filter(tenant=user.tenant)
         else:
             return super(TenantManager, self).get_query_set()
+
+
+class PolymorphicTenantManager(TenantManager, PolymorphicManager):
+    pass
 
 
 class Tenant(models.Model):
@@ -44,6 +49,14 @@ class MultiTenantMixin(models.Model):
         abstract = True
 
 
+class PolymorphicMultiTenantMixin(PolymorphicModel, MultiTenantMixin):
+    # Automatically filter any queryset by tenant if logged in and downcast to lowest possible class
+    objects = PolymorphicTenantManager()
+
+    class Meta:
+        abstract = True
+
+
 class SingleTenantMixin(models.Model):
     tenant = models.ForeignKey(Tenant, blank=True)
 
@@ -56,5 +69,7 @@ class SingleTenantMixin(models.Model):
 
 
 TenantMixin = SingleTenantMixin
+PolymorphicTenantMixin = SingleTenantMixin
 if settings.MULTI_TENANT:
     TenantMixin = MultiTenantMixin
+    PolymorphicTenantMixin = PolymorphicMultiTenantMixin

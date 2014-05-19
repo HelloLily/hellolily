@@ -7,26 +7,94 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
 from pytz import timezone
 
 from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, AjaxUpdateView, \
-    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin
+from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
+    DataTablesListView
 
 
-class ListDealView(SortedListMixin, ListView):
+class ListDealView(SortedListMixin, DataTablesListView):
     """
     Display a list of all deals.
     """
     model = Deal
+
+    # SortedListMxin
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
+
+    # DataTablesListView
+    columns = SortedDict([
+        ('edit', {
+            'mData': 'edit',
+            'bSortable': False,
+        }),
+        ('name', {
+            'mData': 'name',
+        }),
+        ('account', {
+            'mData': 'account',
+        }),
+        ('stage', {
+            'mData': 'stage',
+        }),
+        ('amount', {
+            'mData': 'amount',
+        }),
+        ('assigned_to', {
+            'mData': 'assigned_to',
+        }),
+        ('closed_date', {
+            'mData': 'closed_date',
+        }),
+        ('created', {
+            'mData': 'created',
+        }),
+    ])
+
+    # DataTablesListView
+    search_fields = [
+        'name__icontains',
+        'account__name__icontains',
+        'assigned_to__contact__last_name__icontains',
+        'assigned_to__contact__first_name__icontains',
+    ]
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset based on given column and sort_order.
+
+        Used by DataTablesListView.
+        """
+        prefix = ''
+        if sort_order == 'desc':
+            prefix = '-'
+        if column in ('stage', 'amount', 'created'):
+            return queryset.order_by('%s%s' % (prefix, column))
+        elif column == 'name':
+            return queryset.order_by('%saccount' % prefix)
+        elif column == 'closed_date':
+            return queryset.order_by(
+                '%sexpected_closing_date' % prefix,
+                '%sclosed_date' % prefix,
+            )
+        elif column == 'account':
+            return queryset.order_by(
+                '%saccount__name' % prefix,
+            )
+        elif 'assigned_to':
+            return queryset.order_by(
+                '%sassigned_to__contact__last_name' % prefix,
+                '%sassigned_to__contact__first_name' % prefix,
+            )
+        return queryset
 
 
 class DetailDealView(HistoryListViewMixin):

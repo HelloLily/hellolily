@@ -2,7 +2,6 @@ from urlparse import urlparse
 import datetime
 import operator
 
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -13,10 +12,10 @@ from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
-from django.views.generic.list import ListView
 
 from python_imap.folder import ALLMAIL
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
@@ -29,40 +28,144 @@ from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin, \
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
     AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, \
-    ExportListViewMixin, FilteredListByTagMixin
+    ExportListViewMixin, FilteredListByTagMixin, DataTablesListView
 
 
-class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, ListView):
-    sortable = [2, 4, 5]
+class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
     model = Account
     prefetch_related = [
         'phone_numbers',
         'tags',
         'user'
     ]
+
+    # SortedListMixin
+    sortable = [2, 4, 5]
     default_order_by = 2
 
-    def export_primary_email(self, account):
+    # DataTablesListView
+    columns = SortedDict([
+        ('edit', {
+            'mData': 'edit',
+            'bSortable': False,
+        }),
+        ('name', {
+            'mData': 'name',
+        }),
+        ('contact', {
+            'mData': 'contact',
+            # Indeterminable on what to sort
+            'bSortable': False,
+        }),
+        ('created', {
+            'mData': 'created',
+            'sClass': 'hide_on_small_screen',
+        }),
+        ('modified', {
+            'mData': 'modified',
+            'sClass': 'hide_on_small_screen',
+        }),
+        ('tags', {
+            'mData': 'tags',
+            # Generic relations are not sortable on QuerySet.
+            'bSortable': False,
+        }),
+    ])
+
+    # ExportListViewMixin
+    exportable_columns = {
+        'account': {
+            'headers': [_('Account')],
+            'columns_for_item': ['account']
+        },
+        'contact_information': {
+            'headers': [
+                _('Email'),
+                _('Work Phone'),
+                _('Mobile Phone'),
+            ],
+            'columns_for_item': [
+                'email',
+                'work_phone',
+                'mobile_phone',
+            ]
+        },
+        'created': {
+            'headers': [_('Created')],
+            'columns_for_item': ['created']
+        },
+        'modified': {
+            'headers': [_('Modified')],
+            'columns_for_item': ['modified']
+        },
+        'tags': {
+            'headers': [_('Tags')],
+            'columns_for_item': ['tags']
+        },
+    }
+
+    # ExportListViewMixin & DataTablesListView
+    search_fields = [
+        'name__icontains',
+        'phone_numbers__number__icontains',
+        'tags__name__icontains',
+        'email_addresses__email_address__icontains',
+    ]
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset based on given column and sort_order.
+
+        Used by DataTablesListView.
+        """
+        prefix = ''
+        if sort_order == 'desc':
+            prefix = '-'
+        if column in ('name', 'tags', 'created', 'modified'):
+            return queryset.order_by('%s%s' % (prefix, column))
+        return queryset
+
+    def value_for_column_account(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return account.name
+
+    def value_for_column_email(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
         return account.primary_email()
 
-    def export_work_phone(self, account):
+    def value_for_column_work_phone(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
         return account.get_work_phone()
 
-    def export_mobile_phone(self, account):
+    def value_for_column_mobile_phone(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
         return account.get_mobile_phone()
 
-    def export_tags(self, account):
-        return '\r\n'.join([tag.name for tag in account.get_tags()])
+    def value_for_column_tags(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return ', '.join([tag.name for tag in account.get_tags()])
 
-    def filter_account(self):
-        return [('name', _('name'))]
+    def value_for_column_created(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return account.created
 
-    def filter_contact(self):
-        return [
-            ('primary_email', _('primary e-mail')),
-            ('work_phone', _('work phone')),
-            ('mobile_phone', _('mobile phone'))
-        ]
+    def value_for_column_modified(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return account.modified
 
 
 class DetailAccountView(HistoryListViewMixin):
@@ -126,7 +229,8 @@ class DetailAccountView(HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin):
+class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,
+                              AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin):
     """
     Base class for AddAccountView and EditAccountView.
     """
@@ -243,12 +347,12 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
                                        account=self.object, is_primary=True)
 
             # Add e-mail address to account as primary
-            self.object.primary_email = form.cleaned_data.get('primary_email')
+            self.object.primary_email = form.cleaned_data.get('email')
             self.object.save()
 
             # Save phone number
-            if form.cleaned_data.get('phone_number'):
-                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone_number'))
+            if form.cleaned_data.get('phone'):
+                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
                 self.object.phone_numbers.add(phone)
 
             # Check if the user wants to 'add & edit'
@@ -284,12 +388,6 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
 
         return super(AddAccountView, self).form_invalid(form)
 
-    def get_success_url(self):
-        """
-        Redirect to the list view, ordered by created
-        """
-        return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
-
 
 class EditAccountView(CreateUpdateAccountView, UpdateView):
     """
@@ -305,12 +403,6 @@ class EditAccountView(CreateUpdateAccountView, UpdateView):
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name)
 
         return success_url
-
-    def get_success_url(self):
-        """
-        Redirect to the list view, ordered by last modified.
-        """
-        return '%s?order_by=5&sort_order=desc' % (reverse('account_list'))
 
 
 class DeleteAccountView(DeleteView):

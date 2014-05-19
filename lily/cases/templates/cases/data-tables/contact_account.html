@@ -1,0 +1,11 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+<div>
+{% if item.contact %}<a href="{% url contact_details pk=item.contact.pk %}">{{ item.contact.full_name }}</a>{% endif %}
+{% if item.contact and item.account %}at{% endif %}
+{% if item.account %}<a href="{% url account_details pk=item.account.pk %}">{{ item.account.name }}</a>{% endif %}
+</div>
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

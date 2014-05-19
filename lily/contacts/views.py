@@ -13,11 +13,11 @@ from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
 
 from lily.accounts.models import Account
 from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
@@ -27,13 +27,12 @@ from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
 
-from lily.utils.views import SortedListMixin, FilteredListMixin,\
-    DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,\
-    AddressFormSetViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, ExportListViewMixin,\
-    FilteredListByTagMixin
+from lily.utils.views import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
+    EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin, \
+    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, DataTablesListView
 
 
-class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, ListView):
+class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
     """
     Display a list of all contacts
     """
@@ -45,43 +44,158 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         'user',
         'tags',
     ]
+
+    # SortedlistMixin
     sortable = [2, 4, 5, 6]
     default_order_by = 2
 
-    def export_full_name(self, contact):
+    # DataTablesListView
+    columns = SortedDict([
+        ('edit', {
+            'mData': 'edit',
+            'bSortable': False,
+        }),
+        ('name', {
+            'mData': 'name',
+        }),
+        ('contact', {
+            'mData': 'contact',
+            # Indeterminable on what to sort
+            'bSortable': False,
+        }),
+        ('works_at', {
+            'mData': 'works_at',
+        }),
+        ('created', {
+            'mData': 'created',
+            'sClass': 'hide_on_small_screen',
+        }),
+        ('modified', {
+            'mData': 'modified',
+            'sClass': 'hide_on_small_screen',
+        }),
+        ('tags', {
+            'mData': 'tags',
+            # Generic relations are not sortable on QuerySet.
+            'bSortable': False,
+        }),
+    ])
+
+    # ExportListViewMixin
+    exportable_columns = {
+        'name': {
+            'headers': [_('Name')],
+            'columns_for_item': ['name']
+        },
+        'contact_information': {
+            'headers': [
+                _('Email'),
+                _('Work Phone'),
+                _('Mobile Phone'),
+            ],
+            'columns_for_item': [
+                'email',
+                'work_phone',
+                'mobile_phone',
+            ]
+        },
+        'works_at': {
+            'headers': [_('Works at')],
+            'columns_for_item': ['works_at']
+        },
+        'created': {
+            'headers': [_('Created')],
+            'columns_for_item': ['created']
+        },
+        'modified': {
+            'headers': [_('Modified')],
+            'columns_for_item': ['modified']
+        },
+        'tags': {
+            'headers': [_('Tags')],
+            'columns_for_item': ['tags']
+        },
+    }
+
+    # ExportListViewMixin & DataTablesListView
+    search_fields = [
+        'first_name__icontains',
+        'last_name__icontains',
+        'tags__name__icontains',
+        'email_addresses__email_address__icontains',
+    ]
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset based on given column and sort_order.
+
+        Used by DataTablesListView.
+        """
+        prefix = ''
+        if sort_order == 'desc':
+            prefix = '-'
+        if column in ('tags', 'created', 'modified'):
+            return queryset.order_by('%s%s' % (prefix, column))
+        elif column == 'name':
+            return queryset.order_by(
+                '%slast_name' % prefix,
+                '%sfirst_name' % prefix,
+            )
+        elif column == 'works_at':
+            return queryset.order_by(
+                '%sfunctions__account' % prefix
+            )
+        return queryset
+
+    def value_for_column_name(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
         return contact.full_name()
 
-    def export_primary_email(self, contact):
+    def value_for_column_email(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
         return contact.primary_email()
 
-    def export_work_phone(self, contact):
+    def value_for_column_work_phone(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
         return contact.get_work_phone()
 
-    def export_mobile_phone(self, contact):
+    def value_for_column_mobile_phone(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
         return contact.get_mobile_phone()
 
-    def export_account(self, contact):
-        try:
-            function = contact.get_primary_function()
-            return function.account.name
-        except AttributeError:
-            return None
+    def value_for_column_works_at(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
+        if contact.functions:
+            return contact.functions.all()[0].account
+        return None
 
-    def export_tags(self, account):
-        return '\r\n'.join([tag.name for tag in account.get_tags()])
+    def value_for_column_tags(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
+        return ', '.join([tag.name for tag in contact.get_tags()])
 
-    def filter_personal(self):
-        return [('full_name', _('personal'))]
+    def value_for_column_created(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
+        return contact.created
 
-    def filter_contact(self):
-        return [
-            ('primary_email', _('primary e-mail')),
-            ('work_phone', _('work phone')),
-            ('mobile_phone', _('mobile phone'))
-        ]
-
-    def filter_account(self):
-        return [('account', _('works at'))]
+    def value_for_column_modified(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
+        return contact.modified
 
 
 class DetailContactView(HistoryListViewMixin):

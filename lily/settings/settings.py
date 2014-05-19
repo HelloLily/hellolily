@@ -38,6 +38,10 @@ DATABASES = {
     'default': dj_database_url.config(default='postgres://localhost')
 }
 
+# Make unaccented search possible on db.
+DATABASES['default']['ENGINE'] = 'lily.db.backends.unaccent_postgresql_psycopg2'
+SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
+
 SITE_ID = os.environ.get('SITE_ID', 1)
 
 # Localization

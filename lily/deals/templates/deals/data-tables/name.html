@@ -1,0 +1,7 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+<a href="{% url deal_details pk=item.pk %}">{{ item.name }}</a>
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

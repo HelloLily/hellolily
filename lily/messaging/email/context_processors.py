@@ -2,6 +2,7 @@ from django.template.defaultfilters import truncatechars
 from python_imap.folder import INBOX
 
 from lily.messaging.email.models import EmailAccount, EmailMessage
+from lily.utils.functions import is_ajax
 
 
 def unread_emails(request):
@@ -10,7 +11,7 @@ def unread_emails(request):
     Limit results with bodies to 10.
     Limit total results to 30.
     """
-    if request.user.is_anonymous():
+    if request.user.is_anonymous() or is_ajax(request):
         return {}
 
     LIMIT_LIST = 10

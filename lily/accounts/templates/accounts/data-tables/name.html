@@ -1,0 +1,15 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+<a href="{% url account_details pk=item.pk %}">{{ item.name }}</a>
+{% with item.get_address as address %}
+    {% if address.street %}
+        <div class="address">{{ address.city }}</div>
+    {% endif %}
+    {% if address.country %}
+        <div class="country">{{ address.get_country_display }}</div>
+    {% endif %}
+{% endwith %}
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

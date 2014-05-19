@@ -1,0 +1,7 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+{{ item.get_status_display }}
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

@@ -598,8 +598,8 @@ class EmailMessageUpdateBaseView(View):
         Find out which messages to update.
         """
         try:
-            # Retrieve from POST data and split
-            message_ids = request.POST.get('ids[]', [])
+            # Retrieve from POST data and split if possible
+            message_ids = request.POST.get('ids[]', '')
 
             if message_ids:
                 message_ids = message_ids.split(',')

@@ -462,3 +462,4 @@ def get_full_folder_name_by_identifier(identifier, folder_data):
             # If folder has sub folders, recursive call to this function and check sub folders
             return get_full_folder_name_by_identifier(identifier, values.get('children'))
 
+    return None

@@ -52,7 +52,7 @@
                                     <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
                                     <input type="hidden" name="folder" value="">
                                     </form>
-                                    <a href="javascript:;"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
+                                    <a href="javascript:void(0)"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
                                     <ul class="dropdown-menu">
                                         {% for value, label in move_to_folders.items %}
                                         <li {% if active_move_to_folder == value %}class="active"{% endif %}><a href="#" data-folder="{{ value }}">{{ label }}</a></li>
@@ -61,7 +61,7 @@
                                 <li>
                                 {% else %}
                                 <li class="disabled">
-                                    <a href="javascript:;"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
+                                    <a href="javascript:void(0)"><i class="icon-fixed-width"></i> {% trans 'Move to' %}</a>
                                 </li>
                                 {% endif %}
                                 <li class="divider"></li>

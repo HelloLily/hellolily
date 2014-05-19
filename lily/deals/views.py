@@ -16,8 +16,7 @@ from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, ArchivedFilterMixin, ArchiveView, UnarchiveView, \
-    LoginRequiredMixin
+    ArchivedFilterMixin, ArchiveView, UnarchiveView, LoginRequiredMixin, DataTablesListView
 
 
 class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
@@ -31,7 +30,7 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
     sortable = [1, 2, 3, 4, 5, 6, 7]
     default_order_by = 1
 
-    #DataTablesListView
+    # DataTablesListView
     columns = SortedDict([
         ('edit', {
             'mData': 'edit',

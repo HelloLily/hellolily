@@ -263,6 +263,59 @@ class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjec
         return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
 
 
+class MultipleModelListView(object):
+    """
+    Class for showing multiple lists of models in a template.
+    """
+    models = []  # Either a list of models or a dictionary
+    object_lists = {}  # dictionary with all objects lists
+    context_name_suffix = '_list'  # suffix for the context available in the template
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Overloading super().dispatch to query for object lists first.
+        """
+        self.get_objects_lists()
+
+        return super(MultipleModelListView, self).dispatch(request, *args, **kwargs)
+
+    def get_objects_lists(self):
+        """
+        Retrieve the queryset for all models and save them in self.object_lists.
+        """
+        if isinstance(self.models, list):
+            for model in self.models:
+                list_name = smart_str(model._meta.object_name.lower())
+                self.object_lists.update({
+                    list_name: self.get_model_queryset(list_name, model)
+                })
+        elif isinstance(self.models, dict):
+            for list_name, model in self.models.items():
+                self.object_lists.update({
+                    list_name: self.get_model_queryset(list_name, model)
+                })
+
+    def get_model_queryset(self, list_name, model):
+        """
+        Return the queryset for given model.
+        """
+        return model._default_manager.all()
+
+    def get_context_data(self, **kwargs):
+        """
+        Put all object lists into the context data.
+        """
+        kwargs = super(MultipleModelListView, self).get_context_data(**kwargs)
+        for list_name, object_list in self.object_lists.items():
+            if isinstance(self.models, list):
+                list_name = '%s%s' % (list_name, self.context_name_suffix)
+
+            kwargs.update({
+                list_name: object_list
+            })
+        return kwargs
+
+
 class FilterQuerysetMixin(object):
     """
     Attributes:
@@ -305,8 +358,6 @@ class FilterQuerysetMixin(object):
             # Combine the filters to one filter, they must all match.
             queryset = queryset.filter(reduce(operator.and_, complete_filter)).distinct()
         return queryset
-
-
 
 
 class DataTablesListView(FilterQuerysetMixin, ListView):
@@ -424,9 +475,10 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
 
         Args:
             params (dict): The DataTables params sent by ajax request.
+
         Returns:
             list of dict: All matched columns.
-         """
+        """
         ajax_columns = []
         x = 0
         while True:
@@ -464,6 +516,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         Orders the queryset.
 
         On default, no ordering will occur. This function needs to be implemented by a subclass.
+
         Args:
             queryset (QuerySet): QuerySet that needs to be ordered.
             column (str): Name of the column that needs ordering.
@@ -471,7 +524,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
 
         Returns:
             QuerySet: The ordered QuerySet.
-         """
+        """
         return queryset
 
     def get_data_tables_columns(self):
@@ -480,11 +533,11 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
 
         Returns:
             json dict: A dictionary with all the columns and their properties.
-         """
+        """
         if not self.columns:
-             raise ImproperlyConfigured(
+            raise ImproperlyConfigured(
                 'Need to setup columns attribute for DataTableListView to work'
-             )
+            )
         return mark_safe(simplejson.dumps([value for value in self.columns.values()]))
 
     def parse_data_to_colums(self, object_list, columns):
@@ -513,59 +566,6 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
                 row_data[column] = response
             parsed_data.append(row_data)
         return parsed_data
-
-
-class MultipleModelListView(object):
-    """
-    Class for showing multiple lists of models in a template.
-    """
-    models = []  # Either a list of models or a dictionary
-    object_lists = {}  # dictionary with all objects lists
-    context_name_suffix = '_list'  # suffix for the context available in the template
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overloading super().dispatch to query for object lists first.
-        """
-        self.get_objects_lists()
-
-        return super(MultipleModelListView, self).dispatch(request, *args, **kwargs)
-
-    def get_objects_lists(self):
-        """
-        Retrieve the queryset for all models and save them in self.object_lists.
-        """
-        if isinstance(self.models, list):
-            for model in self.models:
-                list_name = smart_str(model._meta.object_name.lower())
-                self.object_lists.update({
-                    list_name: self.get_model_queryset(list_name, model)
-                })
-        elif isinstance(self.models, dict):
-            for list_name, model in self.models.items():
-                self.object_lists.update({
-                    list_name: self.get_model_queryset(list_name, model)
-                })
-
-    def get_model_queryset(self, list_name, model):
-        """
-        Return the queryset for given model.
-        """
-        return model._default_manager.all()
-
-    def get_context_data(self, **kwargs):
-        """
-        Put all object lists into the context data.
-        """
-        kwargs = super(MultipleModelListView, self).get_context_data(**kwargs)
-        for list_name, object_list in self.object_lists.items():
-            if isinstance(self.models, list):
-                list_name = '%s%s' % (list_name, self.context_name_suffix)
-
-            kwargs.update({
-                list_name: object_list
-            })
-        return kwargs
 
 
 class ArchiveView(View):
@@ -765,6 +765,7 @@ class ExportListViewMixin(FilterQuerysetMixin):
 
             # Setup writer.
             writer = unicodecsv.writer(response)
+
             # Add headers to response.
             writer.writerow(headers)
 

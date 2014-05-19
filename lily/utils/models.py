@@ -326,7 +326,6 @@ class PhoneNumber(TenantMixin):
         self.number = parse_phone_number(self.raw_input)
 
         if len(self.number) > 0:
-
             # Overwrite user input
             self.raw_input = self.number # reserved field for future display based on locale
 

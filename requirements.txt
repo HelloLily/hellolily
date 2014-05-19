@@ -21,7 +21,6 @@ dj-database-url>=0.2.2
 
 South>=0.7.6
 
-django-newrelic-extensions>=0.0.1
 django-picklefield>=0.2.1
 django-polymorphic>=0.4.2
 
@@ -32,6 +31,8 @@ django-polymorphic>=0.4.2
 redis>=2.9.0
 hiredis>=0.1.2
 django-redis-cache>=0.10.2
+
+django-templated-email>=0.4.7
 MarkupSafe>=0.18
 django-activelink>=0.3
 
@@ -66,13 +67,11 @@ https://bitbucket.org/flack/django-mediagenerator/get/dbc3c4f57ae9.zip
 amqp>=1.4.1
 billiard>=3.3.0.13
 celery>=3.1.7
-
 iron_celery>=0.4.0
 kombu>=3.0.9
 
 IMAPClient>=0.10.2
 beautifulsoup4>=4.3.1
-
 lxml==3.2.3
 
 #######################################################
@@ -85,3 +84,4 @@ anyjson>=0.3.3
 unicodecsv>=0.9.4
 
 newrelic>=1.2.1.265
+django-newrelic-extensions>=0.0.1

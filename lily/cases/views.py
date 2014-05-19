@@ -65,7 +65,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         'account__name__icontains',
         'assigned_to__contact__last_name__icontains',
         'assigned_to__contact__first_name__icontains',
-        ]
+    ]
 
     def order_queryset(self, queryset, column, sort_order):
         """
@@ -83,12 +83,12 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
                 '%saccount__name' % prefix,
                 '%scontact__last_name' % prefix,
                 '%scontact__first_name' % prefix,
-                )
+            )
         elif 'assigned_to':
             return queryset.order_by(
                 '%sassigned_to__contact__last_name' % prefix,
                 '%sassigned_to__contact__first_name' % prefix,
-                )
+            )
         return queryset
 
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):

@@ -29,10 +29,10 @@ class EmailProvider(TenantMixin):
     name = models.CharField(max_length=30, blank=True, null=True)  # named providers can be selected to pre-fill the form.
     imap_host = models.CharField(max_length=32)
     imap_port = models.PositiveIntegerField()
-    imap_ssl = models.BooleanField()
+    imap_ssl = models.BooleanField(default=False)
     smtp_host = models.CharField(max_length=32)
     smtp_port = models.PositiveIntegerField()
-    smtp_ssl = models.BooleanField()
+    smtp_ssl = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.imap_host if self.name and len(self.name.strip()) == 0 else self.name or ''

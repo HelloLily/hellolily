@@ -30,14 +30,14 @@ from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
-from python_imap.server import IMAP
+from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text, parse_search_keys
 
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
     EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationWizard_1, \
     EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
-from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH
+from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH
 from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, get_remote_messages, smtp_connect, EmailMultiRelated, get_full_folder_name_by_identifier
 from lily.tenant.middleware import get_current_user
@@ -211,6 +211,11 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 if message is not None:
                     imap_logger.info('Message retrieved, saving in database')
                     save_email_messages([message], email_message.account, message.folder)
+            else:
+                imap_logger.info('IMAP login failed for %s', email_message.account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    email_message.account.auth_ok = NO_EMAILACCOUNT_AUTH
+            email_message.account.save()
         except:
             pass
         finally:
@@ -813,6 +818,11 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
                 if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
                     self.remove_draft(server)
+            else:
+                imap_logger.info('IMAP login failed for %s', account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    account.auth_ok = NO_EMAILACCOUNT_AUTH
+            account.save()
         except Exception, e:
             log.error(traceback.format_exc(e))
         finally:
@@ -1207,6 +1217,11 @@ class EmailBodyPreviewView(TemplateView):
                 instance = EmailMessage.objects.get(pk=pk)
 
                 return server, instance
+            else:
+                imap_logger.info('IMAP login failed for %s', instance.account.email.email_address)
+                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    instance.account.auth_ok = NO_EMAILACCOUNT_AUTH
+            instance.account.save()
         except:
             pass
         finally:
@@ -1676,6 +1691,11 @@ class EmailSearchView(EmailFolderView):
 
                         pks = qs.values_list('pk', flat=True)
                         self.resultset += list(pks)
+                else:
+                    imap_logger.info('IMAP login failed for %s', account.email.email_address)
+                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        account.auth_ok = NO_EMAILACCOUNT_AUTH
+                account.save()
             except:
                 pass
             finally:

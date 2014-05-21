@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
-from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress, CaseClientModelMixin, HistoryListItem
+from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress, CaseClientModelMixin
 from python_imap.folder import ALLMAIL, SENT, IMPORTANT, INBOX
 try:
     from lily.tenant.functions import add_tenant
@@ -158,18 +158,20 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
-    def get_emails(self):
+    def get_email_count(self):
+        from lily.messaging.email.models import EmailMessage
         try:
-            filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in self.email_addresses.all()]
-            object_list = HistoryListItem.objects.filter(
-                Q(message__emailmessage__folder_identifier__in=[ALLMAIL, SENT, IMPORTANT, INBOX]) &
-                Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+            filter_list = [Q(headers__value__contains=x) for x in self.email_addresses.all()]
+            object_list = EmailMessage.objects.filter(
+                Q(folder_identifier__in=[ALLMAIL, SENT, IMPORTANT, INBOX]) &
+                Q(headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
                 reduce(operator.or_, filter_list)
             )
 
-            return object_list
+            if object_list:
+                return object_list.count()
         except:
-            return None
+            return 0
 
     def __unicode__(self):
         return self.full_name()

@@ -34,3 +34,19 @@
 .compose-btn .btn {
     padding: 7px 14px;
 }
+
+.btn-group.btn-group-spaced .btn:not(:first-child):not(.dropdown-toggle) {
+    margin-left: 5px;
+}
+
+.archive-btn {
+    top: 2px;
+    margin-right: 5px;
+    padding-left: 17px !important;
+    padding-right: 17px !important;
+}
+
+.btn.email-list-archive-btn {
+    padding-left: 16px;
+    padding-right: 16px;
+}

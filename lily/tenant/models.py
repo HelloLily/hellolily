@@ -68,8 +68,14 @@ class SingleTenantMixin(models.Model):
         abstract = True
 
 
+class PolymorphicSingleTenantMixin(PolymorphicModel, SingleTenantMixin):
+
+    class Meta:
+        abstract = True
+
+
 TenantMixin = SingleTenantMixin
-PolymorphicTenantMixin = SingleTenantMixin
+PolymorphicTenantMixin = PolymorphicSingleTenantMixin
 if settings.MULTI_TENANT:
     TenantMixin = MultiTenantMixin
     PolymorphicTenantMixin = PolymorphicMultiTenantMixin

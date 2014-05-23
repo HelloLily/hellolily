@@ -417,8 +417,8 @@ class DeleteAccountView(DeleteView):
         """
         self.object = self.get_object()
 
-        # Check this account isn't linked to a user in an admin group.
-        if has_user_in_group(self.object, 'account_admin'):
+        # Prevents deleting an account with users and checks if the account has a user that's linked to an admin group
+        if self.object.user.exists() or has_user_in_group(self.object, 'account_admin'):
             raise Http404()
 
         self.object.email_addresses.remove()

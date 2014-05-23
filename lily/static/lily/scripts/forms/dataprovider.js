@@ -17,6 +17,7 @@ $(function() {
 
     function fill_form(form, data, fields, formsets) {
         var check_overwrite_fields = [];
+        var check_overwrite_labels = [];
 
         // Loop through all fields
         fields.forEach(function(field) {
@@ -35,7 +36,8 @@ $(function() {
                         // Display label of field instead of field name
                         var label = input.parents('.form-group').find('label').text();
                         // Field is not empty, check before overwrite
-                        check_overwrite_fields.push('- ' + label);
+                        check_overwrite_fields.push(field);
+                        check_overwrite_labels.push('- ' + label);
                     } else {
                         // Field is empty, fill it with new data
                         fill_field(input, data[field]);
@@ -47,7 +49,7 @@ $(function() {
         // Check if there are fields for which we need to do an overwrite check
         if (check_overwrite_fields.length !== 0) {
             // Ask the user whether to overwrite or not
-            var overwrite = confirm('Do you wish to overwrite the following fields?\n' + check_overwrite_fields.join('\n'));
+            var overwrite = confirm('Do you wish to overwrite the following fields?\n' + check_overwrite_labels.join('\n'));
             // Check what user said
             if (overwrite === true) {
                 // Loop through fields that need to be overwritten

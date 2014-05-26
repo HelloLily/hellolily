@@ -1,0 +1,2 @@
+REPOSITORY = 'HelloLily'
+TRACKING_BRANCH = 'origin/develop'

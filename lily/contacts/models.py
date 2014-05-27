@@ -20,7 +20,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
-        (UNKNOWN_GENDER, _('Select gender')),
+        (UNKNOWN_GENDER, _('Unknown')),
         (MALE_GENDER, _('Male')),
         (FEMALE_GENDER, _('Female')),
     )
@@ -139,7 +139,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
             except IndexError:
                 self._primary_function = self.functions.none()
         return self._primary_function
-    
+
     def get_assigned_cases(self):
         from lily.cases.models import Case
         try:

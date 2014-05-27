@@ -245,6 +245,24 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
 
         return super(CreateUpdateContactView, self).form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        """
+        Provide a url to go back to.
+        """
+        kwargs = super(CreateUpdateContactView, self).get_context_data(**kwargs)
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
+
+        return kwargs
+
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
+
 
 class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, CreateView):
     """

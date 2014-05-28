@@ -7,6 +7,9 @@
 {% block list-title %}{% trans 'Deals' %}{% endblock %}
 
 {% block list-headings %}
+    <th class="table-checkbox">
+        <input type="checkbox" class="group-checkbox" data-set=".data-table .checkboxes">
+    </th>
     <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
     <th class="name">{% trans 'Name' %}</th>
     <th class="account">{% trans 'Account' %}</th>

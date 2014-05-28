@@ -20,7 +20,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
-        (UNKNOWN_GENDER, _('Unknown')),
+        (UNKNOWN_GENDER, _('Unknown/Other')),
         (MALE_GENDER, _('Male')),
         (FEMALE_GENDER, _('Female')),
     )

@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 
 from lily.settings import ACCOUNT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
+from lily.tenant.models import TenantMixin
 from lily.utils.functions import flatten
 from lily.utils.models import Common, EmailAddress, CaseClientModelMixin
 try:
@@ -200,7 +201,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         verbose_name_plural = _('accounts')
 
 
-class Website(models.Model):
+class Website(TenantMixin, models.Model):
     """
     Website model, simple url field to store a website reference.
     """

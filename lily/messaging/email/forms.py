@@ -242,12 +242,27 @@ class ComposeEmailForm(HelloLilyModelForm):
             if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
                 self._errors["send_to_normal"] = self.error_class([_('Please provide at least one recipient.')])
 
-        # Clean send_to addresses
-        cleaned_data['send_to_normal'] = cleaned_data.get('send_to_normal').rstrip(', ')
-        cleaned_data['send_to_cc'] = cleaned_data.get('send_to_cc').rstrip(', ')
-        cleaned_data['send_to_bcc'] = cleaned_data.get('send_to_bcc').rstrip(', ')
+        # Clean send_to addresses.
+        cleaned_data['send_to_normal'] = self.format_recipients(cleaned_data.get('send_to_normal'))
+        cleaned_data['send_to_cc'] = self.format_recipients(cleaned_data.get('send_to_cc'))
+        cleaned_data['send_to_bcc'] = self.format_recipients(cleaned_data.get('send_to_bcc'))
 
         return cleaned_data
+
+    def format_recipients(self, recipients):
+        """
+        Strips newlines and trailing spaces & commas from recipients.
+
+        Args:
+            recipients (str): The string that needs cleaning up.
+
+        Returns:
+            String of comma separated email addresses.
+        """
+        formatted_recipients = []
+        for recipient in recipients.splitlines():
+            formatted_recipients.append(recipient.rstrip(', '))
+        return ', '.join(formatted_recipients)
 
     def clean_send_from(self):
         """

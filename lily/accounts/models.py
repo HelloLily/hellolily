@@ -1,4 +1,7 @@
+import operator
+
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
@@ -8,6 +11,7 @@ from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.utils.functions import flatten
 from lily.utils.models import Common, EmailAddress, CaseClientModelMixin
+from python_imap.folder import ALLMAIL, SENT, IMPORTANT, INBOX
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
@@ -169,19 +173,20 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
         return contacts
 
-    def get_emails(self):
-        from lily.messaging.email.models import EmailHeader
-        from django.db.models import Q
-        import operator
-
+    def get_email_count(self):
+        from lily.messaging.email.models import EmailMessage
         try:
-            filter_list = (Q(name__exact='From', message__folder_identifier__exact='\AllMail') |
-                           Q(name__exact='To', message__folder_identifier__exact='\Sent'))
+            filter_list = [Q(headers__value__contains=x) for x in self.email_addresses.all()]
+            object_list = EmailMessage.objects.filter(
+                Q(folder_identifier__in=[ALLMAIL, SENT, IMPORTANT, INBOX]) &
+                Q(headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+                reduce(operator.or_, filter_list)
+            )
 
-            return EmailHeader.objects.filter(filter_list).filter(
-                reduce(operator.or_, (Q(value__contains=emailaddress) for emailaddress in self.email_addresses.all())))
+            if object_list:
+                return object_list.count()
         except:
-            return None
+            return 0
 
     def __unicode__(self):
         return self.name

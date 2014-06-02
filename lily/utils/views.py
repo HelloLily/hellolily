@@ -25,7 +25,7 @@ from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
 import unicodecsv
 from lily.tags.models import Tag
-from python_imap.folder import ALLMAIL
+from python_imap.folder import ALLMAIL, SENT, IMPORTANT, INBOX
 
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
@@ -1528,7 +1528,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
             if len(email_address_list) > 0:
                 filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
                 object_list = object_list | HistoryListItem.objects.filter(
-                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
+                    Q(message__emailmessage__folder_identifier__in=[ALLMAIL, SENT, IMPORTANT, INBOX]) &
                     Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
                     reduce(operator.or_, filter_list)
                 )

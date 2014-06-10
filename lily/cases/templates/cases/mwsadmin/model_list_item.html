@@ -2,9 +2,9 @@
 
 {% load i18n utils %}
 
-{% block item-edit-url %}{% url case_update pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'case_update' pk=item.pk %}{% endblock %}
 
-{% block item-delete-url %}{% url case_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'case_delete' pk=item.pk %}{% endblock %}
 
 {% block item-actions %}
     {{ block.super }}
@@ -16,14 +16,14 @@
     	<div class="i-16 i-tag {{ item|priority }}" title="{% trans 'Priority' %}: {% trans item.get_priority_display|lower %}"><span>{{ item.priority }}</span></div>
 	</td>
     <td class="subject">
-        <a href="{% url case_details pk=item.pk %}">
+        <a href="{% url 'case_details' pk=item.pk %}">
             {{ item.subject }}
         </a>
     </td>
     <td class="contact_account">
         <div>
 	    	{% if item.contact %}
-		        <a href="{% url contact_details pk=item.contact.pk %}">
+		        <a href="{% url 'contact_details' pk=item.contact.pk %}">
 		            {{ item.contact.full_name }}
 		        </a>
 		    {% endif %}
@@ -33,7 +33,7 @@
 		   	{% endif %}
 
 	        {% if item.account %}
-		        <a href="{% url account_details pk=item.account.pk %}">
+		        <a href="{% url 'account_details' pk=item.account.pk %}">
 		            {{ item.account.name }}
 		        </a>
 	        {% endif %}
@@ -43,7 +43,7 @@
         {{ item.get_status_display }}
     </td>
     <td class="assigned-to">
-        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+        <a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>
     </td>

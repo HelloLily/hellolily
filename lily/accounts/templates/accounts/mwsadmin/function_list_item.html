@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <p>
-    <a href="{% url contact_details pk=item.contact.pk %}">{{ item.contact.full_name }}</a>
+    <a href="{% url 'contact_details' pk=item.contact.pk %}">{{ item.contact.full_name }}</a>
     {% if item.title %}
         as {{ item.title }}
     {% endif %}

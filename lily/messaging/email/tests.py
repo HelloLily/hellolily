@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from python_imap.utils import convert_html_to_text
 
 

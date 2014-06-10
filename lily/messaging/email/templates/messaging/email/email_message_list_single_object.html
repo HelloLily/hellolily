@@ -15,16 +15,16 @@
         </div>
         <div class="timeline-footer">
             {% if object.textify %}
-                <a href="{% url messaging_email_reply pk=object.pk %}" class="nav-link pull-right">
+                <a href="{% url 'messaging_email_reply' pk=object.pk %}" class="nav-link pull-right">
                     Reply
                     <i class="icon-reply"></i>
                 </a>
-                <a href="{% url messaging_email_forward pk=object.pk %}" class="nav-link pull-right">
+                <a href="{% url 'messaging_email_forward' pk=object.pk %}" class="nav-link pull-right">
                     Forward
                     <i class="icon-arrow-right"></i>
                 </a>
             {% endif %}
-            <a href="{% url messaging_email_detail pk=object.pk %}" class="nav-link pull-right">
+            <a href="{% url 'messaging_email_detail' pk=object.pk %}" class="nav-link pull-right">
                 View
                 <i class="icon-envelope"></i>
             </a>

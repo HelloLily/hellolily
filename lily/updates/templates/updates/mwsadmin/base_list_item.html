@@ -6,7 +6,7 @@
 			<strong>{{ item.author }}</strong>
 		</div>
 		<div class="blogentry-content">
-			<div class="controls">{% if request.user == item.author %}<a href="{% url blogentry_delete pk=item.id %}" class="blogentry-delete">{% trans 'Delete' %}</a> - {% endif %}<a href="javascript:void(0)" class="blogentry-reply">{% trans 'Reply' %}</a></div>
+			<div class="controls">{% if request.user == item.author %}<a href="{% url 'blogentry_delete' pk=item.id %}" class="blogentry-delete">{% trans 'Delete' %}</a> - {% endif %}<a href="javascript:void(0)" class="blogentry-reply">{% trans 'Reply' %}</a></div>
 			<div class="content">
 				{% if item.reply_to %}<a href="javascript:" class="replied-to" data-replied-to="{{ item.reply_to.id }}">@{{ item.reply_to.author }}</a>: {% endif %}{{ item.content|linebreaksbr|uri_detect|tags_to_uri|safe }}
 			</div>

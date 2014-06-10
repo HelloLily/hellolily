@@ -1,7 +1,7 @@
 {% if not request.is_ajax %}
     <td>
 {% endif %}
-<a href="{% url contact_details pk=item.assigned_to.contact.pk %}">{{ item.assigned_to }}</a>
+<a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">{{ item.assigned_to }}</a>
 {% if not request.is_ajax %}
     </td>
 {% endif %}

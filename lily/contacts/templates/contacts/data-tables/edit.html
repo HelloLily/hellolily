@@ -3,11 +3,11 @@
 {% if not request.is_ajax %}
     <td>
 {% endif %}
-<a href="{% url contact_edit pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}">
+<a href="{% url 'contact_edit' pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}">
     <i class="icon-edit"></i>
 </a>
 {% if not item|has_user_in_group:'account_admin' %}
-    <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url contact_delete pk=item.pk %}" >
+    <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=item.pk %}" >
         <i class="icon-trash"></i>
     </button>
 {% endif %}

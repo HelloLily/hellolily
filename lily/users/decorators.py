@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import user_passes_test
 
+
 def group_required(*group_names):
     """Requires user membership in at least one of the groups passed in."""
     def in_groups(u):

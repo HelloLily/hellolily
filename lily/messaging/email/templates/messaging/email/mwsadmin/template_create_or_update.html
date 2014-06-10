@@ -261,7 +261,7 @@
                     $(form).ajaxSubmit({
                         type: 'post',
                         dataType: 'json',
-                        url: '{% url messaging_email_template_parse %}',
+                        url: '{% url 'messaging_email_template_parse' %}',
                         success: function(response) {
                             if (response.valid === true) {
                                 if (response.name !== undefined) {

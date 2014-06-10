@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
-from functions import parse_phone_number
+from lily.utils.functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
 
 

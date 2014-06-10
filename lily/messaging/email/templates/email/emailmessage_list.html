@@ -33,22 +33,22 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <form action="{% url messaging_mark_read %}" method="post" id="mark-read-form">
+                                    <form action="{% url 'messaging_mark_read' %}" method="post" id="mark-read-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                     </form>
-                                    <a href="{% url messaging_mark_read %}" data-form-submit data-form-selector="#mark-read-form"><i class="icon-fixed-width"></i> {% trans 'Mark as read' %}</a>
+                                    <a href="{% url 'messaging_mark_read' %}" data-form-submit data-form-selector="#mark-read-form"><i class="icon-fixed-width"></i> {% trans 'Mark as read' %}</a>
                                 </li>
                                 <li>
-                                    <form action="{% url messaging_mark_unread %}" method="post" id="mark-unread-form">
+                                    <form action="{% url 'messaging_mark_unread' %}" method="post" id="mark-unread-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                     </form>
-                                    <a href="{% url messaging_mark_unread %}" data-form-submit data-form-selector="#mark-unread-form"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
+                                    <a href="{% url 'messaging_mark_unread' %}" data-form-submit data-form-selector="#mark-unread-form"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
                                 </li>
                                 {% if move_to_folders.items|length %}
                                 <li class="dropdown-submenu">
-                                    <form action="{% url move_messages_view %}" method="post" id="move-messages-form">
+                                    <form action="{% url 'move_messages_view' %}" method="post" id="move-messages-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="">
@@ -67,16 +67,16 @@
                                 {% endif %}
                                 <li class="divider"></li>
                                 <li>
-                                    <form action="{% url messaging_move_trash %}" method="post" id="move-trash-form">
+                                    <form action="{% url 'messaging_move_trash' %}" method="post" id="move-trash-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                     </form>
-                                    <a href="{% url messaging_move_trash %}" data-form-submit data-form-selector="#move-trash-form"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
+                                    <a href="{% url 'messaging_move_trash' %}" data-form-submit data-form-selector="#move-trash-form"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
                                 </li>
                             </ul>
                             {% for value, label in move_to_folders.items %}
                                 {% if value == all_mail_folder_identifier and label != '' %}
-                                    <form class="hidden" action="{% url move_messages_view %}" method="post" id="move-archive-form">
+                                    <form class="hidden" action="{% url 'move_messages_view' %}" method="post" id="move-archive-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="ids[]" class="bulk-ids">
                                         <input type="hidden" name="folder" value="{{ label }}">
@@ -99,7 +99,7 @@
             </thead>
             <tbody>
                 {% for object in object_list %}
-                    <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url messaging_email_compose pk=object.pk %}{% else %}{% url messaging_email_detail object.pk %}{% endif %}">
+                    <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url 'messaging_email_compose' pk=object.pk %}{% else %}{% url 'messaging_email_detail' object.pk %}{% endif %}">
                         <td class="inbox-small-cells">
                             <input type="checkbox" class="mail-checkbox" value="{{ object.id }}">
                         </td>

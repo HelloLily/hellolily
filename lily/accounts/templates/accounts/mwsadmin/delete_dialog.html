@@ -2,6 +2,6 @@
 
 {% load i18n %}
 
-{% block dialog-form-url %}{% url account_delete pk=item.pk %}{% endblock %}
+{% block dialog-form-url %}{% url 'account_delete' pk=item.pk %}{% endblock %}
 
 {% block dialog-message %}{% blocktrans with item=item %}Are you sure you want to delete {{ item }}? This can not be undone.{% endblocktrans %}{% endblock %}

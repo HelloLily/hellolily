@@ -12,8 +12,8 @@
 {% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-<li><a href="{% url case_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
-<li><a href="{% url case_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url case_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+<li><a href="{% url 'case_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li><a href="{% url 'case_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
 {% endblock %}
 
 {% block details-tabs %}
@@ -29,14 +29,14 @@
                     {% if object.account %}
                     <span class="summary-label">{% trans 'Account' %}</span>
                     <span class="pull-right">
-                        <a href="{% url account_details pk=object.account.pk %}">
+                        <a href="{% url 'account_details' pk=object.account.pk %}">
                             {{ object.account.name }}
                         </a>
                     </span>
                     {% elif object.contact %}
                     <span class="summary-label">{% trans 'Contact' %}</span>
                     <span class="pull-right">
-                        <a href="{% url contact_details pk=object.contact.pk %}">
+                        <a href="{% url 'contact_details' pk=object.contact.pk %}">
                             {{ object.contact.full_name }}
                         </a>
                     </span>
@@ -71,7 +71,7 @@
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
                     <span class="pull-right">
-                        <a href="{% url contact_details pk=object.assigned_to.contact.pk %}">
+                        <a href="{% url 'contact_details' pk=object.assigned_to.contact.pk %}">
                             {{ object.assigned_to.contact.full_name }}
                         </a>
                     </span>

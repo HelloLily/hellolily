@@ -2,9 +2,9 @@
 
 {% load i18n media thumbnail utils %}
 
-{% block item-edit-url %}{% url contact_edit pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'contact_edit' pk=item.pk %}{% endblock %}
 
-{% block item-delete-url %}{% url contact_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'contact_delete' pk=item.pk %}{% endblock %}
 
 {% block item-columns %}
     <td class="item-image contact hide_on_small_screen">
@@ -15,7 +15,7 @@
         {% endif %}
     </td>
     <td class="personal">
-        <div class="name"><a href="{% url contact_details pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a></div>
+        <div class="name"><a href="{% url 'contact_details' pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a></div>
         <span class="social">
             {% for sm in item.get_social %}
                 <a href="{{ sm.profile_url }}"><img src="{% media_url 'mwsadmin/images/social/'|add:sm.name|lower|add:'_16.png' %}" alt="{{ sm.name }}" /></a>
@@ -48,7 +48,7 @@
     <td class="account">
         {% if item.functions.count > 0 %}
             {% with item.functions.all|first as function %}
-                <a href="{% url account_details pk=function.account_id %}">{{ function.account }}</a>
+                <a href="{% url 'account_details' pk=function.account_id %}">{{ function.account }}</a>
             {% endwith %}
         {% endif %}
 

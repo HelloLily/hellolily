@@ -12,8 +12,8 @@
 {% block detail-title %}{{ object }}{% endblock %}
 
 {% block page-actions %}
-<li><a href="{% url deal_update pk=object.pk %}">{% trans 'Edit' %}</a></li>
-<li><a href="{% url deal_delete pk=object.pk %}" data-target="#confirm-delete" data-source="{% url deal_delete pk=object.pk %}">{% trans 'Delete' %}</a></li>
+<li><a href="{% url 'deal_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
+<li><a href="{% url 'deal_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +23,7 @@
                 <li>
                     <span class="summary-label">{% trans 'Account' %}</span>
                     <span class="pull-right">
-                        <a href="{% url account_details pk=object.account.pk %}">
+                        <a href="{% url 'account_details' pk=object.account.pk %}">
                             {{ object.account.name }}
                         </a>
                     </span>
@@ -43,7 +43,7 @@
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
                     <span class="pull-right">
-                        <a href="{% url contact_details pk=object.assigned_to.contact.pk %}">
+                        <a href="{% url 'contact_details' pk=object.assigned_to.contact.pk %}">
                             {{ object.assigned_to }}
                         </a>
                     </span>

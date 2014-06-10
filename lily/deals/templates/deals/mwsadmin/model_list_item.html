@@ -2,19 +2,19 @@
 
 {% load i18n thumbnail utils %}
 
-{% block item-edit-url %}{% url deal_update pk=item.pk %}{% endblock %}
+{% block item-edit-url %}{% url 'deal_update' pk=item.pk %}{% endblock %}
 
-{% block item-delete-url %}{% url deal_delete pk=item.pk %}{% endblock %}
+{% block item-delete-url %}{% url 'deal_delete' pk=item.pk %}{% endblock %}
 
 {% block item-columns %}
     <td class="name">
-        <a href="{% url deal_details pk=item.pk %}">
+        <a href="{% url 'deal_details' pk=item.pk %}">
             {{ item.name }}
         </a>
     </td>
     <td class="account">
         <div>
-            <a href="{% url account_details pk=item.account.pk %}">
+            <a href="{% url 'account_details' pk=item.account.pk %}">
                 {{ item.account.name }}
             </a>
         </div>
@@ -34,7 +34,7 @@
         {{ item.currency }}&nbsp;{{ item.amount }}
     </td>
     <td class="assigned-to">
-        <a href="{% url contact_details pk=item.assigned_to.contact.pk %}">
+        <a href="{% url 'contact_details' pk=item.assigned_to.contact.pk %}">
             {{ item.assigned_to }}
         </a>
     </td>

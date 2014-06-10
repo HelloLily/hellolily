@@ -8,7 +8,7 @@
 
 {% block dialog-title %}{% trans 'New account' %}{% endblock %}
 
-{% block dialog-form-url %}{% url account_add %}{% endblock %}
+{% block dialog-form-url %}{% url 'account_add' %}{% endblock %}
 
 {% block dialog-form %}{% include 'accounts/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.account %}{% endblock %}
 

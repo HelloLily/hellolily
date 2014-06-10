@@ -1,6 +1,6 @@
 {% load bootstrap3 %}
 
-<form class="form" action="{% url note_delete pk=object.pk %}" method="post" data-async role="form">
+<form class="form" action="{% url 'note_delete' pk=object.pk %}" method="post" data-async role="form">
     {% csrf_token %}
     <div class="modal-body">
         {% for field in form.visible_fields %}

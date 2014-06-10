@@ -3,11 +3,11 @@
 {% load i18n %}
 
 {% block item-url %}
-    {% url contact_details pk=item.pk %}
+    {% url 'contact_details' pk=item.pk %}
 {% endblock %}
 
 {% block list-url%}
-    {% url contact_list %}
+    {% url 'contact_list' %}
 {% endblock %}
 
 {% block list-url-name %}

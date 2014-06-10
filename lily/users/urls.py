@@ -1,9 +1,8 @@
 from django.conf.urls import patterns, url
 
 from lily.users.forms import CustomPasswordResetForm
-from lily.users.views import dashboard_view, login_view, registration_view, \
-    activation_view, activation_resend_view, send_invitation_view, AcceptInvitationView, \
-    password_reset_confirm_view
+from lily.users.views import (dashboard_view, login_view, registration_view, activation_view, activation_resend_view,
+                              send_invitation_view, AcceptInvitationView, password_reset_confirm_view)
 
 
 urlpatterns = patterns('',

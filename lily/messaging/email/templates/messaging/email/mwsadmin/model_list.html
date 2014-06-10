@@ -359,7 +359,7 @@
             // call server to sync
             // try this
             jqXHR = $.ajax({
-                url: '{% url messaging_mark_unread %}',
+                url: '{% url 'messaging_mark_unread' %}',
                 data: $.param({'ids': ids}),
                 type: 'POST',
                 beforeSend: addCSRFHeader,
@@ -398,7 +398,7 @@
             // call server to sync
             // try this
             jqXHR = $.ajax({
-                url: '{% url messaging_mark_read %}',
+                url: '{% url 'messaging_mark_read' %}',
                 data: $.param({'ids': ids}),
                 type: 'POST',
                 beforeSend: addCSRFHeader,
@@ -440,7 +440,7 @@
             // call server to sync
             // try this
             jqXHR = $.ajax({
-                url: '{% url messaging_move_trash %}',
+                url: '{% url 'messaging_move_trash' %}',
                 data: $.param({'ids': ids}),
                 type: 'POST',
                 beforeSend: addCSRFHeader,
@@ -701,7 +701,7 @@
         {% if move_to_folders.items|length %}
         <li class="no-border"><a href="#" class="move-to-folder-toggle">Move to ..</a></li>
         <li class="no-border" style="padding-top: 1px; display: none;">
-            <form action="{% url move_messages_view %}" method="post">
+            <form action="{% url 'move_messages_view' %}" method="post">
                 <input type="hidden" class="ids-to-move" name="ids"/>
                 {% csrf_token %}
                 <select class="move-to-folder-select chzn-select-no-search" style="width: 200px;" name="move-to-folder-select">
@@ -745,7 +745,7 @@
                     <span style="width: 23px; display: inline-block"></span>
                 {% endif %}
                 <a href="{{ request.path }}sync" title="{% trans 'Force refresh' %}" class="refresh"><span class="mws-i-24 i-refresh-4"></span></a>
-                <a href="{% url messaging_email_template_list %}" title="{% trans 'Templates' %}" class="templates" id="messaging-templates-button"><span class="mws-i-24 i-document"></span></a>
+                <a href="{% url 'messaging_email_template_list' %}" title="{% trans 'Templates' %}" class="templates" id="messaging-templates-button"><span class="mws-i-24 i-document"></span></a>
             </div>
         </div>
         <div id="emailbox-top-subject" class="hidden"></div>
@@ -794,7 +794,7 @@
                 {% if move_to_folders.items|length %}
                 <li class="no-border"><a href="#" class="move-to-folder-toggle">Move to ..</a></li>
                 <li class="no-border" style="padding-top: 1px; display: none;">
-                    <form action="{% url move_messages_view %}" method="post">
+                    <form action="{% url 'move_messages_view' %}" method="post">
                         <input type="hidden" class="ids-to-move" name="ids"/>
                         {% csrf_token %}
                         <select class="move-to-folder-select chzn-select-no-search" style="width: 200px;" name="move-to-folder-select">

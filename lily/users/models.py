@@ -13,7 +13,6 @@ from lily.contacts.models import Contact
 from lily.tenant.models import TenantMixin
 from lily.utils.models import EmailAddress
 from lily.utils.functions import uniquify
-
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:

@@ -1,4 +1,3 @@
-
 # Folder flags used to identify folders retrieved with the *XLIST* command
 ALLMAIL = '\\AllMail'
 DRAFTS = '\\Drafts'

@@ -1,6 +1,6 @@
 {% load i18n bootstrap3 %}
 
-<form class="form form-horizontal" action="{% url messaging_email_account_share_template pk=form.instance.email.id %}" method="post" data-async role="form">
+<form class="form form-horizontal" action="{% url 'messaging_email_account_share_template' pk=form.instance.email.id %}" method="post" data-async role="form">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
         <h4>{% trans 'Share e-mail account' %}</h4>

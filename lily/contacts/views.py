@@ -1,9 +1,10 @@
+import base64
+import pickle
 from datetime import date
 from hashlib import sha256
 from urlparse import urlparse
-import base64
-import pickle
 
+import anyjson
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -12,7 +13,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
@@ -319,11 +319,11 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
                 if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
                     redirect_url = self.get_success_url()
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return super(AddContactView, self).form_valid(form)
 
@@ -334,10 +334,10 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.template_name, context_instance=context)
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return super(AddContactView, self).form_invalid(form)
 
@@ -403,11 +403,11 @@ class DeleteContactView(DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return redirect(redirect_url)
 

@@ -5,7 +5,7 @@ from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 
 from bs4 import BeautifulSoup, UnicodeDammit
 
-from utils import convert_html_to_text, get_extensions_for_type
+from python_imap.utils import convert_html_to_text, get_extensions_for_type
 
 
 def decode_header_proper(value):

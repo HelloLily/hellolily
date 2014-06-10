@@ -2,7 +2,7 @@
     <td>
 {% endif %}
 <div>
-    <a href="{% url account_details pk=item.account.pk %}">
+    <a href="{% url 'account_details' pk=item.account.pk %}">
         {{ item.account.name }}
     </a>
 </div>

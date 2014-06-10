@@ -9,12 +9,12 @@
 <p>{% trans 'Activation failed. This happened because either the link is invalid, the activation period expired or the associated account has already been activated. You can apply for a new activation link or try to log in.' %}</p>
 {% endblock %}
 <div>
-<a href="{% url activation_resend %}">
+<a href="{% url 'activation_resend' %}">
     <button type="button" class="btn btn-primary">
         {% trans 'Try again' %}
     </button>
 </a>
-<a href="{% url login %}">
+<a href="{% url 'login' %}">
     <button type="button" class="btn btn-primary">
         {% trans 'Back to Log in' %}
     </button>

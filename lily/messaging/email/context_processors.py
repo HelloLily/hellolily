@@ -1,6 +1,6 @@
 from django.template.defaultfilters import truncatechars
-from python_imap.folder import INBOX
 
+from python_imap.folder import INBOX
 from lily.messaging.email.models import EmailAccount, EmailMessage
 from lily.utils.functions import is_ajax
 

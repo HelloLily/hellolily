@@ -1,6 +1,6 @@
 {% load bootstrap3 i18n %}
 
-<form class="form form-horizontal" action="{% url note_update object.pk %}" method="post" data-async role="form">
+<form class="form form-horizontal" action="{% url 'note_update' object.pk %}" method="post" data-async role="form">
     <div class="modal-body">
         {% csrf_token %}
         <div class="form-body">

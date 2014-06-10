@@ -21,7 +21,7 @@
 <body class="page-header-fixed page-sidebar-fixed">
     <div class="header navbar navbar-inverse navbar-fixed-top">
         <div class="header-inner">
-            <a class="navbar-brand" href="{% url dashboard %}"><img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
             {% block page-header %}{% endblock %}
         </div>
     </div>
@@ -63,7 +63,7 @@
     {% include_media 'notifications.js' %}
     <script>
     var load_notifications = function() {
-        $.getScript('{% url notifications %}');
+        $.getScript('{% url 'notifications' %}');
     }
     {% if messages %}
     load_notifications();

@@ -26,18 +26,18 @@
         <strong>Attached files</strong>
         <ul>
             {% for attachment in attachments %}
-            <li><a href="{% url email_proxy_view pk=attachment.pk path=attachment.attachment.name %}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})</li>
+            <li><a href="{% url 'email_proxy_view' pk=attachment.pk path=attachment.attachment.name %}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})</li>
             {% endfor %}
         </ul>
     {% else %}
         <strong>Attached file</strong>
         {% for attachment in attachments %}
-            <a href="{% url email_proxy_view pk=attachment.pk path=attachment.attachment.name %}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})
+            <a href="{% url 'email_proxy_view' pk=attachment.pk path=attachment.attachment.name %}">{{ attachment }}</a> ({{ attachment.size|filesizeformat }})
         {% endfor %}
     {% endif %}
 </div>
 {% endif %}
 
 <div id="iframe-wrapper">
-    <iframe id="email-iframe" src="{% url messaging_email_html pk=object.pk %}"></iframe>
+    <iframe id="email-iframe" src="{% url 'messaging_email_html' pk=object.pk %}"></iframe>
 </div>

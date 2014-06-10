@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from hashlib import sha256
 from uuid import uuid4
 
+import anyjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
@@ -17,7 +18,6 @@ from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View, TemplateView, FormView
-from django.utils import simplejson
 from django.utils.http import base36_to_int, int_to_base36, urlunquote
 from django.utils.translation import ugettext as _
 from extra_views import FormSetView
@@ -310,10 +310,10 @@ class SendInvitationView(FormSetView):
                 )
 
         if is_ajax(self.request):
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': False,
                 'html': _('The invitations were sent successfully'),
-            }), mimetype='application/json')
+            }), content_type='application/json')
         return HttpResponseRedirect(self.get_success_url())
 
     def formset_invalid(self, formset):
@@ -324,10 +324,10 @@ class SendInvitationView(FormSetView):
         """
         if is_ajax(self.request):
             context = RequestContext(self.request, self.get_context_data(formset=formset))
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': True,
                 'html': render_to_string(self.form_template_name, context)
-            }), mimetype='application/json')
+            }), content_type='application/json')
         return self.render_to_response(self.get_context_data(formset=formset))
 
     def get_success_url(self):

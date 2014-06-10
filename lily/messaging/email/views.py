@@ -1,12 +1,13 @@
 import datetime
-import email
 import os
 import traceback
 import urllib
 import logging
+import email
 from email import Encoders
 from email.MIMEBase import MIMEBase
 
+import anyjson
 from bs4 import BeautifulSoup
 from dateutil.tz import tzutc
 from django.contrib import messages
@@ -20,7 +21,6 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template.defaultfilters import truncatechars
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View, TemplateView
@@ -28,18 +28,21 @@ from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
+
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
 from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text, parse_search_keys
-
 from lily.contacts.models import Contact
-from lily.messaging.email.forms import CreateUpdateEmailTemplateForm, \
-    EmailTemplateFileForm, ComposeEmailForm, EmailConfigurationWizard_1, \
-    EmailConfigurationWizard_2, EmailConfigurationWizard_3, EmailShareForm
-from lily.messaging.email.models import EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH
-from lily.messaging.email.tasks import save_email_messages, mark_messages, delete_messages, synchronize_folder, move_messages
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url, smtp_connect, EmailMultiRelated, get_full_folder_name_by_identifier
+from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
+                                        EmailConfigurationWizard_1, EmailConfigurationWizard_2,
+                                        EmailConfigurationWizard_3, EmailShareForm)
+from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
+                                         OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
+from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
+                                        move_messages)
+from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
+                                        smtp_connect, EmailMultiRelated, get_full_folder_name_by_identifier)
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -512,7 +515,7 @@ class CreateUpdateEmailTemplateView(object):
         """
         kwargs = super(CreateUpdateEmailTemplateView, self).get_context_data(**kwargs)
         kwargs.update({
-            'parameter_choices': simplejson.dumps(get_email_parameter_choices()),
+            'parameter_choices': anyjson.serialize(get_email_parameter_choices()),
             'back_url': self.get_success_url(),
         })
         return kwargs
@@ -561,19 +564,19 @@ class ParseEmailTemplateView(FormView):
     form_class = EmailTemplateFileForm
 
     def form_valid(self, form):
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'error': False,
             'form': form.cleaned_data
-        }), mimetype='application/json')
+        }), content_type='application/json')
 
     def form_invalid(self, form):
         # Every form error will show up as a notification later
         for field, error in form.errors.items():
             messages.warning(self.request, error)
 
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'error': True
-        }), mimetype='application/json')
+        }), content_type='application/json')
 parse_emailtemplate_view = login_required(ParseEmailTemplateView.as_view())
 
 
@@ -997,7 +1000,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 known_contact_addresses.append(contact_address)
 
         context.update({
-            'known_contact_addresses': simplejson.dumps(known_contact_addresses),
+            'known_contact_addresses': anyjson.serialize(known_contact_addresses),
         })
 
         # find e-mail templates and add to context in json
@@ -1014,7 +1017,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         # only add template_list to context if there are any templates
         if template_list:
             context.update({
-                'template_list': simplejson.dumps(template_list),
+                'template_list': anyjson.serialize(template_list),
             })
 
         return context
@@ -1289,11 +1292,11 @@ class EmailConfigurationWizardView(SessionWizardView):
         form = form or self.get_form()
         response = self.render_to_response(self.get_context_data(form=form, **kwargs))
         if is_ajax(self.request) and self.request.method.lower() == 'post':
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -1341,11 +1344,11 @@ class EmailConfigurationWizardView(SessionWizardView):
             'form_data': [form.cleaned_data for form in form_list],
         })
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'html': response.content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
@@ -1535,20 +1538,20 @@ class EmailShareView(FormView):
 
         if is_ajax(self.request):
             # Return response
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(anyjson.serialize({
                 'error': False,
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
         return super(EmailShareView, self).form_valid(form)
 
     def form_invalid(self, form):
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 

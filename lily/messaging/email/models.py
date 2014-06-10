@@ -3,7 +3,6 @@ import textwrap
 
 from bs4 import BeautifulSoup
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -29,10 +28,10 @@ class EmailProvider(TenantMixin):
     name = models.CharField(max_length=30, blank=True, null=True)  # named providers can be selected to pre-fill the form.
     imap_host = models.CharField(max_length=32)
     imap_port = models.PositiveIntegerField()
-    imap_ssl = models.BooleanField()
+    imap_ssl = models.BooleanField(default=False)
     smtp_host = models.CharField(max_length=32)
     smtp_port = models.PositiveIntegerField()
-    smtp_ssl = models.BooleanField()
+    smtp_ssl = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.imap_host if self.name and len(self.name.strip()) == 0 else self.name or ''

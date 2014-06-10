@@ -3,8 +3,8 @@ import logging
 import StringIO
 import traceback
 from datetime import datetime, timedelta
-from Crypto import Random
 
+from Crypto import Random
 from celery import task
 from celery.signals import task_prerun
 from dateutil.tz import tzutc
@@ -15,10 +15,10 @@ from django.core.files.storage import default_storage
 from django.db import connection, transaction
 from django.utils.html import escape
 from imapclient import SEEN, DELETED
+
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
 from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text
-
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH
 from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html, get_task_count
 from lily.users.models import CustomUser
@@ -881,8 +881,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         for header in headers:
                             new_header_obj_list.append(header)
 
-                    for i in range(0, len(new_header_obj_list), query_batch_size):
-                        EmailHeader.objects.bulk_create(new_header_obj_list[i:i + query_batch_size])
+                    EmailHeader.objects.bulk_create(new_header_obj_list, batch_size=query_batch_size)
 
         elif not new_messages:
             task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')

@@ -20,12 +20,12 @@
                     <div class="col-md-6 row">
                         {% if form.instance.pk %}
                             <div class="col-md-1 email-configuration-wizard">
-                                <a href="javascript:void(0)" class="btn btn-sm default" data-target="#emailaccount-configure" data-source="{% url messaging_email_account_wizard_template pk=form.instance.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
+                                <a href="javascript:void(0)" class="btn btn-sm default" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_wizard_template' pk=form.instance.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
                                     <i class="icon-cog"></i>
                                 </a>
                             </div>
                             <div class="col-md-1 emailaccount-share-wizard">
-                                <a href="javascript:void(0)" class="{% if not form.instance|can_share %}hidden{% endif %} btn btn-sm default" data-target="#emailaccount-share" data-source="{% url messaging_email_account_share_template pk=form.instance.pk %}" title="{% trans 'Share this email address with others' %}">
+                                <a href="javascript:void(0)" class="{% if not form.instance|can_share %}hidden{% endif %} btn btn-sm default" data-target="#emailaccount-share" data-source="{% url 'messaging_email_account_share_template' pk=form.instance.pk %}" title="{% trans 'Share this email address with others' %}">
                                     <i class="icon-unlock"></i>
                                 </a>
                             </div>

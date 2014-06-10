@@ -1,9 +1,9 @@
 from urlparse import urlparse
 
+import anyjson
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -168,22 +168,22 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
             if parse_result.path == reverse('case_list'):
                 redirect_url = '%s?order_by=6&sort_order=desc' % reverse('case_list')
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 
     def form_invalid(self, form):
         response = self.render_to_response(self.get_context_data(form=form))
         if is_ajax(self.request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': True,
                 'html': response.rendered_content
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response       
 
@@ -216,11 +216,11 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
 
         redirect_url = self.get_success_url()
         if is_ajax(request):
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'error': False,
                 'redirect_url': redirect_url
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return HttpResponseRedirect(redirect_url)
 
@@ -256,4 +256,4 @@ class UpdateStatusAjaxView(LoginRequiredMixin, AjaxUpdateView):
             message = _('Status has been changed to') + ' ' + status
             messages.success(self.request, message)
             # Return response
-            return HttpResponse(simplejson.dumps({'status': status}), mimetype='application/json')
+            return HttpResponse(anyjson.serialize({'status': status}), content_type='application/json')

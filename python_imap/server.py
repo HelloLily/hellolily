@@ -1,9 +1,9 @@
 from imapclient.imapclient import IMAPClient
 from imaplib import IMAP4
 
-from .folder import Folder, XLIST_FOLDER_FLAGS
-from .logger import logger
-from .message import Message
+from python_imap.folder import Folder, XLIST_FOLDER_FLAGS
+from python_imap.logger import logger
+from python_imap.message import Message
 
 
 CATCH_LOGIN_ERRORS = [

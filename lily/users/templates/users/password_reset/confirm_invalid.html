@@ -7,7 +7,7 @@
 <h3>{% trans 'Password reset unsuccessful' %}</h3>
 <p>{% trans 'The password reset link was invalid, possibly because it has already been used. Please request a new password reset.' %}</p>
 <div>
-<a href="{% url password_reset %}">
+<a href="{% url 'password_reset' %}">
     <button type="button" class="btn btn-primary">
         {% trans 'Try again' %}
     </button>

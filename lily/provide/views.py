@@ -1,8 +1,9 @@
-from django.http import Http404, HttpResponse
-from django.views.generic.base import View
-from django.utils import simplejson
 import urllib
 import urllib2
+
+import anyjson
+from django.http import Http404, HttpResponse
+from django.views.generic.base import View
 
 from lily import settings
 from lily.utils.functions import parse_address, parse_phone_number
@@ -71,7 +72,7 @@ class ProvideBaseView(View):
         return HttpResponse(self.error_output)
 
     def set_error_output(self, message):
-        self.error_output = simplejson.dumps({'error': {'message': message}})
+        self.error_output = anyjson.serialize({'error': {'message': message}})
 
 
 class DataproviderView(ProvideBaseView):
@@ -105,7 +106,7 @@ class DataproviderView(ProvideBaseView):
         Create a generic json format for account information based on the json from dataprovider.
         """
         # Expected api output is json
-        self.api_output = simplejson.loads(self.api_output)
+        self.api_output = anyjson.serialize(self.api_output)
 
         # Raise exception when the api returned an error
         if self.api_output.get('error'):
@@ -209,10 +210,10 @@ class DataproviderView(ProvideBaseView):
             'bic': bic,
         }
 
-        return simplejson.dumps(self.view_output)
+        return anyjson.serialize(self.view_output)
 
     def get_view_output(self):
-        return HttpResponse(self.view_output, mimetype='application/json')
+        return HttpResponse(self.view_output, content_type='application/json')
 
     def get_error_output(self):
         raise Http404()

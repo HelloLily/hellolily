@@ -1,7 +1,7 @@
 {% if not request.is_ajax %}
     <td>
 {% endif %}
-<a href="{% url contact_details pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a>
+<a href="{% url 'contact_details' pk=item.pk %}" title="{{ item.full_name }}">{{ item.full_name }}</a>
 <span class="social">
     {% for sm in item.get_social %}
         <a href="{{ sm.profile_url }}">

@@ -1,6 +1,6 @@
 {% load bootstrap3 i18n %}
 
-<form class="form form-horizontal" action="{% url deal_create %}" method="post" data-async role="form">
+<form class="form form-horizontal" action="{% url 'deal_create' %}" method="post" data-async role="form">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
         <h4>{% trans 'Create deal' %}</h4>

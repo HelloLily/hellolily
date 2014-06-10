@@ -9,10 +9,10 @@
 {% block hor-menu %}
 {{ block.super }}
 <li>
-    <a href="{% url emailtemplate_list %}">{% trans 'View e-mail templates' %}</a>
+    <a href="{% url 'emailtemplate_list' %}">{% trans 'View e-mail templates' %}</a>
 </li>
 <li>
-    <a href="{% url emailtemplate_create %}">{% trans 'Add an e-mail template' %}</a>
+    <a href="{% url 'emailtemplate_create' %}">{% trans 'Add an e-mail template' %}</a>
 </li>
 {% endblock %}
 
@@ -26,11 +26,11 @@
 {% for item in object_list %}
 <tr>
     <td class="">
-        <a href="{% url emailtemplate_update pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
+        <a href="{% url 'emailtemplate_update' pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
     </td>
     <td class="name">
         <div>
-            <a href="{% url emailtemplate_update pk=item.pk %}">{{ item.name }}</a>
+            <a href="{% url 'emailtemplate_update' pk=item.pk %}">{{ item.name }}</a>
         </div>
     </td>
     <td class="description">

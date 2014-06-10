@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 
 from lily.messaging.email.widgets import EmailAttachmentWidget
@@ -61,8 +60,8 @@ class PhoneNumberBaseForm(HelloLilyModelForm):
 
     class Meta:
         model = PhoneNumber
-        fields = ('raw_input', 'type', 'other_type')
-        exclude = ('status')
+        fields = ('raw_input', 'type', 'other_type', )
+        exclude = ('status', )
         widgets = {
             'other_type': forms.TextInput(attrs={
                 'class': 'other hidden',

@@ -4,7 +4,7 @@
 
 {% block head-title %}{% trans 'Contacts' %}{% endblock %}
 {#{% block page-title %}{% trans 'Contacts' %}{% endblock %}#}
-{% block list-title %}{% trans 'Contacts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url contact_list %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
+{% block list-title %}{% trans 'Contacts' %}{% if tag %} ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %} <a href="{% url 'contact_list' %}{% if order_by and sort_order %}?order_by={{ order_by }}&sort_order={{ sort_order }}{% endif %}"><i class="icon-remove"></i></a>){% endif %}{% endblock %}
 
 {% block list-tools %}
 <form method="post" id="form_export">

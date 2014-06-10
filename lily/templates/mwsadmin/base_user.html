@@ -13,7 +13,7 @@
                 <!-- Logo container -->
                 <div id="mws-logo-container">
                     <div id="mws-logo-wrap">
-                        <a href="{% url dashboard %}">
+                        <a href="{% url 'dashboard' %}">
                             <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="HelloLily" />
                         </a>
                     </div>
@@ -24,7 +24,7 @@
                     <!-- User information section -->
                     <div id="mws-user-info" class="mws-inset">
                         <div id="mws-user-photo">
-                            <a href="{% url contact_details pk=user.contact.pk %}"><img src="{% media_url 'mwsadmin/extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
+                            <a href="{% url 'contact_details' pk=user.contact.pk %}"><img src="{% media_url 'mwsadmin/extra/images/core/unknown_person_28x28.png' %}" alt="User photo" title="{% trans 'Profile' %}" /></a>
                         </div>
 
                         <div id="mws-user-functions">
@@ -32,7 +32,7 @@
                                 Hello, {{ user }}
                             </div>
                             <ul>
-                                <li><a href="{% url logout %}">{% trans 'Log out' %}</a></li>
+                                <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -42,7 +42,7 @@
                     <!-- Quickbutton container -->
                     <div id="mws-quickbutton-container" class="tabthis">
                         {% block quickbuttons %}
-                            <a href="{% url contact_add %}" class="no-decoration quickbutton contact">
+                            <a href="{% url 'contact_add' %}" class="no-decoration quickbutton contact">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add contact' %}
                                 </button>
@@ -50,7 +50,7 @@
 
                             {% include 'contacts/mwsadmin/quickbutton_dialog.html' %}
 
-                            <a href="{% url account_add %}" class="no-decoration quickbutton account">
+                            <a href="{% url 'account_add' %}" class="no-decoration quickbutton account">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add account' %}
                                 </button>
@@ -58,7 +58,7 @@
 
                             {% include 'accounts/mwsadmin/quickbutton_dialog.html' %}
 
-                            <a href="{% url deal_create %}" class="no-decoration quickbutton deal">
+                            <a href="{% url 'deal_create' %}" class="no-decoration quickbutton deal">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add deal' %}
                                 </button>
@@ -66,7 +66,7 @@
 
                             {% include 'deals/mwsadmin/quickbutton_dialog.html' %}
 
-                            <a href="{% url case_create %}" class="no-decoration quickbutton case">
+                            <a href="{% url 'case_create' %}" class="no-decoration quickbutton case">
                                 <button type="button" class="mws-button blue tabbable">
                                     {% trans 'Add case' %}
                                 </button>
@@ -93,20 +93,20 @@
                         <span class="navigation-title">{% trans 'Show menu' %}</span>
                         <ul>
                             <li {% ifactive "dashboard" %}class="active"{% endifactive %}>
-                                <a href="{% url dashboard %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">{% trans 'Dashboard' %}</a>
+                                <a href="{% url 'dashboard' %}" class="{% ifactive "dashboard" %}{% else %}blue{% endifactive %} i-32 i-home">{% trans 'Dashboard' %}</a>
                             </li>
                             <li {% ifstartswith "contact_list" %}class="active"{% endifstartswith%}>
-                                <a href="{% url contact_list %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">{% trans 'Contacts' %}</a>
+                                <a href="{% url 'contact_list' %}" class="{% ifstartswith "contact_list" %}{% else %}blue{% endifstartswith %} i-32 i-contacts">{% trans 'Contacts' %}</a>
                             </li>
                             <li {% ifstartswith "account_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url account_list %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">{% trans 'Accounts' %}</a>
+                                <a href="{% url 'account_list' %}" class="{% ifstartswith "account_list" %}{% else %}blue{% endifstartswith %} i-32 i-accounts">{% trans 'Accounts' %}</a>
                             </li>
                             <li class="mws-dropdown-menu {% ifstartswith "messaging_dashboard" %}active{% endifstartswith %}">
                                 <a href="javascript:void(0)" class="{% ifstartswith "messaging_dashboard" %}{% else %}blue{% endifstartswith %} i-32 i-messages mws-dropdown-trigger">
                                     {% trans 'Messages' %}
                                 </a>
                                 <ul{% ifstartswith "messaging_dashboard" %}{% else %} class="closed"{% endifstartswith %}>
-                                    <li><a href="{% url messaging_email_compose %}" class="i-16 i-compose" title="Compose e-mail">
+                                    <li><a href="{% url 'messaging_email_compose' %}" class="i-16 i-compose" title="Compose e-mail">
                                         Compose
                                     </a></li>
 
@@ -118,7 +118,7 @@
                                                 {% ifstartswith "/messaging/email/forward/" %}
                                                 {% else %}
                                                     <li class="email-search">
-                                                        <form class="mws-form tabthis" action="{% url messaging_email_search_empty %}" method="get" id="email-search-form">
+                                                        <form class="mws-form tabthis" action="{% url 'messaging_email_search_empty' %}" method="get" id="email-search-form">
                                                             <input type="hidden" name="account_id" value="{{ selected_email_account_id }}" />
                                                             <input type="hidden" name="folder" value="{{ selected_email_folder }}" />
                                                             <div class="mws-form-row">
@@ -144,10 +144,10 @@
                                 </ul>
                             </li>
                             <li {% ifstartswith "deal_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url deal_list %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">{% trans 'Deals' %}</a>
+                                <a href="{% url 'deal_list' %}" class="{% ifstartswith "deal_list" %}{% else %}blue{% endifstartswith %} i-32 i-deals">{% trans 'Deals' %}</a>
                             </li>
                             <li {% ifstartswith "case_list" %}class="active"{% endifstartswith %}>
-                                <a href="{% url case_list %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">{% trans 'Cases' %}</a>
+                                <a href="{% url 'case_list' %}" class="{% ifstartswith "case_list" %}{% else %}blue{% endifstartswith %} i-32 i-cases">{% trans 'Cases' %}</a>
                             </li>
                         </ul>
                     </div>

@@ -8,7 +8,7 @@
 
 {% block dialog-title %}{% trans 'New case' %}{% endblock %}
 
-{% block dialog-form-url %}{% url case_create %}{% endblock %}
+{% block dialog-form-url %}{% url 'case_create' %}{% endblock %}
 
 {% block dialog-form %}{% include 'cases/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.case %}{% endblock %}
 

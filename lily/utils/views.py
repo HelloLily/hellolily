@@ -1,7 +1,8 @@
 import operator
-
 from datetime import datetime
 
+import anyjson
+import unicodecsv
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
@@ -14,7 +15,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
-from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
@@ -23,10 +23,9 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin, BaseCreateView, BaseUpdateView
-import unicodecsv
-from lily.tags.models import Tag
-from python_imap.folder import ALLMAIL
 
+from python_imap.folder import ALLMAIL
+from lily.tags.models import Tag
 from lily.accounts.forms import WebsiteBaseForm
 from lily.accounts.models import Website
 from lily.messaging.email.models import EmailAttachment
@@ -463,7 +462,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         columns = self.parse_data_to_colums(queryset, ajax_columns)
 
         # Return json parsed response.
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'iTotalRecords': total_object_count,
             'iTotalDisplayRecords': filtered_object_count,
             'sEcho': self.get_from_data_tables('echo'),
@@ -539,7 +538,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
             raise ImproperlyConfigured(
                 'Need to setup columns attribute for DataTableListView to work'
             )
-        return mark_safe(simplejson.dumps([value for value in self.columns.values()]))
+        return mark_safe(anyjson.serialize([value for value in self.columns.values()]))
 
     def parse_data_to_colums(self, object_list, columns):
         """
@@ -715,7 +714,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         columns = self.parse_data_to_colums(queryset, ajax_columns)
 
         # Return json parsed response.
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(anyjson.serialize({
             'iTotalRecords': total_object_count,
             'iTotalDisplayRecords': filtered_object_count,
             'sEcho': self.get_from_data_tables('echo'),
@@ -791,7 +790,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
             raise ImproperlyConfigured(
                 'Need to setup columns attribute for DataTableListView to work'
             )
-        return mark_safe(simplejson.dumps([value for value in self.columns.values()]))
+        return mark_safe(anyjson.serialize([value for value in self.columns.values()]))
 
     def parse_data_to_colums(self, object_list, columns):
         """
@@ -1462,7 +1461,7 @@ class AjaxUpdateView(View):
             raise Http404()
 
         # Return response
-        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+        return HttpResponse(anyjson.serialize({}), content_type='application/json')
 
 
 class NotificationsView(TemplateView):
@@ -1475,7 +1474,7 @@ class NotificationsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         response = super(NotificationsView, self).get(request, *args, **kwargs)
-        return HttpResponse(response.rendered_content, mimetype='application/javascript')
+        return HttpResponse(response.rendered_content, content_type='application/javascript')
 
 
 class HistoryListViewMixin(NoteDetailViewMixin):
@@ -1502,11 +1501,11 @@ class HistoryListViewMixin(NoteDetailViewMixin):
             if len(response.context_data.get('object_list')) > 0:
                 html = response.rendered_content
 
-            response = simplejson.dumps({
+            response = anyjson.serialize({
                 'html': html,
                 'show_more': response.context_data.get('show_more')
             })
-            return HttpResponse(response, mimetype='application/json')
+            return HttpResponse(response, content_type='application/json')
 
         return response
 

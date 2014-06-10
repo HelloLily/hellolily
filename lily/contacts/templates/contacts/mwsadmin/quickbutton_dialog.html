@@ -8,7 +8,7 @@
 
 {% block dialog-title %}{% trans 'New contact' %}{% endblock %}
 
-{% block dialog-form-url %}{% url contact_add %}{% endblock %}
+{% block dialog-form-url %}{% url 'contact_add' %}{% endblock %}
 
 {% block dialog-form %}{% include 'contacts/mwsadmin/quickbutton_form.html' with form=quickbutton_formsets.contact %}{% endblock %}
 

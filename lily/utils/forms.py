@@ -31,7 +31,6 @@ class EmailAddressBaseForm(HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         super(EmailAddressBaseForm, self).__init__(*args, **kwargs)
 
-
     class Meta:
         model = EmailAddress
         fields = ('email_address',)

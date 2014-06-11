@@ -2,8 +2,8 @@
 
 {% load i18n utils media %}
 
-{% block head-title %}{% trans 'Account details' %}{% endblock %}
-{% block page-title %}{% trans 'Account details' %}{% endblock %}
+{% block head-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
+{% block page-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
 
 {% block page-actions %}
     <li><a href="{% url 'account_edit' pk=object.pk %}">{% trans 'Edit' %}</a></li>
@@ -13,50 +13,45 @@
 {% block details-main %}
     <div class="row">
         <div class="col-md-6">
-            <ul class="list-unstyled summary-list">
+           <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Name' %}</span>
-                    <span class="pull-right">{{ object.name }}</span>
+                    <span>{{ object.name }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Website' %}</span>
-                    <span class="pull-right">
-                    {% for website in object.websites.all %}{% if website.is_primary %}
-                        <a href="{{ website.website }}">{{ website.website }}</a>
-                    {% endif %}{% endfor %}
+                    <span>
+                        {% for website in object.websites.all %}{% if website.is_primary %}
+                            <a href="{{ website.website }}">{{ website.website }}</a>
+                        {% endif %}{% endfor %}
                     </span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span class="pull-right">{{ object.get_phone_number|default:_('Unknown') }}</span>
+                    <span>{{ object.get_phone_number|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span class="pull-right">{{ object.primary_email|default:_('Unknown') }}</span>
+                    <span>{{ object.primary_email|default:_('Unknown') }}</span>
                 </li>
-            </ul>
-        </div>
-        <div class="col-md-6">
-            <ul class="list-unstyled summary-list">
-                <li>
-                    <span class="summary-label">{% trans 'Address information' %}</span>
-                    {% for address in object.get_addresses %}
-                        <div class="address">
-                            <h6>{{ address.type|capfirst }}</h6>
-                            <div class="inline">
-                                {% if address.street or address.street_number or address.complement %}
-                                    {{ address }} <br />
+                {% if object.get_main_address %}
+                    <li>
+                        <span class="summary-label">{% trans 'Main address' %}</span>
+                        <span>
+                            {% with object.get_main_address as main_address %}
+                                {% if main_address.street or main_address.street_number or main_address.complement %}
+                                    {{ main_address }} <br/>
                                 {% endif %}
-                                {% if address.postal_code or address.city %}
-                                    {{ address.postal_code }} {{ address.city }} <br />
+                                {% if main_address.postal_code or main_address.city %}
+                                    {{ main_address.postal_code }} {{ main_address.city }} <br/>
                                 {% endif %}
-                                {% if address.country %}
-                                    {{ address.get_country_display }}
+                                {% if main_address.country %}
+                                    {{ main_address.get_country_display }}
                                 {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </li>
+                            {% endwith %}
+                        </span>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -159,7 +154,7 @@
                     {% for tag in object.tags.all %}
                         <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ tag }}</span></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -169,7 +164,7 @@
                     {% for email_address in object.email_addresses.all %}
                         <li class="no-padding"><a href="#" class="btn btn-sm default">{{ email_address }}</a></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -181,7 +176,7 @@
                     {% for phone_number in object.phone_numbers.all %}
                         <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -189,9 +184,21 @@
                 <h4>{% trans 'Addresses' %}</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
                     {% for address in object.addresses.all %}
-                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ address }}</span></li>
+                        <li class="no-padding">
+                            <span class="label label-btn label-btn-sm label-btn-default text-left">
+                            {% if address.street or address.street_number or address.complement %}
+                                {{ address }} <br/>
+                            {% endif %}
+                                {% if address.postal_code or address.city %}
+                                    {{ address.postal_code }} {{ address.city }} <br/>
+                                {% endif %}
+                                {% if address.country %}
+                                    {{ address.get_country_display }}
+                                {% endif %}
+                            </span>
+                        </li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>

@@ -44,6 +44,10 @@ label.required::after {
     vertical-align: middle;
 }
 
+.label-btn.text-left {
+    text-align: left;
+}
+
 .summary-list li:first-child {
     border-top: none;
 }
@@ -52,7 +56,29 @@ label.required::after {
     padding: 10px 0;
     overflow: hidden;
     border-top: 1px solid #EEE;
-    min-height: 49px;
+}
+
+.summary-list li span {
+    float: left;
+    width: 50%;
+    font-size: 14px;
+}
+
+.summary-list li span:first-child {
+    width: 25%;
+    padding-right: 5px;
+}
+
+.summary-list li span:last-child {
+    padding-left: 5px;
+}
+
+.summary-more-information {
+    display: none;
+}
+
+.summary-more-information-btn {
+    margin-bottom: 20px;
 }
 
 .summary-list .summary-label {
@@ -69,6 +95,21 @@ label.required::after {
 .summary-list.small-summary-list li {
     min-height: inherit;
     padding: 6px 0;
+}
+
+.note-input-wrapper {
+    margin-left: 190px;
+    padding-right: 15px
+}
+
+@media (max-width: 767px) {
+    .note-input-wrapper {
+        margin-left: 0;
+    }
+}
+
+.note-input-field {
+    padding-right: 0;
 }
 
 .block-list a,
@@ -185,7 +226,7 @@ label.required::after {
 .timeline li.timeline-blue .timeline-time span.date,
 .timeline li.timeline-purple .timeline-time span.date,
 .timeline li.timeline-grey .timeline-time span.date {
-    font-size: 20px;
+    font-size: 16px;
 }
 .timeline>li .timeline-time span.time {
     font-size: 36px;

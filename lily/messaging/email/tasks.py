@@ -165,7 +165,7 @@ def retrieve_new_emails_for(emailaccount_id):
                                 criteria = ['SINCE "%s"' % datetime_since]
                                 folder = server.get_folder(ALLMAIL)
                                 before = datetime.now()
-                                synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                                synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_old=modifiers_old, modifiers_new=modifiers_new, new_only=True)
                                 task_logger.info('Retrieving new messages in folder %s since %s list in %ss', folder, datetime_since, (datetime.now() - before).total_seconds())
 
                                 emailaccount.last_sync_date = now_utc

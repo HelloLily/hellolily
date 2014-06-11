@@ -1346,7 +1346,8 @@ class EmailConfigurationWizardView(SessionWizardView):
         if is_ajax(self.request):
             response = anyjson.serialize({
                 'error': False,
-                'html': response.content
+                'html': response.content,
+                'clear_serialize': True
             })
             return HttpResponse(response, content_type='application/json')
 

@@ -86,6 +86,10 @@ $(function($) {
                 }, 300);
             }).ajaxSubmit({
                 success: function(response) {
+                    if(response.clear_serialize) {
+                        // clear serialized_form so certain modals don't show a popup when completed
+                        $(form).data('serialized_form', '');
+                    }
                     if(response.error) {
                         if(response.html) {
                             updateModal($(form), response.html);
@@ -98,6 +102,9 @@ $(function($) {
                         if(response.html) {
                             updateModal($(form), response.html);
                         } else {
+                            // fool the "confirm prevent accidental close" popup from triggering
+                            $(form).data('serialized_form', $(form).serialize());
+
                             $(form).closest('.modal').modal('hide');
                         }
                         // loads notifications if any

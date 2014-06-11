@@ -5,9 +5,9 @@
         <form method="post">
             {% csrf_token %}
 
-            <div class="form-group">
-                {% bootstrap_field form.content layout="horizontal" form_group_class="form-group-inline" field_class="col-md-10 col-xs-10 clearfix" show_label=False %}
-                <button type="submit" class="btn btn-primary">{% trans 'Add note' %}</button>
+            <div class="form-group note-input-wrapper">
+                {% bootstrap_field form.content layout="horizontal" form_group_class="form-group-inline" field_class="col-md-10 col-xs-9 clearfix note-input-field" show_label=False %}
+                <button type="submit" class="btn btn-primary col-md-2 col-xs-3">{% trans 'Add note' %}</button>
                 <div class="clearfix"></div>
             </div>
         </form>

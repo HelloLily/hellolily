@@ -224,7 +224,7 @@ class DetailAccountView(HistoryListViewMixin):
         object_list = object_list.distinct().order_by('-sort_by_date')
         kwargs.update({
             'object_list': object_list[:self.page_size],
-            'show_more': len(object_list) > self.page_size
+            'show_more': len(object_list) > self.page_size,
         })
 
         return kwargs

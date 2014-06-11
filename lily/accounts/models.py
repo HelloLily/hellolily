@@ -114,6 +114,14 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     def get_visiting_addresses(self):
         return self.get_addresses(type='visiting')
 
+    def get_main_address(self):
+        addresses = self.get_addresses(type='visiting')
+
+        if len(addresses):
+            return addresses[0]
+        else:
+            return None
+
     def get_other_addresses(self):
         return self.get_addresses(type='other')
 

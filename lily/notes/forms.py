@@ -18,6 +18,7 @@ class NoteForm(HelloLilyModelForm):
                 'placeholder': _('Write your note here'),
                 'click_show': False,
                 'field_classes': 'inline note-textarea',
+                'rows': 1,
             })
         }
 

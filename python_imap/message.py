@@ -5,7 +5,7 @@ from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 
 from bs4 import BeautifulSoup, UnicodeDammit
 
-from python_imap.utils import convert_html_to_text, get_extensions_for_type
+from python_imap.utils import convert_html_to_text, get_extensions_for_type, extract_tags_from_soup
 
 
 def decode_header_proper(value):
@@ -45,7 +45,7 @@ def parse_headers(message):
     return headers
 
 
-def parse_body(message_part):
+def parse_body(message_part, remove_tags=[]):
     """
     Returns content type and decoded message part.
     """
@@ -53,17 +53,35 @@ def parse_body(message_part):
     payload = message_part.get_payload(decode=True)
     decoded_payload = None
 
-    try:
-        decoded_payload = payload.decode(message_part.get_content_charset())
-    except:
-        if content_type == 'text/html':
-            soup = BeautifulSoup(payload)
+    # Don't trust message_part.get_content_charset(), use it as fallback only
+    if content_type == 'text/html':
+        soup = BeautifulSoup(payload)
 
-            try:
-                decoded_payload = payload.decode(soup.original_encoding)
-            except:
-                pass
+        if remove_tags:
+            soup = extract_tags_from_soup(soup, remove_tags)
 
+        if soup.original_encoding is not None:
+            encoding = soup.original_encoding
+        else:
+            encoding = message_part.get_content_charset()
+
+        try:
+            decoded_payload = payload.decode(encoding)
+        except:
+            pass
+    elif content_type == 'text/plain':
+        dammit = UnicodeDammit(payload)
+        if dammit.original_encoding is not None:
+            encoding = dammit.original_encoding
+        else:
+            encoding = message_part.get_content_charset()
+
+        try:
+            decoded_payload = payload.decode(encoding)
+        except:
+            pass
+
+    # If decoding fails, just force utf-8
     if decoded_payload is None and payload is not None:
         decoded_payload = payload.decode('utf-8', errors='replace')
 
@@ -136,7 +154,7 @@ def parse_attachment(message_part, attachments, inline_attachments):
     return False
 
 
-def parse_message(message):
+def parse_message(message, remove_tags=[]):
     """
     Parse an email.message.Message instance.
     """
@@ -154,7 +172,7 @@ def parse_message(message):
         if message_part is None:
             continue
 
-        content_type, body = parse_body(message_part)
+        content_type, body = parse_body(message_part, remove_tags=remove_tags)
         if content_type == 'text/html':
             html += body
         elif content_type == 'text/plain':
@@ -280,24 +298,24 @@ class Message(object):
 
         return self.subject
 
-    def _parse_body(self):
+    def _parse_body(self, remove_tags=[]):
         if self._message is not None and 'BODY[]' in self._imap_response:
-            text, html, attachments, inline_attachments = parse_message(self._message)
+            text, html, attachments, inline_attachments = parse_message(self._message, remove_tags=remove_tags)
 
             self.text = text
             self.html = html
             self.attachments = attachments
             self.inline_attachments = inline_attachments
 
-    def get_text_body(self):
+    def get_text_body(self, remove_tags=[]):
         if self.text is None:
-            self._parse_body()
+            self._parse_body(remove_tags=remove_tags)
 
         return self.text
 
-    def get_html_body(self):
+    def get_html_body(self, remove_tags=[]):
         if self.html is None:
-            self._parse_body()
+            self._parse_body(remove_tags=remove_tags)
 
         return self.html
 

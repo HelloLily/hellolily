@@ -10,6 +10,7 @@ from email.MIMEBase import MIMEBase
 import anyjson
 from bs4 import BeautifulSoup
 from dateutil.tz import tzutc
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.formtools.wizard.views import SessionWizardView
@@ -32,7 +33,7 @@ from imapclient.imapclient import DRAFT
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
 from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
-from python_imap.utils import convert_html_to_text, parse_search_keys
+from python_imap.utils import convert_html_to_text, parse_search_keys, extract_tags_from_soup
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
                                         EmailConfigurationWizard_1, EmailConfigurationWizard_2,
@@ -742,6 +743,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
                 if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
                     soup = BeautifulSoup(unsaved_form.body_html, 'permissive')
+                    soup = extract_tags_from_soup(soup, settings.BLACKLISTED_EMAIL_TAGS)
 
                     # Replace the src attribute of inline images with a Content-ID for each image
                     inline_application_url = '/messaging/email/attachment/'

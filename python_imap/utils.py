@@ -22,6 +22,8 @@ def extract_tags_from_soup(soup, tags):
     for element in soup.findAll(tags):
         element.extract()
 
+    return soup
+
 
 def convert_br_to_newline(soup, newline='\n'):
     """
@@ -29,6 +31,8 @@ def convert_br_to_newline(soup, newline='\n'):
     """
     for linebreak in soup.findAll('br'):
         linebreak.replaceWith(newline)
+
+    return soup
 
 
 def convert_links_to_text(soup):
@@ -49,6 +53,8 @@ def convert_links_to_text(soup):
         text = '%s <%s>' % (link.text, link['href'])
         link.replaceWith(text)
 
+    return soup
+
 
 def convert_html_to_text(html, keep_linebreaks=False):
     """
@@ -62,7 +68,7 @@ def convert_html_to_text(html, keep_linebreaks=False):
     soup = BeautifulSoup(html)
 
     # replace links with plain text, so that no info get lost
-    convert_links_to_text(soup)
+    soup = convert_links_to_text(soup)
 
     # Remove doctype and html comments to prevent these from being included in
     # the plain text version
@@ -80,10 +86,10 @@ def convert_html_to_text(html, keep_linebreaks=False):
         'style',
         'video'
     ]
-    extract_tags_from_soup(soup, tags)
+    soup = extract_tags_from_soup(soup, tags)
 
     # Replace html breaks with newline or spaces
-    convert_br_to_newline(soup, '\n' if keep_linebreaks else ' ')
+    soup = convert_br_to_newline(soup, '\n' if keep_linebreaks else ' ')
 
     # Return text version of body without keeping whitespace
     body = soup.body if soup.body else soup

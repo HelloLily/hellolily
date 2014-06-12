@@ -8,6 +8,7 @@ from Crypto import Random
 from celery import task
 from celery.signals import task_prerun
 from dateutil.tz import tzutc
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.files import File
@@ -776,7 +777,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     email_message.is_seen = SEEN in message.get_flags()
                     email_message.flags = message.get_flags()
 
-                body_html = message.get_html_body()
+                body_html = message.get_html_body(remove_tags=settings.BLACKLISTED_EMAIL_TAGS)
                 body_text = message.get_text_body()
 
                 if body_html is not None and not body_text:
@@ -900,7 +901,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     query_string += 'flags = %s, '
                     param_list.append(str(message.get_flags()))
 
-                body_html = message.get_html_body()
+                body_html = message.get_html_body(remove_tags=settings.BLACKLISTED_EMAIL_TAGS)
                 body_text = message.get_text_body()
 
                 if body_html is not None and not body_text:

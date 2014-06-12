@@ -154,7 +154,7 @@
                     {% for tag in object.tags.all %}
                         <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ tag }}</span></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -164,7 +164,7 @@
                     {% for email_address in object.email_addresses.all %}
                         <li class="no-padding"><a href="#" class="btn btn-sm default">{{ email_address }}</a></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -176,7 +176,7 @@
                     {% for phone_number in object.phone_numbers.all %}
                         <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -198,7 +198,7 @@
                             </span>
                         </li>
                     {% empty %}
-                        <li class="no-padding"><a href="{% url account_edit pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
+                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
                     {% endfor %}
                 </ul>
             </div>

@@ -53,20 +53,35 @@ def parse_body(message_part, remove_tags=[]):
     payload = message_part.get_payload(decode=True)
     decoded_payload = None
 
-    try:
-        decoded_payload = payload.decode(message_part.get_content_charset())
-    except:
-        if content_type == 'text/html':
-            soup = BeautifulSoup(payload)
+    # Don't trust message_part.get_content_charset(), use it as fallback only
+    if content_type == 'text/html':
+        soup = BeautifulSoup(payload)
 
-            if remove_tags:
-                extract_tags_from_soup(soup, remove_tags)
+        if remove_tags:
+            soup = extract_tags_from_soup(soup, remove_tags)
 
-            try:
-                decoded_payload = payload.decode(soup.original_encoding)
-            except:
-                pass
+        if soup.original_encoding is not None:
+            encoding = soup.original_encoding
+        else:
+            encoding = message_part.get_content_charset()
 
+        try:
+            decoded_payload = payload.decode(encoding)
+        except:
+            pass
+    elif content_type == 'text/plain':
+        dammit = UnicodeDammit(payload)
+        if dammit.original_encoding is not None:
+            encoding = dammit.original_encoding
+        else:
+            encoding = message_part.get_content_charset()
+
+        try:
+            decoded_payload = payload.decode(encoding)
+        except:
+            pass
+
+    # If decoding fails, just force utf-8
     if decoded_payload is None and payload is not None:
         decoded_payload = payload.decode('utf-8', errors='replace')
 

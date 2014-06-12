@@ -165,10 +165,27 @@ def parse_search_keys(search_string):
     return criteria
 
 
+preferred_types_map = {
+    'text/plain': '.txt',
+    'text/html': '.html',
+}
+
+
 def get_extensions_for_type(general_type):
+    # For known mimetypes, use some extensions we know to be good or we prefer
+    # above others.. This solves some issues when the first of the available
+    # extensions doesn't make any sense, e.g.
+    # >>> get_extensions_for_type('txt')
+    # 'asc'
+    if general_type in preferred_types_map:
+        yield preferred_types_map[general_type]
+
     if not mimetypes.inited:
         mimetypes.init()
 
     for ext in mimetypes.types_map:
         if mimetypes.types_map[ext] == general_type or mimetypes.types_map[ext].split('/')[0] == general_type:
             yield ext
+
+    # return at least an extension for unknown mimetypes
+    yield '.bak'

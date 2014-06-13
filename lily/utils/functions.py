@@ -1,9 +1,11 @@
 import operator
 import re
+from itertools import chain
 
 from django import forms
 from django.contrib import messages
 from django.db.models import Q
+from python_imap.folder import ALLMAIL
 
 
 def autostrip(cls):
@@ -136,3 +138,60 @@ def flatten(input):
 
 def dummy_function(x, y=None):
     return x, y
+
+
+def get_emails_for_email_addresses(email_addresses_list):
+    """
+    Finds all emails with headers that have one of the given email_addresses.
+
+    Args:
+        list of strings: strings with email addresses.
+
+    Returns:
+        QuerySet of EmailMessages.
+    """
+    # Prevent circular import.
+    from lily.messaging.email.models import EmailAddressHeader, EmailMessage
+
+    # Get the message id's first.
+    filter_list = [Q(value=email.email_address) for email in email_addresses_list]
+    message_ids = EmailAddressHeader.objects.filter(
+        Q(name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
+        reduce(operator.or_, filter_list)
+    ).values_list('message_id', flat=True).distinct()
+    message_ids = list(message_ids)
+
+    # Get all the email messages with the collected id's.
+    # TODO: replace _default_manager with objects when Polymorphic works.
+    return EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier=ALLMAIL)
+
+
+def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
+    """
+    Gets a notes_qs and and an email_qs and combines it to one object_list.
+
+    Sorts the list on sort_by_date and limits the query to objects_size.
+
+    Args:
+        notes_qs: QuerySet of Notes.
+        email_qs: QuerySet of EmailMessages.
+        objects_size (int): Maximum size of returned object_list.
+
+    Returns:
+        QuerySet with objects sorted by date and limited by objects_size and
+        Boolean if there are more results than currently shown.
+    """
+    # Limit the maximum amount of objects by object_size.
+    notes_qs = notes_qs.order_by('-sort_by_date')[:objects_size + 1]
+    email_qs = email_qs.order_by('-sort_by_date')[:objects_size + 1]
+
+    # Combine qs_one and qs_two into one object_list.
+    object_list = sorted(
+        chain(notes_qs, email_qs),
+        key=lambda instance: instance.sort_by_date,
+        reverse=True,
+    )
+
+    paged_object_list = object_list[:objects_size]
+    show_more = len(object_list) > objects_size
+    return paged_object_list, show_more

@@ -84,7 +84,7 @@ class EmailMessage(Message):
     body_text = models.TextField(blank=True, null=True)
     size = models.IntegerField(default=0, null=True)  # size in bytes
     folder_name = models.CharField(max_length=255)
-    folder_identifier = models.CharField(max_length=255, blank=True, null=True)
+    folder_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
 
@@ -356,9 +356,21 @@ class EmailHeader(models.Model):
     A single e-mail header linked to an e-mail message.
     Most common are: 'to', 'from' and 'content-type'.
     """
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, db_index=True)
     value = models.TextField(null=True)
     message = models.ForeignKey(EmailMessage, related_name='headers')
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.name, self.value)
+
+
+class EmailAddressHeader(models.Model):
+    """
+    A simplified header with just the name of the header and the email address from the value of the header.
+    """
+    name = models.CharField(max_length=255, db_index=True)
+    value = models.TextField(null=True, db_index=True)
+    message = models.ForeignKey(EmailMessage)
 
     def __unicode__(self):
         return u'%s - %s' % (self.name, self.value)

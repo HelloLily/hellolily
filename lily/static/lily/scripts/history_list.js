@@ -1,6 +1,9 @@
 $(function($) {
+
+    var historyListItems = $('#history-list .history-list-item');
+
     var check_history_dates = function() {
-        var sort_date_in_seconds = $('.history-list-item').last().data('sort-date');
+        var sort_date_in_seconds = $(historyListItems).last().data('sort-date');
         var hash = parseInt(window.location.hash.substring(1), 10);
 
         // in seconds, convert to milliseconds
@@ -20,12 +23,19 @@ $(function($) {
         }
     };
 
-    var show_more_history = function(callback, scroll) {
-        $('#history .show-more').button('loading');
+    var showMoreButton = $('#tab-history .show-more');
 
-        var last_sort_date = $('#history .history-list-item').last().data('sort-date');
+    // show more history on click
+    $(showMoreButton).click(function() {
+        show_more_history(null, true);
+    });
+
+    var show_more_history = function(callback, scroll) {
+        $(showMoreButton).button('loading');
+
+        var last_sort_date = $(historyListItems).last().data('sort-date');
         var jqXHR = $.ajax({
-            url: $('#history .show-more').data('remote'),
+            url: $(showMoreButton).data('remote'),
             data: {'datetime': last_sort_date},
             type: 'GET',
             dataType: 'json'
@@ -37,29 +47,28 @@ $(function($) {
             } else if(response.redirect_url) {
                 redirect_to(response.redirect_url);
             }
-
             // put the last date in the url
-            window.location.hash = $('#history .history-list-item').last().data('sort-date');
+            window.location.hash = $(historyListItems).last().data('sort-date');
 
             // change button state
             if(!response.show_more) {
-                $('#history .show-more').button('disabled');
+                $(showMoreButton).button('disabled');
                 // push to event loop
                 setTimeout(function () {
-                    $('#history .show-more').attr('disabled', 'disabled');
+                    $(showMoreButton).attr('disabled', 'disabled');
                 }, 0);
             }
 
             // reset button state
             function reset_show_more() {
                 if(response.show_more) {
-                    $('#history .show-more').button('reset');
+                    $(showMoreButton).button('reset');
                 }
             }
             // reset button after scroll or reset immediately
             if(scroll) {
                 $('html, body').animate({
-                    scrollTop: $('#history .history-list-item').last().offset().top
+                    scrollTop: $(historyListItems).last().offset().top
                 }, 300, reset_show_more);
             } else {
                 reset_show_more();
@@ -70,11 +79,6 @@ $(function($) {
             }
         });
     };
-
-    // show more history on click
-    $('#history .show-more').click(function(e) {
-        show_more_history(null, true);
-    });
 
     // attempt to show more history on load if necessary
     check_history_dates();

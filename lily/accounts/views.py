@@ -1,7 +1,5 @@
-import datetime
-import operator
 import anyjson
-
+from datetime import datetime
 from urlparse import urlparse
 
 from django.contrib import messages
@@ -18,18 +16,17 @@ from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 
-from python_imap.folder import ALLMAIL
 from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Function, Contact
+from lily.notes.models import Note
 from lily.utils.functions import flatten, is_ajax
-from lily.utils.models import HistoryListItem
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import SortedListMixin, FilteredListMixin, \
     EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
-    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, HistoryListViewMixin, \
-    ExportListViewMixin, FilteredListByTagMixin, DataTablesListView
+    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, ExportListViewMixin, \
+    FilteredListByTagMixin, DataTablesListView, HistoryListViewMixin
 
 
 class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -175,58 +172,54 @@ class DetailAccountView(HistoryListViewMixin):
     """
     model = Account
 
-    def get_context_data(self, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         """
-        The get_context_data for HistoryListViewMixin returns an object list
-        containing all notes and all messages related to this Account. For the
-        Account overview we also want to show all notes and messages related to
-        Contacts related to this Account.
+        This is a copy from HistoryListViewMixin.
         """
-        kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
-        note_content_type = ContentType.objects.get_for_model(self.model)
-        note_content_type_contacts = ContentType.objects.get_for_model(Contact)
+        if is_ajax(request):
+            self.template_name = 'utils/history_list.html'
 
-        notes_query = [x.pk for x in self.object.get_contacts()]
+        return super(DetailAccountView, self).dispatch(request, *args, **kwargs)
 
-        # Build initial list with just notes
-        object_list = HistoryListItem.objects.filter(
-            (Q(note__content_type=note_content_type) & Q(note__object_id=self.object.pk)) |
-            (Q(note__content_type=note_content_type_contacts) & Q(note__object_id__in=notes_query))
+    def get_notes_list(self):
+        """
+        Returns an object list containing all notes and all messages related
+        to this Account. For the Account overview we also want to show all
+        notes and messages related to Contacts related to this Account.
+
+        Returns:
+        TODO: what does it return?
+        """
+        account_content_type = ContentType.objects.get_for_model(self.model)
+        contact_content_type = ContentType.objects.get_for_model(Contact)
+
+        contact_ids = Contact.objects.filter(functions__account_id=self.object.pk).values_list('pk', flat=True)
+
+        # Build initial list with just notes.
+        # TODO: replace _default_manager with objects when Polymorphic works.
+        notes_list = Note._default_manager.filter(
+            (
+                Q(content_type=account_content_type) &
+                Q(object_id=self.object.pk)
+            ) |
+            (
+                Q(content_type=contact_content_type) &
+                Q(object_id__in=contact_ids)
+            )
         )
-        extra_mail_adresses = []
+
+        return notes_list
+
+    def get_related_email_addresses_for_object(self):
+        # Get email addresses from related contacts.
+        email_address_list = []
         for contact in self.object.get_contacts():
-            for email_address in contact.email_addresses.all():
-                extra_mail_adresses.append(email_address.email_address)
+            email_address_list.extend(contact.email_addresses.all())
 
-        # Expand list with email messages if possible
-        if hasattr(self.object, 'email_addresses'):
-            email_address_list = [x.email_address for x in self.object.email_addresses.all()]
-            email_address_list += extra_mail_adresses
-            if len(email_address_list) > 0:
-                filter_list = [Q(message__emailmessage__headers__value__contains=x) for x in email_address_list]
-                object_list = object_list | HistoryListItem.objects.filter(
-                    Q(message__emailmessage__folder_identifier=ALLMAIL) &
-                    Q(message__emailmessage__headers__name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
-                    reduce(operator.or_, filter_list)
-                )
+        # Add email addresses of Account.
+        email_address_list.extend(self.object.email_addresses.all())
 
-        # Filter list by timestamp from request.GET
-        epoch = self.request.GET.get('datetime')
-        if epoch is not None:
-            try:
-                filter_date = datetime.fromtimestamp(int(epoch))
-                object_list = object_list.filter(sort_by_date__lt=filter_date)
-            except ValueError:
-                pass
-
-        # Paginate list
-        object_list = object_list.distinct().order_by('-sort_by_date')
-        kwargs.update({
-            'object_list': object_list[:self.page_size],
-            'show_more': len(object_list) > self.page_size,
-        })
-
-        return kwargs
+        return email_address_list
 
 
 class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,

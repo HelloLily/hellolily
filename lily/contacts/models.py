@@ -50,10 +50,12 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL, verbose_name=_('salutation'))
 
     def primary_email(self):
-        for email in self.email_addresses.all():
-            if email.is_primary:
-                return email
-        return None
+        if not hasattr(self, '_primary_email'):
+            self._primary_email = None
+            for email in self.email_addresses.all():
+                if email.is_primary:
+                    self._primary_email = email
+        return self._primary_email
 
     def get_any_email_address(self):
         """

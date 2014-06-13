@@ -189,12 +189,13 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
             return ''
 
     def get_contacts(self):
-        functions = self.functions.all()
-        contacts = []
-        for function in functions:
-            contacts.append(function.contact)
+        if not hasattr(self, '_contacts'):
+            functions = self.functions.all()
+            self._contacts = []
+            for function in functions:
+                self._contacts.append(function.contact)
 
-        return contacts
+        return self._contacts
 
     def get_emails(self):
         from lily.messaging.email.models import EmailHeader

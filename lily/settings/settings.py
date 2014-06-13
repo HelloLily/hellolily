@@ -370,6 +370,11 @@ AWS_HEADERS = {
     'Expires': expires,
 }
 
+# Easy Thumbnails need extra setting to make use of South migrations.
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+}
+
 if DEBUG:
     CACHES = {
         'default': {

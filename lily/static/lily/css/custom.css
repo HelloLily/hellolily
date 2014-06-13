@@ -190,6 +190,18 @@ label.required::after {
     padding-bottom: 12px;
 }
 
+.header .hor-menu ul.nav li a {
+    padding: 11px 5px;
+    margin-left: 15px;
+}
+
+.header .hor-menu ul.nav li a.icon-plus {
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 15px;
+    width: 25px;
+}
+
 /* make badges readable again */
 .badge {
     font-weight: bold;

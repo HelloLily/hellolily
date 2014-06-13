@@ -46,8 +46,8 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
     ]
 
     # SortedlistMixin
-    sortable = [2, 4, 5, 6]
-    default_order_by = 2
+    sortable = [1, 3, 4, 5]
+    default_order_by = 1
 
     # DataTablesListView
     columns = SortedDict([
@@ -345,7 +345,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
+        return '%s?order_by=4&sort_order=desc' % (reverse('contact_list'))
 
 
 class EditContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
@@ -369,7 +369,7 @@ class EditContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMix
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
+        return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
 class DeleteContactView(DeleteView):

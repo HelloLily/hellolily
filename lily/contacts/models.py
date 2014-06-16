@@ -55,6 +55,25 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                 return email
         return None
 
+    def get_any_email_address(self):
+        """
+        Will return any email address set to this contact if one exists.
+
+        Check if there is a primary email address, if none are found,
+        grab the first of the email address set.
+
+        Returns:
+            EmailAddress or None.
+        """
+        if not hasattr(self, '_any_email_address'):
+            self._any_email_address = self.primary_email()
+            if self._any_email_address is None:
+                try:
+                    self._any_email_address = self.email_addresses.all()[0]
+                except IndexError:
+                    pass
+        return self._any_email_address
+
     def get_work_phone(self):
         for phone in self.phone_numbers.all():
             if phone.type == 'work':

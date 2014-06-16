@@ -3,9 +3,9 @@
 {% endif %}
 {% if item.primary_email %}
     <div>
-        <a href="mailto:{{ item.primary_email }}" title="{{ item.primary_email }}">
+        <a href="mailto:{{ item.get_any_email_address }}" title="{{ item.get_any_email_address }}">
             <i class="icon-envelope-alt"></i>
-            {{ item.primary_email|truncatechars:"35" }}
+            {{ item.get_any_email_address|truncatechars:"35" }}
         </a>
     </div>
 {% endif %}

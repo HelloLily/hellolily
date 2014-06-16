@@ -157,7 +157,7 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         """
         Used by ExportListViewMixin.
         """
-        return contact.primary_email()
+        return contact.get_any_email_address()
 
     def value_for_column_work_phone(self, contact):
         """

@@ -25,7 +25,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span>{{ object.primary_email|default:_('Unknown') }}</span>
+                    <span>{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
                 <li class="summary-more-information">
                     <span class="summary-label">{% trans 'Name' %}</span>

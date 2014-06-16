@@ -136,7 +136,7 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         """
         Used by ExportListViewMixin.
         """
-        return account.primary_email()
+        return account.get_any_email_address()
 
     def value_for_column_work_phone(self, account):
         """

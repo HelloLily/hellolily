@@ -41,8 +41,8 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
     ]
 
     # SortedListMixin
-    sortable = [2, 4, 5]
-    default_order_by = 2
+    sortable = [1, 3, 4]
+    default_order_by = 1
 
     # DataTablesListView
     columns = SortedDict([
@@ -198,7 +198,6 @@ class DetailAccountView(HistoryListViewMixin):
             for email_address in contact.email_addresses.all():
                 extra_mail_adresses.append(email_address.email_address)
 
-
         # Expand list with email messages if possible
         if hasattr(self.object, 'email_addresses'):
             email_address_list = [x.email_address for x in self.object.email_addresses.all()]
@@ -308,12 +307,6 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
 
         return kwargs
 
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted.
-        """
-        return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
-
 
 class AddAccountView(CreateUpdateAccountView, CreateView):
     """
@@ -389,6 +382,12 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
 
         return super(AddAccountView, self).form_invalid(form)
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '%s?order_by=3&sort_order=desc' % (reverse('account_list'))
+
 
 class EditAccountView(CreateUpdateAccountView, UpdateView):
     """
@@ -404,6 +403,12 @@ class EditAccountView(CreateUpdateAccountView, UpdateView):
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name)
 
         return success_url
+
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
 
 
 class DeleteAccountView(DeleteView):

@@ -1242,8 +1242,16 @@ class EmailAddressFormSetViewMixin(ModelFormSetViewMixin):
                     formset_form.instance.delete()
                 continue
 
-            # Save e-mail address if an email address is filled in
+            # Save e-mail address if an email address is filled in.
             if formset_form.instance.email_address:
+                # Check if object already has a primary e-mail address.
+                try:
+                    self.object.email_addresses.get(is_primary=True)
+                except EmailAddress.DoesNotExist:
+                    # Make this the primary e-mail address.
+                    formset_form.instance.is_primary = True
+
+                # Save e-mail address and add to object.
                 formset_form.save()
                 self.object.email_addresses.add(formset_form.instance)
 

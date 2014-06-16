@@ -42,7 +42,7 @@ django-activelink>=0.3
 
 django-extra-views>=0.2.5
 
-django-bootstrap3
+django-bootstrap3==2.5.2
 django-bootstrap3-datetimepicker
 django-fields>=0.2.2
 django-formset-js>=0.4.0

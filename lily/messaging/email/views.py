@@ -1065,7 +1065,6 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
 
         if self.object:
             kwargs['initial']['subject'] = 'Re: %s' % self.object.subject
-            kwargs['initial']['send_from'] = self.object.to_email
             kwargs['initial']['send_to_normal'] = self.object.from_combined
 
         return kwargs
@@ -1102,7 +1101,6 @@ class EmailMessageForwardView(EmailMessageReplyView):
 
         if self.object:
             kwargs['initial']['subject'] = 'Fwd: %s' % self.object.subject
-            kwargs['initial']['send_from'] = self.object.to_email
             kwargs['initial']['send_to_normal'] = ''
 
         return kwargs
@@ -1112,9 +1110,10 @@ class EmailMessageForwardView(EmailMessageReplyView):
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if self.object and self.object.to_email:
-            sender = email.utils.parseaddr(self.object.to_email)
-            reply_to_name = sender[0]
+        if self.object and self.object.account:
+            sender = self.object.to_emails(include_self=True)[0]
+            # Email header might not always contain the name of the user, so use the EmailAccount name
+            reply_to_name = self.object.account.from_name
             reply_to_address = sender[1]
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
         return email_headers

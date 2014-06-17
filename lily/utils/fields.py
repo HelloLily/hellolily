@@ -23,7 +23,14 @@ class TagsField(CharField):
 
     def to_python(self, value):
         value = super(TagsField, self).to_python(value)
-        return value.split(',')
+        tags = value.split(',')
+
+        # Remove "empty" tags to prevent adding empty tags for objects
+        for i, tag in enumerate(reversed(tags)):
+            if not tag:
+                del tags[i]
+
+        return tags
 
 
 class EmailProviderChoiceField(ModelChoiceField):

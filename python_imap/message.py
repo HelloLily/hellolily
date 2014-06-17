@@ -1,6 +1,6 @@
 import email
 import re
-from email.header import decode_header
+from email.header import decode_header, Header
 from email.utils import CRLF, ecre, EMPTYSTRING, fix_eols, getaddresses
 
 from bs4 import BeautifulSoup, UnicodeDammit
@@ -9,6 +9,15 @@ from python_imap.utils import convert_html_to_text, get_extensions_for_type, ext
 
 
 def decode_header_proper(value):
+    def decode_fragment(fragment, encoding):
+        if encoding is None:
+            dammit = UnicodeDammit(fragment)
+            if dammit.original_encoding is not None:
+                encoding = dammit.original_encoding
+            else:
+                encoding = 'utf-8'
+        return fragment.decode(encoding, 'replace')
+
     if value is None:
         return None
 
@@ -17,16 +26,32 @@ def decode_header_proper(value):
     value = fix_eols(value)
     value = re.sub(CRLF, EMPTYSTRING, value)
 
+    # Fix partially encoded headers
+    result = ecre.search(value)
+    if result is not None:
+        # Check for partial encoded headers
+        if result.start() > 0 or result.end() < len(value):
+            # Decode every part (in reverse to modify value in-place)
+            for match in reversed([match for match in ecre.finditer(value)]):
+                header_fragment = decode_fragment(value[match.start():match.end()], match.group('charset'))
+
+                # Read it like any other header
+                header_subfragments = []
+                decoded_subfragments = decode_header(header_fragment)
+                for subfragment, encoding in decoded_subfragments:
+                    subfragment = decode_fragment(subfragment, encoding)
+                    header_subfragments.append(subfragment)
+
+                decoded_header_fragment = ''.join(header_subfragments)
+                value = value[:match.start()] + decoded_header_fragment + value[match.end():]
+
+            # Re-encode all parts as a whole
+            value = Header(value, charset='utf-8').encode()
+
     header_fragments = []
     decoded_fragments = decode_header(value)
     for fragment, encoding in decoded_fragments:
-        if encoding is None:
-            dammit = UnicodeDammit(fragment)
-            if dammit.original_encoding is not None:
-                encoding = dammit.original_encoding
-            else:
-                encoding = 'utf-8'
-        fragment = fragment.decode(encoding, 'replace')
+        fragment = decode_fragment(fragment, encoding)
         header_fragments.append(fragment)
 
     return ''.join(header_fragments)

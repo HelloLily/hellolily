@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import gc
 import logging
 import StringIO
 import traceback
@@ -25,7 +26,11 @@ from lily.messaging.email.utils import get_attachment_upload_path, replace_ancho
 from lily.users.models import CustomUser
 
 # while profiling
-import resource
+# import sys
+# from celery.utils.debug import sample_mem, memdump
+# from django.template.defaultfilters import filesizeformat
+# from lily.utils.background import meminspect
+# from pympler.asizeof import asizeof
 
 
 task_logger = logging.getLogger('celery_task')
@@ -160,7 +165,7 @@ def retrieve_new_emails_for(emailaccount_id):
                                 criteria = ['SINCE "%s"' % datetime_since]
                                 folder = server.get_folder(ALLMAIL)
                                 before = datetime.now()
-                                synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_old=modifiers_old, modifiers_new=modifiers_new)
+                                synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_old=modifiers_old, modifiers_new=modifiers_new, new_only=True)
                                 task_logger.info('Retrieving new messages in folder %s since %s list in %ss', folder, datetime_since, (datetime.now() - before).total_seconds())
 
                                 emailaccount.last_sync_date = now_utc
@@ -228,8 +233,6 @@ def retrieve_low_priority_emails_for(emailaccount_id):
           by a normal contact/account)
     The downloaded emails are 47h59s old at max.
     """
-    rusage = resource.getrusage(resource.RUSAGE_SELF)
-    task_logger.warn('rusage in retrieve_low_priority_emails_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
@@ -274,13 +277,11 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                             modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                             folders = server.get_folders(exclude=[DRAFTS])
                             for folder in folders:
-                                task_logger.warn('rusage in retrieve_low_priority_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                                 before = datetime.now()
                                 synchronize_folder(emailaccount, server, folder, criteria=['SINCE "%s"' % datetime_since], modifiers_new=modifiers_new, new_only=True)
                                 task_logger.info('Retrieving new messages in folder %s list in %ss', folder, (datetime.now() - before).total_seconds())
 
                             # Download full messags from DRAFTS
-                            task_logger.warn('rusage in retrieve_low_priority_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                             modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                             synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
                         else:
@@ -293,7 +294,6 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                             server.logout()
             finally:
                 release_lock(lock_id)
-    task_logger.warn('rusage in retrieve_low_priority_emails_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='retrieve_all_emails_for')
@@ -302,8 +302,6 @@ def retrieve_all_emails_for(emailaccount_id):
     Download all emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails.
     """
-    rusage = resource.getrusage(resource.RUSAGE_SELF)
-    task_logger.warn('rusage in retrieve_all_emails_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
@@ -330,10 +328,8 @@ def retrieve_all_emails_for(emailaccount_id):
                         modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                         folders = server.get_folders(exclude=[DRAFTS])
                         for folder in folders:
-                            task_logger.warn('rusage in retrieve_all_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                             synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_new=modifiers_new, new_only=True)
 
-                        task_logger.warn('rusage in retrieve_all_emails_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                         modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
                         synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
 
@@ -349,7 +345,6 @@ def retrieve_all_emails_for(emailaccount_id):
 
             finally:
                 release_lock(lock_id)
-    task_logger.warn('rusage in retrieve_all_emails_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='synchronize_email_flags_scheduler')
@@ -396,8 +391,6 @@ def retrieve_all_flags_for(emailaccount_id):
     Download all FLAGS for emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails but only updates the status UNSEEN, DELETED etc.
     """
-    rusage = resource.getrusage(resource.RUSAGE_SELF)
-    task_logger.warn('rusage in retrieve_all_flags_for --START-- Memory usage: %d', rusage.ru_maxrss)
     try:
         emailaccount = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
@@ -423,7 +416,6 @@ def retrieve_all_flags_for(emailaccount_id):
                         modifiers_old = ['FLAGS', 'INTERNALDATE']
                         folders = server.get_folders(exclude=[DRAFTS, TRASH, SENT])
                         for folder in folders:
-                            task_logger.warn('rusage in retrieve_all_flags_for --BETWEEN-- Memory usage: %d', rusage.ru_maxrss)
                             # synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old, old_only=True)
                             synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old)
                     else:
@@ -437,7 +429,6 @@ def retrieve_all_flags_for(emailaccount_id):
 
             finally:
                 release_lock(lock_id)
-    task_logger.warn('rusage in retrieve_all_flags_for --END-- Memory usage: %d', rusage.ru_maxrss)
 
 
 @task(name='mark_messages')
@@ -893,7 +884,10 @@ def save_email_messages(messages, account, folder, new_messages=False):
             query_count = 0
             update_email_headers = {}
 
-            # update_email_attachments = {}
+            cursor = None
+            if len(messages) > 0:
+                cursor = connection.cursor()
+
             task_logger.info('Looping through %s messages', len(messages))
             for message in messages:
                 query_string = 'UPDATE email_emailmessage SET '
@@ -990,8 +984,6 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     attachment_file.size = attachment.get('size')
                     attachment_file.name = attachment.get('name')
 
-                    EmailAttachment.objects.filter(attachment='messaging/email/attachments/%(tenant_id)d/%(account_id)d/%(folder_name)s/%(filename)s')
-
                     inline_email_attachment = EmailAttachment()
                     inline_email_attachment.attachment = attachment_file
                     inline_email_attachment.size = attachment.get('size')
@@ -1007,15 +999,22 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 if query_count == query_batch_size:
                     # Execute queries
                     task_logger.info('Executing query batch (%s) now - queries for e-mail messages (full batch)', query_count)
-                    cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
-                    query_count = 0  # reset counter
+
+                    # reset counter and query variables
+                    query_count = 0
+                    total_query_string = ''
+                    param_list = []
 
             # Execute leftover queries
             if query_count and query_count < query_batch_size:
                 task_logger.info('Executing query batch (%s) now - queries for e-mail messages (leftovers next batch)', query_count)
-                cursor = connection.cursor()
                 cursor.execute(total_query_string, param_list)
+
+                # reset counter and query variables
+                query_count = 0
+                total_query_string = ''
+                param_list = []
 
             # Fetch message ids
             email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
@@ -1082,17 +1081,27 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     if query_count == query_batch_size:
                         # Execute queries - queries for e-mail headers (full batch)
                         task_logger.info('Executing query batch (%s) now - queries for e-mail headers (full batch)', query_count)
-                        cursor = connection.cursor()
                         cursor.execute(total_query_string, param_list)
-                        query_count = 0  # reset counter
+
+                        # reset counter and query variables
+                        query_count = 0
+                        total_query_string = ''
+                        param_list = []
 
                 # Execute leftover queries
                 if query_count and query_count < query_batch_size:
                     task_logger.info('Executing query batch (%s) now - queries for e-mail headers (leftovers next batch)', query_count)
-                    cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
+
+                    # reset counter and query variables
+                    query_count = 0
+                    total_query_string = ''
+                    param_list = []
+
                 else:
                     task_logger.info('Not executing queries yet')
+            if cursor:
+                cursor.close()
 
         # Save attachments for new messages
         for uid, attachment_list in new_email_attachments.items():
@@ -1162,6 +1171,17 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
     except Exception, e:
         print traceback.format_exc(e)
+    finally:
+        # Let garbage collection do it's job
+        messages = None
+        update_email_headers = None
+        update_header_obj_list = None
+        param_list = None
+        email_messages = None
+        existing_headers_qs = None
+        new_message_obj_list = None
+
+        gc.collect()
 
     task_logger.info('Messages saved')
 

@@ -7,10 +7,10 @@ web: python manage.py runserver 0:8000
 beat: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
 
 ## worker: Execute tasks in queue 'queue1'
-worker1: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 1
+worker1: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 1  --maxtasksperchild=5
 
 ## worker: Execute tasks in queue 'queue2'
-worker2: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 1
+worker2: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 1  --maxtasksperchild=5
 
 ## worker: Execute tasks in queue 'queue3'
-worker3: celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h -c 1
+worker3: celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h -c 1  --maxtasksperchild=5

@@ -1,3 +1,4 @@
+import logging
 import re
 from types import FunctionType
 from urllib import unquote
@@ -16,6 +17,7 @@ from django.template.loader_tags import BlockNode, ExtendsNode
 
 from lily.messaging.email.decorators import get_safe_template
 from lily.tenant.middleware import get_current_user
+from lily.utils.background import meminspect
 
 
 _EMAIL_PARAMETER_DICT = {}
@@ -405,6 +407,9 @@ def get_task_count(name, statuses, arguments=None):
                                 count += 1
                         else:
                             count += 1
+
+    logger = logging.getLogger('celery_task')
+    meminspect(locals(), logger)
 
     return count
 

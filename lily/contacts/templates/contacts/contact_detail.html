@@ -220,8 +220,8 @@
         <ul class="list-unstyled profile-nav">
             <li><a href="#">E-mails <span>{{ object.get_emails.count }}</span></a></li>
             <li><a href="#">Tasks <span>NaN</span></a></li>
-            <li><a href="#">Deals <span>{{ object.get_assigned_deals.count }}</span></a></li>
-            <li><a href="#">Cases <span>{{ object.get_assigned_cases.count }}</span></a></li>
+            <li><a href="#">Deals <span>{{ object.get_assigned_deals.count|default:0 }}</span></a></li>
+            <li><a href="#">Cases <span>{{ object.get_assigned_cases.count|default:0 }}</span></a></li>
         </ul>
     </div>
 {% endblock %}

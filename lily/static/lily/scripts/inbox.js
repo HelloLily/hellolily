@@ -448,4 +448,9 @@ $(function($) {
         App.blockUI($('.inbox-content'), false, '');
         $(this).button('loading');
     });
+
+    $('.inbox-compose [type="submit"]').click(function() {
+        App.blockUI($('.inbox-content'), false, '');
+        $('inbox-compose button[name="submit-send"]').button('loading');
+    });
 });

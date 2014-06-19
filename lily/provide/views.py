@@ -106,7 +106,7 @@ class DataproviderView(ProvideBaseView):
         Create a generic json format for account information based on the json from dataprovider.
         """
         # Expected api output is json
-        self.api_output = anyjson.serialize(self.api_output)
+        self.api_output = anyjson.deserialize(self.api_output)
 
         # Raise exception when the api returned an error
         if self.api_output.get('error'):

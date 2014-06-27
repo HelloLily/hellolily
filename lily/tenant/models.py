@@ -1,5 +1,5 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.db.models import Q
 from polymorphic import PolymorphicManager, PolymorphicModel
 
@@ -33,7 +33,9 @@ class Tenant(models.Model):
 
 
 class NullableTenantManager(models.Manager):
-
+    """
+    Allows the tenant of a model to be null.
+    """
     def get_query_set(self):
         user = get_current_user()
         if user and user.is_authenticated():
@@ -86,18 +88,22 @@ class PolymorphicSingleTenantMixin(PolymorphicModel, SingleTenantMixin):
 
 
 class NullableTenantMixin(models.Model):
-    tenant = models.ForeignKey(Tenant, blank=True)
+    """
+    Mixin which can be used to allow the tenant of an object to be null.
+    Not inheriting from TenantMixin since tenant needs to be null and fields can't be overwritten.
+    """
     objects = NullableTenantManager()
-
-    class Meta:
-        abstract = True
+    tenant = models.ForeignKey(Tenant, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         user = get_current_user()
-        if not self.id and user and user.is_authenticated():
+        if user and user.is_authenticated():
             self.tenant = user.tenant
 
         return super(NullableTenantMixin, self).save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
 
 
 TenantMixin = SingleTenantMixin

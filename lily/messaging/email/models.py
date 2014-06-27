@@ -16,12 +16,12 @@ from python_imap.utils import convert_html_to_text
 
 from lily.messaging.models import Message, MessagesAccount
 from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
-from lily.tenant.models import TenantMixin
+from lily.tenant.models import TenantMixin, NullableTenantMixin
 from lily.utils.models import EmailAddress
 from lily.messaging.email.utils import get_attachment_upload_path
 
 
-class EmailProvider(TenantMixin):
+class EmailProvider(NullableTenantMixin):
     """
     A provider contains the connection information for an account.
     """

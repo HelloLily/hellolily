@@ -1,5 +1,6 @@
 from django.forms import ModelChoiceField, CharField
 
+from lily.utils.validators import HostnameValidator
 from lily.utils.widgets import EmailProviderSelect, TagInput
 
 
@@ -42,3 +43,10 @@ class EmailProviderChoiceField(ModelChoiceField):
 
     def prepare_value(self, value):
         return value
+
+
+class HostnameField(CharField):
+    """
+    A field which has the same validation as a URLField, but doesn't require a scheme (eg. 'http://')
+    """
+    default_validators = [HostnameValidator()]

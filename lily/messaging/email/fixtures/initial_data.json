@@ -3,7 +3,7 @@
         "pk": 1,
         "model": "email.emailprovider",
         "fields": {
-            "tenant": 1,
+            "tenant": null,
             "name": "GMail",
             "imap_host": "imap.gmail.com",
             "imap_port": 993,

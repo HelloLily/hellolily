@@ -1,9 +1,19 @@
-from django.conf.urls import patterns, url
+import re
 
-from lily.utils.views import ajax_update_view, notifications_view
+from django.core.validators import RegexValidator
+from django.utils.translation import ugettext as _
 
 
-urlpatterns = patterns('',
-                       url(r'^ajax/(?P<app_name>[A-Za-z]+)/(?P<model_name>[A-Za-z]+)/(?P<object_id>[0-9]+)/$', ajax_update_view, name='ajax_update_view'),
-                       url(r'^utils/notifications.js$', notifications_view, name='notifications'),
-                       )
+class HostnameValidator(RegexValidator):
+    """
+    Check if the given string is a valid hostname
+    """
+    regex = re.compile(
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
+        r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+    message = _('Enter a valid hostname.')

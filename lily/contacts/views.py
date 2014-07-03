@@ -205,6 +205,16 @@ class DetailContactView(HistoryListViewMixin):
     template_name = 'contacts/contact_detail.html'
     model = Contact
 
+    def get_queryset(self):
+        """
+        Prefetch related objects to reduce lazy lookups.
+        """
+        qs = super(DetailContactView, self).get_queryset()
+        qs = qs.prefetch_related('functions__account__functions__contact',
+                                 'functions__account__functions__contact__email_addresses',
+                                 'functions__account__functions__contact__phone_numbers')
+        return qs
+
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
     """

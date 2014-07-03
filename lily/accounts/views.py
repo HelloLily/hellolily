@@ -181,6 +181,16 @@ class DetailAccountView(HistoryListViewMixin):
 
         return super(DetailAccountView, self).dispatch(request, *args, **kwargs)
 
+    def get_queryset(self):
+        """
+        Prefetch related objects to reduce lazy lookups.
+        """
+        qs = super(DetailAccountView, self).get_queryset()
+        qs = qs.prefetch_related('functions__contact__functions',
+                                 'functions__contact__email_addresses',
+                                 'functions__contact__phone_numbers')
+        return qs
+
     def get_notes_list(self):
         """
         Returns an object list containing all notes and all messages related

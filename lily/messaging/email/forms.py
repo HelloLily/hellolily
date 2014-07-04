@@ -200,7 +200,7 @@ class ComposeEmailForm(HelloLilyModelForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
-    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects.all(), empty_label=_('Choose a template'), required=False)
+    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects, empty_label=_('Choose a template'), required=False)
 
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)

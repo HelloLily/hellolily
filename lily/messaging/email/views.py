@@ -144,24 +144,30 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Verify this email message belongs to an account request.user has access to.
         """
-        object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
-        if object.account not in self.all_email_accounts:
-            raise Http404()
+        email = super(EmailMessageDetailView, self).get_object(queryset=queryset)
 
-        if object.body_html is None or len(object.body_html.strip()) == 0 and (object.body_text is None or len(object.body_text.strip()) == 0):
-            self.get_from_imap(object)
+        # Only if the email is in one of our accounts, we mark it a read
+        mark_as_read = False
+        for account in self.all_email_accounts:
+            if account.user_group.filter(pk=self.request.user.pk).exists() > 0 and email.account == account:
+                mark_as_read = True
+                break
+
+        if email.body_html is None or not email.body_html.strip() and (email.body_text is None or not email.body_text.strip()):
+            self.get_from_imap(object, readonly=(not mark_as_read))
 
             # Re-fetch
-            object = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+            email = super(EmailMessageDetailView, self).get_object(queryset=queryset)
 
         # Mark as read
-        object.is_seen = True
-        object.save()
+        if mark_as_read:
+            email.is_seen = True
+            email.save()
 
         # Force fetching from header, for some reason this doesn't happen in the templates
-        object.from_email
+        email.from_email
 
-        return object
+        return email
 
     def get_context_data(self, **kwargs):
         """
@@ -196,7 +202,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
 
         return kwargs
 
-    def get_from_imap(self, email_message):
+    def get_from_imap(self, email_message, readonly=False):
         """
         Download an email message from IMAP.
         """
@@ -212,7 +218,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
 
                 message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                             server.get_folder(email_message.folder_name), readonly=False)
+                                             server.get_folder(email_message.folder_name), readonly=readonly)
                 if message is not None:
                     imap_logger.info('Message retrieved, saving in database')
                     save_email_messages([message], email_message.account, message.folder)

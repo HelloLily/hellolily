@@ -690,6 +690,7 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
+    batch_size = 500
     task_logger.debug('sync start for %s', unicode(folder.get_name()))
 
     # Find already known uids
@@ -721,18 +722,20 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
 
             if len(known_uids):
                 # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-                folder_messages = server.get_messages(known_uids, modifiers_old, folder)
-
-                if len(folder_messages) > 0:
-                    save_email_messages(folder_messages, account, folder)
+                for i in range(0, len(known_uids), batch_size):
+                    folder_mes = server.get_messages(known_uids[i:i + batch_size], modifiers_old, folder)
+                    if len(folder_mes) > 0:
+                        save_email_messages(folder_mes, account, folder, new_messages=False)
+                    del folder_mes
 
         if not old_only:
             if len(new_uids):
                 # Retrieve modifiers_new for new_uids
-                folder_messages = server.get_messages(new_uids, modifiers_new, folder)
-
-                if len(folder_messages) > 0:
-                    save_email_messages(folder_messages, account, folder, new_messages=True)
+                for i in range(0, len(new_uids), batch_size):
+                    folder_mes = server.get_messages(new_uids[i:i + batch_size], modifiers_new, folder)
+                    if len(folder_mes) > 0:
+                        save_email_messages(folder_mes, account, folder, new_messages=True)
+                    del folder_mes
 
     except Exception, e:
         print traceback.format_exc(e)

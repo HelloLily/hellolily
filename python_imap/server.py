@@ -1,3 +1,4 @@
+from socket import error, gaierror
 from imapclient.imapclient import IMAPClient
 from imaplib import IMAP4
 
@@ -8,9 +9,9 @@ from python_imap.message import Message
 
 CATCH_LOGIN_ERRORS = [
     '[ALERT] Invalid credentials',
-    '[ALERT] Too many simultaneous connections',
+    '[ALERT] Please log in via your web browser',
     '[AUTHENTICATIONFAILED]',
-    'Invalid credentials',
+    'Invalid credentials'
 ]
 
 
@@ -21,39 +22,44 @@ class IMAP(object):
     _login_failed_reason = None
 
     def __init__(self, host, port=None, ssl=True, use_uid=True, stream=False):
-        self.client = IMAPClient(host, port, use_uid, ssl, stream)
-        self.client.normalise_times = False
+        self.auth_ok = True
+        try:
+            self.client = IMAPClient(host, port, use_uid, ssl, stream)
+            self.client.normalise_times = False
+        except (error, gaierror) as e:
+            self.client = None
+            logger.warn(e.strerror)
+
 
     def login(self, username, password):
-        try:
-            if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
-                self.client.login(username, password)
-        except IMAP4.error, e:
-            caught = False
-            for error in CATCH_LOGIN_ERRORS:
-                if e.message.startswith(error):
-                    self._login_failed_reason = error
-                    caught = True
-            if not caught:
-                raise
-        else:
-            if self.client._imap.state in ('SELECTED', 'AUTH'):
-                logger.debug('imap login success')
-                return True
+        if self.client:
+            try:
+                if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
+                    self.client.login(username, password)
+            except IMAP4.error, e:
+                for error in CATCH_LOGIN_ERRORS:
+                    if e.message.startswith(error):
+                        self.auth_ok = False
+                logger.warn(e)
+            else:
+                if self.client._imap.state in ('SELECTED', 'AUTH'):
+                    logger.debug('imap login success')
+                    return True
 
         logger.debug('imap login fail')
         return False
 
     def logout(self):
-        if self.client._imap.state in ('SELECTED', 'AUTH'):
-            try:
-                self.client.logout()
-            except:
-                pass
+        if self.client:
+            if self.client._imap.state in ('SELECTED', 'AUTH'):
+                try:
+                    self.client.logout()
+                except:
+                    pass
 
-        if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
-            logger.debug('imap logout success')
-            return True
+            if self.client._imap.state in ('NONAUTH', 'LOGOUT'):
+                logger.debug('imap logout success')
+                return True
 
         logger.debug('imap logout fail')
         return False

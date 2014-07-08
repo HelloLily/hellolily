@@ -11,11 +11,12 @@ from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 from python_imap.server import IMAP
 
+from lily.contacts.models import Contact
 from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
-from lily.utils.fields import EmailProviderChoiceField
+from lily.utils.fields import EmailProviderChoiceField, TagsField
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.widgets import EmailProviderSelect
 
@@ -201,6 +202,9 @@ class ComposeEmailForm(HelloLilyModelForm):
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
     template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects, empty_label=_('Choose a template'), required=False)
+    send_to_normal = TagsField(label=_('To'))
+    send_to_cc = TagsField(required=False, label=_('Cc'))
+    send_to_bcc = TagsField(required=False, label=_('Bcc'))
 
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)
@@ -213,6 +217,16 @@ class ComposeEmailForm(HelloLilyModelForm):
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
 
+        contacts = Contact.objects.all()
+        contacts_list = []
+
+        for contact in contacts:
+            if contact.get_any_email_address():
+                contacts_list.append(contact.full_name() + ' <' + str(contact.get_any_email_address()) + '>')
+
+        self.fields['send_to_normal'].choices = contacts_list
+        self.fields['send_to_cc'].choices = contacts_list
+        self.fields['send_to_bcc'].choices = contacts_list
         self.fields['send_from'].empty_label = None
 
         # Set user's primary_email as default choice if there is no initial value
@@ -260,7 +274,7 @@ class ComposeEmailForm(HelloLilyModelForm):
             String of comma separated email addresses.
         """
         formatted_recipients = []
-        for recipient in recipients.splitlines():
+        for recipient in recipients:
             formatted_recipients.append(recipient.rstrip(', '))
         return ', '.join(formatted_recipients)
 
@@ -281,15 +295,6 @@ class ComposeEmailForm(HelloLilyModelForm):
         model = EmailDraft
         fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',)
         widgets = {
-            'send_to_normal': forms.Textarea(attrs={
-                'rows': 1,
-            }),
-            'send_to_cc': forms.Textarea(attrs={
-                'rows': 1,
-            }),
-            'send_to_bcc': forms.Textarea(attrs={
-                'rows': 1,
-            }),
             'body_html': forms.Textarea(attrs={
                 'rows': 12,
                 'class': 'inbox-editor inbox-wysihtml5 form-control',

@@ -232,6 +232,7 @@ var Inbox = function () {
         $('.close', input).click(function () {
             input.hide();
             the.show();
+            $('.input-cc').find('.tags').select2('val', '');
         });
     };
 
@@ -244,6 +245,7 @@ var Inbox = function () {
         $('.close', input).click(function () {
             input.hide();
             the.show();
+            $('.input-bcc').find('.tags').select2('val', '');
         });
     };
 

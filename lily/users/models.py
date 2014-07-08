@@ -47,10 +47,18 @@ class CustomUser(User, TenantMixin):
             ctype = ContentType.objects.get_for_model(model)
 
             # Include shared accounts
-            messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk')))
+            messages_accounts = MessagesAccount.objects.filter(
+                Q(shared_with=1) |
+                Q(shared_with=2, user_group__pk=self.pk) |
+                Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk'))
+            )
         else:
             # Include all type of accounts and include shared accounts
-            messages_accounts = MessagesAccount.objects.filter(Q(shared_with=1) | Q(pk__in=self.messages_accounts.values_list('pk')))
+            messages_accounts = MessagesAccount.objects.filter(
+                Q(shared_with=1) |
+                Q(shared_with=2, user_group__pk=self.pk) |
+                Q(pk__in=self.messages_accounts.values_list('pk'))
+            )
 
         if pk__in is not None:
             messages_accounts = messages_accounts.filter(pk__in=pk__in)

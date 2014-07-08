@@ -173,7 +173,7 @@ def retrieve_new_emails_for(emailaccount_id):
                                 emailaccount.last_sync_date = now_utc
                             else:
                                 task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                                if not server.auth_ok:
                                     emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
                             emailaccount.save()
                         finally:
@@ -288,7 +288,7 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                             synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
                         else:
                             task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                            if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                            if not server.auth_ok:
                                 emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
                         emailaccount.save()
                     finally:
@@ -338,7 +338,7 @@ def retrieve_all_emails_for(emailaccount_id):
                         emailaccount.last_sync_date = now_utc
                     else:
                         task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                        if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        if not server.auth_ok:
                             emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
                     emailaccount.save()
                 finally:
@@ -422,7 +422,7 @@ def retrieve_all_flags_for(emailaccount_id):
                             synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old)
                     else:
                         task_logger.warn('IMAP login failed for %s', emailaccount.email.email_address)
-                        if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                        if not server.auth_ok:
                             emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
                     emailaccount.save()
                 finally:
@@ -488,7 +488,7 @@ def mark_messages(message_ids, read=True):
                             server.client.close_folder()
                 else:
                     task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    if not server.auth_ok:
                         account.auth_ok = NO_EMAILACCOUNT_AUTH
                 account.save()
 
@@ -549,7 +549,7 @@ def delete_messages(message_ids):
                             server.client.close_folder()
                 else:
                     task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    if not server.auth_ok:
                         account.auth_ok = NO_EMAILACCOUNT_AUTH
                 account.save()
             except Exception, e:
@@ -628,7 +628,7 @@ def move_messages(message_ids, target_folder_name):
                         synchronize_folder(account, server, target_folder, new_only=True)
                 else:
                     task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
+                    if not server.auth_ok:
                         account.auth_ok = NO_EMAILACCOUNT_AUTH
                 account.save()
             except Exception, e:

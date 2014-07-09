@@ -40,9 +40,9 @@ class Message(HistoryListItem):
     sent_date = models.DateTimeField(null=True)  # time sent in UTC
     is_seen = models.BooleanField(default=False)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.sort_by_date = self.sent_date
-        return super(Message, self).save()
+        return super(Message, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('message')

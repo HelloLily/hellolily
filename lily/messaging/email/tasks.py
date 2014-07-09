@@ -690,7 +690,7 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
-    batch_size = 500
+    messages_batch_size = 500
     task_logger.debug('sync start for %s', unicode(folder.get_name()))
 
     # Find already known uids
@@ -722,20 +722,20 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
 
             if len(known_uids):
                 # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-                for i in range(0, len(known_uids), batch_size):
-                    folder_mes = server.get_messages(known_uids[i:i + batch_size], modifiers_old, folder)
-                    if len(folder_mes) > 0:
-                        save_email_messages(folder_mes, account, folder, new_messages=False)
-                    del folder_mes
+                for i in range(0, len(known_uids), messages_batch_size):
+                    folder_messages = server.get_messages(known_uids[i:i + messages_batch_size], modifiers_old, folder)
+                    if len(folder_messages) > 0:
+                        save_email_messages(folder_messages, account, folder, new_messages=False)
+                    del folder_messages
 
         if not old_only:
             if len(new_uids):
                 # Retrieve modifiers_new for new_uids
-                for i in range(0, len(new_uids), batch_size):
-                    folder_mes = server.get_messages(new_uids[i:i + batch_size], modifiers_new, folder)
-                    if len(folder_mes) > 0:
-                        save_email_messages(folder_mes, account, folder, new_messages=True)
-                    del folder_mes
+                for i in range(0, len(new_uids), messages_batch_size):
+                    folder_messages = server.get_messages(new_uids[i:i + messages_batch_size], modifiers_new, folder)
+                    if len(folder_messages) > 0:
+                        save_email_messages(folder_messages, account, folder, new_messages=True)
+                    del folder_messages
 
     except Exception, e:
         print traceback.format_exc(e)
@@ -750,11 +750,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
     """
     task_logger.warn('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
     try:
-        query_batch_size = 10000
         new_email_attachments = {}
         new_inline_email_attachments = {}
         update_email_attachments = {}
         update_inline_email_attachments = {}
+        email_message_polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
 
         if new_messages:
             task_logger.info('Saving these messages with the ORM since they are new')
@@ -763,13 +763,20 @@ def save_email_messages(messages, account, folder, new_messages=False):
             new_email_headers = {}
             new_email_address_headers = {}
             for message in messages:
-                # Create new object
-                email_message = EmailMessage()
+                # Create get existing message or create a new one
                 if message.get_sent_date() is not None:
-                    email_message.sent_date = message.get_sent_date()
-                email_message.account = account
+                    sent_date = message.get_sent_date()
+                else:
+                    task_logger.warn('Emailmessage has no sent date, cannot create message')
 
-                email_message.uid = message.uid
+                email_message, created = EmailMessage.objects.get_or_create(
+                    uid=message.uid,
+                    folder_name=folder.name_on_server,
+                    account=account,
+                    sent_date=sent_date,
+                    tenant=account.tenant,
+                )
+
                 if message.get_flags() is not None:
                     email_message.is_seen = SEEN in message.get_flags()
                     email_message.flags = message.get_flags()
@@ -785,11 +792,10 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 email_message.body_html = replace_anchors_in_html(body_html)
                 email_message.body_text = body_text
                 email_message.size = message.get_size()
-                email_message.folder_name = folder.name_on_server
                 email_message.folder_identifier = folder.identifier
                 email_message.is_private = False
                 email_message.tenant = account.tenant
-                email_message.polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
+                email_message.polymorphic_ctype = email_message_polymorphic_ctype
                 # Add to object list
                 new_message_obj_list.append(email_message)
                 email_message.save()
@@ -897,7 +903,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         for header in headers:
                             new_header_obj_list.append(header)
 
-                    EmailHeader.objects.bulk_create(new_header_obj_list, batch_size=query_batch_size)
+                    EmailHeader.objects.bulk_create(new_header_obj_list)
 
                 # Save new_email_address_headers
                 if len(new_email_address_headers):
@@ -907,10 +913,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         for email_address_header in email_address_headers:
                             new_email_address_header_obj_list.append(email_address_header)
 
-                    EmailAddressHeader.objects.bulk_create(
-                        new_email_address_header_obj_list,
-                        batch_size=query_batch_size,
-                    )
+                    EmailAddressHeader.objects.bulk_create(new_email_address_header_obj_list)
 
         elif not new_messages:
             task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')
@@ -1047,19 +1050,9 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     # Save reference to uid
                     update_inline_email_attachments.update({message.uid: inline_email_attachments})
 
-                if query_count == query_batch_size:
-                    # Execute queries
-                    task_logger.info('Executing query batch (%s) now - queries for e-mail messages (full batch)', query_count)
-                    cursor.execute(total_query_string, param_list)
-
-                    # reset counter and query variables
-                    query_count = 0
-                    total_query_string = ''
-                    param_list = []
-
-            # Execute leftover queries
-            if query_count and query_count < query_batch_size:
-                task_logger.info('Executing query batch (%s) now - queries for e-mail messages (leftovers next batch)', query_count)
+            # Execute queries
+            if query_count:
+                task_logger.info('Executing (%s) queries for e-mail messages', query_count)
                 cursor.execute(total_query_string, param_list)
 
                 # reset counter and query variables
@@ -1142,19 +1135,9 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     total_query_string += query_string
                     query_count += 1
 
-                    if query_count == query_batch_size:
-                        # Execute queries - queries for e-mail headers (full batch)
-                        task_logger.info('Executing query batch (%s) now - queries for e-mail headers (full batch)', query_count)
-                        cursor.execute(total_query_string, param_list)
-
-                        # reset counter and query variables
-                        query_count = 0
-                        total_query_string = ''
-                        param_list = []
-
-                # Execute leftover queries
-                if query_count and query_count < query_batch_size:
-                    task_logger.info('Executing query batch (%s) now - queries for e-mail headers (leftovers next batch)', query_count)
+                # Execute queries
+                if query_count:
+                    task_logger.info('Executing (%s) queries for e-mail headers', query_count)
                     cursor.execute(total_query_string, param_list)
 
                     # reset counter and query variables
@@ -1163,7 +1146,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     param_list = []
 
                 else:
-                    task_logger.info('Not executing queries yet')
+                    task_logger.info('No queries to execute')
             if cursor:
                 cursor.close()
 
@@ -1201,20 +1184,18 @@ def save_email_messages(messages, account, folder, new_messages=False):
                     total_query_string += query_string
                     query_count += 1
 
-                    if query_count == query_batch_size:
-                        # Execute queries - queries for e-mailaddress headers (full batch)
-                        task_logger.info('Executing query batch (%s) now - queries for e-mailaddress headers (full batch)', query_count)
-                        cursor = connection.cursor()
-                        cursor.execute(total_query_string, param_list)
-                        query_count = 0  # reset counter
-
-                # Execute leftover queries
-                if query_count and query_count < query_batch_size:
-                    task_logger.info('Executing query batch (%s) now - queries for e-mailaddress headers (leftovers next batch)', query_count)
+                # Execute queries
+                if query_count:
+                    task_logger.info('Executing (%s) queries for e-mailaddress headers', query_count)
                     cursor = connection.cursor()
                     cursor.execute(total_query_string, param_list)
+
+                    # reset counter and query variables
+                    query_count = 0
+                    total_query_string = ''
+                    param_list = []
                 else:
-                    task_logger.info('Not executing queries yet')
+                    task_logger.info('No queries to execute')
 
         # Save attachments for new messages
         for uid, attachment_list in new_email_attachments.items():

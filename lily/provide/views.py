@@ -3,6 +3,7 @@ import urllib2
 
 import anyjson
 from django.http import Http404, HttpResponse
+from django.utils.translation import ugettext as _
 from django.views.generic.base import View
 
 from lily import settings
@@ -34,7 +35,7 @@ class ProvideBaseView(View):
             self.view_output = self.set_view_output()
             return self.get_view_output()
         except Exception as e:
-            self.set_error_output(e.message)
+            self.set_error_output(str(e))
             return self.get_error_output()
 
     def get_url(self):
@@ -96,25 +97,26 @@ class DataproviderView(ProvideBaseView):
         return self.domain
 
     def get_query_kwargs(self):
-        kwargs = {'api_key': self.api_key,
-                       'name': self.domain,
+        kwargs = {
+            'api_key': self.api_key,
+            'name': self.domain,
         }
         return kwargs
 
     def set_view_output(self):
         """
-        Create a generic json format for account information based on the json from dataprovider.
+        Create a generic json format for account information based on the json from Dataprovider.
         """
         # Expected api output is json
         self.api_output = anyjson.deserialize(self.api_output)
 
-        # Raise exception when the api returned an error
+        # Return 404 when the api returned an error
         if self.api_output.get('error'):
-            raise Exception(self.api_output.get('error').get('message'))
-        
-        # Return 404 when nothing was found
-        if self.api_output.get('size') == 0:
             raise Http404()
+
+        # Return error message when nothing was found
+        if self.api_output.get('total') == 0:
+            raise Exception(_('I\'m so sorry, I couldn\'t find any data for this website.'))
 
         # Filter useful data
         result = self.api_output['data'][0]
@@ -130,7 +132,7 @@ class DataproviderView(ProvideBaseView):
         if tags:
             tags = result.get('keywords').strip().rstrip(',').split(',')
 
-        # Get email addressess and convert to a list if needed
+        # Get email addresses and convert to a list if needed
         email_addresses = result.get('emailaddresses', []) or []
         if not isinstance(email_addresses, list):
             email_addresses = [email_addresses]
@@ -214,9 +216,6 @@ class DataproviderView(ProvideBaseView):
 
     def get_view_output(self):
         return HttpResponse(self.view_output, content_type='application/json')
-
-    def get_error_output(self):
-        raise Http404()
 
     def get_primary_email(self, emails):
         if len(emails) > 1:

@@ -133,26 +133,29 @@ $(function() {
         var jqxhr = $.getJSON(url);
 
         jqxhr.done(function(data) {
-            var fields = [
-                'name',
-                'description',
-                'legalentity',
-                'taxnumber',
-                'bankaccountnumber',
-                'cocnumber',
-                'iban',
-                'bic',
-                'primary_email',
-                'phone_number',
-            ];
-            var formsets = [
-                'email_addresses',
-                'phone_numbers',
-                'addresses',
-            ];
-
-            fill_form(form, data, fields, formsets);
-            toastr.success('We did it! Your new data should be right there waiting for you.', 'Yeah!');
+            if (data.error) {
+                toastr.error(data.error.message, 'Oops!');
+            } else {
+                var fields = [
+                    'name',
+                    'description',
+                    'legalentity',
+                    'taxnumber',
+                    'bankaccountnumber',
+                    'cocnumber',
+                    'iban',
+                    'bic',
+                    'primary_email',
+                    'phone_number',
+                ];
+                var formsets = [
+                    'email_addresses',
+                    'phone_numbers',
+                    'addresses',
+                ];
+                fill_form(form, data, fields, formsets);
+                toastr.success('We did it! Your new data should be right there waiting for you.', 'Yeah!');
+            }
         });
 
         jqxhr.fail(function(data) {

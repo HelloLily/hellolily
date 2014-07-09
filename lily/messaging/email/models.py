@@ -185,10 +185,7 @@ class EmailMessage(Message):
                     if (include_self or (address[0] != own_email_address and address[1] != own_email_address)) and address[1]:
                         # If there is no name available, use the email address
                         if include_names:
-                            if address[0]:
-                                to_names.append(address[0])
-                            else:
-                                to_names.append(address[1])
+                            to_names.append(address[0])
                         to_emails.append(address[1])
             if include_names:
                 return zip(to_names, to_emails)

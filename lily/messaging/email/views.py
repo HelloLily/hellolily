@@ -5,6 +5,8 @@ import urllib
 import logging
 import email
 from email import Encoders
+from email.header import Header
+from email.utils import quote
 from email.MIMEBase import MIMEBase
 
 import anyjson
@@ -1074,11 +1076,14 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if self.object and self.object.from_email:
-            sender = email.utils.parseaddr(self.object.from_email)
-            reply_to_name = sender[0]
-            reply_to_address = sender[1]
-            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
+        if self.object:
+            # Get the ID of the selected email account
+            selected_account = self.request.POST.get('send_from')
+            email_account = EmailAccount.objects.get(pk=selected_account)
+            # quote() so Reply-To header doesn't break in certain email programs
+            reply_to_name = quote(email_account.from_name)
+            reply_to_email = email_account.email.email_address
+            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
 email_reply_view = login_required(EmailMessageReplyView.as_view())
 
@@ -1110,12 +1115,14 @@ class EmailMessageForwardView(EmailMessageReplyView):
         Return reply-to e-mail header.
         """
         email_headers = {}
-        if self.object and self.object.account:
-            sender = self.object.to_emails(include_self=True)[0]
-            # Email header might not always contain the name of the user, so use the EmailAccount name
-            reply_to_name = self.object.account.from_name
-            reply_to_address = sender[1]
-            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_address)})
+        if self.object:
+            # Get the ID of the selected email account
+            selected_account = self.request.POST.get('send_from')
+            email_account = EmailAccount.objects.get(pk=selected_account)
+            # quote() so Reply-To header doesn't break in certain email programs
+            reply_to_name = quote(email_account.from_name)
+            reply_to_email = email_account.email.email_address
+            email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
 email_forward_view = login_required(EmailMessageForwardView.as_view())
 

@@ -81,8 +81,7 @@
                         <div class="email-recipients overlay">
                             <span>{% trans 'To' %}:</span>
                             {% for name, email in object.to_emails %}
-                                <span title="{{ email }}">{{ name }}</span>
-                                {% if forloop.counter != object.to_emails|length %}, {% endif %}
+                                <span title="{{ email }}">{% if name %}{{ name }}{% else %}{{ email }}{% endif %}</span>{% if forloop.counter != object.to_emails|length %}, {% endif %}
                             {% endfor %}
                         </div>
                         <button class="btn show-more-recipients hide"><i class="icon-collapse"></i></button>

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import DataProviderInput
+from lily.utils.widgets import DataProviderInput, ShowHideWidget
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):
@@ -56,9 +56,9 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
                   'cocnumber', 'iban', 'bic')
 
         widgets = {
-            'description': forms.Textarea({
+            'description': ShowHideWidget(forms.Textarea({
                 'rows': 3,
-            }),
+            })),
             'legalentity': forms.HiddenInput(),
             'taxnumber': forms.HiddenInput(),
             'bankaccountnumber': forms.HiddenInput(),
@@ -92,9 +92,9 @@ class CreateUpdateAccountForm(TagsFormMixin):
         exclude = ('is_deleted', 'tenant', 'tags')
 
         widgets = {
-            'description': forms.Textarea({
-                'rows': 3,
-            }),
+            'description': ShowHideWidget(forms.Textarea({
+                'rows': 3
+            })),
             'legalentity': forms.HiddenInput(),
             'taxnumber': forms.HiddenInput(),
             'bankaccountnumber': forms.HiddenInput(),

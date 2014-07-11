@@ -18,7 +18,7 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.fields import EmailProviderChoiceField, TagsField
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
-from lily.utils.widgets import EmailProviderSelect
+from lily.utils.widgets import EmailProviderSelect, ShowHideWidget
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -370,9 +370,9 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'description': forms.Textarea(attrs={
+            'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 2,
-            }),
+            })),
             'body_html': forms.Textarea(attrs={
                 'rows': 12,
                 'class': 'inbox-editor inbox-wysihtml5 form-control',

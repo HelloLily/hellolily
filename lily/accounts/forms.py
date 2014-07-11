@@ -93,7 +93,7 @@ class CreateUpdateAccountForm(TagsFormMixin):
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea({
-                'rows': 3
+                'rows': 3,
             })),
             'legalentity': forms.HiddenInput(),
             'taxnumber': forms.HiddenInput(),

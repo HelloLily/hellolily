@@ -307,7 +307,6 @@ MEDIA_BUNDLES = (
     ('forms.js',
         'js/jquery.formset.js',
 
-        # 'lily/scripts/plugins/custom/clickfocus/jquery.clickfocus.js',
         # 'lily/scripts/plugins/custom/tabthis/jquery.tabthis.js',
         'lily/scripts/forms/formset_init.js',
 

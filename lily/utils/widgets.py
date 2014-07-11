@@ -236,8 +236,8 @@ class ShowHideWidget(Widget):
 
         before_html = mark_safe(
             '<div class="show-and-hide-input">'
-            '<div class="form-control-static">'
-            '<a href="javascript:void(0)" class="toggle-original-form-input %(add_class)s" data-action="show">%(add_text)s <i class="icon-angle-down"></i></a>'
+            '<div class="form-control-static %(add_class)s">'
+            '<a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="icon-angle-down"></i></a>'
             '</div>'
             '<div class="original-form-widget %(input_class)s">' % {
                 'add_class': 'hide' if has_value else '',
@@ -247,8 +247,8 @@ class ShowHideWidget(Widget):
         )
         after_html = mark_safe(
             '</div>'
-            '<div class="form-control-static">'
-            '<a href="javascript:void(0)" class="toggle-original-form-input %(cancel_class)s" data-action="hide">%(cancel_text)s <i class="icon-angle-up"></i></a>'
+            '<div class="form-control-static %(cancel_class)s">'
+            '<a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="icon-angle-up"></i></a>'
             '</div>'
             '</div>' % {
                 'cancel_text': hide_text,

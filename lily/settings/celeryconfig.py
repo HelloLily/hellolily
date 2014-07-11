@@ -14,6 +14,11 @@ else:
 
 BROKER_POOL_LIMIT = 128
 CELERY_ACCEPT_CONTENT = ['json']  # ignore other content
+CELERY_ANNOTATIONS = {
+    '*': {
+        'time_limit': 3600.0,
+    },
+}
 CELERY_DEFAULT_QUEUE = 'celery'
 CELERY_ENABLE_UTC = True
 CELERY_RESULT_SERIALIZER = 'json'

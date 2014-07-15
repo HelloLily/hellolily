@@ -7,7 +7,7 @@ from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import DatePicker
+from lily.utils.widgets import DatePicker, ShowHideWidget
 
 
 class CreateUpdateDealForm(HelloLilyModelForm):
@@ -65,9 +65,9 @@ class CreateUpdateDealForm(HelloLilyModelForm):
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
-            'description': forms.Textarea(attrs={
+            'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,
-            }),
+            })),
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
@@ -98,9 +98,9 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
-            'description': forms.Textarea(attrs={
+            'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,
-            }),
+            })),
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),

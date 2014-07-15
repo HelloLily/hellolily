@@ -6,11 +6,14 @@ from lily.utils.fields import TagsField
 from lily.utils.forms import HelloLilyModelForm
 
 
+from lily.utils.widgets import ShowHideWidget, TagInput
+
+
 class TagsFormMixin(HelloLilyModelForm):
     """
     Mixin that adds tags to a ModelForm.
     """
-    tags = TagsField(required=False)
+    tags = TagsField(required=False, widget=ShowHideWidget(TagInput()))
 
     def __init__(self, *args, **kwargs):
         super(TagsFormMixin, self).__init__(*args, **kwargs)

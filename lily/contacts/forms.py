@@ -5,6 +5,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
+from lily.utils.widgets import ShowHideWidget
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -89,7 +90,7 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
         fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description')
         exclude = ('tags',)
         widgets = {
-            'description': forms.Textarea(attrs={
+            'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,
-            }),
+            })),
         }

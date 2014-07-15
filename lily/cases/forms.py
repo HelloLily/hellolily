@@ -11,7 +11,7 @@ from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import DatePicker
+from lily.utils.widgets import DatePicker, ShowHideWidget
 
 
 class CreateUpdateCaseForm(HelloLilyModelForm):
@@ -92,9 +92,9 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
             }),
-            'description': forms.Textarea(attrs={
-                'click_show_text': _('Add description'),
-            }),
+            'description': ShowHideWidget(forms.Textarea({
+                'rows': 3
+            })),
             'status': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
@@ -142,9 +142,9 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
             }),
-            'description': forms.Textarea(attrs={
-                'click_and_show': False,
-            }),
+            'description': ShowHideWidget(forms.Textarea({
+                'rows': 3
+            })),
             'status': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),

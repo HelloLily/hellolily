@@ -5,7 +5,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import ShowHideWidget
+from lily.utils.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -93,4 +93,8 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
             'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,
             })),
+            'gender': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
         }

@@ -1,7 +1,7 @@
 import anyjson
 from bootstrap3_datetime.widgets import DateTimePicker
 from django.forms.models import model_to_dict
-from django.forms.widgets import Select, TextInput, Widget, PasswordInput
+from django.forms.widgets import Select, TextInput, Widget, PasswordInput, RadioFieldRenderer
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
@@ -257,3 +257,24 @@ class ShowHideWidget(Widget):
         )
 
         return format_html('{0}\r\n{1}\r\n{2}', before_html, rendered_widget_html, after_html)
+
+
+class BootstrapRadioFieldRenderer(RadioFieldRenderer):
+    """
+    An object used by RadioSelect to enable customization of radio widgets.
+    """
+    def render(self):
+        """
+        Outputs a bootstrap button group for this set of radio fields.
+        """
+        buttons_html = mark_safe('')
+
+        # Render each radioinput bootstrap-like.
+        for w in self:
+            buttons_html += u'''<label class="btn btn-primary %(is_active)s">%(tag)s %(label)s</label>''' % {
+                'is_active': ('active' if w.is_checked() else ''),
+                'tag': w.tag(),
+                'label': w.choice_label,
+            }
+
+        return mark_safe(u'''<div class="btn-group" data-toggle="buttons">%s</div>''' % buttons_html)

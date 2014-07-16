@@ -5,7 +5,7 @@ from itertools import chain
 from django import forms
 from django.contrib import messages
 from django.db.models import Q
-from python_imap.folder import ALLMAIL
+from python_imap.folder import ALLMAIL, SENT, INBOX, IMPORTANT
 
 
 def autostrip(cls):
@@ -163,7 +163,7 @@ def get_emails_for_email_addresses(email_addresses_list):
 
     # Get all the email messages with the collected id's.
     # TODO: replace _default_manager with objects when Polymorphic works.
-    return EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier=ALLMAIL)
+    return EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier__in=[ALLMAIL, SENT, INBOX, IMPORTANT])
 
 
 def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):

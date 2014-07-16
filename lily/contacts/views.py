@@ -215,6 +215,14 @@ class DetailContactView(HistoryListViewMixin):
                                  'functions__account__functions__contact__phone_numbers')
         return qs
 
+    def get_context_data(self, **kwargs):
+        kwargs = super(DetailContactView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'email_count': self.get_emails_list().count(),
+        })
+
+        return kwargs
+
 
 class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
     """

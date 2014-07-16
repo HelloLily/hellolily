@@ -151,7 +151,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
             else:
                 return self.deal_set.filter(stage=stage)
         except:
-            return None
+            return self.deal_set.none()
 
     def get_deals_new(self):
         return self.get_deals(stage=0)
@@ -196,20 +196,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
                 self._contacts.append(function.contact)
 
         return self._contacts
-
-    def get_emails(self):
-        from lily.messaging.email.models import EmailHeader
-        from django.db.models import Q
-        import operator
-
-        try:
-            filter_list = (Q(name__exact='From', message__folder_identifier__exact='\AllMail') |
-                           Q(name__exact='To', message__folder_identifier__exact='\Sent'))
-
-            return EmailHeader.objects.filter(filter_list).filter(
-                reduce(operator.or_, (Q(value__contains=emailaddress) for emailaddress in self.email_addresses.all())))
-        except:
-            return None
 
     def __unicode__(self):
         return self.name

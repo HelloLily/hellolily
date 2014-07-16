@@ -454,7 +454,7 @@ class CaseClientModelMixin(object):
 
             return self.case_set.all()
         except:
-            return None
+            return self.case_set.none()
 
     def get_cases_critical(self):
         return self.get_cases(priority=3)

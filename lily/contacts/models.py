@@ -166,27 +166,14 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         try:
             return Case.objects.filter(assigned_to=self.user.all()[0]).order_by('-created')
         except:
-            return None
+            return Case.objects.none()
 
     def get_assigned_deals(self):
         from lily.deals.models import Deal
         try:
             return Deal.objects.filter(assigned_to=self.user.all()[0]).order_by('-created')
         except:
-            return None
-
-    def get_emails(self):
-        from lily.messaging.email.models import EmailHeader
-        from django.db.models import Q
-        import operator
-        try:
-            filter_list = (Q(name__exact='From', message__folder_identifier__exact='\AllMail') |
-                           Q(name__exact='To', message__folder_identifier__exact='\Sent'))
-
-            return EmailHeader.objects.filter(filter_list).filter(
-                reduce(operator.or_, (Q(value__contains=emailaddress) for emailaddress in self.email_addresses.all())))
-        except:
-            return None
+            return Deal.objects.none()
 
     def __unicode__(self):
         return self.full_name()

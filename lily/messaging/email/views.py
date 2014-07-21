@@ -21,7 +21,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, QueryDict
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.template.defaultfilters import truncatechars
 from django.utils.datastructures import SortedDict
@@ -39,7 +39,7 @@ from python_imap.utils import convert_html_to_text, parse_search_keys, extract_t
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
                                         EmailConfigurationWizard_1, EmailConfigurationWizard_2,
-                                        EmailConfigurationWizard_3, EmailShareForm)
+                                        EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm)
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
@@ -1264,6 +1264,12 @@ email_attachment_proxy_view = login_required(EmailAttachmentProxy.as_view())
 class EmailConfigurationWizardView(SessionWizardView):
     template_name = 'email/emailaccount_configuration_wizard_form.html'
 
+    def get_template_names(self):
+        if self.steps.current == '2':
+            return 'email/emailaccount_configuration_wizard_form_step_3.html'
+        else:
+            return 'email/emailaccount_configuration_wizard_form.html'
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.email_address = EmailAddress.objects.get(pk=kwargs.get('pk'))
@@ -1272,22 +1278,69 @@ class EmailConfigurationWizardView(SessionWizardView):
 
         return super(EmailConfigurationWizardView, self).dispatch(request, *args, **kwargs)
 
+    def get_next_step(self, step=None):
+        """
+        Returns the next step after the given `step`. If no more steps are
+        available, None will be returned. If the `step` argument is None, the
+        current step will be determined automatically.
+        """
+        if step is None:
+            step = self.steps.current
+
+        if step == '1':
+            step1_cleaned_data = self.get_cleaned_data_for_step('1')
+            preset = step1_cleaned_data.get('preset')
+
+            # If a preset was selected, skip the email server settings form
+            if preset is not None:
+                # step is a string, so convert to int, increment and then convert back
+                step = str(int(step) + 1)
+
+                # The form only accepts strings, so convert non string fields.
+                # Also using urlencode because we need to convert data to a QueryDict
+                data = urllib.urlencode({
+                    '2-imap_host': preset.imap_host,
+                    '2-imap_port': str(preset.imap_port),
+                    '2-imap_ssl': str(preset.imap_ssl),
+                    '2-smtp_host': preset.smtp_host,
+                    '2-smtp_port': str(preset.smtp_port),
+                    '2-smtp_ssl': str(preset.smtp_ssl),
+                })
+
+                form = self.get_form(step, QueryDict(data))
+                self.storage.set_step_data(step, self.process_step(form))
+
+        form_list = self.get_form_list()
+        key = form_list.keyOrder.index(step) + 1
+        if len(form_list.keyOrder) > key:
+            return form_list.keyOrder[key]
+        return None
+
+    def get_form_initial(self, step):
+        if step == '0':
+            return {'email': self.email_address}
+        return self.initial_dict.get(step, {})
+
     def get_form_kwargs(self, step=None):
         """
         Returns the keyword arguments for instantiating the form
         (or formset) on the given step.
         """
         kwargs = super(EmailConfigurationWizardView, self).get_form_kwargs(step)
-
-        # Provide form EmailConfigurationWizard_2 with the username/password
+        # Provide form EmailConfigurationWizard_3 with the username/password
         # necessary to test the connection with the server details asked in
         # this form.
-        if int(step) == 1:
-            cleaned_data = self.get_cleaned_data_for_step(unicode(int(step) - 1))
-            if cleaned_data is not None:
+        if step == '2':
+            step0_cleaned_data = self.get_cleaned_data_for_step('0')
+            step1_cleaned_data = self.get_cleaned_data_for_step('1')
+            if step0_cleaned_data is not None:
                 kwargs.update({
-                    'username': cleaned_data.get('username'),
-                    'password': cleaned_data.get('password'),
+                    'username': step0_cleaned_data.get('username'),
+                    'password': step0_cleaned_data.get('password'),
+                })
+            if step1_cleaned_data is not None:
+                kwargs.update({
+                    'preset': step1_cleaned_data.get('preset')
                 })
 
         return kwargs
@@ -1320,15 +1373,13 @@ class EmailConfigurationWizardView(SessionWizardView):
         for form in self.form_list.keys():
             data[form] = self.get_cleaned_data_for_step(form)
 
-        # Save provider and emailaccount instances
-        provider = EmailProvider()
-        provider.__dict__.update(data['1'])
-        # provider.imap_host = data['1']['imap_host']
-        # provider.imap_port = data['1']['imap_port']
-        # provider.imap_ssl = data['1']['imap_ssl']
-        # provider.smtp_host = data['1']['smtp_host']
-        # provider.smtp_port = data['1']['smtp_port']
-        # provider.smtp_ssl = data['1']['smtp_ssl']
+        provider = data['1'].get('preset')
+
+        if provider is None:
+            # No preset selected, so create new EmailProvider
+            provider = EmailProvider()
+            provider.__dict__.update(data['2'])
+            provider.name = data['2']['preset_name']
 
         provider.save()
 
@@ -1339,7 +1390,7 @@ class EmailConfigurationWizardView(SessionWizardView):
             account.email = self.email_address
 
         account.account_type = 'email'
-        account.from_name = data['2']['name']
+        account.from_name = data['3']['name']
         #account.signature = data['2']['signature']
         account.signature = None
         account.username = data['0']['username']
@@ -1370,7 +1421,8 @@ class EmailConfigurationWizardView(SessionWizardView):
 email_configuration_wizard = login_required(EmailConfigurationWizardView.as_view([
     EmailConfigurationWizard_1,
     EmailConfigurationWizard_2,
-    EmailConfigurationWizard_3
+    EmailConfigurationWizard_3,
+    EmailConfigurationWizard_4
 ]))
 
 

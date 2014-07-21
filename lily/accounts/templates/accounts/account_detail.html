@@ -209,10 +209,10 @@
 {% block sidebar %}
     <div class="profile">
         <ul class="list-unstyled profile-nav">
-            <li><a href="#">E-mails <span>{{ object.get_emails.count }}</span></a></li>
+            <li><a href="#">E-mails <span>{{ email_count }}</span></a></li>
             <li><a href="#">Tasks <span>NaN</span></a></li>
-            <li><a href="#">Deals <span>{{ object.get_deals.count|default:0 }}</span></a></li>
-            <li><a href="#">Cases <span>{{ object.get_cases.count|default:0 }}</span></a></li>
+            <li><a href="#">Deals <span>{{ object.get_deals.count }}</span></a></li>
+            <li><a href="#">Cases <span>{{ object.get_cases.count }}</span></a></li>
         </ul>
     </div>
 {% endblock %}

@@ -156,7 +156,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 break
 
         if email.body_html is None or not email.body_html.strip() and (email.body_text is None or not email.body_text.strip()):
-            self.get_from_imap(object, readonly=(not mark_as_read))
+            self.get_from_imap(email, readonly=(not mark_as_read))
 
             # Re-fetch
             email = super(EmailMessageDetailView, self).get_object(queryset=queryset)
@@ -188,18 +188,12 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         if self.object.folder_identifier in default_folder_identifiers:
             folder_name = folder_name.split('/')[-1:][0]
 
-        kwargs.update({
-            'folder_name': folder_name,
-        })
-
-        kwargs.update({
-            'all_mail_folder': get_full_folder_name_by_identifier(ALLMAIL, self.object.account.folders)
-        })
-
         # Pass message's email account e-mail address
         kwargs.update({
             'active_email_address': self.object.account.email.email_address,
             'active_email_account': self.object.account,
+            'all_mail_folder': get_full_folder_name_by_identifier(ALLMAIL, self.object.account.folders),
+            'folder_name': folder_name,
         })
 
         return kwargs

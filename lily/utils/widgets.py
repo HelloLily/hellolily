@@ -256,7 +256,7 @@ class ShowHideWidget(Widget):
             }
         )
 
-        return format_html('{0}\r\n{1}\r\n{2}', before_html, rendered_widget_html, after_html)
+        return format_html(u'{0}\r\n{1}\r\n{2}', before_html, rendered_widget_html, after_html)
 
 
 class BootstrapRadioFieldRenderer(RadioFieldRenderer):

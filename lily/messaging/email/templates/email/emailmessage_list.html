@@ -24,10 +24,9 @@
             <thead>
                 <tr>
                     <th colspan="2">
-                        <input type="checkbox" class="mail-checkbox mail-group-checkbox" data-set=".inbox .mail-checkbox">
                         <div class="btn-group btn-group-spaced">
                             <button class="btn btn-sm blue mail-actions" data-toggle="dropdown" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Actions' %} <i class='icon-angle-down'></i>">
-                                <i class="icon-gears"></i>
+                                <input type="checkbox" class="mail-checkbox mail-group-checkbox" data-set=".inbox .mail-checkbox">
                                 {% trans 'Actions' %}
                                 <i class="icon-angle-down"></i>
                             </button>
@@ -126,25 +125,30 @@
 <script>
 $(function($) {
     $('[data-form-submit], #move-messages-form .dropdown-menu a').click(function() {
-        // Waiting for response from server so a redirect will 'unblock' the UI
+        // waiting for response from server so a redirect will 'unblock' the UI
         if($(this).hasClass('email-list-archive-btn')) {
-            // Set loading text on archive button when it's clicked
+            // set loading text on archive button when it's clicked
             $('.email-list-archive-btn').button('loading');
         }
         else {
-            // Otherwise one of the other buttons is clicked, so set loading text on the actions button
+            // otherwise one of the other buttons is clicked, so set loading text on the actions button
             $('.mail-actions').button('loading');
         }
         App.blockUI($('.inbox-content'), false, '');
     });
 
     $('#move-messages-form').closest('li').find('.dropdown-menu a').click(function() {
-       // Waiting for response from server so a redirect will 'unblock' the UI
+       // waiting for response from server so a redirect will 'unblock' the UI
         $('.mail-actions').button('loading');
         App.blockUI($('.inbox-content'), false, '');
 
         $('#move-messages-form').find('[name=folder]').val($(this).data('folder'));
         $('#move-messages-form').submit();
+    });
+
+    $('.mail-actions .mail-checkbox').click(function(event) {
+        // prevent click from activating dropdown
+        event.stopPropagation();
     });
 });
 </script>

@@ -837,7 +837,7 @@ var App = function () {
             //core handlers
             handleInit(); // initialize core variables
             handleResponsiveOnResize(); // set and handle responsive
-            handleUniform(); // hanfle custom radio & checkboxes
+            handleUniform(); // handle custom radio & checkboxes
             handleScrollers(); // handles slim scrolling contents
             handleResponsiveOnInit(); // handler responsive elements on page load
 

@@ -57,11 +57,11 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         }),
         ('created', {
             'mData': 'created',
-            'sClass': 'hide_on_small_screen',
+            'sClass': 'visible-md visible-lg',
         }),
         ('modified', {
             'mData': 'modified',
-            'sClass': 'hide_on_small_screen',
+            'sClass': 'visible-md visible-lg',
         }),
         ('tags', {
             'mData': 'tags',

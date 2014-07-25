@@ -55,13 +55,15 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         }),
         ('created', {
             'mData': 'created',
+            'sClass': 'visible-md visible-lg',
         }),
         ('modified', {
             'mData': 'modified',
-            'sClass': 'hide_on_small_screen',
+            'sClass': 'visible-md visible-lg',
         }),
         ('expires', {
             'mData': 'expires',
+            'sClass': 'visible-md visible-lg',
         }),
     ])
 
@@ -194,7 +196,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
             })
             return HttpResponse(response, content_type='application/json')
 
-        return response       
+        return response
 
 
 class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):

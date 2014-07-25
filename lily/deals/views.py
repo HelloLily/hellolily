@@ -57,9 +57,11 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         }),
         ('closed_date', {
             'mData': 'closed_date',
+            'sClass': 'visible-md visible-lg',
         }),
         ('created', {
             'mData': 'created',
+            'sClass': 'visible-md visible-lg',
         }),
     ])
 

@@ -73,6 +73,12 @@ $(function($) {
             if($(current).find('.modal-footer').length && $(update).find('.modal-footer').length) {
                 $(current).find('.modal-footer').html($(update).find('.modal-footer').html());
             }
+
+            // prettify checkboxes/radio buttons
+            var inputs = $("input[type=checkbox]:not(.toggle), input[type=radio]:not(.toggle, .star)");
+            if (inputs.size() > 0) {
+                App.initUniform(inputs);
+            }
         };
 
         // ajax submit

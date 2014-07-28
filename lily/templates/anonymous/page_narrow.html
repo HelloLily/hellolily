@@ -5,9 +5,9 @@
 {% block css %}{% include_media 'login.css' %}{% endblock %}
 {% block body-content %}
 <div class="logo">
-    <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="hide_on_small_screen" />
+    <img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="visible-md visible-lg" />
 </div>
 <div class="content">
-    {% block content %}{% endblock %}        
+    {% block content %}{% endblock %}
 </div>
 {% endblock %}

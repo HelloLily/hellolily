@@ -24,7 +24,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
     template_name = 'cases/case_list_active.html'
 
     # SortedListMxin
-    sortable = [2, 3, 4, 5, 6, 7, 8]
+    sortable = [2, 3, 4, 5, 6, 7, 8, 9]
     default_order_by = 2
     default_sort_order = SortedListMixin.DESC
 
@@ -55,9 +55,15 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         }),
         ('created', {
             'mData': 'created',
+            'sClass': 'visible-md visible-lg',
+        }),
+        ('modified', {
+            'mData': 'modified',
+            'sClass': 'visible-md visible-lg',
         }),
         ('expires', {
             'mData': 'expires',
+            'sClass': 'visible-md visible-lg',
         }),
     ])
 
@@ -80,7 +86,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         prefix = ''
         if sort_order == 'desc':
             prefix = '-'
-        if column in ('priority', 'subject', 'status', 'created', 'expires'):
+        if column in ('priority', 'subject', 'status', 'created', 'modified', 'expires'):
             return queryset.order_by('%s%s' % (prefix, column))
         elif column == 'contact_account':
             return queryset.order_by(
@@ -190,7 +196,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
             })
             return HttpResponse(response, content_type='application/json')
 
-        return response       
+        return response
 
 
 class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):

@@ -50,3 +50,7 @@
     padding-left: 16px;
     padding-right: 16px;
 }
+
+.mail-actions .mail-checkbox {
+    pointer-events: all;
+}

@@ -17,23 +17,23 @@
             <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span>{{ object.get_work_phone|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.get_work_phone|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Mobile number' %}</span>
-                    <span>{{ object.get_mobile_phone|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.get_mobile_phone|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span>{{ object.get_any_email_address|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
                 <li class="summary-more-information">
                     <span class="summary-label">{% trans 'Name' %}</span>
-                    <span>{{ object.full_name }}</span>
+                    <span class="summary-data">{{ object.full_name }}</span>
                 </li>
                 <li class="summary-more-information">
                     <span class="summary-label">{% trans 'Works at' %}</span>
-                    <span>
+                    <span class="summary-data">
                         {% if object.get_primary_function.account %}
                             <a href="{% url 'account_details' pk=object.get_primary_function.account.pk %}">
                                 {{ object.get_primary_function.account }}
@@ -131,11 +131,11 @@
                 <ul class="list-unstyled summary-list small-summary-list">
                     <li>
                         <span class="summary-label">{% trans 'Title' %}</span>
-                        <span class="pull-right">{{ object.title|default:_('Unknown') }}</span>
+                        <span class="summary-data">{{ object.title|default:_('Unknown') }}</span>
                     </li>
                     <li>
                         <span class="summary-label">{% trans 'Salutation' %}</span>
-                        <span class="pull-right">{{ object.get_salutation_display }}</span>
+                        <span class="summary-data">{{ object.get_salutation_display }}</span>
                     </li>
                 </ul>
             </div>
@@ -144,14 +144,14 @@
                     <li>
                         <span class="summary-label">{% trans 'Gender' %}</span>
                         {% if object.gender != 2 %}
-                            <span class="pull-right">{{ object.get_gender_display }}</span>
+                            <span class="summary-data">{{ object.get_gender_display }}</span>
                         {% else %}
-                            <span class="pull-right">{% trans 'Unknown' %}</span>
+                            <span class="summary-data">{% trans 'Unknown' %}</span>
                         {% endif %}
                     </li>
                     <li>
                         <span class="summary-label">{% trans 'Function' %}</span>
-                        <span class="pull-right">{{ object.get_primary_function|default:_('Unknown') }}</span>
+                        <span class="summary-data">{{ object.get_primary_function|default:_('Unknown') }}</span>
                     </li>
                 </ul>
             </div>

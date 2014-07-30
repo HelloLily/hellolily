@@ -39,14 +39,14 @@
                 <li>
                     {% if object.account %}
                     <span class="summary-label">{% trans 'Account' %}</span>
-                    <span class="pull-right">
+                    <span class="summary-data">
                         <a href="{% url 'account_details' pk=object.account.pk %}">
                             {{ object.account.name }}
                         </a>
                     </span>
                     {% elif object.contact %}
                     <span class="summary-label">{% trans 'Contact' %}</span>
-                    <span class="pull-right">
+                    <span class="summary-data">
                         <a href="{% url 'contact_details' pk=object.contact.pk %}">
                             {{ object.contact.full_name }}
                         </a>
@@ -55,16 +55,16 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Case name' %}</span>
-                    <span class="pull-right">{{ object }}</span>
+                    <span class="summary-data">{{ object }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Created' %}</span>
-                    <span class="pull-right">{{ object.created|date:"d M y H:i" }}</span>
+                    <span class="summary-data">{{ object.created|date:"d M y H:i" }}</span>
                 </li>
                 {% if object.expires %}
                     <li>
                         <span class="summary-label">{% trans 'Expires' %}</span>
-                        <span class="pull-right">{{ object.expires|date:"d M y" }}</span>
+                        <span class="summary-data">{{ object.expires|date:"d M y" }}</span>
                     </li>
                 {% endif %}
             </ul>
@@ -73,7 +73,7 @@
             <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Priority' %}</span>
-                    <span class="pull-right">
+                    <span class="summary-data">
                         <span class="label label-sm {% if object.is_archived %}label-default{% else %}label-{{ object|priority }}{% endif %}">
                             {{ object.get_priority_display|lower }}
                         </span>
@@ -81,7 +81,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
-                    <span class="pull-right">
+                    <span class="summary-data">
                         <a href="{% url 'contact_details' pk=object.assigned_to.contact.pk %}">
                             {{ object.assigned_to.contact.full_name }}
                         </a>
@@ -89,7 +89,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>
-                    <span id="status" class="pull-right">{{ object.get_status_display }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
+                    <span id="status" class="summary-data">{{ object.get_status_display }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
                 </li>
             </ul>
         </div>

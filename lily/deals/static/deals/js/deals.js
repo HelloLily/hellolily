@@ -15,10 +15,11 @@ $(document).ready(function() {
                     },
                     beforeSend: addCSRFHeader,
                     dataType: 'json',
-                })
+                });
                 // on success
                 jqXHR.done(function(data, status, xhr) {
-                    currentStage = radio_element.attr('id'); 
+                    currentStage = radio_element.attr('id');
+                    $('#status').text(data.stage);
                     // check for won/lost and closing date
                     if( data.closed_date ) {
                         $('#closed-date').text(data.closed_date);

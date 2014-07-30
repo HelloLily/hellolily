@@ -15,7 +15,7 @@ $(document).ready(function() {
                     },
                     beforeSend: addCSRFHeader,
                     dataType: 'json',
-                })
+                });
                 // on success
                 jqXHR.done(function(data, status, xhr) {
                     currentStatus = radio_element.attr('id');

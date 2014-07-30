@@ -21,12 +21,7 @@
         <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
     </form>
 {% else %}
-    <a href="{% url 'case_unarchive' %}" data-form-submit data-form-selector="#case-unarchive-form">{% trans 'Activate' %}</a>
-    <form action="{% url 'case_unarchive' %}" method="post" id="case-unarchive-form">
-        {% csrf_token %}
-        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
-        <input type="hidden" name="success_url" value="{% url 'case_details' object.pk %}">
-    </form>
+     <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
 {% endif %}
 </li>
 <li><a href="{% url 'case_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
@@ -79,7 +74,7 @@
                 <li>
                     <span class="summary-label">{% trans 'Priority' %}</span>
                     <span class="pull-right">
-                        <span class="label label-sm label-{{ object|priority }}">
+                        <span class="label label-sm {% if object.is_archived %}label-default{% else %}label-{{ object|priority }}{% endif %}">
                             {{ object.get_priority_display|lower }}
                         </span>
                     </span>
@@ -94,7 +89,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>
-                    <span id="status" class="pull-right">{{ object.get_status_display }}</span>
+                    <span id="status" class="pull-right">{{ object.get_status_display }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
                 </li>
             </ul>
         </div>
@@ -104,12 +99,25 @@
         <div class="col-md-12 summary-info text-center">
             <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ object.pk }}">
                 {% for value, status in object.STATUS_CHOICES %}
-                    <label for="status-{{ value }}" class="btn default{% if object.status == value %} active{% endif %}">
-                        <input class="toggle" type="radio" id="status-{{ value }}" name="radio" value="{{ value }}" {% if object.status == value %}checked="checked"{% endif %}>
+                    <label for="status-{{ value }}" class="btn default{% if object.is_archived %} disabled{% else %}{% if object.status == value %} active{% endif %}{% endif %}">
+                        <input class="toggle" type="radio" id="status-{{ value }}" name="radio" value="{{ value }}" {% if not object.is_archived and object.status == value%}checked="checked"{% endif %}>
                         {{ status }}
                     </label>
                 {% endfor %}
             </div>
+            {% if object.is_archived %}
+                <div class="btn-group">
+                    <a class="btn blue actions" data-toggle="dropdown">
+                        {% trans 'Actions' %}
+                        <i class="icon-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}"><i class="icon-check"></i> {% trans 'Unarchive' %}</a>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
     </div>
     {% if object.description %}
@@ -124,6 +132,13 @@
         {% include 'notes/note_form.html' %}
         {% include 'utils/history_list.html' %}
     </div>
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div class="hidden">
+    <div id="unarchive-case" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+</div>
 {% endblock %}
 
 {% block scripts %}

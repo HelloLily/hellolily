@@ -144,10 +144,10 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
         return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        '''
+        """
         If the Case is created from a Note, initialize the form with data from that Note:
         Note content -> description, Note subject -> account or contact, depending on the content type.
-        '''
+        """
         kwargs = super(CreateCaseView, self).get_form_kwargs()
         note_pk = self.kwargs.get('note_pk', None)
         if note_pk:
@@ -242,11 +242,47 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
 
     def get_success_message(self, count):
         message = ungettext(
-            _('Case has been re-activated.'),
-            _('%d cases have been re-activated.') % count,
+            _('Case has been unarchived.'),
+            _('%d cases have been unarchived.') % count,
             count
         )
         messages.success(self.request, message)
+
+
+class UpdateAndUnarchiveCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):
+    """
+    Allows a case to be unarchived and edited if needed
+    """
+    model = Case
+
+    def dispatch(self, request, *args, **kwargs):
+        # Change form and template for ajax calls
+        if is_ajax(request):
+            self.form_class = CreateUpdateCaseForm
+            self.template_name = 'cases/case_unarchive_form.html'
+
+        return super(UpdateAndUnarchiveCaseView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Makes sure the case gets unarchived when the object is saved
+        self.object.is_archived = False
+
+        # Saves the instance
+        super(UpdateAndUnarchiveCaseView, self).form_valid(form)
+
+        # Show save message
+        messages.success(self.request, _('%s (Case) has been unarchived.') % self.object.subject)
+
+        response = anyjson.serialize({
+            'error': False,
+            'redirect_url': self.get_success_url()
+        })
+        return HttpResponse(response, content_type='application/json')
+
+    def get_success_url(self):
+        return reverse('case_details', kwargs={
+            'pk': self.object.id
+        })
 
 
 class DeleteCaseView(LoginRequiredMixin, DeleteView):

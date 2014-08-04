@@ -143,22 +143,42 @@ class DatePicker(DateTimePicker):
                 self.options['format'] = self.conv_datetime_format_py2js(format)
 
 
-class DataProviderInput(TextInput):
-    html_template = '''
-        <div%(div_attrs)s>
-            <input%(input_attrs)s/>
-            <span class="input-group-btn">
-                <button%(button_attrs)s><i%(icon_attrs)s></i></button>
-            </span>
-        </div>'''
-
+class AddonTextInput(TextInput):
+    """
+    Creates a text input with an addon (icon)
+    """
     def __init__(self, attrs=None, div_attrs=None, button_attrs=None, icon_attrs=None):
-        if not icon_attrs:
-            icon_attrs = {'class': 'icon-globe'}
+        if not 'is_button' in icon_attrs.keys() or icon_attrs.get('is_button'):
+            span = '''
+                <span class="input-group-btn">
+                    <button%(button_attrs)s><i%(icon_attrs)s></i></button>
+                </span>'''
+        else:
+            span = '''
+                <span class="input-group-addon">
+                   <i%(icon_attrs)s></i>
+                </span>'''
+
+        if not icon_attrs.get('position') or icon_attrs.get('position') == 'right':
+            self.html_template = '''
+                <div%(div_attrs)s>
+                    <input%(input_attrs)s/>
+                    ''' + \
+                    span + \
+                '''</div>'''
+        else:
+            self.html_template = '''
+                <div%(div_attrs)s>''' + \
+                    span + \
+                '''<input%(input_attrs)s/>
+                </div>'''
+
+            if icon_attrs.get('class'):
+                icon_attrs = {'class': icon_attrs.get('class')}
 
         button_attrs = {} if not button_attrs else button_attrs
         if not button_attrs.get('class'):
-            button_attrs.update({'class': 'btn default dataprovider'})
+            button_attrs.update({'class': 'btn default'})
         if not button_attrs.get('type'):
             button_attrs.update({'type': 'button'})
         if not button_attrs.get('data-loading-text'):
@@ -167,9 +187,9 @@ class DataProviderInput(TextInput):
             button_attrs.update({'autocomplete': 'off'})
 
         if not div_attrs:
-            div_attrs = {'class': 'input-group dataprovider'}
+            div_attrs = {'class': 'input-group'}
 
-        super(DataProviderInput, self).__init__(attrs)
+        super(AddonTextInput, self).__init__(attrs)
 
         self.div_attrs = div_attrs and div_attrs.copy() or {}
         self.button_attrs = button_attrs and button_attrs.copy() or {}

@@ -4,14 +4,17 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import DataProviderInput, ShowHideWidget
+from lily.utils.widgets import AddonTextInput, ShowHideWidget
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
-    website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False, widget=DataProviderInput())
+    website = forms.URLField(label=_('Website'), max_length=255, initial='http://', required=False,
+                             widget=AddonTextInput(icon_attrs={'class': 'icon-magic'},
+                                                   button_attrs={'class': 'btn default dataprovider'},
+                                                   div_attrs={'class': 'input-group dataprovider'}))
     name = forms.CharField(label=_('Company name'), max_length=255)
     primary_email = forms.EmailField(label=_('E-mail address'), max_length=255)
     phone_number = forms.CharField(label=_('Phone number'), max_length=40, required=False)
@@ -72,7 +75,10 @@ class CreateUpdateAccountForm(TagsFormMixin):
     """
     Form for creating or updating an account.
     """
-    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False, widget=DataProviderInput())
+    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False,
+                                     widget=AddonTextInput(icon_attrs={'class': 'icon-magic'},
+                                                           button_attrs={'class': 'btn default dataprovider'},
+                                                           div_attrs={'class': 'input-group dataprovider'}))
 
     def __init__(self, *args, **kwargs):
         """

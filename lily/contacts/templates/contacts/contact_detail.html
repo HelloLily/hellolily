@@ -43,6 +43,26 @@
                         {% endif %}
                     </span>
                 </li>
+                <li class="summary-more-information">
+                    <span class="summary-label">{% trans 'Twitter' %}</span>
+                    <span class="summary-data">
+                        {% if object.get_twitter %}
+                            <a href="http://twitter.com/{{ object.get_twitter }}">{{ object.get_twitter }}</a>
+                        {% else %}
+                            {% trans 'Unknown' %}
+                        {% endif %}
+                    </span>
+                </li>
+                <li class="summary-more-information">
+                    <span class="summary-label">{% trans 'LinkedIn' %}</span>
+                    <span class="summary-data">
+                        {% if object.get_linkedin %}
+                            <a href="{{ object.get_linkedin }}">{{ object.get_linkedin }}</a>
+                        {% else %}
+                            {% trans 'Unknown' %}
+                        {% endif %}
+                    </span>
+                </li>
             </ul>
             <button class="btn btn-link summary-more-information-btn pull-right">{% trans 'More information' %}</button>
         </div>

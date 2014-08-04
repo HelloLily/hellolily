@@ -24,7 +24,7 @@ from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonFo
 from lily.contacts.models import Contact, Function
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
-from lily.utils.models import PhoneNumber
+from lily.utils.models import PhoneNumber, SocialMedia
 from lily.utils.templatetags.utils import has_user_in_group
 
 from lily.utils.views import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
@@ -244,6 +244,22 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
 
     def form_valid(self, form):
         self.object = form.save()  # copied from ModelFormMixin
+
+        if form.cleaned_data.get('twitter'):
+            twitter = SocialMedia.objects.create(name='twitter', username=form.cleaned_data.get('twitter'))
+            self.object.social_media.add(twitter)
+        else:
+            twitter = self.object.social_media.filter(name='twitter')
+            if twitter is not None:
+                twitter.delete()
+
+        if form.cleaned_data.get('linkedin'):
+            linkedin = SocialMedia.objects.create(name='linkedin', username='', profile_url=form.cleaned_data.get('linkedin'))
+            self.object.social_media.add(linkedin)
+        else:
+            linkedin = self.object.social_media.filter(name='linkedin')
+            if linkedin is not None:
+                linkedin.delete()
 
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()

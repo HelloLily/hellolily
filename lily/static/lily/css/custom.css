@@ -336,6 +336,10 @@ label.required::after {
     top: 3px !important;
 }
 
-.inbox tr.unread td{
+.inbox tr.unread td {
     font-weight: 700;
+}
+
+.input-group .input-group-addon > i {
+    color: #000;
 }

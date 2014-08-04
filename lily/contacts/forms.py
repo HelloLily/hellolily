@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.utils.translation import ugettext as _
 
@@ -5,7 +7,8 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
+from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
+from lily.utils.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -61,6 +64,16 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
     account = forms.ModelChoiceField(label=_('Works at'), required=False,
                                      queryset=Account.objects.none(),
                                      empty_label=_('Select an account'))
+    twitter = forms.CharField(label=_('Twitter'), required=False, widget=AddonTextInput(icon_attrs={
+        'class': 'icon-twitter',
+        'position': 'left',
+        'is_button': False
+    }))
+    linkedin = forms.URLField(label=_('LinkedIn'), required=False, widget=AddonTextInput(icon_attrs={
+        'class': 'icon-linkedin',
+        'position': 'left',
+        'is_button': False
+    }))
 
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
@@ -73,6 +86,9 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
         if len(is_working_at) == 1:
             self.fields['account'].initial = is_working_at[0]
 
+        self.fields['twitter'].initial = self.instance.get_twitter()
+        self.fields['linkedin'].initial = self.instance.get_linkedin()
+
     def clean(self):
         """
         Form validation: fill in at least first or last name.
@@ -82,6 +98,20 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
         # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
+
+        if cleaned_data.get('twitter'):
+            twitter_username = get_twitter_username_from_string(cleaned_data.get('twitter'))
+
+            if twitter_username is not None:
+                cleaned_data['twitter'] = twitter_username
+            else:
+                # A string was given but it seems to be invalid
+                self._errors['twitter'] = self.error_class([_('Please enter a valid Twitter username')])
+
+        if cleaned_data.get('linkedin'):
+            if not validate_linkedin_url(cleaned_data.get('linkedin')):
+                # Profile url was invalid
+                self._errors['linkedin'] = self.error_class([_('Please enter a valid LinkedIn profile url')])
 
         return cleaned_data
 

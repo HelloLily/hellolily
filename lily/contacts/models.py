@@ -140,7 +140,15 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
 
     def get_twitter(self):
         try:
-            return self.social_media.filter(name='twitter')[0]
+            twitter = self.social_media.filter(name='twitter')[0]
+            return twitter.username
+        except:
+            return ''
+
+    def get_linkedin(self):
+        try:
+            linkedin = self.social_media.filter(name='linkedin')[0]
+            return linkedin.profile_url
         except:
             return ''
 

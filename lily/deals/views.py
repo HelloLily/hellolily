@@ -133,8 +133,8 @@ class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
 
     def get_success_message(self, count):
         message = ungettext(
-            _('Deal has been re-activated.'),
-            _('%d deals have been re-activated.') % count,
+            _('Deal has been unarchived.'),
+            _('%d deals have been unarchived.') % count,
             count
         )
         messages.success(self.request, message)
@@ -248,6 +248,42 @@ class UpdateDealView(CreateUpdateDealView, UpdateView):
         return response
 
 
+class UpdateAndUnarchiveDealView(CreateUpdateDealView, UpdateView):
+    """
+    Allows a deal to be unarchived and edited if needed
+    """
+    model = Deal
+
+    def dispatch(self, request, *args, **kwargs):
+        # Change form and template for ajax calls
+        if is_ajax(request):
+            self.form_class = CreateUpdateDealForm
+            self.template_name = 'deals/deal_unarchive_form.html'
+
+        return super(UpdateAndUnarchiveDealView, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Makes sure the deal gets unarchived when the object is saved
+        self.object.is_archived = False
+
+        # Saves the instance
+        super(UpdateAndUnarchiveDealView, self).form_valid(form)
+
+        # Show save message
+        messages.success(self.request, _('%s (Deal) has been unarchived.') % self.object.name)
+
+        response = anyjson.serialize({
+            'error': False,
+            'redirect_url': self.get_success_url()
+        })
+        return HttpResponse(response, content_type='application/json')
+
+    def get_success_url(self):
+        return reverse('deal_details', kwargs={
+            'pk': self.object.id
+        })
+
+
 class DeleteDealView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
@@ -307,10 +343,11 @@ class UpdateStageAjaxView(AjaxUpdateView):
         else:
             message = _('Stage has been changed to') + ' ' + Deal.STAGE_CHOICES[instance.stage][1]
             messages.success(self.request, message)
+            stage = Deal.STAGE_CHOICES[instance.stage][1]
             # Return response
             if instance.closed_date is None:
-                return HttpResponse(anyjson.serialize({}), content_type='application/json')
+                return HttpResponse(anyjson.serialize({'stage': stage}), content_type='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                response = anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M')})
+                response = anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M'), 'stage': stage})
                 return HttpResponse(response, mimetype='application/json')

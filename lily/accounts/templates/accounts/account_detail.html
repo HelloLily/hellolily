@@ -16,11 +16,11 @@
            <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Name' %}</span>
-                    <span>{{ object.name }}</span>
+                    <span class="summary-data">{{ object.name }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Website' %}</span>
-                    <span>
+                    <span class="summary-data">
                         {% for website in object.websites.all %}{% if website.is_primary %}
                             <a href="{{ website.website }}">{{ website.website }}</a>
                         {% endif %}{% endfor %}
@@ -28,16 +28,16 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span>{{ object.get_phone_number|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.get_phone_number|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span>{{ object.get_any_email_address|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
                 {% if object.get_main_address %}
                     <li>
                         <span class="summary-label">{% trans 'Main address' %}</span>
-                        <span>
+                        <span class="summary-data">
                             {% with object.get_main_address as main_address %}
                                 {% if main_address.street or main_address.street_number or main_address.complement %}
                                     {{ main_address }} <br/>

@@ -1,7 +1,6 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
-from polymorphic import PolymorphicModel
 
 from lily.users.models import CustomUser
 from lily.tenant.models import PolymorphicTenantMixin

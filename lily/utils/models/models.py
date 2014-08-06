@@ -1,11 +1,84 @@
-from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.translation import ugettext as _
-from django_extensions.db.fields import ModificationDateTimeField
-from django_extensions.db.models import TimeStampedModel
 
 from lily.utils.functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
+
+
+class PhoneNumber(TenantMixin):
+    """
+    Phone number model, keeps a raw input version and a clean version (only has digits).
+    """
+    # TODO: check possibilities for integration of
+    # - http://pypi.python.org/pypi/phonenumbers and/or
+    # - https://github.com/stefanfoulis/django-phonenumber-field
+
+    PHONE_TYPE_CHOICES = (
+        ('work', _('Work')),
+        ('mobile', _('Mobile')),
+        ('other', _('Other')),
+    )
+
+    INACTIVE_STATUS, ACTIVE_STATUS = range(2)
+    PHONE_STATUS_CHOICES = (
+        (INACTIVE_STATUS, _('Inactive')),
+        (ACTIVE_STATUS, _('Active')),
+    )
+
+    raw_input = models.CharField(max_length=40, verbose_name=_('phone number'))
+    number = models.CharField(max_length=40)
+    type = models.CharField(max_length=15, choices=PHONE_TYPE_CHOICES, default='work',
+                            verbose_name=_('type'))
+    other_type = models.CharField(max_length=15, blank=True, null=True) # used in combination with type='other'
+    status = models.IntegerField(max_length=10, choices=PHONE_STATUS_CHOICES, default=ACTIVE_STATUS,
+                                 verbose_name=_('status'))
+
+    def __unicode__(self):
+        return self.number
+
+    def save(self, *args, **kwargs):
+        # Save raw input as number only (for searching)
+        self.number = parse_phone_number(self.raw_input)
+
+        if len(self.number) > 0:
+            # Overwrite user input
+            self.raw_input = self.number  # reserved field for future display based on locale
+
+        return super(PhoneNumber, self).save(*args, **kwargs)
+
+    class Meta:
+        app_label = 'utils'
+        verbose_name = _('phone number')
+        verbose_name_plural = _('phone numbers')
+
+
+class SocialMedia(TenantMixin):
+    """
+    Social media model, default supporting a few well known social media but has support for
+    custom input (other_name).
+    """
+    SOCIAL_NAME_CHOICES = (
+        ('facebook', _('Facebook')),
+        ('twitter', _('Twitter')),
+        ('linkedin', _('LinkedIn')),
+        ('googleplus', _('Google+')),
+        ('qzone', _('Qzone')),
+        ('orkut', _('Orkut')),
+        ('other', _('Other')),
+    )
+
+    name = models.CharField(max_length=30,choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
+    other_name = models.CharField(max_length=30, blank=True, null=True)  # used in combination with name='other'
+    username = models.CharField(max_length=100, blank=True, verbose_name=_('username'))
+    profile_url = models.URLField(max_length=255, verbose_name=_('profile link'))
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'utils'
+        verbose_name = _('social media')
+        verbose_name_plural = _('social media')
 
 
 # ISO 3166-1 country names and codes
@@ -267,101 +340,6 @@ COUNTRIES = (
 )
 
 
-class Deleted(TimeStampedModel):
-    """
-    Deleted model, flags when an instance is deleted.
-    """
-    deleted = ModificationDateTimeField(_('deleted'))
-    is_deleted = models.BooleanField(default=False)
-
-    class Meta:
-        abstract = True
-
-
-class ArchivedMixin(models.Model):
-    """
-    Archived model, if set to true, the instance is archived.
-    """
-    is_archived = models.BooleanField(default=False)
-
-    class Meta():
-        abstract = True
-
-
-class PhoneNumber(TenantMixin):
-    """
-    Phone number model, keeps a raw input version and a clean version (only has digits).
-    """
-    # TODO: check possibilities for integration of
-    # - http://pypi.python.org/pypi/phonenumbers and/or
-    # - https://github.com/stefanfoulis/django-phonenumber-field
-
-    PHONE_TYPE_CHOICES = (
-        ('work', _('Work')),
-        ('mobile', _('Mobile')),
-        ('other', _('Other')),
-    )
-
-    INACTIVE_STATUS, ACTIVE_STATUS = range(2)
-    PHONE_STATUS_CHOICES = (
-        (INACTIVE_STATUS, _('Inactive')),
-        (ACTIVE_STATUS, _('Active')),
-    )
-
-    raw_input = models.CharField(max_length=40, verbose_name=_('phone number'))
-    number = models.CharField(max_length=40)
-    type = models.CharField(max_length=15, choices=PHONE_TYPE_CHOICES, default='work',
-                            verbose_name=_('type'))
-    other_type = models.CharField(max_length=15, blank=True, null=True) # used in combination with type='other'
-    status = models.IntegerField(max_length=10, choices=PHONE_STATUS_CHOICES, default=ACTIVE_STATUS,
-                                 verbose_name=_('status'))
-
-    def __unicode__(self):
-        return self.number
-
-    def save(self, *args, **kwargs):
-        # Save raw input as number only (for searching)
-        self.number = parse_phone_number(self.raw_input)
-
-        if len(self.number) > 0:
-            # Overwrite user input
-            self.raw_input = self.number # reserved field for future display based on locale
-
-        return super(PhoneNumber, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = _('phone number')
-        verbose_name_plural = _('phone numbers')
-
-
-class SocialMedia(TenantMixin):
-    """
-    Social media model, default supporting a few well known social media but has support for
-    custom input (other_name).
-    """
-    SOCIAL_NAME_CHOICES = (
-        ('facebook', _('Facebook')),
-        ('twitter', _('Twitter')),
-        ('linkedin', _('LinkedIn')),
-        ('googleplus', _('Google+')),
-        ('qzone', _('Qzone')),
-        ('orkut', _('Orkut')),
-        ('other', _('Other')),
-    )
-
-    name = models.CharField(max_length=30, choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
-    other_name = models.CharField(max_length=30, blank=True, null=True) # used in combination with name='other'
-    username = models.CharField(max_length=100, blank=True, verbose_name=_('username'))
-    profile_url = models.URLField(max_length=255, verbose_name=_('profile link'), blank=True, null=True)
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _('social media')
-        verbose_name_plural = _('social media')
-
-
 class Address(TenantMixin):
     """
     Address model, has most default fields for an address and fixed preset values for type. In
@@ -390,6 +368,7 @@ class Address(TenantMixin):
         return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
 
     class Meta:
+        app_label = 'utils'
         verbose_name = _('address')
         verbose_name_plural = _('addresses')
 
@@ -414,71 +393,9 @@ class EmailAddress(TenantMixin):
         return self.email_address
 
     class Meta:
+        app_label = 'utils'
         verbose_name = _('e-mail address')
         verbose_name_plural = _('e-mail addresses')
-
-
-class Common(Deleted, TenantMixin):
-    """
-    Common model to make it possible to easily define relations to other models.
-    """
-    phone_numbers = models.ManyToManyField(PhoneNumber, blank=True,
-                                           verbose_name=_('list of phone numbers'))
-    social_media = models.ManyToManyField(SocialMedia, blank=True,
-                                          verbose_name=_('list of social media'))
-    addresses = models.ManyToManyField(Address, blank=True,
-                                       verbose_name=_('list of addresses'))
-    email_addresses = models.ManyToManyField(EmailAddress, blank=True,
-                                             verbose_name=_('list of e-mail addresses'))
-    notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
-                                    object_id_field='object_id', verbose_name='list of notes')
-
-    class Meta:
-        abstract = True
-
-
-class CaseClientModelMixin(object):
-    """
-    Contains helper functions for retrieving cases based on priority or status.
-    """
-    def get_cases(self, priority=None, status=None):
-        try:
-            if None not in [priority, status]:
-                return self.case_set.filter(priority=priority, status=status)
-
-            if priority is not None:
-                return self.case_set.filter(priority=priority)
-
-            if status is not None:
-                return self.case_set.filter(status=status)
-
-            return self.case_set.all()
-        except:
-            return self.case_set.none()
-
-    def get_cases_critical(self):
-        return self.get_cases(priority=3)
-
-    def get_cases_high(self):
-        return self.get_cases(priority=2)
-
-    def get_cases_medium(self):
-        return self.get_cases(priority=1)
-
-    def get_cases_low(self):
-        return self.get_cases(priority=0)
-
-    def get_cases_open(self):
-        return self.get_cases(status=0)
-
-    def get_cases_progress(self):
-        return self.get_cases(status=1)
-
-    def get_cases_pending(self):
-        return self.get_cases(status=2)
-
-    def get_cases_closed(self):
-        return self.get_cases(status=3)
 
 
 class HistoryListItem(PolymorphicTenantMixin):
@@ -486,3 +403,6 @@ class HistoryListItem(PolymorphicTenantMixin):
     An base model for all items that can appear in a History List
     """
     sort_by_date = models.DateTimeField(verbose_name='date to sort by')
+
+    class Meta:
+        app_label = 'utils'

@@ -3,7 +3,8 @@ from django.contrib.contenttypes import generic
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from lily.utils.models import Deleted, HistoryListItem
+from lily.utils.models import HistoryListItem
+from lily.utils.models.mixins import Deleted
 
 
 class Note(HistoryListItem, Deleted):

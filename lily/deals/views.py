@@ -15,8 +15,10 @@ from pytz import timezone
 from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, AjaxUpdateView, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    ArchivedFilterMixin, ArchiveView, UnarchiveView, LoginRequiredMixin, DataTablesListView
+from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
+from lily.utils.views.mixins import SortedListMixin, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
+    ArchivedFilterMixin, LoginRequiredMixin
+
 
 
 class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):

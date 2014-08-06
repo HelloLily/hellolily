@@ -2,11 +2,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 
 from lily.tags.models import Tag
-from lily.utils.fields import TagsField
 from lily.utils.forms import HelloLilyModelForm
+from lily.utils.forms.fields import TagsField
 
 
-from lily.utils.widgets import ShowHideWidget, TagInput
+from lily.utils.forms.widgets import ShowHideWidget, TagInput
 
 
 class TagsFormMixin(HelloLilyModelForm):

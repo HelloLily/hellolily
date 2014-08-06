@@ -17,7 +17,6 @@ from python_imap.utils import convert_html_to_text
 from lily.messaging.models import Message, MessagesAccount
 from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.tenant.models import TenantMixin, NullableTenantMixin
-from lily.utils.models import EmailAddress
 from lily.messaging.email.utils import get_attachment_upload_path
 
 
@@ -37,6 +36,7 @@ class EmailProvider(NullableTenantMixin):
         return self.imap_host if self.name and len(self.name.strip()) == 0 else self.name or ''
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail provider')
         verbose_name_plural = _('e-mail providers')
 
@@ -55,7 +55,7 @@ class EmailAccount(MessagesAccount):
     """
     from_name = models.CharField(max_length=255)
     signature = models.TextField(blank=True, null=True)
-    email = models.ForeignKey(EmailAddress, related_name='email', unique=True)
+    email = models.ForeignKey('utils.EmailAddress', related_name='email', unique=True)
     username = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
     password = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
     auth_ok = models.IntegerField(choices=EMAILACCOUNT_AUTH_CHOICES, default=NO_EMAILACCOUNT_AUTH)
@@ -69,6 +69,7 @@ class EmailAccount(MessagesAccount):
         return self.email
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail account')
         verbose_name_plural = _('e-mail accounts')
         ordering = ['email__email_address']
@@ -322,6 +323,7 @@ class EmailMessage(Message):
         return u'%s - %s'.strip() % (email.utils.parseaddr(self.from_email), truncatechars(self.subject, 130))
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail message')
         verbose_name_plural = _('e-mail messages')
         unique_together = ('uid', 'folder_name', 'account')
@@ -340,6 +342,7 @@ class EmailAttachment(TenantMixin):
         return self.attachment.name
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail attachment')
         verbose_name_plural = _('e-mail attachments')
 
@@ -355,6 +358,9 @@ class EmailHeader(models.Model):
 
     def __unicode__(self):
         return u'%s - %s' % (self.name, self.value)
+
+    class Meta:
+        app_label = 'email'
 
 
 class EmailAddressHeader(models.Model):
@@ -376,6 +382,9 @@ class EmailLabel(models.Model):
     name = models.CharField(max_length=50)
     message = models.ForeignKey(EmailMessage, related_name='labels')
 
+    class Meta:
+        app_label = 'email'
+
 
 class ActionStep(TenantMixin):
     """
@@ -390,6 +399,9 @@ class ActionStep(TenantMixin):
     priority = models.IntegerField()
     done = models.BooleanField(default=False)
     message = models.ForeignKey(EmailMessage)
+
+    class Meta:
+        app_label = 'email'
 
 
 class EmailTemplate(TenantMixin, TimeStampedModel):
@@ -412,6 +424,7 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
         return u'%s' % self.name
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail template')
         verbose_name_plural = _('e-mail templates')
 
@@ -431,6 +444,7 @@ class EmailTemplateAttachment(models.Model):
         return u'%s: %s' % (_('attachment of'), self.template)
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail template attachment')
         verbose_name_plural = _('e-mail template attachments')
 
@@ -447,6 +461,7 @@ class EmailDraft(TimeStampedModel):
         return u'%s - %s' % (self.send_from, self.subject)
 
     class Meta:
+        app_label = 'email'
         verbose_name = _('e-mail draft')
         verbose_name_plural = _('e-mail drafts')
 

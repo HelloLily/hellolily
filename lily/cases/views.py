@@ -12,8 +12,8 @@ from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import SortedListMixin, HistoryListViewMixin, AjaxUpdateView, LoginRequiredMixin, \
-    ArchivedFilterMixin, ArchiveView, UnarchiveView, DataTablesListView
+from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
+from lily.utils.views.mixins import SortedListMixin, HistoryListViewMixin, LoginRequiredMixin, ArchivedFilterMixin
 
 
 class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):

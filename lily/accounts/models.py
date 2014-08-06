@@ -7,7 +7,8 @@ from lily.settings import ACCOUNT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.utils.functions import flatten
-from lily.utils.models import Common, EmailAddress, CaseClientModelMixin
+from lily.utils.models import EmailAddress
+from lily.utils.models.mixins import Common, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:

@@ -1,7 +1,6 @@
-import anyjson
-from datetime import datetime
 from urlparse import urlparse
 
+import anyjson
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -23,10 +22,9 @@ from lily.notes.models import Note
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import SortedListMixin, FilteredListMixin, \
-    EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, WebsiteFormSetViewMixin, \
-    AddressFormSetViewMixin, DeleteBackAddSaveFormViewMixin, ValidateFormSetViewMixin, ExportListViewMixin, \
-    FilteredListByTagMixin, DataTablesListView, HistoryListViewMixin
+from lily.utils.views import DataTablesListView
+from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
+    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin
 
 
 class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -240,30 +238,12 @@ class DetailAccountView(HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin,
-                              AddressFormSetViewMixin, WebsiteFormSetViewMixin, ValidateFormSetViewMixin):
+class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddAccountView and EditAccountView.
     """
-    # Default template and form
     form_class = CreateUpdateAccountForm
     model = Account
-
-    # Option for address formset
-    address_form_attrs = {
-        'exclude_address_types': ['home'],
-        'extra_form_kwargs': {
-            'initial': {
-                'type': 'visiting',
-            }
-        }
-    }
-
-    def dispatch(self, request, *args, **kwargs):
-        # Override default formset template to adjust choices for address_type # XXX not address_type, but websites?
-        self.formset_data.update({'websites_formset': {'label': _('Extra websites')}})
-
-        return super(CreateUpdateAccountView, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """
@@ -282,7 +262,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
         return super(CreateUpdateAccountView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.object = form.save()  # copied from ModelFormMixin
+        success_url = super(CreateUpdateAccountView, self).form_valid(form)
 
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -304,7 +284,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
                 except Exception:
                     pass
 
-        return super(CreateUpdateAccountView, self).form_valid(form)
+        return success_url
 
     def get_context_data(self, **kwargs):
         """
@@ -316,6 +296,22 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSe
                 'back_url': self.get_success_url(),
             })
 
+        return kwargs
+    
+    def get_form_kwargs(self):
+        kwargs = super(CreateUpdateAccountView, self).get_form_kwargs()
+        kwargs.update({
+            'formset_form_attrs': {
+                'addresses': {
+                    'exclude_address_types': ['home', ],
+                    'extra_form_kwargs': {
+                        'initial': {
+                            'type': 'visiting',
+                        }
+                    }
+                }
+            }
+        })
         return kwargs
 
 

@@ -1,15 +1,14 @@
-import anyjson
 from bootstrap3_datetime.widgets import DateTimePicker
-from django.forms.models import model_to_dict
-from django.forms.widgets import Select, TextInput, Widget, PasswordInput, RadioFieldRenderer
+from django.db.models.query import QuerySet
+from django.forms.formsets import BaseFormSet
+from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
-from django.utils.html import escape, conditional_escape, format_html
+from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-
-from lily.messaging.email.models import EmailProvider
+from django.template.loader import render_to_string
 
 
 class JqueryPasswordInput(PasswordInput):
@@ -55,29 +54,6 @@ class TagInput(TextInput):
             })
 
         return super(TagInput, self).build_attrs(extra_attrs=extra_attrs, **kwargs)
-
-
-class EmailProviderSelect(Select):
-    """
-    Subclassing to enable filling out the form with attributes of an EmailProvider instance.
-    These attributes will be JSON serialized as a html5 data attribute on the option elements.
-    """
-    def render_option(self, selected_choices, option_value, option_label):
-        json_html = u''
-        if isinstance(option_value, EmailProvider):
-            json_html = u' data-serialized="%s"' % escape(anyjson.serialize(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
-            option_value = option_value.pk
-        option_value = force_unicode(option_value)
-        if option_value in selected_choices:
-            selected_html = u' selected="selected"'
-            if not self.allow_multiple_selected:
-                # Only allow for a single selection.
-                selected_choices.remove(option_value)
-        else:
-            selected_html = ''
-        return u'<option value="%s"%s%s>%s</option>' % (
-            escape(option_value), selected_html, json_html,
-            conditional_escape(force_unicode(option_label)))
 
 
 class DatePicker(DateTimePicker):
@@ -298,3 +274,33 @@ class BootstrapRadioFieldRenderer(RadioFieldRenderer):
             }
 
         return mark_safe(u'''<div class="btn-group" data-toggle="buttons">%s</div>''' % buttons_html)
+
+
+class FormSetWidget(Widget):
+    def __init__(self, queryset=None, form_attrs=None, attrs=None):
+        super(FormSetWidget, self).__init__(attrs)
+
+        self.queryset = queryset
+        self.form_attrs = form_attrs
+
+    def render(self, name, value, attrs=None):
+        final_attrs = self.build_attrs(attrs)
+
+        if self.form_attrs:
+            for form_attr, form_value in self.form_attrs.items():
+                setattr(final_attrs['formset_class'].form, form_attr, form_value)
+
+        value = value or []
+        if not isinstance(value, BaseFormSet):
+            if isinstance(value, QuerySet):
+                queryset = value  # most likely initial data
+            else:
+                queryset = self.queryset.filter(pk__in=value)
+            value = final_attrs['formset_class'](prefix=name, queryset=queryset)
+
+        return render_to_string(final_attrs['template'], {
+            'formset': value,
+        })
+
+    def value_from_datadict(self, data, files, name):
+        return self.attrs['formset_class'](data, files, prefix=name)

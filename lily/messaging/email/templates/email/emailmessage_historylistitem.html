@@ -9,7 +9,7 @@
         <i class="icon-envelope"></i>
     </div>
     <div class="timeline-body">
-        <h2>{{ object.subject|truncatechars:45|default:_('No Subject') }}</h2>
+        <h2>{{ object.subject|truncatechars:45|default:_('No subject') }}{% if object.get_email_operation_icon %}<i class="{{ object.get_email_operation_icon }} pull-right timeline-operation-icon"></i>{% endif %}</h2>
         <div class="timeline-content">
             {{ object.textify|truncatechars:165|default:_('No details available') }}
         </div>

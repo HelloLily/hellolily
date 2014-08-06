@@ -89,6 +89,7 @@ class EmailMessage(Message):
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
     message_identifier = models.CharField(max_length=255)  # Message-ID header
+    is_deleted = models.BooleanField(default=False)
 
     def get_list_item_template(self):
         """
@@ -351,10 +352,6 @@ class EmailMessage(Message):
     @property
     def is_draft(self):
         return DRAFTS in self.flags or self.folder_identifier == DRAFTS
-
-    @property
-    def is_deleted(self):
-        return TRASH in self.flags
 
     def __unicode__(self):
         return u'%s - %s'.strip() % (email.utils.parseaddr(self.from_email), truncatechars(self.subject, 130))

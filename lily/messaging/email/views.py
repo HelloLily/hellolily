@@ -3,9 +3,7 @@ import os
 import traceback
 import urllib
 import logging
-import email
 from email import Encoders
-from email.header import Header
 from email.utils import quote
 from email.MIMEBase import MIMEBase
 
@@ -22,11 +20,11 @@ from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
 from django.http import HttpResponse, Http404, QueryDict
-from django.shortcuts import redirect, get_object_or_404, render_to_response
+from django.shortcuts import redirect, render_to_response
 from django.template.defaultfilters import truncatechars
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
-from django.views.generic.base import View, TemplateView
+from django.views.generic.base import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
@@ -54,13 +52,13 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
-from lily.utils.views.mixins import AttachmentFormSetViewMixin, FilteredListMixin, SortedListMixin
+from lily.utils.views.mixins import AttachmentFormSetViewMixin, FilteredListMixin, SortedListMixin, LoginRequiredMixin
 
 
 log = logging.getLogger('django.request')
 
 
-class EmailBaseView(View):
+class EmailBaseView(LoginRequiredMixin, View):
     """
     Base for EmailMessageDetailView and EmailFolderView.
     """
@@ -167,13 +165,13 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             else:
                 # Re-fetch
                 message = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+        elif mark_as_read and not message.is_seen:
+            # Message in the DB, but not properly marked as read.
+            mark_messages.delay(message.pk, read=True)
+            message.is_seen = True
+            message.save()
 
         if fetch_success:
-            # Mark as read
-            if mark_as_read:
-                message.is_seen = True
-                message.save()
-
             # Force fetching from header, for some reason this doesn't happen in the templates
             message.from_email  # pylint: disable=W0104
 
@@ -245,7 +243,6 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 email_account.auth_ok = NO_EMAILACCOUNT_AUTH
                 email_account.save()
         return fetch_success
-email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 
 class EmailMessageHTMLView(EmailBaseView, DetailView):
@@ -274,7 +271,6 @@ class EmailMessageHTMLView(EmailBaseView, DetailView):
         })
 
         return kwargs
-email_html_view = login_required(EmailMessageHTMLView.as_view())
 
 
 class EmailFolderView(EmailBaseView, ListView):
@@ -350,7 +346,7 @@ class EmailFolderView(EmailBaseView, ListView):
             qs = EmailMessage.objects.filter(folder_name=self.folder_name)
         elif self.folder_identifier is not None:
             qs = EmailMessage.objects.filter(folder_identifier=self.folder_identifier)
-        qs = qs.filter(account__in=self.active_email_accounts).extra(select={
+        qs = qs.filter(account__in=self.active_email_accounts, is_deleted=False).extra(select={
             'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
         }).order_by('-sent_date')
 
@@ -426,7 +422,6 @@ class EmailFolderView(EmailBaseView, ListView):
         })
 
         return kwargs
-email_account_folder_view = login_required(EmailFolderView.as_view())
 
 
 class EmailInboxView(EmailFolderView):
@@ -442,7 +437,6 @@ class EmailSentView(EmailFolderView):
     Show a list of messages in folder: SENT.
     """
     folder_identifier = SENT
-email_sent_view = login_required(EmailSentView.as_view())
 
 
 class EmailDraftsView(EmailFolderView):
@@ -450,7 +444,6 @@ class EmailDraftsView(EmailFolderView):
     Show a list of messages in folder: DRAFTS.
     """
     folder_identifier = DRAFTS
-email_drafts_view = login_required(EmailDraftsView.as_view())
 
 
 class EmailTrashView(EmailFolderView):
@@ -458,7 +451,6 @@ class EmailTrashView(EmailFolderView):
     Show a list of messages in folder: TRASH.
     """
     folder_identifier = TRASH
-email_trash_view = login_required(EmailTrashView.as_view())
 
 
 class EmailSpamView(EmailFolderView):
@@ -466,22 +458,19 @@ class EmailSpamView(EmailFolderView):
     Show a list of messages in folder: SPAM.
     """
     folder_identifier = SPAM
-email_spam_view = login_required(EmailSpamView.as_view())
 
 
 #
 # EmailTemplate Views.
 #
 
-class ListEmailTemplateView(SortedListMixin, FilteredListMixin, ListView):
+class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMixin, ListView):
     model = EmailTemplate
     sortable = [1, 2]
     default_order_by = 2
 
-email_templates_list_view = login_required(ListEmailTemplateView.as_view())
 
-
-class CreateUpdateEmailTemplateView(object):
+class CreateUpdateEmailTemplateView(LoginRequiredMixin, object):
     form_class = CreateUpdateEmailTemplateForm
     model = EmailTemplate
 
@@ -515,7 +504,6 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateView, CreateView):
         messages.success(self.request, message)
 
         return response
-create_emailtemplate_view = login_required(CreateEmailTemplateView.as_view())
 
 
 class UpdateEmailTemplateView(CreateUpdateEmailTemplateView, UpdateView):
@@ -530,10 +518,9 @@ class UpdateEmailTemplateView(CreateUpdateEmailTemplateView, UpdateView):
         messages.success(self.request, message)
 
         return response
-update_emailtemplate_view = login_required(UpdateEmailTemplateView.as_view())
 
 
-class ParseEmailTemplateView(FormView):
+class ParseEmailTemplateView(LoginRequiredMixin, FormView):
     """
     Parse an uploaded template for variables. This view is only used in AJAX calls.
     """
@@ -553,10 +540,9 @@ class ParseEmailTemplateView(FormView):
         return HttpResponse(anyjson.serialize({
             'error': True
         }), content_type='application/json')
-parse_emailtemplate_view = login_required(ParseEmailTemplateView.as_view())
 
 
-class EmailMessageUpdateBaseView(View):
+class EmailMessageUpdateBaseView(LoginRequiredMixin, View):
     """
     Base for classes that update an EmailMessage in various ways:
     - move to a folder
@@ -606,8 +592,17 @@ class MarkEmailMessageAsReadView(EmailMessageUpdateBaseView):
     Mark message as read.
     """
     def handle_message_update(self, message_ids):
+        # Mark in database first for immediate effect.
+        EmailMessage.objects.filter(id__in=message_ids).update(is_seen=True)
+
+        # Create task to mark message async.
         mark_messages.delay(message_ids, read=True)
-mark_read_view = login_required(MarkEmailMessageAsReadView.as_view())
+
+        if len(message_ids) == 1:
+            message = _('Message has been marked as read')
+        else:
+            message = _('Messages have been marked as read')
+        messages.success(self.request, message)
 
 
 class MarkEmailMessageAsUnreadView(EmailMessageUpdateBaseView):
@@ -615,8 +610,17 @@ class MarkEmailMessageAsUnreadView(EmailMessageUpdateBaseView):
     Mark message as unread.
     """
     def handle_message_update(self, message_ids):
+        # Mark in database first for immediate effect.
+        EmailMessage.objects.filter(id__in=message_ids).update(is_seen=False)
+
+        # Create task to mark messages async.
         mark_messages.delay(message_ids, read=False)
-mark_unread_view = login_required(MarkEmailMessageAsUnreadView.as_view())
+
+        if len(message_ids) == 1:
+            message = _('Message has been marked as unread')
+        else:
+            message = _('Messages have been marked as unread')
+        messages.success(self.request, message)
 
 
 class TrashEmailMessageView(EmailMessageUpdateBaseView):
@@ -624,8 +628,17 @@ class TrashEmailMessageView(EmailMessageUpdateBaseView):
     Move message to trash.
     """
     def handle_message_update(self, message_ids):
+        # Mark in database first for immediate effect.
+        EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=True)
+
+        # Create task to delete messages async.
         delete_messages.delay(message_ids)
-move_trash_view = login_required(TrashEmailMessageView.as_view())
+
+        if len(message_ids) == 1:
+            message = _('Message has been deleted')
+        else:
+            message = _('Messages have been deleted')
+        messages.success(self.request, message)
 
 
 class MoveEmailMessageView(EmailMessageUpdateBaseView):
@@ -634,6 +647,10 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
     """
     def handle_message_update(self, message_ids):
         if self.request.POST.get('folder', None):
+            # Mark in database first for immediate effect.
+            EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=True)
+
+            # Create task to delete messages async.
             move_messages.delay(message_ids, self.request.POST.get('folder'))
             if len(message_ids) == 1:
                 message = _('Message has been moved')
@@ -642,13 +659,12 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
             messages.success(self.request, message)
         else:
             raise Http404()
-move_messages_view = login_required(MoveEmailMessageView.as_view())
 
 
 #
 # EmailMessage compose views (create/edit draft, reply, forward) incl. preview
 #
-class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, FormView, SingleObjectMixin):
+class EmailMessageComposeBaseView(EmailBaseView, AttachmentFormSetViewMixin, FormView, SingleObjectMixin):
     """
     Base for EmailMessageCreateView and EmailMessageReplyView.
     """
@@ -1012,7 +1028,6 @@ class EmailMessageCreateView(EmailMessageComposeBaseView):
     message_object_query_args = (
         Q(folder_identifier=DRAFTS) |
         Q(flags__icontains='draft'))
-email_create_view = login_required(EmailMessageCreateView.as_view())
 
 
 class EmailMessageReplyView(EmailMessageComposeBaseView):
@@ -1046,7 +1061,6 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
             reply_to_email = email_account.email.email_address
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
-email_reply_view = login_required(EmailMessageReplyView.as_view())
 
 
 class EmailMessageForwardView(EmailMessageReplyView):
@@ -1085,7 +1099,6 @@ class EmailMessageForwardView(EmailMessageReplyView):
             reply_to_email = email_account.email.email_address
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
-email_forward_view = login_required(EmailMessageForwardView.as_view())
 
 
 class EmailAttachmentProxy(View):
@@ -1104,10 +1117,9 @@ class EmailAttachmentProxy(View):
         response['Content-Disposition'] = 'attachment; filename=%s' % get_attachment_filename_from_url(s3_file.name)
         response['Content-Length'] = attachment.size
         return response
-email_attachment_proxy_view = login_required(EmailAttachmentProxy.as_view())
 
 
-class EmailConfigurationWizardView(SessionWizardView):
+class EmailConfigurationWizardView(LoginRequiredMixin, SessionWizardView):
     template_name = 'email/emailaccount_configuration_wizard_form.html'
 
     def get_template_names(self):
@@ -1271,7 +1283,7 @@ email_configuration_wizard = login_required(EmailConfigurationWizardView.as_view
 ]))
 
 
-class EmailShareView(FormView):
+class EmailShareView(LoginRequiredMixin, FormView):
     """
     Display a form to share an email account with everybody or certain people only.
     """
@@ -1336,7 +1348,6 @@ class EmailShareView(FormView):
             return HttpResponse(response, content_type='application/json')
 
         return response
-email_share_wizard = login_required(EmailShareView.as_view())
 
 
 class EmailSearchView(EmailFolderView):
@@ -1496,4 +1507,3 @@ class EmailSearchView(EmailFolderView):
             'search_key': self.kwargs.get('search_key', ''),
         })
         return kwargs
-email_search_view = login_required(EmailSearchView.as_view())

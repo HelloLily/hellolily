@@ -475,9 +475,6 @@ def mark_messages(message_ids, read=True):
     folder_name_qs = EmailMessage.objects.filter(id__in=message_ids).values_list('account_id', 'folder_name', 'uid')
     len(folder_name_qs)
 
-    # Mark in database first for immediate effect
-    EmailMessage.objects.filter(id__in=message_ids).update(is_seen=read)
-
     # Create a more sensible dict with this information
     account_folders = {}
     for account_id, folder_name, message_uid in folder_name_qs:
@@ -506,7 +503,7 @@ def mark_messages(message_ids, read=True):
                             uids = ','.join([str(val) for val in uids])
                             server.toggle_seen(folder, uids, seen=read)
                     except IMAPConnectionError:
-                        pass
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_seen=(not read))
                 elif not server.auth_ok:
                     email_account.auth_ok = NO_EMAILACCOUNT_AUTH
                     email_account.save()
@@ -555,7 +552,9 @@ def delete_messages(message_ids):
                             uids = ','.join([str(val) for val in uids])
                             server.delete_messages(folder, uids)
                     except IMAPConnectionError:
-                        pass
+                        # Delete failed, do not mark the message as deleted anymore.
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=False)
+                        # TODO: warn user that delete has failed
                 elif not server.auth_ok:
                     email_account.auth_ok = NO_EMAILACCOUNT_AUTH
                     email_account.save()
@@ -607,7 +606,9 @@ def move_messages(message_ids, to_folder_name):
 
                         target_folder = server.get_folder(to_folder_name)
                     except IMAPConnectionError:
-                        pass
+                        # Move failed, do not mark the message as deleted anymore.
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=False)
+                        # TODO: warn user that move has failed
                     else:
                         # Delete local messages
                         EmailMessage.objects.filter(id__in=message_ids).delete()
@@ -922,7 +923,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             task_logger.info('Looping through %s messages', len(messages))
             for message in messages:
-                query_string = 'UPDATE email_emailmessage SET '
+                query_string = 'UPDATE email_emailmessage SET is_deleted = FALSE, '
                 if message.get_flags() is not None:
                     query_string += 'flags = %s, '
                     param_list.append(str(message.get_flags()))

@@ -15,7 +15,7 @@ from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin
 
 from lily.utils.functions import is_ajax
-from lily.utils.views.mixins import CustomSingleObjectMixin, CustomMultipleObjectMixin, FilterQuerysetMixin, LoginRequiredMixin
+from lily.utils.views.mixins import CustomSingleObjectMixin, CustomMultipleObjectMixin, FilterQuerysetMixin
 
 
 class ArchiveView(View):

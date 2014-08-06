@@ -1,63 +1,64 @@
 from django.conf.urls import patterns, url
 
-from lily.messaging.email.views import email_detail_view, email_html_view, email_inbox_view, email_sent_view, \
-    email_drafts_view, email_trash_view, email_spam_view, email_account_folder_view, email_create_view, \
-    email_reply_view, email_forward_view, mark_read_view, mark_unread_view, move_trash_view, move_messages_view, \
-    email_attachment_proxy_view, email_templates_list_view, create_emailtemplate_view, update_emailtemplate_view, \
-    parse_emailtemplate_view, email_search_view, email_configuration_wizard, email_share_wizard
+from lily.messaging.email.views import email_configuration_wizard, EmailMessageDetailView, EmailMessageHTMLView, \
+    EmailInboxView, EmailSentView, EmailDraftsView, EmailTrashView, EmailSpamView, EmailFolderView, \
+    EmailMessageCreateView, EmailMessageReplyView, EmailMessageForwardView, EmailAttachmentProxy, \
+    MarkEmailMessageAsReadView, MarkEmailMessageAsUnreadView, TrashEmailMessageView, MoveEmailMessageView, \
+    ListEmailTemplateView, CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailSearchView, \
+    EmailShareView
 
 
 urlpatterns = patterns(
     '',
     # separate email message
-    url(r'^details/(?P<pk>[\w-]+)/$', email_detail_view, name='messaging_email_detail'),
-    url(r'^html/(?P<pk>[\w-]+)/$', email_html_view, name='messaging_email_html'),
+    url(r'^details/(?P<pk>[\w-]+)/$', EmailMessageDetailView.as_view(), name='messaging_email_detail'),
+    url(r'^html/(?P<pk>[\w-]+)/$', EmailMessageHTMLView.as_view(), name='messaging_email_html'),
 
     # predefined folders
-    url(r'^inbox/$', email_inbox_view, name='messaging_email_inbox'),
-    url(r'^inbox/(?P<account_id>[\d-]+)/$', email_inbox_view, name='messaging_email_account_inbox'),
-    url(r'^sent/$', email_sent_view, name='messaging_email_sent'),
-    url(r'^sent/(?P<account_id>[\d-]+)/$', email_sent_view, name='messaging_email_account_sent'),
-    url(r'^drafts/$', email_drafts_view, name='messaging_email_drafts'),
-    url(r'^drafts/(?P<account_id>[\d-]+)/$', email_drafts_view, name='messaging_email_account_drafts'),
-    url(r'^trash/$', email_trash_view, name='messaging_email_trash'),
-    url(r'^trash/(?P<account_id>[\d-]+)/$', email_trash_view, name='messaging_email_account_trash'),
-    url(r'^spam/$', email_spam_view, name='messaging_email_spam'),
-    url(r'^spam/(?P<account_id>[\d-]+)/$', email_spam_view, name='messaging_email_account_spam'),
+    url(r'^inbox/$', EmailInboxView.as_view(), name='messaging_email_inbox'),
+    url(r'^inbox/(?P<account_id>[\d-]+)/$', EmailInboxView.as_view(), name='messaging_email_account_inbox'),
+    url(r'^sent/$', EmailSentView.as_view(), name='messaging_email_sent'),
+    url(r'^sent/(?P<account_id>[\d-]+)/$', EmailSentView.as_view(), name='messaging_email_account_sent'),
+    url(r'^drafts/$', EmailDraftsView.as_view(), name='messaging_email_drafts'),
+    url(r'^drafts/(?P<account_id>[\d-]+)/$', EmailDraftsView.as_view(), name='messaging_email_account_drafts'),
+    url(r'^trash/$', EmailTrashView.as_view(), name='messaging_email_trash'),
+    url(r'^trash/(?P<account_id>[\d-]+)/$', EmailTrashView.as_view(), name='messaging_email_account_trash'),
+    url(r'^spam/$', EmailSpamView.as_view(), name='messaging_email_spam'),
+    url(r'^spam/(?P<account_id>[\d-]+)/$', EmailSpamView.as_view(), name='messaging_email_account_spam'),
 
     # all other urls for account + folder
-    url(r'^(?P<account_id>[\d-]+)/(?P<folder>.+)/$', email_account_folder_view, name='messaging_email_account_folder'),
+    url(r'^(?P<account_id>[\d-]+)/(?P<folder>.+)/$', EmailFolderView.as_view(), name='messaging_email_account_folder'),
 
     # compose views (create draft, reply, forward, preview)
-    url(r'^compose/$', email_create_view, name='messaging_email_compose'),
-    url(r'^compose/(?P<pk>[\d-]+)/$', email_create_view, name='messaging_email_compose'),
-    url(r'^reply/(?P<pk>[\d-]+)/$', email_reply_view, name='messaging_email_reply'),
-    url(r'^forward/(?P<pk>[\d-]+)/$', email_forward_view, name='messaging_email_forward'),
+    url(r'^compose/$', EmailMessageCreateView.as_view(), name='messaging_email_compose'),
+    url(r'^compose/(?P<pk>[\d-]+)/$', EmailMessageCreateView.as_view(), name='messaging_email_compose'),
+    url(r'^reply/(?P<pk>[\d-]+)/$', EmailMessageReplyView.as_view(), name='messaging_email_reply'),
+    url(r'^forward/(?P<pk>[\d-]+)/$', EmailMessageForwardView.as_view(), name='messaging_email_forward'),
 
-    url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/].+)/$', email_attachment_proxy_view, name='email_attachment_proxy_view'),
+    url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/].+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
 
     # do something with email messages
-    url(r'^markasread/$', mark_read_view, name='messaging_mark_read'),
-    url(r'^markasunread/$', mark_unread_view, name='messaging_mark_unread'),
-    url(r'^movetotrash/$', move_trash_view, name='messaging_move_trash'),
-    url(r'^movemessages/$', move_messages_view, name='move_messages_view'),
+    url(r'^markasread/$', MarkEmailMessageAsReadView.as_view(), name='messaging_mark_read'),
+    url(r'^markasunread/$', MarkEmailMessageAsUnreadView.as_view(), name='messaging_mark_unread'),
+    url(r'^movetotrash/$', TrashEmailMessageView.as_view(), name='messaging_move_trash'),
+    url(r'^movemessages/$', MoveEmailMessageView.as_view(), name='move_messages_view'),
 
     # email templates
-    url(r'^templates/$', email_templates_list_view, name='emailtemplate_list'),
-    url(r'^templates/new/$', create_emailtemplate_view, name='emailtemplate_create'),
-    url(r'^templates/update/(?P<pk>[\d-]+)/$', update_emailtemplate_view, name='emailtemplate_update'),
-    url(r'^templates/parse/$', parse_emailtemplate_view, name='messaging_email_template_parse'),
+    url(r'^templates/$', ListEmailTemplateView.as_view(), name='emailtemplate_list'),
+    url(r'^templates/new/$', CreateEmailTemplateView.as_view(), name='emailtemplate_create'),
+    url(r'^templates/update/(?P<pk>[\d-]+)/$', UpdateEmailTemplateView.as_view(), name='emailtemplate_update'),
+    url(r'^templates/parse/$', ParseEmailTemplateView.as_view(), name='messaging_email_template_parse'),
 
     # search
-    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/(?P<search_key>.+)/$', email_search_view, name='messaging_email_search'),
-    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/$', email_search_view, name='messaging_email_search'),
-    url(r'^search/(?P<folder>[^/].+)/(?P<search_key>[^/].+)/$', email_search_view, name='messaging_email_search_all'),
-    url(r'^search/(?P<folder>[^/].+)/$', email_search_view, name='messaging_email_search_all'),
-    url(r'^search/$', parse_emailtemplate_view, name='messaging_email_search_empty'),
+    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/(?P<search_key>.+)/$', EmailSearchView.as_view(), name='messaging_email_search'),
+    url(r'^search/(?P<account_id>[\d-]+)/(?P<folder>[^/].+)/$', EmailSearchView.as_view(), name='messaging_email_search'),
+    url(r'^search/(?P<folder>[^/].+)/(?P<search_key>[^/].+)/$', EmailSearchView.as_view(), name='messaging_email_search_all'),
+    url(r'^search/(?P<folder>[^/].+)/$', EmailSearchView.as_view(), name='messaging_email_search_all'),
+    url(r'^search/$', ParseEmailTemplateView.as_view(), name='messaging_email_search_empty'),
 
     # emailaccount wizards
     url(r'^account/wizard/configuration/(?P<pk>[\w-]+)/$', email_configuration_wizard, name='messaging_email_account_wizard_template'),
-    url(r'^account/wizard/share/(?P<pk>[\w-]+)/$', email_share_wizard, name='messaging_email_account_share_template'),
+    url(r'^account/wizard/share/(?P<pk>[\w-]+)/$', EmailShareView.as_view(), name='messaging_email_account_share_template'),
 
     # AJAX views
     # url(r'^history-list-json/(?P<pk>[\w-]+)/$', history_list_email_json_view, name='messaging_history_list_email_json'),

@@ -257,7 +257,7 @@ def other_mailbox_folders(email_account, active_url):
 def can_share(email_address):
     # Verify email account exists for email address
     try:
-        EmailAccount.objects.get(email=email_address)
+        EmailAccount.objects.get(email=email_address, is_deleted=False)
     except EmailAccount.DoesNotExist:
         return False
     else:

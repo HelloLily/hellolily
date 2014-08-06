@@ -135,6 +135,7 @@
             <a href="{% url 'messaging_email_inbox' %}">
             <i class="icon-inbox"></i>
             <span class="title">{% trans 'E-mail' %}</span>
+            {% if email_auth_update %}<i class="icon icon-warning-sign"></i>{% endif %}
             <span class="{% ifstartswith "messaging_dashboard" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>

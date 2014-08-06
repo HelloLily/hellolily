@@ -5,7 +5,7 @@ from lily.messaging.email.views import email_configuration_wizard, EmailMessageD
     EmailMessageCreateView, EmailMessageReplyView, EmailMessageForwardView, EmailAttachmentProxy, \
     MarkEmailMessageAsReadView, MarkEmailMessageAsUnreadView, TrashEmailMessageView, MoveEmailMessageView, \
     ListEmailTemplateView, CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailSearchView, \
-    EmailShareView
+    EmailShareView, EmailAccountChangePasswordView, EmailAccountDeleteView
 
 
 urlpatterns = patterns(
@@ -56,9 +56,13 @@ urlpatterns = patterns(
     url(r'^search/(?P<folder>[^/].+)/$', EmailSearchView.as_view(), name='messaging_email_search_all'),
     url(r'^search/$', ParseEmailTemplateView.as_view(), name='messaging_email_search_empty'),
 
-    # emailaccount wizards
+    # email account wizards
     url(r'^account/wizard/configuration/(?P<pk>[\w-]+)/$', email_configuration_wizard, name='messaging_email_account_wizard_template'),
     url(r'^account/wizard/share/(?P<pk>[\w-]+)/$', EmailShareView.as_view(), name='messaging_email_account_share_template'),
+
+    # email account settings
+    url(r'^account/(?P<pk>[\d-]+)/changepassword/$', EmailAccountChangePasswordView.as_view(), name='messaging_email_account_change_password'),
+    url(r'^account/(?P<pk>[\d-]+)/delete/$', EmailAccountDeleteView.as_view(), name='messaging_email_account_delete'),
 
     # AJAX views
     # url(r'^history-list-json/(?P<pk>[\w-]+)/$', history_list_email_json_view, name='messaging_history_list_email_json'),

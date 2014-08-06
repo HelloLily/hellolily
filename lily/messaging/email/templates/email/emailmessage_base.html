@@ -49,25 +49,42 @@
             <div class="tree tree-no-line mailbox-folders">
                 <div class="tree-folder">
                 {% for email_account in account_mailboxes %}
-                    <div class="tree-folder-header">
-                        <i class="icon-folder-{% if email_account.email.email_address == active_email_address %}open{% else %}close{% endif %}"></i>
-                        <div class="tree-folder-name">{{ email_account.email.email_address }}</div>
-                    </div>
-                    <div class="tree-folder-content {% if email_account.email.email_address != active_email_address %}hide{% endif %}">
-                        {% if email_account.folders|length %}
-                            {% for folder in default_mailbox_folders %}
-                                <div class="tree-item {% ifactive folder.folder_account_url_name account_id=email_account.pk %}tree-selected{% endifactive %}" data-href="{% url folder.folder_account_url_name account_id=email_account.pk %}">
-                                    <div class="tree-item-name">{{ folder.folder_name }} ({% unread_emails_folder_count folder.folder_identifier email_account %})</div>
-                                </div>
-                            {% endfor %}
-
-                            {{ email_account|other_mailbox_folders:request.path|safe }}
-                        {% else %}
-                            <div class="tree-item">
-                                <div class="tree-item-name">{% trans 'Please be patient for the mail from this account will be retrieved soon.' %}</div>
+                    {% if email_account.auth_ok %}
+                        <div class="tree-folder-header">
+                            <i class="icon-folder-{% if email_account.email.email_address == active_email_address %}open{% else %}close{% endif %}"></i>
+                            <div class="tree-folder-name">
+                                {{ email_account.email.email_address }}
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                        <div class="tree-folder-content {% if email_account.email.email_address != active_email_address %}hide{% endif %}">
+                            {% if email_account.folders|length %}
+                                {% for folder in default_mailbox_folders %}
+                                    <div class="tree-item {% ifactive folder.folder_account_url_name account_id=email_account.pk %}tree-selected{% endifactive %}" data-href="{% url folder.folder_account_url_name account_id=email_account.pk %}">
+                                        <div class="tree-item-name">{{ folder.folder_name }} ({% unread_emails_folder_count folder.folder_identifier email_account %})</div>
+                                    </div>
+                                {% endfor %}
+
+                                {{ email_account|other_mailbox_folders:request.path|safe }}
+                            {% else %}
+                                <div class="tree-item">
+                                    <div class="tree-item-name">{% trans 'Please be patient for the mail from this account will be retrieved soon.' %}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="tree-folder-header">
+                            <i class="icon-folder-close"></i>
+                            <div class="tree-folder-name">
+                                {{ email_account.email.email_address }}
+                                <a href="javascript:void(0)" class="icon icon-warning-sign" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_change_password' pk=email_account.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address.' %}"></a>
+                            </div>
+                        </div>
+                        <div class="tree-folder-content hide">
+                            <div class="tree-item">
+                                <div class="tree-item-name"><a href="javascript:void(0)" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_change_password' pk=email_account.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address.' %}">{% trans 'The account settings for this account are incorrect, please correct the credentials.' %}</a></div>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 </div>
             </div>
@@ -76,6 +93,13 @@
     {% block inbox %}{% endblock %}
 </div>
 {% endblock %}
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div class="hidden">
+    <div id="emailaccount-configure" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+</div>
 {% endblock %}
 
 {% block scripts %}

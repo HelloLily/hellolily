@@ -26,7 +26,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
 
@@ -37,7 +37,8 @@ from python_imap.utils import convert_html_to_text, parse_search_keys, extract_t
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
                                         EmailConfigurationWizard_1, EmailConfigurationWizard_2,
-                                        EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm)
+                                        EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm,
+                                        EmailAccountForm)
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
@@ -49,10 +50,9 @@ from lily.messaging.email.utils import (get_email_parameter_choices,
                                         get_full_folder_name_by_identifier,
                                         LilyIMAP)
 from lily.tenant.middleware import get_current_user
-from lily.users.models import CustomUser
+from lily.users.models import CustomUser, EmailAddress
 from lily.utils.functions import is_ajax
-from lily.utils.models import EmailAddress
-from lily.utils.views.mixins import FilteredListMixin, SortedListMixin, LoginRequiredMixin
+from lily.utils.views.mixins import LoginRequiredMixin, SortedListMixin, FilteredListMixin
 
 
 log = logging.getLogger('django.request')
@@ -350,6 +350,7 @@ class EmailFolderView(EmailBaseView, ListView):
             'num_attachments': 'SELECT COUNT(*) FROM email_emailattachment WHERE email_emailattachment.message_id = email_emailmessage.message_ptr_id AND inline=False'
         }).order_by('-sent_date')
 
+        qs = qs.select_related('account')
         return qs
 
     def get_context_data(self, **kwargs):
@@ -470,7 +471,7 @@ class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMix
     default_order_by = 2
 
 
-class CreateUpdateEmailTemplateView(LoginRequiredMixin, object):
+class CreateUpdateEmailTemplateView(LoginRequiredMixin):
     form_class = CreateUpdateEmailTemplateForm
     model = EmailTemplate
 
@@ -1263,6 +1264,7 @@ class EmailConfigurationWizardView(LoginRequiredMixin, SessionWizardView):
 
         try:
             account = EmailAccount.objects.get(email=self.email_address)
+            account.is_deleted = False
         except EmailAccount.DoesNotExist:
             account = EmailAccount()
             account.email = self.email_address
@@ -1528,3 +1530,66 @@ class EmailSearchView(EmailFolderView):
             'search_key': self.kwargs.get('search_key', ''),
         })
         return kwargs
+
+
+class EmailAccountChangePasswordView(LoginRequiredMixin, UpdateView):
+    template_name = "email/emailaccount_change_password.html"
+    form_class = EmailAccountForm
+    model = EmailAccount
+
+    def get_object(self, queryset=None):
+        """
+        A user is only able to edit accounts he owns.
+        """
+        email_account = super(EmailAccountChangePasswordView, self).get_object(queryset=queryset)
+        if not email_account in self.request.user.messages_accounts.all():
+            raise Http404()
+
+        return email_account
+
+    def form_invalid(self, form):
+        response = super(EmailAccountChangePasswordView, self).form_invalid(form)
+        if is_ajax(self.request):
+            response = anyjson.serialize({
+                'error': True,
+                'html': response.rendered_content
+            })
+            return HttpResponse(response, content_type='application/json')
+
+        return response
+
+    def form_valid(self, form):
+        email_account = form.save()
+        # The context processor needs to check again if there are still
+        # EmailAccounts that needs to be authenticated.
+        self.request.session['email_auth_update'] = False
+
+        messages.success(
+            self.request,
+            _('Email account %s has been configured successfully.') % email_account
+        )
+
+        if is_ajax(self.request):
+            response = anyjson.serialize({
+                'error': False,
+            })
+            return HttpResponse(response, content_type='application/json')
+
+        return redirect('messaging_email_inbox')
+
+
+class EmailAccountDeleteView(LoginRequiredMixin, DeleteView):
+    model = EmailAccount
+
+    def get_object(self, queryset=None):
+        """
+        Only the owner can delete an Email Account.
+        """
+        email_account = super(EmailAccountDeleteView, self).get_object(queryset=queryset)
+        if not email_account in self.request.user.messages_accounts.all():
+            raise Http404()
+
+        return email_account
+
+    def get_success_url(self):
+        return reverse('messaging_email_inbox')

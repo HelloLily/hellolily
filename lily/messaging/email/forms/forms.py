@@ -472,3 +472,71 @@ class EmailTemplateFileForm(HelloLilyForm):
             self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
 
         return cleaned_data
+
+
+class AttachmentBaseForm(HelloLilyModelForm):
+    """
+    Form for uploading email attachments.
+    """
+    class Meta:
+        models = EmailAttachment
+        fields = ('attachment',)
+        exclude = ('message', 'size', 'inline', 'tenant')
+        widgets = {
+            'attachment': EmailAttachmentWidget(),
+        }
+
+
+class EmailAccountForm(HelloLilyModelForm):
+    """
+    Form to change the password for an email account.
+    """
+    imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'))
+    imap_port = forms.IntegerField(label=_('Incoming port'))
+    imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EmailAccountForm, self).__init__(*args, **kwargs)
+        self.fields['imap_host'].initial = self.instance.provider.imap_host
+        self.fields['imap_port'].initial = self.instance.provider.imap_port
+        self.fields['imap_ssl'].initial = self.instance.provider.imap_ssl
+
+    def clean(self):
+        try:
+            # Try connecting
+            imap = IMAP(
+                self.cleaned_data['imap_host'],
+                self.cleaned_data['imap_port'],
+                self.cleaned_data['imap_ssl'],
+            )
+            if not imap:
+                raise
+        except Exception:
+            raise forms.ValidationError(_('Could not connect to %s:%s' % (
+                self.cleaned_data['imap_host'],
+                self.cleaned_data['imap_port'],
+            )))
+        else:
+            try:
+                # Try authenticating
+                if not imap.login(self.cleaned_data['username'], self.cleaned_data['password']):
+                    raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
+            except Exception:
+                raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
+
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        email_account = super(EmailAccountForm, self).save(commit=commit)
+        email_account.auth_ok = True
+        email_account.provider.imap_host = self.cleaned_data['imap_host']
+        email_account.provider.imap_port = self.cleaned_data['imap_port']
+        email_account.provider.imap_ssl = self.cleaned_data['imap_ssl']
+        email_account.save()
+
+    class Meta:
+        model = EmailAccount
+        fields = ('username', 'password', 'imap_host', 'imap_port', 'imap_ssl')
+        widgets = {
+            'password': forms.PasswordInput(),
+        }

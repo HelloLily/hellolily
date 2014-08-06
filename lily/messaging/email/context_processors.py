@@ -5,6 +5,42 @@ from lily.messaging.email.models import EmailAccount, EmailMessage
 from lily.utils.functions import is_ajax
 
 
+def email(request):
+    """
+    Add extra context variables for email.
+    """
+    extra_context = {}
+    extra_context.update(email_auth_update(request))
+    extra_context.update(unread_emails(request))
+    return extra_context
+
+
+def email_auth_update(request):
+    """
+    Add a boolean to the context if there is an email account that needs a new
+    password.
+
+    Only check accounts that are editable by the user.
+    """
+    if request.user.is_anonymous() or is_ajax(request):
+        return {}
+
+    if 'email_auth_update' in request.session and request.session['email_auth_update']:
+        email_auth_update = True
+    else:
+        email_auth_update = EmailAccount.objects.filter(
+            is_deleted=False,
+            auth_ok=False,
+            tenant=request.user.tenant,
+            user_group__pk=request.user.pk,
+        ).exists()
+
+        if email_auth_update:
+            request.session['email_auth_update'] = True
+
+    return {'email_auth_update': email_auth_update}
+
+
 def unread_emails(request):
     """
     Add a list of unread e-mails to the context.

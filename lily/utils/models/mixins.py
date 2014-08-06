@@ -9,18 +9,22 @@ from lily.utils.models import PhoneNumber, SocialMedia, Address, EmailAddress
 from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField, EmailAddressFormSetField
 
 
-class Deleted(TimeStampedModel):
+class DeletedMixin(TimeStampedModel):
     """
     Deleted model, flags when an instance is deleted.
     """
     deleted = ModificationDateTimeField(_('deleted'))
     is_deleted = models.BooleanField(default=False)
 
+    def delete(self, using=None):
+        self.is_deleted = True
+        self.save()
+
     class Meta:
         abstract = True
 
 
-class Common(Deleted, TenantMixin):
+class Common(DeletedMixin, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """

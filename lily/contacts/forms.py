@@ -1,5 +1,3 @@
-import re
-
 from django import forms
 from django.utils.translation import ugettext as _
 
@@ -8,7 +6,8 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
-from lily.utils.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput
+from lily.utils.forms.mixins import FormSetFormMixin
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -57,7 +56,7 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
 
 
-class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
+class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     """
     Form to add a contact which all fields available.
     """
@@ -89,6 +88,15 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
         self.fields['twitter'].initial = self.instance.get_twitter()
         self.fields['linkedin'].initial = self.instance.get_linkedin()
 
+        self.fields['addresses'].form_attrs = {
+            'exclude_address_types': ['visiting'],
+            'extra_form_kwargs': {
+                'initial': {
+                    'type': 'home',
+                }
+            }
+        }
+
     def clean(self):
         """
         Form validation: fill in at least first or last name.
@@ -117,8 +125,8 @@ class CreateUpdateContactForm(TagsFormMixin, HelloLilyModelForm):
 
     class Meta:
         model = Contact
-        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description')
-        exclude = ('tags',)
+        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description',
+                  'email_addresses', 'phone_numbers', 'addresses', )
         widgets = {
             'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,

@@ -7,7 +7,7 @@ from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import DatePicker, ShowHideWidget
+from lily.utils.forms.widgets import DatePicker, ShowHideWidget
 
 
 class CreateUpdateDealForm(HelloLilyModelForm):

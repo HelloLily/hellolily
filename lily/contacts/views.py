@@ -26,10 +26,9 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber, SocialMedia
 from lily.utils.templatetags.utils import has_user_in_group
-
-from lily.utils.views import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
-    EmailAddressFormSetViewMixin, PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin, \
-    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, DataTablesListView
+from lily.utils.views import DataTablesListView
+from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
+    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin
 
 
 class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -224,26 +223,15 @@ class DetailContactView(HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMixin, ValidateFormSetViewMixin):
+class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddAContactView and EditContactView.
     """
-
-    # Default template and form
     template_name = 'contacts/contact_form.html'
     form_class = CreateUpdateContactForm
 
-    address_form_attrs = {
-        'exclude_address_types': ['visiting'],
-        'extra_form_kwargs': {
-            'initial': {
-                'type': 'home',
-            }
-        }
-    }
-
     def form_valid(self, form):
-        self.object = form.save()  # copied from ModelFormMixin
+        success_url = super(CreateUpdateContactView, self).form_valid(form)
 
         if form.cleaned_data.get('twitter'):
             twitter = SocialMedia.objects.create(name='twitter', username=form.cleaned_data.get('twitter'))
@@ -277,7 +265,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
                 functions = Function.objects.filter(contact=self.object)
                 functions.delete()
 
-        return super(CreateUpdateContactView, self).form_valid(form)
+        return success_url
 
     def get_context_data(self, **kwargs):
         """
@@ -291,6 +279,22 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
 
         return kwargs
 
+    def get_form_kwargs(self):
+        kwargs = super(CreateUpdateContactView, self).get_form_kwargs()
+        kwargs.update({
+            'formset_form_attrs': {
+                'addresses': {
+                    'exclude_address_types': ['visiting'],
+                    'extra_form_kwargs': {
+                        'initial': {
+                            'type': 'home',
+                        }
+                    }
+                }
+            }
+        })
+        return kwargs
+
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
@@ -298,7 +302,7 @@ class CreateUpdateContactView(PhoneNumberFormSetViewMixin, AddressFormSetViewMix
         return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
 
 
-class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, CreateView):
+class AddContactView(CreateUpdateContactView, CreateView):
     """
     View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
     """
@@ -382,7 +386,7 @@ class AddContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixi
         return '%s?order_by=4&sort_order=desc' % (reverse('contact_list'))
 
 
-class EditContactView(DeleteBackAddSaveFormViewMixin, EmailAddressFormSetViewMixin, CreateUpdateContactView, UpdateView):
+class EditContactView(CreateUpdateContactView, UpdateView):
     """
     View to edit a contact.
     """

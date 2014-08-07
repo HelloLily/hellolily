@@ -1,10 +1,14 @@
 from django import forms
+from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.widgets import AddonTextInput, ShowHideWidget
+from lily.utils.forms.fields import FormSetField
+from lily.utils.forms.formsets import BaseFKFormSet
+from lily.utils.forms.widgets import ShowHideWidget, AddonTextInput
+from lily.utils.forms.mixins import FormSetFormMixin
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):
@@ -71,7 +75,19 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         }
 
 
-class CreateUpdateAccountForm(TagsFormMixin):
+class WebsiteBaseForm(HelloLilyModelForm):
+    """
+    Base form for adding multiple websites to an account.
+    """
+    website = forms.URLField(max_length=255, initial='http://', required=False)
+
+    class Meta:
+        model = Website
+        fields = ('website',)
+        exclude = ('account', )
+
+
+class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
     """
     Form for creating or updating an account.
     """
@@ -79,12 +95,22 @@ class CreateUpdateAccountForm(TagsFormMixin):
                                      widget=AddonTextInput(icon_attrs={'class': 'icon-magic'},
                                                            button_attrs={'class': 'btn default dataprovider'},
                                                            div_attrs={'class': 'input-group dataprovider'}))
+    websites = FormSetField(
+        queryset=Website.objects.none(),
+        formset_class=modelformset_factory(Website, form=WebsiteBaseForm, formset=BaseFKFormSet, can_delete=True, extra=0),
+        template='accounts/formset_website.html',
+        related_name='account',
+    )
 
     def __init__(self, *args, **kwargs):
         """
-        Overloading super().__init__() to set the initial value for the primary website if possible
+        Overloading super().__init__() to set the initial value for the primary website if possible.
+        Also set initial data for the websites field and set form_attrs for addresses formsetfield.
         """
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
+
+        if self.instance:
+            self.fields['websites'].initial = self.instance.websites.filter(is_primary=False)
 
         # Provide initial data for primary website
         try:
@@ -94,8 +120,8 @@ class CreateUpdateAccountForm(TagsFormMixin):
 
     class Meta:
         model = Account
-        fields = ('primary_website', 'name', 'description', 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber', 'iban', 'bic')  # TODO: status field
-        exclude = ('is_deleted', 'tenant', 'tags')
+        fields = ('primary_website', 'name', 'description', 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber',
+                  'iban', 'bic', 'email_addresses', 'phone_numbers', 'addresses', 'websites', )  # TODO: status field
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea({
@@ -108,15 +134,3 @@ class CreateUpdateAccountForm(TagsFormMixin):
             'iban': forms.HiddenInput(),
             'bic': forms.HiddenInput(),
         }
-
-
-class WebsiteBaseForm(HelloLilyModelForm):
-    """
-    Base form for adding multiple websites to an account.
-    """
-    website = forms.URLField(max_length=255, initial='http://', required=False)
-
-    class Meta:
-        model = Website
-        fields = ('website',)
-        exclude = ('account', )

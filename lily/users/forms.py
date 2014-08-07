@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm
-from lily.utils.widgets import JqueryPasswordInput
+from lily.utils.forms.widgets import JqueryPasswordInput
 
 
 class CustomAuthenticationForm(AuthenticationForm):

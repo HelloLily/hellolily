@@ -8,10 +8,9 @@ from django.utils.datastructures import SortedDict
 
 
 class Command(CollectCommand):
-    
     def get_finders(self):
-        return (get_finder('lily.utils.finders.GeneratedMediaFinder'),)
-    
+        return (get_finder('lily.utils.staticfiles.finders.GeneratedMediaFinder'),)
+
     def collect(self):
         """
         Perform the bulk of the work of collectstatic.
@@ -64,7 +63,7 @@ class Command(CollectCommand):
             'unmodified': self.unmodified_files,
             'post_processed': self.post_processed_files,
         }
-    
+
     def delete_file(self, path, prefixed_path, source_storage):
         """
         Checks if the target file should be deleted if it already exists

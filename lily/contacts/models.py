@@ -6,7 +6,8 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
-from lily.utils.models import Common, Deleted, PhoneNumber, EmailAddress, CaseClientModelMixin
+from lily.utils.models import PhoneNumber, EmailAddress
+from lily.utils.models.mixins import Common, Deleted, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:

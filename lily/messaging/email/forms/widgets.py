@@ -1,7 +1,8 @@
+import json
+
 from django.core.urlresolvers import reverse
 from django.forms import model_to_dict
 from django.forms.widgets import ClearableFileInput, CheckboxInput, Select
-from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, conditional_escape
 from django.utils.safestring import mark_safe
@@ -51,7 +52,7 @@ class EmailProviderSelect(Select):
     def render_option(self, selected_choices, option_value, option_label):
         json_html = u''
         if isinstance(option_value, EmailProvider):
-            json_html = u' data-serialized="%s"' % escape(simplejson.dumps(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
+            json_html = u' data-serialized="%s"' % escape(json.dumps(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
             option_value = option_value.pk
         option_value = force_unicode(option_value)
         if option_value in selected_choices:

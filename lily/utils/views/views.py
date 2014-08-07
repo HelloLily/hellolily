@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
@@ -5,7 +7,6 @@ from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template import Context
 from django.template.loader import get_template
-from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -344,7 +345,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         columns = self.parse_data_to_colums(queryset, ajax_columns)
 
         # Return json parsed response.
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(json.dumps({
             'iTotalRecords': total_object_count,
             'iTotalDisplayRecords': filtered_object_count,
             'sEcho': self.get_from_data_tables('echo'),
@@ -420,7 +421,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
             raise ImproperlyConfigured(
                 'Need to setup columns attribute for DataTableListView to work'
             )
-        return mark_safe(simplejson.dumps([value for value in self.columns.values()]))
+        return mark_safe(json.dumps([value for value in self.columns.values()]))
 
     def parse_data_to_colums(self, object_list, columns):
         """
@@ -477,7 +478,7 @@ class AjaxUpdateView(View):
             raise Http404()
 
         # Return response
-        return HttpResponse(simplejson.dumps({}), mimetype='application/json')
+        return HttpResponse(json.dumps({}), mimetype='application/json')
 
 
 class NotificationsView(TemplateView):

@@ -1,7 +1,6 @@
 import socket
 import traceback
 from smtplib import SMTPAuthenticationError
-from urlparse import urlparse
 
 from django import forms
 from django.db.models import Q
@@ -14,13 +13,12 @@ from python_imap.server import IMAP
 from lily.contacts.models import Contact
 from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
-from lily.messaging.email.forms.fields import EmailProviderChoiceField
-from lily.messaging.email.forms.widgets import EmailProviderSelect, EmailAttachmentWidget
+from lily.messaging.email.forms.widgets import EmailAttachmentWidget
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.widgets import ShowHideWidget
-from lily.utils.forms.fields import TagsField
+from lily.utils.forms.fields import TagsField, HostnameField
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -38,29 +36,61 @@ class EmailConfigurationWizard_2(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 2.
     """
-    presets = EmailProviderChoiceField(queryset=EmailProvider.objects.none(), widget=EmailProviderSelect(), required=False)
-    imap_host = forms.URLField(max_length=255, label=_('Incoming server (IMAP)'))
+    preset = forms.ModelChoiceField(queryset=EmailProvider.objects.none(), empty_label=_('Manually set email server settings'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EmailConfigurationWizard_2, self).__init__(*args, **kwargs)
+
+        self.fields['preset'].queryset = EmailProvider.objects.filter(~Q(name=None))
+
+
+class EmailConfigurationWizard_3(HelloLilyForm):
+    """
+    Fields in e-mail configuration wizard step 3.
+    """
+    imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'))
     imap_port = forms.IntegerField(label=_('Incoming port'))
     imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
-    smtp_host = forms.URLField(max_length=255, label=_('Outgoing server (SMTP)'))
+    smtp_host = HostnameField(max_length=255, label=_('Outgoing server (SMTP)'))
     smtp_port = forms.IntegerField(label=_('Outgoing port'))
     smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
+    share_preset = forms.BooleanField(label=_('Share preset'), required=False)
+    preset_name = forms.CharField(max_length=255, label=_('Preset name'), required=False, widget=forms.HiddenInput(),
+                                  help_text=_('Entering a name will allow other people in your organisation to use these settings as well'))
 
     def __init__(self, *args, **kwargs):
         self.username = kwargs.pop('username', '')
         self.password = kwargs.pop('password', '')
-        super(EmailConfigurationWizard_2, self).__init__(*args, **kwargs)
+        self.preset = kwargs.pop('preset', None)
 
-        # EmailProviders without names are the ones actually used for EmailAccounts
-        self.fields['presets'].queryset = EmailProvider.objects.filter(~Q(name=None))
+        super(EmailConfigurationWizard_3, self).__init__(*args, **kwargs)
+
+        if self.preset is not None:
+            self.fields['share_preset'].widget = forms.HiddenInput()
 
     def clean(self):
-        data = self.cleaned_data
-        if data.get('imap_host', None) is not None:
-            data['imap_host'] = urlparse(data.get('imap_host')).netloc
+        if hasattr(self, 'preset') and self.preset is not None:
+            data = {
+                'imap_host': self.preset.imap_host,
+                'imap_port': self.preset.imap_port,
+                'imap_ssl': self.preset.imap_ssl,
+                'smtp_host': self.preset.smtp_host,
+                'smtp_port': self.preset.smtp_port,
+                'smtp_ssl': self.preset.smtp_ssl
+            }
+        else:
+            data = self.cleaned_data
 
-        if data.get('smtp_host', None) is not None:
-            data['smtp_host'] = urlparse(data.get('smtp_host')).netloc
+            if not data['share_preset']:
+                # Store name as null/None
+                data['preset_name'] = None
+            elif data['share_preset']:
+                if not data['preset_name'] or data['preset_name'].strip() == '':
+                    if 'preset_name' not in self._errors:
+                        self._errors['preset_name'] = []
+
+                    # If 'Share preset' is checked and preset name is empty, show error
+                    self._errors['preset_name'].append(_('Preset name can\'t be empty when \'Share preset\' is checked'))
 
         if not self.errors:
             # Start verifying when the form has no errors
@@ -132,16 +162,6 @@ class EmailConfigurationWizard_2(HelloLilyForm):
 class EmailConfigurationWizard_4(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 4.
-    """
-    name = forms.CharField(max_length=255, label=_('Your name'), widget=forms.TextInput(attrs={
-        'placeholder': _('First Last')
-    }))
-    # signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(), required=False)
-
-
-class EmailConfigurationWizard_3(HelloLilyForm):
-    """
-    Fields in e-mail configuration wizard step 3.
     """
     name = forms.CharField(max_length=255, label=_('Your name'), widget=forms.TextInput(attrs={
         'placeholder': _('First Last')

@@ -45,6 +45,13 @@ class CustomPasswordResetForm(PasswordResetForm):
     This form is a subclass from the default PasswordResetForm.
     CustomUser is used for validation instead of User.
     """
+    error_messages = {
+        'unknown': _("That e-mail address doesn't have an associated "
+                     "user account. Are you sure you've registered?"),
+        'unusable': _("The user account associated with this e-mail "
+                      "address cannot reset the password."),
+    }
+
     inactive_error_message = _('You cannot request a password reset for an account that is inactive.')
 
     email = forms.EmailField(label=_('Email address'), max_length=255,
@@ -72,10 +79,10 @@ class CustomPasswordResetForm(PasswordResetForm):
         """
         email = self.cleaned_data["email"]
         self.users_cache = CustomUser.objects.filter(
-                                contact__email_addresses__email_address__iexact=email,
-                                contact__email_addresses__is_primary=True,
-                                is_active=True
-                            )
+            contact__email_addresses__email_address__iexact=email,
+            contact__email_addresses__is_primary=True,
+            is_active=True
+        )
 
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])

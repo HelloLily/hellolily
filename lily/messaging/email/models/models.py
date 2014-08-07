@@ -374,6 +374,9 @@ class EmailAddressHeader(models.Model):
     def __unicode__(self):
         return u'%s - %s' % (self.name, self.value)
 
+    class Meta:
+        app_label = 'email'
+
 
 class EmailLabel(models.Model):
     """

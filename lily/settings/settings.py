@@ -188,7 +188,8 @@ INSTALLED_APPS = (
     'templated_email',
     'storages',
     'south',
-    #'template_debug',  # in-template tags for debugging purposes
+    'taskmonitor',
+    'template_debug',  # in-template tags for debugging purposes
 
     # Lily
     'lily',  # required for management command
@@ -206,6 +207,9 @@ INSTALLED_APPS = (
     'lily.users',
     'lily.utils',
 )
+
+if 'template_debug' in INSTALLED_APPS:
+    TEMPLATE_DEBUG = True
 
 MESSAGE_APPS = (
     'lily.messaging.email',

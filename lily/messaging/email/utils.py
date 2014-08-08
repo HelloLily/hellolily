@@ -1,23 +1,23 @@
-import logging
 import re
 from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
-from celery.task.control import inspect
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
+from django.core.mail import (EmailMultiAlternatives, SafeMIMEMultipart,
+    get_connection)
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Field
 from django.db.models.query_utils import Q
-from django.template import Context, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError
+from django.template import (Context, BLOCK_TAG_START, BLOCK_TAG_END,
+     VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError)
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 
+from python_imap.server import IMAP
 from lily.messaging.email.decorators import get_safe_template
 from lily.tenant.middleware import get_current_user
-from lily.utils.background import meminspect
 
 
 _EMAIL_PARAMETER_DICT = {}
@@ -365,59 +365,10 @@ class EmailMultiRelated(EmailMultiAlternatives):
         return attachment
 
 
-def get_task_count(name, statuses, arguments=None):
-    """
-    Do a count of tasks in celery by task name, task status and optionally task arguments.
-    *statuses* is a list with at least one of ['scheduled', 'reserved'].
-    """
-    count = 0
-    inspection = inspect()
-
-    if not isinstance(statuses, list):
-        statuses = [statuses]
-
-    if 'scheduled' in statuses:
-        all_tasks = inspection.scheduled()
-        if all_tasks:
-            workers = all_tasks.keys()
-            for worker in workers:
-                worker_tasks = all_tasks.get(worker)
-                for task in worker_tasks:
-                    request = task.get('request')
-                    if request:
-                        if request.get('name') == name:
-                            task_args = request.get('args')
-                            if arguments:
-                                if task_args == arguments:
-                                    count += 1
-                            else:
-                                count += 1
-
-    if 'reserved' in statuses:
-        all_tasks = inspection.reserved()
-        if all_tasks:
-            workers = all_tasks.keys()
-            for worker in workers:
-                worker_tasks = all_tasks.get(worker)
-                for task in worker_tasks:
-                    if task.get('name') == name:
-                        task_args = task.get('args')
-                        if arguments:
-                            if task_args == arguments:
-                                count += 1
-                        else:
-                            count += 1
-
-    logger = logging.getLogger('celery_task')
-    meminspect(locals(), logger)
-
-    return count
-
-
 def get_full_folder_name_by_identifier(identifier, folder_data):
     folder_data = folder_data.items()
 
-    for folder, values in folder_data:
+    for folder, values in folder_data:  # pylint: disable=W0612
         flags = values.get('flags')
 
         # Check if current flags contain identifier
@@ -431,3 +382,20 @@ def get_full_folder_name_by_identifier(identifier, folder_data):
             return get_full_folder_name_by_identifier(identifier, values.get('children'))
 
     return None
+
+
+class LilyIMAP(IMAP):
+    """
+    Wrapper for `IMAP` to increase ease of use.
+    """
+    def __init__(self, account):
+        host = account.provider.imap_host
+        port = account.provider.imap_port
+        ssl = account.provider.imap_ssl
+        super(LilyIMAP, self).__init__(host, port=port, ssl=ssl)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.logout()

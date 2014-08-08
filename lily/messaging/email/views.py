@@ -32,9 +32,9 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 from imapclient.imapclient import DRAFT
 
+from python_imap.errors import IMAPConnectionError
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.logger import logger as imap_logger
-from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
 from python_imap.utils import convert_html_to_text, parse_search_keys, extract_tags_from_soup
 from lily.contacts.models import Contact
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
@@ -44,8 +44,12 @@ from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAcc
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
                                         move_messages)
-from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
-                                        smtp_connect, EmailMultiRelated, get_full_folder_name_by_identifier)
+from lily.messaging.email.utils import (get_email_parameter_choices,
+                                        TemplateParser,
+                                        get_attachment_filename_from_url,
+                                        smtp_connect, EmailMultiRelated,
+                                        get_full_folder_name_by_identifier,
+                                        LilyIMAP)
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
@@ -146,30 +150,35 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Verify this email message belongs to an account request.user has access to.
         """
-        email = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+        message = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+        fetch_success = True  # assume it's available
 
         # Only if the email is in one of our accounts, we mark it a read
         mark_as_read = False
         for account in self.all_email_accounts:
-            if account.user_group.filter(pk=self.request.user.pk).exists() > 0 and email.account == account:
+            if account.user_group.filter(pk=self.request.user.pk).exists() > 0 and message.account == account:
                 mark_as_read = True
                 break
 
-        if email.body_html is None or not email.body_html.strip() and (email.body_text is None or not email.body_text.strip()):
-            self.get_from_imap(email, readonly=(not mark_as_read))
+        if message.body_html is None or not message.body_html.strip() and (message.body_text is None or not message.body_text.strip()):
+            fetch_success = self.get_from_imap(message, readonly=(not mark_as_read))
+            if not fetch_success:
+                messages.warning(self.request, _('Failed to download message from server. Please try again later.'))
+            else:
+                # Re-fetch
+                message = super(EmailMessageDetailView, self).get_object(queryset=queryset)
 
-            # Re-fetch
-            email = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+        if fetch_success:
+            # Mark as read
+            if mark_as_read:
+                message.is_seen = True
+                message.save()
 
-        # Mark as read
-        if mark_as_read:
-            email.is_seen = True
-            email.save()
+            # Force fetching from header, for some reason this doesn't happen in the templates
+            message.from_email  # pylint: disable=W0104
 
-        # Force fetching from header, for some reason this doesn't happen in the templates
-        email.from_email
-
-        return email
+        # Display the full message or whatever's available
+        return message
 
     def get_context_data(self, **kwargs):
         """
@@ -202,32 +211,34 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         """
         Download an email message from IMAP.
         """
-        server = None
-        try:
-            host = email_message.account.provider.imap_host
-            port = email_message.account.provider.imap_port
-            ssl = email_message.account.provider.imap_ssl
-            server = IMAP(host, port, ssl)
-            if server.login(email_message.account.username, email_message.account.password):
-                email_message.account.auth_ok = OK_EMAILACCOUNT_AUTH
+        email_account = email_message.account
 
-                imap_logger.info('Searching IMAP for %s in %s' % (email_message.uid, email_message.folder_name))
+        fetch_success = False
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
 
-                message = server.get_message(email_message.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                             server.get_folder(email_message.folder_name), readonly=readonly)
-                if message is not None:
-                    imap_logger.info('Message retrieved, saving in database')
-                    save_email_messages([message], email_message.account, message.folder)
-            else:
-                imap_logger.info('IMAP login failed for %s', email_message.account.email.email_address)
-                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
-                    email_message.account.auth_ok = NO_EMAILACCOUNT_AUTH
-            email_message.account.save()
-        except:
-            pass
-        finally:
-            if server:
-                server.logout()
+                imap_logger.debug('Searching IMAP for %s in %s', email_message.uid, email_message.folder_name)
+
+                try:
+                    message = server.get_message(
+                        email_message.uid,
+                        ['BODY[]', 'FLAGS', 'RFC822.SIZE'],
+                        server.get_folder(email_message.folder_name),
+                        readonly=readonly
+                    )
+                except IMAPConnectionError:
+                    pass
+                else:
+                    if message is not None:
+                        fetch_success = True
+                        imap_logger.debug('Message retrieved, saving in database')
+                        save_email_messages([message], email_account, message.folder)
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
+        return fetch_success
 email_detail_view = login_required(EmailMessageDetailView.as_view())
 
 
@@ -243,6 +254,7 @@ class EmailMessageHTMLView(EmailBaseView, DetailView):
     def get_context_data(self, **kwargs):
         # Skip context_data from EmailBaseView
         kwargs = super(EmailBaseView, self).get_context_data(**kwargs)
+
         is_plain = not bool(self.object.body_html)
         body = u''
         if self.object.body_html:
@@ -272,28 +284,6 @@ class EmailFolderView(EmailBaseView, ListView):
         if kwargs.get('folder') and not any([self.folder_name, self.folder_identifier]):
             self.folder_name = urllib.unquote_plus(kwargs.get('folder'))
 
-        # If there is no folder in kwargs, try to detect using self.folder_identifier
-        default_folder_pairs = {
-            INBOX: _(u'Inbox'),
-            SENT: _(u'Sent'),
-            DRAFTS: _(u'Drafts'),
-            TRASH: _(u'Trash'),
-            SPAM: _(u'Spam'),
-            ALLMAIL: _(u'All mail'),
-        }
-
-        # if self.folder_name is None and self.folder_identifier is not None:
-        #     self.folder_name = default_folder_pairs.get(self.folder_identifier)
-        # else:
-        # Get other mailbox folder name
-        # if self.folder_name is None:
-        #     # Fallback to ALLMAIL
-        #     self.folder_identifier = ALLMAIL
-        #     self.folder_name = default_folder_pairs.get(self.folder_identifier)
-        # else:
-        # Strip away parent's folder name
-        # self.folder_name = self.folder_name.split('/')[-1:][0]
-
         # Check if folder name exists for email_accounts
         # XXX: currently checks just one level of nesting
         folder_found = False
@@ -315,12 +305,6 @@ class EmailFolderView(EmailBaseView, ListView):
                         if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(folder.get('flags')))) > 0:
                             self.folder_identifier = set([INBOX, SENT, DRAFTS, TRASH, SPAM, ALLMAIL]).intersection(set(folder.get('flags'))).pop()
                     break
-
-        #         if self.folder_identifier is not None:
-        #             if folder_name == self.folder_identifier.lstrip('\\'):
-        #                 folder_found = True
-        #                 self.folder_locale_name = folder_name
-        #                 break
 
                 sub_folders = folder.get('children', {})
                 for sub_folder_name, sub_folder in sub_folders.items():
@@ -344,18 +328,12 @@ class EmailFolderView(EmailBaseView, ListView):
                         self.folder_name = sub_folder.get('full_name')
                         break
 
-        #             if self.folder_identifier is not None:
-        #                 if sub_folder_name == self.folder_identifier.lstrip('\\'):
-        #                     folder_found = True
-        #                     self.folder_name = sub_folder_name
-        #                     break
-
             if not folder_found:
                 raise Http404()
 
         return super(EmailFolderView, self).get(request, *args, **kwargs)
 
-    def get_queryset(self, tried_remote=False):
+    def get_queryset(self):
         """
         Return empty queryset or return it filtered based on folder_name and/or folder_identifier.
         """
@@ -411,7 +389,7 @@ class EmailFolderView(EmailBaseView, ListView):
         active_move_to_folder = ''
         if self.folder_identifier in [INBOX, SENT, DRAFTS, TRASH, SPAM]:
             for account in self.active_email_accounts:
-                for name, folder in account.folders.items():
+                for name, folder in account.folders.items():  # pylint: disable=W0612
                     if len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))) > 0:
                         active_move_to_folder = folder.get('full_name')
                         break
@@ -574,7 +552,7 @@ class ParseEmailTemplateView(FormView):
 
     def form_invalid(self, form):
         # Every form error will show up as a notification later
-        for field, error in form.errors.items():
+        for field, error in form.errors.items():  # pylint: disable=W0612
             messages.warning(self.request, error)
 
         return HttpResponse(anyjson.serialize({
@@ -594,7 +572,7 @@ class EmailMessageUpdateBaseView(View):
     """
     http_method_names = ['post']
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # pylint: disable=W0613
         """
         Find out which messages to update.
         """
@@ -730,17 +708,11 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         """
         unsaved_form = form.save(commit=False)
 
-        server = None
-        try:
-            account = unsaved_form.send_from
-
-            # Login into IMAP already to save, send or discard up ahead.
-            host = account.provider.imap_host
-            port = account.provider.imap_port
-            ssl = account.provider.imap_ssl
-            server = IMAP(host, port, ssl)
-            if server.login(account.username, account.password):
-                account.auth_ok = OK_EMAILACCOUNT_AUTH
+        email_account = unsaved_form.send_from
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
                 account.save()
 
                 # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
@@ -765,7 +737,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     # Necessary arguments to create an EmailMultiAlternatives/EmailMultiRelated
                     kwargs = dict(
                         subject=unsaved_form.subject,
-                        from_email=account.email.email_address,
+                        from_email=email_account.email.email_address,
                         to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
                         bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
                         connection=None,
@@ -806,14 +778,18 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
                     success = True
                     if 'submit-save' in self.request.POST:  # Save draft
-                        success = self.save_message(account, server, email_message)
+                        success = self.save_message(email_account, server, email_message)
+                        if not success:
+                            messages.warning(self.request, _('Failed to save e-mail. Please try again later.'))
                     elif 'submit-send' in self.request.POST:  # Send draft
                         if self.object:
                             email_message = self.attach_stored_files(email_message, self.object.pk)
-                        success = self.send_message(account, server, email_message)
+                        success = self.send_message(email_account, server, email_message)
                         if success:
                             recipients = ', '.join(email_message.to + email_message.cc + email_message.bcc)
                             messages.success(self.request, _('E-mail sent to %s') % truncatechars(recipients, 140))
+                        else:
+                            messages.warning(self.request, _('Failed to send e-mail. Please try again later.'))
 
                     # Remove an old draft when sending an e-mail message or saving a new draft
                     if self.object and success and self.remove_old_message:
@@ -821,20 +797,13 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
                 if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
                     self.remove_draft(server)
-            else:
-                imap_logger.info('IMAP login failed for %s', account.email.email_address)
-                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
-                    account.auth_ok = NO_EMAILACCOUNT_AUTH
-                    account.save()
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
 
                 # TODO: should be a form error ? That would return the form's content at least.
                 messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % account.email.email_address)
                 return redirect(self.request.META.get('HTTP_REFERER', 'messaging_email_compose'))
-        except Exception, e:
-            log.error(traceback.format_exc(e))
-        finally:
-            if server:
-                server.logout()
 
         return super(EmailMessageComposeBaseView, self).form_valid(form)
 
@@ -844,7 +813,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         """
         attachments = self.request.FILES
         if len(attachments) > 0:
-            for key, attachment in attachments.items():
+            for key, attachment in attachments.items():  # pylint: disable=W0612
                 filetype = attachment.content_type.split('/')
                 part = MIMEBase(filetype[0], filetype[1])
                 part.set_payload(attachment.read())
@@ -894,13 +863,11 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
             folder = server.get_folder(DRAFTS)
 
             # Save draft remotely
-            response = server.client.append(folder.name_on_server,
-                                            message_string,
-                                            flags=[DRAFT])
-
-            # Extract uid from response
-            command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]
-            uid = int(uid)
+            uid = server.append(
+                folder,
+                message_string,
+                flags=[DRAFT]
+            )
 
             # Sync this specific message
             message = server.get_message(
@@ -919,8 +886,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 uid=uid,
                 folder_name=folder.name_on_server
             )
-        except Exception, e:
-            log.error(traceback.format_exc(e))
+        except IMAPConnectionError:
             return False
 
         return True
@@ -950,6 +916,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                     email_message.bcc = []
                     email_message.to = [recipient]
                     connection.send_messages([email_message])
+            connection.close()
 
             # Synchronize only new messages from folder *SENT*
             synchronize_folder(
@@ -959,7 +926,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 criteria=['subject "%s"' % email_message.subject],
                 new_only=True
             )
-        except Exception, e:
+        except Exception, e:  # pylint: disable=W0703
             log.error(traceback.format_exc(e))
             return False
 
@@ -971,16 +938,17 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
         :param server: The server from which the old message needs to be removed.
         """
-        if self.object and self.object.uid:
-            folder = server.get_folder(DRAFTS)
-            is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
-            if is_selected:
-                server.client.delete_messages([self.object.uid])
-                server.client.close_folder()
-
-        # Delete local attachments
-        self.object.attachments.all().delete()
-        self.object.delete()
+        try:
+            if self.object and self.object.uid:
+                folder = server.get_folder(DRAFTS)
+                server.delete_messages(folder, [self.object.uid])
+        except IMAPConnectionError:
+            return False
+        else:
+            # Delete local attachments
+            self.object.attachments.all().delete()
+            self.object.delete()
+            return True
 
     def get_email_headers(self):
         """
@@ -1165,9 +1133,12 @@ class EmailBodyPreviewView(TemplateView):
             else:
                 body = self.message.body_html or self.message.htmlify() or None
                 if body is None:
-                    server, self.message = self.get_message_from_imap(self.message)
-                    self.message.save()
-                    body = self.message.body_html or self.message.htmlify() or u''
+                    self.message = self.get_message_body_from_imap(self.message)
+                    if self.message is None:
+                        messages.warning(self.request, _('Failed to download message from server. Please try again later.'))
+                    else:
+                        self.message.save()
+                        body = self.message.body_html or self.message.htmlify() or u''
         elif self.object_id:
             quoted_content = self.message.indented_body
 
@@ -1198,51 +1169,45 @@ class EmailBodyPreviewView(TemplateView):
 
         return kwargs
 
-    def get_message_from_imap(self, instance):
+    def get_message_body_from_imap(self, message):
         """
-        Retrieve an e-mail via IMAP
+        Download a message from IMAP including the email body.
 
-        :param instance: the instance of a message
-        :param pk: the primary key of a message
-        :return: server used for connecting and the new updated instance
+        Arguments:
+            message (EmailMessage): an existing, incomplete email message,
+                incomplete because it's missing an email body.
         """
-        imap_logger.info('Connecting with IMAP')
+        email_account = message.account
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
 
-        server = None
-        try:
-            pk = instance.pk
-            host = instance.account.provider.imap_host
-            port = instance.account.provider.imap_port
-            ssl = instance.account.provider.imap_ssl
-            server = IMAP(host, port, ssl)
-            if server.login(instance.account.username, instance.account.password):
-                instance.account.auth_ok = OK_EMAILACCOUNT_AUTH
-                imap_logger.info('Searching IMAP for %s in %s' % (instance.uid, instance.folder_name))
-
-                message = server.get_message(instance.uid, ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
-                                             server.get_folder(instance.folder_name), readonly=False)
-                if message is not None:
-                    imap_logger.info('Message retrieved, saving in database')
-                    save_email_messages([message], instance.account, message.folder)
-
-                instance = EmailMessage.objects.get(pk=pk)
-
-                return server, instance
-            else:
-                imap_logger.info('IMAP login failed for %s', instance.account.email.email_address)
-                if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
-                    instance.account.auth_ok = NO_EMAILACCOUNT_AUTH
-            instance.account.save()
-        except:
-            pass
-        finally:
-            if server:
-                server.logout()
+                try:
+                    imap_message = server.get_message(
+                        message.uid,
+                        ['BODY[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'],
+                        server.get_folder(message.folder_name),
+                        readonly=False
+                    )
+                except IMAPConnectionError:
+                    return None
+                else:
+                    if imap_message is not None:
+                        imap_logger.debug('Message retrieved, saving in database')
+                        save_email_messages([imap_message], email_account, message.folder)
+                        updated_message = EmailMessage.objects.get(pk=message.pk)
+                        return updated_message
+                return None
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
+            return None
 email_body_preview_view = login_required(EmailBodyPreviewView.as_view())
 
 
 class EmailAttachmentProxy(View):
-    def get(request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # pylint: disable=W0613
         pk = kwargs.get('pk')
 
         try:
@@ -1347,7 +1312,7 @@ class EmailConfigurationWizardView(SessionWizardView):
     def get_context_data(self, form, **kwargs):
         context = super(EmailConfigurationWizardView, self).get_context_data(form, **kwargs)
         context.update({
-           'email_address': self.email_address,
+            'email_address': self.email_address,
         })
         return context
 
@@ -1379,7 +1344,6 @@ class EmailConfigurationWizardView(SessionWizardView):
             provider = EmailProvider()
             provider.__dict__.update(data['2'])
             provider.name = data['2']['preset_name']
-
         provider.save()
 
         try:
@@ -1620,8 +1584,6 @@ class EmailShareView(FormView):
             return HttpResponse(response, content_type='application/json')
 
         return response
-
-        return super(EmailShareView, self).form_invalid(form)
 email_share_wizard = login_required(EmailShareView.as_view())
 
 
@@ -1705,7 +1667,7 @@ class EmailSearchView(EmailFolderView):
 
         return super(EmailSearchView, self).get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # pylint: disable=W0613
         # Check if we have something to search for
         if not request.POST.get('search_key'):
             return redirect(request.META.get('HTTP_REFERER'))
@@ -1730,41 +1692,38 @@ class EmailSearchView(EmailFolderView):
         self.resultset = []  # result set of email messages pks
 
         # Find corresponding messages in database and save message pks
-        for account in accounts:
-            server = None
-            try:
-                host = account.provider.imap_host
-                port = account.provider.imap_port
-                ssl = account.provider.imap_ssl
-                server = IMAP(host, port, ssl)
-                if server.login(account.username,  account.password):
-                    account.auth_ok = OK_EMAILACCOUNT_AUTH
+        for email_account in accounts:
+            with LilyIMAP(email_account) as server:
+                if server.login(email_account.username, email_account.password):
+                    email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    email_account.save()
 
-                    folder = server.get_folder(self.folder_identifier or self.folder)
-                    total_count, uids = server.get_uids(folder, search_criteria)
+                    try:
+                        folder = server.get_folder(self.folder_identifier or self.folder)
+                        total_count, uids = server.get_uids(folder, search_criteria)  # pylint: disable=W0612
 
-                    if len(uids):
-                        qs = get_uids_from_local(uids, account)
-                        if len(qs) == 0:
-                            # Get actual messages for *uids* from *server* when they're not available locally
-                            modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                            folder_messages = server.get_messages(uids, modifiers, folder)
+                        if len(uids):
+                            qs = get_uids_from_local(uids, email_account)
+                            if len(qs) == 0:
+                                # Get actual messages for *uids* from *server* when they're not available locally
+                                modifiers = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
+                                folder_messages = server.get_messages(uids, modifiers, folder)
 
-                            if len(folder_messages) > 0:
-                                save_email_messages(folder_messages, account, folder, new_messages=True)
+                                if len(folder_messages) > 0:
+                                    save_email_messages(
+                                        folder_messages,
+                                        email_account,
+                                        folder,
+                                        new_messages=True
+                                    )
 
-                        pks = qs.values_list('pk', flat=True)
-                        self.resultset += list(pks)
-                else:
-                    imap_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if server._login_failed_reason != CATCH_LOGIN_ERRORS[1]:
-                        account.auth_ok = NO_EMAILACCOUNT_AUTH
-                account.save()
-            except:
-                pass
-            finally:
-                if server:
-                    server.logout()
+                            pks = qs.values_list('pk', flat=True)
+                            self.resultset += list(pks)
+                    except IMAPConnectionError:
+                        messages.warning(self.request, _('Failed to connect to your mail server. Please try again later.'))
+                elif not server.auth_ok:
+                    email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                    email_account.save()
 
     def get_queryset(self):
         """

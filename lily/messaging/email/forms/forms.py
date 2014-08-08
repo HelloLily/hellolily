@@ -248,6 +248,7 @@ class ComposeEmailForm(HelloLilyModelForm):
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
+
         contacts = Contact.objects.all()
         contacts_list = []
 
@@ -279,23 +280,6 @@ class ComposeEmailForm(HelloLilyModelForm):
         """
         return True
 
-    def format_recipients(self, recipients):
-        """
-        Strips newlines and trailing spaces & commas from recipients.
-
-        Args:
-            recipients (str): The string that needs cleaning up.
-
-        Returns:
-            String of comma separated email addresses.
-        """
-        formatted_recipients = []
-
-        for recipient in recipients.splitlines():
-            formatted_recipients.append(recipient.rstrip(', '))
-
-        return ', '.join(formatted_recipients)
-
     def clean(self):
         cleaned_data = super(ComposeEmailForm, self).clean()
 
@@ -310,6 +294,21 @@ class ComposeEmailForm(HelloLilyModelForm):
         cleaned_data['send_to_bcc'] = self.format_recipients(cleaned_data.get('send_to_bcc'))
 
         return cleaned_data
+
+    def format_recipients(self, recipients):
+        """
+        Strips newlines and trailing spaces & commas from recipients.
+
+        Args:
+            recipients (str): The string that needs cleaning up.
+
+        Returns:
+            String of comma separated email addresses.
+        """
+        formatted_recipients = []
+        for recipient in recipients:
+            formatted_recipients.append(recipient.rstrip(', '))
+        return ', '.join(formatted_recipients)
 
     def clean_send_from(self):
         """
@@ -328,15 +327,6 @@ class ComposeEmailForm(HelloLilyModelForm):
         model = EmailDraft
         fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',)
         widgets = {
-            'send_to_normal': forms.Textarea(attrs={
-                'rows': 1,
-            }),
-            'send_to_cc': forms.Textarea(attrs={
-                'rows': 1,
-            }),
-            'send_to_bcc': forms.Textarea(attrs={
-                'rows': 1,
-            }),
             'body_html': forms.Textarea(attrs={
                 'rows': 12,
                 'class': 'inbox-editor inbox-wysihtml5 form-control',

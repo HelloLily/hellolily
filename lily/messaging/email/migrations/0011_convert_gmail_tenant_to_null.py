@@ -124,6 +124,13 @@ class Migration(DataMigration):
             'signature': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'username': ('django_fields.fields.EncryptedCharField', [], {'max_length': '558', 'block_type': "'MODE_CBC'", 'cipher': "'AES'"})
         },
+        u'email.emailaddressheader': {
+            'Meta': {'object_name': 'EmailAddressHeader'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'message': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['email.EmailMessage']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
+            'value': ('django.db.models.fields.TextField', [], {'null': 'True', 'db_index': 'True'})
+        },
         u'email.emailattachment': {
             'Meta': {'object_name': 'EmailAttachment'},
             'attachment': ('django.db.models.fields.files.FileField', [], {'max_length': '255'}),
@@ -149,7 +156,7 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'EmailHeader'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'headers'", 'to': u"orm['email.EmailMessage']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'value': ('django.db.models.fields.TextField', [], {'null': 'True'})
         },
         u'email.emaillabel': {
@@ -164,7 +171,7 @@ class Migration(DataMigration):
             'body_html': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'body_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'flags': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'folder_identifier': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'folder_identifier': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'folder_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'is_private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'message_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['messaging.Message']", 'unique': 'True', 'primary_key': 'True'}),

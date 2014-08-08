@@ -88,6 +88,7 @@ class EmailMessage(Message):
     folder_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
+    message_identifier = models.CharField(max_length=255)  # Message-ID header
 
     def get_list_item_template(self):
         """

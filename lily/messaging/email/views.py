@@ -235,6 +235,12 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                         fetch_success = True
                         imap_logger.debug('Message retrieved, saving in database')
                         save_email_messages([message], email_account, message.folder)
+
+                        duplicate_emails = EmailMessage.objects.filter(message_identifier=email_message.message_identifier)
+                        for duplicate_email in duplicate_emails:
+                            duplicate_email.body_text = message.get_text_body()
+                            duplicate_email.body_html = message.get_html_body()
+                            duplicate_email.save()
             elif not server.auth_ok:
                 email_account.auth_ok = NO_EMAILACCOUNT_AUTH
                 email_account.save()

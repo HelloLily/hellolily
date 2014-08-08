@@ -778,17 +778,6 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 elif body_text is not None:
                     body_text = escape(body_text)
 
-                email_message.body_html = replace_anchors_in_html(body_html)
-                email_message.body_text = body_text
-                email_message.size = message.get_size()
-                email_message.folder_identifier = folder.identifier
-                email_message.is_private = False
-                email_message.tenant = account.tenant
-                email_message.polymorphic_ctype = email_message_polymorphic_ctype
-                # Add to object list
-                new_message_obj_list.append(email_message)
-                email_message.save()
-
                 # Check for headers
                 if message.get_headers() is not None:
                     headers = message.get_headers()
@@ -814,12 +803,25 @@ def save_email_messages(messages, account, folder, new_messages=False):
                                     email_address_header.name = name
                                     email_address_header.value = email_address.lower()
                                     email_address_headers.append(email_address_header)
+                        elif name.lower() == 'message-id':
+                            email_message.message_identifier = value
                     if len(email_headers):
                         # Save reference to uid
                         new_email_headers.update({message.uid: email_headers})
                     if len(email_address_headers):
                         # Save reference to uid
                         new_email_address_headers.update({message.uid: email_address_headers})
+
+                email_message.body_html = replace_anchors_in_html(body_html)
+                email_message.body_text = body_text
+                email_message.size = message.get_size()
+                email_message.folder_identifier = folder.identifier
+                email_message.is_private = False
+                email_message.tenant = account.tenant
+                email_message.polymorphic_ctype = email_message_polymorphic_ctype
+                # Add to object list
+                new_message_obj_list.append(email_message)
+                email_message.save()
 
                 # Check for attachments
                 email_attachments = []
@@ -1050,11 +1052,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 param_list = []
 
             # Fetch message ids
-            email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
+            email_message_uids = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
 
             # Find existing headers per email message
             existing_headers_per_message = {}
-            existing_headers_qs = EmailHeader.objects.filter(message_id__in=[id for id, uid in email_messages]).values_list('message_id', 'name')
+            existing_headers_qs = EmailHeader.objects.filter(message_id__in=[id for id, uid in email_message_uids]).values_list('message_id', 'name')
             for message_id, header_name in existing_headers_qs:
                 headers = existing_headers_per_message.get(message_id, [])
                 headers.append(header_name)
@@ -1062,14 +1064,14 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             # Find existing email address headers per email message
             existing_email_address_headers_per_message = {}
-            existing_email_address_headers_qs = EmailAddressHeader.objects.filter(message_id__in=[id for id, uid in email_messages]).values_list('message_id', 'name')
+            existing_email_address_headers_qs = EmailAddressHeader.objects.filter(message_id__in=[id for id, uid in email_message_uids]).values_list('message_id', 'name')
             for message_id, header_name in existing_email_address_headers_qs:
                 headers = existing_email_address_headers_per_message.get(message_id, [])
                 headers.append(header_name)
                 existing_email_address_headers_per_message.update({message_id: headers})
 
             # Link message ids to headers and (inline) attachments
-            for id, uid in email_messages:
+            for id, uid in email_message_uids:
                 header_obj_list = update_email_headers.get(uid)
                 if header_obj_list:
                     for header_obj in header_obj_list:

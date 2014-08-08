@@ -3,9 +3,7 @@ import os
 import traceback
 import urllib
 import logging
-import email
 from email import Encoders
-from email.header import Header
 from email.utils import quote
 from email.MIMEBase import MIMEBase
 
@@ -54,7 +52,7 @@ from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
-from lily.utils.views.mixins import AttachmentFormSetViewMixin, FilteredListMixin, SortedListMixin
+from lily.utils.views.mixins import FilteredListMixin, SortedListMixin
 
 
 log = logging.getLogger('django.request')
@@ -648,12 +646,13 @@ move_messages_view = login_required(MoveEmailMessageView.as_view())
 #
 # EmailMessage compose views (create/edit draft, reply, forward) incl. preview
 #
-class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, FormView, SingleObjectMixin):
+class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
     """
     Base for EmailMessageCreateView and EmailMessageReplyView.
     """
     form_class = ComposeEmailForm
     template_name = 'email/emailmessage_compose.html'
+    deleted_attachments = []
 
     def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs.get('pk', None)
@@ -665,7 +664,11 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
     def post(self, request, *args, **kwargs):
         self.get_object()
-        return super(EmailMessageComposeBaseView, self).post(request, *args, **kwargs)
+        # If there is no previous email and the draft is being discarded, redirect immediately.
+        if 'submit-discard' in self.request.POST and not self.object:
+            return redirect(self.get_success_url())
+        else:
+            return super(EmailMessageComposeBaseView, self).post(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         self.object = None
@@ -702,6 +705,8 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
             - send an email message
         """
         unsaved_form = form.save(commit=False)
+
+        self.handle_deleted_attachments(form.cleaned_data['attachments'])
 
         email_account = unsaved_form.send_from
         with LilyIMAP(email_account) as server:
@@ -801,6 +806,18 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
 
         return super(EmailMessageComposeBaseView, self).form_valid(form)
 
+    def handle_deleted_attachments(self, formset_data):
+        """
+        Build a list of files that should not be included with the email.
+
+        Args:
+            formset_data: The data from the attachment formset.
+        """
+        for form in formset_data.deleted_forms:
+            # Check if file is marked as to be deleted.
+            if form.cleaned_data['DELETE']:
+                self.deleted_attachments.append(form.cleaned_data['id'])
+
     def attach_request_files(self, email_message):
         """
         Attach files from request.FILES to *email_message* as separte mime parts.
@@ -825,20 +842,22 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
         attachments = EmailAttachment.objects.filter(inline=False, message_id=pk).all()
         if len(attachments) > 0:
             for attachment in attachments:
-                storage_file = default_storage._open(attachment.attachment.name)
-                filename = get_attachment_filename_from_url(attachment.attachment.name)
+                # Do not add the file if it is marked to be deleted.
+                if attachment not in self.deleted_attachments:
+                    storage_file = default_storage._open(attachment.attachment.name)
+                    filename = get_attachment_filename_from_url(attachment.attachment.name)
 
-                storage_file.open()
-                content = storage_file.read()
-                storage_file.close()
+                    storage_file.open()
+                    content = storage_file.read()
+                    storage_file.close()
 
-                filetype = storage_file.key.content_type.split('/')
-                part = MIMEBase(filetype[0], filetype[1])
-                part.set_payload(content)
-                Encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
+                    filetype = storage_file.key.content_type.split('/')
+                    part = MIMEBase(filetype[0], filetype[1])
+                    part.set_payload(content)
+                    Encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
 
-                email_message.attach(part)
+                    email_message.attach(part)
 
         return email_message
 

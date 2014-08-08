@@ -451,8 +451,23 @@ $(function($) {
         $(this).button('loading');
     });
 
-    $('.inbox-compose [type="submit"]').click(function() {
+    $('.inbox-compose [type="submit"]').click(function(event) {
+        if ($(this).attr('name') == 'submit-send') {
+            // validation of fields.
+            if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
+                $('#modal_no_email_address').modal();
+                event.preventDefault();
+                return;
+            }
+        } else if ($(this).attr('name') == 'submit-discard') {
+            // Discarding email, remove all attachments to prevent unneeded uploading.
+            $('[id|=id_attachments]:file').remove();
+        }
+        // No validation needed, remove attachments to prevent unneeded uploading.
+        $(this).button('loading');
         App.blockUI($('.inbox-content'), false, '');
-        $('.inbox-compose button[name="submit-send"]').button('loading');
+        $('[id|=id_attachments]:file').filter(function() {
+           return $(this).data('formset-disabled') == true;
+        }).remove();
     });
 });

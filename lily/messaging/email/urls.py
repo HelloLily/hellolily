@@ -34,7 +34,7 @@ urlpatterns = patterns(
     url(r'^reply/(?P<pk>[\d-]+)/$', email_reply_view, name='messaging_email_reply'),
     url(r'^forward/(?P<pk>[\d-]+)/$', email_forward_view, name='messaging_email_forward'),
 
-    url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/].+)/$', email_attachment_proxy_view, name='email_attachment_proxy_view'),
+    url(r'^attachment/(?P<pk>[\d-]+)/$', email_attachment_proxy_view, name='email_attachment_proxy_view'),
 
     # do something with email messages
     url(r'^markasread/$', mark_read_view, name='messaging_mark_read'),

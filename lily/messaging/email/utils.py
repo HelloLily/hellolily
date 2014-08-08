@@ -271,7 +271,7 @@ def replace_cid_in_html(html, mapped_attachments):
     for image in inline_images:
         inline_attachment = mapped_attachments.get(image.get('src')[4:])
         if inline_attachment is not None:
-            image['src'] = reverse('email_attachment_proxy_view', kwargs={'pk': inline_attachment.pk, 'path': inline_attachment.attachment.name})
+            image['src'] = reverse('email_attachment_proxy_view', kwargs={'pk': inline_attachment.pk})
 
     return soup.encode_contents()
 

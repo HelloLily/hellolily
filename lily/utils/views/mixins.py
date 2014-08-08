@@ -17,11 +17,8 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
-from django.views.generic.edit import BaseCreateView, BaseUpdateView
 
-from lily.messaging.email.models import EmailAttachment, EmailMessage
-from lily.messaging.email.utils import get_attachment_filename_from_url
-from lily.messaging.email.forms import AttachmentBaseForm
+from lily.messaging.email.models import EmailMessage
 from lily.notes.models import Note
 from lily.notes.views import NoteDetailViewMixin
 from lily.utils.functions import is_ajax, combine_notes_qs_email_qs, get_emails_for_email_addresses
@@ -471,35 +468,6 @@ class DeleteBackAddSaveFormViewMixin(object):
         return super(DeleteBackAddSaveFormViewMixin, self).post(request, *args, **kwargs)
 
 
-class ValidateFormSetViewMixin(object):
-    """
-    Mixin to include formsets when validating POST data.
-    """
-    def post(self, request, *args, **kwargs):
-        if isinstance(self, BaseCreateView):
-            # Copied from BaseCreateView.post()
-            self.object = None
-        elif isinstance(self, BaseUpdateView):
-            # Copied from BaseUpdateView.post()
-            self.object = self.get_object()
-
-        # Copied from ProcessFormView to add formset validation
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-
-        formset_is_valid = True
-        if not is_ajax(self.request) and hasattr(self, 'formsets'):
-            for name, formset in self.formsets.items():
-                for formset_form in formset:
-                    if not formset_form.is_valid():
-                        formset_is_valid = False
-
-        if formset_is_valid and form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-
 class ModelFormSetViewMixin(object):
     """
     Mixin base class to add a formset to a FormView in an easier fashion.
@@ -624,59 +592,6 @@ class ModelFormSetViewMixin(object):
                 kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}
 
         return kwargs
-
-
-class AttachmentFormSetViewMixin(ModelFormSetViewMixin):
-    """
-    FormMixin for adding an email attachment formset to a form.
-    """
-    def dispatch(self, request, *args, **kwargs):
-        context_name = 'attachments_formset'
-        model = EmailAttachment
-        related_name = 'attachments'
-        form = AttachmentBaseForm
-        prefix = 'attachments'
-        label = _('Files')
-        template = 'email/formset_attachment.html'
-
-        self.add_formset(context_name, model=model, related_name=related_name, form=form, label=label, template=template, prefix=prefix)
-        return super(AttachmentFormSetViewMixin, self).dispatch(request, *args, **kwargs)
-
-    def get_attachments_queryset(self, instance):
-        return EmailAttachment.objects.filter(message=self.object)
-
-    def form_valid(self, form):
-        context_name = 'attachments_formset'
-        formset = self.get_formset(context_name)
-        form_kwargs = self.get_form_kwargs()
-
-        for formset_form in formset.forms:
-            # Remove any unwanted (already existing) attachments
-            if form_kwargs['data'].get(formset_form.prefix + '-DELETE'):
-                if formset_form.instance.pk:
-                    formset_form.instance.delete()
-                else:
-                    # Don't see a way to this properly: new attachments
-                    # don't exist as formset_form.instances -> no primary key
-                    # to compare to decide removal of an attachment, but
-                    # this is something at the very least, so:
-                    #                     #
-                    # Clear attachments by filename
-                    # Files in self.request.FILES have already been added to
-                    # self.object.attachments. Check whether or not to 'cancel' attaching
-                    # a file to self.object
-                    for field_name, file_in_memory in self.request.FILES.items():
-                        if field_name.startswith(formset_form.prefix):
-                            for attachment in self.object.attachments.all():
-                                if get_attachment_filename_from_url(attachment.attachment.name) == file_in_memory.name:
-                                    attachment.delete()
-
-            elif formset_form.instance.attachment:
-                # Establish a link to a new message instance
-                formset_form.instance.message = self.object
-                formset_form.instance.save()
-
-        return super(AttachmentFormSetViewMixin, self).form_valid(form)
 
 
 class HistoryListViewMixin(NoteDetailViewMixin):

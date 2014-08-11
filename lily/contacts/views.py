@@ -279,23 +279,6 @@ class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
 
         return kwargs
 
-    def get_form_kwargs(self):
-        kwargs = super(CreateUpdateContactView, self).get_form_kwargs()
-        if not self.is_ajax:
-            kwargs.update({
-                'formset_form_attrs': {
-                    'addresses': {
-                        'exclude_address_types': ['visiting'],
-                        'extra_form_kwargs': {
-                            'initial': {
-                                'type': 'home',
-                            }
-                        }
-                    }
-                }
-            })
-        return kwargs
-
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
@@ -367,6 +350,23 @@ class AddContactView(CreateUpdateContactView, CreateView):
             return HttpResponse(response, content_type='application/json')
 
         return super(AddContactView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateUpdateContactView, self).get_form_kwargs()
+        if not self.is_ajax:
+            kwargs.update({
+                'formset_form_attrs': {
+                    'addresses': {
+                        'exclude_address_types': ['visiting'],
+                        'extra_form_kwargs': {
+                            'initial': {
+                                'type': 'home',
+                            }
+                        }
+                    }
+                }
+            })
+        return kwargs
 
     def form_invalid(self, form):
         """

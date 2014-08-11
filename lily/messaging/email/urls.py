@@ -1,14 +1,10 @@
 from django.conf.urls import patterns, url
 
-from lily.messaging.email.views import email_detail_view, email_html_view, \
-    email_inbox_view, email_sent_view, email_drafts_view, email_trash_view, \
-    email_spam_view, email_account_folder_view, email_create_view, \
-    email_reply_view, email_forward_view, \
-    email_body_preview_view, mark_read_view, mark_unread_view, \
-    move_trash_view, move_messages_view, email_attachment_proxy_view, \
-    email_templates_list_view, create_emailtemplate_view, \
-    update_emailtemplate_view, parse_emailtemplate_view, email_search_view, \
-    email_configuration_wizard, email_share_wizard
+from lily.messaging.email.views import email_detail_view, email_html_view, email_inbox_view, email_sent_view, \
+    email_drafts_view, email_trash_view, email_spam_view, email_account_folder_view, email_create_view, \
+    email_reply_view, email_forward_view, mark_read_view, mark_unread_view, move_trash_view, move_messages_view, \
+    email_attachment_proxy_view, email_templates_list_view, create_emailtemplate_view, update_emailtemplate_view, \
+    parse_emailtemplate_view, email_search_view, email_configuration_wizard, email_share_wizard
 
 
 urlpatterns = patterns(
@@ -37,9 +33,6 @@ urlpatterns = patterns(
     url(r'^compose/(?P<pk>[\d-]+)/$', email_create_view, name='messaging_email_compose'),
     url(r'^reply/(?P<pk>[\d-]+)/$', email_reply_view, name='messaging_email_reply'),
     url(r'^forward/(?P<pk>[\d-]+)/$', email_forward_view, name='messaging_email_forward'),
-
-    url(r'^preview/(?P<message_type>[a-z]+)/$', email_body_preview_view, name='messaging_email_body_preview'),
-    url(r'^preview/(?P<message_type>[a-z]+)/(?P<object_id>[\d-]+)/$', email_body_preview_view, name='messaging_email_body_preview'),
 
     url(r'^attachment/(?P<pk>[\d-]+)/(?P<path>[^/].+)/$', email_attachment_proxy_view, name='email_attachment_proxy_view'),
 
@@ -70,7 +63,6 @@ urlpatterns = patterns(
     # url(r'^history-list-json/(?P<pk>[\w-]+)/$', history_list_email_json_view, name='messaging_history_list_email_json'),
 
     # # e-mail account views
-    # url(r'^account/wizard/configuration/(?P<pk>[\w-]+)/$', email_configuration_wizard, name='messaging_email_account_wizard'),
     # url(r'^account/edit/(?P<pk>[\w-]+)/$', edit_email_account_view, name='messaging_email_account_edit'),
     # # url(r'^account/details/(?P<pk>[\w-]+)/$', detail_email_account_view, name='messaging_email_account_details'),
 )

@@ -22,7 +22,7 @@ class Note(HistoryListItem, Deleted):
         """
         Return the template that must be used for history list rendering
         """
-        return 'notes/note_list_single_object.html'
+        return 'notes/note_historylistitem.html'
 
     def save(self, *args, **kwargs):
         self.sort_by_date = self.created

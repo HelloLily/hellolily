@@ -128,6 +128,42 @@ class EmailMessage(Message):
             return self.body_text.replace('\n', '<br />')
         return None
 
+    def get_email_operation_icon(self):
+        """
+        Return an icon which corresponds to the operation (sent, forward, reply, reply all) of the email
+        """
+        if not hasattr(self, '_in_reply_to_headers'):
+            self._in_reply_to_headers = self.headers.filter(name__iexact='In-Reply-To')
+
+        from_email = self.from_email
+        operation = None
+
+        # If this header is present, it's a reply to another email
+        if self._in_reply_to_headers.exists():
+            subject = self.subject
+            # Check if it's a forwarded email
+            if subject.lower().startswith('fwd:'):
+                operation = 'forward'
+            else:
+                # Check if this reply is sent to a single or multiple recipients
+                to_emails = self.to_emails(include_names=False)
+                to_cc = self.to_cc_combined
+
+                if len(to_emails) == 1 and not to_cc:
+                    operation = 'reply'
+                elif len(to_emails) > 1 or to_cc:
+                    operation = 'reply-all'
+        elif from_email == self.account.email.email_address:
+             # If the sender is the user's email it's just a sent email
+            operation = 'sent'
+
+        return {
+            'forward': 'icon-share-alt',  # TODO: Temp icon, change to fa-share once we upgrade to FontAwesome 4
+            'reply': 'icon-reply',
+            'reply-all': 'icon-reply-all',
+            'sent': 'icon-location-arrow',  # TODO: Temp icon, change to fa-paper-plane once we upgrade to FontAwesome 4
+        }.get(operation)
+
     @property
     def indented_body(self):
         """

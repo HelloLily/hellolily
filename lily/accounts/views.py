@@ -300,18 +300,19 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
     
     def get_form_kwargs(self):
         kwargs = super(CreateUpdateAccountView, self).get_form_kwargs()
-        kwargs.update({
-            'formset_form_attrs': {
-                'addresses': {
-                    'exclude_address_types': ['home', ],
-                    'extra_form_kwargs': {
-                        'initial': {
-                            'type': 'visiting',
+        if not self.is_ajax:
+            kwargs.update({
+                'formset_form_attrs': {
+                    'addresses': {
+                        'exclude_address_types': ['home', ],
+                        'extra_form_kwargs': {
+                            'initial': {
+                                'type': 'visiting',
+                            }
                         }
                     }
                 }
-            }
-        })
+            })
         return kwargs
 
 
@@ -324,7 +325,9 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         Overloading super().dispatch to change the template to be rendered for ajax requests.
         """
         # Change form and template for ajax calls or create formset instances for the normal form
+        self.is_ajax = False
         if is_ajax(request):
+            self.is_ajax = True
             self.form_class = AddAccountQuickbuttonForm
             self.template_name = 'accounts/account_form_ajax.html'
 

@@ -13,8 +13,8 @@
     {% include_media 'notifications.css' %}
     {% include_media 'metronic-theme.css' %}
     {% block css %}{% endblock %}
-    <link rel="shortcut icon" href="favicon.ico" />
-    <title>{% block head-title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{% media_url 'images/core/favicon.ico' %}" />
+    <title>{% block head-title %}HelloLily{% endblock %}</title>
 </head>
 
 <body class="{% block body-class %}login{% endblock %}">

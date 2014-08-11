@@ -3,41 +3,42 @@
 {% load media %}
 
 {% block body-class %}page-header-fixed page-sidebar-fixed{% endblock %}
+
 {% block body-content %}
-<div class="header navbar navbar-inverse navbar-fixed-top">
-    <div class="header-inner">
-        <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+    <div class="header navbar navbar-inverse navbar-fixed-top">
+        <div class="header-inner">
+            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+        </div>
     </div>
-</div>
-<div class="clearfix"></div>
-<div class="page-container">
-    <div class="page-content">
-    	{% block page-content %}
-        <div class="row">
-            <div class="col-md-12">
-                <h3 class="page-title pull-left">{% block page-title %}{% endblock %}</h3>
+    <div class="clearfix"></div>
+    <div class="page-container">
+        <div class="page-content">
+            {% block page-content %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="page-title pull-left">{% block page-title %}{% endblock %}</h3>
+                    </div>
+                </div>
+                {% block container %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% block page-container %}{% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+    {% block page-footer %}
+        <div class="footer">
+            <div class="footer-inner">
+                2014 &copy; HelloLily
+            </div>
+            <div class="footer-tools">
+                <span class="go-top">
+                    <i class="icon-angle-up"></i>
+                </span>
             </div>
         </div>
-        {% block container %}
-		<div class="row">
-		    <div class="col-md-12">
-		        {% block page-container %}{% endblock %}
-		    </div>
-		</div>
-        {% endblock %}
-    	{% endblock %}
-    </div>
-</div>
-{% block page-footer %}
-<div class="footer">
-    <div class="footer-inner">
-        2014 &copy; HelloLily
-    </div>
-    <div class="footer-tools">
-        <span class="go-top">
-            <i class="icon-angle-up"></i>
-        </span>
-    </div>
-</div>
-{% endblock %}
+    {% endblock %}
 {% endblock %}

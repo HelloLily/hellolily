@@ -297,23 +297,6 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
             })
 
         return kwargs
-    
-    def get_form_kwargs(self):
-        kwargs = super(CreateUpdateAccountView, self).get_form_kwargs()
-        if not self.is_ajax:
-            kwargs.update({
-                'formset_form_attrs': {
-                    'addresses': {
-                        'exclude_address_types': ['home', ],
-                        'extra_form_kwargs': {
-                            'initial': {
-                                'type': 'visiting',
-                            }
-                        }
-                    }
-                }
-            })
-        return kwargs
 
 
 class AddAccountView(CreateUpdateAccountView, CreateView):
@@ -332,6 +315,23 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
             self.template_name = 'accounts/account_form_ajax.html'
 
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateUpdateAccountView, self).get_form_kwargs()
+        if not self.is_ajax:
+            kwargs.update({
+                'formset_form_attrs': {
+                    'addresses': {
+                        'exclude_address_types': ['home', ],
+                        'extra_form_kwargs': {
+                            'initial': {
+                                'type': 'visiting',
+                            }
+                        }
+                    }
+                }
+            })
+        return kwargs
 
     def form_valid(self, form):
         """

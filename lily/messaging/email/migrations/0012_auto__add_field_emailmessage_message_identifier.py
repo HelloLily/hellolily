@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant = None
-                provider.save()
+        # Adding field 'EmailMessage.message_identifier'
+        db.add_column(u'email_emailmessage', 'message_identifier',
+                      self.gf('django.db.models.fields.TextField')(default=''),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant_id = 1
-                provider.save()
+        # Deleting field 'EmailMessage.message_identifier'
+        db.delete_column(u'email_emailmessage', 'message_identifier')
+
 
     models = {
         u'accounts.account': {
@@ -174,6 +175,7 @@ class Migration(DataMigration):
             'folder_identifier': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'folder_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'is_private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'message_identifier': ('django.db.models.fields.TextField', [], {}),
             u'message_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['messaging.Message']", 'unique': 'True', 'primary_key': 'True'}),
             'size': ('django.db.models.fields.IntegerField', [], {'default': '0', 'null': 'True'}),
             'uid': ('django.db.models.fields.IntegerField', [], {})
@@ -278,11 +280,10 @@ class Migration(DataMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'other_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'profile_url': ('django.db.models.fields.URLField', [], {'max_length': '255'}),
+            'profile_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         }
     }
 
     complete_apps = ['email']
-    symmetrical = True

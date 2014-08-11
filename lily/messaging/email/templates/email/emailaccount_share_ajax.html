@@ -11,7 +11,7 @@
         <div class="form-body">
             {% block form-fields %}
                 <div class="form-group">
-                    <label class="col-md-3 control-label">Shared with</label>
+                    <label class="col-md-3 control-label">{% trans 'Shared with' %}</label>
                     <div class="col-md-9">
                         <div class="btn-group" data-toggle="buttons">
                             {% for radio in form.shared_with %}
@@ -43,8 +43,11 @@
         var user_group = $('#emailaccount-share [name="user_group"]').closest('.form-group')
         if($('#emailaccount-share [name="shared_with"]:checked').val() < 2) {
             $(user_group).hide();
+            $('#id_user_group').removeAttr('required');
         } else {
             $(user_group).show();
+            $('#id_user_group').select2();
+            $('#id_user_group').attr('required', '');
         }
     }
 
@@ -61,7 +64,8 @@
         }
     });
 
-    // FIXME: enable select2 for field *user_group*
     // FIXME: this script is not executing in case of form_invalid!
+    // XXX: there shouldn't be a form_invalid ever, an empty user list for
+    // the option 'specific users' will be prevented with html5 required
 })();
 </script>

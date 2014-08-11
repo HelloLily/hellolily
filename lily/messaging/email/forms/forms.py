@@ -18,7 +18,7 @@ from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import ShowHideWidget
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -186,10 +186,17 @@ class EmailShareForm(HelloLilyModelForm):
         return self.instance
 
     class Meta:
-        exclude = ('account_type', 'tenant', 'email_account', 'from_name', 'signature', 'email', 'username', 'password', 'provider', 'last_sync_date', 'folders')
+        exclude = (
+            'account_type', 'tenant', 'email_account', 'from_name',
+            'signature', 'email', 'username', 'password', 'provider',
+            'last_sync_date', 'folders', 'auth_ok',
+        )
         model = EmailAccount
         widgets = {
-            'shared_with': RadioSelect(),
+            'shared_with': RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
             'user_group': SelectMultiple(attrs={'class': 'chzn-select'})
         }
 

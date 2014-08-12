@@ -11,9 +11,10 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         for email_message in orm.EmailMessage.objects.all():
-            header = EmailHeader.objects.filter(message_id=email_message.id, name__iexact='Message-ID')[0]
-            email_message.message_identifier = header.value
-            email_message.save()
+            header = EmailHeader.objects.filter(message_id=email_message.id, name__iexact='Message-ID')
+            if header.exists():
+                email_message.message_identifier = header[0].value
+                email_message.save()
 
     def backwards(self, orm):
         for email_message in orm.EmailMessage.objects.all():

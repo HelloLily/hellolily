@@ -708,7 +708,6 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
             if server.login(email_account.username, email_account.password):
                 email_account.auth_ok = OK_EMAILACCOUNT_AUTH
                 email_account.save()
-                account.save()
 
                 # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
                 if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
@@ -797,7 +796,7 @@ class EmailMessageComposeBaseView(AttachmentFormSetViewMixin, EmailBaseView, For
                 email_account.save()
 
                 # TODO: should be a form error ? That would return the form's content at least.
-                messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % account.email.email_address)
+                messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % email_account.email.email_address)
                 return redirect(self.request.META.get('HTTP_REFERER', 'messaging_email_compose'))
 
         return super(EmailMessageComposeBaseView, self).form_valid(form)

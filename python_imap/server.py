@@ -266,9 +266,8 @@ class IMAP(object):
         )
 
         # Extract uid from response
-        command, seq, uid, status = [part.strip('[]()') for part in response.split(' ')]  # pylint: disable=W0612
-
-        return int(uid)
+        server_response = [part.strip('[]()') for part in response.split(' ')]
+        return int(server_response[2])
 
     @logout_on_failure
     def delete_messages(self, folder, uids):

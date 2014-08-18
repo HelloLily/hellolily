@@ -5,6 +5,7 @@ from smtplib import SMTPAuthenticationError
 from django import forms
 from django.db.models import Q
 from django.core.mail import get_connection
+from django.forms.models import modelformset_factory
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
@@ -17,8 +18,9 @@ from lily.messaging.email.forms.widgets import EmailAttachmentWidget
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
+from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
+from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import ShowHideWidget
-from lily.utils.forms.fields import TagsField, HostnameField
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -229,7 +231,20 @@ class EmailShareForm(HelloLilyModelForm):
         }
 
 
-class ComposeEmailForm(HelloLilyModelForm):
+class AttachmentBaseForm(HelloLilyModelForm):
+    """
+    Form for uploading email attachments.
+    """
+    class Meta:
+        models = EmailAttachment
+        fields = ('attachment',)
+        exclude = ('message', 'size', 'inline', 'tenant')
+        widgets = {
+            'attachment': EmailAttachmentWidget(),
+        }
+
+
+class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
@@ -237,11 +252,18 @@ class ComposeEmailForm(HelloLilyModelForm):
     send_to_normal = TagsField(label=_('To'))
     send_to_cc = TagsField(required=False, label=_('Cc'))
     send_to_bcc = TagsField(required=False, label=_('Bcc'))
+    attachments = FormSetField(
+        queryset=EmailAttachment.objects.none(),
+        formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        template='email/formset_attachment.html',
+    )
 
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
+
+        self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
 
         user = get_current_user()
         email_accounts = user.get_messages_accounts(EmailAccount)
@@ -325,7 +347,8 @@ class ComposeEmailForm(HelloLilyModelForm):
 
     class Meta:
         model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',)
+        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',
+                  'attachments')
         widgets = {
             'body_html': forms.Textarea(attrs={
                 'rows': 12,
@@ -449,16 +472,3 @@ class EmailTemplateFileForm(HelloLilyForm):
             self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
 
         return cleaned_data
-
-
-class AttachmentBaseForm(HelloLilyModelForm):
-    """
-    Form for uploading email attachments.
-    """
-    class Meta:
-        models = EmailAttachment
-        fields = ('attachment',)
-        exclude = ('message', 'size', 'inline', 'tenant')
-        widgets = {
-            'attachment': EmailAttachmentWidget(),
-        }

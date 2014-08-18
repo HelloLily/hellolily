@@ -109,7 +109,7 @@
                 <div>
                     <strong>{{ attachment }}</strong>
                     <span>{{ attachment.size|filesizeformat }}</span>
-                    <a href="{% url 'email_attachment_proxy_view' pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
+                    <a href="{% url 'email_attachment_proxy_view' pk=attachment.pk %}">{% trans 'Download' %}</a>
                 </div>
             </div>
             {% endfor %}

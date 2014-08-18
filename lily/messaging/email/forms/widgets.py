@@ -29,7 +29,7 @@ class EmailAttachmentWidget(ClearableFileInput):
         if value and hasattr(value, "url"):
             template = self.template_with_initial
 
-            url = reverse('email_attachment_proxy_view', kwargs={'pk': 5, 'path': value.url})
+            url = reverse('email_attachment_proxy_view', kwargs={'pk': value.instance.pk})
             substitutions['initial'] = (u'<a href="%s">%s</a>'
                                         % (escape(url),
                                            escape(get_attachment_filename_from_url(force_unicode(value)))))

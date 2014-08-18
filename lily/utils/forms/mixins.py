@@ -24,7 +24,7 @@ class FormSetFormMixin(object):
                 }
             }
         """
-        formset_form_attrs = kwargs.pop('formset_form_attrs', None)
+        formset_form_attrs = kwargs.pop('formset_form_attrs', {})
         super(FormSetFormMixin, self).__init__(*args, **kwargs)
 
         if formset_form_attrs is not None:

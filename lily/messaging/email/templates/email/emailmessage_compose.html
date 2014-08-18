@@ -15,7 +15,7 @@
     <div class="inbox-content">
         {{ form.non_field_errors }}
 
-        <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data">
+        <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <div class="inbox-compose-btn">
@@ -70,22 +70,29 @@
             <div class="inbox-form-group margin-bottom-10">
                 {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class=" " form_group_class="" %}
             </div>
-            {% with formsets.attachments_formset as formset %}
-            <div class="inbox-form-group mail-attachments">
-                <label class="control-label">{{ formset.label }}:</label>
-                <div class="controls controls-attachments">
-                    <div class="col-md-12">
-                        {% include formset.template with formset=formset.instance label=None %}
-                    </div>
-                </div>
-            </div>
-            {% endwith %}
+            {{ form.attachments }}
             <div class="inbox-compose-btn">
                 <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send' %}</button>
                 <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>
                 <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
             </div>
         </form>
+    </div>
+</div>
+<div class="modal fade" id="modal_no_email_address" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">{% trans "I'm sorry" %}</h4>
+            </div>
+            <div class="modal-body">
+                {% trans "I couldn't find a recipient, could you please fill in where I need to send this mail." %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn default" data-dismiss="modal">{% trans 'Ok' %}</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -102,7 +109,6 @@ $(function($) {
     var last_selected = $("#id_template option:selected");
     $('#id_template').change(function(e) {
         var value = $(this).val();
-        var text = $(this).find('option:selected').text();
         var subject_field = $('#id_subject');
         var html_field = $('#id_body_html');
         var wysihtml5Editor = html_field.data("wysihtml5").editor;

@@ -1,4 +1,7 @@
 MEDIA_BUNDLES = (
+    ('typography.css',
+        'lily/css/typography.css',
+    ),
     ('font-awesome.css',
         'plugins/font-awesome/css/font-awesome.min.css',
     ),

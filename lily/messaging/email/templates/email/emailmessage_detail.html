@@ -167,7 +167,7 @@ $(function($) {
     }
 
     // if the list of recipients is 2 or more lines, display the button
-    if($('.email-recipients')[0].scrollHeight != $('.email-recipients').height()) {
+    if($('.email-recipients').length && $('.email-recipients')[0].scrollHeight != $('.email-recipients').height()) {
         $('.show-more-recipients').removeClass('hide');
     }
 });

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 import gc
 import logging
 import StringIO
@@ -19,13 +20,15 @@ from django.db import connection, transaction
 from django.utils.html import escape
 from imapclient import SEEN, DELETED
 
-from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
-from python_imap.server import IMAP, CATCH_LOGIN_ERRORS
-from python_imap.utils import convert_html_to_text
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, \
     EmailAddressHeader
-from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html, get_task_count
+from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html, LilyIMAP
 from lily.users.models import CustomUser
+from python_imap.errors import IMAPConnectionError
+from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
+from python_imap.utils import convert_html_to_text
+from taskmonitor.decorators import monitor_task
+from taskmonitor.utils import lock_task
 
 # while profiling
 # import sys
@@ -38,16 +41,17 @@ from lily.users.models import CustomUser
 task_logger = logging.getLogger('celery_task')
 
 LOCK_EXPIRE = 300  # lock expire in seconds
+
 # cache.add failes if the key already exists
-acquire_lock = lambda (lock_id): cache.add(lock_id, "true", LOCK_EXPIRE)
-release_lock = lambda (lock_id): cache.delete(lock_id)
+acquire_lock = lambda lock_id: cache.add(lock_id, "true", LOCK_EXPIRE)
+release_lock = lambda lock_id: cache.delete(lock_id)   # pylint: disable=W0108
 
 
 @task(name='synchronize_email_scheduler')
 def synchronize_email_scheduler():
     """
-    Attempt to start a new task for every active mailbox to synchronize
-    via IMAP.
+    Start new tasks for every active mailbox to start synchronizing one or
+    more folders.
     """
     lock_id = 'synchronize_email_scheduler'
 
@@ -55,38 +59,40 @@ def synchronize_email_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
-            for emailaccount in emailaccounts:
-                emailaccount_id = emailaccount.id
-                email_address = emailaccount.email.email_address
+            # Find email accounts which authentication info should be OK.
+            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            for email_account in email_accounts:
+                email_address = email_account.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
-
-                retrieve_all_emails_task_count = get_task_count('retrieve_all_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
-                retrieve_new_emails_task_count = get_task_count('retrieve_new_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
-                in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
-
-                if not emailaccount.last_sync_date:
-                    if retrieve_all_emails_task_count == 0:
-                        retrieve_all_emails_for.apply_async(
-                            args=(emailaccount_id,),
-                            eta=in_a_moment,
-                            time_limit=3600,
-                            max_retries=1,
-                            default_retry_delay=100
-                        )
-                    else:
+                if not email_account.last_sync_date:
+                    locked, status = lock_task('retrieve_all_emails_for', email_account.id)
+                    if not locked:
                         task_logger.info('skipping task "retrieve_all_emails_for" for %s', email_address)
+                        continue
+
+                    task_logger.info('syncing %s', email_address)
+
+                    retrieve_all_emails_for.apply_async(
+                        args=(email_account.id,),
+                        max_retries=1,
+                        default_retry_delay=100,
+                        kwargs={'status_id': status.pk},
+                    )
                 else:
-                    if retrieve_new_emails_task_count == 0:
-                        retrieve_new_emails_for.apply_async(
-                            args=(emailaccount_id,),
-                            eta=in_a_moment,
-                            time_limit=3600,
-                            default_retry_delay=100
-                        )
-                    else:
+                    locked, status = lock_task('retrieve_new_emails_for', email_account.id)
+                    if not locked:
                         task_logger.info('skipping task "retrieve_new_emails_for" for %s', email_address)
+                        continue
+
+                    task_logger.info('syncing %s', email_address)
+
+                    retrieve_new_emails_for.apply_async(
+                        args=(email_account.id,),
+                        max_retries=1,
+                        default_retry_delay=100,
+                        kwargs={'status_id': status.pk},
+                    )
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -95,93 +101,107 @@ def synchronize_email_scheduler():
         task_logger.info('synchronize scheduler already running')
 
 
-@task(name='retrieve_new_emails_for')
+@task(name='retrieve_new_emails_for', bind=True)
+@monitor_task(logger=task_logger)
 def retrieve_new_emails_for(emailaccount_id):
     """
     Download new emails via IMAP for an EmailAccount since
      *last_sync_date* unless there has been some period of inactivity.
     A period of inactivity is considered when:
-        - the users that can access the emailaccount have not logged in
-          for 4 weeks (if the emailaccount is owned by a user)
+        - the users that can access the email account have not logged in
+          for 4 weeks (if the email account is owned by a user)
         - there is no user for that tenant who logged in for
-          4 weeks (if the emailaccount is not owned by a user, but
+          4 weeks (if the emai laccount is not owned by a user, but
           by a normal contact/account)
     """
     try:
-        emailaccount = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
         pass
     else:
-        lock_id = 'EmailAccount(%d)' % emailaccount_id
+        # Check for inactivity
+        now_utc = datetime.now(tzutc())
+        last_login_utc = CustomUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
 
-        if acquire_lock(lock_id):
-            try:
-                # Check for inactivity
-                now_utc = datetime.now(tzutc())
-                last_login_utc = CustomUser.objects.filter(tenant=emailaccount.tenant).order_by('-last_login').values_list('last_login')[0][0]
+        activity_timedelta = now_utc - last_login_utc
+        if activity_timedelta > timedelta(days=28):
+            # Period of inactivity for two weeks: skip synchronize for this email_account
+            task_logger.info('%s inactive for 28 days', email_account.email.email_address)
+            return
+        else:
+            task_logger.info('%s last activity was %s ago', email_account.email.email_address, str(activity_timedelta))
 
-                activity_timedelta = now_utc - last_login_utc
-                if activity_timedelta > timedelta(days=28):
-                    # Period of inactivity for two weeks: skip synchronize for this emailaccount
-                    task_logger.info('%s inactive for 28 days', emailaccount.email.email_address)
-                    return
-                else:
-                    task_logger.info('%s last activity was %s ago', emailaccount.email.email_address, str(activity_timedelta))
+            # Download new messages since last synchronization if that was some time ago
+            last_sync_date = email_account.last_sync_date
+            if not last_sync_date:
+                last_sync_date = datetime.fromtimestamp(0)
+            last_sync_date_utc = last_sync_date.astimezone(tzutc())
+            task_logger.info('last synchronization for %s happened at %s', email_account.email.email_address, last_sync_date_utc)
+            if now_utc - last_sync_date_utc > timedelta(minutes=5):
+                task_logger.info('start synchronizing folders for %s', email_account.email.email_address)
+                datetime_since = last_sync_date.strftime('%d-%b-%Y %H:%M:%S')
 
-                    # Download new messages since last synchronization if that was some time ago
-                    last_sync_date = emailaccount.last_sync_date
-                    if not last_sync_date:
-                        last_sync_date = datetime.fromtimestamp(0)
-                    last_sync_date_utc = last_sync_date.astimezone(tzutc())
-                    task_logger.info('last synchronization for %s happened at %s', emailaccount.email.email_address, last_sync_date_utc)
-                    if now_utc - last_sync_date_utc > timedelta(minutes=5):
-                        task_logger.info('start synchronizing folders for %s', emailaccount.email.email_address)
-                        datetime_since = last_sync_date.strftime('%d-%b-%Y %H:%M:%S')
+                with LilyIMAP(email_account) as server:
+                    if server.login(email_account.username, email_account.password):
+                        email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                        email_account.save()
 
-                        server = None
+                        # Update folder list
+                        before = datetime.now()
                         try:
-                            host = emailaccount.provider.imap_host
-                            port = emailaccount.provider.imap_port
-                            ssl = emailaccount.provider.imap_ssl
-                            server = IMAP(host, port, ssl)
+                            email_account.folders = get_account_folders_from_server(server)
+                            task_logger.info('Retrieving IMAP folder list for %s in %ss',
+                                             email_account.email.email_address,
+                                             (datetime.now() - before).total_seconds())
 
-                            if server.login(emailaccount.username, emailaccount.password):
-                                emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
-
-                                # Update folder list
+                            folders = [server.get_folder(INBOX)]
+                            allmail_folder = server.get_folder(ALLMAIL)
+                        except IMAPConnectionError:
+                            pass
+                        else:
+                            # Download full email messages from INBOX
+                            modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                            criteria = ['UNSEEN SINCE "%s"' % datetime_since]
+                            for folder in folders:
                                 before = datetime.now()
-                                emailaccount.folders = get_account_folders_from_server(server)
-                                task_logger.info('Retrieving IMAP folder list for %s in %ss', emailaccount.email.email_address, (datetime.now() - before).total_seconds())
+                                synchronize_folder(
+                                    email_account,
+                                    server,
+                                    folder,
+                                    criteria=criteria,
+                                    modifiers_new=modifiers_new,
+                                    new_only=True
+                                )
+                                task_logger.info('Retrieving new messages in folder %s list since %s in %ss',
+                                                 folder,
+                                                 datetime_since,
+                                                 (datetime.now() - before).total_seconds())
 
-                                # Download full email messages from INBOX
-                                modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                                criteria = ['UNSEEN SINCE "%s"' % datetime_since]
-                                folders = [server.get_folder(INBOX)]
-                                for folder in folders:
-                                    before = datetime.now()
-                                    synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_new=modifiers_new, new_only=True)
-                                    task_logger.info('Retrieving new messages in folder %s list since %s in %ss', folder, datetime_since, (datetime.now() - before).total_seconds())
+                            # Download headers from messages in ALLMAIL
+                            modifiers_old = modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                            criteria = ['SINCE "%s"' % datetime_since]
 
-                                # Download email headers from messages in ALLMAIL
-                                modifiers_old = modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                                criteria = ['SINCE "%s"' % datetime_since]
-                                folder = server.get_folder(ALLMAIL)
-                                before = datetime.now()
-                                synchronize_folder(emailaccount, server, folder, criteria=criteria, modifiers_old=modifiers_old, modifiers_new=modifiers_new, new_only=True)
-                                task_logger.info('Retrieving new messages in folder %s since %s list in %ss', folder, datetime_since, (datetime.now() - before).total_seconds())
+                            before = datetime.now()
+                            synchronize_folder(
+                                email_account,
+                                server,
+                                allmail_folder,
+                                criteria=criteria,
+                                modifiers_old=modifiers_old,
+                                modifiers_new=modifiers_new,
+                                new_only=True
+                            )
+                            task_logger.info('Retrieving new messages in folder %s since %s list in %ss',
+                                             allmail_folder,
+                                             datetime_since,
+                                             (datetime.now() - before).total_seconds())
 
-                                emailaccount.last_sync_date = now_utc
-                            else:
-                                task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                                if not server.auth_ok:
-                                    emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
-                            emailaccount.save()
-                        finally:
-                            if server:
-                                server.logout()
-
-            finally:
-                release_lock(lock_id)
+                            # Update succesful sync date
+                            email_account.last_sync_date = now_utc
+                            email_account.save()
+                    elif not server.auth_ok:
+                        email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                        email_account.save()
 
 
 @task(name='synchronize_low_priority_email_scheduler')
@@ -196,24 +216,26 @@ def synchronize_low_priority_email_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
-            for emailaccount in emailaccounts:
-                emailaccount_id = emailaccount.id
-                email_address = emailaccount.email.email_address
+            # Find email accounts which authentication info should be OK.
+            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            for email_account in email_accounts:
+                email_address = email_account.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
 
-                retrieve_low_priority_task_count = get_task_count('retrieve_low_priority_emails_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
-                if retrieve_low_priority_task_count == 0:
-                    in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
-                    retrieve_low_priority_emails_for.apply_async(
-                        args=(emailaccount_id,),
-                        eta=in_a_moment,
-                        time_limit=3600,
-                        default_retry_delay=100
-                    )
-                else:
+                locked, status = lock_task('retrieve_low_priority_emails_for', email_account.id)
+                if not locked:
                     task_logger.info('skipping task "retrieve_low_priority_emails_for" for %s', email_address)
+                    continue
+
+                task_logger.info('syncing %s', email_address)
+
+                retrieve_low_priority_emails_for.apply_async(
+                    args=(email_account.id,),
+                    max_retries=1,
+                    default_retry_delay=100,
+                    kwargs={'status_id': status.pk},
+                )
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -222,131 +244,144 @@ def synchronize_low_priority_email_scheduler():
         task_logger.info('synchronize scheduler already running')
 
 
-@task(name='retrieve_low_priority_emails_for')
+@task(name='retrieve_low_priority_emails_for', bind=True)
+@monitor_task(logger=task_logger)
 def retrieve_low_priority_emails_for(emailaccount_id):
     """
     Download emails via IMAP for an EmailAccount for other folders than INBOX
     unless there has been some period of inactivity.
     A period of inactivity is considered when:
-        - the users that can access the emailaccount have not logged in
-          for 4 weeks (if the emailaccount is owned by a user)
+        - the users that can access the email account have not logged in
+          for 4 weeks (if the email account is owned by a user)
         - there is no user for that tenant who logged in for
-          4 weeks (if the emailaccount is not owned by a user, but
+          4 weeks (if the email account is not owned by a user, but
           by a normal contact/account)
     The downloaded emails are 47h59s old at max.
     """
     try:
-        emailaccount = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
         pass
     else:
-        lock_id = 'EmailAccount(%d)' % emailaccount_id
+        # Check for inactivity
+        now_utc = datetime.now(tzutc())
+        last_login_utc = CustomUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
 
-        if acquire_lock(lock_id):
-            try:
-                # Check for inactivity
-                now_utc = datetime.now(tzutc())
-                last_login_utc = CustomUser.objects.filter(tenant=emailaccount.tenant).order_by('-last_login').values_list('last_login')[0][0]
+        activity_timedelta = now_utc - last_login_utc
+        if activity_timedelta > timedelta(days=28):
+            # Period of inactivity for two weeks: skip synchronize for this email account
+            task_logger.info('%s inactive for 28 days',
+                             email_account.email.email_address)
+            return
+        else:
+            task_logger.info('%s last activity was %s ago',
+                             email_account.email.email_address,
+                             str(activity_timedelta))
+            last_sync_date = email_account.last_sync_date
+            if not last_sync_date:
+                last_sync_date = datetime.fromtimestamp(0)
+            last_sync_date_utc = last_sync_date.astimezone(tzutc())
+            last_sync_date_utc -= timedelta(days=1)
+            datetime_since = last_sync_date_utc.strftime('%d-%b-%Y 00:00:00')
 
-                activity_timedelta = now_utc - last_login_utc
-                if activity_timedelta > timedelta(days=28):
-                    # Period of inactivity for two weeks: skip synchronize for this emailaccount
-                    task_logger.info('%s inactive for 28 days', emailaccount.email.email_address)
-                    return
-                else:
-                    task_logger.info('%s last activity was %s ago', emailaccount.email.email_address, str(activity_timedelta))
-                    last_sync_date = emailaccount.last_sync_date
-                    if not last_sync_date:
-                        last_sync_date = datetime.fromtimestamp(0)
-                    last_sync_date_utc = last_sync_date.astimezone(tzutc())
-                    last_sync_date_utc -= timedelta(days=1)
-                    datetime_since = last_sync_date_utc.strftime('%d-%b-%Y 00:00:00')
+            with LilyIMAP(email_account) as server:
+                if server.login(email_account.username, email_account.password):
+                    email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    email_account.save()
 
-                    server = None
+                    # Update folder list
                     try:
-                        host = emailaccount.provider.imap_host
-                        port = emailaccount.provider.imap_port
-                        ssl = emailaccount.provider.imap_ssl
-                        server = IMAP(host, port, ssl)
+                        email_account.folders = get_account_folders_from_server(server)
+                        email_account.save()
 
-                        if server.login(emailaccount.username, emailaccount.password):
-                            emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
+                        folders = server.get_folders(exclude=[DRAFTS])
+                        drafts_folder = server.get_folder(DRAFTS)
+                    except IMAPConnectionError:
+                        pass
+                    else:
+                        # Download email headers from messages in all folders except INBOX, DRAFTS, ALLMAIL
+                        modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                        for folder in folders:
+                            before = datetime.now()
+                            synchronize_folder(
+                                email_account,
+                                server,
+                                folder,
+                                criteria=['SINCE "%s"' % datetime_since],
+                                modifiers_new=modifiers_new,
+                                new_only=True
+                            )
+                            task_logger.info('Retrieving new messages in folder %s list in %ss',
+                                             folder,
+                                             (datetime.now() - before).total_seconds())
 
-                            # Update folder list
-                            emailaccount.folders = get_account_folders_from_server(server)
-
-                            # Download email headers from messages in all folders except INBOX, DRAFTS, ALLMAIL
-                            modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                            folders = server.get_folders(exclude=[DRAFTS])
-                            for folder in folders:
-                                before = datetime.now()
-                                synchronize_folder(emailaccount, server, folder, criteria=['SINCE "%s"' % datetime_since], modifiers_new=modifiers_new, new_only=True)
-                                task_logger.info('Retrieving new messages in folder %s list in %ss', folder, (datetime.now() - before).total_seconds())
-
-                            # Download full messags from DRAFTS
-                            modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                            synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
-                        else:
-                            task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                            if not server.auth_ok:
-                                emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
-                        emailaccount.save()
-                    finally:
-                        if server:
-                            server.logout()
-            finally:
-                release_lock(lock_id)
+                        # Download full messags from DRAFTS
+                        modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                        synchronize_folder(
+                            email_account,
+                            server,
+                            drafts_folder,
+                            modifiers_old=modifiers_old,
+                            modifiers_new=modifiers_new
+                        )
+                elif not server.auth_ok:
+                    email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                    email_account.save()
 
 
-@task(name='retrieve_all_emails_for')
+@task(name='retrieve_all_emails_for', bind=True)
+@monitor_task(logger=task_logger)
 def retrieve_all_emails_for(emailaccount_id):
     """
     Download all emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails.
     """
     try:
-        emailaccount = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
         pass
     else:
-        lock_id = 'EmailAccount(%d)' % emailaccount_id
+        now_utc = datetime.now(tzutc())
 
-        if acquire_lock(lock_id):
-            try:
-                now_utc = datetime.now(tzutc())
-                server = None
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
+
+                # Update folder list
                 try:
-                    host = emailaccount.provider.imap_host
-                    port = emailaccount.provider.imap_port
-                    ssl = emailaccount.provider.imap_ssl
-                    server = IMAP(host, port, ssl)
+                    email_account.folders = get_account_folders_from_server(server)
+                    email_account.save()
 
-                    if server.login(emailaccount.username, emailaccount.password):
-                        emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
+                    folders = server.get_folders(exclude=[DRAFTS])
+                    drafts_folder = server.get_folder(DRAFTS),
+                except IMAPConnectionError:
+                    pass
+                else:
+                    modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                    for folder in folders:
+                        synchronize_folder(
+                            email_account,
+                            server,
+                            folder,
+                            criteria=['ALL'],
+                            modifiers_new=modifiers_new,
+                            new_only=True
+                        )
 
-                        # Update folder list
-                        emailaccount.folders = get_account_folders_from_server(server)
+                    modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                    synchronize_folder(
+                        email_account,
+                        server,
+                        drafts_folder,
+                        modifiers_old=modifiers_old,
+                        modifiers_new=modifiers_new
+                    )
 
-                        modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                        folders = server.get_folders(exclude=[DRAFTS])
-                        for folder in folders:
-                            synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_new=modifiers_new, new_only=True)
-
-                        modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE']
-                        synchronize_folder(emailaccount, server, server.get_folder(DRAFTS), modifiers_old=modifiers_old, modifiers_new=modifiers_new)
-
-                        emailaccount.last_sync_date = now_utc
-                    else:
-                        task_logger.info('IMAP login failed for %s', emailaccount.email.email_address)
-                        if not server.auth_ok:
-                            emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
-                    emailaccount.save()
-                finally:
-                    if server:
-                        server.logout()
-
-            finally:
-                release_lock(lock_id)
+                    email_account.last_sync_date = now_utc
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
 
 
 @task(name='synchronize_email_flags_scheduler')
@@ -361,24 +396,25 @@ def synchronize_email_flags_scheduler():
         try:
             task_logger.info('synchronize scheduler starting')
 
-            emailaccounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
-            for emailaccount in emailaccounts:
-                emailaccount_id = emailaccount.id
-                email_address = emailaccount.email.email_address
+            # Find email accounts which authentication info should be OK.
+            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            for email_account in email_accounts:
+                email_address = email_account.email.email_address
 
                 task_logger.info('attempting sync for %s', email_address)
-
-                retrieve_all_flags_task_count = get_task_count('retrieve_all_flags_for', ['scheduled', 'reserved'], arguments=u'[%d]' % emailaccount_id)
-                if retrieve_all_flags_task_count == 0:
-                    in_a_moment = datetime.now(tzutc()) + timedelta(seconds=10)
-                    retrieve_all_flags_for.apply_async(
-                        args=(emailaccount_id,),
-                        eta=in_a_moment,
-                        time_limit=3600,
-                        default_retry_delay=100
-                    )
-                else:
+                locked, status = lock_task('retrieve_all_flags_for', email_account.id)
+                if not locked:
                     task_logger.info('skipping task "retrieve_all_flags_for" for %s', email_address)
+                    continue
+
+                task_logger.info('syncing %s', email_address)
+
+                retrieve_all_flags_for.apply_async(
+                    args=(email_account.id,),
+                    max_retries=1,
+                    default_retry_delay=100,
+                    kwargs={'status_id': status.pk},
+                )
 
             task_logger.info('synchronize scheduler finished')
         finally:
@@ -387,50 +423,44 @@ def synchronize_email_flags_scheduler():
         task_logger.info('synchronize scheduler already running')
 
 
-@task(name='retrieve_all_flags_for')
+@task(name='retrieve_all_flags_for', bind=True)
+@monitor_task(logger=task_logger)
 def retrieve_all_flags_for(emailaccount_id):
     """
     Download all FLAGS for emails via IMAP for an EmailAccount. This skips downloading
     the full body for e-mails but only updates the status UNSEEN, DELETED etc.
     """
     try:
-        emailaccount = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(id=emailaccount_id)
     except EmailAccount.DoesNotExist:
         pass
     else:
-        lock_id = 'EmailAccount(%d)-flags' % emailaccount_id
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
 
-        if acquire_lock(lock_id):
-            try:
-                server = None
+                # Update folder list
                 try:
-                    host = emailaccount.provider.imap_host
-                    port = emailaccount.provider.imap_port
-                    ssl = emailaccount.provider.imap_ssl
-                    server = IMAP(host, port, ssl)
+                    email_account.folders = get_account_folders_from_server(server)
+                    email_account.save()
 
-                    if server.login(emailaccount.username, emailaccount.password):
-                        emailaccount.auth_ok = OK_EMAILACCOUNT_AUTH
-
-                        # Update folder list
-                        emailaccount.folders = get_account_folders_from_server(server)
-
-                        modifiers_old = ['FLAGS', 'INTERNALDATE']
-                        folders = server.get_folders(exclude=[DRAFTS, TRASH, SENT])
-                        for folder in folders:
-                            # synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old, old_only=True)
-                            synchronize_folder(emailaccount, server, folder, criteria=['ALL'], modifiers_old=modifiers_old)
-                    else:
-                        task_logger.warn('IMAP login failed for %s', emailaccount.email.email_address)
-                        if not server.auth_ok:
-                            emailaccount.auth_ok = NO_EMAILACCOUNT_AUTH
-                    emailaccount.save()
-                finally:
-                    if server:
-                        server.logout()
-
-            finally:
-                release_lock(lock_id)
+                    modifiers_old = ['FLAGS']
+                    folders = server.get_folders(exclude=[DRAFTS, TRASH, SENT])
+                except IMAPConnectionError:
+                    pass
+                else:
+                    for folder in folders:
+                        synchronize_folder(
+                            email_account,
+                            server,
+                            folder,
+                            criteria=['ALL'],
+                            modifiers_old=modifiers_old
+                        )
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
 
 
 @task(name='mark_messages')
@@ -445,9 +475,6 @@ def mark_messages(message_ids, read=True):
     folder_name_qs = EmailMessage.objects.filter(id__in=message_ids).values_list('account_id', 'folder_name', 'uid')
     len(folder_name_qs)
 
-    # Mark in database first for immediate effect
-    EmailMessage.objects.filter(id__in=message_ids).update(is_seen=read)
-
     # Create a more sensible dict with this information
     account_folders = {}
     for account_id, folder_name, message_uid in folder_name_qs:
@@ -460,41 +487,26 @@ def mark_messages(message_ids, read=True):
 
     # Mark messages read in every appropriate account/folder
     for account_id, folders in account_folders.items():
-        account_qs = EmailAccount.objects.filter(pk=account_id)
-        if len(account_qs) > 0:
-            account = account_qs[0]
-            server = None
-            try:
-                host = account.provider.imap_host
-                port = account.provider.imap_port
-                ssl = account.provider.imap_ssl
-                server = IMAP(host, port, ssl)
+        try:
+            email_account = EmailAccount.objects.get(pk=account_id)
+        except EmailAccount.DoesNotExist:
+            pass
+        else:
+            with LilyIMAP(email_account) as server:
+                if server.login(email_account.username, email_account.password):
+                    email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    email_account.save()
 
-                if server.login(account.username, account.password):
-                    account.auth_ok = OK_EMAILACCOUNT_AUTH
-
-                    for folder_name, uids in folders.items():
-                        folder = server.get_folder(folder_name)
-                        is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
-
-                        if is_selected:
+                    try:
+                        for folder_name, uids in folders.items():
+                            folder = server.get_folder(folder_name)
                             uids = ','.join([str(val) for val in uids])
-
-                            if read:
-                                server.client.add_flags(uids, [SEEN])
-                            else:
-                                server.client.remove_flags(uids, [SEEN])
-
-                            server.client.close_folder()
-                else:
-                    task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if not server.auth_ok:
-                        account.auth_ok = NO_EMAILACCOUNT_AUTH
-                account.save()
-
-            finally:
-                if server:
-                    server.logout()
+                            server.toggle_seen(folder, uids, seen=read)
+                    except IMAPConnectionError:
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_seen=(not read))
+                elif not server.auth_ok:
+                    email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                    email_account.save()
 
 
 @task(name='delete_messages')
@@ -524,43 +536,32 @@ def delete_messages(message_ids):
 
     # Delete in every appropriate account/folder
     for account_id, folders in account_folders.items():
-        account_qs = EmailAccount.objects.filter(pk=account_id)
-        if len(account_qs) > 0:
-            account = account_qs[0]
-            server = None
-            try:
-                host = account.provider.imap_host
-                port = account.provider.imap_port
-                ssl = account.provider.imap_ssl
-                server = IMAP(host, port, ssl)
+        try:
+            email_account = EmailAccount.objects.get(pk=account_id)
+        except EmailAccount.DoesNotExist:
+            pass
+        else:
+            with LilyIMAP(email_account) as server:
+                if server.login(email_account.username, email_account.password):
+                    email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    email_account.save()
 
-                if server.login(account.username, account.password):
-                    account.auth_ok = OK_EMAILACCOUNT_AUTH
-
-                    for folder_name, uids in folders.items():
-                        folder = server.get_folder(folder_name)
-                        is_selected, select_info = server.select_folder(folder.get_search_name(), readonly=False)
-
-                        if is_selected:
+                    try:
+                        for folder_name, uids in folders.items():
+                            folder = server.get_folder(folder_name)
                             uids = ','.join([str(val) for val in uids])
-
-                            server.client.add_flags(uids, DELETED)
-
-                            server.client.close_folder()
-                else:
-                    task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if not server.auth_ok:
-                        account.auth_ok = NO_EMAILACCOUNT_AUTH
-                account.save()
-            except Exception, e:
-                print traceback.format_exc(e)
-            finally:
-                if server:
-                    server.logout()
+                            server.delete_messages(folder, uids)
+                    except IMAPConnectionError:
+                        # Delete failed, do not mark the message as deleted anymore.
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=False)
+                        # TODO: warn user that delete has failed
+                elif not server.auth_ok:
+                    email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                    email_account.save()
 
 
 @task(name='move_messages')
-def move_messages(message_ids, target_folder_name):
+def move_messages(message_ids, to_folder_name):
     """
     Move n messages in the background.
     """
@@ -583,59 +584,40 @@ def move_messages(message_ids, target_folder_name):
 
     # Delete in every appropriate account/folder
     for account_id, folders in account_folders.items():
-        account_qs = EmailAccount.objects.filter(pk=account_id)
-        if len(account_qs) > 0:
-            account = account_qs[0]
-            server = None
-            try:
-                host = account.provider.imap_host
-                port = account.provider.imap_port
-                ssl = account.provider.imap_ssl
-                server = IMAP(host, port, ssl)
+        try:
+            email_account = EmailAccount.objects.get(pk=account_id)
+        except EmailAccount.DoesNotExist:
+            pass
+        else:
+            with LilyIMAP(email_account) as server:
+                if server.login(email_account.username, email_account.password):
+                    email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    email_account.save()
 
-                if server.login(account.username, account.password):
-                    account.auth_ok = OK_EMAILACCOUNT_AUTH
+                    # Move messages from origin folders to *target_folder*
+                    try:
+                        for folder_name, uids in folders.items():
+                            from_folder = server.get_folder(folder_name)
+                            created_target_folder = server.move_messages(uids, from_folder, to_folder_name)
 
-                    # Get or create folder *target_folder_name*
-                    target_folder = server.get_folder(target_folder_name)
-                    if target_folder is None:
-                        # Update folders for account
-                        server.client.create_folder(target_folder_name)
-                        account.folders = get_account_folders_from_server(server)
+                            # Update known folders
+                            if created_target_folder:
+                                email_account.folders = get_account_folders_from_server(server)
 
-                        target_folder = server.get_folder(target_folder_name)
-
-                    task_logger.info('target_folder.server_name %s', target_folder.name_on_server)
-
-                    # Copy messages from origin folders to *target_folder*
-                    for folder_name, uids in folders.items():
-                        origin_folder = server.get_folder(folder_name)
-                        is_selected, select_info = server.select_folder(origin_folder.get_search_name(), readonly=False)
-
-                        if is_selected:
-                            task_logger.info('in folder %s', origin_folder.get_search_name())
-                            server.client.copy(uids, target_folder.get_search_name())
-
-                            # Delete from origin folder remote
-                            uids = ','.join([str(val) for val in uids])
-                            server.client.add_flags(uids, DELETED)
-                            server.client.close_folder()
-
-                            # Delete from origin folder locally
-                            EmailMessage.objects.filter(id__in=message_ids).delete()
+                        target_folder = server.get_folder(to_folder_name)
+                    except IMAPConnectionError:
+                        # Move failed, do not mark the message as deleted anymore.
+                        EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=False)
+                        # TODO: warn user that move has failed
+                    else:
+                        # Delete local messages
+                        EmailMessage.objects.filter(id__in=message_ids).delete()
 
                         # Synchronize with target_folder
-                        synchronize_folder(account, server, target_folder, new_only=True)
-                else:
-                    task_logger.info('IMAP login failed for %s', account.email.email_address)
-                    if not server.auth_ok:
-                        account.auth_ok = NO_EMAILACCOUNT_AUTH
-                account.save()
-            except Exception, e:
-                print traceback.format_exc(e)
-            finally:
-                if server:
-                    server.logout()
+                        synchronize_folder(email_account, server, target_folder, new_only=True)
+                elif not server.auth_ok:
+                    email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                    email_account.save()
 
 
 ###
@@ -648,49 +630,58 @@ def get_account_folders_from_server(server):
     """
     account_folders = {}
 
-    all_folders = server.get_folders(cant_select=True)
-    for i in range(len(all_folders)):
-        folder = all_folders[i]
+    try:
+        all_folders = server.get_folders(cant_select=True)
+    except IMAPConnectionError:
+        pass
+    else:
+        for i in range(len(all_folders)):
+            folder = all_folders[i]
 
-        # Skip sub folders (they will be retrieved later on
-        if folder.get_name(full=True).find('/') != -1:
-            continue
+            # Skip sub folders (they will be retrieved later on
+            if folder.get_name(full=True).find('/') != -1:
+                continue
 
-        is_parent = '\\HasNoChildren' not in folder.flags
-        folder_properties = {
-            'flags': folder.flags,
-            'is_parent': is_parent,
-            'full_name': folder.get_name(full=True),
-            'children': {},
-        }
-        account_folders[folder.get_name()] = folder_properties
+            is_parent = '\\HasNoChildren' not in folder.flags
+            folder_properties = {
+                'flags': folder.flags,
+                'is_parent': is_parent,
+                'full_name': folder.get_name(full=True),
+                'children': {},
+            }
+            account_folders[folder.get_name()] = folder_properties
 
-        if is_parent:
-            children = {}
-            i += 1
-            while i < len(all_folders) and '\\HasNoChildren' not in folder.flags:
-                child_folder = all_folders[i]
-                if child_folder.parent is not None and child_folder.parent == folder:
-                    children[child_folder.get_name()] = {
-                        'flags': child_folder.flags,
-                        'parent': folder.get_name(full=True),
-                        'full_name': child_folder.get_name(full=True),
-                    }
-                else:
-                    break
+            if is_parent:
+                children = {}
                 i += 1
-            account_folders[folder.get_name()]['children'] = children
+                while i < len(all_folders) and '\\HasNoChildren' not in folder.flags:
+                    child_folder = all_folders[i]
+                    if child_folder.parent is not None and child_folder.parent == folder:
+                        children[child_folder.get_name()] = {
+                            'flags': child_folder.flags,
+                            'parent': folder.get_name(full=True),
+                            'full_name': child_folder.get_name(full=True),
+                        }
+                    else:
+                        break
+                    i += 1
+                account_folders[folder.get_name()]['children'] = children
 
     return account_folders
 
 
 @task(name='synchronize_folder')
-def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=['FLAGS', 'INTERNALDATE'], modifiers_new=['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE', 'INTERNALDATE'], old_only=False, new_only=False):
+def synchronize_folder(account, server, folder, criteria=None, modifiers_old=None, modifiers_new=None, old_only=False, new_only=False):  # pylint: disable=R0913
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
     """
-    messages_batch_size = 500
+    criteria = criteria or ['ALL']
+    modifiers_old = modifiers_old or ['FLAGS']
+    modifiers_new = modifiers_new or ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+
+    # Process messages in batches to save memory
+    messages_batch_size = 1000
     task_logger.debug('sync start for %s', unicode(folder.get_name()))
 
     # Find already known uids
@@ -704,7 +695,7 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
     known_uids = set(known_uids_qs.values_list('uid', flat=True))
 
     try:
-        folder_count, remote_uids = server.get_uids(folder, criteria)
+        folder_count, remote_uids = server.get_uids(folder, criteria)  # pylint: disable=W0612
 
         # Get the difference between local and server uids
         new_uids = list(set(remote_uids).difference(known_uids))
@@ -714,7 +705,7 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
             removed_uids = list(known_uids.difference(set(remote_uids)))
 
             # Delete removed_uids from known_uids
-            [known_uids.discard(x) for x in removed_uids]
+            [known_uids.discard(x) for x in removed_uids]  # pylint: disable=W0106
             known_uids = list(known_uids)
 
             # Delete from database
@@ -736,14 +727,13 @@ def synchronize_folder(account, server, folder, criteria=['ALL'], modifiers_old=
                     if len(folder_messages) > 0:
                         save_email_messages(folder_messages, account, folder, new_messages=True)
                     del folder_messages
-
-    except Exception, e:
-        print traceback.format_exc(e)
+    except IMAPConnectionError:
+        pass
 
     task_logger.debug('sync done for %s', unicode(folder.get_name()))
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def save_email_messages(messages, account, folder, new_messages=False):
     """
     Save messages in database for account. Folder_name needs to be the server name.
@@ -789,17 +779,6 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 elif body_text is not None:
                     body_text = escape(body_text)
 
-                email_message.body_html = replace_anchors_in_html(body_html)
-                email_message.body_text = body_text
-                email_message.size = message.get_size()
-                email_message.folder_identifier = folder.identifier
-                email_message.is_private = False
-                email_message.tenant = account.tenant
-                email_message.polymorphic_ctype = email_message_polymorphic_ctype
-                # Add to object list
-                new_message_obj_list.append(email_message)
-                email_message.save()
-
                 # Check for headers
                 if message.get_headers() is not None:
                     headers = message.get_headers()
@@ -819,18 +798,31 @@ def save_email_messages(messages, account, folder, new_messages=False):
                         # For some headers we want to save it also in EmailAddressHeader model.
                         if name in ['To', 'From', 'CC', 'Delivered-To', 'Sender']:
                             email_addresses = getaddresses([value])
-                            for address_name, email_address in email_addresses:
+                            for address_name, email_address in email_addresses:  # pylint: disable=W0612
                                 if email_address:
                                     email_address_header = EmailAddressHeader()
                                     email_address_header.name = name
                                     email_address_header.value = email_address.lower()
                                     email_address_headers.append(email_address_header)
+                        elif name.lower() == 'message-id':
+                            email_message.message_identifier = value
                     if len(email_headers):
                         # Save reference to uid
                         new_email_headers.update({message.uid: email_headers})
                     if len(email_address_headers):
                         # Save reference to uid
                         new_email_address_headers.update({message.uid: email_address_headers})
+
+                email_message.body_html = replace_anchors_in_html(body_html)
+                email_message.body_text = body_text
+                email_message.size = message.get_size()
+                email_message.folder_identifier = folder.identifier
+                email_message.is_private = False
+                email_message.tenant = account.tenant
+                email_message.polymorphic_ctype = email_message_polymorphic_ctype
+                # Add to object list
+                new_message_obj_list.append(email_message)
+                email_message.save()
 
                 # Check for attachments
                 email_attachments = []
@@ -931,7 +923,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             task_logger.info('Looping through %s messages', len(messages))
             for message in messages:
-                query_string = 'UPDATE email_emailmessage SET '
+                query_string = 'UPDATE email_emailmessage SET is_deleted = FALSE, '
                 if message.get_flags() is not None:
                     query_string += 'flags = %s, '
                     param_list.append(str(message.get_flags()))
@@ -1061,11 +1053,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 param_list = []
 
             # Fetch message ids
-            email_messages = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
+            email_message_uids = EmailMessage.objects.filter(account=account, uid__in=[message.uid for message in messages], folder_name=folder.name_on_server).values_list('id', 'uid')
 
             # Find existing headers per email message
             existing_headers_per_message = {}
-            existing_headers_qs = EmailHeader.objects.filter(message_id__in=[id for id, uid in email_messages]).values_list('message_id', 'name')
+            existing_headers_qs = EmailHeader.objects.filter(message_id__in=[id for id, uid in email_message_uids]).values_list('message_id', 'name')
             for message_id, header_name in existing_headers_qs:
                 headers = existing_headers_per_message.get(message_id, [])
                 headers.append(header_name)
@@ -1073,14 +1065,14 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             # Find existing email address headers per email message
             existing_email_address_headers_per_message = {}
-            existing_email_address_headers_qs = EmailAddressHeader.objects.filter(message_id__in=[id for id, uid in email_messages]).values_list('message_id', 'name')
+            existing_email_address_headers_qs = EmailAddressHeader.objects.filter(message_id__in=[id for id, uid in email_message_uids]).values_list('message_id', 'name')
             for message_id, header_name in existing_email_address_headers_qs:
                 headers = existing_email_address_headers_per_message.get(message_id, [])
                 headers.append(header_name)
                 existing_email_address_headers_per_message.update({message_id: headers})
 
             # Link message ids to headers and (inline) attachments
-            for id, uid in email_messages:
+            for id, uid in email_message_uids:
                 header_obj_list = update_email_headers.get(uid)
                 if header_obj_list:
                     for header_obj in header_obj_list:
@@ -1162,7 +1154,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 total_query_string = ''
                 param_list = []
                 query_count = 0
-                task_logger.info('Looping through % email headers that need updating', len(update_email_address_header_obj_list))
+                task_logger.info('Looping through %s email headers that need updating', len(update_email_address_header_obj_list))
                 for header_obj in update_email_address_header_obj_list:
                     # Decide whether to update or insert this email header
                     if header_obj.name in existing_headers_per_message.get(header_obj.message_id, []):
@@ -1263,7 +1255,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 email_message.body_html = replace_cid_in_html(email_message.body_html, cid_attachments)
                 email_message.save()
 
-    except Exception, e:
+    except Exception, e:  # pylint: disable=W0703
         print traceback.format_exc(e)
     finally:
         # Let garbage collection do it's job
@@ -1288,6 +1280,4 @@ def _task_prerun_listener(**kwargs):
     When this is not done we get exceptions during decryption of email username/password.
     """
     Random.atfork()
-
-
 task_prerun.connect(_task_prerun_listener)

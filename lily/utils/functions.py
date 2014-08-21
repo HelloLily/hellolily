@@ -163,7 +163,9 @@ def get_emails_for_email_addresses(email_addresses_list):
 
     # Get all the email messages with the collected id's.
     # TODO: replace _default_manager with objects when Polymorphic works.
-    return EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier__in=[ALLMAIL, SENT, INBOX, IMPORTANT])
+    email_messages = EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier__in=[ALLMAIL, SENT, INBOX, IMPORTANT])
+    # return email_messages.order_by('-sort_by_date', 'message_identifier').distinct('sort_by_date', 'message_identifier')
+    return email_messages.order_by('-sort_by_date', 'message_identifier').distinct('message_identifier', 'sort_by_date')
 
 
 def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
@@ -183,7 +185,7 @@ def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
     """
     # Limit the maximum amount of objects by object_size.
     notes_qs = notes_qs.order_by('-sort_by_date')[:objects_size + 1]
-    email_qs = email_qs.order_by('-sort_by_date')[:objects_size + 1]
+    email_qs = email_qs[:objects_size + 1]
 
     # Combine qs_one and qs_two into one object_list.
     object_list = sorted(

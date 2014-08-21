@@ -1,7 +1,0 @@
-{% extends 'updates/mwsadmin/base_list_item.html' %}
-
-{% block css_classes %}parent{% endblock %}
-
-{% block render_replies %}
-	{% include 'mwsadmin/base_list.html' with list=item.get_replies list_item_template='updates/mwsadmin/child_list_item.html' %}
-{% endblock %}

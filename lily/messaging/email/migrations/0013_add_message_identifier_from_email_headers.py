@@ -4,19 +4,21 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
+from lily.messaging.email.models import EmailHeader
+
+
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant = None
-                provider.save()
+        for email_message in orm.EmailMessage.objects.all():
+            header = EmailHeader.objects.filter(message_id=email_message.id, name__iexact='Message-ID')
+            if header.exists():
+                email_message.message_identifier = header[0].value
+                email_message.save()
 
     def backwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant_id = 1
-                provider.save()
+        for email_message in orm.EmailMessage.objects.all():
+            email_message.message_identifier = ''
 
     models = {
         u'accounts.account': {
@@ -174,6 +176,7 @@ class Migration(DataMigration):
             'folder_identifier': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'folder_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'is_private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'message_identifier': ('django.db.models.fields.TextField', [], {}),
             u'message_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['messaging.Message']", 'unique': 'True', 'primary_key': 'True'}),
             'size': ('django.db.models.fields.IntegerField', [], {'default': '0', 'null': 'True'}),
             'uid': ('django.db.models.fields.IntegerField', [], {})
@@ -278,7 +281,7 @@ class Migration(DataMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'other_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'profile_url': ('django.db.models.fields.URLField', [], {'max_length': '255'}),
+            'profile_url': ('django.db.models.fields.URLField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         }

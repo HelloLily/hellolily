@@ -1,0 +1,37 @@
+{% load i18n %}
+
+<li class="timeline-green history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
+    <div class="timeline-time">
+        <span class="date">{{ object.sent_date|date:"d M y" }}</span>
+        <span class="time">{{ object.sent_date|date:"G:i" }}</span>
+    </div>
+    <div class="timeline-icon">
+        <i class="icon-envelope"></i>
+    </div>
+    <div class="timeline-body">
+        <h2>{{ object.subject|truncatechars:45|default:_('No subject') }}{% if object.get_email_operation_icon %}<i class="{{ object.get_email_operation_icon }} pull-right timeline-operation-icon"></i>{% endif %}</h2>
+        <div class="timeline-content">
+            {{ object.textify|truncatechars:165|default:_('No details available') }}
+        </div>
+        <div class="timeline-footer">
+            {% if object.textify %}
+                <a href="{% url 'messaging_email_reply' pk=object.pk %}" class="nav-link pull-right">
+                    Reply
+                    <i class="icon-reply"></i>
+                </a>
+                <a href="{% url 'messaging_email_forward' pk=object.pk %}" class="nav-link pull-right">
+                    Forward
+                    <i class="icon-arrow-right"></i>
+                </a>
+            {% endif %}
+            <a href="{% url 'messaging_email_detail' pk=object.pk %}" class="nav-link pull-right">
+                View
+                <i class="icon-envelope"></i>
+            </a>
+            <a href="#" class="nav-link">
+                <i class="icon-user"></i>
+                {{ object.from_combined }}
+            </a>
+        </div>
+    </div>
+ </li>

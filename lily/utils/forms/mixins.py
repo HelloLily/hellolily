@@ -24,11 +24,12 @@ class FormSetFormMixin(object):
                 }
             }
         """
-        formset_form_attrs = kwargs.pop('formset_form_attrs', None)
+        formset_form_attrs = kwargs.pop('formset_form_attrs', {})
         super(FormSetFormMixin, self).__init__(*args, **kwargs)
 
-        for key, value in formset_form_attrs.items():
-            self.fields[key].form_attrs = value
+        if formset_form_attrs is not None:
+            for key, value in formset_form_attrs.items():
+                self.fields[key].form_attrs = value
 
     def save(self, commit=True):
         """

@@ -10,12 +10,6 @@
 {% block head-title %}{% trans 'HelloLily' %}{% endblock %}
 {% block page-title %}{% trans 'Dashboard' %}{% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-
-    {% include_media 'lily.dashboard.js' %}
-{% endblock %}
-
 {% block page-container %}
 <div class="row">
     <div class="col-md-12">

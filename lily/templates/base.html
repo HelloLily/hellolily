@@ -14,14 +14,14 @@
     {% endblock %}
     {% include_media 'metronic-theme.css' %}
     {% include_media 'jquery.js' %}
-    <link rel="shortcut icon" href="{% media_url 'img/favicon.ico' %}" />
-    <title>{% block head-title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{% media_url 'images/core/favicon.ico' %}" />
+    <title>{% block head-title %}HelloLily{% endblock %}</title>
 </head>
 
 <body class="page-header-fixed page-sidebar-fixed">
     <div class="header navbar navbar-inverse navbar-fixed-top">
         <div class="header-inner">
-            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'mwsadmin/extra/images/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
             {% block page-header %}{% endblock %}
         </div>
     </div>

@@ -109,7 +109,7 @@
                 <div>
                     <strong>{{ attachment }}</strong>
                     <span>{{ attachment.size|filesizeformat }}</span>
-                    <a href="{% url 'email_attachment_proxy_view' pk=attachment.pk path=attachment.attachment.name %}">{% trans 'Download' %}</a>
+                    <a href="{% url 'email_attachment_proxy_view' pk=attachment.pk %}">{% trans 'Download' %}</a>
                 </div>
             </div>
             {% endfor %}
@@ -167,7 +167,7 @@ $(function($) {
     }
 
     // if the list of recipients is 2 or more lines, display the button
-    if($('.email-recipients')[0].scrollHeight != $('.email-recipients').height()) {
+    if($('.email-recipients').length && $('.email-recipients')[0].scrollHeight != $('.email-recipients').height()) {
         $('.show-more-recipients').removeClass('hide');
     }
 });

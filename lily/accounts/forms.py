@@ -79,7 +79,7 @@ class WebsiteBaseForm(HelloLilyModelForm):
     """
     Base form for adding multiple websites to an account.
     """
-    website = forms.URLField(max_length=255, initial='http://', required=False)
+    website = forms.URLField(max_length=255, initial='http://', required=False, label=_('Extra website(s)'))
 
     class Meta:
         model = Website
@@ -95,7 +95,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
                                      widget=AddonTextInput(icon_attrs={'class': 'icon-magic'},
                                                            button_attrs={'class': 'btn default dataprovider'},
                                                            div_attrs={'class': 'input-group dataprovider'}))
-    websites = FormSetField(
+    extra_websites = FormSetField(
         queryset=Website.objects.none(),
         formset_class=modelformset_factory(Website, form=WebsiteBaseForm, formset=BaseFKFormSet, can_delete=True, extra=0),
         template='accounts/formset_website.html',
@@ -110,7 +110,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
 
         if self.instance:
-            self.fields['websites'].initial = self.instance.websites.filter(is_primary=False)
+            self.fields['extra_websites'].initial = self.instance.websites.filter(is_primary=False)
 
         # Provide initial data for primary website
         try:
@@ -121,7 +121,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
     class Meta:
         model = Account
         fields = ('primary_website', 'name', 'description', 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber',
-                  'iban', 'bic', 'email_addresses', 'phone_numbers', 'addresses', 'websites', )  # TODO: status field
+                  'iban', 'bic', 'email_addresses', 'phone_numbers', 'addresses', 'extra_websites', )  # TODO: status field
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea({

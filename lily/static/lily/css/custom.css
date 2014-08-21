@@ -315,6 +315,10 @@ label.required::after {
     }
 }
 
+.timeline .timeline-body .timeline-operation-icon {
+    margin-top: 5px;
+}
+
 .microblog-item hr {
     margin: 10px 0 10px 0 !important;
 }

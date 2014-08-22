@@ -179,7 +179,6 @@ INSTALLED_APPS = (
     # 3rd party
     'activelink',
     'bootstrap3',
-    'debug_toolbar',
     'django_extensions',
     'djangoformsetjs',
     'easy_thumbnails',
@@ -189,7 +188,6 @@ INSTALLED_APPS = (
     'storages',
     'south',
     'taskmonitor',
-    'template_debug',  # in-template tags for debugging purposes
 
     # Lily
     'lily',  # required for management command
@@ -207,6 +205,12 @@ INSTALLED_APPS = (
     'lily.users',
     'lily.utils',
 )
+
+if DEBUG:
+    INSTALLED_APPS += (
+        'debug_toolbar',
+        'template_debug',  # in-template tags for debugging purposes
+    )
 
 if 'template_debug' in INSTALLED_APPS:
     TEMPLATE_DEBUG = True

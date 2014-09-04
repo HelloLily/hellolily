@@ -24,6 +24,49 @@ function set_focus(id) {
    }
 }
 
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function(str) {
+        return this.substring(0, str.length) === str;
+    }
+};
+
+if (typeof String.prototype.endsWith != 'function') {
+    String.prototype.endsWith = function(str) {
+        return this.substring(this.length - str.length, this.length ) === str;
+    }
+};
+
+/* Format telephone number */
+function phone_fmt() {
+    var el = $(this);
+    var phone = el.val()
+    if (phone.match(/[a-z]|[A-Z]/)) {
+        // if letters are found, skip formatting: it may not be a phone field after all
+        return false;
+    }
+
+    phone = phone.replace("(0)","");
+    phone = phone.replace(/\s|\(|\-|\)|\.|x|:|\*/g, "");
+    phone = phone.replace(/^00/,"+");
+
+    if (phone.length == 0) {
+        return false;
+    }
+
+    if (!phone.startsWith('+')) {
+        if (phone.startsWith('0')) {
+          phone = phone.substring(1);
+        }
+        phone = '+31' + phone;
+    }
+
+    el.val(phone);
+}
+
+$(function($) {
+    $('body').on('blur', 'input[name^="phone"]', function() {phone_fmt.call(this)});
+});
+
 $(function($) {
     if($.fn.modal) {
         // spinner template for bootstrap 3

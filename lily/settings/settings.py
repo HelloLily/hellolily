@@ -60,6 +60,7 @@ SITE_ID = os.environ.get('SITE_ID', 1)
 #######################################################################################################################
 TIME_ZONE = 'Europe/Amsterdam'
 DATE_INPUT_FORMATS = tuple(['%d/%m/%Y'] + list(global_settings.DATE_INPUT_FORMATS))
+DATETIME_INPUT_FORMATS = tuple(['%d/%m/%Y %H:%M'] + list(global_settings.DATETIME_INPUT_FORMATS))
 LANGUAGE_CODE = 'en'
 LANGUAGES = (
     ('nl', gettext_noop('Dutch')),

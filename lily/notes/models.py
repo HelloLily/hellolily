@@ -25,13 +25,14 @@ class Note(HistoryListItem, Deleted):
         return 'notes/note_historylistitem.html'
 
     def save(self, *args, **kwargs):
-        self.sort_by_date = self.created
+        if self.sort_by_date is None:
+            self.sort_by_date = self.created
         return super(Note, self).save()
 
     def __unicode__(self):
         return self.content
 
     class Meta:
-        ordering = ['-created']
+        ordering = ['-sort_by_date']
         verbose_name = _('note')
         verbose_name_plural = _('notes')

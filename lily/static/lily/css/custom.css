@@ -293,6 +293,9 @@ label.required::after {
 .timeline li.timeline-grey .timeline-time span.date {
     font-size: 16px;
 }
+.timeline>li .timeline-time a {
+    text-decoration: none;
+}
 .timeline>li .timeline-time span.time {
     font-size: 36px;
 }

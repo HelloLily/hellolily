@@ -57,6 +57,7 @@ PIPELINE_CSS = {
         'source_filenames': (
             'metronic/plugins/select2/select2_metro.css',
             'metronic/plugins/bootstrap-datepicker/css/datepicker.css',
+            'metronic/plugins/bootstrap-datetimepicker/css/datetimepicker.css',
         ),
         'output_filename': 'compiled/css/forms.css',
     },
@@ -212,6 +213,7 @@ PIPELINE_JS = {
             'metronic/plugins/select2/select2.js',
             'lily/scripts/forms/select2.js',
             'metronic/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
+            'metronic/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js',
             'lily/scripts/forms/dataprovider.js',
             'utils/js/utils.js',
         ),

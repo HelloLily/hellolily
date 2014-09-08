@@ -213,7 +213,7 @@ $(function($) {
     //     }
     // });
 
-    if($.fn.datepicker) {
+    if($.fn.datepicker || $.fn.datetimepicker) {
         $('body').removeClass('modal-open'); // fix bug when inline picker is used in modal
     }
 });

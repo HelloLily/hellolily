@@ -1,13 +1,13 @@
 {% extends 'anonymous/base.html' %}
 
-{% load media %}
+{% load static %}
 
 {% block body-class %}page-header-fixed page-sidebar-fixed{% endblock %}
 
 {% block body-content %}
     <div class="header navbar navbar-inverse navbar-fixed-top">
         <div class="header-inner">
-            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% static 'lily/images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
         </div>
     </div>
     <div class="clearfix"></div>

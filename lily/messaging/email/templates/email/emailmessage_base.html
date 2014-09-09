@@ -1,11 +1,11 @@
 {% extends 'list.html' %}
 
-{% load media i18n email activelink %}
+{% load compressed i18n email activelink %}
 
 {% block css %}
-{{ block.super }}
-{% include_media 'inbox.css' %}
-{% include_media 'tree.css' %}
+    {{ block.super }}
+    {% compressed_css 'inbox' %}
+    {% compressed_css 'tree' %}
 {% endblock %}
 
 {% block hor-menu %}
@@ -79,7 +79,7 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'inbox.js' %}
-{% include_media 'scroll.js' %}
+    {{ block.super }}
+    {% compressed_js 'inbox' %}
+    {% compressed_js 'scroll' %}
 {% endblock %}

@@ -603,7 +603,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
 
     def dispatch(self, request, *args, **kwargs):
         if is_ajax(request):
-            self.template_name = 'utils/history_list.html'
+            self.template_name = 'utils/historylist.html'
 
         return super(HistoryListViewMixin, self).dispatch(request, *args, **kwargs)
 

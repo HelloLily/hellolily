@@ -1,10 +1,10 @@
 {% extends 'page.html' %}
 
-{% load media i18n %}
+{% load compressed i18n %}
 
 {% block css %}
-{{ block.super }}
-{% include_media 'tables.css' %}
+    {{ block.super }}
+    {% compressed_css 'tables' %}
 {% endblock %}
 
 {% block page-container %}
@@ -35,8 +35,8 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'tables.js' %}
+    {{ block.super }}
+    {% compressed_js 'tables' %}
 <script>
 $(function($){
     $('.page-content .data-table').dataTable({

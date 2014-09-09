@@ -175,7 +175,7 @@ class DetailAccountView(HistoryListViewMixin):
         This is a copy from HistoryListViewMixin.
         """
         if is_ajax(request):
-            self.template_name = 'utils/history_list.html'
+            self.template_name = 'utils/historylist.html'
 
         return super(DetailAccountView, self).dispatch(request, *args, **kwargs)
 

@@ -1,10 +1,10 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils media %}
+{% load i18n utils compressed %}
 
 {% block css %}
     {{ block.super }}
-    {% include_media 'deals.css' %}
+    {% compressed_css 'deals' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Deal' %} - {{ object }}{% endblock %}
@@ -111,7 +111,7 @@
     {% endif %}
     <div class="row no-margin" id="tab-history">
         {% include 'notes/note_form.html' %}
-        {% include 'utils/history_list.html' %}
+        {% include 'utils/historylist.html' %}
     </div>
 {% endblock %}
 
@@ -123,6 +123,6 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'deals.js' %}
+    {{ block.super }}
+    {% compressed_js 'deals' %}
 {% endblock %}

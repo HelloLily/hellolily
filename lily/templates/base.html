@@ -1,4 +1,4 @@
-{% load media i18n %}<!DOCTYPE html>
+{% load compressed i18n static %}<!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
 <!--[if !IE]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
@@ -7,21 +7,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="MobileOptimized" content="320">
-    {% include_media 'font-awesome.css' %}
-    {% include_media 'metronic-core.css' %}
+    {% compressed_css 'font-awesome' %}
+    {% compressed_css 'metronic-core' %}
     {% block css %}
-    {% include_media 'notifications.css' %}
+        {% compressed_css 'notifications' %}
     {% endblock %}
-    {% include_media 'metronic-theme.css' %}
-    {% include_media 'jquery.js' %}
-    <link rel="shortcut icon" href="{% media_url 'images/core/favicon.ico' %}" />
+    {% compressed_css 'metronic-theme' %}
+    {% compressed_css 'print' %}
+    {% compressed_js 'jquery' %}
+    <link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />
     <title>{% block head-title %}HelloLily{% endblock %}</title>
 </head>
 
 <body class="page-header-fixed page-sidebar-fixed">
     <div class="header navbar navbar-inverse navbar-fixed-top">
         <div class="header-inner">
-            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% media_url 'images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% static 'lily/images/core/logo-hellolily-textonly.png' %}" alt="logo" class="img-responsive" /></a>
             {% block page-header %}{% endblock %}
         </div>
     </div>
@@ -56,29 +57,31 @@
     {% block modals %}{% endblock %}
 
     {% block scripts %}
-    <!--[if lt IE 9]>
-    {% include_media 'ie9-javascript.js' %}
-    <![endif]-->
-    {% include_media 'core-js.js' %}
-    {% include_media 'notifications.js' %}
-    <script>
-    var load_notifications = function() {
-        $.getScript('{% url 'notifications' %}');
-    }
-    {% if messages %}
-    load_notifications();
-    {% endif %}
-    </script>
+        <!--[if lt IE 9]>
+            {% compressed_js 'ie9' %}
+        <![endif]-->
+        {% compressed_js 'core' %}
+        {% compressed_js 'notifications' %}
+        <script>
+            var load_notifications = function() {
+                $.getScript('{% url 'notifications' %}');
+            }
+            {% if messages %}
+                load_notifications();
+            {% endif %}
+        </script>
     {% endblock %}
-    <script>
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-401436-20']);
-    _gaq.push(['_trackPageview']);
-    (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-    </script>
+    {% if not debug %}
+        <script>
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-401436-20']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+    {% endif %}
 </body>
 </html>

@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% load media i18n email activelink %}
+{% load compressed i18n email activelink static %}
 
 {% block css %}
-{{ block.super }}
-{% include_media 'modal.css' %}
-{% include_media 'forms.css' %}  {# this also includes styles used in quickbutton forms #}
+    {{ block.super }}
+    {% compressed_css 'modal' %}
+    {% compressed_css 'forms' %}  {# this also includes styles used in quickbutton forms #}
 {% endblock %}
 
 {% block page-header %}
@@ -41,7 +41,7 @@
 </div>
 
 <a href="javascript:void(0)" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-    <img src="{% media_url 'img/menu-toggler.png' %}" alt="" />
+    <img src="{% static 'metronic/img/menu-toggler.png' %}" alt="" />
 </a>
 
 <ul class="nav navbar-nav pull-right">
@@ -135,7 +135,7 @@
             <a href="{% url 'messaging_email_inbox' %}">
             <i class="icon-inbox"></i>
             <span class="title">{% trans 'E-mail' %}</span>
-            <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
+            <span class="{% ifstartswith "messaging_dashboard" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
         <li class="start {% ifstartswith "deal_list" %}active{% endifstartswith %}">
@@ -180,14 +180,14 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'app.js' %}
-{% include_media 'modal.js' %}
-{% include_media 'ajax-submit.js' %}
-{% include_media 'forms.js' language='en' %} {# this also includes scripts used in quickbutton forms #}
-<script>
-$(function($){
-    App.init();
-});
-</script>
+    {{ block.super }}
+    {% compressed_js 'app' %}
+    {% compressed_js 'modal' %}
+    {% compressed_js 'ajax-submit' %}
+    {% compressed_js 'forms' %} {# this also includes scripts used in quickbutton forms #}
+    <script>
+        $(function($){
+            App.init();
+        });
+    </script>
 {% endblock %}

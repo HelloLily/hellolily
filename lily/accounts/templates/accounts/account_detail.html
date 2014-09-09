@@ -1,6 +1,6 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils media %}
+{% load i18n utils %}
 
 {% block head-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
 {% block page-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}

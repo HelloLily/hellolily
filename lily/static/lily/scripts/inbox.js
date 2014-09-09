@@ -80,7 +80,7 @@ var Inbox = function () {
 
     var initWysihtml5 = function () {
         $('.inbox-wysihtml5').wysihtml5({
-            "stylesheets": [media_url('wysiwyg-color.css')],
+            "stylesheets": ['/static/metronic/plugins/bootstrap-wysihtml5/wysiwyg-color.css', ],
             "font-styles": true, //Font styling, e.g. h1, h2, etc.
             "color": false, //Button to change color of font
             "emphasis": true, //Italics, bold, etc.

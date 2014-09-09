@@ -1,10 +1,10 @@
 {% extends 'email/emailmessage_base.html' %}
 
-{% load media i18n email bootstrap3 %}
+{% load compressed i18n email bootstrap3 %}
 
 {% block css %}
-{{ block.super }}
-{% include_media 'editor.css' %}
+    {{ block.super }}
+    {% compressed_css 'wysihtml' %}
 {% endblock %}
 
 {% block inbox %}
@@ -98,8 +98,8 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'editor.js' %}
+    {{ block.super }}
+    {% compressed_js 'wysihtml5' %}
 <script>
 $(function($) {
     Inbox.init();

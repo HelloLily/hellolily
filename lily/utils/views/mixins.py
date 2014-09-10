@@ -703,7 +703,9 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         """
         kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
 
+        # Get emails and notes
         object_list, show_more = self.get_notes_and_email_lists()
+
         kwargs.update({
             'object_list': object_list,
             'show_more': show_more,

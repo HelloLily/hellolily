@@ -11,7 +11,7 @@ from django_extensions.db.fields.json import JSONField
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
 from django_fields.fields import EncryptedCharField
-from python_imap.folder import DRAFTS, TRASH
+from python_imap.folder import DRAFTS
 from python_imap.utils import convert_html_to_text
 
 from lily.messaging.models import Message, MessagesAccount
@@ -88,6 +88,7 @@ class EmailMessage(Message):
     folder_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
+    sent_from_account = models.BooleanField(default=False)
     message_identifier = models.CharField(max_length=255)  # Message-ID header
     is_deleted = models.BooleanField(default=False)
 

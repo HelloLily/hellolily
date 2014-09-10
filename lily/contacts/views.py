@@ -240,7 +240,6 @@ class JsonContactWorksAtView(View):
         return HttpResponse(response, mimetype="application/javascript")
 
 
-class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddAContactView and EditContactView.
     """
@@ -248,7 +247,7 @@ class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
     form_class = CreateUpdateContactForm
 
     def form_valid(self, form):
-        success_url = super(CreateUpdateContactView, self).form_valid(form)
+        success_url = super(CreateUpdateContactMixin, self).form_valid(form)
 
         if form.cleaned_data.get('twitter'):
             twitter = SocialMedia.objects.create(name='twitter', username=form.cleaned_data.get('twitter'))
@@ -288,7 +287,7 @@ class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
         """
         Provide a url to go back to.
         """
-        kwargs = super(CreateUpdateContactView, self).get_context_data(**kwargs)
+        kwargs = super(CreateUpdateContactMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):
             kwargs.update({
                 'back_url': self.get_success_url(),
@@ -303,7 +302,7 @@ class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
         return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
 
 
-class AddContactView(CreateUpdateContactView, CreateView):
+class AddContactView(CreateUpdateContactMixin, CreateView):
     """
     View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
     """
@@ -369,7 +368,7 @@ class AddContactView(CreateUpdateContactView, CreateView):
         return super(AddContactView, self).form_valid(form)
 
     def get_form_kwargs(self):
-        kwargs = super(CreateUpdateContactView, self).get_form_kwargs()
+        kwargs = super(CreateUpdateContactMixin, self).get_form_kwargs()
         if not self.is_ajax:
             kwargs.update({
                 'formset_form_attrs': {
@@ -406,7 +405,7 @@ class AddContactView(CreateUpdateContactView, CreateView):
         return '%s?order_by=4&sort_order=desc' % (reverse('contact_list'))
 
 
-class EditContactView(CreateUpdateContactView, UpdateView):
+class EditContactView(CreateUpdateContactMixin, UpdateView):
     """
     View to edit a contact.
     """

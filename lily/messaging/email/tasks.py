@@ -61,7 +61,7 @@ def synchronize_email_scheduler():
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
-                auth_ok__in=(NO_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:
@@ -224,7 +224,7 @@ def synchronize_low_priority_email_scheduler():
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
-                auth_ok__in=(NO_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:
@@ -413,7 +413,7 @@ def synchronize_email_flags_scheduler():
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
-                auth_ok__in=(NO_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:

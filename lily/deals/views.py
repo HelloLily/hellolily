@@ -20,7 +20,6 @@ from lily.utils.views.mixins import SortedListMixin, DeleteBackAddSaveFormViewMi
     ArchivedFilterMixin, LoginRequiredMixin
 
 
-
 class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
     """
     Display a list of all deals.
@@ -149,7 +148,7 @@ class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
     model = Deal
 
 
-class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
+class CreateUpdateDealMixin(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
     """
     Base class for CreateDealView and UpdateDealView.
     """
@@ -160,7 +159,7 @@ class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
         """
         Provide an url to go back to.
         """
-        kwargs = super(CreateUpdateDealView, self).get_context_data(**kwargs)
+        kwargs = super(CreateUpdateDealMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):
             kwargs.update({
                 'back_url': self.get_success_url(),
@@ -173,7 +172,7 @@ class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
         Overloading super().form_valid to add success message after editing.
         """
         # Save instance
-        response = super(CreateUpdateDealView, self).form_valid(form)
+        response = super(CreateUpdateDealMixin, self).form_valid(form)
 
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
         if self.object.stage in [1, 3]:
@@ -191,7 +190,7 @@ class CreateUpdateDealView(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
         return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
 
 
-class CreateDealView(CreateUpdateDealView, CreateView):
+class CreateDealView(CreateUpdateDealMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -237,7 +236,7 @@ class CreateDealView(CreateUpdateDealView, CreateView):
         return response
 
 
-class UpdateDealView(CreateUpdateDealView, UpdateView):
+class UpdateDealView(CreateUpdateDealMixin, UpdateView):
     model = Deal
 
     def form_valid(self, form):
@@ -250,7 +249,7 @@ class UpdateDealView(CreateUpdateDealView, UpdateView):
         return response
 
 
-class UpdateAndUnarchiveDealView(CreateUpdateDealView, UpdateView):
+class UpdateAndUnarchiveDealView(CreateUpdateDealMixin, UpdateView):
     """
     Allows a deal to be unarchived and edited if needed
     """

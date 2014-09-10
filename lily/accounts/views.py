@@ -238,7 +238,7 @@ class DetailAccountView(HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
+class CreateUpdateAccountMixin(DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddAccountView and EditAccountView.
     """
@@ -259,10 +259,10 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
 
         request.POST = post_data
 
-        return super(CreateUpdateAccountView, self).post(request, *args, **kwargs)
+        return super(CreateUpdateAccountMixin, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        success_url = super(CreateUpdateAccountView, self).form_valid(form)
+        success_url = super(CreateUpdateAccountMixin, self).form_valid(form)
 
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
@@ -290,7 +290,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
         """
         Provide an url to go back to.
         """
-        kwargs = super(CreateUpdateAccountView, self).get_context_data(**kwargs)
+        kwargs = super(CreateUpdateAccountMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):
             kwargs.update({
                 'back_url': self.get_success_url(),
@@ -299,7 +299,7 @@ class CreateUpdateAccountView(DeleteBackAddSaveFormViewMixin):
         return kwargs
 
 
-class AddAccountView(CreateUpdateAccountView, CreateView):
+class AddAccountView(CreateUpdateAccountMixin, CreateView):
     """
     View to add an acccount. Also supports a smaller (quickbutton) form for ajax requests.
     """
@@ -317,7 +317,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         return super(AddAccountView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(CreateUpdateAccountView, self).get_form_kwargs()
+        kwargs = super(CreateUpdateAccountMixin, self).get_form_kwargs()
         if not self.is_ajax:
             kwargs.update({
                 'formset_form_attrs': {
@@ -399,7 +399,7 @@ class AddAccountView(CreateUpdateAccountView, CreateView):
         return '%s?order_by=3&sort_order=desc' % (reverse('account_list'))
 
 
-class EditAccountView(CreateUpdateAccountView, UpdateView):
+class EditAccountView(CreateUpdateAccountMixin, UpdateView):
     """
     View to edit an acccount.
     """

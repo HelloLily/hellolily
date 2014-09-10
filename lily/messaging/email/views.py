@@ -471,7 +471,7 @@ class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMix
     default_order_by = 2
 
 
-class CreateUpdateEmailTemplateView(LoginRequiredMixin):
+class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
     form_class = CreateUpdateEmailTemplateForm
     model = EmailTemplate
 
@@ -479,7 +479,7 @@ class CreateUpdateEmailTemplateView(LoginRequiredMixin):
         """
         Provide an url to go back to.
         """
-        kwargs = super(CreateUpdateEmailTemplateView, self).get_context_data(**kwargs)
+        kwargs = super(CreateUpdateEmailTemplateMixin, self).get_context_data(**kwargs)
         kwargs.update({
             'parameter_choices': anyjson.serialize(get_email_parameter_choices()),
             'back_url': self.get_success_url(),
@@ -493,7 +493,7 @@ class CreateUpdateEmailTemplateView(LoginRequiredMixin):
         return reverse('emailtemplate_list')
 
 
-class CreateEmailTemplateView(CreateUpdateEmailTemplateView, CreateView):
+class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
     def form_valid(self, form):
         # Show save messages
         message = _('%s (EmailTemplate) has been created')
@@ -507,7 +507,7 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateView, CreateView):
         return response
 
 
-class UpdateEmailTemplateView(CreateUpdateEmailTemplateView, UpdateView):
+class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
     def form_valid(self, form):
         # Show save messages
         message = _('%s (EmailTemplate) has been updated')
@@ -1560,9 +1560,6 @@ class EmailAccountChangePasswordView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         email_account = form.save()
-        # The context processor needs to check again if there are still
-        # EmailAccounts that needs to be authenticated.
-        self.request.session['email_auth_update'] = False
 
         messages.success(
             self.request,

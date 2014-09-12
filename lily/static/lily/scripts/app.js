@@ -202,6 +202,60 @@ $(function($) {
     }
 });
 
+//Selects the account belonging to a contact when a contact is selected.
+//Also, when an account is selected, it will reset the selected contact if it does not belong to it.
+$(function($) {
+	function change_account(id_contact, id_account) {
+		contact_pk = $('#'+id_contact).val();
+		if (contact_pk) {
+			var url = "/contacts/json_works_at/" + contact_pk;
+			$.getJSON(url, function(works_at) {
+				if (works_at.works_at.length) {
+					var account = works_at.works_at[0]
+					$('#'+id_account).val(account.pk);
+				} else {
+					$('#'+id_account).val('');
+				}
+			});
+		}
+	}
+	function change_contact(id_contact, id_account) {
+		contact_pk = $('#'+id_contact).val()
+		account_pk = $('#'+id_account).val()
+		if (account_pk && contact_pk) {
+			var url = "/contacts/json_works_at/" + contact_pk;
+			$.getJSON(url, function(works_at) {
+				if (works_at.works_at.length) {
+					var account = works_at.works_at[0]
+					if (account.pk == account_pk) {
+						return;
+					}
+				}
+				// selected contact does not work anywhere or at selected account, reset it
+				$('#'+id_contact).val('');
+			});
+		}
+	}
+
+	$('body').on('change', '#id_contact', function() {
+		if ($('#id_account').length) {
+			change_account('id_contact','id_account');
+		}
+	}).on('change', '#id_account', function() {
+		if ($('#id_contact').length) {
+			change_contact('id_contact','id_account');
+		}
+	}).on('change', '#id_case_quickbutton_contact', function() {
+		if ($('#id_account').length) {
+			change_account('id_case_quickbutton_contact','id_case_quickbutton_account');
+		}
+	}).on('change', '#id_case_quickbutton_contact', function() {
+		if ($('#id_contact').length) {
+			change_contact('id_case_quickbutton_contact','id_case_quickbutton_account');
+		}
+	});
+});
+
 // go to redirect_url, reload if redirect_url is current and/or if it contains an anchor reference
 function redirect_to(redirect_url) {
     var current = window.location.href;

@@ -17,6 +17,7 @@ from django.utils.datastructures import SortedDict
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account
@@ -221,6 +222,22 @@ class DetailContactView(HistoryListViewMixin):
         })
 
         return kwargs
+
+
+class JsonContactWorksAtView(View):
+    """
+    JSON: Display account information for a contact
+    """
+
+    def get(self, request, pk):
+        contact = Contact.objects.get(pk=pk)
+        function = contact.functions.all().first();
+        works_at = []
+        if function:
+            account = function.account
+            works_at.append({'name':account.name, 'pk':account.pk})
+        response = anyjson.serialize({'works_at':works_at})
+        return HttpResponse(response, mimetype="application/javascript")
 
 
 class CreateUpdateContactView(DeleteBackAddSaveFormViewMixin):
@@ -557,6 +574,8 @@ class ConfirmContactEmailView(TemplateView):
 # Perform logic here instead of in urls.py
 add_contact_view = login_required(AddContactView.as_view())
 detail_contact_view = login_required(DetailContactView.as_view())
+json_contact_works_at_view = login_required(JsonContactWorksAtView.as_view())
 delete_contact_view = login_required(DeleteContactView.as_view())
 edit_contact_view = login_required(EditContactView.as_view())
 list_contact_view = login_required(ListContactView.as_view())
+

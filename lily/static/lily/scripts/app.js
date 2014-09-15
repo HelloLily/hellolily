@@ -67,6 +67,17 @@ $(function($) {
     $('body').on('blur', 'input[name^="phone"]', function() {phone_fmt.call(this)});
 });
 
+function init_select2(parent_selector) {
+	$(parent_selector + ' select').select2({
+	    // at least this many results are needed to enable the search field
+		// (9 is the amount at which the user must scroll to see all items)
+		minimumResultsForSearch: 9
+	});
+}
+$(function($) {
+	init_select2('body');
+});
+
 $(function($) {
     if($.fn.modal) {
         // spinner template for bootstrap 3
@@ -82,6 +93,11 @@ $(function($) {
         // remove any results from other modals
         $('body').on('hidden.bs.modal', '.modal', function() {
             $(this).find('[data-async-response]').html('');
+        });
+
+        // use Select2 in modals for certain fields
+        $('body').on('shown.bs.modal', '.modal', function() {
+        	init_select2('.modal-body');
         });
 
         // remove focus from element that triggered modal
@@ -211,10 +227,10 @@ $(function($) {
 			var url = "/contacts/json_works_at/" + contact_pk;
 			$.getJSON(url, function(works_at) {
 				if (works_at.works_at.length) {
-					var account = works_at.works_at[0]
-					$('#'+id_account).val(account.pk);
+					var account = works_at.works_at[0];
+					$('#'+id_account).val(account.pk).trigger('change');
 				} else {
-					$('#'+id_account).val('');
+					$('#'+id_account).val('').trigger('change');
 				}
 			});
 		}
@@ -232,7 +248,7 @@ $(function($) {
 					}
 				}
 				// selected contact does not work anywhere or at selected account, reset it
-				$('#'+id_contact).val('');
+				$('#'+id_contact).val('').trigger('change');
 			});
 		}
 	}
@@ -249,7 +265,7 @@ $(function($) {
 		if ($('#id_account').length) {
 			change_account('id_case_quickbutton_contact','id_case_quickbutton_account');
 		}
-	}).on('change', '#id_case_quickbutton_contact', function() {
+	}).on('change', '#id_case_quickbutton_account', function() {
 		if ($('#id_contact').length) {
 			change_contact('id_case_quickbutton_contact','id_case_quickbutton_account');
 		}

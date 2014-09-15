@@ -1,0 +1,7 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+{% if item.type %}{{ item.type }}{% endif %}
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

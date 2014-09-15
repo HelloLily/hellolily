@@ -191,7 +191,7 @@ MIDDLEWARE_CLASSES = (
 if DEBUG:
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
-        'lily.utils.middleware.PrettifyMiddleware',
+        # 'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
     )
 
 #######################################################################################################################

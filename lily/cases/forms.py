@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
-from lily.cases.models import Case
+from lily.cases.models import Case, CaseType
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
@@ -18,9 +18,15 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
+    type = forms.ModelChoiceField(label=_('Type'),
+                                  queryset=CaseType.objects,
+                                  empty_label='---------',
+                                  required=False,
+                                  )
+
     account = forms.ModelChoiceField(label=_('Account'),
                                      queryset=Account.objects,
-                                     empty_label=_('an account'),
+                                     empty_label='---------',
                                      required=False,
                                      widget=forms.Select(attrs={
                                         'class': 'contact_account'
@@ -28,7 +34,7 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
 
     contact = forms.ModelChoiceField(label=_('Contact'),
                                      queryset=Contact.objects,
-                                     empty_label=_('a contact'),
+                                     empty_label='---------',
                                      required=False)
 
     assigned_to = forms.ModelChoiceField(label=_('Assigned to'),
@@ -89,7 +95,17 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
 
     class Meta:
         model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
+        fields = (
+            'status',
+            'priority',
+            'expires',
+            'type',
+            'subject',
+            'description',
+            'contact',
+            'account',
+            'assigned_to',
+        )
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
@@ -110,20 +126,6 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
     Form that is used for adding a new Case through a quickbutton form.
     """
 
-    expires = forms.DateField(
-        label=_('Expires'),
-        input_formats=settings.DATE_INPUT_FORMATS,
-        widget=DatePicker(
-            options={
-                'autoclose': 'true',
-            },
-            format=settings.DATE_INPUT_FORMATS[0],
-            attrs={
-                'placeholder': DatePicker.conv_datetime_format_py2js(settings.DATE_INPUT_FORMATS[0]),
-            },
-        )
-    )
-
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change auto_id to prevent clashing form field id's with
@@ -136,20 +138,3 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
 
         self.fields['expires'].initial = datetime.today()
-
-    class Meta:
-        model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
-        exclude = ('is_deleted', 'closed_date', 'tenant')
-
-        widgets = {
-            'priority': PrioritySelect(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'description': ShowHideWidget(forms.Textarea({
-                'rows': 3
-            })),
-            'status': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-        }

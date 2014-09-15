@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.db.models import Q
+from django.db.models import Q, FieldDoesNotExist
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
@@ -235,9 +235,20 @@ class FilterQuerysetMixin(object):
                 partial_filter = []
                 # For each field, lets build a partial filter
                 for field in self.search_fields:
-                    partial_filter.append(Q(**{field: search_term}))
+                    # Check if field needs to be searched with int.
+                    try:
+                        field_type = queryset.model._meta.get_field(field).get_internal_type()
+                    except FieldDoesNotExist:
+                        partial_filter.append(Q(**{field: search_term}))
+                    else:
+                        if field_type in ('AutoField', 'IntegerField'):
+                            try:
+                                partial_filter.append(Q(**{field: int(search_term)}))
+                            except ValueError:
+                                pass
                 # Combine the partial filter to one filter per search item, any of the fields should match
-                complete_filter.append(reduce(operator.or_, partial_filter))
+                if partial_filter:
+                    complete_filter.append(reduce(operator.or_, partial_filter))
         # If there is no filter, don't apply filter
         if complete_filter:
             # Combine the filters to one filter, they must all match.

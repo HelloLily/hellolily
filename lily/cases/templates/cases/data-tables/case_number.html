@@ -1,0 +1,7 @@
+{% if not request.is_ajax %}
+    <td>
+{% endif %}
+{{ item.id }}
+{% if not request.is_ajax %}
+    </td>
+{% endif %}

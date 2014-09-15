@@ -13,10 +13,11 @@ from lily.cases.models import Case
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
-from lily.utils.views.mixins import SortedListMixin, HistoryListViewMixin, LoginRequiredMixin, ArchivedFilterMixin
+from lily.utils.views.mixins import SortedListMixin, HistoryListViewMixin, LoginRequiredMixin, ArchivedFilterMixin, \
+    FilteredListMixin
 
 
-class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
+class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListMixin, DataTablesListView):
     """
     Display a list of all cases.
     """
@@ -28,6 +29,14 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
     default_order_by = 2
     default_sort_order = SortedListMixin.DESC
 
+    # FilteredListMixin
+    select_related = (
+        'type',
+        'contact',
+        'account',
+        'assigned_to__contact',
+    )
+
     # DataTablesListView
     columns = SortedDict([
         ('checkbox', {
@@ -38,8 +47,21 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
             'mData': 'edit',
             'bSortable': False,
         }),
+        ('status', {
+            'mData': 'status',
+        }),
         ('priority', {
             'mData': 'priority',
+        }),
+        ('expires', {
+            'mData': 'expires',
+            'sClass': 'visible-md visible-lg',
+        }),
+        ('type', {
+            'mData': 'type',
+        }),
+        ('case_number', {
+            'mData': 'case_number',
         }),
         ('subject', {
             'mData': 'subject',
@@ -47,23 +69,16 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         ('contact_account', {
             'mData': 'contact_account',
         }),
-        ('status', {
-            'mData': 'status',
-        }),
         ('assigned_to', {
             'mData': 'assigned_to',
         }),
         ('created', {
             'mData': 'created',
-            'sClass': 'visible-md visible-lg',
+            'sClass': 'visible-lg',
         }),
         ('modified', {
             'mData': 'modified',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('expires', {
-            'mData': 'expires',
-            'sClass': 'visible-md visible-lg',
+            'sClass': 'visible-lg',
         }),
     ])
 
@@ -75,6 +90,8 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         'account__name__icontains',
         'assigned_to__contact__last_name__icontains',
         'assigned_to__contact__first_name__icontains',
+        'type__type__icontains',
+        'id',
     ]
 
     def order_queryset(self, queryset, column, sort_order):
@@ -86,8 +103,15 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         prefix = ''
         if sort_order == 'desc':
             prefix = '-'
-        if column in ('priority', 'subject', 'status', 'created', 'modified', 'expires'):
+
+        if column in ('subject', 'status', 'created', 'modified', 'expires'):
             return queryset.order_by('%s%s' % (prefix, column))
+        elif column == 'priority':
+            return queryset.order_by('%spriority' % prefix, 'expires')
+        elif column == 'case_number':
+            return queryset.order_by('%spk' % prefix)
+        elif column == 'type':
+            return queryset.order_by('%stype__type' % prefix, '-priority')
         elif column == 'contact_account':
             return queryset.order_by(
                 '%saccount__name' % prefix,

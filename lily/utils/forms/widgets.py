@@ -119,6 +119,29 @@ class DatePicker(DateTimePicker):
                 self.options['format'] = self.conv_datetime_format_py2js(format)
 
 
+class LilyDateTimePicker(DatePicker):
+    """
+    Modified DatePicker to support times. Note: It uses bootstrap-datetimepicker plugin instead of bootstrap-datepicker.
+    """
+    format_map = (
+        ('dd', r'%d'),
+        ('mm', r'%m'),
+        ('yyyy', r'%Y'),
+        ('hh', r'%H'),
+        ('ii', r'%M'),
+    )
+
+    js_template = '''
+        <script>
+            $(function() {
+                $('#%(picker_id)s input').datetimepicker(%(options)s);
+                $('#%(picker_id)s button').click(function() {
+                    $("#%(picker_id)s input").datetimepicker('show');
+                })
+            });
+        </script>'''
+
+
 class AddonTextInput(TextInput):
     """
     Creates a text input with an addon (icon)

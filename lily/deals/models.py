@@ -5,10 +5,10 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.users.models import CustomUser
 from lily.tenant.models import TenantMixin
-from lily.utils.models.mixins import Deleted, ArchivedMixin
+from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
-class Deal(TenantMixin, Deleted, ArchivedMixin):
+class Deal(TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
     """

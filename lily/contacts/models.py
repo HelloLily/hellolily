@@ -7,7 +7,7 @@ from lily.accounts.models import Account
 from lily.settings import CONTACT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models import PhoneNumber, EmailAddress
-from lily.utils.models.mixins import Common, Deleted, CaseClientModelMixin
+from lily.utils.models.mixins import Common, DeletedMixin, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
@@ -196,7 +196,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         verbose_name_plural = _('contacts')
 
 
-class Function(Deleted):
+class Function(DeletedMixin):
     """
     Function, third model with extra fields for the relation between Account and Contact.
     """

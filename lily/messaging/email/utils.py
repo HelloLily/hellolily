@@ -1,9 +1,12 @@
 import re
+import socket
+from smtplib import SMTPAuthenticationError
 from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.mail import (EmailMultiAlternatives, SafeMIMEMultipart,
     get_connection)
 from django.core.urlresolvers import reverse
@@ -12,11 +15,15 @@ from django.db.models import Field
 from django.db.models.query_utils import Q
 from django.template import (Context, BLOCK_TAG_START, BLOCK_TAG_END,
      VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError)
+from django.template.defaultfilters import truncatechars
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 
+from python_imap.errors import IMAPConnectionError
+from python_imap.folder import INBOX
 from python_imap.server import IMAP
 from lily.messaging.email.decorators import get_safe_template
+from lily.messaging.email.models import EmailAccount, EmailMessage
 from lily.tenant.middleware import get_current_user
 
 
@@ -392,10 +399,163 @@ class LilyIMAP(IMAP):
         host = account.provider.imap_host
         port = account.provider.imap_port
         ssl = account.provider.imap_ssl
-        super(LilyIMAP, self).__init__(host, port=port, ssl=ssl)
+        super(LilyIMAP, self).__init__(host, port=port, ssl=ssl, silent_fail=True)
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.logout()
+
+
+def verify_imap_credentials(imap_host, imap_port, imap_ssl, username, password):
+    """
+    Verify IMAP connection and credentials.
+
+    Arguments:
+        imap_host (str): address of host
+        imap_port (int): port to connect to
+        imap_ssl (boolean): True if ssl should be used
+        username (str): username for login to IMAP client
+        password (str): password for login to IMAP client
+
+    Raises:
+        ValidationError: If connection or login failed
+    """
+    # Resolve host name
+    try:
+        socket.gethostbyname(imap_host)
+    except Exception:
+        raise ValidationError(
+            _('Could not resolve %(imap_host)s'),
+            code='invalid_host',
+            params={'imap_host': imap_host}
+        )
+
+    # Try connecting
+    try:
+        imap = IMAP(imap_host, imap_port, imap_ssl)
+    except IMAPConnectionError:
+        raise ValidationError(
+            _('Could not connect to %(imap_host)s:%(imap_port)s'),
+            code='invalid_connection',
+            params={'imap_host': imap_host, 'imap_port': imap_port}
+        )
+
+    # Try login
+    if not imap.login(username, password):
+        raise ValidationError(
+            _('Unable to login with provided username and password on the IMAP host'),
+            code='invalid_credentials'
+        )
+
+
+def verify_smtp_credentials(smtp_host, smtp_port, use_tls, username, password):
+    """
+    Verify SMTP connection and credentials.
+
+    Arguments:
+        smtp_host (str): address of host
+        smtp_port (int): port to connect to
+        use_tls (boolean): True if tls should be used
+        username (str): username for login to SMTP client
+        password (str): password for login to SMTP client
+
+    Raises:
+        ValidationError: If connection or login failed
+    """
+    # Resolve SMTP server
+    try:
+        socket.gethostbyname(smtp_host)
+    except Exception:
+        raise ValidationError(
+            _('Could not resolve %(smtp_host)s'),
+            code='invalid_host',
+            params={'smtp_host': smtp_host}
+        )
+
+    # Try connecting and login
+    try:
+        kwargs = {
+            'host': smtp_host,
+            'port': smtp_port,
+            'use_tls': use_tls,
+            'username': username,
+            'password': password,
+        }
+        smtp_server = get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=False, **kwargs)
+        smtp_server.open()
+        smtp_server.close()
+    except SMTPAuthenticationError:
+        # Failed login
+        raise ValidationError(
+            _('Unable to login with provided username and password on the SMTP host'),
+            code='invalid_credentials'
+        )
+    except Exception:
+        # Failed connection
+        raise ValidationError(
+            _('Could not connect to %(smtp_host)s:%(smtp_port)s'),
+            code='invalid_connection',
+            params={'smtp_host': smtp_host, 'smtp_port': smtp_port}
+        )
+
+
+def email_auth_update(user):
+    """
+    Check if there is an email account for the user that needs a new password.
+    """
+    email_auth_update = EmailAccount.objects.filter(
+        is_deleted=False,
+        auth_ok=False,
+        tenant=user.tenant,
+        user_group__pk=user.pk,
+    ).exists()
+
+    return email_auth_update
+
+
+def unread_emails(user):
+    """
+    Returns a list of unread e-mails.
+    Limit results with bodies to 10.
+    Limit total results to 30.
+    """
+    LIMIT_LIST = 10
+    LIMIT_EXCERPT = 5
+    unread_emails_list = []
+
+    # Look up the last few unread e-mail messages for these accounts
+    email_accounts = user.get_messages_accounts(EmailAccount)
+    email_messages = EmailMessage.objects.filter(
+        folder_identifier=INBOX,
+        account__in=email_accounts,
+        is_seen=False,
+    ).order_by('-sort_by_date')
+    unread_count = email_messages.count()
+
+    email_messages = email_messages[:LIMIT_LIST]  # eval slice
+
+    # show excerpt for LIMIT_EXCERPT messages
+    for email_message in email_messages[:LIMIT_EXCERPT]:
+        unread_emails_list.append({
+            'id': email_message.pk,
+            'from': email_message.from_name,
+            'time': email_message.sent_date,
+            'message_excerpt': truncatechars(email_message.textify().lstrip('&nbsp;\n\r\n '), 100),
+        })
+
+    if len(email_messages) > LIMIT_EXCERPT:
+        # for more messages up to LIMIT_LIST don't show excerpt
+        for email_message in email_messages[LIMIT_EXCERPT:]:
+            unread_emails_list.append({
+                'id': email_message.pk,
+                'from': email_message.from_name,
+                'time': email_message.sent_date,
+            })
+
+    return {
+        'count': unread_count,
+        'count_more': unread_count - len(unread_emails_list),
+        'object_list': unread_emails_list,
+    }

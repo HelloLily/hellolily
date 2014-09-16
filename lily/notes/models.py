@@ -4,10 +4,10 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from lily.utils.models import HistoryListItem
-from lily.utils.models.mixins import Deleted
+from lily.utils.models.mixins import DeletedMixin
 
 
-class Note(HistoryListItem, Deleted):
+class Note(HistoryListItem, DeletedMixin):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """

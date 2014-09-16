@@ -353,6 +353,16 @@ class EmailMessage(Message):
     def is_draft(self):
         return DRAFTS in self.flags or self.folder_identifier == DRAFTS
 
+    @property
+    def is_readable(self):
+        """
+        Boolean set to True if emailmessage is in db or should be fetchable from IMAP.
+        """
+        if self.body_html is None or not self.body_html.strip() and (self.body_text is None or not self.body_text.strip()):
+            if not self.account.is_deleted:
+                return self.account.auth_ok is OK_EMAILACCOUNT_AUTH
+        return True
+
     def __unicode__(self):
         return u'%s - %s'.strip() % (email.utils.parseaddr(self.from_email), truncatechars(self.subject, 130))
 

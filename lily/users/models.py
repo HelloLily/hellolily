@@ -40,7 +40,25 @@ class CustomUser(User, TenantMixin):
         return u''
 
     def get_messages_accounts(self, model=None, pk__in=None):
+        """
+        Returns a list of the users accounts and accounts that are shared with
+        this user.
+
+        Also filters out accounts that are deleted and/or have wrong credentials.
+
+        Arguments:
+            model (optional): filters the accounts on a specific model type
+            pk__in (optional): filters the accounts on specific pks
+
+        Returns:
+            list of MessagesAccounts
+        """
+        # Check cache
+        if hasattr(self, '_messages_accounts_%s_%s' % (model, pk__in)):
+            return getattr(self, '_messages_accounts_%s_%s' % (model, pk__in))
+
         from lily.messaging.models import MessagesAccount
+        from lily.messaging.email.models import OK_EMAILACCOUNT_AUTH
 
         # Filter by content type if provided
         if model is not None:
@@ -48,16 +66,22 @@ class CustomUser(User, TenantMixin):
 
             # Include shared accounts
             messages_accounts = MessagesAccount.objects.filter(
-                Q(shared_with=1) |
-                Q(shared_with=2, user_group__pk=self.pk) |
-                Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk'))
+                Q(is_deleted=False) &
+                (
+                    Q(shared_with=1) |
+                    Q(shared_with=2, user_group__pk=self.pk) |
+                    Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk'))
+                )
             )
         else:
             # Include all type of accounts and include shared accounts
             messages_accounts = MessagesAccount.objects.filter(
-                Q(shared_with=1) |
-                Q(shared_with=2, user_group__pk=self.pk) |
-                Q(pk__in=self.messages_accounts.values_list('pk'))
+                Q(is_deleted=False) &
+                (
+                    Q(shared_with=1) |
+                    Q(shared_with=2, user_group__pk=self.pk) |
+                    Q(pk__in=self.messages_accounts.values_list('pk'))
+                )
             )
 
         if pk__in is not None:
@@ -66,7 +90,21 @@ class CustomUser(User, TenantMixin):
         # Uniquify accounts
         messages_accounts = uniquify(messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
 
-        return messages_accounts
+        # Filter out on EmailAccounts that not have correct credentials and are not owned by us.
+        own_or_active_accounts = []
+        for account in messages_accounts:
+            # Check if account is an emailaccount
+            if hasattr(account, 'emailaccount'):
+                # Check if account is from user or has correct credentials.
+                if account in self.messages_accounts.all() or account.auth_ok is OK_EMAILACCOUNT_AUTH:
+                    own_or_active_accounts.append(account)
+            else:
+                own_or_active_accounts.append(account)
+
+        # Cache for this request.
+        setattr(self, '_messages_accounts_%s_%s' % (model, pk__in), own_or_active_accounts)
+
+        return own_or_active_accounts
 
     class Meta:
         verbose_name = _('user')

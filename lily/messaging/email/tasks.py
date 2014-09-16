@@ -18,10 +18,10 @@ from django.core.files import File
 from django.core.files.storage import default_storage
 from django.db import connection, transaction
 from django.utils.html import escape
-from imapclient import SEEN, DELETED
+from imapclient import SEEN
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, EmailAttachment, OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, \
-    EmailAddressHeader
+    EmailAddressHeader, UNKNOWN_EMAILACCOUNT_AUTH
 from lily.messaging.email.utils import get_attachment_upload_path, replace_anchors_in_html, replace_cid_in_html, LilyIMAP
 from lily.users.models import CustomUser
 from python_imap.errors import IMAPConnectionError
@@ -60,7 +60,10 @@ def synchronize_email_scheduler():
             task_logger.info('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
-            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            email_accounts = EmailAccount.objects.filter(
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                is_deleted=False,
+            ).order_by('-last_sync_date')
             for email_account in email_accounts:
                 email_address = email_account.email.email_address
 
@@ -115,7 +118,10 @@ def retrieve_new_emails_for(emailaccount_id):
           by a normal contact/account)
     """
     try:
-        email_account = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(
+            id=emailaccount_id,
+            is_deleted=False,
+        )
     except EmailAccount.DoesNotExist:
         pass
     else:
@@ -217,7 +223,10 @@ def synchronize_low_priority_email_scheduler():
             task_logger.info('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
-            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            email_accounts = EmailAccount.objects.filter(
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                is_deleted=False,
+            ).order_by('-last_sync_date')
             for email_account in email_accounts:
                 email_address = email_account.email.email_address
 
@@ -259,7 +268,10 @@ def retrieve_low_priority_emails_for(emailaccount_id):
     The downloaded emails are 47h59s old at max.
     """
     try:
-        email_account = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(
+            id=emailaccount_id,
+            is_deleted=False,
+        )
     except EmailAccount.DoesNotExist:
         pass
     else:
@@ -337,7 +349,10 @@ def retrieve_all_emails_for(emailaccount_id):
     the full body for e-mails.
     """
     try:
-        email_account = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(
+            id=emailaccount_id,
+            is_deleted=False,
+        )
     except EmailAccount.DoesNotExist:
         pass
     else:
@@ -397,7 +412,10 @@ def synchronize_email_flags_scheduler():
             task_logger.info('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
-            email_accounts = EmailAccount.objects.filter(auth_ok__gt=NO_EMAILACCOUNT_AUTH).order_by('-last_sync_date')
+            email_accounts = EmailAccount.objects.filter(
+                auth_ok__in=(OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH),
+                is_deleted=False,
+            ).order_by('-last_sync_date')
             for email_account in email_accounts:
                 email_address = email_account.email.email_address
 
@@ -431,7 +449,10 @@ def retrieve_all_flags_for(emailaccount_id):
     the full body for e-mails but only updates the status UNSEEN, DELETED etc.
     """
     try:
-        email_account = EmailAccount.objects.get(id=emailaccount_id)
+        email_account = EmailAccount.objects.get(
+            id=emailaccount_id,
+            is_deleted=False,
+        )
     except EmailAccount.DoesNotExist:
         pass
     else:
@@ -488,7 +509,10 @@ def mark_messages(message_ids, read=True):
     # Mark messages read in every appropriate account/folder
     for account_id, folders in account_folders.items():
         try:
-            email_account = EmailAccount.objects.get(pk=account_id)
+            email_account = EmailAccount.objects.get(
+                pk=account_id,
+                is_deleted=False,
+            )
         except EmailAccount.DoesNotExist:
             pass
         else:
@@ -537,7 +561,10 @@ def delete_messages(message_ids):
     # Delete in every appropriate account/folder
     for account_id, folders in account_folders.items():
         try:
-            email_account = EmailAccount.objects.get(pk=account_id)
+            email_account = EmailAccount.objects.get(
+                pk=account_id,
+                is_deleted=False,
+            )
         except EmailAccount.DoesNotExist:
             pass
         else:
@@ -585,7 +612,10 @@ def move_messages(message_ids, to_folder_name):
     # Delete in every appropriate account/folder
     for account_id, folders in account_folders.items():
         try:
-            email_account = EmailAccount.objects.get(pk=account_id)
+            email_account = EmailAccount.objects.get(
+                pk=account_id,
+                is_deleted=False,
+            )
         except EmailAccount.DoesNotExist:
             pass
         else:

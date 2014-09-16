@@ -98,7 +98,7 @@
             </thead>
             <tbody>
                 {% for object in object_list %}
-                    <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url 'messaging_email_compose' pk=object.pk %}{% else %}{% url 'messaging_email_detail' object.pk %}{% endif %}">
+                    <tr {% if not object.is_seen %}class="unread"{% endif %} data-href="{% if object.is_draft %}{% url 'messaging_email_compose' pk=object.pk %}{% else %}{% url 'messaging_email_detail' object.pk %}{% endif %}" data-readable="{% if object.is_readable %}true{% else %}false{% endif %}">
                         <td class="inbox-small-cells">
                             <input type="checkbox" class="mail-checkbox" value="{{ object.id }}">
                         </td>

@@ -3,7 +3,7 @@ from imapclient.imapclient import IMAPClient, DELETED, SEEN
 from imaplib import IMAP4
 
 from python_imap.decorators import logout_on_failure
-from python_imap.errors import is_login_error
+from python_imap.errors import is_login_error, IMAPConnectionError
 from python_imap.folder import Folder, XLIST_FOLDER_FLAGS
 from python_imap.logger import logger
 from python_imap.message import Message
@@ -17,22 +17,39 @@ class IMAP(object):
 
     auth_ok = True  # assume True until LoginError
 
-    def __init__(self, host, port=None, ssl=True, use_uid=True, stream=False):  # pylint: disable=R0913
+    def __init__(self, host, port=None, ssl=True, use_uid=True, stream=False, silent_fail=False):  # pylint: disable=R0913
+        """
+        Initialisation and setup connection to IMAPClient.
+
+        Arguments:
+            host (str): address of host
+            port (int): port to connect to
+            ssl (boolean): True if ssl should be used
+            use_uid (boolean): If True unique message UIDs be used for all calls
+                that accept message ids (defaults to True).
+            stream (boolean):  If True then *host* is used as the command to run
+                to establish a connection to the IMAP server (defaults to False).
+                This is useful for exotic connection or authentication setups.
+
+        Raises:
+            IMAPConnectionError: raised when connection cannot be established.
+        """
         try:
             self.client = IMAPClient(host, port, use_uid, ssl, stream)
             self.client.normalise_times = False
         except (error, gaierror) as e:
+            # Could not connect to IMAPClient.
             self.client = None
             logger.warn(e)
+            if not silent_fail:
+                raise IMAPConnectionError(str(e))
 
     def login(self, username, password):
         """
-        IMAP log in.
+        IMAP login.
 
-        Raises:
-            IMAPLoginError: raised if any IMAP4 errors matches any known error
-                messages that indicate a login fail.
-            IMAPConnectionError: raised for every other error.
+        Returns:
+            Boolean: True if login is successful.
         """
         if self.client:
             try:
@@ -43,7 +60,10 @@ class IMAP(object):
                 if is_login_error(e):
                     self.auth_ok = False
                 return False
-        return True
+            else:
+                return True
+        # There is no connection to an IMAPClient, so login is not possible.
+        return False
 
     def logout(self):
         """

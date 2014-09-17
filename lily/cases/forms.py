@@ -75,6 +75,10 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
         if not cleaned_data.get('contact') and not cleaned_data.get('account'):
             self._errors['contact'] = self._errors['account'] = self.error_class([_('Select a contact or account')])
 
+        # Check if contact is selected combined with account
+        if cleaned_data.get('contact') and not cleaned_data.get('account'):
+            self._errors['contact'] = self._errors['account'] = self.error_class([_('When selecting contact you should also provide account')])
+
         # Check if not both contact or an account have been selected or verify that an account the contact works at
         if cleaned_data.get('contact') and cleaned_data.get('account'):
             linked_account = cleaned_data.get('contact').get_primary_function().account

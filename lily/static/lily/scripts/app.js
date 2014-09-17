@@ -24,6 +24,60 @@ function set_focus(id) {
    }
 }
 
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function(str) {
+        return this.substring(0, str.length) === str;
+    }
+};
+
+if (typeof String.prototype.endsWith != 'function') {
+    String.prototype.endsWith = function(str) {
+        return this.substring(this.length - str.length, this.length ) === str;
+    }
+};
+
+/* Format telephone number */
+function phone_fmt() {
+    var el = $(this);
+    var phone = el.val()
+    if (phone.match(/[a-z]|[A-Z]/)) {
+        // if letters are found, skip formatting: it may not be a phone field after all
+        return false;
+    }
+
+    phone = phone.replace("(0)","");
+    phone = phone.replace(/\s|\(|\-|\)|\.|x|:|\*/g, "");
+    phone = phone.replace(/^00/,"+");
+
+    if (phone.length == 0) {
+        return false;
+    }
+
+    if (!phone.startsWith('+')) {
+        if (phone.startsWith('0')) {
+          phone = phone.substring(1);
+        }
+        phone = '+31' + phone;
+    }
+
+    el.val(phone);
+}
+
+$(function($) {
+    $('body').on('blur', 'input[name^="phone"]', function() {phone_fmt.call(this)});
+});
+
+function init_select2(parent_selector) {
+	$(parent_selector + ' select').select2({
+	    // at least this many results are needed to enable the search field
+		// (9 is the amount at which the user must scroll to see all items)
+		minimumResultsForSearch: 9
+	});
+}
+$(function($) {
+	init_select2('body');
+});
+
 $(function($) {
     if($.fn.modal) {
         // spinner template for bootstrap 3
@@ -39,6 +93,11 @@ $(function($) {
         // remove any results from other modals
         $('body').on('hidden.bs.modal', '.modal', function() {
             $(this).find('[data-async-response]').html('');
+        });
+
+        // use Select2 in modals for certain fields
+        $('body').on('shown.bs.modal', '.modal', function() {
+        	init_select2('.modal-body');
         });
 
         // remove focus from element that triggered modal
@@ -154,9 +213,63 @@ $(function($) {
     //     }
     // });
 
-    if($.fn.datepicker) {
+    if($.fn.datepicker || $.fn.datetimepicker) {
         $('body').removeClass('modal-open'); // fix bug when inline picker is used in modal
     }
+});
+
+//Selects the account belonging to a contact when a contact is selected.
+//Also, when an account is selected, it will reset the selected contact if it does not belong to it.
+$(function($) {
+	function change_account(id_contact, id_account) {
+		contact_pk = $('#'+id_contact).val();
+		if (contact_pk) {
+			var url = "/contacts/json_works_at/" + contact_pk;
+			$.getJSON(url, function(works_at) {
+				if (works_at.works_at.length) {
+					var account = works_at.works_at[0];
+					$('#'+id_account).val(account.pk).trigger('change');
+				} else {
+					$('#'+id_account).val('').trigger('change');
+				}
+			});
+		}
+	}
+	function change_contact(id_contact, id_account) {
+		contact_pk = $('#'+id_contact).val()
+		account_pk = $('#'+id_account).val()
+		if (account_pk && contact_pk) {
+			var url = "/contacts/json_works_at/" + contact_pk;
+			$.getJSON(url, function(works_at) {
+				if (works_at.works_at.length) {
+					var account = works_at.works_at[0]
+					if (account.pk == account_pk) {
+						return;
+					}
+				}
+				// selected contact does not work anywhere or at selected account, reset it
+				$('#'+id_contact).val('').trigger('change');
+			});
+		}
+	}
+
+	$('body').on('change', '#id_contact', function() {
+		if ($('#id_account').length) {
+			change_account('id_contact','id_account');
+		}
+	}).on('change', '#id_account', function() {
+		if ($('#id_contact').length) {
+			change_contact('id_contact','id_account');
+		}
+	}).on('change', '#id_case_quickbutton_contact', function() {
+		if ($('#id_account').length) {
+			change_account('id_case_quickbutton_contact','id_case_quickbutton_account');
+		}
+	}).on('change', '#id_case_quickbutton_account', function() {
+		if ($('#id_contact').length) {
+			change_contact('id_case_quickbutton_contact','id_case_quickbutton_account');
+		}
+	});
 });
 
 // go to redirect_url, reload if redirect_url is current and/or if it contains an anchor reference

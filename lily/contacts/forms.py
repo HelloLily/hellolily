@@ -131,6 +131,10 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,
             })),
+            'salutation': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
             'gender': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
                 'data-skip-uniform': 'true',
                 'data-uniformed': 'true',

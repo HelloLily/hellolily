@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView, BaseFormView
 
-from lily.notes.forms import UpdateNoteForm, NoteForm
+from lily.notes.forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 
@@ -83,6 +83,14 @@ class UpdateNoteView(UpdateView):
 
         return response
 
+    def get_context_data(self, **kwargs):
+        kwargs = super(UpdateNoteView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'note_action': 'note_update',
+        })
+
+        return kwargs
+
     def get_success_url(self):
         """
         Return to the history tab if possible.
@@ -91,6 +99,19 @@ class UpdateNoteView(UpdateView):
             return '%s#history' % self.request.META.get('HTTP_REFERER')
         else:
             return reverse('dashboard')
+
+
+class UpdateDateNoteView(UpdateNoteView):
+    model = Note
+    form_class = UpdateDateNoteForm
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(UpdateDateNoteView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'note_action': 'note_update_date',
+        })
+
+        return kwargs
 
 
 class NoteDetailViewMixin(BaseFormView, DetailView):
@@ -153,3 +174,4 @@ class NoteDetailViewMixin(BaseFormView, DetailView):
 
 delete_note_view = login_required(DeleteNoteView.as_view())
 edit_note_view = login_required(UpdateNoteView.as_view())
+edit_date_note_view = login_required(UpdateDateNoteView.as_view())

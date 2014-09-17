@@ -1,6 +1,6 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils media %}
+{% load i18n utils %}
 
 {% block head-title %}{{ object.full_name }}{% if object.get_primary_function.account %} - {{ object.get_primary_function.account }}{% endif %}{% endblock %}
 {% block page-title %}{{ object.full_name }}{% if object.get_primary_function.account %} - {{ object.get_primary_function.account }}{% endif %}{% endblock %}

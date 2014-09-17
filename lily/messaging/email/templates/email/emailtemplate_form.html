@@ -1,6 +1,6 @@
 {% extends 'form.html' %}
 
-{% load media bootstrap3 i18n %}
+{% load compressed bootstrap3 i18n %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -27,9 +27,9 @@
 {% endblock %}
 
 {% block css %}
-{{ block.super }}
-{% include_media 'inbox.css' %}
-{% include_media 'editor.css' %}
+    {{ block.super }}
+    {% compressed_css 'inbox' %}
+    {% compressed_css 'wysihtml5' %}
 {% endblock %}
 
 {% block hor-menu %}
@@ -80,9 +80,9 @@
 {% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-{% include_media 'emailtemplate.js' %}
-{% include_media 'editor.js' %}
+    {{ block.super }}
+    {% compressed_js 'emailtemplate' %}
+    {% compressed_js 'wysihtml5' %}
 <script>
 var parameter_choices = {{ parameter_choices|safe }};
 $(function($) {

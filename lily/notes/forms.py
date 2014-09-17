@@ -1,8 +1,10 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from lily.notes.models import Note
 from lily.utils.forms import HelloLilyModelForm
+from lily.utils.forms.widgets import LilyDateTimePicker
 
 
 class NoteForm(HelloLilyModelForm):
@@ -36,3 +38,23 @@ class UpdateNoteForm(HelloLilyModelForm):
                 'class': 'inline note-textarea',
             })
         }
+
+
+class UpdateDateNoteForm(HelloLilyModelForm):
+    sort_by_date = forms.DateTimeField(input_formats=settings.DATETIME_INPUT_FORMATS, widget=LilyDateTimePicker(
+        options={
+            'autoclose': 'false',
+        },
+        format=settings.DATETIME_INPUT_FORMATS[0],
+        attrs={
+            'placeholder': LilyDateTimePicker.conv_datetime_format_py2js(settings.DATETIME_INPUT_FORMATS[0]),
+        },
+    ))
+
+    def __init__(self, *args, **kwargs):
+        super(UpdateDateNoteForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Note
+        fields = ('sort_by_date',)
+        exclude = ('content', 'is_deleted', 'author', 'object_id', 'content_type')

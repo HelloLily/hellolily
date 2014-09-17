@@ -2,8 +2,10 @@
 
 <li class="timeline-yellow history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
     <div class="timeline-time">
-        <span class="date">{{ object.created|date:"d M y" }}</span>
-        <span class="time">{{ object.created|date:"G:i" }}</span>
+        <a href="{% url 'note_update_date' pk=object.pk %}" class="nav-link" data-target="#object-update" data-source="{% url 'note_update_date' pk=object.pk %}">
+            <span class="date">{{ object.sort_by_date|date:"d M y" }}</span>
+            <span class="time">{{ object.sort_by_date|date:"G:i" }}</span>
+        </a>
     </div>
     <div class="timeline-icon">
         <i class="icon-comment"></i>
@@ -32,5 +34,6 @@
                 <i class="icon-archive"></i>
             </a>
             {% endif %}
+        </div>
     </div>
 </li>

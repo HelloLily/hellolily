@@ -258,6 +258,7 @@ INSTALLED_APPS = (
     'storages',
     'south',
     'taskmonitor',
+    'injector',
 
     # Lily
     'lily',  # required for management command

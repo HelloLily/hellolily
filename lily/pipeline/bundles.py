@@ -84,7 +84,7 @@ PIPELINE_CSS = {
         'source_filenames': (
             'metronic/plugins/bootstrap-wysihtml5/wysiwyg-color.css',
         ),
-        'output_filename': 'compiled/css/wysihtml5.css',
+        'output_filename': 'compiled/css/wysihtml5-color.css',
     },
     'error': {
         'source_filenames': (

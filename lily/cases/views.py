@@ -109,7 +109,7 @@ class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     model = Case
 
 
-class CreateUpdateCaseMixin(object):
+class CreateUpdateCaseMixin(LoginRequiredMixin):
     form_class = CreateUpdateCaseForm
     model = Case
 
@@ -132,7 +132,7 @@ class CreateUpdateCaseMixin(object):
         return '%s?order_by=7&sort_order=desc' % (reverse('case_list'))
 
 
-class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseMixin, CreateView):
+class CreateCaseView(CreateUpdateCaseMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -199,7 +199,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseMixin, CreateView):
         return response
 
 
-class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseMixin, UpdateView):
+class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
     model = Case
 
     def form_valid(self, form):
@@ -249,7 +249,7 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
         messages.success(self.request, message)
 
 
-class UpdateAndUnarchiveCaseView(LoginRequiredMixin, CreateUpdateCaseMixin, UpdateView):
+class UpdateAndUnarchiveCaseView(CreateUpdateCaseMixin, UpdateView):
     """
     Allows a case to be unarchived and edited if needed
     """

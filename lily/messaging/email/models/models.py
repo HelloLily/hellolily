@@ -2,6 +2,7 @@ import email
 import textwrap
 
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import post_delete
@@ -17,7 +18,14 @@ from python_imap.utils import convert_html_to_text
 from lily.messaging.models import Message, MessagesAccount
 from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.tenant.models import TenantMixin, NullableTenantMixin
-from lily.messaging.email.utils import get_attachment_upload_path
+
+
+def get_attachment_upload_path(instance, filename):
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': instance.message_id,
+        'filename': filename
+    }
 
 
 class EmailProvider(NullableTenantMixin):

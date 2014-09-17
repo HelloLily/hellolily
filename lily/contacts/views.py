@@ -28,8 +28,8 @@ from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber, SocialMedia
 from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import DataTablesListView
-from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
-    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin
+from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, \
+    LoginRequiredMixin
 
 
 class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -240,6 +240,7 @@ class JsonContactWorksAtView(View):
         return HttpResponse(response, mimetype="application/javascript")
 
 
+class CreateUpdateContactMixin(LoginRequiredMixin):
     """
     Base class for AddAContactView and EditContactView.
     """

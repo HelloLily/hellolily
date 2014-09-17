@@ -255,14 +255,6 @@ class TemplateParser(object):
         return ''
 
 
-def get_attachment_upload_path(instance, filename):
-    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
-        'tenant_id': instance.tenant_id,
-        'message_id': instance.message_id,
-        'filename': filename
-    }
-
-
 def get_attachment_filename_from_url(url):
     return unquote(url).split('/')[-1]
 

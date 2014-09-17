@@ -408,7 +408,7 @@ else:
             'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
             'TIMEOUT': 31536000,  # One year, from django 1.7 this can be set to None for keys to never expire
             'OPTIONS': {
-                'DB': 1,
+                'DB': 0,
                 'PASSWORD': redis_url.password,
                 'PARSER_CLASS': 'redis.connection.HiredisParser'
             },
@@ -418,7 +418,7 @@ else:
             'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
             'TIMEOUT': 900,  # 15 minutes should be enough for upload to amazon
             'OPTIONS': {
-                'DB': 2,
+                'DB': 0,
                 'PASSWORD': redis_url.password,
                 'PARSER_CLASS': 'redis.connection.HiredisParser'
             },

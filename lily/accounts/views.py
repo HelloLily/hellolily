@@ -22,9 +22,9 @@ from lily.notes.models import Note
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DataTablesListView
+from lily.utils.views import DataTablesListView, JsonListView
 from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
-    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin
+    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, LoginRequiredMixin
 
 
 class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -162,6 +162,22 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         Used by ExportListViewMixin.
         """
         return account.modified
+
+
+class JsonAccountListView(LoginRequiredMixin, JsonListView):
+    """
+    JSON: Display account information for a contact
+    """
+    # ListView
+    model = Account
+
+    # FilterQuerysetMixin
+    search_fields = [
+        'name__icontains',
+    ]
+
+    # JsonListView
+    filter_on_field = 'functions__contact__id'
 
 
 class DetailAccountView(HistoryListViewMixin):

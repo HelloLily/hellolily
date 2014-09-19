@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -7,7 +8,7 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.forms.mixins import FormSetFormMixin
 
 
@@ -15,9 +16,16 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
-    account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects,
-                                     empty_label=_('Select an account'))
+    account = forms.ModelChoiceField(
+        label=_('Works at'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            queryset=Account.objects.none(),
+        ),
+    )
     email = forms.EmailField(label=_('E-mail address'), max_length=255, required=False)
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
@@ -67,9 +75,17 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     """
     Form to add a contact which all fields available.
     """
-    account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.none(),
-                                     empty_label=_('Select an account'))
+    account = forms.ModelChoiceField(
+        label=_('Works at'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            queryset=Account.objects.none(),
+        ),
+    )
+
     twitter = forms.CharField(label=_('Twitter'), required=False, widget=AddonTextInput(icon_attrs={
         'class': 'icon-twitter',
         'position': 'left',
@@ -83,9 +99,6 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
-
-        # Provide filtered query set
-        self.fields['account'].queryset = Account.objects.all()
 
         # Try providing initial account info
         is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)

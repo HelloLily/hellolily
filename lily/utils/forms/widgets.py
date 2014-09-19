@@ -327,3 +327,44 @@ class FormSetWidget(Widget):
 
     def value_from_datadict(self, data, files, name):
         return self.attrs['formset_class'](data, files, prefix=name)
+
+
+class AjaxSelect2Widget(Widget):
+    """
+    Widget that renders a hidden input that can be turned to an Select2 select.
+
+    Attributes:
+        queryset (instance): QuerySet instance
+        url (str): url for ajax call from Select2
+        filter_on (str): id of field that Select2 adds as filter with ajax call
+    """
+    def __init__(self, queryset, url, attrs=None, **kwargs):
+        super(AjaxSelect2Widget, self).__init__(attrs)
+        self.queryset = queryset
+        self.url = url
+        self.filter_on = kwargs.get('filter_on', None)
+
+    def render(self, name, value, attrs=None, *args):
+        final_attrs = self.build_attrs(attrs, name=name)
+
+        final_attrs['data-ajax-url'] = self.url
+        final_attrs['placeholder'] = self.choices.field.empty_label
+
+        if self.filter_on:
+            final_attrs['data-filter-on'] = self.filter_on
+
+        # Class to activate ajaxselect2
+        class_attrs = final_attrs.get('class', None)
+        if class_attrs:
+            class_attrs += ' select2ajax'
+        else:
+            class_attrs = 'select2ajax'
+        final_attrs['class'] = class_attrs
+
+        # Add initial value
+        if value:
+            final_attrs['value'] = value
+            final_attrs['data-selected-text'] = str(self.queryset.get(pk=value))
+
+        output = [format_html('<input type="hidden"{0}>', flatatt(final_attrs))]
+        return mark_safe('\n'.join(output))

@@ -351,4 +351,4 @@ class UpdateStageAjaxView(AjaxUpdateView):
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
                 response = anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M'), 'stage': stage})
-                return HttpResponse(response, mimetype='application/json')
+                return HttpResponse(response, content_type='application/json')

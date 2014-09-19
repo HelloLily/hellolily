@@ -35,7 +35,11 @@ class EmailConfigurationWizard_2(HelloLilyForm):
     """
     Fields in e-mail configuration wizard step 2.
     """
-    preset = forms.ModelChoiceField(queryset=EmailProvider.objects.none(), empty_label=_('Manually set email server settings'), required=False)
+    preset = forms.ModelChoiceField(
+        queryset=EmailProvider.objects.none(),
+        empty_label=_('Manually set email server settings'),
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super(EmailConfigurationWizard_2, self).__init__(*args, **kwargs)
@@ -206,7 +210,12 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
-    template = forms.ModelChoiceField(label=_('Template'), queryset=EmailTemplate.objects, empty_label=_('Choose a template'), required=False)
+    template = forms.ModelChoiceField(
+        label=_('Template'),
+        queryset=EmailTemplate.objects.none(),
+        empty_label=_('Choose a template'),
+        required=False
+    )
     send_to_normal = TagsField(label=_('To'))
     send_to_cc = TagsField(required=False, label=_('Cc'))
     send_to_bcc = TagsField(required=False, label=_('Bcc'))

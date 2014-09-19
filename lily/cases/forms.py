@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -11,7 +12,7 @@ from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget
+from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
 
 
 class CreateUpdateCaseForm(HelloLilyModelForm):
@@ -19,23 +20,34 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
     Form for adding or editing a case.
     """
     type = forms.ModelChoiceField(label=_('Type'),
-                                  queryset=CaseType.objects,
+                                  queryset=CaseType.objects.none(),
                                   empty_label='---------',
                                   required=False,
                                   )
 
-    account = forms.ModelChoiceField(label=_('Account'),
-                                     queryset=Account.objects,
-                                     empty_label='---------',
-                                     required=False,
-                                     widget=forms.Select(attrs={
-                                        'class': 'contact_account'
-                                     }))
+    account = forms.ModelChoiceField(
+        label=_('Account'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            queryset=Account.objects.none(),
+            filter_on='id_contact',
+        ),
+    )
 
-    contact = forms.ModelChoiceField(label=_('Contact'),
-                                     queryset=Contact.objects,
-                                     empty_label='---------',
-                                     required=False)
+    contact = forms.ModelChoiceField(
+        label=_('Contact'),
+        required=False,
+        queryset=Contact.objects.none(),
+        empty_label=_('Select a contact'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_contact_list'),
+            queryset=Contact.objects.none(),
+            filter_on='id_account',
+        ),
+    )
 
     assigned_to = forms.ModelChoiceField(label=_('Assigned to'),
                                          queryset=CustomUser.objects.none(),
@@ -138,3 +150,5 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
 
         self.fields['expires'].initial = datetime.today()
+        self.fields['account'].widget.filter_on = 'id_case_quickbutton_contact'
+        self.fields['contact'].widget.filter_on = 'id_case_quickbutton_account'

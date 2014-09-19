@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -7,7 +8,7 @@ from lily.deals.models import Deal
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget
+from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
 
 
 class CreateUpdateDealForm(HelloLilyModelForm):
@@ -18,7 +19,10 @@ class CreateUpdateDealForm(HelloLilyModelForm):
         label=_('Account'),
         queryset=Account.objects.none(),
         empty_label=_('Select an account'),
-        widget=forms.Select()
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            queryset=Account.objects.none(),
+        ),
     )
 
     assigned_to = forms.ModelChoiceField(
@@ -48,8 +52,6 @@ class CreateUpdateDealForm(HelloLilyModelForm):
         """
         super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
 
-        # Provide filtered query set
-        self.fields['account'].queryset = Account.objects.all()
         # FIXME: WORKAROUND FOR TENANT FILTER.
         # An error will occur when using CustomUser.objects.all(), most likely because
         # the foreign key to contact (and maybe account) is filtered and executed before

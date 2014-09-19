@@ -27,7 +27,7 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber, SocialMedia
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DataTablesListView
+from lily.utils.views import DataTablesListView, JsonListView
 from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, \
     LoginRequiredMixin
 
@@ -198,6 +198,24 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         return contact.modified
 
 
+class JsonContactListView(LoginRequiredMixin, JsonListView):
+    """
+    JSON: Display account information for a contact
+    """
+    # ListView
+    model = Contact
+
+    # FilterQuerysetMixin
+    search_fields = [
+        'first_name__icontains',
+        'last_name__icontains',
+        'preposition__icontains',
+    ]
+
+    # JsonListView
+    filter_on_field = 'functions__account__id'
+
+
 class DetailContactView(HistoryListViewMixin):
     """
     Display a detail page for a single contact.
@@ -231,13 +249,13 @@ class JsonContactWorksAtView(View):
 
     def get(self, request, pk):
         contact = Contact.objects.get(pk=pk)
-        function = contact.functions.all().first();
+        function_list = contact.functions.all()
         works_at = []
-        if function:
+        for function in function_list:
             account = function.account
-            works_at.append({'name':account.name, 'pk':account.pk})
-        response = anyjson.serialize({'works_at':works_at})
-        return HttpResponse(response, mimetype="application/javascript")
+            works_at.append({'name': account.name, 'pk': account.pk})
+        response = anyjson.serialize({'works_at': works_at})
+        return HttpResponse(response, content_type="application/javascript")
 
 
 class CreateUpdateContactMixin(LoginRequiredMixin):

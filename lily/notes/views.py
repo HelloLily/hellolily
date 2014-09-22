@@ -154,14 +154,6 @@ class NoteDetailViewMixin(BaseFormView, DetailView):
 
         return super(NoteDetailViewMixin, self).form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({
-            'object': self.object,
-            'object_list': self.object.notes.all(),
-        })
-
-        return kwargs
-
     def get_success_url(self):
         """
         Return to the history tab if possible.

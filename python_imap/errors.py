@@ -12,10 +12,6 @@ TEMPORARY_ERRORS = [
 ]
 
 
-class IMAPLoginError(Exception):
-    pass
-
-
 class IMAPConnectionError(Exception):
     pass
 

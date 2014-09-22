@@ -303,7 +303,7 @@ label.required::after {
     left: 140px;
 }
 .timeline>li .timeline-body {
-    margin: 0 0 15px 190px;
+    margin: 0 180px 15px 190px;
 }
 .timeline>li .timeline-body a.nav-link.pull-right {
     margin-left: 15px;
@@ -316,6 +316,90 @@ label.required::after {
     .timeline>li .timeline-body {
         margin: 0 0 30px 0;
     }
+}
+
+/* Make timeline whatsapp style */
+/* The line */
+.timeline:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 10px;
+	background: #ccc;
+	left: auto;
+    right: 125px;
+    z-index: 1;
+}
+
+/* The icon */
+.timeline >li .timeline-icon.icon-right {
+    left: auto;
+    right: 110px;
+    z-index: 1000;
+}
+
+/* The body */
+.timeline > li .timeline-body.body-right {
+    margin-left: 280px;
+}
+
+.timeline > li .timeline-body.body-left {
+    margin-right: 280px;
+}
+
+/* The triangle */
+.timeline > li .timeline-body:after {
+	border: 0;
+}
+
+.timeline > li .timeline-body.body-left:after {
+	right: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-right-color: #3594cb;
+	border-width: 10px;
+	top: 19px;
+}
+
+.timeline > li .timeline-body.body-right:before {
+	left: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-left-color: #3594cb;
+	border-width: 10px;
+	top: 19px;
+}
+
+.timeline li.timeline-green .timeline-body.body-right:before {
+	border-left-color: #35aa47;
+}
+
+.timeline li.timeline-yellow .timeline-body.body-right:before {
+	border-left-color: #ffb848;
+}
+
+.timeline li.timeline-green .timeline-body.body-left:after {
+	border-right-color: #35aa47;
+}
+
+/* The time */
+.timeline > li .timeline-time.time-right {
+    left: auto;
+    right: 1px;
+    text-align: left;
+}
+
+.timeline > li .timeline-time.time-right span {
+    text-align: left;
 }
 
 .timeline .timeline-body .timeline-operation-icon {

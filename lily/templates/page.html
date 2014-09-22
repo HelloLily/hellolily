@@ -135,6 +135,7 @@
             <a href="{% url 'messaging_email_inbox' %}">
             <i class="icon-inbox"></i>
             <span class="title">{% trans 'E-mail' %}</span>
+            {% if email_auth_update %}<i class="icon icon-warning-sign"></i>{% endif %}
             <span class="{% ifstartswith "messaging_dashboard" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
         </li>
@@ -161,10 +162,10 @@
     <div class="col-md-12">
         {% block page-container %}
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-9">
                     {% block content %}{% endblock %}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     {% block sidebar %}{% endblock %}
                 </div>
             </div>

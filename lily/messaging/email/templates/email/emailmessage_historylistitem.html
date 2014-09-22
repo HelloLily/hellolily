@@ -1,17 +1,18 @@
-{% load i18n %}
+{% load i18n email %}
 
+{% with right=object.sent_from_account %}
 <li class="timeline-green history-list-item" data-sort-date="{{ object.sort_by_date|date:'U' }}">
-    <div class="timeline-time">
+    <div class="timeline-time{% if right %} time-right{% endif %}">
         <span class="date">{{ object.sent_date|date:"d M y" }}</span>
         <span class="time">{{ object.sent_date|date:"G:i" }}</span>
     </div>
-    <div class="timeline-icon">
+    <div class="timeline-icon{% if right %} icon-right{% endif %}">
         <i class="icon-envelope"></i>
     </div>
-    <div class="timeline-body">
+    <div class="timeline-body{% if right %} body-right{% else %} body-left{% endif %}">
         <h2>{{ object.subject|truncatechars:45|default:_('No subject') }}{% if object.get_email_operation_icon %}<i class="{{ object.get_email_operation_icon }} pull-right timeline-operation-icon"></i>{% endif %}</h2>
-        <div class="timeline-content">
-            {{ object.textify|truncatechars:165|default:_('No details available') }}
+        <div class="timeline-content">{{ left }}
+            {{ object.textify|truncatechars:265|linebreaks|default:_('No details available') }}
         </div>
         <div class="timeline-footer">
             {% if object.textify %}
@@ -24,10 +25,16 @@
                     <i class="icon-arrow-right"></i>
                 </a>
             {% endif %}
-            <a href="{% url 'messaging_email_detail' pk=object.pk %}" class="nav-link pull-right">
-                View
-                <i class="icon-envelope"></i>
-            </a>
+            {% if object.is_readable %}
+                <a href="{% url 'messaging_email_detail' pk=object.pk %}" class="nav-link pull-right">
+                    View
+                    <i class="icon-envelope"></i>
+                </a>
+            {% else %}
+                <a href="javascript:void(0)" class="nav-link pull-right" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_change_password' pk=object.account.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address.' %}">
+                    {% trans 'Inactive email account' %} <i class="icon-warning-sign"></i>
+                </a>
+            {% endif %}
             <a href="#" class="nav-link">
                 <i class="icon-user"></i>
                 {{ object.from_combined }}
@@ -35,3 +42,4 @@
         </div>
     </div>
  </li>
+{% endwith %}

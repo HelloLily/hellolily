@@ -109,7 +109,7 @@ class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     model = Case
 
 
-class CreateUpdateCaseView(object):
+class CreateUpdateCaseMixin(LoginRequiredMixin):
     form_class = CreateUpdateCaseForm
     model = Case
 
@@ -117,7 +117,7 @@ class CreateUpdateCaseView(object):
         """
         Provide an url to go back to.
         """
-        kwargs = super(CreateUpdateCaseView, self).get_context_data(**kwargs)
+        kwargs = super(CreateUpdateCaseMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):
             kwargs.update({
                 'back_url': self.get_success_url(),
@@ -132,7 +132,7 @@ class CreateUpdateCaseView(object):
         return '%s?order_by=7&sort_order=desc' % (reverse('case_list'))
 
 
-class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
+class CreateCaseView(CreateUpdateCaseMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         """
         For AJAX calls, use a different form and template.
@@ -199,7 +199,7 @@ class CreateCaseView(LoginRequiredMixin, CreateUpdateCaseView, CreateView):
         return response
 
 
-class UpdateCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):
+class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
     model = Case
 
     def form_valid(self, form):
@@ -249,7 +249,7 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
         messages.success(self.request, message)
 
 
-class UpdateAndUnarchiveCaseView(LoginRequiredMixin, CreateUpdateCaseView, UpdateView):
+class UpdateAndUnarchiveCaseView(CreateUpdateCaseMixin, UpdateView):
     """
     Allows a case to be unarchived and edited if needed
     """

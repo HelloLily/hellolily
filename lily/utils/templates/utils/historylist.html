@@ -5,17 +5,19 @@
     <div class="row" id="history">
         <div class="col-md-12">
             <ul class="timeline" id="history-list">
+{% endif %}
                 {% for object in object_list %}
                     {% include object.get_list_item_template %}
                 {% endfor %}
+{% if not request.is_ajax %}
             </ul>
         </div>
     </div>
-    {% if show_more %}
-        <button class="btn btn-primary btn-block margin-top-20 show-more" data-remote="{{ request.path }}#history" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Loading..' %}" data-disabled-text="{% trans 'End of list' %}">{% trans 'Show more' %}</button>
-    {% endif %}
-{% else %}
-    {% for object in object_list %}
-        {% include object.get_list_item_template %}
-    {% endfor %}
+{% if show_more %}
+    <button class="btn btn-primary btn-block margin-top-20 show-more" data-remote="{{ request.path }}#history" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Loading..' %}" data-disabled-text="{% trans 'End of list' %}">{% trans 'Show more' %}</button>
 {% endif %}
+<div class="hidden">
+    <div id="emailaccount-configure" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+</div>
+{% endif %}
+

@@ -90,7 +90,7 @@ djangovars(['wysihtml5_color_url'], function(wysihtml5_color_url) {
                 "html": true, //Button which allows you to edit the generated HTML.
                 "link": true, //Button to insert a link.
                 "image": false, //Button to insert an image.
-                parser: customParser,
+                parser: customParser
             });
         };
 
@@ -333,9 +333,13 @@ djangovars(['wysihtml5_color_url'], function(wysihtml5_color_url) {
     $(function ($) {
         // open single message
         $('.inbox-content .view-message').click(function () {
+        if ($(this).closest('[data-readable]').data('readable') == 'False') {
+            alert('Account deactivated, please activate account to view email.');
+        } else {
             $('.inbox-content').hide();
             $('.inbox-loading').show();
             redirect_to($(this).closest('[data-href]').data('href'));
+        }
         });
 
         var frame = $('.inbox-view iframe')[0];
@@ -368,7 +372,7 @@ djangovars(['wysihtml5_color_url'], function(wysihtml5_color_url) {
                 if (ifDoc) {
                     var subtract_heights = [
                         $(frame).offset().top,
-                        $('.footer').outerHeight(),
+                        $('.footer').outerHeight()
                     ];
 
                     var max_height = $('body').outerHeight();

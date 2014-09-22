@@ -1,10 +1,10 @@
 from django.db import models
-from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext as _
 
 from lily.users.models import CustomUser
 from lily.tenant.models import PolymorphicTenantMixin
 from lily.utils.models import HistoryListItem
+from lily.utils.models.mixins import DeletedMixin
 
 
 ACCOUNT_SHARE_CHOICES = [
@@ -14,7 +14,7 @@ ACCOUNT_SHARE_CHOICES = [
 ]
 
 
-class MessagesAccount(PolymorphicTenantMixin, TimeStampedModel):
+class MessagesAccount(PolymorphicTenantMixin, DeletedMixin):
     """
     A social media account base class, all accounts are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.

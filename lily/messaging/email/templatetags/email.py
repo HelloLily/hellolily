@@ -1,5 +1,7 @@
+from __future__ import absolute_import
 import urllib
 from datetime import datetime
+from email.utils import getaddresses
 
 from dateutil.tz import gettz, tzutc
 from dateutil.parser import parse
@@ -257,8 +259,16 @@ def other_mailbox_folders(email_account, active_url):
 def can_share(email_address):
     # Verify email account exists for email address
     try:
-        EmailAccount.objects.get(email=email_address)
+        EmailAccount.objects.get(email=email_address, is_deleted=False)
     except EmailAccount.DoesNotExist:
         return False
     else:
         return True
+
+@register.filter()
+def is_from_email_addresses(email_message, email_addresses):
+    from_email_addresses = getaddresses(email_message.from_combined.split(','))
+    for email_address in from_email_addresses:
+        if email_address[1] in email_addresses:
+            return True
+    return False

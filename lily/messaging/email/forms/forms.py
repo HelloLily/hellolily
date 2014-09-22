@@ -1,19 +1,16 @@
 import socket
-import traceback
-from smtplib import SMTPAuthenticationError
 
 from django import forms
 from django.db.models import Q
-from django.core.mail import get_connection
 from django.forms.models import modelformset_factory
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
-from python_imap.server import IMAP
 
 from lily.contacts.models import Contact
 from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser
+from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, verify_imap_credentials, \
+    verify_smtp_credentials
 from lily.messaging.email.forms.widgets import EmailAttachmentWidget
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
@@ -88,71 +85,32 @@ class EmailConfigurationWizard_3(HelloLilyForm):
                 data['preset_name'] = None
             elif data['share_preset']:
                 if not data['preset_name'] or data['preset_name'].strip() == '':
-                    if 'preset_name' not in self._errors:
-                        self._errors['preset_name'] = []
-
                     # If 'Share preset' is checked and preset name is empty, show error
-                    self._errors['preset_name'].append(_('Preset name can\'t be empty when \'Share preset\' is checked'))
+                    msg = _('Preset name can\'t be empty when \'Share preset\' is checked')
+                    self._errors['preset_name'] = self.error_class([msg])
 
         if not self.errors:
             # Start verifying when the form has no errors
             defaulttimeout = socket.getdefaulttimeout()
-            socket.setdefaulttimeout(1)
+            socket.setdefaulttimeout(2)
 
             try:
-                imap_host = data.get('imap_host')
-                imap_port = int(data.get('imap_port'))
-                imap_ssl = data.get('imap_ssl')
-                try:
-                    # Resolve host name
-                    socket.gethostbyname(imap_host)
-                except Exception, e:
-                    print traceback.format_exc(e)
-                    raise forms.ValidationError(_('Could not resolve %s' % imap_host))
-                else:
-                    try:
-                        # Try connecting
-                        imap = IMAP(imap_host, imap_port, imap_ssl)
-                        if not imap:
-                            raise forms.ValidationError(_('Could not connect to %s:%s' % (imap_host, data.get('imap_port'))))
-                    except Exception, e:
-                        print traceback.format_exc(e)
-                        raise forms.ValidationError(_('Could not connect to %s:%s' % (imap_host, data.get('imap_port'))))
-                    else:
-                        try:
-                            # Try authenticating
-                            if not imap.login(self.username, self.password):
-                                raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
-                        except Exception, e:
-                            print traceback.format_exc(e)
-                            raise forms.ValidationError(_('Unable to login with provided username and password on the IMAP host'))
-
-                smtp_host = data.get('smtp_host')
-                smtp_port = int(data.get('smtp_port'))
-                smtp_ssl = data.get('smtp_ssl')
-                try:
-                    # Resolve SMTP server
-                    socket.gethostbyname(smtp_host)
-                except Exception, e:
-                    raise forms.ValidationError(_('Could not resolve %s' % smtp_host))
-                else:
-                    try:
-                        # Try connecting
-                        kwargs = {
-                            'host': smtp_host,
-                            'port': smtp_port,
-                            'use_tls': smtp_ssl,
-                            'username': self.username,
-                            'password': self.password,
-                        }
-                        smtp_server = get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=False, **kwargs)
-                        smtp_server.open()
-                        smtp_server.close()
-                    except SMTPAuthenticationError, e:
-                        raise forms.ValidationError(_('Unable to login with provided username and password on the SMTP host'))
-                    except Exception, e:
-                        print traceback.format_exc(e)
-                        raise forms.ValidationError(_('Could not connect to %s:%s' % (smtp_host, data.get('smtp_port'))))
+                # Check IMAP
+                verify_imap_credentials(
+                    data['imap_host'],
+                    data['imap_port'],
+                    data['imap_ssl'],
+                    self.username,
+                    self.password,
+                )
+                # Check SMTP
+                verify_smtp_credentials(
+                    data['smtp_host'],
+                    data['smtp_port'],
+                    data['smtp_ssl'],
+                    self.username,
+                    self.password,
+                )
             except:
                 raise
             finally:
@@ -472,3 +430,42 @@ class EmailTemplateFileForm(HelloLilyForm):
             self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
 
         return cleaned_data
+
+
+class EmailAccountForm(HelloLilyModelForm):
+    """
+    Form to change the password for an email account.
+    """
+    def clean(self):
+        """
+        Check if connection and login to SMTP client is possible with given data.
+        """
+        defaulttimeout = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(2)
+        try:
+            verify_imap_credentials(
+                self.instance.provider.imap_host,
+                self.instance.provider.imap_port,
+                self.instance.provider.imap_ssl,
+                self.cleaned_data['username'],
+                self.cleaned_data['password'],
+            )
+        except:
+            raise
+        finally:
+            socket.setdefaulttimeout(defaulttimeout)
+
+        return self.cleaned_data
+
+    def save(self, commit=True):
+        email_account = super(EmailAccountForm, self).save(commit=False)
+        email_account.auth_ok = True
+        email_account.save()
+        return email_account
+
+    class Meta:
+        model = EmailAccount
+        fields = ('username', 'password')
+        widgets = {
+            'password': forms.PasswordInput(),
+        }

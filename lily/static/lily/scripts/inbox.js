@@ -372,7 +372,7 @@ djangovars(['wysihtml5_color_url'], function(wysihtml5_color_url) {
                 if (ifDoc) {
                     var subtract_heights = [
                         $(frame).offset().top,
-                    $('.footer').outerHeight()
+                        $('.footer').outerHeight()
                     ];
 
                     var max_height = $('body').outerHeight();

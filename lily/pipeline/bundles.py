@@ -183,6 +183,7 @@ PIPELINE_JS = {
             'metronic/plugins/data-tables/DT_bootstrap.js',
             'lily/scripts/datatable-export.js',
             'lily/scripts/table-bulk-actions.js',
+            'lily/scripts/list.js',
         ),
         'output_filename': 'compiled/js/tables.js',
     },

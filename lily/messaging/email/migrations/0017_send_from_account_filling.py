@@ -6,6 +6,9 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
+from django.conf import settings
+from lily.utils.logutil import print_progress
+
 
 class Migration(DataMigration):
 
@@ -13,13 +16,29 @@ class Migration(DataMigration):
         """
         Check for every EmailMessage if it was sent from related account.
         """
-        for message in orm.EmailMessage.objects.all():
-            header = message.headers.filter(name='From')
-            if header:
-                email_address = email.utils.parseaddr(header[0].value)[1]
+        if settings.SOUTH_VERBOSITY > 0:
+            print 'DataMigration for setting the sent_from_account property of all EmailMessages '
+
+        total_messages = orm.EmailMessage.objects.all().count()
+        messages_ids = orm.EmailMessage.objects.all().values_list('id')
+        i = 0
+        for message_id in messages_ids:
+            message = orm.EmailMessage.objects.get(id=message_id[0])
+            try:
+                header = message.headers.get(name='From')
+            except:
+                pass
+            else:
+                email_address = email.utils.parseaddr(header.value)[1]
                 if email_address == message.account.email.email_address:
                     message.sent_from_account = True
                     message.save()
+            if settings.SOUTH_VERBOSITY > 0:
+                i += 1
+                print_progress(i, total_messages)
+
+        if total_messages is 0:
+            print ' - Nothing to migrate'
 
     def backwards(self, orm):
         """

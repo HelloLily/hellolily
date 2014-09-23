@@ -69,7 +69,7 @@ $(function($){
         },
         'bAutoWidth': false,
         'aaSorting': [[{{ order_by }}, '{{ sort_order }}']]
-    });
+    }).fnSetFilteringDelay();
 
     // modify table search input
     $('.page-content .dataTables_filter input').addClass("form-control input-small");

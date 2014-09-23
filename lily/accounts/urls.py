@@ -14,5 +14,4 @@ urlpatterns = patterns('',
      url(r'^(?P<b36_pks>[\w;]*)/$', list_account_view, name='account_list_filtered'),
      url(r'^exists/(?P<account_name>.*)/$', exist_account_view, name='account_exists'),
      url(r'^$', list_account_view, name='account_list'),
-
 )

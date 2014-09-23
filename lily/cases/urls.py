@@ -16,5 +16,6 @@ urlpatterns = patterns(
     url(r'^archive/$', ArchiveCasesView.as_view(), name='case_archive'),
     url(r'^unarchive/$', UnarchiveCasesView.as_view(), name='case_unarchive'),
     url(r'^archived/$', ArchivedCasesView.as_view(), name='case_archived_list'),
+    url(r'^tag/(?P<tag>[\w-]+)/$', ListCaseView.as_view(), name='case_list_filtered_by_tag'),
     url(r'^$', ListCaseView.as_view(), name='case_list'),
 )

@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import CustomUser
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
@@ -18,7 +19,7 @@ class CaseType(TenantMixin):
         return self.type
 
 
-class Case(TenantMixin, DeletedMixin, ArchivedMixin):
+class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     LOW_PRIO, MID_PRIO, HIGH_PRIO, CRIT_PRIO = range(4)
     PRIORITY_CHOICES = (
         (LOW_PRIO, _('Low')),

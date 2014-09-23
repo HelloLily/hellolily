@@ -416,12 +416,12 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         """
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        self.object = form.save()  # copied from ModelFormMixin
+        success_url = super(EditContactView, self).form_valid(form)
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name())
 
-        return super(EditContactView, self).form_valid(form)
+        return success_url
 
     def get_success_url(self):
         """

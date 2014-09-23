@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
@@ -34,28 +35,44 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
 
         super(AddAccountQuickbuttonForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
+    def clean_name(self):
         """
-        Form validation: all fields should be unique.
+        Prevent multiple accounts with the same company name
         """
-        cleaned_data = super(AddAccountQuickbuttonForm, self).clean()
+        name = self.cleaned_data['name']
+        if Account.objects.filter(name=name).exists():
+                raise ValidationError(
+                    _('Company name already in use.'),
+                    code='invalid',
+                )
+        else:
+            return name
 
-        # Prevent multiple accounts with the same company name
-        if cleaned_data.get('name'):
-            if Account.objects.filter(name=cleaned_data.get('name')).exists():
-                self._errors['name'] = self.error_class([_('Company name already in use.')])
+    def clean_primary_email(self):
+        """
+        Prevent multiple accounts with the same e-mail adress when adding
+        """
+        primary_email = self.cleaned_data['primary_email']
+        if Account.objects.filter(email_addresses__email_address__iexact=primary_email).exists():
+            raise ValidationError(
+                _('E-mail address already in use.'),
+                code='invalid',
+            )
+        else:
+            return primary_email
 
-        # Prevent multiple accounts with the same e-mail adress when adding
-        if cleaned_data.get('primary_email'):
-            if Account.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('primary_email')).exists():
-                self._errors['primary_email'] = self.error_class([_('E-mail address already in use.')])
-
-        # Prevent multiple accounts with the same primary website when adding
-        if cleaned_data.get('website'):
-            if Website.objects.filter(website=cleaned_data.get('website'), is_primary=True).exists():
-                self._errors['website'] = self.error_class([_('Website already in use.')])
-
-        return cleaned_data
+    def clean_website(self):
+        """
+        Prevent multiple accounts with the same primary website when adding
+        """
+        website = self.cleaned_data['website']
+        if Website.objects.filter(website=website, is_primary=True).exists():
+            raise ValidationError(
+                _('Website already in use.'),
+                code='invalid',
+            )
+        else:
+            return website
 
     class Meta:
         model = Account
@@ -96,7 +113,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
                                                            button_attrs={'class': 'btn default dataprovider'},
                                                            div_attrs={'class': 'input-group dataprovider'}))
     extra_websites = FormSetField(
-        queryset=Website.objects.none(),
+        queryset=Website.objects,
         formset_class=modelformset_factory(Website, form=WebsiteBaseForm, formset=BaseFKFormSet, can_delete=True, extra=0),
         template='accounts/formset_website.html',
         related_name='account',
@@ -115,7 +132,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         # Provide initial data for primary website
         try:
             self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
-        except:
+        except IndexError:
             pass
 
     class Meta:

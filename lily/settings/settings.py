@@ -125,6 +125,7 @@ STATICFILES_FINDERS = (
     'pipeline.finders.AppDirectoriesFinder',
     'pipeline.finders.PipelineFinder',
     'pipeline.finders.CachedFileFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')

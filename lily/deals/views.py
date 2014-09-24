@@ -17,10 +17,10 @@ from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
 from lily.utils.views.mixins import SortedListMixin, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    ArchivedFilterMixin, LoginRequiredMixin
+    ArchivedFilterMixin, LoginRequiredMixin, FilteredListByTagMixin
 
 
-class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, DataTablesListView):
+class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListByTagMixin, DataTablesListView):
     """
     Display a list of all deals.
     """
@@ -63,6 +63,11 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Dat
         ('created', {
             'mData': 'created',
             'sClass': 'visible-md visible-lg',
+        }),
+        ('tags', {
+            'mData': 'tags',
+            # Generic relations are not sortable on QuerySet.
+            'bSortable': False,
         }),
     ])
 

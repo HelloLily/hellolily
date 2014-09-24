@@ -18,15 +18,17 @@
             <thead><tr>{% block list-headings %}{% endblock %}</tr></thead>
             <tbody>
                 {% block list %}
-                    {% for item in object_list %}
-                        <tr>
-                            {% for column in columns %}
-                                {% with ''|add:app_name|add:'/data-tables/'|add:column|add:'.html' as template_url %}
-                                    {% include template_url %}
-                                {% endwith %}
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
+{#  For the moment, only load context from ajax #}
+
+{#                    {% for item in object_list %}#}
+{#                        <tr>#}
+{#                            {% for column in columns %}#}
+{#                                {% with ''|add:app_name|add:'/data-tables/'|add:column|add:'.html' as template_url %}#}
+{#                                    {% include template_url %}#}
+{#                                {% endwith %}#}
+{#                            {% endfor %}#}
+{#                        </tr>#}
+{#                    {% endfor %}#}
                 {% endblock %}
             </tbody>
         </table>

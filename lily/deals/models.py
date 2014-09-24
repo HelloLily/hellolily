@@ -3,12 +3,13 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
+from lily.tags.models import TaggedObjectMixin
 from lily.users.models import CustomUser
 from lily.tenant.models import TenantMixin
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
-class Deal(TenantMixin, DeletedMixin, ArchivedMixin):
+class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
     """

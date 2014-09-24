@@ -14,6 +14,7 @@
             <li><a href="{% url 'deal_archived_list' %}">{% trans 'Archived Deals' %}</a></li>
         </ul>
     </div>
+    {{ block.super }}
 {% endblock %}
 
 {% block list-actions %}

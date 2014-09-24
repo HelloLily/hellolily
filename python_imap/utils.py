@@ -19,7 +19,7 @@ def extract_tags_from_soup(soup, tags):
     """
     Remove all instances of *tags* from soup including child elements.
     """
-    for element in soup.findAll(tags):
+    for element in soup.find_all(tags):
         element.extract()
 
     return soup
@@ -29,7 +29,7 @@ def convert_br_to_newline(soup, newline='\n'):
     """
     Replace html line breaks with spaces to prevent lines appended after one another.
     """
-    for linebreak in soup.findAll('br'):
+    for linebreak in soup.find_all('br'):
         linebreak.replaceWith(newline)
 
     return soup
@@ -49,7 +49,7 @@ def convert_links_to_text(soup):
     Args:
         soup (BeautifulSoup): soup instance
     """
-    for link in soup.findAll('a'):
+    for link in soup.find_all('a', href=True):
         text = '%s <%s>' % (link.text, link['href'])
         link.replaceWith(text)
 
@@ -72,7 +72,7 @@ def convert_html_to_text(html, keep_linebreaks=False):
 
     # Remove doctype and html comments to prevent these from being included in
     # the plain text version
-    html_comments = soup.findAll(text=lambda text: isinstance(text, (Comment, Doctype)))
+    html_comments = soup.find_all(text=lambda text: isinstance(text, (Comment, Doctype)))
     for html_comment in html_comments:
         html_comment.extract()
 

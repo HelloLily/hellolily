@@ -33,7 +33,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
-            queryset=Account.objects.none(),
+            model=Account,
             filter_on='id_contact',
         ),
     )
@@ -45,7 +45,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         empty_label=_('Select a contact'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_contact_list'),
-            queryset=Contact.objects.none(),
+            model=Contact,
             filter_on='id_account',
         ),
     )

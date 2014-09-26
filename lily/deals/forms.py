@@ -22,7 +22,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
-            queryset=Account.objects.none(),
+            model=Account,
         ),
     )
 

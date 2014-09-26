@@ -1,4 +1,5 @@
 from bootstrap3_datetime.widgets import DateTimePicker
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
 from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer
@@ -338,9 +339,9 @@ class AjaxSelect2Widget(Widget):
         url (str): url for ajax call from Select2
         filter_on (str): id of field that Select2 adds as filter with ajax call
     """
-    def __init__(self, queryset, url, attrs=None, **kwargs):
+    def __init__(self, model, url, attrs=None, **kwargs):
         super(AjaxSelect2Widget, self).__init__(attrs)
-        self.queryset = queryset
+        self.model = model
         self.url = url
         self.filter_on = kwargs.get('filter_on', None)
 
@@ -364,7 +365,12 @@ class AjaxSelect2Widget(Widget):
         # Add initial value
         if value:
             final_attrs['value'] = value
-            final_attrs['data-selected-text'] = str(self.queryset.get(pk=value))
+            try:
+               selected_text = str(self.model.objects.get(pk=value))
+            except ObjectDoesNotExist:
+                selected_text = ''
+
+            final_attrs['data-selected-text'] = selected_text
 
         output = [format_html('<input type="hidden"{0}>', flatatt(final_attrs))]
         return mark_safe('\n'.join(output))

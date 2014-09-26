@@ -23,7 +23,7 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
-            queryset=Account.objects.none(),
+            model=Account,
         ),
     )
     email = forms.EmailField(label=_('E-mail address'), max_length=255, required=False)
@@ -82,7 +82,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
-            queryset=Account.objects.none(),
+            model=Account,
         ),
     )
 

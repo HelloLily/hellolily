@@ -6,7 +6,6 @@ from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -32,7 +31,7 @@ from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, HistoryL
     LoginRequiredMixin
 
 
-class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
+class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
     """
     Display a list of all contacts
     """
@@ -216,7 +215,7 @@ class JsonContactListView(LoginRequiredMixin, JsonListView):
     filter_on_field = 'functions__account__id'
 
 
-class DetailContactView(HistoryListViewMixin):
+class DetailContactView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
@@ -242,7 +241,7 @@ class DetailContactView(HistoryListViewMixin):
         return kwargs
 
 
-class JsonContactWorksAtView(View):
+class JsonContactWorksAtView(LoginRequiredMixin, View):
     """
     JSON: Display account information for a contact
     """
@@ -448,7 +447,7 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
-class DeleteContactView(DeleteView):
+class DeleteContactView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -587,13 +586,3 @@ class ConfirmContactEmailView(TemplateView):
             return False
 
         return True
-
-
-# Perform logic here instead of in urls.py
-add_contact_view = login_required(AddContactView.as_view())
-detail_contact_view = login_required(DetailContactView.as_view())
-json_contact_works_at_view = login_required(JsonContactWorksAtView.as_view())
-delete_contact_view = login_required(DeleteContactView.as_view())
-edit_contact_view = login_required(EditContactView.as_view())
-list_contact_view = login_required(ListContactView.as_view())
-

@@ -1,33 +1,33 @@
 from django.conf.urls import patterns, url
 
 from lily.users.forms import CustomPasswordResetForm
-from lily.users.views import (dashboard_view, login_view, registration_view, activation_view, activation_resend_view,
-                              send_invitation_view, AcceptInvitationView, password_reset_confirm_view)
+from lily.users.views import (send_invitation_view, AcceptInvitationView, RegistrationView, ActivationView,
+                              ActivationResendView, CustomSetPasswordView, LoginView, DashboardView)
 
 
 urlpatterns = patterns('',
     # Registration
-    url(r'^registration/$', registration_view, name='registration'),
+    url(r'^registration/$', RegistrationView.as_view(), name='registration'),
 
     # Activation
-    url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', activation_view, name='activation'),
-    url(r'^activation/resend/$', activation_resend_view, name='activation_resend'),
+    url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', ActivationView.as_view(), name='activation'),
+    url(r'^activation/resend/$', ActivationResendView.as_view(), name='activation_resend'),
 
     # Password reset
-    url(r'^password_reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', password_reset_confirm_view, name='password_reset_confirm'),
+    url(r'^password_reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', CustomSetPasswordView.as_view(), name='password_reset_confirm'),
 
     # Login
-    url(r'^login/$', login_view, name='login'),
+    url(r'^login/$', LoginView.as_view(), name='login'),
 
     # Invitations
     url(r'^invitation/invite/$', send_invitation_view, name='invitation_invite'),
     url(r'^invitation/accept/(?P<account_name>.+)/(?P<first_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
 
     # Dashboard and other user specific views, which require a logged in user
-    url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', dashboard_view, name='dashboard_tag'),  # including tags and paging for microblog
-    url(r'^tag/(?P<tag>.+)/$', dashboard_view, name='dashboard_tag'),  # including tags for microblog
-    url(r'^(?P<page>[0-9]+)/$', dashboard_view, name='dashboard'),  # including paging for microblog
-    url(r'^$', dashboard_view, name='dashboard'),
+    url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags and paging for microblog
+    url(r'^tag/(?P<tag>.+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags for microblog
+    url(r'^(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard'),  # including paging for microblog
+    url(r'^$', DashboardView.as_view(), name='dashboard'),
 )
 
 # Views from django.contrib.auth.views

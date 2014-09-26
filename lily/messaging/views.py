@@ -1,12 +1,12 @@
 # # Django imports
-from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 
 # # Lily imports
 # from lily.messaging.models import Message, MessagesAccount
+from lily.utils.views.mixins import LoginRequiredMixin
 
 
-class DashboardView(ListView):
+class DashboardView(LoginRequiredMixin, ListView):
     """
     Dashboard of messages, display inbox and other cool stuff.
     """
@@ -24,7 +24,3 @@ class DashboardView(ListView):
 #         message_list = Message.objects.filter(account__in=account_list).order_by('-datetime')[:20]
 
 #         return message_list
-
-
-# Perform logic here instead of in urls.py
-dashboard_view = login_required(DashboardView.as_view())

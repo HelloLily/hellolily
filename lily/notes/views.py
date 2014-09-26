@@ -1,5 +1,6 @@
 import anyjson
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
@@ -9,10 +10,9 @@ from django.views.generic.edit import DeleteView, UpdateView, BaseFormView
 from lily.notes.forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views.mixins import LoginRequiredMixin
 
 
-class DeleteNoteView(LoginRequiredMixin, DeleteView):
+class DeleteNoteView(DeleteView):
     model = Note
 
     def delete(self, request, *args, **kwargs):
@@ -42,7 +42,7 @@ class DeleteNoteView(LoginRequiredMixin, DeleteView):
             return reverse('dashboard')
 
 
-class UpdateNoteView(LoginRequiredMixin, UpdateView):
+class UpdateNoteView(UpdateView):
     model = Note
     form_class = UpdateNoteForm
 
@@ -162,3 +162,8 @@ class NoteDetailViewMixin(BaseFormView, DetailView):
             return '%s#history' % self.request.META.get('HTTP_REFERER')
         else:
             return reverse('dashboard')
+
+
+delete_note_view = login_required(DeleteNoteView.as_view())
+edit_note_view = login_required(UpdateNoteView.as_view())
+edit_date_note_view = login_required(UpdateDateNoteView.as_view())

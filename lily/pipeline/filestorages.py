@@ -36,3 +36,13 @@ class StaticFilesStorage(PipelineMixin, CachedFilesMixin, S3BotoStorage):
         kwargs['bucket'] = settings.STATIC_ROOT
         kwargs['custom_domain'] = domain(settings.STATIC_URL)
         super(StaticFilesStorage, self).__init__(*args, **kwargs)
+
+    def hashed_name(self, name, content=None):
+        try:
+            out = super(StaticFilesStorage, self).hashed_name(name, content)
+        except ValueError:
+            # This means that a file could not be found, and normally this would
+            # cause a fatal error, which seems rather excessive given that
+            # some packages have missing files in their css all the time.
+            out = name
+        return out

@@ -4,7 +4,19 @@
 
 {% block head-title %}{% trans 'Deals' %}{% endblock %}
 {#{% block page-title %}{% trans 'Deals' %}{% endblock %}#}
-{% block list-title %}{% trans 'Deals' %}{% endblock %}
+{% block list-title %}
+    {% with object_list|first as first_object %}
+        {% if tag %}
+            ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %}
+            {% if first_object.is_archived %}
+                <a href="{% url 'deal_archived_list' %}"><i class="icon-remove"></i></a>
+            {% else %}
+                <a href="{% url 'deal_list' %}"><i class="icon-remove"></i></a>
+            {% endif %}
+            )
+        {% endif %}
+    {% endwith %}
+{% endblock %}
 
 {% block list-headings %}
     <th class="table-checkbox">
@@ -17,5 +29,6 @@
     <th class="amount">{% trans 'Amount' %}</th>
     <th class="assigned-to">{% trans 'Assigned to' %}</th>
     <th class="closed visible-md visible-lg">{% trans 'Closed' %}</th>
-    <th class="created visible-md visible-lg">{% trans 'Created' %}</th>
+    <th class="created visible-lg">{% trans 'Created' %}</th>
+    <th>{% trans 'Tags' %}</th>
 {% endblock %}

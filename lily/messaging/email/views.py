@@ -430,7 +430,6 @@ class EmailInboxView(EmailFolderView):
     Show a list of messages in folder: INBOX.
     """
     folder_identifier = INBOX
-email_inbox_view = login_required(EmailInboxView.as_view())
 
 
 class EmailSentView(EmailFolderView):

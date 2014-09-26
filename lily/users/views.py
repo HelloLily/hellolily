@@ -33,6 +33,7 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
 from lily.utils.views import MultipleModelListView
+from lily.utils.views.mixins import LoginRequiredMixin
 
 
 try:
@@ -336,6 +337,7 @@ class SendInvitationView(FormSetView):
         """
         messages.success(self.request, _('The invitations were sent successfully.'))
         return reverse_lazy('dashboard')
+send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
 
 
 class AcceptInvitationView(FormView):
@@ -494,7 +496,7 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(MultipleModelListView, TemplateView):
+class DashboardView(LoginRequiredMixin, MultipleModelListView, TemplateView):
     """
     This view shows the dashboard of the logged in user.
     """
@@ -638,13 +640,3 @@ class CustomSetPasswordView(FormView):
         """
         form.save()
         return super(CustomSetPasswordView, self).form_valid(form)
-
-
-# Perform logic here instead of in urls.py
-registration_view = RegistrationView.as_view()
-activation_view = ActivationView.as_view()
-activation_resend_view = ActivationResendView.as_view()
-login_view = LoginView.as_view()
-send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
-dashboard_view = login_required(DashboardView.as_view())
-password_reset_confirm_view = CustomSetPasswordView.as_view()

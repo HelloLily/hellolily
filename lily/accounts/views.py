@@ -2,7 +2,6 @@ from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -180,7 +179,7 @@ class JsonAccountListView(LoginRequiredMixin, JsonListView):
     filter_on_field = 'functions__contact__id'
 
 
-class DetailAccountView(HistoryListViewMixin):
+class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single account.
     """
@@ -254,7 +253,7 @@ class DetailAccountView(HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateAccountMixin(DeleteBackAddSaveFormViewMixin):
+class CreateUpdateAccountMixin(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
     """
     Base class for AddAccountView and EditAccountView.
     """
@@ -437,7 +436,7 @@ class EditAccountView(CreateUpdateAccountMixin, UpdateView):
         return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
 
 
-class DeleteAccountView(DeleteView):
+class DeleteAccountView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -482,7 +481,7 @@ class DeleteAccountView(DeleteView):
         return reverse('account_list')
 
 
-class ExistsAccountView(View):
+class ExistsAccountView(LoginRequiredMixin, View):
     """
     Check whether an account exists based on slugs.
     """
@@ -507,14 +506,3 @@ class ExistsAccountView(View):
             'exists': exists,
             'edit_url': edit_url
         }), content_type='application/json')
-
-
-# Perform logic here instead of in urls.py
-add_account_view = login_required(AddAccountView.as_view())
-detail_account_view = login_required(DetailAccountView.as_view())
-delete_account_view = login_required(DeleteAccountView.as_view())
-edit_account_view = login_required(EditAccountView.as_view())
-list_account_view = login_required(ListAccountView.as_view())
-exist_account_view = login_required(ExistsAccountView.as_view())
-
-

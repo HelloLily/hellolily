@@ -2,6 +2,20 @@
 
 {% load i18n utils %}
 
+{% block list-title %}
+    {% with object_list|first as first_object %}
+        {% if tag %}
+            ({% blocktrans with tag_name=tag.name %}Filtered by tag '{{ tag_name }}'{% endblocktrans %}
+            {% if first_object.is_archived %}
+                <a href="{% url 'case_archived_list' %}"><i class="icon-remove"></i></a>
+            {% else %}
+                <a href="{% url 'case_list' %}"><i class="icon-remove"></i></a>
+            {% endif %}
+            )
+        {% endif %}
+    {% endwith %}
+{% endblock %}
+
 {% block list-headings %}
     <th class="table-checkbox">
         <input type="checkbox" class="group-checkbox" data-set=".data-table .checkboxes">
@@ -17,4 +31,5 @@
     <th class="assigned-to">{% trans 'Assigned to' %}</th>
     <th class="created visible-lg">{% trans 'Created' %}</th>
     <th class="modified visible-lg">{% trans 'Modified' %}</th>
+    <th>{% trans 'Tags' %}</th>
 {% endblock %}

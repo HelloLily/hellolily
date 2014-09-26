@@ -5,13 +5,14 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.deals.models import Deal
+from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
 
 
-class CreateUpdateDealForm(HelloLilyModelForm):
+class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a deal.
     """

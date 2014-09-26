@@ -14,10 +14,10 @@ from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
 from lily.utils.views.mixins import SortedListMixin, HistoryListViewMixin, LoginRequiredMixin, ArchivedFilterMixin, \
-    FilteredListMixin
+    FilteredListMixin, FilteredListByTagMixin
 
 
-class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListMixin, DataTablesListView):
+class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
     """
     Display a list of all cases.
     """
@@ -79,6 +79,11 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         ('modified', {
             'mData': 'modified',
             'sClass': 'visible-lg',
+        }),
+        ('tags', {
+            'mData': 'tags',
+            # Generic relations are not sortable on QuerySet.
+            'bSortable': False,
         }),
     ])
 

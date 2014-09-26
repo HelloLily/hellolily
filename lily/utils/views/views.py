@@ -322,8 +322,9 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         total_object_count = queryset.count()
 
         # Filter queryset.
-        search_items = self.get_from_data_tables('search_items').split(' ')
-        queryset = self.filter_queryset(queryset, search_items)
+        search_terms = self.get_from_data_tables('search_items').split(' ')
+        search_terms = set([term.lower() for term in search_terms])
+        queryset = self.filter_queryset(queryset, search_terms)
         filtered_object_count = queryset.count()
 
         # Order queryset.

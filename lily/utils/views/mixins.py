@@ -222,7 +222,7 @@ class FilterQuerysetMixin(object):
 
         Args:
             queryset (QuerySet): QuerySet that needs to be filtered.
-            search_terms (list of strings): The strings that are used for searching.
+            search_terms (set of strings): The strings that are used for searching.
 
         Returns:
             QuerySet: The filtered Queryset
@@ -287,7 +287,6 @@ class ExportListViewMixin(FilterQuerysetMixin):
         # Setup headers, columns and search
         headers = []
         columns = []
-        search_terms = request.POST.get('export_filter', None).split(' ')
         export_columns = request.POST.get('export_columns[]', []).split(',')
         if export_columns:
             # There were columns in POST, check if they match self.exportable_columns.
@@ -321,6 +320,8 @@ class ExportListViewMixin(FilterQuerysetMixin):
             queryset = self.get_queryset()
 
             # Filter items.
+            search_terms = request.POST.get('export_filter', None).split(' ')
+            search_terms = set([term.lower() for term in search_terms])
             queryset = self.filter_queryset(queryset, search_terms)
 
             # For each item, make a row to export.
@@ -343,9 +344,13 @@ class ExportListViewMixin(FilterQuerysetMixin):
 class FilteredListByTagMixin(object):
     """
     Mixin that enables filtering objects by tag, based on given tag kwarg
+
+    Attributes:
+        tags (instance): Tag model instance
     """
 
     tag = None
+    _content_type_of_model = None
 
     def get_queryset(self):
         """
@@ -356,12 +361,58 @@ class FilteredListByTagMixin(object):
             # if tag id is supplied, filter list on tagname
             if self.kwargs.get('tag', None):
                 self.tag = get_object_or_404(Tag, pk=self.kwargs.get('tag'))
-                content_type_of_model = ContentType.objects.get_for_model(self.model)
-                tags = Tag.objects.filter(name=self.tag.name, content_type=content_type_of_model.pk)
-                queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+
+                # Get Content Type of current model
+                if not self._content_type_of_model:
+                    self._content_type_of_model = ContentType.objects.get_for_model(self.model)
+
+                tags = Tag.objects.filter(
+                    name=self.tag.name,
+                    content_type=self._content_type_of_model.pk
+                ).values_list('object_id')
+
+                queryset = queryset.filter(pk__in=[tag[0] for tag in tags])
         else:
             raise ImproperlyConfigured(u"'%s' must define 'queryset'"
                                        % self.__class__.__name__)
+
+        return queryset
+
+    def filter_queryset(self, queryset, search_terms):
+        """
+        Filters the queryset given the search terms.
+
+        The filter will match any object that has on of the search strings on any of the tags related to the object.
+        Args:
+            queryset (QuerySet): QuerySet that needs to be filtered.
+            search_terms (set of strings): The strings that are used for searching.
+
+        Returns:
+            QuerySet: The filtered Queryset
+        """
+        complete_filter = []
+        # Loop through all the search items
+        for search_term in search_terms:
+            # Not searching for empty strings
+            if search_term != '':
+                complete_filter.append(Q(**{'name__icontains': search_term}))
+
+        # If there is no filter, don't apply filter
+        if complete_filter:
+
+            # Get Content Type of current model
+            if not self._content_type_of_model:
+                self._content_type_of_model = ContentType.objects.get_for_model(self.model)
+
+            # Combine the filters to one filter, they must all match.
+            tags = Tag.objects.filter(
+                content_type=self._content_type_of_model
+            ).filter(reduce(operator.or_, complete_filter)).distinct()
+            queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+
+            # Remove matched tag names from further search
+            search_terms = search_terms - set([tag.name.lower() for tag in tags])
+        queryset = super(FilteredListByTagMixin, self).filter_queryset(queryset, search_terms)
 
         return queryset
 

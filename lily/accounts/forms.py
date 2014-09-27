@@ -113,8 +113,14 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
                                                            button_attrs={'class': 'btn default dataprovider'},
                                                            div_attrs={'class': 'input-group dataprovider'}))
     extra_websites = FormSetField(
-        queryset=Website.objects,
-        formset_class=modelformset_factory(Website, form=WebsiteBaseForm, formset=BaseFKFormSet, can_delete=True, extra=0),
+        queryset=Website.objects.none(),
+        formset_class=modelformset_factory(
+            Website,
+            form=WebsiteBaseForm,
+            formset=BaseFKFormSet,
+            can_delete=True,
+            extra=0
+        ),
         template='accounts/formset_website.html',
         related_name='account',
     )

@@ -213,7 +213,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     """
     template = forms.ModelChoiceField(
         label=_('Template'),
-        queryset=EmailTemplate.objects.none(),
+        queryset=EmailTemplate.objects,
         empty_label=_('Choose a template'),
         required=False
     )
@@ -400,7 +400,6 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
                 'rows': 2,
             })),
             'body_html': forms.Textarea(attrs={
-                'rows': 12,
                 'class': 'inbox-editor inbox-wysihtml5 form-control',
             }),
         }

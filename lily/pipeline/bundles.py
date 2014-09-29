@@ -226,10 +226,10 @@ PIPELINE_JS = {
         ),
         'output_filename': 'compiled/js/scroll.js',
     },
-    'wysihtml5': {  # Previously editor.js
+    'wysihtml5': {
         'source_filenames': (
-            'metronic/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js',
-            'metronic/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js',
+            'lily/plugins/wysihtml5x/wysihtml5x.js',
+            'lily/plugins/wysihtml5x/wysihtml5x-toolbar.js',
         ),
         'output_filename': 'compiled/js/wysihtml5.js',
     },
@@ -253,15 +253,15 @@ PIPELINE_JS = {
     },
     'inbox': {
         'source_filenames': (
-            'lily/scripts/inbox.js',
-            'lily/scripts/inbox-folders.js',
+            'email/js/inbox.js',
+            'email/js/inbox-folders.js',
         ),
         'output_filename': 'compiled/js/inbox.js',
     },
     'emailtemplate': {
         'source_filenames': (
-            'lily/scripts/inbox.js',
-            'lily/scripts/emailtemplate.js',
+            'email/js/inbox.js',
+            'email/js/emailtemplate.js',
         ),
         'output_filename': 'compiled/js/emailtemplate.js',
     },

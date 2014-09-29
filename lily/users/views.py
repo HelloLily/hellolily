@@ -32,6 +32,7 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
     InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
+from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
 from lily.utils.views.mixins import LoginRequiredMixin
 
@@ -71,11 +72,19 @@ class RegistrationView(FormView):
         # Create function
         Function.objects.create(account=account, contact=contact)
 
+        # Save email
+        email = EmailAddress()
+        email.email_address = form.cleaned_data['email']
+        email.is_primary = True
+        add_tenant(email)
+        email.save()
+        contact.email_addresses.add(email)
+        contact.save()
+
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.primary_email = form.cleaned_data['email']
 
         # Store random unique data in username
         user.username = uuid4().get_hex()[:10]
@@ -165,7 +174,8 @@ class ActivationView(TemplateView):
         self.user.save()
 
         # Log the user in
-        self.user = authenticate(username=self.user.primary_email, no_pass=True)
+        email_address = self.user.primary_email
+        self.user = authenticate(username=email_address.email_address, no_pass=True)
         user_login(request, self.user)
 
         # Redirect to dashboard

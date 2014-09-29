@@ -6,7 +6,6 @@ from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
@@ -27,12 +26,12 @@ from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax, clear_messages
 from lily.utils.models import PhoneNumber, SocialMedia
 from lily.utils.templatetags.utils import has_user_in_group
-from lily.utils.views import DataTablesListView
+from lily.utils.views import DataTablesListView, JsonListView
 from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, \
     LoginRequiredMixin
 
 
-class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
+class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
     """
     Display a list of all contacts
     """
@@ -198,7 +197,25 @@ class ListContactView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         return contact.modified
 
 
-class DetailContactView(HistoryListViewMixin):
+class JsonContactListView(LoginRequiredMixin, JsonListView):
+    """
+    JSON: Display account information for a contact
+    """
+    # ListView
+    model = Contact
+
+    # FilterQuerysetMixin
+    search_fields = [
+        'first_name__icontains',
+        'last_name__icontains',
+        'preposition__icontains',
+    ]
+
+    # JsonListView
+    filter_on_field = 'functions__account__id'
+
+
+class DetailContactView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single contact.
     """
@@ -224,20 +241,20 @@ class DetailContactView(HistoryListViewMixin):
         return kwargs
 
 
-class JsonContactWorksAtView(View):
+class JsonContactWorksAtView(LoginRequiredMixin, View):
     """
     JSON: Display account information for a contact
     """
 
     def get(self, request, pk):
         contact = Contact.objects.get(pk=pk)
-        function = contact.functions.all().first();
+        function_list = contact.functions.all()
         works_at = []
-        if function:
+        for function in function_list:
             account = function.account
-            works_at.append({'name':account.name, 'pk':account.pk})
-        response = anyjson.serialize({'works_at':works_at})
-        return HttpResponse(response, mimetype="application/javascript")
+            works_at.append({'name': account.name, 'pk': account.pk})
+        response = anyjson.serialize({'works_at': works_at})
+        return HttpResponse(response, content_type="application/javascript")
 
 
 class CreateUpdateContactMixin(LoginRequiredMixin):
@@ -416,12 +433,12 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         """
         Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        self.object = form.save()  # copied from ModelFormMixin
+        success_url = super(EditContactView, self).form_valid(form)
 
         # Show save message
         messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name())
 
-        return super(EditContactView, self).form_valid(form)
+        return success_url
 
     def get_success_url(self):
         """
@@ -430,7 +447,7 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
 
 
-class DeleteContactView(DeleteView):
+class DeleteContactView(LoginRequiredMixin, DeleteView):
     """
     Delete an instance and all instances of m2m relationships.
     """
@@ -569,13 +586,3 @@ class ConfirmContactEmailView(TemplateView):
             return False
 
         return True
-
-
-# Perform logic here instead of in urls.py
-add_contact_view = login_required(AddContactView.as_view())
-detail_contact_view = login_required(DetailContactView.as_view())
-json_contact_works_at_view = login_required(JsonContactWorksAtView.as_view())
-delete_contact_view = login_required(DeleteContactView.as_view())
-edit_contact_view = login_required(EditContactView.as_view())
-list_contact_view = login_required(ListContactView.as_view())
-

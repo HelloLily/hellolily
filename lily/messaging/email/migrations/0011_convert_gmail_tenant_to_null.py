@@ -7,16 +7,55 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant = None
-                provider.save()
+        """
+        Get or create the Gmail provider and set the tenant to None, name to 'Gmail'.
+
+        Remove all other Gmail providers and set accounts to gmail provider.
+        """
+        gmail_providers = orm['email.EmailProvider'].objects.filter(
+            imap_host='imap.gmail.com',
+            imap_port=993,
+            imap_ssl=True,
+            smtp_host='smtp.gmail.com',
+            smtp_port=587,
+            smtp_ssl=True,
+        )
+
+        if gmail_providers.exists():
+
+            gmail_providers[0].name = 'Gmail'
+            gmail_providers[0].tenant = None
+            gmail_providers[0].save()
+
+            # Set all providers to the default Gmail provider
+            for provider in gmail_providers:
+                for account in provider.email_accounts.all():
+                    account.provider = gmail_providers[0]
+                    account.save()
+
+            # And delete other providers
+            orm['email.EmailProvider'].objects.filter(
+                imap_host='imap.gmail.com',
+                tenant__isnull=False,
+            ).exclude(name='Gmail').delete()
+
+        else:
+            # Gmail provider doesn't exist, create it.
+            orm['email.EmailProvider'].objects.create(
+                name='Gmail',
+                imap_host='imap.gmail.com',
+                imap_port=993,
+                imap_ssl=True,
+                smtp_host='smtp.gmail.com',
+                smtp_port=587,
+                smtp_ssl=True,
+            )
 
     def backwards(self, orm):
-        for provider in orm.EmailProvider.objects.all():
-            if provider.name is not None:
-                provider.tenant_id = 1
-                provider.save()
+        """
+        It's not possible to assign the gmail provider back to one tenant.
+        """
+        pass
 
     models = {
         u'accounts.account': {

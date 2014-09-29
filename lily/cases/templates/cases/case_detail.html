@@ -72,6 +72,20 @@
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">
                 <li>
+                    <span class="summary-label">{% trans 'Case Number' %}</span>
+                    <span class="summary-data">
+                        {{ object.pk}}
+                    </span>
+                </li>
+                {% if object.type %}
+                <li>
+                    <span class="summary-label">{% trans 'Type' %}</span>
+                    <span class="summary-data">
+                        {{ object.type.type }}
+                    </span>
+                </li>
+                {% endif %}
+                <li>
                     <span class="summary-label">{% trans 'Priority' %}</span>
                     <span class="summary-data">
                         <span class="label label-sm {% if object.is_archived %}label-default{% else %}label-{{ object|priority }}{% endif %}">

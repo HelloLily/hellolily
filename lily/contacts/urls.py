@@ -1,17 +1,18 @@
 from django.conf.urls import patterns, url
 
-from lily.contacts.views import add_contact_view, edit_contact_view, delete_contact_view, \
-    list_contact_view, detail_contact_view, ConfirmContactEmailView, json_contact_works_at_view
+from lily.contacts.views import ConfirmContactEmailView, JsonContactListView, AddContactView, EditContactView, \
+    DetailContactView, JsonContactWorksAtView, DeleteContactView, ListContactView
 
 
 urlpatterns = patterns('',
-    url(r'^add/$', add_contact_view, name='contact_add'),
-    url(r'^edit/(?P<pk>[\w-]+)/$', edit_contact_view, name='contact_edit'),
-    url(r'^details/(?P<pk>[\w-]+)/$', detail_contact_view, name='contact_details'),
-    url(r'^json_works_at/(?P<pk>[\w-]+)/$', json_contact_works_at_view, name='json_contact_works_at'),
-    url(r'^delete/xhr/(?P<pk>[\w-]+)/$', delete_contact_view, name='contact_delete'),
+    url(r'^add/$', AddContactView.as_view(), name='contact_add'),
+    url(r'^edit/(?P<pk>[\w-]+)/$', EditContactView.as_view(), name='contact_edit'),
+    url(r'^details/(?P<pk>[\w-]+)/$', DetailContactView.as_view(), name='contact_details'),
+    url(r'^json_works_at/(?P<pk>[\w-]+)/$', JsonContactWorksAtView.as_view(), name='json_contact_works_at'),
+    url(r'^delete/xhr/(?P<pk>[\w-]+)/$', DeleteContactView.as_view(), name='contact_delete'),
     url(r'^confirm-email/(?P<data>.+)/$', ConfirmContactEmailView.as_view(), name='contact_confirm_email'),
-    url(r'^$', list_contact_view, name='contact_list'),
-    url(r'^tag/(?P<tag>[\w-]+)/$', list_contact_view, name='contact_list_filtered_by_tag'),
-    url(r'^(?P<b36_pks>[\w;]*)/$', list_contact_view, name='contact_list_filtered'),
+    url(r'^json_list/$', JsonContactListView.as_view(), name='json_contact_list'),
+    url(r'^tag/(?P<tag>[\w-]+)/$', ListContactView.as_view(), name='contact_list_filtered_by_tag'),
+    url(r'^(?P<b36_pks>[\w;]*)/$', ListContactView.as_view(), name='contact_list_filtered'),
+    url(r'^$', ListContactView.as_view(), name='contact_list'),
 )

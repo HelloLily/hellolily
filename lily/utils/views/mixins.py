@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.core.paginator import Paginator, InvalidPage
-from django.db.models import Q
+from django.db.models import Q, FieldDoesNotExist
 from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
@@ -222,7 +222,7 @@ class FilterQuerysetMixin(object):
 
         Args:
             queryset (QuerySet): QuerySet that needs to be filtered.
-            search_terms (list of strings): The strings that are used for searching.
+            search_terms (set of strings): The strings that are used for searching.
 
         Returns:
             QuerySet: The filtered Queryset
@@ -235,9 +235,20 @@ class FilterQuerysetMixin(object):
                 partial_filter = []
                 # For each field, lets build a partial filter
                 for field in self.search_fields:
-                    partial_filter.append(Q(**{field: search_term}))
+                    # Check if field needs to be searched with int.
+                    try:
+                        field_type = queryset.model._meta.get_field(field).get_internal_type()
+                    except FieldDoesNotExist:
+                        partial_filter.append(Q(**{field: search_term}))
+                    else:
+                        if field_type in ('AutoField', 'IntegerField'):
+                            try:
+                                partial_filter.append(Q(**{field: int(search_term)}))
+                            except ValueError:
+                                pass
                 # Combine the partial filter to one filter per search item, any of the fields should match
-                complete_filter.append(reduce(operator.or_, partial_filter))
+                if partial_filter:
+                    complete_filter.append(reduce(operator.or_, partial_filter))
         # If there is no filter, don't apply filter
         if complete_filter:
             # Combine the filters to one filter, they must all match.
@@ -276,7 +287,6 @@ class ExportListViewMixin(FilterQuerysetMixin):
         # Setup headers, columns and search
         headers = []
         columns = []
-        search_terms = request.POST.get('export_filter', None).split(' ')
         export_columns = request.POST.get('export_columns[]', []).split(',')
         if export_columns:
             # There were columns in POST, check if they match self.exportable_columns.
@@ -310,6 +320,8 @@ class ExportListViewMixin(FilterQuerysetMixin):
             queryset = self.get_queryset()
 
             # Filter items.
+            search_terms = request.POST.get('export_filter', None).split(' ')
+            search_terms = set([term.lower() for term in search_terms])
             queryset = self.filter_queryset(queryset, search_terms)
 
             # For each item, make a row to export.
@@ -332,9 +344,13 @@ class ExportListViewMixin(FilterQuerysetMixin):
 class FilteredListByTagMixin(object):
     """
     Mixin that enables filtering objects by tag, based on given tag kwarg
+
+    Attributes:
+        tags (instance): Tag model instance
     """
 
     tag = None
+    _content_type_of_model = None
 
     def get_queryset(self):
         """
@@ -345,14 +361,60 @@ class FilteredListByTagMixin(object):
             # if tag id is supplied, filter list on tagname
             if self.kwargs.get('tag', None):
                 self.tag = get_object_or_404(Tag, pk=self.kwargs.get('tag'))
-                content_type_of_model = ContentType.objects.get_for_model(self.model)
-                tags = Tag.objects.filter(name=self.tag.name, content_type=content_type_of_model.pk)
-                queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+
+                # Get Content Type of current model
+                if not self._content_type_of_model:
+                    self._content_type_of_model = ContentType.objects.get_for_model(self.model)
+
+                tags = Tag.objects.filter(
+                    name=self.tag.name,
+                    content_type=self._content_type_of_model.pk
+                ).values_list('object_id')
+
+                queryset = queryset.filter(pk__in=[tag[0] for tag in tags])
         else:
             raise ImproperlyConfigured(u"'%s' must define 'queryset'"
                                        % self.__class__.__name__)
 
         return queryset
+
+    def filter_queryset(self, queryset, search_terms):
+        """
+        Filters the queryset given the search terms.
+
+        The filter will match any object that has on of the search strings on any of the tags related to the object.
+        Args:
+            queryset (QuerySet): QuerySet that needs to be filtered.
+            search_terms (set of strings): The strings that are used for searching.
+
+        Returns:
+            QuerySet: The filtered Queryset
+        """
+        filtered_queryset = super(FilteredListByTagMixin, self).filter_queryset(queryset, search_terms)
+
+        complete_filter = []
+        # Loop through all the search items
+        for search_term in search_terms:
+            # Not searching for empty strings
+            if search_term != '':
+                complete_filter.append(Q(**{'name__icontains': search_term}))
+
+        # If there is no filter, don't apply filter
+        if complete_filter:
+
+            # Get Content Type of current model
+            if not self._content_type_of_model:
+                self._content_type_of_model = ContentType.objects.get_for_model(self.model)
+
+            # Combine the filters to one filter, they must all match.
+            tags = Tag.objects.filter(
+                content_type=self._content_type_of_model
+            ).filter(reduce(operator.or_, complete_filter)).distinct()
+            tags_queryset = queryset.filter(pk__in=[tag.object_id for tag in tags]).distinct()
+
+            filtered_queryset = filtered_queryset | tags_queryset
+
+        return filtered_queryset
 
     def get_context_data(self, **kwargs):
         """
@@ -663,6 +725,9 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         Returns:
             A filtered Notes QuerySet.
         """
+        if hasattr(self, '_emails_list'):
+            return self._emails_list
+
         # There always needs to be a QuerySet for email_list.
         email_list = EmailMessage.objects.none()
 
@@ -670,6 +735,8 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         email_address_list = self.get_related_email_addresses_for_object()
         if len(email_address_list) > 0:
             email_list = get_emails_for_email_addresses(email_address_list)
+
+        setattr(self, '_emails_list', email_list)
 
         return email_list
 

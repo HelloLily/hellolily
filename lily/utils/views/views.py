@@ -3,6 +3,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import resolve
+from django.db.models import Q
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template import Context
@@ -322,8 +323,9 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         total_object_count = queryset.count()
 
         # Filter queryset.
-        search_items = self.get_from_data_tables('search_items').split(' ')
-        queryset = self.filter_queryset(queryset, search_items)
+        search_terms = self.get_from_data_tables('search_items').split(' ')
+        search_terms = set([term.lower() for term in search_terms])
+        queryset = self.filter_queryset(queryset, search_terms)
         filtered_object_count = queryset.count()
 
         # Order queryset.
@@ -350,7 +352,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
             'iTotalDisplayRecords': filtered_object_count,
             'sEcho': self.get_from_data_tables('echo'),
             'aaData': columns,
-        }), mimetype='application/json')
+        }), content_type='application/json')
 
     def get_columns(self, params):
         """
@@ -478,7 +480,7 @@ class AjaxUpdateView(View):
             raise Http404()
 
         # Return response
-        return HttpResponse(json.dumps({}), mimetype='application/json')
+        return HttpResponse(json.dumps({}), content_type='application/json')
 
 
 class NotificationsView(TemplateView):
@@ -491,7 +493,74 @@ class NotificationsView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         response = super(NotificationsView, self).get(request, *args, **kwargs)
-        return HttpResponse(response.rendered_content, mimetype='application/javascript')
+        return HttpResponse(response.rendered_content, content_type='application/javascript')
+
+
+class JsonListView(FilterQuerysetMixin, ListView):
+    """
+    Attributes:
+        filter_on_field (str): The field of the queryset where the queryset will be filtered on.
+    """
+    filter_on_field = None
+
+    # Total QuerySet count after filtering
+    _total = 0
+
+    def dispatch(self, request, *args, **kwargs):
+        # Set pagination
+        self.paginate_by = int(request.GET.get('page_limit', 10))
+        return super(JsonListView, self).dispatch(request, *args, **kwargs)
+
+    def order_queryset(self, queryset):
+        """
+        Set the ordering of the queryset
+
+        Arguments:
+            queryset (instance): QuerySet instance
+
+        Returns:
+            queryset (instance): ordered QuerySet instance
+        """
+        return queryset.order_by('-modified')
+
+    def get_queryset(self):
+        """
+        Get a filtered and searched queryset.
+
+        The QuerySet is filtered on given GET `q` and on given
+        ``filter_on_related_object`` and GET `filter`.
+
+        Sets ``count`` with number of results in QuerySet.
+
+        Returns:
+            queryset (instance): Filtered and searched QuerySet
+        """
+        queryset = super(JsonListView, self).get_queryset()
+
+        # Filter on related object
+        filter = self.request.GET.get('filter', None)
+        if filter and self.filter_on_field:
+            queryset = queryset.filter(Q(**{self.filter_on_field: filter}))
+
+        # Search on queryset
+        search_terms = self.request.GET.get('q', None).split(' ')
+        if search_terms:
+            queryset = self.filter_queryset(queryset, search_terms)
+
+        queryset = self.order_queryset(queryset)
+        self._total = queryset.count()
+        return queryset
+
+    def render_to_response(self, context, **response_kwargs):
+        # Return json response with paginated object results and total queryset count.
+        contacts = []
+        for object in context['object_list']:
+            contacts.append({'id': object.pk, 'text': str(object)})
+        response = json.dumps({
+            'objects': contacts,
+            'total': self._total
+        })
+        return HttpResponse(response, content_type="application/javascript")
 
 
 # Perform logic here instead of in urls.py

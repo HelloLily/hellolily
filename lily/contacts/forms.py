@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -6,7 +8,7 @@ from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.forms.mixins import FormSetFormMixin
 
 
@@ -14,9 +16,16 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
     """
     Form to add an account with the absolute minimum of information.
     """
-    account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.none(),
-                                     empty_label=_('Select an account'))
+    account = forms.ModelChoiceField(
+        label=_('Works at'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            model=Account,
+        ),
+    )
     email = forms.EmailField(label=_('E-mail address'), max_length=255, required=False)
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
@@ -34,6 +43,17 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
 
+    def clean_email(self):
+        """
+        Prevent multiple contacts with the same e-mailadress when adding
+        """
+        email = self.cleaned_data['email']
+        if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
+            raise ValidationError(
+                _('E-mail address already in use.'),
+                code='invalid',
+            )
+
     def clean(self):
         """
         Form validation: all fields should be unique.
@@ -43,11 +63,6 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
-
-        # Prevent multiple contacts with the same e-mailadress when adding
-        if cleaned_data.get('email'):
-            if Contact.objects.filter(email_addresses__email_address__iexact=cleaned_data.get('email')).exists():
-                self._errors['email'] = self.error_class([_('E-mail address already in use.')])
 
         return cleaned_data
 
@@ -60,9 +75,17 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     """
     Form to add a contact which all fields available.
     """
-    account = forms.ModelChoiceField(label=_('Works at'), required=False,
-                                     queryset=Account.objects.none(),
-                                     empty_label=_('Select an account'))
+    account = forms.ModelChoiceField(
+        label=_('Works at'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            model=Account,
+        ),
+    )
+
     twitter = forms.CharField(label=_('Twitter'), required=False, widget=AddonTextInput(icon_attrs={
         'class': 'icon-twitter',
         'position': 'left',
@@ -76,9 +99,6 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
-
-        # Provide filtered query set
-        self.fields['account'].queryset = Account.objects.all()
 
         # Try providing initial account info
         is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
@@ -97,6 +117,36 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             }
         }
 
+    def clean_twitter(self):
+        """
+        Check if added twitter name is a valid twitter name
+        """
+        twitter = self.cleaned_data.get('twitter')
+        if twitter:
+            twitter_username = get_twitter_username_from_string(twitter)
+            if not twitter_username:
+                raise ValidationError(
+                    _('Please enter a valid Twitter username'),
+                    code='invalid',
+                )
+            return twitter_username
+
+    def clean_linkedin(self):
+        """
+        Check if added linkedin url is a valid linkedin url
+        """
+        linkedin = self.cleaned_data['linkedin']
+
+        if linkedin:
+            if not validate_linkedin_url(linkedin):
+                # Profile url was invalid
+                raise ValidationError(
+                    _('Please enter a valid LinkedIn profile url'),
+                    code='invalid',
+                )
+            else:
+                return linkedin
+
     def clean(self):
         """
         Form validation: fill in at least first or last name.
@@ -106,20 +156,6 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         # Check if at least first or last name has been provided.
         if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
-
-        if cleaned_data.get('twitter'):
-            twitter_username = get_twitter_username_from_string(cleaned_data.get('twitter'))
-
-            if twitter_username is not None:
-                cleaned_data['twitter'] = twitter_username
-            else:
-                # A string was given but it seems to be invalid
-                self._errors['twitter'] = self.error_class([_('Please enter a valid Twitter username')])
-
-        if cleaned_data.get('linkedin'):
-            if not validate_linkedin_url(cleaned_data.get('linkedin')):
-                # Profile url was invalid
-                self._errors['linkedin'] = self.error_class([_('Please enter a valid LinkedIn profile url')])
 
         return cleaned_data
 

@@ -2,34 +2,53 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
-from lily.cases.models import Case
+from lily.cases.models import Case, CaseType
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
+from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget
+from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
 
 
-class CreateUpdateCaseForm(HelloLilyModelForm):
+class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
-    account = forms.ModelChoiceField(label=_('Account'),
-                                     queryset=Account.objects,
-                                     empty_label=_('an account'),
-                                     required=False,
-                                     widget=forms.Select(attrs={
-                                        'class': 'contact_account'
-                                     }))
+    type = forms.ModelChoiceField(label=_('Type'),
+                                  queryset=CaseType.objects.none(),
+                                  empty_label='---------',
+                                  required=False,
+                                  )
 
-    contact = forms.ModelChoiceField(label=_('Contact'),
-                                     queryset=Contact.objects,
-                                     empty_label=_('a contact'),
-                                     required=False)
+    account = forms.ModelChoiceField(
+        label=_('Account'),
+        required=False,
+        queryset=Account.objects.none(),
+        empty_label=_('Select an account'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_account_list'),
+            model=Account,
+            filter_on='id_contact',
+        ),
+    )
+
+    contact = forms.ModelChoiceField(
+        label=_('Contact'),
+        required=False,
+        queryset=Contact.objects.none(),
+        empty_label=_('Select a contact'),
+        widget=AjaxSelect2Widget(
+            url=reverse_lazy('json_contact_list'),
+            model=Contact,
+            filter_on='id_account',
+        ),
+    )
 
     assigned_to = forms.ModelChoiceField(label=_('Assigned to'),
                                          queryset=CustomUser.objects.none(),
@@ -89,7 +108,17 @@ class CreateUpdateCaseForm(HelloLilyModelForm):
 
     class Meta:
         model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
+        fields = (
+            'status',
+            'priority',
+            'expires',
+            'type',
+            'subject',
+            'description',
+            'contact',
+            'account',
+            'assigned_to',
+        )
         exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
@@ -110,20 +139,6 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
     Form that is used for adding a new Case through a quickbutton form.
     """
 
-    expires = forms.DateField(
-        label=_('Expires'),
-        input_formats=settings.DATE_INPUT_FORMATS,
-        widget=DatePicker(
-            options={
-                'autoclose': 'true',
-            },
-            format=settings.DATE_INPUT_FORMATS[0],
-            attrs={
-                'placeholder': DatePicker.conv_datetime_format_py2js(settings.DATE_INPUT_FORMATS[0]),
-            },
-        )
-    )
-
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change auto_id to prevent clashing form field id's with
@@ -136,20 +151,5 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
 
         self.fields['expires'].initial = datetime.today()
-
-    class Meta:
-        model = Case
-        fields = ('priority', 'subject', 'description', 'status', 'contact', 'account', 'assigned_to', 'expires')
-        exclude = ('is_deleted', 'closed_date', 'tenant')
-
-        widgets = {
-            'priority': PrioritySelect(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'description': ShowHideWidget(forms.Textarea({
-                'rows': 3
-            })),
-            'status': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-        }
+        self.fields['account'].widget.filter_on = 'id_case_quickbutton_contact'
+        self.fields['contact'].widget.filter_on = 'id_case_quickbutton_account'

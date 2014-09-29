@@ -390,6 +390,8 @@ class FilteredListByTagMixin(object):
         Returns:
             QuerySet: The filtered Queryset
         """
+        filtered_queryset = super(FilteredListByTagMixin, self).filter_queryset(queryset, search_terms)
+
         complete_filter = []
         # Loop through all the search items
         for search_term in search_terms:
@@ -408,13 +410,11 @@ class FilteredListByTagMixin(object):
             tags = Tag.objects.filter(
                 content_type=self._content_type_of_model
             ).filter(reduce(operator.or_, complete_filter)).distinct()
-            queryset = queryset.filter(pk__in=[tag.object_id for tag in tags])
+            tags_queryset = queryset.filter(pk__in=[tag.object_id for tag in tags]).distinct()
 
-            # Remove matched tag names from further search
-            search_terms = search_terms - set([tag.name.lower() for tag in tags])
-        queryset = super(FilteredListByTagMixin, self).filter_queryset(queryset, search_terms)
+            filtered_queryset = filtered_queryset | tags_queryset
 
-        return queryset
+        return filtered_queryset
 
     def get_context_data(self, **kwargs):
         """
@@ -725,6 +725,9 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         Returns:
             A filtered Notes QuerySet.
         """
+        if hasattr(self, '_emails_list'):
+            return self._emails_list
+
         # There always needs to be a QuerySet for email_list.
         email_list = EmailMessage.objects.none()
 
@@ -732,6 +735,8 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         email_address_list = self.get_related_email_addresses_for_object()
         if len(email_address_list) > 0:
             email_list = get_emails_for_email_addresses(email_address_list)
+
+        setattr(self, '_emails_list', email_list)
 
         return email_list
 

@@ -6,7 +6,6 @@ import anyjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
@@ -50,10 +49,22 @@ class RegistrationView(FormView):
     template_name = 'users/registration.html'
     form_class = RegistrationForm
 
+    def get(self, request, *args, **kwargs):
+        # Show a different template when registration is closed.
+        if settings.REGISTRATION_POSSIBLE:
+            return super(RegistrationView, self).get(request, args, kwargs)
+        else:
+            self.template_name = 'users/registration_closed.html'
+            return self.render_to_response({})
+
     def form_valid(self, form):
         """
         Register a new user.
         """
+        # Do not accept any valid form when registration is closed.
+        if not settings.REGISTRATION_POSSIBLE:
+            messages.error(self.request, _('Registration is not possible at this moment.'))
+            return redirect(reverse_lazy('login'))
 
         # Create contact
         contact = Contact(

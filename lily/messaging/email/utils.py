@@ -1,6 +1,6 @@
 import re
-import socket
 from smtplib import SMTPAuthenticationError
+import socket
 from types import FunctionType
 from urllib import unquote
 
@@ -18,13 +18,14 @@ from django.template import (Context, BLOCK_TAG_START, BLOCK_TAG_END,
 from django.template.defaultfilters import truncatechars
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
+from django.utils.translation import ugettext as _
 
-from python_imap.errors import IMAPConnectionError
-from python_imap.folder import INBOX
-from python_imap.server import IMAP
 from lily.messaging.email.decorators import get_safe_template
 from lily.messaging.email.models import EmailAccount, EmailMessage
 from lily.tenant.middleware import get_current_user
+from python_imap.errors import IMAPConnectionError
+from python_imap.folder import INBOX
+from python_imap.server import IMAP
 
 
 _EMAIL_PARAMETER_DICT = {}

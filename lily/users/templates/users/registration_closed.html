@@ -1,0 +1,16 @@
+{% extends 'anonymous/page_wide.html' %}
+
+{% load bootstrap3 i18n %}
+
+{% block head-title %}{% trans 'Registration' %}{% endblock %}
+{% block page-title %}{% trans 'Registration' %}{% endblock %}
+{% block page-container %}
+<div class="portlet">
+    <div class="portlet-title">
+         <div class="caption">{% block form-title %}{% endblock %}</div>
+    </div>
+    <div class="portlet-body">
+        {% trans 'Registration is closed at the moment. Please try again later.' %}
+    </div>
+</div>
+{% endblock %}

@@ -449,6 +449,9 @@ NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
 #######################################################################################################################
 ## MISCELLANEOUS SETTINGS                                                                                            ##
 #######################################################################################################################
+# Registration form
+REGISTRATION_POSSIBLE = boolean(os.environ.get('REGISTRATION_POSSIBLE', 0))
+
 # Messaging framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 

@@ -19,7 +19,7 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
     account = forms.ModelChoiceField(
         label=_('Works at'),
         required=False,
-        queryset=Account.objects.none(),
+        queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
@@ -53,6 +53,8 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
                 _('E-mail address already in use.'),
                 code='invalid',
             )
+        else:
+            return email
 
     def clean(self):
         """
@@ -78,7 +80,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     account = forms.ModelChoiceField(
         label=_('Works at'),
         required=False,
-        queryset=Account.objects.none(),
+        queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
@@ -129,7 +131,8 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
                     _('Please enter a valid Twitter username'),
                     code='invalid',
                 )
-            return twitter_username
+            else:
+                return twitter_username
 
     def clean_linkedin(self):
         """

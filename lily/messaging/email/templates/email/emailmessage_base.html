@@ -104,8 +104,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% static "metronic/plugins/bootstrap-wysihtml5/wysiwyg-color.css" as wysihtml5_color_url %}
-    {% js_injector wysihtml5_color_url %}
     {% compressed_js 'inbox' %}
-    {% compressed_js 'scroll' %}
 {% endblock %}

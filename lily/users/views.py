@@ -6,7 +6,6 @@ import anyjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
@@ -32,6 +31,7 @@ from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendA
     InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
 from lily.users.models import CustomUser
 from lily.utils.functions import is_ajax
+from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
 from lily.utils.views.mixins import LoginRequiredMixin
 
@@ -49,10 +49,22 @@ class RegistrationView(FormView):
     template_name = 'users/registration.html'
     form_class = RegistrationForm
 
+    def get(self, request, *args, **kwargs):
+        # Show a different template when registration is closed.
+        if settings.REGISTRATION_POSSIBLE:
+            return super(RegistrationView, self).get(request, args, kwargs)
+        else:
+            self.template_name = 'users/registration_closed.html'
+            return self.render_to_response({})
+
     def form_valid(self, form):
         """
         Register a new user.
         """
+        # Do not accept any valid form when registration is closed.
+        if not settings.REGISTRATION_POSSIBLE:
+            messages.error(self.request, _('Registration is not possible at this moment.'))
+            return redirect(reverse_lazy('login'))
 
         # Create contact
         contact = Contact(
@@ -71,11 +83,19 @@ class RegistrationView(FormView):
         # Create function
         Function.objects.create(account=account, contact=contact)
 
+        # Save email
+        email = EmailAddress()
+        email.email_address = form.cleaned_data['email']
+        email.is_primary = True
+        add_tenant(email)
+        email.save()
+        contact.email_addresses.add(email)
+        contact.save()
+
         # Create and save user
         user = CustomUser()
         user.contact = contact
         user.account = account
-        user.primary_email = form.cleaned_data['email']
 
         # Store random unique data in username
         user.username = uuid4().get_hex()[:10]
@@ -165,7 +185,8 @@ class ActivationView(TemplateView):
         self.user.save()
 
         # Log the user in
-        self.user = authenticate(username=self.user.primary_email, no_pass=True)
+        email_address = self.user.primary_email
+        self.user = authenticate(username=email_address.email_address, no_pass=True)
         user_login(request, self.user)
 
         # Redirect to dashboard

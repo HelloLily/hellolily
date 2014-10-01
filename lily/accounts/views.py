@@ -34,6 +34,10 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         'user'
     ]
 
+    def get_queryset(self):
+        queryset = super(ListAccountView, self).get_queryset()
+        return queryset.filter(is_deleted=False)
+
     # SortedListMixin
     sortable = [1, 3, 4]
     default_order_by = 1
@@ -177,6 +181,10 @@ class JsonAccountListView(LoginRequiredMixin, JsonListView):
 
     # JsonListView
     filter_on_field = 'functions__contact__id'
+
+    def get_queryset(self):
+        queryset = super(JsonAccountListView, self).get_queryset()
+        return queryset.filter(is_deleted=False)
 
 
 class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):

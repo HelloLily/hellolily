@@ -124,6 +124,10 @@ class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, 
         'email_addresses__email_address__icontains',
     ]
 
+    def get_queryset(self):
+        queryset = super(ListContactView, self).get_queryset()
+        return queryset.filter(is_deleted=False)
+
     def order_queryset(self, queryset, column, sort_order):
         """
         Orders the queryset based on given column and sort_order.
@@ -214,6 +218,10 @@ class JsonContactListView(LoginRequiredMixin, JsonListView):
     # JsonListView
     filter_on_field = 'functions__account__id'
 
+    def get_queryset(self):
+        queryset = super(JsonContactListView, self).get_queryset()
+        return queryset.filter(is_deleted=False)
+
 
 class DetailContactView(LoginRequiredMixin, HistoryListViewMixin):
     """
@@ -247,14 +255,18 @@ class JsonContactWorksAtView(LoginRequiredMixin, View):
     """
 
     def get(self, request, pk):
-        contact = Contact.objects.get(pk=pk)
-        function_list = contact.functions.all()
-        works_at = []
-        for function in function_list:
-            account = function.account
-            works_at.append({'name': account.name, 'pk': account.pk})
-        response = anyjson.serialize({'works_at': works_at})
-        return HttpResponse(response, content_type="application/javascript")
+        try:
+            contact = Contact.objects.get(pk=pk, is_deleted=False)
+        except Contact.DoesNotExist:
+            raise Http404()
+        else:
+            function_list = contact.functions.all()
+            works_at = []
+            for function in function_list:
+                account = function.account
+                works_at.append({'name': account.name, 'pk': account.pk})
+            response = anyjson.serialize({'works_at': works_at})
+            return HttpResponse(response, content_type="application/javascript")
 
 
 class CreateUpdateContactMixin(LoginRequiredMixin):

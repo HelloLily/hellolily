@@ -1,6 +1,7 @@
 import socket
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.forms.widgets import RadioSelect, SelectMultiple
@@ -308,9 +309,12 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
 
         email_accounts = get_current_user().get_messages_accounts(EmailAccount)
         if send_from.pk not in [account.pk for account in email_accounts]:
-            self._errors['send_from'] = _(u'Invalid email account selected to use as sender.')
-
-        return send_from
+            raise ValidationError(
+                _('Invalid email account selected to use as sender.'),
+                code='invalid',
+            )
+        else:
+            return send_from
 
     class Meta:
         model = EmailDraft

@@ -21,7 +21,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     Form for adding or editing a case.
     """
     type = forms.ModelChoiceField(label=_('Type'),
-                                  queryset=CaseType.objects.none(),
+                                  queryset=CaseType.objects,
                                   empty_label='---------',
                                   required=False,
                                   )
@@ -29,7 +29,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     account = forms.ModelChoiceField(
         label=_('Account'),
         required=False,
-        queryset=Account.objects.none(),
+        queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
@@ -41,7 +41,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     contact = forms.ModelChoiceField(
         label=_('Contact'),
         required=False,
-        queryset=Contact.objects.none(),
+        queryset=Contact.objects,
         empty_label=_('Select a contact'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_contact_list'),
@@ -50,9 +50,10 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         ),
     )
 
-    assigned_to = forms.ModelChoiceField(label=_('Assigned to'),
-                                         queryset=CustomUser.objects.none(),
-                                         empty_label=None)
+    assigned_to = forms.ModelChoiceField(
+        label=_('Assigned to'),
+        queryset=CustomUser.objects,
+        empty_label=None)
 
     expires = forms.DateField(
         label=_('Expires'),

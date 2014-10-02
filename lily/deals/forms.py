@@ -18,7 +18,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
     """
     account = forms.ModelChoiceField(
         label=_('Account'),
-        queryset=Account.objects.none(),
+        queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
             url=reverse_lazy('json_account_list'),
@@ -28,7 +28,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
     assigned_to = forms.ModelChoiceField(
         label=_('Assigned to'),
-        queryset=CustomUser.objects.none(),
+        queryset=CustomUser.objects,
         empty_label=None,
         widget=forms.Select()
     )

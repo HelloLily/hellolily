@@ -37,7 +37,7 @@ class EmailConfigurationWizard_2(HelloLilyForm):
     Fields in e-mail configuration wizard step 2.
     """
     preset = forms.ModelChoiceField(
-        queryset=EmailProvider.objects.none(),
+        queryset=EmailProvider.objects,
         empty_label=_('Manually set email server settings'),
         required=False
     )
@@ -221,7 +221,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     send_to_cc = TagsField(required=False, label=_('Cc'))
     send_to_bcc = TagsField(required=False, label=_('Bcc'))
     attachments = FormSetField(
-        queryset=EmailAttachment.objects.none(),
+        queryset=EmailAttachment.objects,
         formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
         template='email/formset_attachment.html',
     )

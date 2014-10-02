@@ -5,6 +5,13 @@ from lily.utils.functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
 
 
+PHONE_TYPE_CHOICES = (
+    ('work', _('Work')),
+    ('mobile', _('Mobile')),
+    ('other', _('Other')),
+)
+
+
 class PhoneNumber(TenantMixin):
     """
     Phone number model, keeps a raw input version and a clean version (only has digits).
@@ -12,12 +19,6 @@ class PhoneNumber(TenantMixin):
     # TODO: check possibilities for integration of
     # - http://pypi.python.org/pypi/phonenumbers and/or
     # - https://github.com/stefanfoulis/django-phonenumber-field
-
-    PHONE_TYPE_CHOICES = (
-        ('work', _('Work')),
-        ('mobile', _('Mobile')),
-        ('other', _('Other')),
-    )
 
     INACTIVE_STATUS, ACTIVE_STATUS = range(2)
     PHONE_STATUS_CHOICES = (
@@ -27,11 +28,19 @@ class PhoneNumber(TenantMixin):
 
     raw_input = models.CharField(max_length=40, verbose_name=_('phone number'))
     number = models.CharField(max_length=40)
-    type = models.CharField(max_length=15, choices=PHONE_TYPE_CHOICES, default='work',
-                            verbose_name=_('type'))
-    other_type = models.CharField(max_length=15, blank=True, null=True) # used in combination with type='other'
-    status = models.IntegerField(max_length=10, choices=PHONE_STATUS_CHOICES, default=ACTIVE_STATUS,
-                                 verbose_name=_('status'))
+    type = models.CharField(
+        max_length=15,
+        choices=PHONE_TYPE_CHOICES,
+        default='work',
+        verbose_name=_('type')
+    )
+    other_type = models.CharField(max_length=15, blank=True, null=True)  # used in combination with type='other'
+    status = models.IntegerField(
+        max_length=10,
+        choices=PHONE_STATUS_CHOICES,
+        default=ACTIVE_STATUS,
+        verbose_name=_('status')
+    )
 
     def __unicode__(self):
         return self.number

@@ -15,7 +15,11 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
 
         # Changing field 'Address.complement'
+<<<<<<< HEAD
         db.alter_column(u'utils_address', 'complement', self.gf('django.db.models.fields.CharField')(default='', max_length=10))
+=======
+        db.alter_column(u'utils_address', 'complement', self.gf('django.db.models.fields.CharField')(max_length=10))
+>>>>>>> 191814b... LILY-33: import command ready for accounts
 
     models = {
         u'contenttypes.contenttype': {
@@ -32,7 +36,11 @@ class Migration(SchemaMigration):
         'utils.address': {
             'Meta': {'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+<<<<<<< HEAD
             'complement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+=======
+            'complement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+>>>>>>> 191814b... LILY-33: import command ready for accounts
             'country': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'postal_code': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
@@ -78,4 +86,8 @@ class Migration(SchemaMigration):
         }
     }
 
+<<<<<<< HEAD
     complete_apps = ['utils']
+=======
+    complete_apps = ['utils']
+>>>>>>> 191814b... LILY-33: import command ready for accounts

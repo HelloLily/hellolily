@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import ugettext as _
 from form_utils.forms import BetterForm, BetterModelForm
 
-from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
+from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
 
 
 class HelloLilyForm(BetterForm):
@@ -39,7 +39,7 @@ class PhoneNumberBaseForm(HelloLilyModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
-    type = forms.ChoiceField(choices=PhoneNumber.PHONE_TYPE_CHOICES, initial='work', required=False)
+    type = forms.ChoiceField(choices=PHONE_TYPE_CHOICES, initial='work', required=False)
 
     # Make raw_input not required to prevent the form from demanding input when only type
     # has been changed.
@@ -90,3 +90,12 @@ class AddressBaseForm(HelloLilyModelForm):
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
+
+
+class SugarCsvImportForm(HelloLilyForm):
+    """
+    Form in which a csv file can be uploaded from which
+    accounts or contacts can be imported for the logged in tenant.
+    """
+    csvfile = forms.FileField(label=_('CSV'))
+    model = forms.ChoiceField(label=_('Import rows as'), choices=(('contact', _('Contacts')), ('account', _('Accounts'))))

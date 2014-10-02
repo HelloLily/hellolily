@@ -46,10 +46,13 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
     name = models.CharField(max_length=255, verbose_name=_('company name'))
     flatname = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'),
-                              blank=True)
-    company_size = models.CharField(max_length=15, choices=ACCOUNT_SIZE_CHOICES,
-                                    verbose_name=_('company size'), blank=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'), blank=True)
+    company_size = models.CharField(
+        max_length=15,
+        choices=ACCOUNT_SIZE_CHOICES,
+        verbose_name=_('company size'),
+        blank=True
+    )
     logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)

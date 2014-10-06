@@ -262,6 +262,8 @@ $(function ($) {
         }).remove();
 
         // Make sure form always gets submitted
-        $(this).closest('form').submit();
+        var form = $(this).closest('form');
+        var form_data = $(form).serialize() + '&' + button_name;
+        $.post('', form_data);
     });
 });

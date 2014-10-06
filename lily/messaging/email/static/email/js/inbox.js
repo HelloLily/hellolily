@@ -237,22 +237,31 @@ $(function ($) {
     });
 
     $(".inbox-compose [type='submit']").click(function (event) {
-        if ($(this).attr("name") == "submit-send") {
-            // validation of fields.
+        event.preventDefault();
+
+        var button_name = $(this).attr('name');
+
+        if (button_name == "submit-send") {
+            // Validation of fields.
             if (!$("#id_send_to_normal").val() && !$("#id_send_to_cc").val() && !$("#id_send_to_bcc").val()) {
                 $("#modal_no_email_address").modal();
                 event.preventDefault();
                 return;
             }
-        } else if ($(this).attr("name") == "submit-discard") {
+        } else if (button_name == "submit-discard") {
             // Discarding email, remove all attachments to prevent unneeded uploading.
             $("[id|=id_attachments]:file").remove();
         }
+
+        // Make sure both buttons of the same name are set to the loading state
+        $("button[name='" + button_name + "']").button("loading");
         // No validation needed, remove attachments to prevent unneeded uploading.
-        $(this).button("loading");
         App.blockUI($(".inbox-content"), false, "");
         $("[id|=id_attachments]:file").filter(function () {
             return $(this).data("formset-disabled") == true;
         }).remove();
+
+        // Make sure form always gets submitted
+        $(this).closest('form').submit();
     });
 });

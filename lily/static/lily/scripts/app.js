@@ -190,7 +190,7 @@ $(function($) {
 
         // use Select2 in modals for certain fields
         $('body').on('shown.bs.modal', '.modal', function() {
-        	init_select2('.modal-body');
+            init_select2('.modal-body');
             init_select2_ajax();
         });
 
@@ -269,11 +269,15 @@ $(function($) {
                         // loads notifications if any
                         load_notifications();
                     }
+                    init_select2('body');
+                    init_select2_ajax();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     $(form).find('[data-async-response]').html(jqXHR.responseText);
                     // loads notifications if any
                     load_notifications();
+                    init_select2('body');
+                    init_select2_ajax();
                 }
             });
 

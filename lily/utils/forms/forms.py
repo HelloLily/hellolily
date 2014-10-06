@@ -6,18 +6,18 @@ from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES
 
 
 class HelloLilyForm(BetterForm):
-    '''
+    """
     Inherit from BetterForm django-form-utils.
     We can add more custom form features here later.
-    '''
+    """
     pass
 
 
 class HelloLilyModelForm(BetterModelForm):
-    '''
+    """
     Inherit from BetterModelForm django-form-utils.
     We can add more custom form features here later.
-    '''
+    """
     pass
 
 
@@ -25,11 +25,9 @@ class EmailAddressBaseForm(HelloLilyModelForm):
     """
     Form for adding an e-mail address, only including the is_primary and the e-mail fields.
     """
-
     class Meta:
         model = EmailAddress
         fields = ('email_address',)
-        exclude = ('status', 'is_primary',)
         widgets = {
             'email_address': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',
@@ -55,7 +53,6 @@ class PhoneNumberBaseForm(HelloLilyModelForm):
     class Meta:
         model = PhoneNumber
         fields = ('raw_input', 'type', 'other_type', )
-        exclude = ('status', )
         widgets = {
             'other_type': forms.TextInput(attrs={
                 'class': 'other hidden',
@@ -93,4 +90,3 @@ class AddressBaseForm(HelloLilyModelForm):
     class Meta:
         model = Address
         fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
-        exclude = ('state_provice',)

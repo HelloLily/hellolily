@@ -120,7 +120,6 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
             'account',
             'assigned_to',
         )
-        exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
             'priority': PrioritySelect(attrs={

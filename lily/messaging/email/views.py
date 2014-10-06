@@ -1065,6 +1065,7 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
         if self.object:
             kwargs['initial']['subject'] = 'Re: %s' % self.object.subject
             kwargs['initial']['send_to_normal'] = self.object.from_combined
+            kwargs['initial']['send_from'] = self.object.account
 
         return kwargs
 

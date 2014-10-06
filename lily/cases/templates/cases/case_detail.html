@@ -119,19 +119,17 @@
                     </label>
                 {% endfor %}
             </div>
-            {% if object.is_archived %}
-                <div class="btn-group">
-                    <a class="btn blue actions" data-toggle="dropdown">
-                        {% trans 'Actions' %}
-                        <i class="icon-angle-down"></i>
-                    </a>
-                    <ul class="dropdown-menu pull-right">
-                        <li>
-                            <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}"><i class="icon-check"></i> {% trans 'Unarchive' %}</a>
-                        </li>
-                    </ul>
-                </div>
-            {% endif %}
+            <div class="btn-group">
+                {% if object.is_archived %}
+                    <a href="{% url 'case_update_unarchive' pk=object.pk %}" class="btn default" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
+                {% else %}
+                    <a href="{% url 'case_archive' %}" class="btn default" data-form-submit data-form-selector="#case-archive-form">{% trans 'Archive' %}</a>
+                    <form action="{% url 'case_archive' %}" method="post" id="case-archive-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+                    </form>
+                {% endif %}
+            </div>
         </div>
     </div>
     {% if object.description %}

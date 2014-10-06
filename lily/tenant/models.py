@@ -97,7 +97,9 @@ class NullableTenantMixin(models.Model):
 
     def save(self, *args, **kwargs):
         user = get_current_user()
-        if user and user.is_authenticated():
+
+        # Only set the tenant if it's a new tenant and a user is logged in
+        if not self.id and user and user.is_authenticated():
             self.tenant = user.tenant
 
         return super(NullableTenantMixin, self).save(*args, **kwargs)

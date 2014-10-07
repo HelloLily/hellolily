@@ -67,12 +67,12 @@ var Inbox = function () {
         init: function () {
 
             //handle compose/reply cc input toggle
-            $(".inbox-compose .mail-to .inbox-cc").live("click", function () {
+            $(".inbox-compose .mail-to .inbox-cc").on("click", function () {
                 handleCCInput();
             });
 
             //handle compose/reply bcc input toggle
-            $(".inbox-compose .mail-to .inbox-bcc").live("click", function () {
+            $(".inbox-compose .mail-to .inbox-bcc").on("click", function () {
                 handleBCCInput();
             });
 

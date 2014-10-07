@@ -208,7 +208,6 @@ class AttachmentBaseForm(HelloLilyModelForm):
     class Meta:
         models = EmailAttachment
         fields = ('attachment',)
-        exclude = ('message', 'size', 'inline', 'tenant')
         widgets = {
             'attachment': EmailAttachmentWidget(),
         }

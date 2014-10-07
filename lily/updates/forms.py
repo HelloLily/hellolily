@@ -10,7 +10,6 @@ class CreateBlogEntryForm(HelloLilyModelForm):
     class Meta:
         model = BlogEntry
         fields = ('reply_to', 'content',)
-        exclude = ('author', 'created', 'deleted',)
         widgets = {
             'content': forms.Textarea(attrs={
                 'placeholder': _('Write something here'),

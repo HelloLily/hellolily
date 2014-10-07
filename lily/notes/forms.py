@@ -14,7 +14,6 @@ class NoteForm(HelloLilyModelForm):
     class Meta:
         model = Note
         fields = ('content',)
-        exclude = ('is_deleted', 'author', 'object_id', 'content_type')
         widgets = {
             'content': forms.Textarea(attrs={
                 'placeholder': _('Write your note here'),
@@ -32,7 +31,6 @@ class UpdateNoteForm(HelloLilyModelForm):
     class Meta:
         model = Note
         fields = ('content',)
-        exclude = ('is_deleted', 'author', 'object_id', 'content_type')
         widgets = {
             'content': forms.Textarea(attrs={
                 'class': 'inline note-textarea',

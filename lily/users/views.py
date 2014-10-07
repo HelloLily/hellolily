@@ -24,6 +24,7 @@ from templated_email import send_templated_mail
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
+from lily.tenant.functions import add_tenant
 from lily.updates.forms import CreateBlogEntryForm
 from lily.updates.models import BlogEntry
 from lily.users.decorators import group_required
@@ -34,12 +35,6 @@ from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
 from lily.utils.views.mixins import LoginRequiredMixin
-
-
-try:
-    from lily.tenant.functions import add_tenant
-except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant
 
 
 class RegistrationView(FormView):
@@ -77,7 +72,7 @@ class RegistrationView(FormView):
 
         # Create account
         account = Account(name=form.cleaned_data.get('company'))
-        add_tenant(account, tenant)
+        account.tenant = tenant
         account.save()
 
         # Create function
@@ -87,7 +82,7 @@ class RegistrationView(FormView):
         email = EmailAddress()
         email.email_address = form.cleaned_data['email']
         email.is_primary = True
-        add_tenant(email)
+        email.tenant = tenant
         email.save()
         contact.email_addresses.add(email)
         contact.save()
@@ -104,12 +99,12 @@ class RegistrationView(FormView):
         # Set inactive by default, activaten by e-mail required
         user.is_active = False
 
-        add_tenant(user, tenant)
+        user.tenant = tenant
         user.save()
 
         # Add to admin group
-        group, created = Group.objects.get_or_create(name='account_admin')
-        user.groups.add(group)
+        account_admin = Group.objects.get_or_create(name='account_admin')[0]
+        user.groups.add(account_admin)
 
         # Get the current site
         try:
@@ -161,9 +156,9 @@ class ActivationView(TemplateView):
         """
         Check whether the activation link is valid, for this both the user id and the token should
         be valid. Messages are shown when user belonging to the user id is already active
-        and when the account is succesfully activated. In all other cases the activation failed
+        and when the account is successfully activated. In all other cases the activation failed
         template is shown.
-        Finally if the user is succesfully activated, log user in and redirect to their dashboard.
+        Finally if the user is successfully activated, log user in and redirect to their dashboard.
         """
         try:
             self.uid = base36_to_int(kwargs['uidb36'])
@@ -363,7 +358,7 @@ send_invitation_view = group_required('account_admin')(SendInvitationView.as_vie
 
 class AcceptInvitationView(FormView):
     """
-    This is the view that handles the invatation link and registers the new user if everything
+    This is the view that handles the invitation link and registers the new user if everything
     goes according to plan, otherwise redirect the user to a failure template.
     """
     template_name = 'users/invitation/accept.html'
@@ -408,15 +403,15 @@ class AcceptInvitationView(FormView):
             }
             return super(AcceptInvitationView, self).get(request, *args, **kwargs)
 
-        self.object = None
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         """
-        This function is called on a form submit. The function link_is_valid is called to
-        determine wheter the link is valid. If so load all the necesary data for the form etc.
-        otherwise render the failure template (which get_template_names will return since link is
-        invalid.
+        The function link_is_valid is called to determine if the link is valid.
+
+        If so load all the necessary data for the form etc.
+        otherwise render the failure template (which get_template_names will
+        return since link is invalid).
         """
         if self.link_is_valid():
             self.initial = {
@@ -426,13 +421,14 @@ class AcceptInvitationView(FormView):
             }
             return super(AcceptInvitationView, self).post(request, *args, **kwargs)
 
-        self.object = None
         return self.render_to_response(self.get_context_data())
 
     def link_is_valid(self):
         """
         This functions performs all checks to verify the url is correct.
-        It returns the boolean value but also sets a class variable with this boolean.
+
+        Returns:
+            Boolean: True if link is valid
         """
         # Default value is false, only set to true if all checks have passed
         self.valid_link = False
@@ -468,30 +464,37 @@ class AcceptInvitationView(FormView):
                     # Check if the link is not too old and not in the future
                     return self.valid_link
 
+        # Every check was passed successfully, link is valid
         self.valid_link = True
         return self.valid_link
 
     def form_valid(self, form):
         """
-        This function is called when the form is deemed valid. The new user is created and the
-        get_success_url method is called.
+        Create CustomUser with existing Contact or create Contact.
         """
+        # Check if there is an existing user, otherwise create one.
         try:
-            contact = Contact.objects.get(email_addresses__email_address=self.email, email_addresses__is_primary=True)
-        except Contact.DoesNotExist:
+            contact = Contact.objects.filter(
+                email_addresses__email_address=self.email,
+                email_addresses__is_primary=True,
+                tenant=self.account.tenant
+            )[0]
+        except IndexError:
             contact = Contact(
                 first_name=form.cleaned_data['first_name'],
                 preposition=form.cleaned_data['preposition'],
-                last_name=form.cleaned_data['last_name']
+                last_name=form.cleaned_data['last_name'],
+                tenant=self.account.tenant
             )
 
-            if hasattr(self.account, 'tenant'):
-                add_tenant(contact, self.account.tenant)
-
             contact.save()
-
             contact.primary_email = form.cleaned_data['email']
-            contact.save()
+        else:
+            contact.first_name = form.cleaned_data['first_name']
+            contact.preposition = form.cleaned_data['preposition']
+            contact.last_name = form.cleaned_data['last_name']
+
+        contact.save()
 
         # Create function
         Function.objects.create(account=self.account, contact=contact)
@@ -502,18 +505,12 @@ class AcceptInvitationView(FormView):
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
         user.set_password(form.cleaned_data['password'])
-
-        # TODO: move this...
-        if hasattr(self.account, 'tenant'):
-            add_tenant(user, self.account.tenant)
+        user.tenant = self.account.tenant
         user.save()
 
         return self.get_success_url()
 
     def get_success_url(self):
-        """
-        Redirect to the success page.
-        """
         return redirect(reverse_lazy('login'))
 
 

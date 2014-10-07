@@ -246,6 +246,13 @@ label.required::after {
 .header .hor-menu ul.nav li a {
     padding: 11px 5px;
     margin-left: 15px;
+    color: #999999;
+    line-height: 20px;
+    position: relative;
+    display: block;
+}
+.header .hor-menu ul.nav li a:hover {
+    text-decoration: none;
 }
 
 .header .hor-menu ul.nav li a.icon-plus {

@@ -65,7 +65,6 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
     class Meta:
         model = Deal
         fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
-        exclude = ('is_deleted', 'closed_date', 'tenant')
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea(attrs={

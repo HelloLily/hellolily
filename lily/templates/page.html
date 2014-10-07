@@ -36,6 +36,11 @@
         <li>
             <a href="{% url 'deal_create' %}" class="icon-plus"></a>
         </li>
+        {% if not debug %}
+        <li>
+            <div id="getsat-widget-7393"></div>
+        </li>
+        {% endif %}
         {% endblock %}
     </ul>
 </div>
@@ -191,4 +196,10 @@
             App.init();
         });
     </script>
+{% if not debug %}
+<script type="text/javascript" src="https://loader.engage.gsfn.us/loader.js"></script>
+<script type="text/javascript">
+    if (typeof GSFN !== "undefined") { GSFN.loadWidget(7393,{"containerId":"getsat-widget-7393"}); }
+</script>
+{% endif %}
 {% endblock %}

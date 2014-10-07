@@ -67,12 +67,12 @@ var Inbox = function () {
         init: function () {
 
             //handle compose/reply cc input toggle
-            $(".inbox-compose .mail-to .inbox-cc").live("click", function () {
+            $(".inbox-compose .mail-to .inbox-cc").on("click", function () {
                 handleCCInput();
             });
 
             //handle compose/reply bcc input toggle
-            $(".inbox-compose .mail-to .inbox-bcc").live("click", function () {
+            $(".inbox-compose .mail-to .inbox-bcc").on("click", function () {
                 handleBCCInput();
             });
 
@@ -239,7 +239,14 @@ $(function ($) {
     $(".inbox-compose [type='submit']").click(function (event) {
         event.preventDefault();
 
-        var button_name = $(this).attr('name');
+        var button_name = $(this).attr("name");
+        var form = $(this).closest("form");
+
+        // Add button name which is used for certain checks
+        $("<input>").attr("type", "hidden")
+        .attr("name", button_name)
+        .attr("value", "")
+        .appendTo(form);
 
         if (button_name == "submit-send") {
             // Validation of fields.
@@ -262,6 +269,6 @@ $(function ($) {
         }).remove();
 
         // Make sure form always gets submitted
-        $(this).closest('form').submit();
+        $(form).submit();
     });
 });

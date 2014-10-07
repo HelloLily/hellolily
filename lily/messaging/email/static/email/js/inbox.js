@@ -239,7 +239,14 @@ $(function ($) {
     $(".inbox-compose [type='submit']").click(function (event) {
         event.preventDefault();
 
-        var button_name = $(this).attr('name');
+        var button_name = $(this).attr("name");
+        var form = $(this).closest("form");
+
+        // Add button name which is used for certain checks
+        $("<input>").attr("type", "hidden")
+        .attr("name", button_name)
+        .attr("value", "")
+        .appendTo(form);
 
         if (button_name == "submit-send") {
             // Validation of fields.
@@ -262,8 +269,6 @@ $(function ($) {
         }).remove();
 
         // Make sure form always gets submitted
-        var form = $(this).closest('form');
-        var form_data = $(form).serialize() + '&' + button_name;
-        $.post('', form_data);
+        $(form).submit();
     });
 });

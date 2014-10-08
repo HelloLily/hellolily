@@ -156,6 +156,7 @@ PIPELINE_JS = {
             'metronic/plugins/jquery.cookie.min.js',
             'metronic/plugins/uniform/jquery.uniform.min.js',
             'lily/scripts/forms/select2.js',
+            'lily/plugins/jquery.truncate.js',
         ),
         'output_filename': 'compiled/js/core.js',
     },

@@ -1,7 +1,7 @@
 /* Set caret at end of text in given elem */
 function setCaretAtEnd(elem) {
     var range;
-    var caretPos = $(elem).val().length
+    var caretPos = $(elem).val().length;
 
     if (elem.createTextRange) {
         range = elem.createTextRange();
@@ -115,9 +115,23 @@ function redirect_to(redirect_url) {
     }
 }
 
+function init_truncate(){
+    $('.truncate').truncate({
+        token: '&nbsp;(&hellip;)'
+    });
+}
+
 $(function($) {
     // Format phonenumbers for every phone input field
     $('body').on('blur', 'input[name^="phone"]', function() {phone_fmt.call(this)});
+
+    // Truncate long fields
+    init_truncate();
+
+    // Truncate on long fields
+    $(window).on("resize", function() {
+        init_truncate();
+    });
 
     if($.fn.modal) {
         // spinner template for bootstrap 3

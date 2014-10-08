@@ -1,7 +1,7 @@
 {% if not request.is_ajax %}
     <td>
 {% endif %}
-{% if item.primary_email %}
+{% if item.get_any_email_address %}
     <div>
          <a href="mailto:{{ item.get_any_email_address }}"title="{{ item.get_any_email_address }}">
              <i class="icon-envelope-alt"></i>

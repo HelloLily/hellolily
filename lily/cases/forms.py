@@ -20,11 +20,12 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
-    type = forms.ModelChoiceField(label=_('Type'),
-                                  queryset=CaseType.objects,
-                                  empty_label='---------',
-                                  required=False,
-                                  )
+    type = forms.ModelChoiceField(
+        label=_('Type'),
+        queryset=CaseType.objects,
+        empty_label='---------',
+        required=False,
+    )
 
     account = forms.ModelChoiceField(
         label=_('Account'),

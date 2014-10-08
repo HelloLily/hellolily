@@ -63,52 +63,6 @@ function phone_fmt() {
     el.val(phone);
 }
 
-function init_select2_ajax() {
-    var page_limit = 30;
-    $('.select2ajax').each(function(){
-        $(this).select2({
-            ajax: {
-                quietMillis: 300,
-                cache: true,
-                data: function (term, page) { // page is the one-based page number tracked by Select2
-                    return {
-                        q: term, //search term
-                        page_limit: page_limit, // page size
-                        page: page, // page number
-                        filter: $('#'+$(this).data('filter-on')).val()
-                    };
-                },
-                results: function (data, page) {
-                    var more = (page * page_limit) < data.total; // whether or not there are more results available
-                    // Add clear option
-                    if (page == 1) {
-                        data.objects.unshift({id: -1, text:'-- Clear --'});
-                    }
-                    return {
-                        results: data.objects,
-                        more: more
-                    }
-                }
-            },
-            initSelection: function (item, callback) {
-                var id = item.val();
-                var text = item.data('selected-text');
-                var data = { id: id, text: text };
-                callback(data);
-            }
-        });
-    });
-}
-
-/* Select fields automatic to select2 forms */
-function init_select2(parent_selector) {
-	$(parent_selector + ' select').select2({
-	    // at least this many results are needed to enable the search field
-		// (9 is the amount at which the user must scroll to see all items)
-		minimumResultsForSearch: 9
-	});
-}
-
 //Selects the account belonging to a contact when a contact is selected.
 //Also, when an account is selected, it will reset the selected contact if it does not belong to it.
 function change_account(id_contact, id_account) {
@@ -162,13 +116,6 @@ function redirect_to(redirect_url) {
 }
 
 $(function($) {
-
-    // Make al select items in body Select2
-	init_select2('body');
-
-    // Make remote ajax Select2 elements
-    init_select2_ajax();
-
     // Format phonenumbers for every phone input field
     $('body').on('blur', 'input[name^="phone"]', function() {phone_fmt.call(this)});
 
@@ -186,12 +133,6 @@ $(function($) {
         // remove any results from other modals
         $('body').on('hidden.bs.modal', '.modal', function() {
             $(this).find('[data-async-response]').html('');
-        });
-
-        // use Select2 in modals for certain fields
-        $('body').on('shown.bs.modal', '.modal', function() {
-            init_select2('.modal-body');
-            init_select2_ajax();
         });
 
         // remove focus from element that triggered modal
@@ -269,18 +210,17 @@ $(function($) {
                         // loads notifications if any
                         load_notifications();
                     }
-                    init_select2('body');
-                    init_select2_ajax();
+                    // Reset all Select2 options
+                    init_select2();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     $(form).find('[data-async-response]').html(jqXHR.responseText);
                     // loads notifications if any
                     load_notifications();
-                    init_select2('body');
-                    init_select2_ajax();
+                    // Reset all Select2 options
+                    init_select2();
                 }
             });
-
             event.preventDefault();
         });
     }

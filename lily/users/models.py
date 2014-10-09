@@ -68,7 +68,7 @@ class CustomUser(User, TenantMixin):
             messages_accounts = MessagesAccount.objects.filter(
                 Q(is_deleted=False) &
                 (
-                    Q(shared_with=1) |
+                    # Q(shared_with=1) |
                     Q(shared_with=2, user_group__pk=self.pk) |
                     Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk'))
                 )
@@ -78,7 +78,7 @@ class CustomUser(User, TenantMixin):
             messages_accounts = MessagesAccount.objects.filter(
                 Q(is_deleted=False) &
                 (
-                    Q(shared_with=1) |
+                    # Q(shared_with=1) |
                     Q(shared_with=2, user_group__pk=self.pk) |
                     Q(pk__in=self.messages_accounts.values_list('pk'))
                 )

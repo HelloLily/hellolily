@@ -1,15 +1,18 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
+from django.core.validators import validate_email
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
+from lily.utils.forms.fields import TagsField
 from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
 from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.forms.mixins import FormSetFormMixin
+from lily.utils.models import EmailAddress
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -26,7 +29,11 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
             model=Account,
         ),
     )
-    email = forms.EmailField(label=_('E-mail address'), max_length=255, required=False)
+    emails = TagsField(
+        label=_('E-mail addresses'),
+        required=False,
+    )
+
     phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -43,18 +50,20 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         # Provide filtered query set
         self.fields['account'].queryset = Account.objects.all()
 
-    def clean_email(self):
+    def clean_emails(self):
         """
-        Prevent multiple contacts with the same e-mailadress when adding
+        Prevent multiple contacts with the same email address when adding
         """
-        email = self.cleaned_data['email']
-        if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
-            raise ValidationError(
-                _('E-mail address already in use.'),
-                code='invalid',
-            )
-        else:
-            return email
+        for email in self.cleaned_data['emails']:
+            # Check if input is a real email address
+            validate_email(email)
+            # Check if email address already exists under different account
+            if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
+                raise ValidationError(
+                    _('E-mail address already in use.'),
+                    code='invalid',
+                )
+        return self.cleaned_data['emails']
 
     def clean(self):
         """
@@ -68,9 +77,28 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
 
         return cleaned_data
 
+    def save(self, commit=True):
+        """
+        Save Many2Many email addresses to instance.
+        """
+        instance = super(AddContactQuickbuttonForm, self).save(commit=commit)
+
+        if commit:
+            first = True
+            for email in self.cleaned_data['emails']:
+                email_address = EmailAddress.objects.create(
+                    email_address=email,
+                    is_primary=first,
+                    tenant=instance.tenant
+                )
+                instance.email_addresses.add(email_address)
+                first = False
+
+        return instance
+
     class Meta:
         model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'account', 'email', 'phone')
+        fields = ('first_name', 'preposition', 'last_name', 'account', 'emails', 'phone')
 
 
 class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):

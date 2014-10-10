@@ -225,14 +225,14 @@ $(function($) {
                         load_notifications();
                     }
                     // Reset all Select2 options
-                    init_select2();
+                    HLSelect2.setupSelect2();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     $(form).find('[data-async-response]').html(jqXHR.responseText);
                     // loads notifications if any
                     load_notifications();
                     // Reset all Select2 options
-                    init_select2();
+                    HLSelect2.setupSelect2();
                 }
             });
             event.preventDefault();

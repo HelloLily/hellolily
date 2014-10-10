@@ -1,80 +1,93 @@
-/* Library with Select2 functions */
+(function($, window, document, undefined){
+    window.HLSelect2 = {
+        config: {
+            tagInputs: 'input.tags',
+            ajaxInputs: 'input.select2ajax',
+            ajaxPageLimit: 30,
+            clearText: '-- Clear --'
+        },
 
-/* Make tag input fields taggable */
-function init_select2_tags() {
-    var tag_field = $('input.tags');
-    var tags = [];
-    if($(tag_field).data('choices')) {
-        tags = $(tag_field).data('choices').split(',');
-    }
-
-    tag_field.select2({
-        tags: tags,
-        tokenSeparators: [",", " "]
-    });
-}
-
-/* Setup Select2 fields with remote data */
-function init_select2_ajax() {
-    var page_limit = 30;
-    $('.select2ajax').each(function(){
-        $(this).select2({
-            ajax: {
-                quietMillis: 300,
-                cache: true,
-                data: function (term, page) { // page is the one-based page number tracked by Select2
-                    return {
-                        q: term, //search term
-                        page_limit: page_limit, // page size
-                        page: page, // page number
-                        filter: $('#'+$(this).data('filter-on')).val()
-                    };
-                },
-                results: function (data, page) {
-                    var more = (page * page_limit) < data.total; // whether or not there are more results available
-                    // Add clear option
-                    if (page == 1) {
-                        data.objects.unshift({id: -1, text:'-- Clear --'});
-                    }
-                    return {
-                        results: data.objects,
-                        more: more
-                    }
-                }
-            },
-            initSelection: function (item, callback) {
-                var id = item.val();
-                var text = item.data('selected-text');
-                var data = { id: id, text: text };
-                callback(data);
+        init: function( config ) {
+            // Setup configuration
+            if (typeof (config) === 'object') {
+                $.extend(this.config, config);
             }
-        });
-    });
-}
+            // On initialize, setup select2
+            this.setupSelect2();
+            this.setupListeners();
+        },
 
-/* Select fields automatic to select2 forms */
-function init_select2() {
-    $('select').select2({
-        // at least this many results are needed to enable the search field
-        // (9 is the amount at which the user must scroll to see all items)
-        minimumResultsForSearch: 9
-    });
+        setupSelect2: function() {
+            $('select').select2({
+                // at least this many results are needed to enable the search field
+                // (9 is the amount at which the user must scroll to see all items)
+                minimumResultsForSearch: 9
+            });
+            this.createTagInputs();
+            this.createAjaxInputs();
+        },
 
-    // Initialize Select2 input fields that require remote Ajax calls
-    init_select2_ajax();
+        createTagInputs: function() {
+            // Setup tag inputs
+            $(this.config.tagInputs).each(function() {
+                var tags = [];
+                $this = $(this);
+                if ($this.data('choices')) {
+                    tags = $this.data('choices').split(',');
+                }
+                $this.select2({
+                    tags: tags,
+                    tokenSeparators: [",", " "]
+                });
+            });
+        },
 
-    // Initialze Select2 tags for the tag fields
-    init_select2_tags();
-}
+        createAjaxInputs: function() {
+            // Setup inputs that needs remote link
+            var self = this;
+            $(this.config.ajaxInputs).each(function() {
+                $this = $(this);
+                $this.select2({
+                    ajax: {
+                        quietMillis: 300,
+                        cache: true,
+                        data: function (term, page) { // page is the one-based page number tracked by Select2
+                            return {
+                                q: term, //search term
+                                page_limit: self.config.page_limit, // page size
+                                page: page, // page number
+                                filter: $('#'+$this.data('filter-on')).val()
+                            };
+                        },
+                        results: function (data, page) {
+                            var more = (page * self.config.page_limit) < data.total; // whether or not there are more results available
+                            // Add clear option
+                            if (page == 1) {
+                                data.objects.unshift({id: -1, text:self.config.clearText});
+                            }
+                            return {
+                                results: data.objects,
+                                more: more
+                            }
+                        }
+                    },
+                    initSelection: function (item, callback) {
+                        var id = item.val();
+                        var text = item.data('selected-text');
+                        var data = { id: id, text: text };
+                        callback(data);
+                    }
+                });
+            });
+        },
 
+        setupListeners: function() {
+            var self = this;
+            // When modal is shown, lets instantiate the select2 in the modals
+            $(document).on('shown.bs.modal', '.modal', function() {
+                self.setupSelect2();
+            });
+        }
+    };
 
-
-$(function($) {
-    // Initialize all select2 on body load
-	init_select2();
-
-    // On modal popup
-    $('body').on('shown.bs.modal', '.modal', function() {
-        init_select2();
-    });
-});
+})(jQuery, window, document);

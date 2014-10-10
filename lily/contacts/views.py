@@ -359,12 +359,8 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
         # Show save message
         messages.success(self.request, message)
 
-        if is_ajax(self.request):
+        if self.is_ajax:
             form_kwargs = self.get_form_kwargs()
-
-            # Add e-mail address to contact as primary
-            self.object.primary_email = form.cleaned_data.get('email')
-            self.object.save()
 
             # Save phone number
             if form.cleaned_data.get('phone'):
@@ -419,7 +415,7 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
         Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as
         checked for postbacks.
         """
-        if is_ajax(self.request):
+        if self.is_ajax:
             context = RequestContext(self.request, self.get_context_data(form=form))
             return HttpResponse(anyjson.serialize({
                 'error': True,

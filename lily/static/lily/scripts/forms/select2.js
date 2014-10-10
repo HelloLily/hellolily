@@ -8,13 +8,22 @@
         },
 
         init: function( config ) {
+            var self = this;
             // Setup configuration
-            if (typeof (config) === 'object') {
-                $.extend(this.config, config);
+            if ($.isPlainObject(config)) {
+                $.extend(self.config, config);
             }
             // On initialize, setup select2
-            this.setupSelect2();
-            this.setupListeners();
+            self.setupSelect2();
+            self.initListeners();
+        },
+
+        initListeners: function() {
+            var self = this;
+            // When modal is shown, lets instantiate the select2 in the modals
+            $(document).on('shown.bs.modal', '.modal', function() {
+                self.setupSelect2();
+            });
         },
 
         setupSelect2: function() {
@@ -31,7 +40,7 @@
             // Setup tag inputs
             $(this.config.tagInputs).each(function() {
                 var tags = [];
-                $this = $(this);
+                var $this = $(this);
                 if ($this.data('choices')) {
                     tags = $this.data('choices').split(',');
                 }
@@ -45,8 +54,8 @@
         createAjaxInputs: function() {
             // Setup inputs that needs remote link
             var self = this;
-            $(this.config.ajaxInputs).each(function() {
-                $this = $(this);
+            $(self.config.ajaxInputs).each(function() {
+                var $this = $(this);
                 $this.select2({
                     ajax: {
                         quietMillis: 300,
@@ -54,13 +63,13 @@
                         data: function (term, page) { // page is the one-based page number tracked by Select2
                             return {
                                 q: term, //search term
-                                page_limit: self.config.page_limit, // page size
+                                page_limit: self.config.ajaxPageLimit, // page size
                                 page: page, // page number
                                 filter: $('#'+$this.data('filter-on')).val()
                             };
                         },
                         results: function (data, page) {
-                            var more = (page * self.config.page_limit) < data.total; // whether or not there are more results available
+                            var more = (page * self.config.ajaxPageLimit) < data.total; // whether or not there are more results available
                             // Add clear option
                             if (page == 1) {
                                 data.objects.unshift({id: -1, text:self.config.clearText});
@@ -78,14 +87,6 @@
                         callback(data);
                     }
                 });
-            });
-        },
-
-        setupListeners: function() {
-            var self = this;
-            // When modal is shown, lets instantiate the select2 in the modals
-            $(document).on('shown.bs.modal', '.modal', function() {
-                self.setupSelect2();
             });
         }
     };

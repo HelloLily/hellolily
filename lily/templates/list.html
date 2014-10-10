@@ -39,52 +39,24 @@
 {% block scripts %}
     {{ block.super }}
     {% compressed_js 'tables' %}
-<script>
-$(function($){
-
-    $('.page-content .data-table').dataTable({
-        {% if data_tables_server_side %}
-        'bServerSide': true,
-        'sAjaxSource': '{{ data_tables_ajax_source }}',
-        'aoColumns': {{ data_tables_columns }},
-        'bFilter': {{ data_tables_show_search_field }},
-        'fnDrawCallback': function() {
-            App.initUniform();
-
-            // Truncate long fields
-            HLApp.resetTruncateFields();
-        },
-        {% else %}
-        'aoColumnDefs': [
-            {% block list-definition %}{% endblock %}
-        ],
-        {% endif %}
-        'aLengthMenu': [
-            [5, 15, 20],
-            [5, 15, 20] // change per page values here
-        ],
-        // set the initial value
-        'iDisplayLength': 20,
-        'sPaginationType': 'bootstrap',
-        'oLanguage': {
-            'sLengthMenu': '_MENU_ records',
-            'oPaginate': {
-                'sPrevious': '{% trans 'Prev' %}',
-                'sNext': '{% trans 'Next' %}'
-            }
-        },
-        'bAutoWidth': false,
-        'aaSorting': [[{{ order_by }}, '{{ sort_order }}']]
-    }).fnSetFilteringDelay();
-
-    // modify table search input
-    $('.page-content .dataTables_filter input').addClass("form-control input-small");
-    // modify table per page dropdown
-    $('.page-content .dataTables_length select').addClass("form-control input-xsmall");
-    // initialize select2 dropdown
-    $('.page-content .dataTables_length select').select2({minimumResultsForSearch: -1});
-});
-</script>
+    <script>
+        $(function($){
+            HLList.init({
+                DTSelector: '.page-content .data-table',
+                DTServerSide: {% if data_tables_server_side %}true{% else %}false{% endif %},
+                DTAjaxSource: '{{ data_tables_ajax_source }}',
+                DTColumns: {{ data_tables_columns }},
+                DTFilter: {% if data_tables_show_search_field  %}true{% else %}false{% endif %},
+                DTColumnsDefs: [{% block list-definition %}{% endblock %}],
+                DTSorting: [[{{ order_by }}, '{{ sort_order }}']],
+                allText: '{% trans 'All' %}',
+                prevText: '{% trans 'Prev' %}',
+                nextText: '{% trans 'Next' %}',
+                recordText: '{% trans 'Records' %}',
+                DTInfoText: '{% trans 'Showing _START_ to _END_ of _TOTAL_ records' %}'
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block modals %}

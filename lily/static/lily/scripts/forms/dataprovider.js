@@ -13,9 +13,9 @@ $(function() {
             $(input).val(value);
         }
         $(input).change();
-        if ($(input).parent().hasClass('hide')) {
+        if ($(input).parent().hasClass('original-form-widget') && $(input).parent().hasClass('hide')) {
             // show the input, by reusing the click handler as defined in the utils.
-            $(input).parents(".show-and-hide-input").find('a[data-action="show"]').trigger('click')
+            $(input).parents(".show-and-hide-input").find('a[data-action="show"]').trigger('click');
         }
     }
 
@@ -28,7 +28,7 @@ $(function() {
             // Input is the field in the current form
             var input = $(form).find('[name="' + field + '"]');
             // Always clear the field if it's hidden
-            if (input.attr('type') == 'hidden') {
+            if (input.attr('type') == 'hidden' || $(input).parent().hasClass('hide')) {
                 $(input).val('');
             }
             // Check if there is data for the field, else do nothing

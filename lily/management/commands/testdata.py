@@ -4,8 +4,7 @@ from django.core.management.base import BaseCommand
 
 from lily.accounts.factories import AccountFactory
 from lily.cases.factories import CaseFactory
-from lily.contacts.factories import ContactFactory, ContactWithEmailFactory, \
-    ContactWithAccountFactory, function_factory
+from lily.contacts.factories import ContactFactory, function_factory
 from lily.deals.factories import DealFactory
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
@@ -14,15 +13,15 @@ from lily.users.factories import AdminCustomUserFactory, CustomUserFactory
 
 
 class Command(BaseCommand):
-    help = """Populate the database with test data. It will create a new tenant. \
-In this tenant it will create various model instances."""
+    help = """Populate the database with test data. It will create a new tenant, \
+or use an existent tenant if passed as an argument."""
 
     option_list = BaseCommand.option_list + (
         make_option('-t', '--target',
                     action='store',
                     dest='target',
                     default='all',
-                    help='Choose specific comma separated targets (note: it will always create a tenant.',
+                    help='Choose specific comma separated targets, see the code for a list.',
                     ),
         make_option('-b', '--batch-size',
                     action='store',
@@ -54,6 +53,7 @@ In this tenant it will create various model instances."""
                                                                            tenant))
 
     def all(self, size, tenant):
+        # Call every target.
         self.users(size, tenant)
         self.contacts_and_accounts(size, tenant)
         self.deals(size, tenant)
@@ -88,10 +88,8 @@ In this tenant it will create various model instances."""
         CustomUserFactory.create_batch(size, tenant=tenant)
 
     def contacts_and_accounts(self, size, tenant):
-        # create various contacts: some have email addresses and some have account etc.
+        # create various contacts
         ContactFactory.create_batch(size, tenant=tenant)
-        ContactWithEmailFactory.create_batch(size, tenant=tenant)
-        ContactWithAccountFactory.create_batch(size, tenant=tenant)
         # create accounts with zero contact
         AccountFactory.create_batch(size, tenant=tenant)
         # create account with multi contacts

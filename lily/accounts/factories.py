@@ -11,9 +11,6 @@ faker = Factory.create()
 
 
 class AccountFactory(DjangoModelFactory):
-    class Meta:
-        model = Account
-
     name = LazyAttribute(lambda o: faker.company())
     description = LazyAttribute(lambda o: faker.bs())
 
@@ -23,3 +20,6 @@ class AccountFactory(DjangoModelFactory):
 
         phone_number = PhoneNumberFactory(tenant=self.tenant, raw_input=phone_str)
         self.phone_numbers.add(phone_number)
+
+    class Meta:
+        model = Account

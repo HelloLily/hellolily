@@ -11,12 +11,12 @@ from lily.users.models import CustomUser
 
 
 class CustomUserFactory(DjangoModelFactory):
-    class Meta:
-        model = CustomUser
-
     contact = SubFactory(ContactWithEmailFactory, tenant=SelfAttribute('..tenant'))
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
     username = LazyAttribute(lambda o: uuid4().get_hex()[:10])
+
+    class Meta:
+        model = CustomUser
 
 
 class AdminCustomUserFactory(CustomUserFactory):

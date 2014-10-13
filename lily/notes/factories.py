@@ -15,9 +15,6 @@ faker = Factory.create()
 
 
 class NoteFactory(DjangoModelFactory):
-    class Meta:
-        model = Note
-
     content = LazyAttribute(lambda o: faker.text())
     author = SubFactory(CustomUserFactory, tenant=SelfAttribute('..tenant'))
 
@@ -25,3 +22,6 @@ class NoteFactory(DjangoModelFactory):
     def subject(self):
         SubjectFactory = random.choice([AccountFactory, ContactFactory])
         return SubjectFactory(tenant=self.tenant)
+
+    class Meta:
+        model = Note

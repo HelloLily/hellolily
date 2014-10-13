@@ -8,14 +8,14 @@ faker = Factory.create()
 
 
 class EmailAddressFactory(DjangoModelFactory):
+    is_primary = True
+
     class Meta:
         model = EmailAddress
 
-    is_primary = True
-
 
 class PhoneNumberFactory(DjangoModelFactory):
+    number = faker.phone_number()
+
     class Meta:
         model = PhoneNumber
-
-    number = faker.phone_number()

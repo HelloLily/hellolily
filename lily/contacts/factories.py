@@ -1,6 +1,6 @@
 import factory
-from factory.declarations import LazyAttribute, SubFactory, RelatedFactory, \
-    SelfAttribute
+from factory.declarations import (LazyAttribute, SubFactory, RelatedFactory, \
+                                  SelfAttribute)
 from factory.django import DjangoModelFactory
 from faker.factory import Factory
 
@@ -13,11 +13,11 @@ faker = Factory.create()
 
 
 class ContactFactory(DjangoModelFactory):
-    class Meta:
-        model = Contact
-
     first_name = LazyAttribute(lambda o: faker.first_name())
     last_name = LazyAttribute(lambda o: faker.last_name())
+
+    class Meta:
+        model = Contact
 
 
 class ContactWithEmailFactory(ContactFactory):
@@ -35,11 +35,12 @@ def function_factory(tenant):
     # This factory is method wrapped, because Function itself does not accept tenant.
     # (Otherwise we could just pass the factory a tenant kwarg).
     class FunctionFactory(DjangoModelFactory):
+        contact = SubFactory(ContactFactory, tenant=tenant)
+        account = SubFactory(AccountFactory, tenant=tenant)
+
         class Meta:
             model = Function
 
-        contact = SubFactory(ContactFactory, tenant=tenant)
-        account = SubFactory(AccountFactory, tenant=tenant)
     return FunctionFactory
 
 

@@ -13,6 +13,10 @@ $(function() {
             $(input).val(value);
         }
         $(input).change();
+        if ($(input).parent().hasClass('hide')) {
+            // show the input, by reusing the click handler as defined in the utils.
+            $(input).parents(".show-and-hide-input").find('a[data-action="show"]').trigger('click')
+        }
     }
 
     function fill_form(form, data, fields, formsets) {

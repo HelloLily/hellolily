@@ -441,3 +441,8 @@ label.required::after {
 .input-group .input-group-addon > i {
     color: #000;
 }
+
+.table-scrollable > .table > tbody > tr > td {
+    width: auto;
+    max-width: 400px;
+}

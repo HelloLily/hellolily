@@ -14,7 +14,7 @@ $(document).ready(function() {
                         'status': $(radio_element).val()
                     },
                     beforeSend: addCSRFHeader,
-                    dataType: 'json',
+                    dataType: 'json'
                 });
                 // on success
                 jqXHR.done(function(data, status, xhr) {
@@ -31,7 +31,7 @@ $(document).ready(function() {
                     $('#' + currentStatus).attr('checked', true);
                     $('#' + currentStatus).closest('label').addClass('active');
                     // loads notifications if any
-                    load_notifications();                    
+                    load_notifications();
                 });
                 // finally do this
                 jqXHR.always(function() {

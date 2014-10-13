@@ -1,3 +1,4 @@
+import json
 from urlparse import urlparse
 
 import anyjson
@@ -9,7 +10,7 @@ from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
-from lily.cases.models import Case
+from lily.cases.models import Case, CaseStatus
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
@@ -136,6 +137,13 @@ class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     Display a detail page for a single case.
     """
     model = Case
+
+    def get_context_data(self, **kwargs):
+        context = super(DetailCaseView, self).get_context_data(**kwargs)
+        context.update({
+            'status_choices': CaseStatus.objects.all()
+        })
+        return context
 
 
 class CreateUpdateCaseMixin(LoginRequiredMixin):
@@ -352,21 +360,25 @@ class UpdateStatusAjaxView(AjaxUpdateView):
         Overloading post to update the status attribute for a Case object.
         """
         try:
-            object_id = kwargs.pop('pk')
-            instance = Case.objects.get(pk=object_id)
-
-            if 'status' in request.POST.keys() and len(request.POST.keys()) == 1:
-                instance.status = int(request.POST['status'])
-                instance.save()
-            else:
-                messages.error(self.request, _('Status could not be changed'))
-                raise Http404()
-        except:
+            case = Case.objects.get(pk=kwargs.pop('pk'))
+        except Case.DoesNotExist:
             messages.error(self.request, _('Status could not be changed'))
             raise Http404()
-        else:
-            status = Case.STATUS_CHOICES[instance.status][1]
-            message = _('Status has been changed to') + ' ' + status
-            messages.success(self.request, message)
-            # Return response
-            return HttpResponse(anyjson.serialize({'status': status}), content_type='application/json')
+
+        if 'status' not in request.POST.keys() or len(request.POST.keys()) != 1:
+            messages.error(self.request, _('Status could not be changed'))
+            raise Http404()
+
+        try:
+            status = CaseStatus.objects.get(pk=int(request.POST['status']))
+        except ValueError, CaseStatus.DoesNotExist:
+            messages.error(self.request, _('Status could not be changed'))
+            raise Http404()
+
+        case.status = status
+        case.save()
+
+        message = _('Status has been changed to %s') % status
+        messages.success(self.request, message)
+        # Return response
+        return HttpResponse(json.dumps({'status': status.status}), content_type='application/json')

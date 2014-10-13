@@ -194,6 +194,10 @@
     <script>
         $(function($){
             App.init();
+            HLSelect2.init({ clearText: '{% trans '--- Clear ---' %}'});
+            HLApp.init({
+                contactJsonUrl: '{% url 'json_contact_works_at_short' %}'
+            });
         });
     </script>
 {% if not debug %}

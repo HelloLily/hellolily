@@ -12,7 +12,8 @@ var Inbox = function () {
     var initWysihtml5 = function () {
         editor = new wysihtml5.Editor("id_body_html", {
             toolbar:     "wysihtml5-toolbar",
-            parser: customParser
+            parser: customParser,
+            handleTables: false
         });
 
         editor.observe("load", function() {

@@ -50,6 +50,9 @@ $(function($){
         'bFilter': {{ data_tables_show_search_field }},
         'fnDrawCallback': function() {
             App.initUniform();
+
+            // Truncate long fields
+            HLApp.resetTruncateFields();
         },
         {% else %}
         'aoColumnDefs': [

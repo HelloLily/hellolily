@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
-from lily.cases.models import Case, CaseType
+from lily.cases.models import Case, CaseType, CaseStatus
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
 from lily.tags.forms import TagsFormMixin
@@ -20,11 +20,19 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
-    type = forms.ModelChoiceField(label=_('Type'),
-                                  queryset=CaseType.objects,
-                                  empty_label='---------',
-                                  required=False,
-                                  )
+    status = forms.ModelChoiceField(
+        label=_('Status'),
+        queryset=CaseStatus.objects,
+        empty_label='---------',
+        required=False,
+    )
+
+    type = forms.ModelChoiceField(
+        label=_('Type'),
+        queryset=CaseType.objects,
+        empty_label='---------',
+        required=False,
+    )
 
     account = forms.ModelChoiceField(
         label=_('Account'),

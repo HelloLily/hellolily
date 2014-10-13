@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from lily.cases.models import Case, CaseType
+from lily.cases.models import Case, CaseType, CaseStatus
 
 
 admin.site.register(Case)
 admin.site.register(CaseType)
+admin.site.register(CaseStatus)

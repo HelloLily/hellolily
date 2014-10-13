@@ -1,15 +1,17 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.fields import FormSetField
+from lily.utils.forms.fields import FormSetField, TagsField
 from lily.utils.forms.formsets import BaseFKFormSet
 from lily.utils.forms.widgets import ShowHideWidget, AddonTextInput
 from lily.utils.forms.mixins import FormSetFormMixin
+from lily.utils.models import EmailAddress
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):
@@ -21,7 +23,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
                                                    button_attrs={'class': 'btn default dataprovider'},
                                                    div_attrs={'class': 'input-group dataprovider'}))
     name = forms.CharField(label=_('Company name'), max_length=255)
-    primary_email = forms.EmailField(label=_('E-mail address'), max_length=255)
+    emails = TagsField(label=_('E-mail addresses'), required=False)
     phone_number = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -48,18 +50,19 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         else:
             return name
 
-    def clean_primary_email(self):
+    def clean_emails(self):
         """
         Prevent multiple accounts with the same e-mail adress when adding
         """
-        primary_email = self.cleaned_data['primary_email']
-        if Account.objects.filter(email_addresses__email_address__iexact=primary_email).exists():
-            raise ValidationError(
-                _('E-mail address already in use.'),
-                code='invalid',
-            )
-        else:
-            return primary_email
+        for email in self.cleaned_data['emails']:
+            validate_email(email)
+            if Account.objects.filter(email_addresses__email_address__iexact=email).exists():
+                raise ValidationError(
+                    _('E-mail address already in use.'),
+                    code='invalid',
+                )
+
+        return self.cleaned_data['emails']
 
     def clean_website(self):
         """
@@ -74,10 +77,29 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         else:
             return website
 
+    def save(self, commit=True):
+        """
+        Save Many2Many email addresses to instance.
+        """
+        instance = super(AddAccountQuickbuttonForm, self).save(commit=commit)
+
+        if commit:
+            first = True
+            for email in self.cleaned_data['emails']:
+                email_address = EmailAddress.objects.create(
+                    email_address=email,
+                    is_primary=first,
+                    tenant=instance.tenant
+                )
+                instance.email_addresses.add(email_address)
+                first = False
+
+        return instance
+
     class Meta:
         model = Account
-        fields = ('website', 'name', 'description', 'primary_email', 'phone_number', 'legalentity', 'taxnumber', 'bankaccountnumber',
-                  'cocnumber', 'iban', 'bic')
+        fields = ('website', 'name', 'description', 'emails', 'phone_number', 'legalentity', 'taxnumber',
+                  'bankaccountnumber', 'cocnumber', 'iban', 'bic')
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea({

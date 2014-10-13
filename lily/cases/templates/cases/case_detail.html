@@ -103,7 +103,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>
-                    <span id="status" class="summary-data">{{ object.get_status_display }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
+                    <span id="status" class="summary-data">{{ object.status.status }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
                 </li>
             </ul>
         </div>
@@ -112,10 +112,10 @@
     <div class="row">
         <div class="col-md-12 summary-info text-center">
             <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ object.pk }}">
-                {% for value, status in object.STATUS_CHOICES %}
-                    <label for="status-{{ value }}" class="btn default{% if object.is_archived %} disabled{% else %}{% if object.status == value %} active{% endif %}{% endif %}">
-                        <input class="toggle" type="radio" id="status-{{ value }}" name="radio" value="{{ value }}" {% if not object.is_archived and object.status == value%}checked="checked"{% endif %}>
-                        {{ status }}
+                {% for status_choice in status_choices %}
+                    <label for="status-{{ status_choice.id }}" class="btn default{% if object.is_archived %} disabled{% else %}{% if status_choice == object.status %} active{% endif %}{% endif %}">
+                        <input class="toggle" type="radio" id="status-{{ status_choice.id }}" name="radio" value="{{ status_choice.id }}" {% if not object.is_archived and object.status == status_choice %}checked="checked"{% endif %}>
+                        {{ status_choice }}
                     </label>
                 {% endfor %}
             </div>

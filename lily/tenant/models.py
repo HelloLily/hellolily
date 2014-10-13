@@ -49,7 +49,7 @@ class MultiTenantMixin(models.Model):
     objects = TenantManager()
 
     # blank=True to allow form validation (tenant is set upon model.save)
-    tenant = models.ForeignKey(Tenant, blank=True, editable=False)
+    tenant = models.ForeignKey(Tenant, blank=True)
 
     def save(self, *args, **kwargs):
         user = get_current_user()

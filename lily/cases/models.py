@@ -19,6 +19,19 @@ class CaseType(TenantMixin):
         return self.type
 
 
+class CaseStatus(TenantMixin):
+    position = models.IntegerField()
+    status = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.status
+
+    class Meta:
+        verbose_name_plural = _('case statuses')
+        unique_together = ('tenant', 'position')
+        ordering = ['position']
+
+
 class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     LOW_PRIO, MID_PRIO, HIGH_PRIO, CRIT_PRIO = range(4)
     PRIORITY_CHOICES = (
@@ -28,18 +41,10 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
         (CRIT_PRIO, _('Critical')),
     )
 
-    OPEN_STATUS, ASSIGNED_STATUS, PENDING_STATUS, CLOSED_STATUS = range(4)
-    STATUS_CHOICES = (
-        (OPEN_STATUS, _('Open')),
-        (ASSIGNED_STATUS, _('In progress')),
-        (PENDING_STATUS, _('Pending input')),
-        (CLOSED_STATUS, _('Closed')),
-    )
-
     priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, verbose_name=_('priority'))
     subject = models.CharField(max_length=255, verbose_name=_('subject'))
     description = models.TextField(verbose_name=_('description'), blank=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN_STATUS, verbose_name=_('status'))
+    status = models.ForeignKey(CaseStatus, verbose_name=_('status'), null=True, blank=True, related_name='cases')
 
     type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True, blank=True, related_name='cases')
 

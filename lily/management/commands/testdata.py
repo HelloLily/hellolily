@@ -16,12 +16,15 @@ class Command(BaseCommand):
     help = """Populate the database with test data. It will create a new tenant, \
 or use an existent tenant if passed as an argument."""
 
+    # please keep in sync with methods defined below
+    target_choices = ['all', 'users', 'contacts_and_accounts', 'deals', 'cases', 'notes', 'admin']
+
     option_list = BaseCommand.option_list + (
         make_option('-t', '--target',
                     action='store',
                     dest='target',
                     default='all',
-                    help='Choose specific comma separated targets, see the code for a list.',
+                    help='Choose specific comma separated targets, choose from %s' % target_choices,
                     ),
         make_option('-b', '--batch-size',
                     action='store',
@@ -58,7 +61,6 @@ or use an existent tenant if passed as an argument."""
         self.contacts_and_accounts(size, tenant)
         self.deals(size, tenant)
         self.cases(size, tenant)
-        self.deals(size, tenant)
         self.notes(size, tenant)
         # create admin user last
         self.admin(size, tenant)

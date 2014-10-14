@@ -1,4 +1,5 @@
 from django.forms import Field, CharField, ValidationError
+from django.utils.translation import ugettext as _
 
 from lily.utils.forms.validators import HostnameValidator
 from lily.utils.forms.widgets import TagInput, FormSetWidget
@@ -44,7 +45,10 @@ class FormSetField(Field):
 
     def validate(self, value):
         if not value.is_valid():
-            raise ValidationError(self.error_messages['invalid'])
+            if self.error_messages and 'invalid' in self.error_messages:
+                raise ValidationError(self.error_messages['invalid'])
+            else:
+                raise ValidationError(code='invalid', message=_('invalid input'))
 
     def clean(self, value):
         return super(FormSetField, self).clean(value)

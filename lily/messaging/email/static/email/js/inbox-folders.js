@@ -99,6 +99,6 @@ $(function($) {
     $('.tree-folder-header[data-href], .tree-item[data-href]').click(function() {
         $('.inbox-view').hide();
         $('.inbox-loading').show();
-        redirect_to($(this).data('href'));
+        HLApp.redirectTo($(this).data('href'));
     });
 });

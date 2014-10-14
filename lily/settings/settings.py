@@ -86,6 +86,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROW
 X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')
 ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
+    'app.hellolily.com',
+    'app.hellolily.nl',
+    'app.hellolilly.nl',
     'localhost',
 ]
 

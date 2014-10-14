@@ -114,7 +114,7 @@ $(function ($) {
         } else {
             $(".inbox-content").hide();
             $(".inbox-loading").show();
-            redirect_to($(this).closest("[data-href]").data("href"));
+            HLApp.redirectTo($(this).closest("[data-href]").data("href"));
         }
     });
 
@@ -229,7 +229,7 @@ $(function ($) {
     $(".reply-btn[data-href]").click(function () {
         $(".inbox-view").hide();
         $(".inbox-loading").show();
-        redirect_to($(this).data("href"));
+        HLApp.redirectTo($(this).data("href"));
     });
 
     $(".search-form [type='submit']").click(function () {

@@ -43,7 +43,7 @@ var show_more_history = function(callback, scroll) {
         if(response.html) {
             $('#history-list').append(response.html);
         } else if(response.redirect_url) {
-            redirect_to(response.redirect_url);
+            HLApp.redirectTo(response.redirect_url);
         }
         // put the last date in the url
         window.location.hash = $(historyListSelector).last().data('sort-date');

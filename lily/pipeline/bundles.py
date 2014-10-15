@@ -171,6 +171,7 @@ PIPELINE_JS = {
         'source_filenames': (
             'metronic/scripts/app.js',
             'lily/scripts/app.js',
+            'lily/scripts/tasks.js',
         ),
         'output_filename': 'compiled/js/app.js',
     },

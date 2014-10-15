@@ -109,7 +109,7 @@
         </div>
         <div class="row no-margin">
             <p>
-                {{ object.description|default:_('No description') }}
+                {{ object.description|default:_('No description')|linebreaks }}
             </p>
         </div>
 {#  Once we start using the extra info uncomment this  #}

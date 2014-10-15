@@ -103,7 +103,7 @@
         <div class="row no-margin">
             <div class="well well-md">
                 <h4>{% trans 'Description' %}</h4>
-                <p>{{ object.description }}</p>
+                <p>{{ object.description|linebreaks }}</p>
             </div>
         </div>
     {% endif %}

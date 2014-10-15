@@ -1,91 +1,75 @@
-// Handle the stage selection.
-$(document).ready(function() {
-    // inner function to protect the scope for currentStage
-    (function($) {
-        var currentStage = $('input[name=radio]:checked', '#deal-stage').closest('label').attr('for');
-        $('#deal-stage').click(function(event) {
-            var radio_element = $('#' + $(event.target).closest('label').attr('for'));
-            if( radio_element.attr('id') != currentStage ) {
+(function($, window, document, undefined) {
+    var currentStage;
+
+    window.HLDeals = {
+        config: {
+            dealsUpdateStageUrl: '/deals/update/stage/',
+            statusSpan: '#status',
+            dealDiv: '#deal-stage',
+            closedDateSpan: '#closed-date',
+            expectedClosedDateSpan: '#expected-closing-date'
+        },
+
+        init: function (config) {
+            // Setup config
+            var self = this;
+            if ($.isPlainObject(config)) {
+                $.extend(self.config, config);
+            }
+            self.initListeners();
+            self.setCurrentStage();
+        },
+
+        initListeners: function () {
+            var self = this,
+                cf = self.config;
+
+            $(cf.dealDiv).on('click', function (event) {
+                self.changeStage.call(self, event);
+            });
+        },
+
+        setCurrentStage: function() {
+            currentStage = $('input[name=radio]:checked', this.config.dealDiv).closest('label').attr('for');
+        },
+
+        changeStage: function(event) {
+            var self = this,
+                cf = self.config;
+            var $radio_element = $('#' + $(event.target).closest('label').attr('for'));
+            if($radio_element.attr('id') != currentStage) {
                 // try this
-                var jqXHR = $.ajax({
-                    url: '/deals/update/stage/' + $(radio_element).closest('#deal-stage').data('object-id') + '/',
+                $.ajax({
+                    url: cf.dealsUpdateStageUrl + $radio_element.closest(cf.dealDiv).data('object-id') + '/',
                     type: 'POST',
                     data: {
-                        'stage': $(radio_element).val()
+                        'stage': $radio_element.val()
                     },
-                    beforeSend: addCSRFHeader,
-                    dataType: 'json',
-                });
-                // on success
-                jqXHR.done(function(data, status, xhr) {
-                    currentStage = radio_element.attr('id');
-                    $('#status').text(data.stage);
+                    beforeSend: HLApp.addCSRFHeader,
+                    dataType: 'json'
+                }).done(function(data) {
+                    currentStage = $radio_element.attr('id');
+                    $(cf.statusSpan).text(data.stage);
                     // check for won/lost and closing date
-                    if( data.closed_date ) {
-                        $('#closed-date').text(data.closed_date);
-                        $('#closed-date').removeClass('hide');
-                        $('#expected-closing-date:visible').addClass('hide');
+                    if(data.closed_date) {
+                        $(cf.closedDateSpan).text(data.closed_date).removeClass('hide');
+                        $(cf.expectedClosedDateSpan +':visible').addClass('hide');
                     } else {
-                        $('#closed-date').text('');
-                        $('#closed-date:visible').addClass('hide');
-                        $('#expected-closing-date').removeClass('hide');
+                        $(cf.closedDateSpan).text('');
+                        $(cf.closedDateSpan + ':visible').addClass('hide');
+                        $(cf.expectedClosedDateSpan).removeClass('hide');
                     }
                     // loads notifications if any
-                    load_notifications();                    
-                });
-                // on error
-                jqXHR.fail(function() {
+                    load_notifications();
+                }).fail(function() {
                     // reset selected stage
-                    $(radio_element).attr('checked', false);
-                    $(radio_element).closest('label').removeClass('active');
-                    $('#' + currentStage).attr('checked', true);
-                    $('#' + currentStage).closest('label').addClass('active');
+                    $radio_element.attr('checked', false);
+                    $radio_element.closest('label').removeClass('active');
+                    $('#' + currentStage).attr('checked', true).closest('label').addClass('active');
                     // loads notifications if any
-                    load_notifications();                    
+                    load_notifications();
                 });
-                // finally do this
-                jqXHR.always(function() {
-                    // remove request object
-                    jqXHR = null;
-                });
-            }
-        });
-    })($);
-});
-
-// Next functions together enable CSRF Tokens being sent with AJAX requests.
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
             }
         }
     }
-    return cookieValue;
-}
-function sameOrigin(url) {
-    // url could be relative or scheme relative or absolute
-    var host = document.location.host; // host + port
-    var protocol = document.location.protocol;
-    var sr_origin = '//' + host;
-    var origin = protocol + sr_origin;
-    // Allow absolute or scheme relative URLs to same origin
-    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-        // or any other URL that isn't scheme relative or absolute i.e relative.
-        !(/^(\/\/|http:|https:).*/.test(url));
-}
-function safeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-function addCSRFHeader(jqXHR, settings) {
-    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-        jqXHR.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-    }
-}
+})(jQuery, window, document);

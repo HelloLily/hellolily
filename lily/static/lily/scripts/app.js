@@ -315,6 +315,35 @@ if (typeof String.prototype.endsWith != 'function') {
                 redirectUrl.indexOf('#') != -1) {
                 window.location.reload(true);
             }
+        },
+
+        getCookie: function(name) {
+            var value = "; " + document.cookie;
+            var parts = value.split("; " + name + "=");
+            if (parts.length == 2) return parts.pop().split(";").shift();
+        },
+
+        isSameOrigin: function(url) {
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                // or any other URL that isn't scheme relative or absolute i.e relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        },
+
+        safeMethod: function(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        },
+
+        addCSRFHeader: function(jqXHR, settings) {
+            if (!HLApp.safeMethod(settings.type) && HLApp.isSameOrigin(settings.url)) {
+                jqXHR.setRequestHeader("X-CSRFToken", HLApp.getCookie('csrftoken'));
+            }
         }
     }
 })(jQuery, window, document);

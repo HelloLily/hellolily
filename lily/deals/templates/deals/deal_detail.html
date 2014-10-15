@@ -123,4 +123,9 @@
 {% block scripts %}
     {{ block.super }}
     {% compressed_js 'deals' %}
+    <script>
+        HLDeals.init({
+            dealsUpdateStageUrl: "{% url 'deal_update_stage_short' %}"
+        });
+    </script>
 {% endblock %}

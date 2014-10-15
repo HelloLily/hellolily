@@ -1,6 +1,6 @@
 {% extends 'form.html' %}
 
-{% load i18n %}
+{% load i18n compressed %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -26,4 +26,14 @@
 {% else %}
     {% trans 'Create case' %}
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% compressed_js 'cases'  %}
+    <script>
+        HLCases.init({
+            caseUpdateUrl: "{% url 'case_update_status_short' %}"
+        });
+    </script>
 {% endblock %}

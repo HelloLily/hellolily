@@ -11,6 +11,7 @@ urlpatterns = patterns(
     url(r'^update/(?P<pk>[\w-]+)/$', UpdateCaseView.as_view(), name='case_update'),
     url(r'^update/unarchive/(?P<pk>[\w-]+)/$', UpdateAndUnarchiveCaseView.as_view(), name='case_update_unarchive'),
     url(r'^update/status/(?P<pk>[\w-]+)/$', UpdateStatusAjaxView.as_view(), name='case_update_status'),
+    url(r'^update/status/$', UpdateStatusAjaxView.as_view(), name='case_update_status_short'),
     url(r'^details/(?P<pk>[\w-]+)/$', DetailCaseView.as_view(), name='case_details'),
     url(r'^delete/(?P<pk>[\w-]+)/$', DeleteCaseView.as_view(), name='case_delete'),
     url(r'^archive/$', ArchiveCasesView.as_view(), name='case_archive'),

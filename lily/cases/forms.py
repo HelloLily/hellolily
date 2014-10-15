@@ -9,6 +9,7 @@ from lily.accounts.models import Account
 from lily.cases.models import Case, CaseType, CaseStatus
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
+from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser
@@ -77,6 +78,15 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         )
     )
 
+    PARCEL_PROVIDERS_AND_EMPTY = [('', '----')] + Parcel.PROVIDERS
+    parcel_provider = forms.ChoiceField(
+        choices=PARCEL_PROVIDERS_AND_EMPTY,
+        required=False,
+        label=_('Parcel provider')
+    )
+
+    parcel_identifier = forms.CharField(max_length=255, required=False, label=_('Parcel identifier'))
+
     def __init__(self, *args, **kwargs):
         """
         Set queryset and initial for *assign_to*
@@ -92,6 +102,11 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
         self.fields['expires'].initial = datetime.today()
+
+        # Setup parcel initial values
+        if self.instance.parcel:
+            self.fields['parcel_provider'].initial = self.instance.parcel.provider
+            self.fields['parcel_identifier'].initial = self.instance.parcel.identifier
 
     def clean(self):
         """
@@ -113,6 +128,13 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
             if linked_account != cleaned_data.get('account'):
                 self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
 
+        # Parcel information
+        if cleaned_data.get('parcel_provider') and not cleaned_data.get('parcel_identifier'):
+            self._errors['parcel_identifier'] = self.error_class([_('Please provide an identifier for the parcel')])
+
+        if cleaned_data.get('parcel_identifier') and not cleaned_data.get('parcel_provider'):
+            self._errors['parcel_provider'] = self.error_class([_('Please provide a provider for the parcel')])
+
         return cleaned_data
 
     class Meta:
@@ -127,6 +149,10 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
             (_('When to do it?'), {
                 'fields': ('status', 'priority', 'expires', 'type', ),
             }),
+            (_('Parcel information'), {'fields': (
+                'parcel_provider',
+                'parcel_identifier',
+            )})
         )
 
         widgets = {
@@ -140,6 +166,33 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
                 'class': 'chzn-select-no-search',
             }),
         }
+
+    def save(self, commit=True):
+        """
+        Check for parcel information and store in separate model
+        """
+        instance = super(CreateUpdateCaseForm, self).save(commit=commit)
+
+        if self.cleaned_data['parcel_provider']:
+            # There is parcel information stored
+            if instance.parcel:
+                # Update
+                instance.parcel.provider = self.cleaned_data['parcel_provider']
+                instance.parcel.identifier = self.cleaned_data['parcel_identifier']
+            else:
+                #Create
+                instance.parcel = Parcel(
+                    provider=self.cleaned_data['parcel_provider'],
+                    identifier=self.cleaned_data['parcel_identifier']
+                )
+        elif instance.parcel:
+            # Remove parcel
+            instance.parcel = None
+
+        if commit:
+            instance.save()
+
+        return instance
 
 
 class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):

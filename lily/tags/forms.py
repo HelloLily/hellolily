@@ -20,7 +20,9 @@ class TagsFormMixin(HelloLilyModelForm):
 
         # Provide autocomplete suggestions and already linked tags
         self.fields['tags'].initial = ','.join(str(tag) for tag in self.instance.tags.all().values_list('name', flat=True))
-        self.fields['tags'].choices = list(Tag.objects.filter(content_type=ContentType.objects.get_for_model(self.instance.__class__)).values_list('name', flat=True).distinct())
+        self.fields['tags'].choices = list(Tag.objects.filter(
+            content_type=ContentType.objects.get_for_model(self.instance.__class__)
+        ).values_list('name', flat=True).distinct())
 
     def save(self, commit=True):
         """

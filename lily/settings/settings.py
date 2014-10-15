@@ -96,6 +96,7 @@ ALLOWED_HOSTS = [
 ## UPLOADED MEDIA AND STATIC FILES                                                                                   ##
 #######################################################################################################################
 if DEBUG:
+    JQUERY_URL = ''
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
@@ -279,6 +280,7 @@ INSTALLED_APPS = (
     'lily.updates',
     'lily.users',
     'lily.utils',
+    'lily.parcels',
 )
 
 if DEBUG:

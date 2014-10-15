@@ -67,10 +67,10 @@ class SocialMedia(TenantMixin):
         ('other', _('Other')),
     )
 
-    name = models.CharField(max_length=30,choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
+    name = models.CharField(max_length=30, choices=SOCIAL_NAME_CHOICES, verbose_name=_('name'))
     other_name = models.CharField(max_length=30, blank=True, null=True)  # used in combination with name='other'
     username = models.CharField(max_length=100, blank=True, verbose_name=_('username'))
-    profile_url = models.URLField(max_length=255, verbose_name=_('profile link'))
+    profile_url = models.URLField(max_length=255, verbose_name=_('profile link'), blank=True, null=True)
 
     def __unicode__(self):
         return self.name
@@ -356,7 +356,7 @@ class Address(TenantMixin):
 
     street = models.CharField(max_length=255, verbose_name=_('street'), blank=True)
     street_number = models.SmallIntegerField(verbose_name=_('street number'), blank=True, null=True)
-    complement = models.CharField(max_length=10, verbose_name=_('complement'), blank=True)
+    complement = models.CharField(max_length=255, verbose_name=_('complement'), blank=True, null=True)
     postal_code = models.CharField(max_length=10, verbose_name=_('postal code'), blank=True)
     city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
     state_province = models.CharField(max_length=50, verbose_name=_('state/province'), blank=True)

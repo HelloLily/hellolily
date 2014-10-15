@@ -51,7 +51,7 @@
                 <i class="icon-angle-up"></i>
             </span>
         </div>
-   </div>
+    </div>
     {% endblock %}
 
     {% block modals %}{% endblock %}
@@ -65,9 +65,25 @@
         <script>
             var load_notifications = function() {
                 $.getScript('{% url 'notifications' %}');
-            }
+            };
             {% if messages %}
                 load_notifications();
+            {% endif %}
+        </script>
+    {% endblock %}
+    {% block tasks %}
+        <script>
+            HLTasks.init({
+                placeholderUrl: '{% url 'task_status' task_id='000' %}',
+                sendMessageSuccess: '{% trans 'Your message has been sent!' %}',
+                sendMessageSuccessTitle: '{% trans 'Success!' %}',
+                sendMessageError: '{% trans 'There was an error while sending your mail, please try again!' %}',
+                sendMessageErrorTitle: '{% trans 'Oops!' %}'
+            });
+            {% if request.session.tasks %}
+                {% for task_name, task_id in request.session.tasks.items %}
+                    HLTasks.getTaskResponse('{{ task_id }}');
+                {% endfor %}
             {% endif %}
         </script>
     {% endblock %}

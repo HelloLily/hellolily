@@ -701,6 +701,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         notes_list = Note.objects.filter(
             content_type=model_content_type,
             object_id=self.object.pk,
+            is_deleted=False,
         ).order_by('-sort_by_date')
 
         return notes_list

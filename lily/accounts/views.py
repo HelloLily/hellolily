@@ -236,7 +236,7 @@ class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
                 Q(content_type=contact_content_type) &
                 Q(object_id__in=contact_ids)
             )
-        )
+        ).filter(is_deleted=False)
 
         return notes_list
 

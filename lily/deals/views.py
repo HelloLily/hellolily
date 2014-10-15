@@ -79,6 +79,9 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         'assigned_to__contact__first_name__icontains',
     ]
 
+    def get_queryset(self):
+        return super(ListDealView, self).get_queryset().filter(is_deleted=False)
+
     def order_queryset(self, queryset, column, sort_order):
         """
         Orders the queryset based on given column and sort_order.

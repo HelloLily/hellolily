@@ -34,10 +34,6 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         'user'
     ]
 
-    def get_queryset(self):
-        queryset = super(ListAccountView, self).get_queryset()
-        return queryset.filter(is_deleted=False)
-
     # SortedListMixin
     sortable = [1, 3, 4]
     default_order_by = 1
@@ -110,6 +106,9 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         'tags__name__icontains',
         'email_addresses__email_address__icontains',
     ]
+
+    def get_queryset(self):
+        return super(ListAccountView, self).get_queryset().filter(is_deleted=False)
 
     def order_queryset(self, queryset, column, sort_order):
         """

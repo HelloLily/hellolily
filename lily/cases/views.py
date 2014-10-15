@@ -100,6 +100,9 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         'id',
     ]
 
+    def get_queryset(self):
+        return super(ListCaseView, self).get_queryset().filter(is_deleted=False)
+
     def order_queryset(self, queryset, column, sort_order):
         """
         Orders the queryset based on given column and sort_order.

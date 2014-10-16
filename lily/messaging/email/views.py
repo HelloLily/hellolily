@@ -158,11 +158,11 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 break
 
         if message.body_html is None or not message.body_html.strip() and (message.body_text is None or not message.body_text.strip()):
-            task_status = self.create_get_from_imap_task(message, readonly=(not mark_as_read))
-            if task_status:
+            task = self.create_get_from_imap_task(message, readonly=(not mark_as_read))
+            if task:
                 if 'tasks' not in self.request.session:
                     self.request.session['tasks'] = {}
-                self.request.session['tasks'].update({'get_from_imap': task_status.id})
+                self.request.session['tasks'].update({'get_from_imap': task.id})
                 self.request.session.modified = True
             else:
                 messages.warning(self.request, _('Failed to retrieve email message. Please try again later.'))
@@ -210,7 +210,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
 
         status = create_task_status('get_from_imap')
 
-        get_from_imap.apply_async(
+        task = get_from_imap.apply_async(
             args=(email_account.id, email_message.uid, email_message.folder_name,
                   email_message.message_identifier, email_message.id, readonly),
             max_retries=1,
@@ -218,7 +218,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             kwargs={'status_id': status.pk},
         )
 
-        return status
+        return task
 
 
 class EmailMessageHTMLView(EmailBaseView, DetailView):

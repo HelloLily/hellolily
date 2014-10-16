@@ -169,9 +169,9 @@ $(function($) {
     $(document).on('taskmonitor_get_from_imap', function(event) {
         var task_result = event.task_result;
         if (task_result) {
-            var iframe = $('.inbox-view').find('iframe[data-message-id="' + task_result.message_id + '"]');
+            var iframe = $('.inbox-view').find('iframe[data-message-id="' + task_result.message_id + '"]').get(0);
             // Reload the iframe and get the message
-            $(iframe).src = $(iframe).src;
+            iframe.src = iframe.src;
         }
     });
 

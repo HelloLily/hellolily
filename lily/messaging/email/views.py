@@ -158,7 +158,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 break
 
         if message.body_html is None or not message.body_html.strip() and (message.body_text is None or not message.body_text.strip()):
-            task = self.get_from_imap(message, readonly=(not mark_as_read))
+            task = self.create_get_from_imap_task(message, readonly=(not mark_as_read))
             if task:
                 if 'tasks' not in self.request.session:
                     self.request.session['tasks'] = {}
@@ -202,7 +202,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
 
         return kwargs
 
-    def get_from_imap(self, email_message, readonly=False):
+    def create_get_from_imap_task(self, email_message, readonly=False):
         """
         Download an email message from IMAP.
         """

@@ -41,7 +41,7 @@
 
                 $.getJSON(url)
                     .done(function (response) {
-                        if (response.status != 'STARTED') {
+                        if (response.task_status !== 'STARTED') {
                             var event_name = 'taskmonitor_' + response.task_name;
 
                             $(document).trigger({
@@ -51,8 +51,6 @@
                             });
 
                             clearTimeout(timeout);
-
-                            return response.status;
                         }
                     });
             }, 2000);

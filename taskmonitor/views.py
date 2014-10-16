@@ -18,9 +18,9 @@ class TaskStatusView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         task_id = kwargs.pop('task_id')
-        async_result = AsyncResult(task_id)
 
-        task_status = TaskStatus.objects.get(task_id=task_id)
+        task_status = TaskStatus.objects.get(pk=task_id)
+        async_result = AsyncResult(task_status.task_id)
 
         # Strip parentheses and get the name of the function to call
         task_name = re.sub(r'\([^)]*\)', '', task_status.signature)

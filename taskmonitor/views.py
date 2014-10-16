@@ -35,7 +35,12 @@ class TaskStatusView(LoginRequiredMixin, View):
             del(request.session['tasks'][task_name])
             request.session.modified = True
 
+        status = 'SUCCESS'
+
+        if not result:
+            status = TaskStatus.objects.get(pk=task_id).status
+
         # Setup the response
-        response = {'task_id': task_id, 'task_status': task_status.status, 'task_name': task_name, 'task_result': result}
+        response = {'task_id': task_id, 'task_status': status, 'task_name': task_name, 'task_result': result}
 
         return HttpResponse(json.dumps(response), content_type='application/json')

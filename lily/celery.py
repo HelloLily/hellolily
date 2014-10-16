@@ -10,7 +10,7 @@ from django.conf import settings
 # set the default Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lily.settings')
 
-app = Celery('lily', backend='redis://', broker=settings.BROKER_URL)
+app = Celery('lily', broker=settings.BROKER_URL)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

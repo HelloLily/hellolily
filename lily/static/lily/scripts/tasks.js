@@ -42,7 +42,7 @@
             var getJSON = function() {
                 $.getJSON(url)
                     .done(function (response) {
-                        if (response.task_status === 'STARTED') {
+                        if (response.task_status === 'STARTED' || response.task_status === 'PENDING') {
                             // Task isn't done, so check again
                             if (attempts < 4) {
                                 attempts++;

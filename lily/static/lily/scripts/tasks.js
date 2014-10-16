@@ -36,24 +36,31 @@
 
         getTaskResponse: function (taskId) {
             var self = this;
-            var timeout = setTimeout(function () {
-                var url = self.getTaskUri(taskId);
+            var attempts = 0;
+            var url = self.getTaskUri(taskId);
 
+            var getJSON = function() {
                 $.getJSON(url)
                     .done(function (response) {
-                        if (response.task_status !== 'STARTED') {
+                        if (response.task_status === 'STARTED') {
+                            // Task isn't done, so check again
+                            if (attempts < 4) {
+                                attempts++;
+                                getJSON();
+                            }
+                        } else {
+                            // Task done
                             var event_name = 'taskmonitor_' + response.task_name;
-
                             $(document).trigger({
                                 type: event_name,
                                 task_id: taskId,
                                 task_result: response.task_result
                             });
-
-                            clearTimeout(timeout);
                         }
                     });
-            }, 2000);
+            };
+            // Call first time
+            getJSON();
         }
     };
 })(jQuery, window, document);

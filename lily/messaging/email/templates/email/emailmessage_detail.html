@@ -96,7 +96,7 @@
             {% comment %}
             <iframe src="{% url 'messaging_email_html' object.pk %}" class="col-xs-12 col-md-12" data-scroller="true" data-always-visible="1" data-rail-visible="1" scrolling="no"></iframe>
             {% endcomment %}
-            <iframe src="{% url 'messaging_email_html' object.pk %}" class="col-xs-12 col-md-12"></iframe>
+            <iframe src="{% url 'messaging_email_html' object.pk %}" class="col-xs-12 col-md-12" data-message-id="{{ object.pk }}"></iframe>
         </div>
         {% if object.attachments.count > 0 %}
         <hr>
@@ -165,6 +165,15 @@ $(function($) {
             show_all_recipients = true;
         }
     }
+
+    $(document).on('taskmonitor_get_from_imap', function(event) {
+        var task_result = event.task_result;
+        if (task_result) {
+            var iframe = $('.inbox-view').find('iframe[data-message-id="' + task_result.message_id + '"]');
+            // Reload the iframe and get the message
+            $(iframe).src = $(iframe).src;
+        }
+    });
 
     // if the list of recipients is 2 or more lines, display the button
     if($('.email-recipients').length && $('.email-recipients')[0].scrollHeight != $('.email-recipients').height()) {

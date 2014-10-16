@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import re
 from smtplib import SMTPAuthenticationError
 import socket
@@ -5,6 +6,9 @@ from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
+from celery import signature
+from celery.states import PENDING, SUCCESS, FAILURE
+from dateutil.tz import tzutc
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import (EmailMultiAlternatives, SafeMIMEMultipart,
@@ -26,6 +30,8 @@ from lily.tenant.middleware import get_current_user
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import INBOX
 from python_imap.server import IMAP
+from taskmonitor.models import TaskStatus
+from taskmonitor.utils import resolve_annotations
 
 
 _EMAIL_PARAMETER_DICT = {}
@@ -552,3 +558,26 @@ def unread_emails(user):
         'count_more': unread_count - len(unread_emails_list),
         'object_list': unread_emails_list,
     }
+
+
+def create_task_status(task_name, args=None, kwargs=None):
+    sig = str(signature(task_name, args=args, kwargs=kwargs))  # args and kwargs required?
+
+    # Set status to PENDING since it's not running yet
+    init_status = PENDING
+
+    # Check for timelimit
+    annotations_for_task = resolve_annotations(task_name)
+    timelimit = annotations_for_task.get('time_limit')
+
+    # Determine when this task should expire
+    utc_before = datetime.now(tzutc())
+    expires_at = utc_before + timedelta(seconds=timelimit)
+
+    status = TaskStatus.objects.create(
+        status=init_status,
+        signature=sig,
+        expires_at=expires_at,
+    )
+
+    return status

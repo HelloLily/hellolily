@@ -1020,3 +1020,45 @@ def _task_prerun_listener(**kwargs):
     """
     Random.atfork()
 task_prerun.connect(_task_prerun_listener)
+
+
+@task(name='get_from_imap', bind=True)
+@monitor_task(logger=task_logger)
+def get_from_imap(email_account_id, message_uid, folder_name, message_identifier, message_id, readonly):
+    try:
+        email_account = EmailAccount.objects.get(pk=email_account_id)
+
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
+
+                task_logger.debug('Searching IMAP for %s in %s', message_uid, folder_name)
+
+                try:
+                    message = server.get_message(
+                        message_uid,
+                        ['BODY[]', 'FLAGS', 'RFC822.SIZE'],
+                        server.get_folder(folder_name),
+                        readonly=readonly
+                    )
+                except IMAPConnectionError:
+                    pass
+                else:
+                    if message:
+                        task_logger.debug('Message retrieved, saving in database')
+                        save_email_messages([message], email_account, message.folder)
+
+                        duplicate_emails = EmailMessage.objects.filter(message_identifier=message_identifier)
+                        for duplicate_email in duplicate_emails:
+                            duplicate_email.body_text = message.get_text_body()
+                            duplicate_email.body_html = message.get_html_body()
+                            duplicate_email.save()
+            elif not server.auth_ok:
+                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
+                email_account.save()
+    except Exception, e:
+        task_logger.error(traceback.format_exc(e))
+        return None
+
+    return {'message_id': message_id}

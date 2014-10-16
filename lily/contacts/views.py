@@ -125,8 +125,7 @@ class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, 
     ]
 
     def get_queryset(self):
-        queryset = super(ListContactView, self).get_queryset()
-        return queryset.filter(is_deleted=False)
+        return super(ListContactView, self).get_queryset().filter(is_deleted=False)
 
     def order_queryset(self, queryset, column, sort_order):
         """

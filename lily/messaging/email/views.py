@@ -42,13 +42,13 @@ from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemp
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
-                                        move_messages)
+                                        move_messages, get_from_imap)
 from lily.messaging.email.utils import (get_email_parameter_choices,
                                         TemplateParser,
                                         get_attachment_filename_from_url,
                                         smtp_connect, EmailMultiRelated,
                                         get_full_folder_name_by_identifier,
-                                        LilyIMAP)
+                                        LilyIMAP, create_task_status)
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser, EmailAddress
 from lily.utils.functions import is_ajax
@@ -149,7 +149,6 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
         Verify this email message belongs to an account request.user has access to.
         """
         message = super(EmailMessageDetailView, self).get_object(queryset=queryset)
-        fetch_success = True  # assume it's available
 
         # Only if the email is in one of our accounts, we mark it a read
         mark_as_read = False
@@ -159,21 +158,19 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
                 break
 
         if message.body_html is None or not message.body_html.strip() and (message.body_text is None or not message.body_text.strip()):
-            fetch_success = self.get_from_imap(message, readonly=(not mark_as_read))
-            if not fetch_success:
-                messages.warning(self.request, _('Failed to download message from server. Please try again later.'))
+            task = self.create_get_from_imap_task(message, readonly=(not mark_as_read))
+            if task:
+                if 'tasks' not in self.request.session:
+                    self.request.session['tasks'] = {}
+                self.request.session['tasks'].update({'get_from_imap': task.id})
+                self.request.session.modified = True
             else:
-                # Re-fetch
-                message = super(EmailMessageDetailView, self).get_object(queryset=queryset)
+                messages.warning(self.request, _('Failed to retrieve email message. Please try again later.'))
         elif mark_as_read and not message.is_seen:
             # Message in the DB, but not properly marked as read.
             mark_messages.delay(message.pk, read=True)
             message.is_seen = True
             message.save()
-
-        if fetch_success:
-            # Force fetching from header, for some reason this doesn't happen in the templates
-            message.from_email  # pylint: disable=W0104
 
         # Display the full message or whatever's available
         return message
@@ -205,44 +202,23 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
 
         return kwargs
 
-    def get_from_imap(self, email_message, readonly=False):
+    def create_get_from_imap_task(self, email_message, readonly=False):
         """
         Download an email message from IMAP.
         """
         email_account = email_message.account
 
-        fetch_success = False
-        with LilyIMAP(email_account) as server:
-            if server.login(email_account.username, email_account.password):
-                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
-                email_account.save()
+        status = create_task_status('get_from_imap')
 
-                imap_logger.debug('Searching IMAP for %s in %s', email_message.uid, email_message.folder_name)
+        task = get_from_imap.apply_async(
+            args=(email_account.id, email_message.uid, email_message.folder_name,
+                  email_message.message_identifier, email_message.id, readonly),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
 
-                try:
-                    message = server.get_message(
-                        email_message.uid,
-                        ['BODY[]', 'FLAGS', 'RFC822.SIZE'],
-                        server.get_folder(email_message.folder_name),
-                        readonly=readonly
-                    )
-                except IMAPConnectionError:
-                    pass
-                else:
-                    if message is not None:
-                        fetch_success = True
-                        imap_logger.debug('Message retrieved, saving in database')
-                        save_email_messages([message], email_account, message.folder)
-
-                        duplicate_emails = EmailMessage.objects.filter(message_identifier=email_message.message_identifier)
-                        for duplicate_email in duplicate_emails:
-                            duplicate_email.body_text = message.get_text_body()
-                            duplicate_email.body_html = message.get_html_body()
-                            duplicate_email.save()
-            elif not server.auth_ok:
-                email_account.auth_ok = NO_EMAILACCOUNT_AUTH
-                email_account.save()
-        return fetch_success
+        return task
 
 
 class EmailMessageHTMLView(EmailBaseView, DetailView):

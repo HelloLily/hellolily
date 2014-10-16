@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^updates/', include('lily.updates.urls')),
     url(r'^', include('lily.users.urls')),
     url(r'^', include('lily.utils.urls')),
+    url(r'^taskmonitor/', include('taskmonitor.urls')),
 
     # Django admin urls
     url(r'^admin/', include(admin.site.urls)),

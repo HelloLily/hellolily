@@ -19,11 +19,7 @@ class TaskStatusView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         task_id = kwargs.pop('task_id')
 
-        task_status = TaskStatus.objects.get(pk=task_id)
-        async_result = AsyncResult(task_status.task_id)
-
-        # Strip parentheses and get the name of the function to call
-        task_name = re.sub(r'\([^)]*\)', '', task_status.signature)
+        async_result = AsyncResult(task_id)
 
         try:
             # Poll the task to see if the result is available
@@ -31,14 +27,17 @@ class TaskStatusView(LoginRequiredMixin, View):
         except TimeoutError:
             result = None
 
+
+        task_status = TaskStatus.objects.get(task_id=task_id)
+
+        # Strip parentheses and get the name of the function to call
+        task_name = re.sub(r'\([^)]*\)', '', task_status.signature)
+
         if task_name in request.session['tasks']:
             del(request.session['tasks'][task_name])
             request.session.modified = True
 
-        status = 'SUCCESS'
-
-        if not result:
-            status = TaskStatus.objects.get(pk=task_id).status
+        status = task_status.status
 
         # Setup the response
         response = {'task_id': task_id, 'task_status': status, 'task_name': task_name, 'task_result': result}

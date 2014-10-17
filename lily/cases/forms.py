@@ -24,7 +24,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         label=_('Status'),
         queryset=CaseStatus.objects,
         empty_label='---------',
-        required=False,
+        required=True,
     )
 
     type = forms.ModelChoiceField(

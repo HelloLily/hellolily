@@ -117,25 +117,25 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
 
     class Meta:
         model = Case
-        fields = (
-            'status',
-            'priority',
-            'expires',
-            'type',
-            'subject',
-            'description',
-            'contact',
-            'account',
-            'assigned_to',
+        fieldsets = (
+            (_('Who was it?'), {
+                'fields': ('account', 'contact', ),
+            }),
+            (_('What to do?'), {
+                'fields': ('subject', 'description', 'assigned_to', ),
+            }),
+            (_('When to do it?'), {
+                'fields': ('status', 'priority', 'expires', 'type', ),
+            }),
         )
 
         widgets = {
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
             }),
-            'description': ShowHideWidget(forms.Textarea({
+            'description': forms.Textarea({
                 'rows': 3
-            })),
+            }),
             'status': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),

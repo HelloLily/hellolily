@@ -215,7 +215,7 @@ PIPELINE_JS = {
             'metronic/plugins/select2/select2.js',
             'metronic/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
             'metronic/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js',
-            'lily/scripts/forms/dataprovider.js',
+            'provide/js/dataprovider.js',
             'utils/js/utils.js',
         ),
         'output_filename': 'compiled/js/forms.js',

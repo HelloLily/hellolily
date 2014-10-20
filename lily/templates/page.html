@@ -194,9 +194,21 @@
     <script>
         $(function($){
             App.init();
-            HLSelect2.init({ clearText: '{% trans '--- Clear ---' %}'});
             HLApp.init({
-                contactJsonUrl: '{% url 'json_contact_works_at_short' %}'
+                contactJsonUrl: "{% url 'json_contact_works_at_short' %}"
+            });
+            HLSelect2.init(
+                    { clearText: "{% trans '--- Clear ---' %}"}
+            );
+            HLDataProvider.init({
+                provideUrl: "{% url 'provide_account_short' %}",
+                loadingText: "{% trans 'Beaming up the information now, almost within range!' %}",
+                loadingHeader: "{% trans "I\'m on my way!" %}",
+                errorHeader: "{% trans 'Oops!' %}",
+                errorText: "{% trans "There was an error trying to fetch your data, please don\'t be mad." %}",
+                successText: "{% trans 'We did it! Your new data should be right there waiting for you.' %}",
+                successHeader: "{% trans 'Yeah!' %}",
+                overwriteConfirmHeader: "{% trans 'Do you wish to overwrite the following fields?\n' %}"
             });
         });
     </script>

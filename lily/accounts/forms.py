@@ -137,7 +137,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
 
     class Meta:
         model = Account
-        fieldsets = (
+        fields = (
             'website',
             'name',
             'description',

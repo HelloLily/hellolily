@@ -2,10 +2,8 @@
     window.HLTasks = {
         config: {
             placeholderUrl: '/taskmonitor/task/status/000/',
-            sendMessageSuccess: 'Your message has been sent!',
-            sendMessageSuccessTitle: 'Success!',
-            sendMessageError: 'There was an error while sending your mail, please try again!',
-            sendMessageErrorTitle: 'Oops!'
+            sendMessageSuccess: {message: 'Your message has been sent!', title: 'Success!'},
+            sendMessageError: {message: 'There was an error while sending your mail, please try again!', title: 'Oops!'}
         },
 
         init: function (config) {
@@ -14,18 +12,19 @@
                 $.extend(this.config, config);
             }
 
-            this.setupListeners();
+            this.initListeners();
         },
 
-        setupListeners: function() {
-            $('document')
+        initListeners: function() {
+            var cf = this.config;
+
+            $(document)
                 .on('taskmonitor_send_message', function (event) {
-                    // Format phonenumbers for every phone input field
                     if (event.task_result) {
-                        toastr.success(this.config.sendMessageSuccess);
+                        toastr.success(cf.sendMessageSuccess.message, cf.sendMessageSuccess.title);
                     }
                     else {
-                        toastr.error(this.config.sendMessageError);
+                        toastr.error(cf.sendMessageError.message, cf.sendMessageError.title);
                     }
                 });
         },

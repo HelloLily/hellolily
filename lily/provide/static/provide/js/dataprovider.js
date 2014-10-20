@@ -21,7 +21,9 @@
                 'iban',
                 'bic',
                 'primary_email',
-                'phone_number'
+                'phone_number',
+                'addresses',
+                'emails'
             ],
             formsets: [
                 'email_addresses',
@@ -52,7 +54,7 @@
             var self = this,
                 cf = self.config,
                 $button = $(button),
-                form = $button.closest('form'),
+                $form = $button.closest('form'),
                 $input = $($button.parents(cf.dataProviderClass).find(':input:first')),
                 domain = self.sanitizeDomain($input.val());
 
@@ -66,7 +68,7 @@
                     if (data.error) {
                         toastr.error(data.error.message, cf.errorHeader);
                     } else {
-                        self.fillForm(form, data, cf.fields, cf.formsets);
+                        self.fillForm($form, data, cf.fields, cf.formsets);
                         toastr.success(cf.successText, cf.successHeader);
                     }
                 })
@@ -148,7 +150,7 @@
             for (var i=0; i < formsets.length; i++) {
                 var formset = formsets[i];
                 // Check if there is data for the formset
-                if (data[formset].length) {
+                if (data[formset] && data[formset].length) {
                     var $formsetDiv = $form.find('#' + formset),
                         $formsetAddLink = $formsetDiv.find('[data-formset-add]'),
                         newFormsets = data[formset],
@@ -202,12 +204,17 @@
 
         fillField: function($input, value) {
             if (typeof value === 'string') {
+                // String
                 $input.val(value);
-            } else {
+            } else if (typeof value[0] === 'string') {
+                // List of strings
                 var uniqueValues = value.concat($input.val().split(',')).filter(function(val, index, self) {
                     return (self.indexOf(val) === index) && (val !== '');
                 });
                 $input.val(uniqueValues.join());
+            } else {
+                // JSON object
+                $input.val(JSON.stringify(value));
             }
             $input.change();
             if ($input.parent().hasClass('original-form-widget') && $input.parent().hasClass('hide')) {

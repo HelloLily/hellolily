@@ -133,14 +133,14 @@ class DataproviderView(ProvideBaseView):
             tags = result.get('keywords').strip().rstrip(',').split(',')
 
         # Get email addresses and convert to a list if needed
-        email_addresses = result.get('emailaddresses', []) or []
-        if not isinstance(email_addresses, list):
-            email_addresses = [email_addresses]
+        emails = result.get('emailaddresses', []) or []
+        if not isinstance(emails, list):
+            emails = [emails]
 
         # Determine primary email since Dataprovider doesn't provide it
         primary_email = None
-        if email_addresses:
-            primary_email = self.get_primary_email(email_addresses)
+        if emails:
+            primary_email = self.get_primary_email(emails)
 
         # Get phone numbers and convert to list if needed
         raw_phone_numbers = result.get('phonenumbers', []) or []
@@ -199,7 +199,7 @@ class DataproviderView(ProvideBaseView):
             'name': company,
             'description': description,
             'tags': tags,
-            'email_addresses': email_addresses,
+            'emails': emails,
             'primary_email': primary_email,
             'phone_numbers': phone_numbers,
             'phone_number': phone_number,

@@ -346,7 +346,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         self.kwargs.update({
             'page': int(self.get_from_data_tables('page')) / page_size + 1
         })
-        paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
+        queryset = self.paginate_queryset(queryset, page_size)[2]
 
         # Parse data to columns for table.
         columns = self.parse_data_to_colums(queryset, ajax_columns)

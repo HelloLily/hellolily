@@ -12,24 +12,24 @@
 {% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-<li><a href="{% url 'case_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-<li>
-{% if not object.is_archived %}
-    <a href="{% url 'case_archive' %}" data-form-submit data-form-selector="#case-archive-form">{% trans 'Archive' %}</a>
-    <form action="{% url 'case_archive' %}" method="post" id="case-archive-form">
-        {% csrf_token %}
-        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
-    </form>
-{% else %}
-     <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
-{% endif %}
-</li>
-<li><a href="{% url 'case_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+    <li><a href="{% url 'case_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
+    <li>
+    {% if not object.is_archived %}
+        <a href="{% url 'case_archive' %}" data-form-submit data-form-selector="#case-archive-form">{% trans 'Archive' %}</a>
+        <form action="{% url 'case_archive' %}" method="post" id="case-archive-form">
+            {% csrf_token %}
+            <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
+        </form>
+    {% else %}
+         <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
+    {% endif %}
+    </li>
+    <li><a href="{% url 'case_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
 {% endblock %}
 
 {% block details-tabs %}
-{{ block.super }}
-<li><a href="#history" data-toggle="tab">{% trans 'History' %}</a></li>
+    {{ block.super }}
+    <li><a href="#history" data-toggle="tab">{% trans 'History' %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -38,19 +38,19 @@
             <ul class="list-unstyled summary-list">
                 <li>
                     {% if object.account %}
-                    <span class="summary-label">{% trans 'Account' %}</span>
-                    <span class="summary-data">
-                        <a href="{% url 'account_details' pk=object.account.pk %}">
-                            {{ object.account.name }}
-                        </a>
-                    </span>
+                        <span class="summary-label">{% trans 'Account' %}</span>
+                        <span class="summary-data">
+                            <a href="{% url 'account_details' pk=object.account.pk %}">
+                                {{ object.account.name }}
+                            </a>
+                        </span>
                     {% elif object.contact %}
-                    <span class="summary-label">{% trans 'Contact' %}</span>
-                    <span class="summary-data">
-                        <a href="{% url 'contact_details' pk=object.contact.pk %}">
-                            {{ object.contact.full_name }}
-                        </a>
-                    </span>
+                        <span class="summary-label">{% trans 'Contact' %}</span>
+                        <span class="summary-data">
+                            <a href="{% url 'contact_details' pk=object.contact.pk %}">
+                                {{ object.contact.full_name }}
+                            </a>
+                        </span>
                     {% endif %}
                 </li>
                 <li>
@@ -78,12 +78,12 @@
                     </span>
                 </li>
                 {% if object.type %}
-                <li>
-                    <span class="summary-label">{% trans 'Type' %}</span>
-                    <span class="summary-data">
-                        {{ object.type.type }}
-                    </span>
-                </li>
+                    <li>
+                        <span class="summary-label">{% trans 'Type' %}</span>
+                        <span class="summary-data">
+                            {{ object.type.type }}
+                        </span>
+                    </li>
                 {% endif %}
                 <li>
                     <span class="summary-label">{% trans 'Priority' %}</span>
@@ -105,6 +105,12 @@
                     <span class="summary-label">{% trans 'Status' %}</span>
                     <span id="status" class="summary-data">{{ object.status.status }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
                 </li>
+                {% if object.parcel %}
+                    <li>
+                        <span class="summary-label">{% trans 'Parcel' %}</span>
+                        <span class="summary-data"><a href="{{ object.parcel.get_link }}" target="_blank">{{ object.parcel }}</a></span>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -136,7 +142,7 @@
         <div class="row no-margin">
             <div class="well well-md">
                 <h4>{% trans 'Description' %}</h4>
-                <p>{{ object.description }}</p>
+                <p>{{ object.description|linebreaks }}</p>
             </div>
         </div>
     {% endif %}
@@ -147,13 +153,18 @@
 {% endblock %}
 
 {% block modals %}
-{{ block.super }}
-<div class="hidden">
-    <div id="unarchive-case" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
-</div>
+    {{ block.super }}
+    <div class="hidden">
+        <div id="unarchive-case" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
     {% compressed_js 'cases'  %}
+    <script>
+        HLCases.init({
+            caseUpdateUrl: "{% url 'case_update_status_short' %}"
+        });
+    </script>
 {% endblock %}

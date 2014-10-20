@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -11,7 +13,7 @@ from lily.utils.forms.fields import FormSetField, TagsField
 from lily.utils.forms.formsets import BaseFKFormSet
 from lily.utils.forms.widgets import ShowHideWidget, AddonTextInput
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.models import EmailAddress
+from lily.utils.models import EmailAddress, Address
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):
@@ -26,6 +28,9 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
     emails = TagsField(label=_('E-mail addresses'), required=False)
     phone_number = forms.CharField(label=_('Phone number'), max_length=40, required=False)
 
+    # Hidden field to hold JSON address data
+    addresses = forms.CharField(max_length=1024, widget=forms.HiddenInput())
+
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change auto_id to prevent clashing form field id's with
@@ -37,12 +42,41 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
 
         super(AddAccountQuickbuttonForm, self).__init__(*args, **kwargs)
 
+    def clean_addresses(self):
+        """
+        Clean JSON Address field and create python array with address dicts.
+        """
+        try:
+            json_addresses = json.loads(self.cleaned_data['addresses'])
+        except ValueError:
+            pass
+        else:
+            # Check addresses
+            address_fields = [
+                'street',
+                'street_number',
+                'complement',
+                'city',
+                'country',
+                'postal_code'
+            ]
+            parsed_addresses = []
+            for address in json_addresses:
+                # For each address, only add fields that match Address fields
+                address_data = {}
+                for field, value in address.iteritems():
+                    if field in address_fields:
+                        address_data[field] = value
+                if address_data:
+                    parsed_addresses.append(address_data)
+            return parsed_addresses
+
     def clean_name(self):
         """
         Prevent multiple accounts with the same company name
         """
         name = self.cleaned_data['name']
-        if Account.objects.filter(name=name).exists():
+        if Account.objects.filter(name=name, is_deleted=False).exists():
                 raise ValidationError(
                     _('Company name already in use.'),
                     code='invalid',
@@ -56,7 +90,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         """
         for email in self.cleaned_data['emails']:
             validate_email(email)
-            if Account.objects.filter(email_addresses__email_address__iexact=email).exists():
+            if Account.objects.filter(email_addresses__email_address__iexact=email, is_deleted=False).exists():
                 raise ValidationError(
                     _('E-mail address already in use.'),
                     code='invalid',
@@ -69,7 +103,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         Prevent multiple accounts with the same primary website when adding
         """
         website = self.cleaned_data['website']
-        if Website.objects.filter(website=website, is_primary=True).exists():
+        if Website.objects.filter(website=website, is_primary=True, account__is_deleted=False).exists():
             raise ValidationError(
                 _('Website already in use.'),
                 code='invalid',
@@ -84,6 +118,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         instance = super(AddAccountQuickbuttonForm, self).save(commit=commit)
 
         if commit:
+            # Save email addresses
             first = True
             for email in self.cleaned_data['emails']:
                 email_address = EmailAddress.objects.create(
@@ -94,12 +129,27 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
                 instance.email_addresses.add(email_address)
                 first = False
 
+            # Save addresses
+            for address in self.cleaned_data['addresses']:
+                instance.addresses.add(Address.objects.create(**address))
+
         return instance
 
     class Meta:
         model = Account
-        fields = ('website', 'name', 'description', 'emails', 'phone_number', 'legalentity', 'taxnumber',
-                  'bankaccountnumber', 'cocnumber', 'iban', 'bic')
+        fieldsets = (
+            'website',
+            'name',
+            'description',
+            'emails',
+            'phone_number',
+            'legalentity',
+            'taxnumber',
+            'bankaccountnumber',
+            'cocnumber',
+            'iban',
+            'bic',
+        )
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea({

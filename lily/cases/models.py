@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import CustomUser
@@ -57,6 +58,8 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
                                     object_id_field='object_id', verbose_name=_('list of notes'))
 
     expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
+
+    parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), blank=True, null=True)
 
     def __unicode__(self):
         return self.subject

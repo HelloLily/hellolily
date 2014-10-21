@@ -59,6 +59,7 @@
             self.setupCss();
             self.updateExportColumns();
             $(self.config.actionClass).addClass('disabled');
+            self.setupDefaultSearch();
         },
 
         setupListeners: function() {
@@ -159,6 +160,14 @@
                 .addClass('form-control input-xsmall')
                 // initialize select2 dropdown
                 .select2({minimumResultsForSearch: -1});
+        },
+
+        setupDefaultSearch: function() {
+            var self = this,
+                filter = HLApp.getUrlParameter('filter');
+            if (filter) {
+                DTTable.fnFilter(filter);
+            }
         },
 
         //Export functions

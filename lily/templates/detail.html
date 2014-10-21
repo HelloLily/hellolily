@@ -9,13 +9,8 @@
 {% endblock %}
 
 {% block page-actions-button %}
-<div class="btn-group pull-right">
-     <button type="button" class="btn blue dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="1000" data-close-others="true">
-     <span>{% trans 'Actions' %}</span> <i class="icon-angle-down"></i>
-     </button>
-     <ul class="dropdown-menu" role="menu">
-        {% block page-actions %}{% endblock %}
-     </ul>
+<div class="pull-right">
+    {% block page-actions %}{% endblock %}
 </div>
 {% endblock %}
 

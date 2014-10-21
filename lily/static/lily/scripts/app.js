@@ -134,6 +134,10 @@ if (typeof String.prototype.endsWith != 'function') {
                 }
                 phone = this.config.countryPrefix + phone;
             }
+
+            if (phone.startsWith('+310')) {
+                phone = '+31' + phone.substring(4);
+            }
             $phoneNumberInput.val(phone);
         },
 
@@ -277,7 +281,7 @@ if (typeof String.prototype.endsWith != 'function') {
                         // loads notifications if any
                         load_notifications();
                     } else if(response.redirect_url) {
-                        self.redirectTo(response.redirect_url);
+                        location.reload(true);
                     } else {
                         if(response.html) {
                             self.updateModal($form, response.html);
@@ -344,6 +348,20 @@ if (typeof String.prototype.endsWith != 'function') {
             if (!HLApp.safeMethod(settings.type) && HLApp.isSameOrigin(settings.url)) {
                 jqXHR.setRequestHeader("X-CSRFToken", HLApp.getCookie('csrftoken'));
             }
+        },
+
+        getUrlParameter: function(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++)
+            {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam)
+                {
+                    return decodeURIComponent(sParameterName[1]);
+                }
+            }
         }
+
     }
 })(jQuery, window, document);

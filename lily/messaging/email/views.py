@@ -1,8 +1,9 @@
 import datetime
+import json
+import logging
 import os
 import traceback
 import urllib
-import logging
 from email import Encoders
 from email.utils import quote
 from email.MIMEBase import MIMEBase
@@ -40,9 +41,9 @@ from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemp
                                         EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm,
                                         EmailAccountForm)
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
-                                         OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH)
+                                         OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, EmailOutboxMessage)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
-                                        move_messages, get_from_imap)
+                                        move_messages, get_from_imap, send_message)
 from lily.messaging.email.utils import (get_email_parameter_choices,
                                         TemplateParser,
                                         get_attachment_filename_from_url,
@@ -217,6 +218,9 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             default_retry_delay=100,
             kwargs={'status_id': status.pk},
         )
+
+        status.task_id = task.id
+        status.save()
 
         return task
 
@@ -731,43 +735,49 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     kwargs = dict(
                         subject=unsaved_form.subject,
                         from_email=email_account.email.email_address,
-                        to=[unsaved_form.send_to_normal] if len(unsaved_form.send_to_normal) else None,
-                        bcc=[unsaved_form.send_to_bcc] if len(unsaved_form.send_to_bcc) else None,
+                        to=unsaved_form.send_to_normal.split(', ') if len(unsaved_form.send_to_normal) else None,
+                        cc=unsaved_form.send_to_cc.split(', ') if len(unsaved_form.send_to_cc) else None,
+                        bcc=unsaved_form.send_to_bcc.split(', ') if len(unsaved_form.send_to_bcc) else None,
                         connection=None,
                         attachments=None,
                         headers=self.get_email_headers(),
                         alternatives=None,
-                        cc=[unsaved_form.send_to_cc] if len(unsaved_form.send_to_cc) else None,
                         body=convert_html_to_text(unsaved_form.body_html, keep_linebreaks=True)
                     )
 
-                    # Use multipart/alternative when sending just text e-mails (plain and/or html)
-                    if len(mapped_attachments.keys()) == 0:
-                        # Attach an HTML version as alternative to *body*
-                        email_message = EmailMultiAlternatives(**kwargs)
-                        email_message.attach_alternative(unsaved_form.body_html, 'text/html')
-                    else:
-                        # Use multipart/related when sending inline images
-                        email_message = EmailMultiRelated(**kwargs)
+                    # TODO: Temporary if check to ensure the other commands don't break
+                    if 'submit-send' not in self.request.POST:
+                        # Use multipart/alternative when sending just text e-mails (plain and/or html)
+                        if len(mapped_attachments.keys()) == 0:
+                            # Attach an HTML version as alternative to *body*
+                            email_message = EmailMultiAlternatives(**kwargs)
+                            email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                        else:
+                            # Use multipart/related when sending inline images
+                            email_message = EmailMultiRelated(**kwargs)
 
-                        # Put image content for attachments in *email_message*
-                        attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
-                        for attachment in attachments:
-                            storage_file = default_storage._open(attachment.attachment.name)
-                            filename = get_attachment_filename_from_url(attachment.attachment.name)
+                            # Put image content for attachments in *email_message*
+                            attachments = EmailAttachment.objects.filter(pk__in=mapped_attachments.keys())
+                            for attachment in attachments:
+                                storage_file = default_storage._open(attachment.attachment.name)
+                                filename = get_attachment_filename_from_url(attachment.attachment.name)
 
-                            # Add as inline attachment
-                            storage_file.open()
-                            content = storage_file.read()
-                            storage_file.close()
-                            email_message.attach_related(filename, content, storage_file.key.content_type)
+                                # Add as inline attachment
+                                storage_file.open()
+                                content = storage_file.read()
+                                storage_file.close()
+                                email_message.attach_related(filename, content, storage_file.key.content_type)
 
-                            # Update attribute src for inline image with the Content-ID
-                            inline_image = mapped_attachments[attachment.pk]
-                            inline_image['src'] = 'cid:%s' % filename
+                                # Update attribute src for inline image with the Content-ID
+                                inline_image = mapped_attachments[attachment.pk]
+                                inline_image['src'] = 'cid:%s' % filename
 
-                        # Use new HTML
-                        email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+                            # Use new HTML
+                            email_message.attach_alternative(unsaved_form.body_html, 'text/html')
+
+                    task = None
+                    if 'tasks' not in self.request.session:
+                        self.request.session['tasks'] = {}
 
                     success = True
                     if 'submit-save' in self.request.POST:  # Save draft
@@ -775,12 +785,22 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                         if not success:
                             messages.warning(self.request, _('Failed to save e-mail. Please try again later.'))
                     elif 'submit-send' in self.request.POST:  # Send draft
-                        if self.object:
-                            email_message = self.attach_stored_files(email_message, self.object.pk)
-                        success = self.send_message(email_account, server, email_message)
-                        if success:
-                            recipients = ', '.join(email_message.to + email_message.cc + email_message.bcc)
-                            messages.success(self.request, _('E-mail sent to %s') % truncatechars(recipients, 140))
+                        # TODO: Temporary extra arguments, will be changed later
+                        kwargs.update({
+                            'body_html': unsaved_form.body_html,
+                            'mapped_attachments': len(mapped_attachments.keys())
+                        })
+
+                        task = self.create_send_message_task(email_account, kwargs)
+
+                        if task:
+                            to = kwargs['to'] if kwargs['to'] else []
+                            cc = kwargs['cc'] if kwargs['cc'] else []
+                            bcc = kwargs['bcc'] if kwargs['bcc'] else []
+                            recipients = ', '.join(to + cc + bcc)
+                            messages.info(self.request, _('Attempting to send email to %s') % truncatechars(recipients, 140))
+                            self.request.session['tasks'].update({'send_message': task.id})
+                            self.request.session.modified = True
                         else:
                             messages.warning(self.request, _('Failed to send e-mail. Please try again later.'))
 
@@ -798,7 +818,10 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                 messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % email_account.email.email_address)
                 return redirect(self.request.META.get('HTTP_REFERER', 'messaging_email_compose'))
 
-        return super(EmailMessageComposeBaseView, self).form_valid(form)
+        if is_ajax(self.request):
+            return HttpResponse(json.dumps({'task_id': task.id}), content_type='application/json')
+        else:
+            return super(EmailMessageComposeBaseView, self).form_valid(form)
 
     def handle_deleted_attachments(self, formset_data):
         """
@@ -898,46 +921,40 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
 
         return True
 
-    def send_message(self, account, active_server, email_message):
+    def create_send_message_task(self, account, message_data):
         """
         Send the message via SMTP and save the sent message to the database.
 
-        :param server: The server on which the message needs to be sent.
-        :param email_message: The message that needs to be sent.
-        :return: A Boolean indicating whether the save was successful.
+        Arguments:
+            account (instance): The EmailAccount of the sender
+            message_data (dict): The parameters needed to create an EmailMultiRelated or EmailMultiAlternatives object
+
+        Returns:
+            task (instance): An AsyncResult object
         """
-        # Check for attachments
-        email_message = self.attach_request_files(email_message)
+        to = json.dumps(message_data['to'])
+        cc = json.dumps(message_data['cc'])
+        bcc = json.dumps(message_data['bcc'])
 
-        try:
-            # Send initial message
-            connection = smtp_connect(account, fail_silently=False)
-            connection.send_messages([email_message])
+        # TODO: Change message_data['body_html'] to message_data['body'] in next version
+        email_outbox_message = EmailOutboxMessage(subject=message_data['subject'],
+                                                  from_email=message_data['from_email'], to=to, cc=cc, bcc=bcc,
+                                                  body=message_data['body_html'],
+                                                  headers=json.dumps(message_data['headers']),
+                                                  mapped_attachments=message_data['mapped_attachments'])
 
-            # Send extra for BCC recipients if any
-            if email_message.bcc:
-                recipients = email_message.bcc
+        email_outbox_message.save()
 
-                # Send separate messages
-                for recipient in recipients:
-                    email_message.bcc = []
-                    email_message.to = [recipient]
-                    connection.send_messages([email_message])
-            connection.close()
+        status = create_task_status('send_message')
 
-            # Synchronize only new messages from folder *SENT*
-            synchronize_folder(
-                account,
-                active_server,
-                active_server.get_folder(SENT),
-                criteria=['subject "%s"' % email_message.subject],
-                new_only=True
-            )
-        except Exception, e:  # pylint: disable=W0703
-            log.error(traceback.format_exc(e))
-            return False
+        task = send_message.apply_async(
+            args=(account.id, email_outbox_message.id),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
 
-        return True
+        return task
 
     def remove_draft(self, server):
         """

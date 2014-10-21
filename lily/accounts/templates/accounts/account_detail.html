@@ -2,22 +2,24 @@
 
 {% load i18n utils %}
 
-{% block head-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
-{% block page-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
+{% block head-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
+{% block page-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
 
 {% block page-actions %}
-    <li><a href="{% url 'account_edit' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-    <li><a href="{% url 'account_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+    <a href="{% url 'account_edit' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
+    <a href="{% url 'account_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block details-main %}
+    {% if object.description %}
     <div class="row">
         <div class="col-md-6">
+            <em>{{ object.description|linebreaks }}</em>
+        </div>
+    </div>
+    {% endif %}    <div class="row">
+        <div class="col-md-6">
            <ul class="list-unstyled summary-list">
-                <li>
-                    <span class="summary-label">{% trans 'Name' %}</span>
-                    <span class="summary-data">{{ object.name }}</span>
-                </li>
                 <li>
                     <span class="summary-label">{% trans 'Website' %}</span>
                     <span class="summary-data">
@@ -209,10 +211,8 @@
 {% block sidebar %}
     <div class="profile">
         <ul class="list-unstyled profile-nav">
-            <li><a href="#">E-mails <span>{{ email_count }}</span></a></li>
-            <li><a href="#">Tasks <span>NaN</span></a></li>
-            <li><a href="#">Deals <span>{{ object.get_deals.count }}</span></a></li>
-            <li><a href="#">Cases <span>{{ object.get_cases.count }}</span></a></li>
+            <li><a href="{% url 'deal_list' %}?filter={{ object.name }}">Deals <span>{{ object.get_deals.count }}</span></a></li>
+            <li><a href="{% url 'case_list' %}?filter={{ object.name }}">Cases <span>{{ object.get_cases.count }}</span></a></li>
         </ul>
     </div>
 {% endblock %}

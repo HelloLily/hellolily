@@ -3,15 +3,29 @@
 {% load i18n utils %}
 
 {% block head-title %}{{ object.full_name }}{% if object.get_primary_function.account %} - {{ object.get_primary_function.account }}{% endif %}{% endblock %}
-{% block page-title %}{{ object.full_name }}{% if object.get_primary_function.account %} - {{ object.get_primary_function.account }}{% endif %}{% endblock %}
+{% block page-title %}
+    {{ object.full_name }}
+    {% if object.get_primary_function.account %} -
+        <a href="{% url 'account_details' pk=object.get_primary_function.account.pk %}">
+            {{ object.get_primary_function.account }}
+        </a>
+    {% endif %}
+{% endblock %}
 {% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-    <li><a href="{% url 'contact_edit' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-    <li><a href="{% url 'contact_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+    <a href="{% url 'contact_edit' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
+    <a href="{% url 'contact_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block details-main %}
+    {% if object.description %}
+    <div class="row">
+        <div class="col-md-6">
+            <em>{{ object.description|linebreaks }}</em>
+        </div>
+    </div>
+    {% endif %}
     <div class="row">
         <div class="col-md-6">
             <ul class="list-unstyled summary-list">
@@ -27,23 +41,7 @@
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
                     <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
-                <li class="summary-more-information">
-                    <span class="summary-label">{% trans 'Name' %}</span>
-                    <span class="summary-data">{{ object.full_name }}</span>
-                </li>
-                <li class="summary-more-information">
-                    <span class="summary-label">{% trans 'Works at' %}</span>
-                    <span class="summary-data">
-                        {% if object.get_primary_function.account %}
-                            <a href="{% url 'account_details' pk=object.get_primary_function.account.pk %}">
-                                {{ object.get_primary_function.account }}
-                            </a>
-                        {% else %}
-                            {% trans 'Unknown' %}
-                        {% endif %}
-                    </span>
-                </li>
-                <li class="summary-more-information">
+                <li>
                     <span class="summary-label">{% trans 'Twitter' %}</span>
                     <span class="summary-data">
                         {% if object.get_twitter %}
@@ -53,7 +51,7 @@
                         {% endif %}
                     </span>
                 </li>
-                <li class="summary-more-information">
+                <li>
                     <span class="summary-label">{% trans 'LinkedIn' %}</span>
                     <span class="summary-data">
                         {% if object.get_linkedin %}
@@ -64,7 +62,6 @@
                     </span>
                 </li>
             </ul>
-            <button class="btn btn-link summary-more-information-btn pull-right">{% trans 'More information' %}</button>
         </div>
     </div>
 {% endblock %}
@@ -238,10 +235,8 @@
 {% block sidebar %}
     <div class="profile">
         <ul class="list-unstyled profile-nav">
-            <li><a href="#">E-mails <span>{{ email_count }}</span></a></li>
-            <li><a href="#">Tasks <span>NaN</span></a></li>
-            <li><a href="#">Deals <span>{{ object.get_assigned_deals.count }}</span></a></li>
-            <li><a href="#">Cases <span>{{ object.get_assigned_cases.count }}</span></a></li>
+            <li><a href="{% url 'deal_list' %}?filter={{ object.full_name }}">Deals <span>{{ object.get_assigned_deals.count }}</span></a></li>
+            <li><a href="{% url 'case_list' %}?filter={{ object.full_name }}">Cases <span>{{ object.get_assigned_cases.count }}</span></a></li>
         </ul>
     </div>
 {% endblock %}

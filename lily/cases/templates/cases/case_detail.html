@@ -12,19 +12,8 @@
 {% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-    <li><a href="{% url 'case_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-    <li>
-    {% if not object.is_archived %}
-        <a href="{% url 'case_archive' %}" data-form-submit data-form-selector="#case-archive-form">{% trans 'Archive' %}</a>
-        <form action="{% url 'case_archive' %}" method="post" id="case-archive-form">
-            {% csrf_token %}
-            <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
-        </form>
-    {% else %}
-         <a href="{% url 'case_update_unarchive' pk=object.pk %}" data-target="#unarchive-case" data-source="{% url 'case_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
-    {% endif %}
-    </li>
-    <li><a href="{% url 'case_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+    <a href="{% url 'case_update' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
+    <a href="{% url 'case_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block details-tabs %}

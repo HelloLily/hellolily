@@ -12,19 +12,8 @@
 {% block detail-title %}{{ object }}{% endblock %}
 
 {% block page-actions %}
-<li><a href="{% url 'deal_update' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-<li>
-{% if not object.is_archived %}
-    <a href="{% url 'deal_archive' %}" data-form-submit data-form-selector="#deal-archive-form">{% trans 'Archive' %}</a>
-    <form action="{% url 'deal_archive' %}" method="post" id="deal-archive-form">
-        {% csrf_token %}
-        <input type="hidden" name="ids[]" value="{{ object.id }}" class="bulk-ids">
-    </form>
-{% else %}
-    <a href="{% url 'deal_update_unarchive' pk=object.pk %}" data-target="#unarchive-deal" data-source="{% url 'deal_update_unarchive' pk=object.pk %}">{% trans 'Unarchive' %}</a>
-{% endif %}
-</li>
-<li><a href="{% url 'deal_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+<a href="{% url 'deal_update' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
+<a href="{% url 'deal_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block content %}

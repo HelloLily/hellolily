@@ -134,6 +134,10 @@ if (typeof String.prototype.endsWith != 'function') {
                 }
                 phone = this.config.countryPrefix + phone;
             }
+
+            if (phone.startsWith('+310')) {
+                phone = '+31' + phone.substring(4);
+            }
             $phoneNumberInput.val(phone);
         },
 

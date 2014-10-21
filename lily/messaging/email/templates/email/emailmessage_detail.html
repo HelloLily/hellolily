@@ -21,7 +21,7 @@
                     <div class="pull-right">
                         <span class="bold"><abbr title="{{ object.sent_date|pretty_datetime:'%d %B %Y %H:%M' }}">{{ object.sent_date|pretty_datetime_relative:'%d %b.' }}</abbr></span>
                         <div class="inbox-info-btn">
-                            <div class="btn-group btn-group-spaced">
+                            <div class="btn-group">
                                 <button class="btn blue reply-btn" data-href="{% url 'messaging_email_reply' pk=object.id %}" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Loading' %}">
                                     <i class="icon-reply"></i> {% trans 'Reply' %}
                                 </button>
@@ -53,15 +53,6 @@
                                         </form>
                                         <a href="{% url 'messaging_mark_unread' %}" data-form-submit data-form-selector="#mark-unread-form-{{ object.id }}"><i class="icon-fixed-width"></i> {% trans 'Mark as unread' %}</a>
                                     </li>
-                                    <li class="divider"></li>
-                                    <li>
-                                        <form action="{% url 'messaging_move_trash' %}" method="post" id="delete-form-{{ object.id }}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="ids[]" value="{{ object.id }}">
-                                            <input type="hidden" name="next" value="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">
-                                        </form>
-                                        <a href="{% url 'messaging_move_trash' %}" data-form-submit data-form-selector="#delete-form-{{ object.id }}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
-                                    </li>
                                 </ul>
                                 {% if all_mail_folder %}
                                     <form class="hidden" action="{% url 'move_messages_view' %}" method="post" id="archive-form-{{ object.id }}">
@@ -70,8 +61,14 @@
                                         <input type="hidden" name="folder" value="{{ all_mail_folder }}">
                                         <input type="hidden" name="next" value="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">
                                     </form>
-                                    <button class="btn blue archive-btn" data-form-submit data-form-selector="#archive-form-{{ object.id }}" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Archiving' %}"><i class="icon-archive"></i> {% trans 'Archive' %}</button>
+                                    <button class="btn blue email-detail-extra-btn" data-form-submit data-form-selector="#archive-form-{{ object.id }}" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Archiving' %}"><i class="icon-archive"></i> {% trans 'Archive' %}</button>
                                 {% endif %}
+                                <form class="hidden" action="{% url 'messaging_move_trash' %}" method="post" id="delete-form-{{ object.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="ids[]" value="{{ object.id }}">
+                                    <input type="hidden" name="next" value="{% url 'messaging_email_account_folder' account_id=active_email_account.id folder=object.folder_name|urlencode %}">
+                                </form>
+                                <button class="btn blue email-detail-extra-btn" data-form-submit data-form-selector="#delete-form-{{ object.id }}" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Deleting' %}"><i class="icon-trash"></i> {% trans 'Delete' %}</button>
                             </div>
                         </div>
                     </div>
@@ -126,9 +123,9 @@ $(function($) {
 
     $('.btn-group-spaced [data-form-submit], .reply-btn, .inbox-info-btn .dropdown-menu a').click(function() {
         // Waiting for response from server so a redirect will 'unblock' the UI
-        if($(this).hasClass('archive-btn')) {
+        if($(this).hasClass('email-detail-extra-btn')) {
             // Set loading text on archive button when it's clicked
-            $('.archive-btn').button('loading');
+            $(this).button('loading');
         }
         else {
             // Otherwise one of the other buttons is clicked, so set loading text on the reply button

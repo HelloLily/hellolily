@@ -219,6 +219,9 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
             kwargs={'status_id': status.pk},
         )
 
+        status.task_id = task.id
+        status.save()
+
         return task
 
 

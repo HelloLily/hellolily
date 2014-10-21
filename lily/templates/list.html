@@ -45,7 +45,7 @@
                 DTSelector: '.page-content .data-table',
                 DTServerSide: {% if data_tables_server_side %}true{% else %}false{% endif %},
                 DTAjaxSource: '{{ data_tables_ajax_source }}',
-                DTColumns: {{ data_tables_columns }},
+                DTColumns: {{ data_tables_columns|default:'[]' }},
                 DTFilter: {% if data_tables_show_search_field  %}true{% else %}false{% endif %},
                 DTColumnsDefs: [{% block list-definition %}{% endblock %}],
                 DTSorting: [[{{ order_by }}, '{{ sort_order }}']],

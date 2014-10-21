@@ -2,8 +2,8 @@
 
 {% load i18n utils %}
 
-{% block head-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
-{% block page-title %}{% blocktrans with account_name=object.name%}Account details for {{ account_name }}{% endblocktrans %}{% endblock %}
+{% block head-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
+{% block page-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
 
 {% block page-actions %}
     <li><a href="{% url 'account_edit' pk=object.pk %}">{% trans 'Edit' %}</a></li>
@@ -11,13 +11,15 @@
 {% endblock %}
 
 {% block details-main %}
+    {% if object.description %}
     <div class="row">
         <div class="col-md-6">
+            <em>{{ object.description|linebreaks }}</em>
+        </div>
+    </div>
+    {% endif %}    <div class="row">
+        <div class="col-md-6">
            <ul class="list-unstyled summary-list">
-                <li>
-                    <span class="summary-label">{% trans 'Name' %}</span>
-                    <span class="summary-data">{{ object.name }}</span>
-                </li>
                 <li>
                     <span class="summary-label">{% trans 'Website' %}</span>
                     <span class="summary-data">

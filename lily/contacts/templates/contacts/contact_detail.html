@@ -12,6 +12,13 @@
 {% endblock %}
 
 {% block details-main %}
+    {% if object.description %}
+    <div class="row">
+        <div class="col-md-6">
+            <em>{{ object.description|linebreaks }}</em>
+        </div>
+    </div>
+    {% endif %}
     <div class="row">
         <div class="col-md-6">
             <ul class="list-unstyled summary-list">

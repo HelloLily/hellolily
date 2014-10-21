@@ -7,8 +7,8 @@
 {% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-    <li><a href="{% url 'contact_edit' pk=object.pk %}">{% trans 'Edit' %}</a></li>
-    <li><a href="{% url 'contact_delete' pk=object.pk %}" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}">{% trans 'Delete' %}</a></li>
+    <a href="{% url 'contact_edit' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
+    <a href="{% url 'contact_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block details-main %}

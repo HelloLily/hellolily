@@ -522,6 +522,22 @@ class EmailDraft(TimeStampedModel):
         verbose_name_plural = _('e-mail drafts')
 
 
+class EmailOutboxMessage(TenantMixin, models.Model):
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
+    from_email = models.TextField(verbose_name=_('From'))
+    to = models.TextField(verbose_name=_('To'))
+    cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
+    bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
+    body = models.TextField(null=True, blank=True, verbose_name=_('Html body'))
+    headers = models.TextField(null=True, blank=True, verbose_name=_('Email headers'))
+    mapped_attachments = models.IntegerField(verbose_name=_('Number of mapped attachments'))
+
+    class Meta:
+        app_label = 'email'
+        verbose_name = _('e-mail outbox message')
+        verbose_name_plural = _('e-mail outbox messages')
+
+
 @receiver(post_delete, sender=EmailAttachment)
 def post_delete_mail_attachment_handler(sender, **kwargs):
     attachment = kwargs['instance']

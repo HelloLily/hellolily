@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import gc
+import json
 import logging
 import traceback
 from datetime import datetime, timedelta
@@ -14,14 +15,15 @@ from django.core.cache import cache
 from django.db import connection, transaction
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, OK_EMAILACCOUNT_AUTH, \
-    NO_EMAILACCOUNT_AUTH, EmailAddressHeader, UNKNOWN_EMAILACCOUNT_AUTH
+    NO_EMAILACCOUNT_AUTH, EmailAddressHeader, UNKNOWN_EMAILACCOUNT_AUTH, EmailOutboxMessage
 from lily.messaging.email.task_utils import EmailMessageCreationError, save_email_message, save_headers, \
     save_attachments, get_headers_and_identifier, create_email_attachments, create_headers_query_string, \
     create_message_query_string
-from lily.messaging.email.utils import LilyIMAP
+from lily.messaging.email.utils import LilyIMAP, smtp_connect, EmailMultiRelated, EmailMultiAlternatives
 from lily.users.models import CustomUser
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
+from python_imap.utils import convert_html_to_text
 from taskmonitor.decorators import monitor_task
 from taskmonitor.utils import lock_task
 
@@ -1062,3 +1064,82 @@ def get_from_imap(email_account_id, message_uid, folder_name, message_identifier
         return None
 
     return {'message_id': message_id}
+
+
+@task(name='send_message', bind=True)
+@monitor_task(logger=task_logger)
+def send_message(email_account_id, email_outbox_message_id):
+    try:
+        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
+    except EmailOutboxMessage.DoesNotExist:
+        return False
+
+    to = json.loads(email_outbox_message.to)
+    cc = json.loads(email_outbox_message.cc)
+    bcc = json.loads(email_outbox_message.bcc)
+
+    message_data = dict(
+        subject=email_outbox_message.subject,
+        from_email=email_outbox_message.from_email,
+        to=to,
+        cc=cc,
+        bcc=bcc,
+        headers=json.loads(email_outbox_message.headers),
+        body=convert_html_to_text(email_outbox_message.body, keep_linebreaks=True),
+        connection=None,
+        attachments=None,
+        alternatives=None,
+    )
+
+    # TODO: Add attachments and relevant code here
+    if email_outbox_message.mapped_attachments != 0:
+        # Attach an HTML version as alternative to *body*
+        email_message = EmailMultiAlternatives(**message_data)
+    else:
+        # Use multipart/related when sending inline images
+        email_message = EmailMultiRelated(**message_data)
+
+    email_message.attach_alternative(email_outbox_message.body, 'text/html')
+
+    try:
+        email_account = EmailAccount.objects.get(pk=email_account_id)
+    except EmailAccount.DoesNotExist, e:
+        task_logger.error(traceback.format_exc(e))
+        return False
+
+    try:
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
+
+            # Send initial message
+            connection = smtp_connect(email_account, fail_silently=False)
+            connection.send_messages([email_message])
+
+            # Send extra for BCC recipients if any
+            if email_message.bcc:
+                recipients = email_message.bcc
+
+                # Send separate messages
+                for recipient in recipients:
+                    email_message.bcc = []
+                    email_message.to = [recipient]
+                    connection.send_messages([email_message])
+            connection.close()
+
+            # Synchronize only new messages from folder *SENT*
+            synchronize_folder(
+                email_account,
+                server,
+                server.get_folder(SENT),
+                criteria=['subject "%s"' % email_message.subject],
+                new_only=True
+            )
+    except Exception, e:
+        task_logger.error(traceback.format_exc(e))
+        return False
+
+    # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+    email_outbox_message.delete()
+    return True

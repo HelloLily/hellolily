@@ -195,7 +195,7 @@ MIDDLEWARE_CLASSES = (
 
 if DEBUG:
     MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
+        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
         # 'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
     )
 
@@ -285,7 +285,7 @@ INSTALLED_APPS = (
 
 if DEBUG:
     INSTALLED_APPS += (
-        'debug_toolbar',
+        # 'debug_toolbar',
         'template_debug',  # in-template tags for debugging purposes
     )
 

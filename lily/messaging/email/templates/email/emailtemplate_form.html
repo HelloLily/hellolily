@@ -74,6 +74,7 @@
     </div>
     <div class="form-group">
         <div class="col-md-offset-1 col-md-10 inbox-compose">
+            {% include 'wysihtml5_toolbar.html' %}
             {% bootstrap_field form.body_html field_class="col-md-12" show_label=False %}
         </div>
     </div>

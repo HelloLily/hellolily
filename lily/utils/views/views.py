@@ -1,8 +1,12 @@
 import json
+from django.conf import settings
+from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import resolve
+from django.core.files.storage import default_storage
+from django.core.management import call_command
+from django.core.urlresolvers import resolve, reverse_lazy
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -11,12 +15,15 @@ from django.template.loader import get_template
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 from django.views.generic.base import TemplateResponseMixin, View, TemplateView
 from django.views.generic.edit import FormMixin
+from lily.utils.forms import SugarCsvImportForm
 
 from lily.utils.functions import is_ajax
-from lily.utils.views.mixins import CustomSingleObjectMixin, CustomMultipleObjectMixin, FilterQuerysetMixin
+from lily.utils.tasks import import_sugar_csv
+from lily.utils.views.mixins import CustomSingleObjectMixin, CustomMultipleObjectMixin, FilterQuerysetMixin, \
+    LoginRequiredMixin
 
 
 class ArchiveView(View):
@@ -567,6 +574,36 @@ class JsonListView(FilterQuerysetMixin, ListView):
         })
         return HttpResponse(response, content_type="application/javascript")
 
+
+class SugarCsvImportView(LoginRequiredMixin, FormView):
+    http_method_names = ['get', 'post']
+    form_class = SugarCsvImportForm
+    template_name = 'form.html'
+    success_url = reverse_lazy('sugarcsvimport')
+
+    def form_valid(self, form):
+        path = self.write_to_tmp(form.cleaned_data.get('csvfile'))
+
+        import_sugar_csv.delay(form.cleaned_data.get('model'), path, self.request.user.tenant_id)
+
+        messages.info(self.request, _('Import started, you should see results in de appropriate list'))
+
+        return super(SugarCsvImportView, self).form_valid(form)
+
+    def write_to_tmp(self, in_memory_uploaded_file):
+        i = 0
+        file_name = None
+        while True:
+            file_name = '%s_%s' % (in_memory_uploaded_file.name, i)
+            if not default_storage.exists(file_name):
+                break
+            else:
+                i += 1
+        file = default_storage.open(file_name, 'w+')
+        for chunk in in_memory_uploaded_file.chunks():
+            file.write(chunk)
+        file.close()
+        return file_name
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())

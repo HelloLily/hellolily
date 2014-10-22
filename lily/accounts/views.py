@@ -102,9 +102,10 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
     # ExportListViewMixin & DataTablesListView
     search_fields = [
         'name__icontains',
-        'phone_numbers__number__icontains',
         'tags__name__icontains',
-        'email_addresses__email_address__icontains',
+        # TODO: Searching trough relations doesn't work on large datasets
+        # 'phone_numbers__number__icontains',
+        # 'email_addresses__email_address__icontains',
     ]
 
     def get_queryset(self):

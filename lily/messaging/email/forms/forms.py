@@ -2,6 +2,7 @@ import socket
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.forms.widgets import RadioSelect, SelectMultiple
@@ -18,7 +19,7 @@ from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AjaxSelect2Widget
 from lily.utils.models import EmailAddress
 
 
@@ -245,26 +246,13 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
-
-        # Query for all contacts which have e-mail addresses
-        contacts_addresses_qs = Contact.objects.all().prefetch_related('email_addresses')
-
-        known_contact_addresses = []
-        for contact in contacts_addresses_qs:
-            for email_address in contact.email_addresses.all():
-                contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
-                known_contact_addresses.append(contact_address)
-
-        self.fields['send_to_normal'].choices = known_contact_addresses
-        self.fields['send_to_cc'].choices = known_contact_addresses
-        self.fields['send_to_bcc'].choices = known_contact_addresses
         self.fields['send_from'].empty_label = None
 
         # Set user's primary_email as default choice if there is no initial value
         initial_email_account = self.initial.get('send_from', None)
         if not initial_email_account:
             for email_account in email_accounts:
-                if email_account.email.email_address == user.primary_email.email_address:
+                if user.primary_email and email_account.email.email_address == user.primary_email.email_address:
                     initial_email_account = email_account
         elif isinstance(initial_email_account, basestring):
             for email_account in email_accounts:

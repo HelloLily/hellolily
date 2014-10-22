@@ -33,3 +33,12 @@
     <th class="modified visible-lg">{% trans 'Modified' %}</th>
     <th>{% trans 'Tags' %}</th>
 {% endblock %}
+
+{% block scripts %}
+    <script>
+        $(function($){
+            HLList.config.DTDisplayLength = 60;
+        });
+    </script>
+    {{ block.super }}
+{% endblock %}

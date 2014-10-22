@@ -20,7 +20,6 @@
             allText: 'All',
             prevText: 'Prev',
             nextText: 'Next',
-            recordText: 'Records',
             DTInfoText: 'Showing _START_ to _END_ of _TOTAL_ entries',
             DTSearchText: 'Search:',
             DTLengthMenu: [
@@ -124,8 +123,9 @@
                 aLengthMenu: cf.DTLengthMenu,
                 iDisplayLength: cf.DTDisplayLength,
                 sPaginationType: cf.DTPaginationType,
+                bLengthChange: false,
+                bStateSave: true,
                 oLanguage: {
-                    sLengthMenu: '_MENU_' + cf.recordText,
                     oPaginate: {
                         sPrevious: cf.prevText,
                         sNext: cf.nextText

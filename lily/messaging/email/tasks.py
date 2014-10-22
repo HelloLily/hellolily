@@ -1062,6 +1062,19 @@ def get_from_imap(email_account_id, message_uid, folder_name, message_identifier
     except Exception, e:
         task_logger.error(traceback.format_exc(e))
         return None
+    finally:
+        # Let garbage collection do it's job
+        email_account = None
+        server = None
+        message = None
+        duplicate_emails = None
+        email_account_id = None
+        message_uid = None
+        folder_name = None
+        message_identifier = None
+        readonly = None
+
+        gc.collect()
 
     return {'message_id': message_id}
 
@@ -1139,6 +1152,19 @@ def send_message(email_account_id, email_outbox_message_id):
     except Exception, e:
         task_logger.error(traceback.format_exc(e))
         return False
+    finally:
+        # Let garbage collection do it's job
+        to = None
+        cc = None
+        bcc = None
+        server = None
+        email_account = None
+        email_message = None
+        connection = None
+        email_account_id = None
+        email_outbox_message_id = None
+
+        gc.collect()
 
     # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
     email_outbox_message.delete()

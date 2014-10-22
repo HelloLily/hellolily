@@ -121,7 +121,8 @@ class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, 
         'first_name__icontains',
         'last_name__icontains',
         'tags__name__icontains',
-        'email_addresses__email_address__icontains',
+        # TODO: Searching trough relations doesn't work on large datasets
+        # 'email_addresses__email_address__icontains',
     ]
 
     def get_queryset(self):

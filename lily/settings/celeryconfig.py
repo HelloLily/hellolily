@@ -55,6 +55,12 @@ CELERY_ROUTES = (
     {'retrieve_all_flags_for': {  # email flags from all folders, except DRAFTS
         'queue': 'queue3'
     }},
+    {'get_from_imap': {  # get email from external server (e.g. Gmail)
+        'queue': 'queue3'
+    }},
+    {'send_message': {  # send an email message
+        'queue': 'queue3'
+    }},
     # {'synchronize_folder': {  # email from single folder
     #     'queue': 'queue3'
     # }},

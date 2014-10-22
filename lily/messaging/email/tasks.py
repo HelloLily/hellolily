@@ -163,7 +163,7 @@ def retrieve_new_emails_for(emailaccount_id):
                             pass
                         else:
                             # Download full email messages from INBOX
-                            modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                            modifiers_new = ['BODY[]', 'FLAGS', 'RFC822.SIZE']
                             criteria = ['UNSEEN SINCE "%s"' % datetime_since]
                             for folder in folders:
                                 before = datetime.now()
@@ -173,7 +173,8 @@ def retrieve_new_emails_for(emailaccount_id):
                                     folder,
                                     criteria=criteria,
                                     modifiers_new=modifiers_new,
-                                    new_only=True
+                                    new_only=True,
+                                    batch_size=10
                                 )
                                 task_logger.info('Retrieving new messages in folder %s list since %s in %ss',
                                                  folder,
@@ -309,7 +310,7 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                         pass
                     else:
                         # Download email headers from messages in all folders except INBOX, DRAFTS, ALLMAIL
-                        modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                        modifiers_new = ['BODY[]', 'FLAGS', 'RFC822.SIZE']
                         for folder in folders:
                             before = datetime.now()
                             synchronize_folder(
@@ -318,20 +319,22 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                                 folder,
                                 criteria=['SINCE "%s"' % datetime_since],
                                 modifiers_new=modifiers_new,
-                                new_only=True
+                                new_only=True,
+                                batch_size=10,
                             )
                             task_logger.info('Retrieving new messages in folder %s list in %ss',
                                              folder,
                                              (datetime.now() - before).total_seconds())
 
                         # Download full messags from DRAFTS
-                        modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                        modifiers_old = modifiers_new = ['BODY[]', 'FLAGS', 'RFC822.SIZE']
                         synchronize_folder(
                             email_account,
                             server,
                             drafts_folder,
                             modifiers_old=modifiers_old,
-                            modifiers_new=modifiers_new
+                            modifiers_new=modifiers_new,
+                            batch_size=10,
                         )
                 elif not server.auth_ok:
                     email_account.auth_ok = NO_EMAILACCOUNT_AUTH
@@ -370,7 +373,7 @@ def retrieve_all_emails_for(emailaccount_id):
                 except IMAPConnectionError:
                     pass
                 else:
-                    modifiers_new = ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
+                    modifiers_new = ['BODY[]', 'FLAGS', 'RFC822.SIZE']
                     for folder in folders:
                         synchronize_folder(
                             email_account,
@@ -378,16 +381,18 @@ def retrieve_all_emails_for(emailaccount_id):
                             folder,
                             criteria=['ALL'],
                             modifiers_new=modifiers_new,
-                            new_only=True
+                            new_only=True,
+                            batch_size=10,
                         )
 
-                    modifiers_old = modifiers_new = ['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE']
+                    modifiers_old = modifiers_new = ['BODY[]', 'FLAGS', 'RFC822.SIZE']
                     synchronize_folder(
                         email_account,
                         server,
                         drafts_folder,
                         modifiers_old=modifiers_old,
-                        modifiers_new=modifiers_new
+                        modifiers_new=modifiers_new,
+                        batch_size=10,
                     )
 
                     email_account.last_sync_date = now_utc
@@ -474,7 +479,8 @@ def retrieve_all_flags_for(emailaccount_id):
                             server,
                             folder,
                             criteria=['ALL'],
-                            modifiers_old=modifiers_old
+                            modifiers_old=modifiers_old,
+                            old_only=True,
                         )
             elif not server.auth_ok:
                 email_account.auth_ok = NO_EMAILACCOUNT_AUTH
@@ -698,7 +704,7 @@ def get_account_folders_from_server(server):
 
 
 @task(name='synchronize_folder')
-def synchronize_folder(account, server, folder, criteria=None, modifiers_old=None, modifiers_new=None, old_only=False, new_only=False):  # pylint: disable=R0913
+def synchronize_folder(account, server, folder, criteria=None, modifiers_old=None, modifiers_new=None, old_only=False, new_only=False, batch_size=1000):  # pylint: disable=R0913
     """
     Fetch and store modifiers_old for UIDs already in the database and
     modifiers_new for UIDs that only exist remotely.
@@ -708,7 +714,6 @@ def synchronize_folder(account, server, folder, criteria=None, modifiers_old=Non
     modifiers_new = modifiers_new or ['BODY.PEEK[HEADER.FIELDS (Reply-To Subject Content-Type To Cc Bcc Delivered-To From Message-ID Sender In-Reply-To Received Date)]', 'FLAGS', 'RFC822.SIZE']
 
     # Process messages in batches to save memory
-    messages_batch_size = 1000
     task_logger.debug('sync start for %s', unicode(folder.get_name()))
 
     # Find already known uids
@@ -740,8 +745,8 @@ def synchronize_folder(account, server, folder, criteria=None, modifiers_old=Non
 
             if len(known_uids):
                 # Renew modifiers_old for known_uids, TODO; check scenario where local_uids[x] has been moved/trashed
-                for i in range(0, len(known_uids), messages_batch_size):
-                    folder_messages = server.get_messages(known_uids[i:i + messages_batch_size], modifiers_old, folder)
+                for i in range(0, len(known_uids), batch_size):
+                    folder_messages = server.get_messages(known_uids[i:i + batch_size], modifiers_old, folder)
                     if len(folder_messages) > 0:
                         save_email_messages(folder_messages, account, folder, new_messages=False)
                     del folder_messages
@@ -749,8 +754,8 @@ def synchronize_folder(account, server, folder, criteria=None, modifiers_old=Non
         if not old_only:
             if len(new_uids):
                 # Retrieve modifiers_new for new_uids
-                for i in range(0, len(new_uids), messages_batch_size):
-                    folder_messages = server.get_messages(new_uids[i:i + messages_batch_size], modifiers_new, folder)
+                for i in range(0, len(new_uids), batch_size):
+                    folder_messages = server.get_messages(new_uids[i:i + batch_size], modifiers_new, folder)
                     if len(folder_messages) > 0:
                         save_email_messages(folder_messages, account, folder, new_messages=True)
                     del folder_messages
@@ -771,14 +776,14 @@ def save_email_messages(messages, account, folder, new_messages=False):
         folder (instance): Folder object where messages are stored
         new_messages (boolean): True if the messages are new
     """
-    task_logger.warn('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
+    task_logger.info('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
     try:
         update_email_attachments = {}
         update_inline_email_attachments = {}
         email_message_polymorphic_ctype = ContentType.objects.get_for_model(EmailMessage)
 
         if new_messages:
-            task_logger.info('Saving these messages with the ORM since they are new')
+            task_logger.warning('Saving these messages with the ORM since they are new')
 
             new_email_headers = {}
             new_email_address_headers = {}

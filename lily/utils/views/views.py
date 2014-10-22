@@ -340,8 +340,8 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         page_size = int(self.get_from_data_tables('page_size'))
 
         # Check for wrong input
-        if 20 < page_size or page_size < 0:
-            page_size = 20
+        if 100 < page_size or page_size < 0:
+            page_size = 100
 
         self.kwargs.update({
             'page': int(self.get_from_data_tables('page')) / page_size + 1

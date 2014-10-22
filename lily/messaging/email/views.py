@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import os
-import traceback
 import urllib
 from email import Encoders
 from email.utils import quote
@@ -33,23 +32,18 @@ from imapclient.imapclient import DRAFT
 
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
-from python_imap.logger import logger as imap_logger
 from python_imap.utils import convert_html_to_text, parse_search_keys, extract_tags_from_soup
-from lily.contacts.models import Contact
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
                                         EmailConfigurationWizard_1, EmailConfigurationWizard_2,
                                         EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm,
                                         EmailAccountForm)
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, EmailOutboxMessage)
-from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, synchronize_folder,
-                                        move_messages, get_from_imap, send_message)
-from lily.messaging.email.utils import (get_email_parameter_choices,
-                                        TemplateParser,
-                                        get_attachment_filename_from_url,
-                                        smtp_connect, EmailMultiRelated,
-                                        get_full_folder_name_by_identifier,
-                                        LilyIMAP, create_task_status)
+from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, move_messages,
+                                        get_from_imap, send_message)
+from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
+                                        EmailMultiRelated, get_full_folder_name_by_identifier, LilyIMAP,
+                                        create_task_status)
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser, EmailAddress
 from lily.utils.functions import is_ajax
@@ -988,21 +982,6 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
         :return: A dict containing the context data.
         """
         context = super(EmailMessageComposeBaseView, self).get_context_data(**kwargs)
-
-        # Query for all contacts which have e-mail addresses
-        contacts_addresses_qs = Contact.objects.filter(
-            email_addresses__in=EmailAddress.objects.all()
-        ).prefetch_related('email_addresses')
-
-        known_contact_addresses = []
-        for contact in contacts_addresses_qs:
-            for email_address in contact.email_addresses.all():
-                contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
-                known_contact_addresses.append(contact_address)
-
-        context.update({
-            'known_contact_addresses': anyjson.serialize(known_contact_addresses),
-        })
 
         # find e-mail templates and add to context in json
         templates = EmailTemplate.objects.all()

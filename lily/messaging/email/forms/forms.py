@@ -19,6 +19,7 @@ from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
+from lily.utils.models import EmailAddress
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -245,16 +246,18 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
 
-        contacts = Contact.objects.all()
-        contacts_list = []
+        # Query for all contacts which have e-mail addresses
+        contacts_addresses_qs = Contact.objects.all().prefetch_related('email_addresses')
 
-        for contact in contacts:
-            if contact.get_any_email_address():
-                contacts_list.append(contact.full_name() + ' <' + str(contact.get_any_email_address()) + '>')
+        known_contact_addresses = []
+        for contact in contacts_addresses_qs:
+            for email_address in contact.email_addresses.all():
+                contact_address = u'"%s" <%s>' % (contact.full_name(), email_address.email_address)
+                known_contact_addresses.append(contact_address)
 
-        self.fields['send_to_normal'].choices = contacts_list
-        self.fields['send_to_cc'].choices = contacts_list
-        self.fields['send_to_bcc'].choices = contacts_list
+        self.fields['send_to_normal'].choices = known_contact_addresses
+        self.fields['send_to_cc'].choices = known_contact_addresses
+        self.fields['send_to_bcc'].choices = known_contact_addresses
         self.fields['send_from'].empty_label = None
 
         # Set user's primary_email as default choice if there is no initial value

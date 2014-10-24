@@ -41,24 +41,24 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             'mData': 'edit',
             'bSortable': False,
         }),
+        ('stage', {
+            'mData': 'stage',
+        }),
+        ('closed_date', {
+            'mData': 'closed_date',
+            'sClass': 'visible-md visible-lg',
+        }),
         ('name', {
             'mData': 'name',
         }),
         ('account', {
             'mData': 'account',
         }),
-        ('stage', {
-            'mData': 'stage',
-        }),
         ('amount', {
             'mData': 'amount',
         }),
         ('assigned_to', {
             'mData': 'assigned_to',
-        }),
-        ('closed_date', {
-            'mData': 'closed_date',
-            'sClass': 'visible-md visible-lg',
         }),
         ('created', {
             'mData': 'created',
@@ -110,6 +110,20 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
                 '%sassigned_to__contact__first_name' % prefix,
             )
         return queryset
+
+    def get_extra_row_data(self, item):
+        extra_row_data = {}
+
+        # Visual feedback on item stage
+        if item.stage not in (Deal.LOST_STAGE, Deal.WON_STAGE):
+            if item.expected_closing_date > datetime.date.today():
+                extra_row_data.update({'checkboxClass': 'success'})
+            if item.expected_closing_date == datetime.date.today():
+                extra_row_data.update({'checkboxClass': 'warning'})
+            elif item.expected_closing_date < datetime.date.today():
+                extra_row_data.update({'checkboxClass': 'danger'})
+
+        return extra_row_data
 
 
 class ArchivedDealsView(ListDealView):
@@ -181,13 +195,6 @@ class CreateUpdateDealMixin(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
         """
         # Save instance
         response = super(CreateUpdateDealMixin, self).form_valid(form)
-
-        # Set closed_date after changing stage to lost/won and reset it when it's new/pending
-        if self.object.stage in [1, 3]:
-            self.object.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
-        elif self.object.stage in [0, 2]:
-            self.object.closed_date = None
-        self.object.save()
 
         return response
 

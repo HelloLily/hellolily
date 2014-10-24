@@ -1,6 +1,8 @@
+import datetime
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
+from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
@@ -61,6 +63,19 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         #
         self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
+
+    def save(self, commit=True):
+        instance = super(CreateUpdateDealForm, self).save(commit=commit)
+
+        # Set closed_date after changing stage to lost/won and reset it when it's new/pending
+        if instance.stage in [Deal.WON_STAGE, Deal.LOST_STAGE]:
+            instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        else:
+            instance.closed_date = None
+
+        if commit:
+            instance.save()
+        return instance
 
     class Meta:
         model = Deal

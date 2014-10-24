@@ -1,6 +1,3 @@
-{% if not request.is_ajax %}
-    <td>
-{% endif %}
 {% for tag in item.get_tags %}
     {% if item.is_archived %}
         <a href="{% url 'deal_archived_list_filtered_by_tag' tag.pk %}" class="tag">{{ tag }}</a><br />
@@ -8,6 +5,3 @@
         <a href="{% url 'deal_list_filtered_by_tag' tag.pk %}" class="tag">{{ tag }}</a><br />
     {% endif %}
 {% endfor %}
-{% if not request.is_ajax %}
-    </td>
-{% endif %}

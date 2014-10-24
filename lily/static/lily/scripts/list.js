@@ -6,12 +6,6 @@
             DTSelector: '',
             DTAjaxSource: '',
             DTColumns: '',
-            DTDrawCallback: function() {
-                // Format checkboxes
-                App.initUniform();
-                // Truncate long fields
-                HLApp.resetTruncateFields();
-            },
             DTColumnsDefs: [],
             DTFilterDelay: 250,
             DTServerSide: false,
@@ -117,7 +111,8 @@
         },
 
         setupDataTable: function () {
-            var cf = this.config;
+            var self = this,
+                cf = self.config;
             var $container = $(cf.DTSelector);
             var config = {
                 aLengthMenu: cf.DTLengthMenu,
@@ -134,7 +129,8 @@
                     sSearch: cf.DTSearchText
                 },
                 bAutoWidth: false,
-                aaSorting: cf.DTSorting
+                aaSorting: cf.DTSorting,
+                fnCreatedRow: self.DTRowCallBack
             };
             if (cf.DTServerSide) {
                 $.extend(config, {
@@ -142,7 +138,7 @@
                     sAjaxSource: cf.DTAjaxSource,
                     aoColumns: cf.DTColumns,
                     bFilter: cf.DTFilter,
-                    fnDrawCallback: cf.DTDrawCallback
+                    fnDrawCallback: self.DTTableDrawCallback
                 });
             } else {
                 $.extend(config, {
@@ -252,6 +248,21 @@
                 $(cf.actionClass).removeClass('disabled');
             } else {
                 $(cf.actionClass).addClass('disabled');
+            }
+        },
+
+        DTTableDrawCallback: function() {
+            console.log('drawback?');
+            // Format checkboxes
+            App.initUniform();
+            // Truncate long fields
+            HLApp.resetTruncateFields();
+        },
+
+        DTRowCallBack: function(nRow, aData, iDataIndex) {
+            if(aData.checkboxClass){
+                var $cell = $(nRow).find('td:first');
+                $cell.addClass(aData.checkboxClass);
             }
         }
     }

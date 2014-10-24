@@ -1,13 +1,9 @@
-{% if not request.is_ajax %}
-    <td>
-{% endif %}
+{% load i18n %}
+
 <div>
     {% if item.closed_date %}
-        {{ item.closed_date|date:"d/m/Y" }}
+        {{ item.closed_date|date:"d/m/Y" }} <i>({% trans 'Closed' %})</i>
     {% else %}
         {{ item.expected_closing_date|date:"d/m/Y" }}
     {% endif %}
 </div>
-{% if not request.is_ajax %}
-    </td>
-{% endif %}

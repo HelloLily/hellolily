@@ -948,6 +948,9 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
             kwargs={'status_id': status.pk},
         )
 
+        status.task_id = task.id
+        status.save()
+
         return task
 
     def remove_draft(self, server):

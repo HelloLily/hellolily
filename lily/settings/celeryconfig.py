@@ -56,10 +56,10 @@ CELERY_ROUTES = (
         'queue': 'queue3'
     }},
     {'get_from_imap': {  # get email from external server (e.g. Gmail)
-        'queue': 'queue3'
+        'queue': 'queue2'
     }},
     {'send_message': {  # send an email message
-        'queue': 'queue3'
+        'queue': 'queue2'
     }},
     # {'synchronize_folder': {  # email from single folder
     #     'queue': 'queue3'

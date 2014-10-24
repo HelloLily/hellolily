@@ -23,12 +23,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         ('USD', _('United States dollar')),
     )
 
-    NEW_STAGE, LOST_STAGE, PENDING_STAGE, WON_STAGE = range(4)
+    NEW_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE = range(4)
     STAGE_CHOICES = (
         (NEW_STAGE, _('New')),
-        (LOST_STAGE, _('Lost')),
         (PENDING_STAGE, _('Pending')),
         (WON_STAGE, _('Won')),
+        (LOST_STAGE, _('Lost')),
     )
 
     name = models.CharField(max_length=255, verbose_name=_('name'))

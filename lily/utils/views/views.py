@@ -454,15 +454,32 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
         """
         parsed_data = []
         for item in object_list:
-            row_data = {}
+            # Set row data
+            row_data = {'DT_RowId': item.pk}
+            extra_row_data = self.get_extra_row_data(item)
+            if extra_row_data:
+                row_data.update(extra_row_data)
+
+            # Set column data
             for column in columns:
                 # Load template for column.
                 template = get_template('%s/data-tables/%s.html' % (self._app_name, column))
-                response = template.render(Context({'item': item}))
+                response = template.render(Context({'item': item})).replace('\n', '').strip()
                 # Add response to row
                 row_data[column] = response
             parsed_data.append(row_data)
         return parsed_data
+
+    def get_extra_row_data(self, item):
+        """
+        For DataTables it is possible to add extra data to the row.
+
+        Arguments:
+            item (instance): The model instance where the row is generated for.
+        Returns:
+            None or dict with extra information for DataTables
+        """
+        return None
 
 
 class AjaxUpdateView(View):

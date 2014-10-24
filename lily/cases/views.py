@@ -1,3 +1,4 @@
+from datetime import date
 import json
 from urlparse import urlparse
 
@@ -134,6 +135,18 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             )
         return queryset
 
+    def get_extra_row_data(self, item):
+        extra_row_data = {}
+
+        # Visual feedback on item expired
+        if item.expires > date.today():
+            extra_row_data.update({'checkboxClass': 'success'})
+        if item.expires == date.today():
+            extra_row_data.update({'checkboxClass': 'warning'})
+        elif item.expires < date.today():
+            extra_row_data.update({'checkboxClass': 'danger'})
+
+        return extra_row_data
 
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     """
@@ -255,6 +268,9 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
 class ArchivedCasesView(ListCaseView):
     show_archived = True
     template_name = 'cases/case_list_archived.html'
+
+    def get_extra_row_data(self, item):
+        return None
 
 
 class ArchiveCasesView(LoginRequiredMixin, ArchiveView):

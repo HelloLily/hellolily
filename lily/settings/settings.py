@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse_lazy
 import dj_database_url
 
 #######################################################################################################################
-## MISCELLANEOUS SETTINGS                                                                                            ##
+# MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
@@ -29,7 +29,7 @@ boolean = lambda value: bool(int(value))
 local_path = lambda path: os.path.join(os.path.dirname(__file__), os.pardir, path)
 
 #######################################################################################################################
-## DJANGO CONFIG                                                                                                     ##
+# DJANGO CONFIG                                                                                                       #
 #######################################################################################################################
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
@@ -56,7 +56,7 @@ SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 SITE_ID = os.environ.get('SITE_ID', 1)
 
 #######################################################################################################################
-## LOCALIZATION                                                                                                      ##
+# LOCALIZATION                                                                                                        #
 #######################################################################################################################
 TIME_ZONE = 'Europe/Amsterdam'
 DATE_INPUT_FORMATS = tuple(['%d/%m/%Y'] + list(global_settings.DATE_INPUT_FORMATS))
@@ -72,7 +72,7 @@ USE_TZ = boolean(os.environ.get('USE_TZ', 1))
 FIRST_DAY_OF_WEEK = os.environ.get('FIRST_DAY_OF_WEEK', 1)
 
 #######################################################################################################################
-## SECURITY                                                                                                          ##
+# SECURITY                                                                                                            #
 #######################################################################################################################
 # Secure csrf cookie is only sent under https connection, for production this needs to be set to True
 CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))
@@ -93,7 +93,7 @@ ALLOWED_HOSTS = [
 ]
 
 #######################################################################################################################
-## UPLOADED MEDIA AND STATIC FILES                                                                                   ##
+# UPLOADED MEDIA AND STATIC FILES                                                                                     #
 #######################################################################################################################
 if DEBUG:
     JQUERY_URL = ''
@@ -163,7 +163,7 @@ except ImportError:
     raise Exception("Missing pipeline bundles: define your static bundles in pipeline/bundles.py")
 
 #######################################################################################################################
-## LOGIN SETTINGS                                                                                                    ##
+# LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
@@ -176,7 +176,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 #######################################################################################################################
-## MIDDLEWARE CLASSES                                                                                                ##
+# MIDDLEWARE CLASSES                                                                                                  #
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
@@ -200,7 +200,7 @@ if DEBUG:
     )
 
 #######################################################################################################################
-## TEMPLATE SETTINGS                                                                                                 ##
+# TEMPLATE SETTINGS                                                                                                   #
 #######################################################################################################################
 # Template settings
 TEMPLATE_DIRS = (
@@ -236,7 +236,7 @@ else:
     )
 
 #######################################################################################################################
-## INSTALLED APPS                                                                                                    ##
+# INSTALLED APPS                                                                                                      #
 #######################################################################################################################
 INSTALLED_APPS = (
     # Django
@@ -295,7 +295,7 @@ MESSAGE_APPS = (
 INSTALLED_APPS += MESSAGE_APPS
 
 #######################################################################################################################
-## EMAIL SETTINGS                                                                                                    ##
+# EMAIL SETTINGS                                                                                                      #
 #######################################################################################################################
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -325,7 +325,7 @@ BLACKLISTED_EMAIL_TAGS = [
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 
 #######################################################################################################################
-## LOGGING CONFIG                                                                                                    ##
+# LOGGING CONFIG                                                                                                      #
 #######################################################################################################################
 LOGGING = {
     'version': 1,
@@ -387,7 +387,7 @@ if DEBUG:
     })
 
 #######################################################################################################################
-## CACHING CONFIG                                                                                                    ##
+# CACHING CONFIG                                                                                                      #
 #######################################################################################################################
 if DEBUG:
     CACHES = {
@@ -436,7 +436,7 @@ else:
     }
 
 #######################################################################################################################
-## NEW RELIC SETTINGS                                                                                                ##
+# NEW RELIC SETTINGS                                                                                                  #
 #######################################################################################################################
 NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
 NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
@@ -455,7 +455,7 @@ NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
 }
 
 #######################################################################################################################
-## MISCELLANEOUS SETTINGS                                                                                            ##
+# MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################
 # Registration form
 REGISTRATION_POSSIBLE = boolean(os.environ.get('REGISTRATION_POSSIBLE', 0))

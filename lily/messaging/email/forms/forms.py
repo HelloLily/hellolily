@@ -2,15 +2,14 @@ import socket
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 
-from lily.contacts.models import Contact
-from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment
+from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment, \
+    EmailOutboxAttachment
 from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, verify_imap_credentials, \
     verify_smtp_credentials
 from lily.messaging.email.forms.widgets import EmailAttachmentWidget
@@ -19,8 +18,7 @@ from lily.users.models import CustomUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AjaxSelect2Widget
-from lily.utils.models import EmailAddress
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
 
 
 class EmailConfigurationWizard_1(HelloLilyForm):
@@ -208,7 +206,7 @@ class AttachmentBaseForm(HelloLilyModelForm):
     Form for uploading email attachments.
     """
     class Meta:
-        models = EmailAttachment
+        models = EmailOutboxAttachment
         fields = ('attachment',)
         widgets = {
             'attachment': EmailAttachmentWidget(),
@@ -229,8 +227,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     send_to_cc = TagsField(required=False, label=_('Cc'))
     send_to_bcc = TagsField(required=False, label=_('Bcc'))
     attachments = FormSetField(
-        queryset=EmailAttachment.objects,
-        formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        queryset=EmailOutboxAttachment.objects,
+        formset_class=modelformset_factory(EmailOutboxAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
         template='email/formset_attachment.html',
     )
 

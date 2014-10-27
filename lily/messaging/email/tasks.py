@@ -3,8 +3,11 @@ from __future__ import absolute_import
 import gc
 import json
 import logging
+import os
 import traceback
 from datetime import datetime, timedelta
+from email import Encoders
+from email.MIMEBase import MIMEBase
 
 from Crypto import Random
 from celery import task
@@ -12,14 +15,18 @@ from celery.signals import task_prerun
 from dateutil.tz import tzutc
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.core.files.storage import default_storage
+from django.core.mail import mail_admins
 from django.db import connection, transaction
+from django.utils.translation import ugettext as _
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, OK_EMAILACCOUNT_AUTH, \
     NO_EMAILACCOUNT_AUTH, EmailAddressHeader, UNKNOWN_EMAILACCOUNT_AUTH, EmailOutboxMessage
 from lily.messaging.email.task_utils import EmailMessageCreationError, save_email_message, save_headers, \
     save_attachments, get_headers_and_identifier, create_email_attachments, create_headers_query_string, \
     create_message_query_string
-from lily.messaging.email.utils import LilyIMAP, smtp_connect, EmailMultiRelated, EmailMultiAlternatives
+from lily.messaging.email.utils import LilyIMAP, smtp_connect, EmailMultiRelated, EmailMultiAlternatives, \
+    get_attachment_filename_from_url
 from lily.users.models import CustomUser
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
@@ -1119,6 +1126,32 @@ def send_message(email_account_id, email_outbox_message_id):
 
     email_message.attach_alternative(email_outbox_message.body, 'text/html')
 
+    attachments = email_outbox_message.attachments.all()
+
+    for attachment in attachments:
+        try:
+            storage_file = default_storage._open(attachment.attachment.name + 'notexist')
+        except IOError, e:
+            task_logger.error(traceback.format_exc(e))
+            admin_mail_subject = _('Failed to load attachment')
+            admin_mail_body = _('Failed to open EmailOutboxAttachment with id %d for email_account %d.') % (attachment.id, email_account_id)
+            admin_mail_body = admin_mail_body + '\n\n' + traceback.format_exc(e)
+            mail_admins(admin_mail_subject, admin_mail_body)
+            return False
+
+        filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+        storage_file.open()
+        content = storage_file.read()
+        storage_file.close()
+
+        filetype = attachment.content_type.split('/')
+        part = MIMEBase(filetype[0], filetype[1])
+        part.set_payload(content)
+        Encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
+
+        email_message.attach(part)
     try:
         email_account = EmailAccount.objects.get(pk=email_account_id)
     except EmailAccount.DoesNotExist, e:

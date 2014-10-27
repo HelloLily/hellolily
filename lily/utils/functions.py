@@ -197,30 +197,3 @@ def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
     paged_object_list = object_list[:objects_size]
     show_more = len(object_list) > objects_size
     return paged_object_list, show_more
-
-
-def get_twitter_username_from_string(string):
-    """
-    Check if the given string is a valid Twitter url or username.
-    This can be either a full url (e.g twitter.com/username) or just the username.
-    """
-    regex = re.compile('^(((https?://)?(www\.)?(twitter\.com/(#!/)?))?(@)?)?(?P<username>[a-z0-9_]{1,15})$', re.IGNORECASE)
-    match = regex.match(string)
-
-    if match is not None:
-        # We only want the username
-        twitter_username = match.group('username')
-        return twitter_username
-    return None
-
-
-def validate_linkedin_url(url):
-    """
-    Checks if the given url is a valid LinkedIn profile url.
-    """
-    regex = re.compile('^(https?://)?((www|\w\w)\.)?linkedin.com/((in/[^/]+/?)|(pub/[^/]+/((\w|\d)+/?){3}))$')
-    match = regex.match(url)
-
-    if match is not None:
-        return True
-    return False

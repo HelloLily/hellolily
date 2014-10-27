@@ -186,12 +186,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
             'mail': email,
         }
 
-    def get_twitter(self):
-        try:
-            return self.social_media.filter(name='twitter')[0]
-        except:
-            return ''
-
     def get_contacts(self):
         if not hasattr(self, '_contacts'):
             functions = self.functions.all()

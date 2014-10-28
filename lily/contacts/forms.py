@@ -6,13 +6,15 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
+from lily.socialmedia.connectors import Twitter
+from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import TagsField
-from lily.utils.functions import get_twitter_username_from_string, validate_linkedin_url
 from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.models import EmailAddress
+from lily.socialmedia.connectors import Twitter, LinkedIn
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -121,7 +123,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         'position': 'left',
         'is_button': False
     }))
-    linkedin = forms.URLField(label=_('LinkedIn'), required=False, widget=AddonTextInput(icon_attrs={
+    linkedin = forms.CharField(label=_('LinkedIn'), required=False, widget=AddonTextInput(icon_attrs={
         'class': 'icon-linkedin',
         'position': 'left',
         'is_button': False
@@ -135,8 +137,10 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         if len(is_working_at) == 1:
             self.fields['account'].initial = is_working_at[0]
 
-        self.fields['twitter'].initial = self.instance.get_twitter()
-        self.fields['linkedin'].initial = self.instance.get_linkedin()
+        twitter = self.instance.social_media.filter(name='twitter').first()
+        self.fields['twitter'].initial = twitter.username if twitter else ''
+        linkedin = self.instance.social_media.filter(name='linkedin').first()
+        self.fields['linkedin'].initial = linkedin.username if linkedin else ''
 
         self.fields['addresses'].form_attrs = {
             'exclude_address_types': ['visiting'],
@@ -149,38 +153,47 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
     def clean_twitter(self):
         """
-        Check if added twitter name is a valid twitter name
+        Check if added twitter name is a valid twitter name.
+
+        Returns:
+            string: twitter username or empty string.
         """
         twitter = self.cleaned_data.get('twitter')
+
         if twitter:
-            twitter_username = get_twitter_username_from_string(twitter)
-            if not twitter_username:
-                raise ValidationError(
-                    _('Please enter a valid Twitter username'),
-                    code='invalid',
-                )
+            try:
+                twit = Twitter(twitter)
+            except ValueError:
+                raise ValidationError(_('Please enter a valid username or link'), code='invalid')
             else:
-                return twitter_username
+                return twit.username
+        return twitter
 
     def clean_linkedin(self):
         """
-        Check if added linkedin url is a valid linkedin url
+        Check if added linkedin url is a valid linkedin url.
+
+        Returns:
+            string: linkedin username or empty string.
         """
         linkedin = self.cleaned_data['linkedin']
 
         if linkedin:
-            if not validate_linkedin_url(linkedin):
-                # Profile url was invalid
-                raise ValidationError(
-                    _('Please enter a valid LinkedIn profile url'),
-                    code='invalid',
-                )
+            try:
+                lin = LinkedIn(linkedin)
+            except ValueError:
+                raise ValidationError(_('Please enter a valid username or link'), code='invalid')
             else:
-                return linkedin
+                return lin.username
+
+        return linkedin
 
     def clean(self):
         """
         Form validation: fill in at least first or last name.
+
+        Returns:
+            dict: cleaned data of all fields.
         """
         cleaned_data = super(CreateUpdateContactForm, self).clean()
 
@@ -189,6 +202,71 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
 
         return cleaned_data
+
+    def save(self, commit=True):
+        """
+        Save contact to instance, and to database if commit is True.
+
+        Returns:
+            instance: an instance of the contact model
+        """
+        instance = super(CreateUpdateContactForm, self).save(commit)
+
+        if commit:
+            twitter_input = self.cleaned_data.get('twitter')
+            linkedin_input = self.cleaned_data.get('linkedin')
+
+            if twitter_input and instance.social_media.filter(name='twitter').exists():
+                # There is input and there are one or more twitters connected, so we get the first of those.
+                twitter_queryset = self.instance.social_media.filter(name='twitter')
+                if self.fields['twitter'].initial:  # Only filter on initial if there is initial data.
+                    twitter_queryset = twitter_queryset.filter(username=self.fields['twitter'].initial)
+                twitter_instance = twitter_queryset.first()
+
+                # And we edit it to store our new input.
+                twitter = Twitter(self.cleaned_data.get('twitter'))
+                twitter_instance.username = twitter.username
+                twitter_instance.profile_url = twitter.profile_url
+                twitter_instance.save()
+            elif twitter_input:
+                # There is input but no connected twitter, so we create a new one.
+                twitter = Twitter(self.cleaned_data.get('twitter'))
+                twitter_instance = SocialMedia.objects.create(
+                    name='twitter',
+                    username=twitter.username,
+                    profile_url=twitter.profile_url,
+                )
+                instance.social_media.add(twitter_instance)
+            else:
+                # There is no input and zero or more connected twitters, so we delete them all.
+                instance.social_media.filter(name='twitter').delete()
+
+            if linkedin_input and instance.social_media.filter(name='linkedin').exists():
+                # There is input and there are one or more linkedins connected, so we get the first of those.
+                linkedin_instance = self.instance.social_media.filter(name='linkedin')
+                if self.fields['linkedin'].initial:  # Only filter on initial if there is initial data.
+                    linkedin_instance = linkedin_instance.filter(username=self.fields['linkedin'].initial)
+                linkedin_instance = linkedin_instance.first()
+
+                # And we edit it to store our new input.
+                linkedin = LinkedIn(self.cleaned_data.get('linkedin'))
+                linkedin_instance.username = linkedin.username
+                linkedin_instance.profile_url = linkedin.profile_url
+                linkedin_instance.save()
+            elif linkedin_input:
+                # There is input but no connected linkedin, so we create a new one.
+                linkedin = LinkedIn(self.cleaned_data.get('linkedin'))
+                linkedin_instance = SocialMedia.objects.create(
+                    name='linkedin',
+                    username=linkedin.username,
+                    profile_url=linkedin.profile_url,
+                )
+                instance.social_media.add(linkedin_instance)
+            else:
+                # There is no input and zero or more connected twitters, so we delete them all.
+                instance.social_media.filter(name='linkedin').delete()
+
+        return instance
 
     class Meta:
         model = Contact

@@ -281,6 +281,7 @@ INSTALLED_APPS = (
     'lily.users',
     'lily.utils',
     'lily.parcels',
+    'lily.socialmedia',
 )
 
 if DEBUG:

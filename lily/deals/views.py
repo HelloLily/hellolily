@@ -41,18 +41,18 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             'mData': 'edit',
             'bSortable': False,
         }),
+        ('account', {
+            'mData': 'account',
+        }),
         ('stage', {
             'mData': 'stage',
         }),
-        ('closed_date', {
-            'mData': 'closed_date',
+        ('created', {
+            'mData': 'created',
             'sClass': 'visible-md visible-lg',
         }),
         ('name', {
             'mData': 'name',
-        }),
-        ('account', {
-            'mData': 'account',
         }),
         ('amount', {
             'mData': 'amount',
@@ -60,8 +60,8 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         ('assigned_to', {
             'mData': 'assigned_to',
         }),
-        ('created', {
-            'mData': 'created',
+        ('closed_date', {
+            'mData': 'closed_date',
             'sClass': 'visible-md visible-lg',
         }),
         ('tags', {

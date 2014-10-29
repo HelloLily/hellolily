@@ -239,7 +239,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
-        self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
+        if self.message_type is not 'reply':
+            self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
 
         user = get_current_user()
         email_accounts = user.get_messages_accounts(EmailAccount)

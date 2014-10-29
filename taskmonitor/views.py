@@ -27,7 +27,6 @@ class TaskStatusView(LoginRequiredMixin, View):
         except TimeoutError:
             result = None
 
-
         task_status = TaskStatus.objects.get(task_id=task_id)
 
         # Strip parentheses and get the name of the function to call

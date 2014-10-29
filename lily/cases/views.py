@@ -49,38 +49,30 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             'mData': 'edit',
             'bSortable': False,
         }),
-        ('status', {
-            'mData': 'status',
+        ('case_number', {
+            'mData': 'case_number',
+        }),
+        ('contact_account', {
+            'mData': 'contact_account',
+        }),
+        ('subject', {
+            'mData': 'subject',
         }),
         ('priority', {
             'mData': 'priority',
+        }),
+        ('type', {
+            'mData': 'type',
+        }),
+        ('status', {
+            'mData': 'status',
         }),
         ('expires', {
             'mData': 'expires',
             'sClass': 'visible-md visible-lg',
         }),
-        ('type', {
-            'mData': 'type',
-        }),
-        ('case_number', {
-            'mData': 'case_number',
-        }),
-        ('subject', {
-            'mData': 'subject',
-        }),
-        ('contact_account', {
-            'mData': 'contact_account',
-        }),
         ('assigned_to', {
             'mData': 'assigned_to',
-        }),
-        ('created', {
-            'mData': 'created',
-            'sClass': 'visible-lg',
-        }),
-        ('modified', {
-            'mData': 'modified',
-            'sClass': 'visible-lg',
         }),
         ('tags', {
             'mData': 'tags',

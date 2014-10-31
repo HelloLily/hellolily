@@ -75,8 +75,8 @@
         <script>
             HLTasks.init({
                 placeholderUrl: '{% url 'task_status' task_id='000' %}',
-                sendMessageSuccess: {message: '{% trans 'Your message has been sent!' %}', title: '{% trans 'Success!' %}'},
-                sendMessageError: {message: '{% trans 'There was an error while sending your mail, please try again!' %}', title: '{% trans 'Oops!' %}'}
+                sendMessageSuccess: {message: '{% trans 'I successfully delivered your e-mail!' %}', title: '{% trans 'Yay!' %}'},
+                sendMessageError: {message: '{% blocktrans %} Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later. {% endblocktrans %}', title: '{% trans 'Oops!' %}'}
             });
             {% if request.session.tasks %}
                 {% for task_name, task_id in request.session.tasks.items %}

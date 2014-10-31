@@ -5,8 +5,9 @@ from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
 from lily.tenant.models import TenantMixin
-from lily.utils.models import PhoneNumber, SocialMedia, Address, EmailAddress
+from lily.utils.models import PhoneNumber, Address, EmailAddress
 from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField, EmailAddressFormSetField
+from lily.socialmedia.models import SocialMedia
 
 
 class DeletedMixin(TimeStampedModel):

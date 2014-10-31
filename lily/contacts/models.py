@@ -139,20 +139,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     def get_other_addresses(self):
         return self.get_addresses(type='other')
 
-    def get_twitter(self):
-        try:
-            twitter = self.social_media.filter(name='twitter')[0]
-            return twitter.username
-        except:
-            return ''
-
-    def get_linkedin(self):
-        try:
-            linkedin = self.social_media.filter(name='linkedin')[0]
-            return linkedin.profile_url
-        except:
-            return ''
-
     def full_name(self):
         """
         Return full name of this contact without unnecessary white space.

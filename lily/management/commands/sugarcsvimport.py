@@ -9,7 +9,8 @@ from django.db import DataError
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Contact, Function
 from lily.utils.functions import parse_address
-from lily.utils.models import Address, PhoneNumber, EmailAddress, SocialMedia, COUNTRIES
+from lily.utils.models import Address, PhoneNumber, EmailAddress, COUNTRIES
+from lily.socialmedia.models import SocialMedia
 
 task_logger = logging.getLogger('celery_task')
 

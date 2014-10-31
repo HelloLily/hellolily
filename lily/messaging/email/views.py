@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import default_storage
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, mail_admins
 from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
 from django.db.models import Q
@@ -785,18 +785,45 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                             'mapped_attachments': len(mapped_attachments.keys())
                         })
 
-                        task = self.create_send_message_task(email_account, kwargs)
+                        to = json.dumps(kwargs['to'])
+                        cc = json.dumps(kwargs['cc'])
+                        bcc = json.dumps(kwargs['bcc'])
+
+                        # TODO: Change message_data['body_html'] to message_data['body'] in next version
+                        email_outbox_message = EmailOutboxMessage.objects.create(
+                            subject=kwargs['subject'],
+                            from_email=kwargs['from_email'],
+                            to=to,
+                            cc=cc,
+                            bcc=bcc,
+                            body=kwargs['body_html'],
+                            headers=json.dumps(kwargs['headers']),
+                            mapped_attachments=kwargs['mapped_attachments']
+                        )
+
+                        for attachment_form in form.cleaned_data.get('attachments'):
+                            uploaded_attachment = attachment_form.cleaned_data['attachment']
+                            attachment = attachment_form.save(commit=False)
+                            attachment.content_type = uploaded_attachment.content_type
+                            attachment.size = uploaded_attachment.size
+                            attachment.email_outbox_message = email_outbox_message
+                            attachment.save()
+
+                        task = self.create_send_message_task(email_account, email_outbox_message.id)
 
                         if task:
                             to = kwargs['to'] if kwargs['to'] else []
                             cc = kwargs['cc'] if kwargs['cc'] else []
                             bcc = kwargs['bcc'] if kwargs['bcc'] else []
                             recipients = ', '.join(to + cc + bcc)
-                            messages.info(self.request, _('Attempting to send email to %s') % truncatechars(recipients, 140))
+                            messages.info(self.request, _('Gonna deliver your email as fast as I can to %s') % truncatechars(recipients, 140))
                             self.request.session['tasks'].update({'send_message': task.id})
                             self.request.session.modified = True
                         else:
-                            messages.warning(self.request, _('Failed to send e-mail. Please try again later.'))
+                            admin_mail_subject = _('Failed to create task')
+                            admin_mail_body = _('Failed to create send_message task for email account %d. Outbox message id was %d.') % (email_account.id, email_outbox_message.id)
+                            mail_admins(admin_mail_subject, admin_mail_body)
+                            messages.error(self.request, _('Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later.'))
 
                     # Remove an old draft when sending an e-mail message or saving a new draft
                     if self.object and success and self.remove_old_message:
@@ -915,34 +942,21 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
 
         return True
 
-    def create_send_message_task(self, account, message_data):
+    def create_send_message_task(self, account, email_outbox_message_id):
         """
         Send the message via SMTP and save the sent message to the database.
 
         Arguments:
             account (instance): The EmailAccount of the sender
-            message_data (dict): The parameters needed to create an EmailMultiRelated or EmailMultiAlternatives object
+            email_outbox_message_id (int): ID of the temporary object with information about the email
 
         Returns:
             task (instance): An AsyncResult object
         """
-        to = json.dumps(message_data['to'])
-        cc = json.dumps(message_data['cc'])
-        bcc = json.dumps(message_data['bcc'])
-
-        # TODO: Change message_data['body_html'] to message_data['body'] in next version
-        email_outbox_message = EmailOutboxMessage(subject=message_data['subject'],
-                                                  from_email=message_data['from_email'], to=to, cc=cc, bcc=bcc,
-                                                  body=message_data['body_html'],
-                                                  headers=json.dumps(message_data['headers']),
-                                                  mapped_attachments=message_data['mapped_attachments'])
-
-        email_outbox_message.save()
-
         status = create_task_status('send_message')
 
         task = send_message.apply_async(
-            args=(account.id, email_outbox_message.id),
+            args=(account.id, email_outbox_message_id),
             max_retries=1,
             default_retry_delay=100,
             kwargs={'status_id': status.pk},

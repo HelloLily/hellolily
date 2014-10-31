@@ -1130,7 +1130,7 @@ def send_message(email_account_id, email_outbox_message_id):
 
     for attachment in attachments:
         try:
-            storage_file = default_storage._open(attachment.attachment.name + 'notexist')
+            storage_file = default_storage._open(attachment.attachment.name)
         except IOError, e:
             task_logger.error(traceback.format_exc(e))
             admin_mail_subject = _('Failed to load attachment')

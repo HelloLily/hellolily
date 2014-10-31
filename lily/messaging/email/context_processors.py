@@ -9,5 +9,6 @@ def email(request):
     extra_context = {}
     if not is_ajax(request) and not request.user.is_anonymous():
         extra_context.update({'email_auth_update': email_auth_update(request.user)})
-        extra_context.update({'unread_emails': unread_emails(request.user)})
+        # TODO: slow queries, temporary disable unread_emails
+        # extra_context.update({'unread_emails': unread_emails(request.user)})
     return extra_context

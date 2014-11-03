@@ -40,26 +40,26 @@ var Inbox = function () {
     };
 
     var handleCCInput = function () {
-        var ccLink = $(".inbox-compose .mail-to .inbox-cc");
-        var inputField = $(".inbox-compose .input-cc");
-        ccLink.hide();
-        inputField.show();
-        $(".close", inputField).click(function () {
-            inputField.hide();
-            ccLink.show();
-            $(".input-cc").find(".tags").select2("val", "");
+        var $ccLink = $(".inbox-compose .mail-to .inbox-cc");
+        var $inputField = $(".inbox-compose .input-cc");
+        $ccLink.hide();
+        $inputField.show();
+        $(".close", $inputField).click(function () {
+            $inputField.hide();
+            $ccLink.show();
+            $inputField.find(".tags").select2("val", "");
         });
     };
 
     var handleBCCInput = function () {
-        var bccLink = $(".inbox-compose .mail-to .inbox-bcc");
-        var inputField = $(".inbox-compose .input-bcc");
-        bccLink.hide();
-        inputField.show();
-        $(".close", inputField).click(function () {
-            inputField.hide();
-            inputField.show();
-            $(".input-bcc").find(".tags").select2("val", "");
+        var $bccLink = $(".inbox-compose .mail-to .inbox-bcc");
+        var $inputField = $(".inbox-compose .input-bcc");
+        $bccLink.hide();
+        $inputField.show();
+        $(".close", $inputField).click(function () {
+            $inputField.hide();
+            $bccLink.show();
+            $inputField.find(".tags").select2("val", "");
         });
     };
 

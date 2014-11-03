@@ -531,7 +531,7 @@ class EmailDraft(TimeStampedModel):
 
 class EmailOutboxMessage(TenantMixin, models.Model):
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
-    from_email = models.TextField(verbose_name=_('From'))
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='outbox_messages')
     to = models.TextField(verbose_name=_('To'))
     cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
     bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))

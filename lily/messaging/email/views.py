@@ -792,7 +792,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                         # TODO: Change message_data['body_html'] to message_data['body'] in next version
                         email_outbox_message = EmailOutboxMessage.objects.create(
                             subject=kwargs['subject'],
-                            from_email=kwargs['from_email'],
+                            send_from=email_account,
                             to=to,
                             cc=cc,
                             bcc=bcc,

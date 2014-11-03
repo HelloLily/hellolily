@@ -140,6 +140,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
 
         return extra_row_data
 
+
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
     """
     Display a detail page for a single case.
@@ -271,6 +272,21 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     """
     model = Case
     success_url = reverse_lazy('case_list')
+
+    def archive(self, archive=True, **kwargs):
+        kwargs = {}
+
+        try:
+            closed_status = CaseStatus.objects.get(status__iexact='Closed')
+        except CaseStatus.DoesNotExist:
+            pass
+        else:
+            if closed_status:
+                # Set status of cases to closes when archived
+                kwargs.update({'status': closed_status})
+
+        # Even if the status can't be set we can still archive the case
+        return super(ArchiveCasesView, self).archive(**kwargs)
 
     def get_success_message(self, count):
         message = ungettext(

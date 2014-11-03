@@ -37,7 +37,17 @@
             {% endif %}
             <a href="#" class="nav-link">
                 <i class="icon-user"></i>
-                {{ object.from_combined }}
+                {% if right %}
+                    {{ object.account.from_name }}
+                {% else %}
+                    {% if object.from_name %}
+                        <span title="{{ object.from_email }}">
+                            {{ object.from_name }}
+                        </span>
+                    {% else %}
+                        {{ object.from_email }}
+                    {% endif %}
+                {% endif %}
             </a>
         </div>
     </div>

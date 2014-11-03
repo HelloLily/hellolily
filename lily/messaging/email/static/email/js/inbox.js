@@ -96,7 +96,9 @@ $(function ($) {
             var value = parseInt($(this).val());
             var subjectField = $("#id_subject");
             if (value) {
-                subjectField.val(templateList[value].subject);
+                if (templateList[value].subject != '') {
+                    subjectField.val(templateList[value].subject);
+                }
                 Inbox.getEditor().setValue(templateList[value].html_part + "<br>" + Inbox.getEditor().getValue());
                 Inbox.resizeEditor();
             } else {

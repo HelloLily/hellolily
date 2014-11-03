@@ -6,8 +6,8 @@
 {% block page-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
 
 {% block page-actions %}
-    <a href="{% url 'account_edit' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
-    <a href="{% url 'account_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
+    <a href="{% url 'account_edit' pk=object.pk %}" class="btn blue"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
+    <a href="{% url 'account_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
 {% endblock %}
 
 {% block details-main %}
@@ -17,7 +17,8 @@
             <em>{{ object.description|linebreaks }}</em>
         </div>
     </div>
-    {% endif %}    <div class="row">
+    {% endif %}
+    <div class="row">
         <div class="col-md-6">
            <ul class="list-unstyled summary-list">
                 <li>
@@ -55,6 +56,19 @@
                     </li>
                 {% endif %}
             </ul>
+        </div>
+        <div class="col-md-6">
+            <div class="clearfix">
+                 <a style="margin: 0 0 2px 2px;" href="{% url 'deal_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">{% trans 'Deals' %}</a>
+                 <a href="{% url 'deal_create' %}" data-target="#quickbutton-create" data-source="{% url 'deal_create' %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+
+{# TODO: put on button                <span class="badge badge-success">1</span>#}
+            </div>
+            <div>
+                 <a style="margin: 0 0 2px 2px;" href="{% url 'case_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">{% trans 'Cases' %}</a>
+                 <a href="{% url 'case_create' %}" data-target="#quickbutton-create" data-source="{% url 'case_create' %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+{# TODO: put on button                <span class="badge badge-success">1</span>#}
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -205,14 +219,5 @@
                 </ul>
             </div>
         </div>
-    </div>
-{% endblock %}
-
-{% block sidebar %}
-    <div class="profile">
-        <ul class="list-unstyled profile-nav">
-            <li><a href="{% url 'deal_list' %}?filter={{ object.name }}">Deals <span>{{ object.get_deals.count }}</span></a></li>
-            <li><a href="{% url 'case_list' %}?filter={{ object.name }}">Cases <span>{{ object.get_cases.count }}</span></a></li>
-        </ul>
     </div>
 {% endblock %}

@@ -9,19 +9,15 @@
 
 {% block head-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
 {% block page-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
-{% block detail-title %}{{ object.subject }}{% endblock %}
 
 {% block page-actions %}
-    <a href="{% url 'case_update' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
-    <a href="{% url 'case_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
+    <a href="{% url 'case_update' pk=object.pk %}" class="btn blue"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
+    <a href="{% url 'case_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'case_delete' pk=object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
 {% endblock %}
 
-{% block details-tabs %}
-    {{ block.super }}
-    <li><a href="#history" data-toggle="tab">{% trans 'History' %}</a></li>
-{% endblock %}
+{% block details-tabs %}{% endblock %}
 
-{% block content %}
+{% block details-main %}
     <div class="row">
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">

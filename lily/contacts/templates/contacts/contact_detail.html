@@ -11,12 +11,6 @@
         </a>
     {% endif %}
 {% endblock %}
-{% block detail-title %}{{ object.subject }}{% endblock %}
-
-{% block page-actions %}
-    <a href="{% url 'contact_edit' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
-    <a href="{% url 'contact_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
-{% endblock %}
 
 {% block details-main %}
     {% if object.description %}
@@ -51,6 +45,17 @@
                 {% endfor %}
             </ul>
         </div>
+        <div class="col-md-6 text-right">
+            <div class="btn-group-spaced">
+                 <a href="{% url 'deal_create' %}" class="btn btn-default btn-sm blue"><i class="icon-plus"></i></a>
+                 <a href="{% url 'deal_list' %}?filter={{ object.full_name }}" class="btn btn-default btn-sm blue">{% trans 'Deals' %} <span class="badge badge-success">TODO</span></a>
+            </div>
+            <div class="btn-group-spaced">
+                 <a href="{% url 'case_create' %}" class="btn btn-default btn-sm blue"><i class="icon-plus"></i></a>
+                 <a href="{% url 'case_list' %}?filter={{ object.full_name }}" class="btn btn-default btn-sm blue">{% trans 'Cases' %} <span class="badge badge-success">TODO</span></a>
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 
@@ -217,15 +222,6 @@
                 </ul>
             </div>
         </div>
-    </div>
-{% endblock %}
-
-{% block sidebar %}
-    <div class="profile">
-        <ul class="list-unstyled profile-nav">
-            <li><a href="{% url 'deal_list' %}?filter={{ object.full_name }}">Deals <span>{{ object.get_assigned_deals.count }}</span></a></li>
-            <li><a href="{% url 'case_list' %}?filter={{ object.full_name }}">Cases <span>{{ object.get_assigned_cases.count }}</span></a></li>
-        </ul>
     </div>
 {% endblock %}
 

@@ -12,6 +12,7 @@ from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
+from lily.accounts.models import Account
 from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
@@ -215,6 +216,23 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
             self.form_class = CreateDealQuickbuttonForm
 
         return super(CreateDealView, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        """
+        Set the initials for the form
+        """
+        initial = super(CreateDealView, self).get_initial()
+
+        # If the Deal is created from an Account, initialize the form with data from that Account
+        account_pk = self.kwargs.get('account_pk', None)
+        if account_pk:
+            try:
+                account = Account.objects.get(pk=account_pk)
+            except Account.DoesNotExist:
+                pass
+            else:
+                initial.update({'account': account})
+        return initial
 
     def form_valid(self, form):
         # Saves the instance

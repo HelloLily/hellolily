@@ -137,10 +137,11 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         if len(is_working_at) == 1:
             self.fields['account'].initial = is_working_at[0]
 
-        twitter = self.instance.social_media.filter(name='twitter').first()
-        self.fields['twitter'].initial = twitter.username if twitter else ''
-        linkedin = self.instance.social_media.filter(name='linkedin').first()
-        self.fields['linkedin'].initial = linkedin.username if linkedin else ''
+        if self.instance.pk:
+            twitter = self.instance.social_media.filter(name='twitter').first()
+            self.fields['twitter'].initial = twitter.username if twitter else ''
+            linkedin = self.instance.social_media.filter(name='linkedin').first()
+            self.fields['linkedin'].initial = linkedin.username if linkedin else ''
 
         self.fields['addresses'].form_attrs = {
             'exclude_address_types': ['visiting'],

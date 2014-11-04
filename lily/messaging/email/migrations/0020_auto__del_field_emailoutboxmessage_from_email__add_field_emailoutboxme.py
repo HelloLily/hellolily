@@ -17,7 +17,8 @@ class Migration(SchemaMigration):
                       keep_default=False)
 
     def backwards(self, orm):
-        # The following code is provided here to aid in writing a correct migration        # Adding field 'EmailOutboxMessage.from_email'
+        # The following code is provided here to aid in writing a correct migration
+        #  Adding field 'EmailOutboxMessage.from_email'
         db.add_column(u'email_emailoutboxmessage', 'from_email',
                       self.gf('django.db.models.fields.TextField')(),
                       keep_default=False)

@@ -9,8 +9,8 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from lily.accounts.models import Account
 
+from lily.accounts.models import Account
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case, CaseStatus
 from lily.contacts.models import Contact

@@ -35,6 +35,6 @@ class ContactMapping(MappingType, Indexable):
         return {
             'id': obj.id,
             'name': '%s %s' % (obj.first_name, obj.last_name),
-            'tenant': obj.tenant.id,
+            'tenant': obj.tenant_id,
             'modified': obj.modified,
         }

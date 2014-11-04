@@ -102,7 +102,7 @@ class ArchiveView(View):
             )
         return self.success_url
 
-    def archive(self, archive=True):
+    def archive(self, archive=True, **kwargs):
         """
         Archives all objects found.
 
@@ -110,7 +110,8 @@ class ArchiveView(View):
             HttpResponseRedirect object set to success_url.
         """
         queryset = self.get_queryset()
-        queryset.update(is_archived=archive)
+        kwargs.update({'is_archived': archive})
+        queryset.update(**kwargs)
         self.get_success_message(len(queryset))
 
         return HttpResponseRedirect(self.get_success_url())

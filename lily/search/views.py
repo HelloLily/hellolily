@@ -13,18 +13,20 @@ class SearchView(LoginRequiredMixin, View):
     '''
     def get(self, request):
         query = request.GET.get('q', '')
-        tenant = request.user.tenant_id
         modeltype = request.GET.get('type', '')
         results = {'hits': [], 'query': {'q': query, 'type': modeltype}}
 
         search_request = S().es(urls=settings.ES_URLS).indexes(settings.ES_INDEXES['default'])
         search = search_request.all().order_by('-modified')
 
+        tenant = request.user.tenant_id
+        search = search.filter(tenant=tenant)
+
         if modeltype:
             search = search.filter(_type=modeltype)
 
         if query:
-            search = search.filter(name=query, tenant=tenant)
+            search = search.filter(name=query)
         for result in search.execute():
             results['hits'].append({'id': result.id, 'name': result.name})
         return HttpResponse(anyjson.dumps(results), mimetype='application/json')

@@ -34,6 +34,6 @@ class AccountMapping(MappingType, Indexable):
         return {
             'id': obj.id,
             'name': obj.name,
-            'tenant': obj.tenant.id,
+            'tenant': obj.tenant_id,
             'modified': obj.modified,
         }

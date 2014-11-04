@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse_lazy
 
 import dj_database_url
 
+
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################
@@ -264,6 +265,7 @@ INSTALLED_APPS = (
     'south',
     'taskmonitor',
     'injector',
+    'elasticutils',
 
     # Lily
     'lily',  # required for management command
@@ -275,6 +277,7 @@ INSTALLED_APPS = (
     'lily.messaging',
     'lily.notes',
     'lily.provide',
+    'lily.search',
     'lily.tags',
     'lily.tenant',
     'lily.updates',
@@ -367,6 +370,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'search': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         '': {
             'handlers': ['console'],
             'level': 'DEBUG',
@@ -384,7 +392,7 @@ if DEBUG:
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
-        },
+        }
     })
 
 #######################################################################################################################
@@ -454,6 +462,40 @@ NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
     'META': 'Http meta data',
     'session': 'Http session',
 }
+
+#######################################################################################################################
+# ELASTICSEARCH                                                                                                       #
+#######################################################################################################################
+# Set this property to true to run without a local Elasticsearch.
+ES_DISABLED = boolean(os.environ.get('ES_DISABLED', 0))
+
+# The location of the Elasticsearch cluster. The following really sucks:
+# ES supports two ways of configuring urls; by string and by dict, however:
+# Urls with authentication can only be done with dict method, which ElasticUtils
+# does not support directly, but we can make it work with a small workaround.
+# (ElasticUtils expects it to be be hashable, which does not work with dict so we use a tuple).
+
+
+def es_url_to_dict(url):
+    parse = urlparse(url)
+    port = parse.port if parse.port else (80 if parse.scheme == 'http' else 443)
+    use_ssl = port is 443
+    host = {'host': parse.hostname,
+            'port': port,
+            'use_ssl': use_ssl,
+            'http_auth': '%s:%s' % (parse.username, parse.password)}
+    return tuple(sorted(host.items()))
+
+ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:9200'))]
+
+# The indexes Elasticsearch uses.
+ES_INDEXES = {'default': 'main_index'}
+
+# Enable models for search. Used for batch indexing and realtime updating.
+ES_MODEL_MAPPINGS = (
+    'lily.accounts.search.AccountMapping',
+    'lily.contacts.search.ContactMapping',
+)
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #

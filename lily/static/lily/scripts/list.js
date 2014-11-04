@@ -252,7 +252,6 @@
         },
 
         DTTableDrawCallback: function() {
-            console.log('drawback?');
             // Format checkboxes
             App.initUniform();
             // Truncate long fields

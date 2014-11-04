@@ -13,28 +13,16 @@
     <ul class="nav navbar-nav">
         {% block hor-menu %}
         <li>
-            <a href="{% url 'contact_add' %}" data-target="#quickbutton-create" data-source="{% url 'contact_add' %}" >{% trans 'Add contact' %}</a>
+            <a href="{% url 'contact_add' %}">{% trans 'Add contact' %}</a>
         </li>
         <li>
-            <a href="{% url 'contact_add' %}" class="icon-plus"></a>
+            <a href="{% url 'account_add' %}">{% trans 'Add account' %}</a>
         </li>
         <li>
-            <a href="{% url 'account_add' %}" data-target="#quickbutton-create" data-source="{% url 'account_add' %}" >{% trans 'Add account' %}</a>
+            <a href="{% url 'case_create' %}">{% trans 'Add case' %}</a>
         </li>
         <li>
-            <a href="{% url 'account_add' %}" class="icon-plus"></a>
-        </li>
-        <li>
-            <a href="{% url 'case_create' %}" data-target="#quickbutton-create" data-source="{% url 'case_create' %}" >{% trans 'Add case' %}</a>
-        </li>
-        <li>
-            <a href="{% url 'case_create' %}" class="icon-plus"></a>
-        </li>
-        <li>
-            <a href="{% url 'deal_create' %}" data-target="#quickbutton-create" data-source="{% url 'deal_create' %}" >{% trans 'Add deal' %}</a>
-        </li>
-        <li>
-            <a href="{% url 'deal_create' %}" class="icon-plus"></a>
+            <a href="{% url 'deal_create' %}">{% trans 'Add deal' %}</a>
         </li>
         {% if not debug %}
         <li>
@@ -162,7 +150,7 @@
 </div>
 {% endblock %}
 
-{% block container %}
+{% block page-content %}
 <div class="row">
     <div class="col-md-12">
         {% block page-container %}

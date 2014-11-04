@@ -48,7 +48,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                                  verbose_name=_('status'))
     picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
-    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=FORMAL, verbose_name=_('salutation'))
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
 
     def primary_email(self):
         if not hasattr(self, '_primary_email'):

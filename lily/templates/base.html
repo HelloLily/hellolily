@@ -30,21 +30,13 @@
     <div class="page-container">
         {% block page-menu-bar %}{% endblock %}
         <div class="page-content">
-        {% block page-content %}
-            <div class="row">
-                <div class="col-md-12">
-                    <h3 class="page-title pull-left">{% block page-title %}{% endblock %}</h3>
-                    {% block page-actions-button %}{% endblock %}
-                </div>
-            </div>
-            {% block container %}{% endblock %}
-        {% endblock %}
+            {% block page-content %}{% endblock %}
         </div>
     </div>
     {% block page-footer %}
     <div class="footer">
         <div class="footer-inner">
-            2012 &copy; HelloLily
+            2012 - {% now 'Y' %} &copy; HelloLily
         </div>
         <div class="footer-tools">
             <span class="go-top">

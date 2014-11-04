@@ -12,11 +12,13 @@
 {% block detail-title %}{{ object }}{% endblock %}
 
 {% block page-actions %}
-<a href="{% url 'deal_update' pk=object.pk %}" class="btn blue">{% trans 'Edit' %}</a>
-<a href="{% url 'deal_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=object.pk %}">{% trans 'Delete' %}</a>
+<a href="{% url 'deal_update' pk=object.pk %}" class="btn blue"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
+<a href="{% url 'deal_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
 {% endblock %}
 
-{% block content %}
+{% block details-tabs %}{% endblock %}
+
+{% block details-main %}
     <div class="row">
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">

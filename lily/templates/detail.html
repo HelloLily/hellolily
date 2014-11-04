@@ -8,13 +8,17 @@
     {% compressed_css 'timeline' %}
 {% endblock %}
 
-{% block page-actions-button %}
-<div class="pull-right">
-    {% block page-actions %}{% endblock %}
-</div>
-{% endblock %}
-
 {% block content %}
+    <div class="row">
+        <div class="col-md-9">
+            <h3 class="page-title">{% block page-title %}{% endblock %}</h3>
+        </div>
+        <div class="col-md-3">
+            <div class="pull-right">
+                {% block page-actions %}{% endblock %}
+            </div>
+        </div>
+    </div>
     {% block details-main %}{% endblock %}
     {% block details-tabs %}
         <div class="tabbable tabbable-custom tabbable-full-width">

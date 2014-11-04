@@ -9,9 +9,11 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from lily.accounts.models import Account
 
 from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from lily.cases.models import Case, CaseStatus
+from lily.contacts.models import Contact
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
@@ -189,26 +191,52 @@ class CreateCaseView(CreateUpdateCaseMixin, CreateView):
 
         return super(CreateCaseView, self).dispatch(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
+    def get_initial(self):
         """
-        If the Case is created from a Note, initialize the form with data from that Note:
-        Note content -> description, Note subject -> account or contact, depending on the content type.
+        Set the initials for the form
         """
-        kwargs = super(CreateCaseView, self).get_form_kwargs()
+        initial = super(CreateCaseView, self).get_initial()
+
+        # If the Case is created from an Account, initialize the form with data from that Account
+        account_pk = self.kwargs.get('account_pk', None)
+        if account_pk:
+            try:
+                account = Account.objects.get(pk=account_pk)
+            except Account.DoesNotExist:
+                pass
+            else:
+                initial.update({'account': account})
+
+        # If the Case is created from a Contact, initialize the form with data from that Contact
+        contact_pk = self.kwargs.get('contact_pk', None)
+        if contact_pk:
+            try:
+                contact = Contact.objects.get(pk=contact_pk)
+            except Contact.DoesNotExist:
+                pass
+            else:
+                initial.update({'contact': contact})
+                # If the Contact only works at one Account, set that as initial account
+                if contact.functions.count() == 1:
+                    account = contact.functions.first().account
+                    initial.update({'account': account})
+
+        # If the Case is created from a Note, initialize the form with data from that Note:
+        # Note content -> description, Note subject -> account or contact, depending on the content type.
         note_pk = self.kwargs.get('note_pk', None)
         if note_pk:
-            note = Note.objects.get(pk=note_pk)
-            # If note.subject is None, then the Note's subject is linked to another tenant, e.g. when the note_pk is
-            # entered manually in the url. In that case, do nothing. Otherwise, pre-fill the description and account
-            # or contact field.
-            if note.subject is not None:
-                kwargs['initial'].update({'description': note.content})
+            try:
+                note = Note.objects.get(pk=note_pk)
+            except Note.DoesNotExist:
+                pass
+            else:
+                initial.update({'description': note.content})
                 if note.content_type.model == 'account':
-                    kwargs['initial'].update({'account': note.subject})
+                    initial.update({'account': note.subject})
                 elif note.content_type.model == 'contact':
-                    kwargs['initial'].update({'contact': note.subject})
+                    initial.update({'contact': note.subject})
 
-        return kwargs
+        return initial
 
     def form_valid(self, form):
         # Saves the instance

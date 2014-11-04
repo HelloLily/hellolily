@@ -6,6 +6,7 @@ from lily.deals.views import ArchiveDealsView, ArchivedDealsView, CreateDealView
 urlpatterns = patterns(
     '',
     url(r'^create/$', CreateDealView.as_view(), name='deal_create'),
+    url(r'^create/from_account/(?P<account_pk>[\w-]+)/$', CreateDealView.as_view(), name='deal_create'),
     url(r'^update/(?P<pk>[\w-]+)/$', UpdateDealView.as_view(), name='deal_update'),
     url(r'^update/stage/(?P<pk>[\w-]+)/$', UpdateStageAjaxView.as_view(), name='deal_update_stage'),
     url(r'^update/stage/$', UpdateStageAjaxView.as_view(), name='deal_update_stage_short'),

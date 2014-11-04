@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^', include('lily.users.urls')),
     url(r'^', include('lily.utils.urls')),
     url(r'^taskmonitor/', include('taskmonitor.urls')),
+    url(r'^search/', include('lily.search.urls')),
 
     # Django admin urls
     url(r'^admin/', include(admin.site.urls)),

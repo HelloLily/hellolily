@@ -11,21 +11,17 @@ class Migration(SchemaMigration):
         # Deleting field 'EmailOutboxMessage.from_email'
         db.delete_column(u'email_emailoutboxmessage', 'from_email')
 
-        # Adding field 'EmailOutboxMessage.send_from'
-        db.add_column(u'email_emailoutboxmessage', 'send_from',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='outbox_messages', to=orm['email.EmailAccount']),
-                      keep_default=False)
+        # Changing field 'EmailOutboxMessage.send_from'
+        db.alter_column(u'email_emailoutboxmessage', 'send_from_id', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['email.EmailAccount']))
 
     def backwards(self, orm):
-        # The following code is provided here to aid in writing a correct migration
-        #  Adding field 'EmailOutboxMessage.from_email'
+        # Adding field 'EmailOutboxMessage.from_email'
         db.add_column(u'email_emailoutboxmessage', 'from_email',
-                      self.gf('django.db.models.fields.TextField')(),
+                      self.gf('django.db.models.fields.TextField')(default=''),
                       keep_default=False)
 
-        # Deleting field 'EmailOutboxMessage.send_from'
-        db.delete_column(u'email_emailoutboxmessage', 'send_from_id')
-
+        # Changing field 'EmailOutboxMessage.send_from'
+        db.alter_column(u'email_emailoutboxmessage', 'send_from_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['email.EmailAccount']))
 
     models = {
         u'accounts.account': {
@@ -99,7 +95,7 @@ class Migration(SchemaMigration):
             'phone_numbers': ('lily.utils.models.fields.PhoneNumberFormSetField', [], {'to': "orm['utils.PhoneNumber']", 'symmetrical': 'False', 'blank': 'True'}),
             'picture': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'blank': 'True'}),
             'preposition': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'salutation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'salutation': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'social_media': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['socialmedia.SocialMedia']", 'symmetrical': 'False', 'blank': 'True'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),

@@ -1,5 +1,7 @@
 from elasticutils.contrib.django import Indexable, MappingType
+
 from lily.accounts.models import Account
+from lily.contacts.models import Function
 
 
 class AccountMapping(MappingType, Indexable):
@@ -18,10 +20,15 @@ class AccountMapping(MappingType, Indexable):
                 'name': {'type': 'string', 'index': 'analyzed',
                          'search_analyzer': 'name_search_analyzer',
                          'index_analyzer': 'name_index_analyzer'},
+                'contact': {'type': 'integer'},
                 'tenant': {'type': 'integer'},
                 'modified': {'type': 'date'},
             }
         }
+
+    @classmethod
+    def get_related_models(cls):
+        return (Function,)
 
     @classmethod
     def extract_document(cls, obj_id, obj=None):
@@ -31,9 +38,12 @@ class AccountMapping(MappingType, Indexable):
         if obj is None:
             obj = cls.get_model().objects.get(pk=obj_id)
 
-        return {
+        doc = {
             'id': obj.id,
             'name': obj.name,
             'tenant': obj.tenant_id,
             'modified': obj.modified,
         }
+        contacts = [contact.id for contact in obj.get_contacts()]
+        doc['contact'] = contacts
+        return doc

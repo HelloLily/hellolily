@@ -58,24 +58,37 @@
                 var $this = $(this);
                 $this.select2({
                     ajax: {
-                        quietMillis: 300,
+                        quietMillis: 10,
                         cache: true,
                         data: function (term, page) { // page is the one-based page number tracked by Select2
-                            return {
+                            var data = {
                                 q: term, //search term
-                                page_limit: self.config.ajaxPageLimit, // page size
-                                page: page, // page number
-                                filter: $('#'+$this.data('filter-on')).val()
+                                size: self.config.ajaxPageLimit, // page size
+                                page: (page - 1), // page number, zero-based
                             };
+                            var filters = $this.data('filter-on');
+                            filters.split(',').forEach(function(filter) {
+                                if (filter.indexOf('id_') === 0) {
+                                    var filter_val = $('#'+filter).val()
+                                    var filter_name = filter.substring(3)
+                                    data[filter_name] = filter_val;
+                                } else {
+                                    data.type = filter;
+                                }
+                            });
+                            return data;
                         },
                         results: function (data, page) {
                             var more = (page * self.config.ajaxPageLimit) < data.total; // whether or not there are more results available
+                            data.hits.forEach(function(hit) {
+                               hit.text = hit.name;
+                            });
                             // Add clear option
                             if (page == 1) {
-                                data.objects.unshift({id: -1, text:self.config.clearText});
+                                data.hits.unshift({id: -1, text:self.config.clearText});
                             }
                             return {
-                                results: data.objects,
+                                results: data.hits,
                                 more: more
                             }
                         }

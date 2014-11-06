@@ -21,25 +21,3 @@
     <th class="name">{% trans 'Name' %}</th>
     <th class="description">{% trans 'Description' %}</th>
 {% endblock %}
-
-{% block list %}
-{% for item in object_list %}
-<tr>
-    <td class="">
-        <a href="{% url 'emailtemplate_update' pk=item.pk %}" class="btn btn-xs blue" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
-    </td>
-    <td class="name">
-        <div>
-            <a href="{% url 'emailtemplate_update' pk=item.pk %}">{{ item.name }}</a>
-        </div>
-    </td>
-    <td class="description">
-        <div>{{ item.description }}</div>
-    </td>
-</tr>
-{% endfor %}
-{% endblock %}
-
-{% block list-definition %}
-    { "bSearchable": false, "bSortable": false, "aTargets": [0] },
-{% endblock %}

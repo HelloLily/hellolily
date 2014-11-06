@@ -47,6 +47,7 @@ from lily.messaging.email.utils import (get_email_parameter_choices, TemplatePar
 from lily.tenant.middleware import get_current_user
 from lily.users.models import CustomUser, EmailAddress
 from lily.utils.functions import is_ajax
+from lily.utils.views import DataTablesListView
 from lily.utils.views.mixins import LoginRequiredMixin, SortedListMixin, FilteredListMixin
 
 
@@ -438,10 +439,48 @@ class EmailSpamView(EmailFolderView):
 # EmailTemplate Views.
 #
 
-class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMixin, ListView):
+class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMixin, DataTablesListView):
     model = EmailTemplate
     sortable = [1, 2]
-    default_order_by = 2
+    default_order_by = 1
+
+    # DataTablesListView
+    columns = SortedDict([
+        ('edit', {
+            'mData': 'emailtemplate/edit',
+            'bSortable': False,
+        }),
+        ('name', {
+            'mData': 'emailtemplate/name',
+        }),
+        ('description', {
+            'mData': 'emailtemplate/description',
+        }),
+    ])
+
+    # ExportListViewMixin & DataTablesListView
+    search_fields = [
+        'name__icontains',
+        'description__name__icontains',
+    ]
+
+    def get_queryset(self):
+        return super(ListEmailTemplateView, self).get_queryset()
+
+    def order_queryset(self, queryset, column, sort_order):
+        """
+        Orders the queryset based on given column and sort_order.
+
+        Used by DataTablesListView.
+        """
+        # Column contains folder name, so parse the string
+        column = column.split('/')[1]
+        prefix = ''
+        if sort_order == 'desc':
+            prefix = '-'
+        if column in ('name', 'description'):
+            return queryset.order_by('%s%s' % (prefix, column))
+        return queryset
 
 
 class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
@@ -492,6 +531,33 @@ class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
         messages.success(self.request, message)
 
         return response
+
+
+class DeleteEmailTemplateView(LoginRequiredMixin, DeleteView):
+    """
+    Delete an instance and all instances of m2m relationships.
+    """
+    model = EmailTemplate
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+
+        # Show delete message
+        messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
+
+        # redirect_url = self.get_success_url()
+        # if is_ajax(request):
+        #     response = anyjson.serialize({
+        #         'error': False,
+        #         'redirect_url': redirect_url
+        #     })
+        #     return HttpResponse(response, content_type='application/json')
+        #
+        # return HttpResponseRedirect(redirect_url)
+
+    def get_success_url(self):
+        return reverse('case_list')
 
 
 class ParseEmailTemplateView(LoginRequiredMixin, FormView):

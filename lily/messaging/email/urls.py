@@ -5,7 +5,7 @@ from lily.messaging.email.views import email_configuration_wizard, EmailMessageD
     EmailMessageCreateView, EmailMessageReplyView, EmailMessageForwardView, EmailAttachmentProxy, \
     MarkEmailMessageAsReadView, MarkEmailMessageAsUnreadView, TrashEmailMessageView, MoveEmailMessageView, \
     ListEmailTemplateView, CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailSearchView, \
-    EmailShareView, EmailAccountChangePasswordView, EmailAccountDeleteView
+    EmailShareView, EmailAccountChangePasswordView, EmailAccountDeleteView, DeleteEmailTemplateView
 
 
 urlpatterns = patterns(
@@ -47,6 +47,7 @@ urlpatterns = patterns(
     url(r'^templates/$', ListEmailTemplateView.as_view(), name='emailtemplate_list'),
     url(r'^templates/new/$', CreateEmailTemplateView.as_view(), name='emailtemplate_create'),
     url(r'^templates/update/(?P<pk>[\d-]+)/$', UpdateEmailTemplateView.as_view(), name='emailtemplate_update'),
+    url(r'^templates/delete/(?P<pk>[\d-]+)/$', DeleteEmailTemplateView.as_view(), name='emailtemplate_delete'),
     url(r'^templates/parse/$', ParseEmailTemplateView.as_view(), name='messaging_email_template_parse'),
 
     # search

@@ -58,7 +58,6 @@
                 var $this = $(this);
                 $this.select2({
                     ajax: {
-                        quietMillis: 10,
                         cache: true,
                         data: function (term, page) { // page is the one-based page number tracked by Select2
                             var data = {

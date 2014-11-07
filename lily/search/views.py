@@ -20,8 +20,9 @@ class SearchView(LoginRequiredMixin, View):
         search = search.filter(tenant=tenant)
 
         query = request.GET.get('q', '')
-        if query:
-            search = search.filter(name=query)
+        for token in query.split(' '):
+            if token:
+                search = search.filter(name=token)
 
         id_arg = request.GET.get('id', '')
         if id_arg:
@@ -89,7 +90,7 @@ class SearchView(LoginRequiredMixin, View):
                 'took': execute.took,
                 'sort': sort,
             }
-        return HttpResponse(anyjson.dumps(results), mimetype='application/json')
+        return HttpResponse(anyjson.dumps(results), mimetype='application/json; charset=utf-8')
 
     def get_exists_filter(self, filter_name):
         return {'exists': {'field': filter_name}}

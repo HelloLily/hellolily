@@ -30,14 +30,14 @@ class SearchView(LoginRequiredMixin, View):
         account = request.GET.get('account', '')
         if account:
             if account == '*':
-                raw_filters.append({'exists': {'field': 'account'}})
+                raw_filters.append(self.get_exists_filter(account))
             else:
                 search = search.filter(account=account)
 
         contact = request.GET.get('contact', '')
         if contact:
             if contact == '*':
-                raw_filters.append({'exists': {'field': 'contact'}})
+                raw_filters.append(self.get_exists_filter(contact))
             else:
                 search = search.filter(contact=contact)
 
@@ -79,6 +79,7 @@ class SearchView(LoginRequiredMixin, View):
 
         results = {'hits': hits, 'total': execute.count}
         if settings.DEBUG or request.GET.get('debug'):
+            # Only add non sensitive information.
             results['debug'] = {
                 'tenant': tenant,
                 'q': query,
@@ -89,3 +90,6 @@ class SearchView(LoginRequiredMixin, View):
                 'sort': sort,
             }
         return HttpResponse(anyjson.dumps(results), mimetype='application/json')
+
+    def get_exists_filter(self, filter_name):
+        return {'exists': {'field': filter_name}}

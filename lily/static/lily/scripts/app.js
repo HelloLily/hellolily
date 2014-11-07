@@ -40,8 +40,7 @@ if (typeof String.prototype.endsWith != 'function') {
             contactField: '#id_contact',
             quickContactField: '#id_case_quickbutton_contact',
             accountField: '#id_account',
-            quickAccountField: '#id_case_quickbutton_account',
-            contactJsonUrl: "/contacts/json_works_at/"
+            quickAccountField: '#id_case_quickbutton_account'
         },
 
         init: function(config) {
@@ -179,8 +178,8 @@ if (typeof String.prototype.endsWith != 'function') {
             } else if (contactPk) {
                 var url = this.config.contactJsonUrl + contactPk;
                 $.getJSON(url, function(data) {
-                    if (data.works_at.length) {
-                        accountJq.select2('data', {'id': data.works_at[0]['pk'], 'text': data.works_at[0]['name']});
+                    if (data.hits.length) {
+                        accountJq.select2('data', {'id': data.hits[0].id, 'text': data.hits[0].name});
                     } else {
                         accountJq.select2('data', null);
                     }
@@ -199,9 +198,9 @@ if (typeof String.prototype.endsWith != 'function') {
             } else if (accountPk && contactPk) {
                 var url = this.config.contactJsonUrl + contactPk;
                 $.getJSON(url, function(worksAt) {
-                    if (worksAt.works_at.length) {
-                        var account = worksAt.works_at[0];
-                        if (account.pk == accountPk) {
+                    if (worksAt.hits.length) {
+                        var account_id = worksAt.hits[0].id;
+                        if (account_id == accountPk) {
                             return;
                         }
                     }

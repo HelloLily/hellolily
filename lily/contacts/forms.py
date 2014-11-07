@@ -5,16 +5,17 @@ from django.core.validators import validate_email
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
+from lily.accounts.search import AccountMapping
 from lily.contacts.models import Contact, Function
 from lily.socialmedia.connectors import Twitter
+from lily.socialmedia.connectors import Twitter, LinkedIn
 from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import TagsField
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.forms.mixins import FormSetFormMixin
+from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
 from lily.utils.models import EmailAddress
-from lily.socialmedia.connectors import Twitter, LinkedIn
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):
@@ -27,7 +28,8 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
-            url=reverse_lazy('json_account_list'),
+            url=reverse_lazy('search_view'),
+            filter_on=AccountMapping.get_mapping_type_name(),
             model=Account,
         ),
     )
@@ -113,7 +115,8 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
-            url=reverse_lazy('json_account_list'),
+            url=reverse_lazy('search_view'),
+            filter_on=AccountMapping.get_mapping_type_name(),
             model=Account,
         ),
     )

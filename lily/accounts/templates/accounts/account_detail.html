@@ -101,7 +101,7 @@
                         {% for function in object.functions.all %}
                             {% for contact_function in function.contact.functions.all %}
                                 <tr>
-                                    <td>{{ contact_function.contact.full_name }}</td>
+                                    <td><a href="{% url 'contact_details' contact_function.contact.pk%}">{{ contact_function.contact.full_name }}</a></td>
                                     <td>{{ contact_function.contact.primary_email|default:_('Unknown') }}</td>
                                     <td>{{ contact_function.contact.get_phone_number|default:_('Unknown') }}</td>
                                 </tr>

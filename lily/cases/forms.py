@@ -6,9 +6,11 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
+from lily.accounts.search import AccountMapping
 from lily.cases.models import Case, CaseType, CaseStatus
 from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
+from lily.contacts.search import ContactMapping
 from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
@@ -41,9 +43,9 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
-            url=reverse_lazy('json_account_list'),
+            url=reverse_lazy('search_view'),
             model=Account,
-            filter_on='id_contact',
+            filter_on='%s,id_contact' % AccountMapping.get_mapping_type_name()
         ),
     )
 
@@ -53,9 +55,9 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         queryset=Contact.objects,
         empty_label=_('Select a contact'),
         widget=AjaxSelect2Widget(
-            url=reverse_lazy('json_contact_list'),
+            url=reverse_lazy('search_view'),
             model=Contact,
-            filter_on='id_account',
+            filter_on='%s,id_account' % ContactMapping.get_mapping_type_name()
         ),
     )
 

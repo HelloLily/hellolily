@@ -249,26 +249,6 @@ class DetailContactView(LoginRequiredMixin, HistoryListViewMixin):
         return kwargs
 
 
-class JsonContactWorksAtView(LoginRequiredMixin, View):
-    """
-    JSON: Display account information for a contact
-    """
-
-    def get(self, request, pk):
-        try:
-            contact = Contact.objects.get(pk=pk, is_deleted=False)
-        except Contact.DoesNotExist:
-            raise Http404()
-        else:
-            function_list = contact.functions.all()
-            works_at = []
-            for function in function_list:
-                account = function.account
-                works_at.append({'name': account.name, 'pk': account.pk})
-            response = anyjson.serialize({'works_at': works_at})
-            return HttpResponse(response, content_type="application/javascript")
-
-
 class CreateUpdateContactMixin(LoginRequiredMixin):
     """
     Base class for AddAContactView and EditContactView.
@@ -376,6 +356,24 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
             return HttpResponse(response, content_type='application/json')
 
         return super(AddContactView, self).form_valid(form)
+
+    def get_initial(self):
+        """
+        Set the initials for the form
+        """
+        initial = super(AddContactView, self).get_initial()
+
+        # If the Contact is created from an Account, initialize the form with data from that Account
+        account_pk = self.kwargs.get('account_pk', None)
+        if account_pk:
+            try:
+                account = Account.objects.get(pk=account_pk)
+            except Account.DoesNotExist:
+                pass
+            else:
+                initial.update({'account': account})
+
+        return initial
 
     def get_form_kwargs(self):
         kwargs = super(CreateUpdateContactMixin, self).get_form_kwargs()

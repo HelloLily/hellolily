@@ -1,4 +1,5 @@
 import datetime
+
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
@@ -6,6 +7,7 @@ from django.utils.timezone import utc
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
+from lily.accounts.search import AccountMapping
 from lily.deals.models import Deal
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
@@ -23,7 +25,8 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         queryset=Account.objects,
         empty_label=_('Select an account'),
         widget=AjaxSelect2Widget(
-            url=reverse_lazy('json_account_list'),
+            url=reverse_lazy('search_view'),
+            filter_on=AccountMapping.get_mapping_type_name(),
             model=Account,
         ),
     )

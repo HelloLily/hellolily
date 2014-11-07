@@ -1,3 +1,4 @@
+from optparse import make_option
 import time
 
 from django.conf import settings
@@ -13,6 +14,15 @@ class Command(BaseCommand):
 creating a new index, then changing the alias to point to the new index. \
 (afterwards removing the old index)."""
 
+    option_list = BaseCommand.option_list + (
+        make_option('-u', '--url',
+                    action='store',
+                    dest='url',
+                    default='',
+                    help='Override the ES_URLS in settings.',
+                    ),
+    )
+
     # The mappings for models with 'is_deleted' properties.
     # If you add a mapping for a regular model, then some extra steps are needed
     # to make sure deletions are picked up (during this management command).
@@ -20,7 +30,11 @@ creating a new index, then changing the alias to point to the new index. \
     MAPPINGS = [get_class(kls) for kls in settings.ES_MODEL_MAPPINGS]
 
     def handle(self, *args, **options):
-        es = get_es()
+        url = options['url']
+        if url:
+            es = get_es(urls=[url])
+        else:
+            es = get_es()
         # We define some custom analyzers that our mappings can use.
         index_settings = {'mappings': {}, 'settings': get_analyzers()}
 

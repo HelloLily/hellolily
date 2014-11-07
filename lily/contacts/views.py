@@ -377,6 +377,24 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
 
         return super(AddContactView, self).form_valid(form)
 
+    def get_initial(self):
+        """
+        Set the initials for the form
+        """
+        initial = super(AddContactView, self).get_initial()
+
+        # If the Contact is created from an Account, initialize the form with data from that Account
+        account_pk = self.kwargs.get('account_pk', None)
+        if account_pk:
+            try:
+                account = Account.objects.get(pk=account_pk)
+            except Account.DoesNotExist:
+                pass
+            else:
+                initial.update({'account': account})
+
+        return initial
+
     def get_form_kwargs(self):
         kwargs = super(CreateUpdateContactMixin, self).get_form_kwargs()
         if not self.is_ajax:

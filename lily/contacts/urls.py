@@ -6,6 +6,7 @@ from lily.contacts.views import ConfirmContactEmailView, JsonContactListView, Ad
 
 urlpatterns = patterns('',
     url(r'^add/$', AddContactView.as_view(), name='contact_add'),
+    url(r'^add/from_account/(?P<account_pk>[\w-]+)/$', AddContactView.as_view(), name='contact_add'),
     url(r'^edit/(?P<pk>[\w-]+)/$', EditContactView.as_view(), name='contact_edit'),
     url(r'^details/(?P<pk>[\w-]+)/$', DetailContactView.as_view(), name='contact_details'),
     url(r'^json_works_at/(?P<pk>[\w-]+)/$', JsonContactWorksAtView.as_view(), name='json_contact_works_at'),

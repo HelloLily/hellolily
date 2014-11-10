@@ -10,7 +10,7 @@ from django.utils.html import escape
 from imapclient import SEEN
 
 from lily.messaging.email.models import EmailHeader, EmailAddressHeader, EmailAttachment, EmailMessage, \
-    get_attachment_upload_path
+    get_attachment_upload_path, EmailAddress
 from lily.messaging.email.utils import replace_anchors_in_html, replace_cid_in_html
 from python_imap.folder import DRAFTS
 from python_imap.utils import convert_html_to_text
@@ -22,12 +22,14 @@ class EmailMessageCreationError(Exception):
     pass
 
 
-def get_headers_and_identifier(headers):
+def get_headers_and_identifier(headers, sent_date, tenant_id):
     """
     Create EmailHeader objects from the provided headers and get the email identifier.
 
     Arguments:
         headers (dict): Dict containing the names and values for the EmailHeader objects
+        sent_date (date): Sent date of email
+        tenant_id (int): PK of the Tenant of the email account
 
     Returns:
         email_header_list (list): List containing EmailHeaders
@@ -53,10 +55,19 @@ def get_headers_and_identifier(headers):
                 if email_address:
                     email_address_header = EmailAddressHeader()
                     email_address_header.name = name
-                    email_address_header.value = email_address.lower()
+                    email_address_header.value = value
+                    email_address_header.email_address = EmailAddress.objects.get_or_create(
+                        email_address=email_address.lower()
+                    )[0]
+                    email_address_header.sent_date = sent_date
+                    email_address_header.tenant_id = tenant_id
                     email_address_header_list.append(email_address_header)
         elif name.lower() == 'message-id':
             message_identifier = value
+
+    # Add message identifier to all email_address_headers
+    for email_address_header in email_address_header_list:
+        email_address_header.message_identifier = message_identifier
 
     return email_headers_list, email_address_header_list, message_identifier
 
@@ -155,7 +166,11 @@ def save_email_message(message, account, folder, email_ctype):
     email_headers = None
     email_address_headers = None
     if headers is not None:
-        email_headers, email_address_headers, message_identifier = get_headers_and_identifier(headers)
+        email_headers, email_address_headers, message_identifier = get_headers_and_identifier(
+            headers,
+            sent_date,
+            account.tenant_id,
+        )
         if message_identifier:
             email_message.message_identifier = message_identifier
 

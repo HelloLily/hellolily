@@ -140,32 +140,50 @@ def dummy_function(x, y=None):
     return x, y
 
 
-def get_emails_for_email_addresses(email_addresses_list):
+def get_emails_for_email_addresses(email_addresses_list, tenant_id, list_size, filter_date):
     """
     Finds all emails with headers that have one of the given email_addresses.
 
-    Args:
-        list of strings: strings with email addresses.
+    Arguments:
+        email_addresses_list (list): Strings with email addresses.
+        tenant_id (int): PK of current Tenant.
+        list_size (int): Number of emails to fetch.
+        filter_date (datetime): Date before the message must be sent.
 
     Returns:
         QuerySet of EmailMessages.
     """
     # Prevent circular import.
-    from lily.messaging.email.models import EmailAddressHeader, EmailMessage
+    from lily.messaging.email.models import EmailAddressHeader, EmailMessage, EmailAddress
 
-    # Get the message id's first.
-    filter_list = [Q(value=email.email_address) for email in email_addresses_list]
-    message_ids = EmailAddressHeader.objects.filter(
-        Q(name__in=['To', 'From', 'CC', 'Delivered-To', 'Sender']) &
-        reduce(operator.or_, filter_list)
-    ).values_list('message_id', flat=True).distinct()
-    message_ids = list(message_ids)
+    # Get the email address id's first.
+    filter_list = [Q(email_address=email.email_address) for email in email_addresses_list]
+    email_addresses = EmailAddress.objects.filter(reduce(operator.or_, filter_list)).values_list('id', flat=True)
 
-    # Get all the email messages with the collected id's.
-    # TODO: replace _default_manager with objects when Polymorphic works.
-    email_messages = EmailMessage._default_manager.filter(id__in=message_ids, folder_identifier__in=[ALLMAIL, SENT, INBOX, IMPORTANT])
-    # return email_messages.order_by('-sort_by_date', 'message_identifier').distinct('sort_by_date', 'message_identifier')
-    return email_messages.order_by('-sort_by_date', 'message_identifier').distinct('message_identifier', 'sort_by_date')
+    # Evaluate QS to speedup.
+    email_addresses = list(email_addresses)
+    email_address_headers = EmailAddressHeader.objects.filter(
+        email_address__in=email_addresses,
+    ).order_by(
+        '-sent_date'
+    ).values_list(
+        'message_identifier', 'message_id'
+    ).distinct(
+        'message_identifier',
+        'sent_date'
+    )
+
+    # Filter out recent messages.
+    if filter_date:
+        email_address_headers = email_address_headers.filter(sent_date__lt=filter_date)
+
+    # Reduce number of emails.
+    email_address_headers = email_address_headers[:list_size + 1]
+
+    message_ids = [message_id for identifier, message_id in email_address_headers]
+
+    # Get all the email messages with the collected ids.
+    return EmailMessage.objects.filter(id__in=message_ids)
 
 
 def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
@@ -175,8 +193,8 @@ def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
     Sorts the list on sort_by_date and limits the query to objects_size.
 
     Args:
-        notes_qs: QuerySet of Notes.
-        email_qs: QuerySet of EmailMessages.
+        notes_qs (instance): QuerySet of Notes.
+        email_qs (instance): QuerySet of EmailMessages.
         objects_size (int): Maximum size of returned object_list.
 
     Returns:

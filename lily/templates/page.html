@@ -183,7 +183,7 @@
         $(function($){
             App.init();
             HLApp.init({
-                contactJsonUrl: "{% url 'search_view' %}?type=accounts_account&contact="
+                contactJsonUrl: "{% url 'search_view' %}?type=accounts_account&filterquery=contact:"
             });
             HLSelect2.init(
                     { clearText: "{% trans '--- Clear ---' %}"}

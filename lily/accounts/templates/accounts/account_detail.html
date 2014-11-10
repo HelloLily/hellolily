@@ -59,12 +59,18 @@
         </div>
         <div class="col-md-6">
             <div class="clearfix">
-                 <a style="margin: 0 0 2px 2px;" href="{% url 'deal_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">{% trans 'Deals' %} <span class="badge badge-success">{{ object.get_deals.count|default:'0' }}</span></a>
-                 <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+                 <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'deal_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                     {% trans 'Deals' %}
+                     <span class="badge badge-success pull-right">{{ object.get_deals.count|default:'0' }}</span>
+                 </a>
+                 <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
             </div>
             <div>
-                 <a style="margin: 0 0 2px 2px;" href="{% url 'case_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">{% trans 'Cases' %} <span class="badge badge-success">{{ object.get_cases.count|default:'0' }}</span></a>
-                 <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+                 <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'case_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                     {% trans 'Cases' %}
+                     <span class="badge badge-success pull-right">{{ object.get_cases.count|default:'0' }}</span>
+                 </a>
+                 <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
             </div>
         </div>
     </div>

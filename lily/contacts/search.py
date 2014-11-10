@@ -16,6 +16,17 @@ class ContactMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            'dynamic_templates': [{
+                'phone': {
+                    'match': 'phone_*',
+                    'mapping': {
+                        'type': 'string',
+                        'index': 'analyzed',
+                        'search_analyzer': 'name_search_analyzer',
+                        'index_analyzer': 'name_index_analyzer'
+                    },
+                },
+            }],
             'properties': {
                 'id': {
                     'type': 'integer',
@@ -28,13 +39,8 @@ class ContactMapping(MappingType, Indexable):
                 },
                 'email': {
                     'type': 'string',
-                    'index': 'not_analyzed',
-                },
-                'phone': {
-                    'type': 'string',
                     'index': 'analyzed',
-                    'search_analyzer': 'name_search_analyzer',
-                    'index_analyzer': 'name_index_analyzer',
+                    'analyzer': 'email_analyzer',
                 },
                 'tag': {
                     'type': 'string',
@@ -51,6 +57,10 @@ class ContactMapping(MappingType, Indexable):
                 },
                 'tenant': {
                     'type': 'integer',
+                },
+                'created': {
+                    'type': 'date',
+                    'index': 'no',
                 },
                 'modified': {
                     'type': 'date',
@@ -78,24 +88,27 @@ class ContactMapping(MappingType, Indexable):
             'id': obj.id,
             'name': '%s %s' % (obj.first_name, obj.last_name),
             'tenant': obj.tenant_id,
+            'created': obj.created,
             'modified': obj.modified,
         }
 
-        function = obj.get_primary_function()
-        if function:
-            doc['account'] = function.account_id
+        functions = obj.functions.all()
+        if functions:
+            doc['account'] = [function.account_id for function in functions]
+            doc['account_name'] = [function.account.name for function in functions if function.account.name]
 
-        phone = obj.get_phone_number()
-        if phone:
-            doc['phone'] = [phone.number]
+        phones = obj.phone_numbers.all()
+        for phone in phones:
+            if 'phone_' + phone.type not in doc:
+                doc['phone_' + phone.type] = []
+            doc['phone_' + phone.type].append(phone.number)
 
-        email = obj.primary_email()
-        if email:
-            doc['email'] = [email.email_address]
+        emails = obj.email_addresses.all()
+        if emails:
+            doc['email'] = list(set([email.email_address for email in emails if email.email_address]))
 
         tags = obj.tags.all()
-        tag_names = filter(None, [tag.name for tag in tags])
-        if tag_names:
-            doc['tag'] = tag_names
+        if tags:
+            doc['tag'] = [tag.name for tag in tags if tag.name]
 
         return doc

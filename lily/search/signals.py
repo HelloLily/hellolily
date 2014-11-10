@@ -26,6 +26,20 @@ def post_save_generic(sender, instance, **kwargs):
     if mapping:
         update_in_index(instance, mapping)
     # Check for related model signals.
+    check_related(sender, instance)
+
+
+@receiver(post_delete)
+def post_delete_generic(sender, instance, **kwargs):
+    mapping = MODEL_TO_MAPPING.get(sender)
+    if mapping:
+        remove_from_index(instance, mapping)
+    # Remember: We UPDATE our related object, not DELETE it
+    # (So we can use the check_related also used in the post_save method).
+    check_related(sender, instance)
+
+
+def check_related(sender, instance):
     if sender in RELATED:
         if sender in COMMON_TYPES:
             # A Common type, we need to check the corresponding set.
@@ -53,28 +67,3 @@ def post_save_generic(sender, instance, **kwargs):
                 if mapping:
                     if sender in mapping.get_related_models():
                         update_in_index(getattr(instance, field_name), mapping)
-
-
-@receiver(post_delete)
-def post_delete_generic(sender, instance, **kwargs):
-    mapping = MODEL_TO_MAPPING.get(sender)
-    if mapping:
-        remove_from_index(instance, mapping)
-    if sender in RELATED:
-        if sender in COMMON_TYPES:
-            for type_set in TYPE_SETS:
-                objects_set = getattr(instance, type_set)
-                if objects_set:
-                    for obj in objects_set.all():
-                        mapping = MODEL_TO_MAPPING.get(obj.__class__)
-                        if mapping:
-                            if sender in mapping.get_related_models():
-                                # Remember: We UPDATE our related object, not DELETE it.
-                                update_in_index(obj, mapping)
-        elif sender in GENERIC_FOREIGN_TYPES:
-            subject = instance.subject
-            mapping = MODEL_TO_MAPPING.get(subject.__class__)
-            if mapping:
-                if sender in mapping.get_related_models():
-                    # Remember: We UPDATE our related object, not DELETE it.
-                    update_in_index(subject, mapping)

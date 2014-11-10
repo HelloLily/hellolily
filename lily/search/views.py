@@ -8,9 +8,9 @@ from lily.utils.views.mixins import LoginRequiredMixin
 
 
 class SearchView(LoginRequiredMixin, View):
-    '''
+    """
     Generic search view suitable for all models that have search enabled.
-    '''
+    """
     def get(self, request):
         search_request = S().es(urls=settings.ES_URLS).indexes(settings.ES_INDEXES['default'])
         search = search_request.all()
@@ -22,7 +22,7 @@ class SearchView(LoginRequiredMixin, View):
         query = request.GET.get('q', '')
         for token in query.split(' '):
             if token:
-                search = search.filter(name=token)
+                search = search.filter(name=token.lower())
 
         id_arg = request.GET.get('id', '')
         if id_arg:

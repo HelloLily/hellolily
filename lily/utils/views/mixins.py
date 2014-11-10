@@ -688,9 +688,12 @@ class HistoryListViewMixin(NoteDetailViewMixin):
 
         return response
 
-    def get_notes_list(self):
+    def get_notes_list(self, filter_date=None):
         """
         Build a Notes list for the current model.
+
+        Arguments:
+            filter_date (datetime): date before the message must be sent.
 
         Returns:
             A filtered Notes QuerySet.
@@ -703,6 +706,10 @@ class HistoryListViewMixin(NoteDetailViewMixin):
             object_id=self.object.pk,
             is_deleted=False,
         ).order_by('-sort_by_date')
+
+        # Filter on date if date is set
+        if filter_date:
+            notes_list = notes_list.filter(sort_by_date__lt=filter_date)
 
         return notes_list
 
@@ -719,7 +726,7 @@ class HistoryListViewMixin(NoteDetailViewMixin):
 
         return email_address_list
 
-    def get_emails_list(self):
+    def get_emails_list(self, filter_date=None):
         """
         Build an Email list for the current model.
 
@@ -735,7 +742,12 @@ class HistoryListViewMixin(NoteDetailViewMixin):
         # Build initial list with email messages if possible.
         email_address_list = self.get_related_email_addresses_for_object()
         if len(email_address_list) > 0:
-            email_list = get_emails_for_email_addresses(email_address_list)
+            email_list = get_emails_for_email_addresses(
+                email_address_list,
+                self.request.user.tenant_id,
+                self.page_size,
+                filter_date,
+            )
 
         setattr(self, '_emails_list', email_list)
 
@@ -749,18 +761,17 @@ class HistoryListViewMixin(NoteDetailViewMixin):
             A combined QuerySet with emails and notes.
         """
 
-        notes_list = self.get_notes_list()
-        email_list = self.get_emails_list()
-
         # Filter lists by timestamp from request.GET.
         epoch = self.request.GET.get('datetime')
-        if epoch is not None:
+        filter_date = None
+        if epoch:
             try:
                 filter_date = datetime.fromtimestamp(int(epoch))
-                notes_list = notes_list.filter(sort_by_date__lt=filter_date)
-                email_list = email_list.filter(sort_by_date__lt=filter_date)
             except ValueError:
                 pass
+
+        notes_list = self.get_notes_list(filter_date)
+        email_list = self.get_emails_list(filter_date)
 
         # Paginate list.
         return combine_notes_qs_email_qs(notes_list, email_list, self.page_size)

@@ -423,13 +423,23 @@ class EmailHeader(models.Model):
         app_label = 'email'
 
 
-class EmailAddressHeader(models.Model):
+class EmailAddress(models.Model):
+    email_address = models.CharField(max_length=1000, db_index=True)
+
+    class Meta:
+        app_label = 'email'
+
+
+class EmailAddressHeader(TenantMixin):
     """
     A simplified header with just the name of the header and the email address from the value of the header.
     """
     name = models.CharField(max_length=255, db_index=True)
     value = models.TextField(null=True, db_index=True)
+    email_address = models.ForeignKey(EmailAddress, null=True)
     message = models.ForeignKey(EmailMessage)
+    sent_date = models.DateTimeField(null=True, db_index=True)
+    message_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
     def __unicode__(self):
         return u'%s - %s' % (self.name, self.value)

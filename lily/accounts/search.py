@@ -31,6 +31,10 @@ class AccountMapping(MappingType, Indexable):
         return (Function,)
 
     @classmethod
+    def get_type_set(cls):
+        return 'account_set'
+
+    @classmethod
     def extract_document(cls, obj_id, obj=None):
         """
         Converts this instance into an Elasticsearch document.

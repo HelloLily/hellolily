@@ -4,6 +4,7 @@
     window.HLCases = {
         config: {
             caseUpdateUrl: '/cases/update/status/',
+            caseId: null,
             statusSpan: '#status',
             statusDiv: '#case-status',
             parcelProviderSelect: '#id_parcel_provider',
@@ -43,26 +44,28 @@
             var radio_element = $('#' + $(event.target).closest('label').attr('for'));
             if(radio_element.attr('id') != currentStatus) {
                 var $radio_element = $(radio_element);
-                $.ajax({
-                    url: cf.caseUpdateUrl + $radio_element.closest(cf.statusDiv).data('object-id') + '/',
-                    type: 'POST',
-                    data: {
-                        'status': $radio_element.val()
-                    },
-                    beforeSend: HLApp.addCSRFHeader,
-                    dataType: 'json'
-                }).done(function(data) {
-                    currentStatus = $radio_element.attr('id');
-                    $(cf.statusSpan).text(data.status);
-                    // loads notifications if any
-                    load_notifications();
-                }).fail(function() {
-                    // reset selected status
-                    $(radio_element).attr('checked', false).closest('label').removeClass('active');
-                    $('#' + currentStatus).attr('checked', true).closest('label').addClass('active');
-                    // loads notifications if any
-                    load_notifications();
-                });
+                if (cf.caseId != null) {
+                    $.ajax({
+                        url: cf.caseUpdateUrl + cf.caseId + '/',
+                        type: 'POST',
+                        data: {
+                            'status': $radio_element.val()
+                        },
+                        beforeSend: HLApp.addCSRFHeader,
+                        dataType: 'json'
+                    }).done(function (data) {
+                        currentStatus = $radio_element.attr('id');
+                        $(cf.statusSpan).text(data.status);
+                        // loads notifications if any
+                        load_notifications();
+                    }).fail(function () {
+                        // reset selected status
+                        $(radio_element).attr('checked', false).closest('label').removeClass('active');
+                        $('#' + currentStatus).attr('checked', true).closest('label').addClass('active');
+                        // loads notifications if any
+                        load_notifications();
+                    });
+                }
             }
         },
 

@@ -22,25 +22,28 @@ class SearchView(LoginRequiredMixin, View):
         query = request.GET.get('q', '')
         for token in query.split(' '):
             if token:
-                search = search.filter(name=token.lower())
+                search = search.filter(or_={'name': token.lower(),
+                                            'phone': token.lower()})
 
         id_arg = request.GET.get('id', '')
         if id_arg:
             raw_filters.append({'ids': {'values': [id_arg]}})
 
-        account = request.GET.get('account', '')
-        if account:
-            if account == '*':
-                raw_filters.append(self.get_exists_filter(account))
-            else:
-                search = search.filter(account=account)
+        for int_field in ['account', 'contact']:
+            get_value = request.GET.get(int_field, '')
+            if get_value:
+                if get_value == '*':
+                    raw_filters.append(self.get_exists_filter(int_field))
+                else:
+                    search = search.filter(or_={int_field: get_value})
 
-        contact = request.GET.get('contact', '')
-        if contact:
-            if contact == '*':
-                raw_filters.append(self.get_exists_filter(contact))
-            else:
-                search = search.filter(contact=contact)
+        for string_field in ['name', 'phone', 'email', 'tag']:
+            get_value = request.GET.get(string_field, '')
+            if get_value:
+                if get_value == '*':
+                    raw_filters.append(self.get_exists_filter(string_field))
+                else:
+                    search = search.filter(or_={string_field: get_value.lower()})
 
         modeltype = request.GET.get('type', '')
         if modeltype:
@@ -62,34 +65,28 @@ class SearchView(LoginRequiredMixin, View):
             search = search.filter_raw({'and': raw_filters})
 
         # Execute the search, process the hits and return as json.
+        return_fields = filter(None, request.GET.get('fields', '').split(','))
+        if '*' in return_fields:
+            return_fields = ''
         hits = []
         execute = search.execute()
         for result in execute:
             hit = {
                 'id': result.id,
-                'name': result.name,
             }
             if not modeltype:
                 # We will add type if not specifically searched on it.
                 hit['type'] = result.es_meta.type
-            if 'account' in result:
-                hit['account'] = result.account
-            if 'contact' in result:
-                hit['contact'] = result.contact
+            for field in result:
+                # Add specified fields, or all fields when not specified
+                if return_fields:
+                    if field in return_fields:
+                        hit[field] = result[field]
+                else:
+                    hit[field] = result[field]
             hits.append(hit)
 
-        results = {'hits': hits, 'total': execute.count}
-        if settings.DEBUG or request.GET.get('debug'):
-            # Only add non sensitive information.
-            results['debug'] = {
-                'tenant': tenant,
-                'q': query,
-                'type': modeltype,
-                'page': page,
-                'size': size,
-                'took': execute.took,
-                'sort': sort,
-            }
+        results = {'hits': hits, 'total': execute.count, 'took': execute.took}
         return HttpResponse(anyjson.dumps(results), mimetype='application/json; charset=utf-8')
 
     def get_exists_filter(self, filter_name):

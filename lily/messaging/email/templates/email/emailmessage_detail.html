@@ -5,7 +5,7 @@
 {% block inbox %}
 <div class="col-md-10 emailmessage-detail">
     <div class="inbox-header">
-        <h1 class="pull-left">{{ folder_name }} {% if active_email_address %}<small>{% trans 'in' %} {{ active_email_account.email.email_address }}</small>{% endif %}</h1>
+        <h1 class="pull-left">{{ folder_name }} {% if active_email_address %}<small>{% trans 'in' %} {{ active_email_account.email }}</small>{% endif %}</h1>
     </div>
     <div class="inbox-content">
         <div class="inbox-header inbox-view-header">

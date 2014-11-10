@@ -8,7 +8,7 @@ from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
 from lily.cases.models import Case, CaseStatus
-from lily.users.factories import CustomUserFactory
+from lily.users.factories import LilyUserFactory
 
 
 faker = Factory.create()
@@ -28,7 +28,7 @@ class CaseFactory(DjangoModelFactory):
     subject = LazyAttribute(lambda o: faker.word())
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
     expires = FuzzyDate(datetime.date(2015, 1, 1), datetime.date(2016, 1, 1))
-    assigned_to = SubFactory(CustomUserFactory, tenant=SelfAttribute('..tenant'))
+    assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
 
     class Meta:
         model = Case

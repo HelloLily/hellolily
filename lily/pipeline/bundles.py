@@ -1,3 +1,5 @@
+
+
 PIPELINE_CSS = {
     'metronic-core': {
         'source_filenames': (
@@ -114,6 +116,7 @@ PIPELINE_CSS = {
     'profile': {
         'source_filenames': (
             'metronic/css/pages/profile.css',
+            'lily/css/profile.css',
         ),
         'output_filename': 'compiled/css/profile.css',
     },
@@ -155,6 +158,7 @@ PIPELINE_JS = {
             'metronic/plugins/jquery.blockui.min.js',
             'metronic/plugins/jquery.cookie.min.js',
             'metronic/plugins/uniform/jquery.uniform.min.js',
+            'lily/scripts/gettext.js',
             'lily/scripts/forms/select2.js',
             'lily/plugins/jquery.truncate.js',
         ),
@@ -193,6 +197,7 @@ PIPELINE_JS = {
             'metronic/plugins/bootstrap-modal/js/bootstrap-modalmanager.js',
             'metronic/plugins/bootstrap-modal/js/bootstrap-modal.js',
             'lily/scripts/modals/prevent_accidental_close.js',
+            'lily/scripts/modals/prevent_stale_content.js',
         ),
         'output_filename': 'compiled/js/modal.js',
     },
@@ -264,5 +269,24 @@ PIPELINE_JS = {
             'email/js/emailtemplate.js',
         ),
         'output_filename': 'compiled/js/emailtemplate.js',
+    },
+    'password_strength': {
+        'source_filenames': (
+            'django_password_strength/js/zxcvbn.js',
+            'django_password_strength/js/password_strength.js',
+        ),
+        'output_filename': 'compiled/js/password_strength.js',
+    },
+    'en_translations': {
+        'source_filenames': (
+            'jsi18n/en/djangojs.js',
+        ),
+        'output_filename': 'compiled/js/en-translations.js',
+    },
+    'nl_translations': {
+        'source_filenames': (
+            'jsi18n/nl/djangojs.js',
+        ),
+        'output_filename': 'compiled/js/nl-translations.js',
     },
 }

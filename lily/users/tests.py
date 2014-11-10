@@ -1,7 +1,7 @@
 from django.test import TestCase
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.utils.models import EmailAddress
 
 
@@ -9,7 +9,7 @@ class Test(TestCase):
     
     def test_customuser_set_email(self):
         """
-        Test the pre_save signal involving e-mail addresses for CustomUser.
+        Test the pre_save signal involving e-mail addresses for LilyUser.
         This means when setting the attribute 'email', an emailadress instance
         is actually being created and saved when the user instance is saved.
         """
@@ -23,7 +23,7 @@ class Test(TestCase):
         contact.save()
         
         # Create dummy user
-        u = CustomUser()
+        u = LilyUser()
         u.contact = contact
         u.account = account
         u.username = 'John'

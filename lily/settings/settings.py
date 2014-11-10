@@ -121,6 +121,7 @@ CONTACT_UPLOAD_TO = 'images/profile/contact'
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messaging/email/templates/attachments/'
 
+STATICI18N_ROOT = local_path('static/')
 STATICFILES_DIRS = (
     local_path('static/'),
 )
@@ -171,9 +172,9 @@ LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
 LOGOUT_URL = reverse_lazy('logout')
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
-CUSTOM_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.LilyUser'
 AUTHENTICATION_BACKENDS = (
-    'lily.users.auth_backends.EmailAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 #######################################################################################################################
@@ -210,7 +211,7 @@ TEMPLATE_DIRS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
-    # 'django.core.context_processors.i18n',
+    'django.core.context_processors.i18n',
     # 'django.core.context_processors.media',
     'django.core.context_processors.request',
     # 'django.core.context_processors.static',
@@ -266,6 +267,9 @@ INSTALLED_APPS = (
     'taskmonitor',
     'injector',
     'elasticutils',
+    'statici18n',
+    'timezone_field',
+    'django_password_strength',
 
     # Lily
     'lily',  # required for management command
@@ -336,71 +340,76 @@ LOGGING = {
     'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
     'formatters': {
-        'extended': {
-            'format': '[%(asctime)s] %(filename)s#%(lineno)s %(funcName)s(): %(message)s',
+        'verbose': {
+            'format': '[%(asctime)s] (%(levelname)s) %(filename)s#%(lineno)s %(funcName)s():\n%(message)s',
             'datefmt': '%H:%M:%S',
+        },
+        'simple': {
+            'format': '[%(asctime)s] (%(levelname)s): %(message)s'
         },
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_false'],
+            'level': 'INFO',
+            # 'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'extended'
+            'formatter': 'verbose'
+        },
+        'null': {
+            'class': 'django.utils.log.NullHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
-        }
+        },
     },
     'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django': {
             'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
-            'propagate': True,
+            'propagate': False,
         },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
-            'propagate': True,
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'py.warnings': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
         },
         'search': {
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
-        '': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
     }
 }
-
-if DEBUG:
-    LOGGING['handlers']['console'].update({
-        'filters': [],
-    })
-    LOGGING['loggers'].update({
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        }
-    })
-    # LOGGING['loggers'].update({
-    #     'django.db.backends': {
-    #         'handlers': ['console'],
-    #         'level': 'DEBUG',
-    #         'propagate': False,
-    #     },
-    # })
 
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #
@@ -531,3 +540,5 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-south
 SOUTH_AUTO_FREEZE_APP = True
 SOUTH_VERBOSITY = 1
+
+from .celeryconfig import *

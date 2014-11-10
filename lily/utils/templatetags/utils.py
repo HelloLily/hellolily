@@ -125,22 +125,6 @@ def in_group(user, groups):
 
 
 @register.filter
-def has_user_in_group(object, groups):
-    """
-    Return a boolean if the user has a relation with the given group(s).
-    """
-    group_list = force_unicode(groups).split(',')
-
-    try:
-        # Only try to filter if the object actually is linked with a user
-        if len(object.user.all()):
-            return bool(object.user.all()[0].groups.filter(name__in=group_list))
-    except AttributeError:
-        pass
-    return False
-
-
-@register.filter
 def classname(obj, arg=None):
     """
     Return the classname of given object or compare the classname to the given argument.

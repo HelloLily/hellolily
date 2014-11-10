@@ -1,24 +1,50 @@
+import itertools
+
 from django import forms
 from django.utils.translation import ugettext as _
-from form_utils.forms import BetterForm, BetterModelForm
+from form_utils.forms import BetterForm, BetterModelForm, FieldsetCollection
 
 from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
 
+
+class HellolilyFieldsetCollection(FieldsetCollection):
+    """
+    Override the __getitem__ function to get fieldsets by index instead of name
+    """
+    def __getitem__(self, index):
+        if not self._cached_fieldsets:
+            self._gather_fieldsets()
+
+        try:
+            return next(itertools.islice(self._cached_fieldsets, index, index + 1))
+        except TypeError:
+            return list(itertools.islice(self._cached_fieldsets, index.start, index.stop, index.step))
 
 class HelloLilyForm(BetterForm):
     """
     Inherit from BetterForm django-form-utils.
     We can add more custom form features here later.
     """
-    pass
+    @property
+    def fieldsets(self):
+        if not self._fieldset_collection:
+            self._fieldset_collection = HellolilyFieldsetCollection(self, self._fieldsets)
+        return self._fieldset_collection
 
 
 class HelloLilyModelForm(BetterModelForm):
     """
     Inherit from BetterModelForm django-form-utils.
     We can add more custom form features here later.
+
     """
     pass
+
+    @property
+    def fieldsets(self):
+        if not self._fieldset_collection:
+            self._fieldset_collection = HellolilyFieldsetCollection(self, self._fieldsets)
+        return self._fieldset_collection
 
 
 class EmailAddressBaseForm(HelloLilyModelForm):

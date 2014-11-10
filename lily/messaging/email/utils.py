@@ -1,31 +1,34 @@
-from datetime import datetime, timedelta
 import re
-from smtplib import SMTPAuthenticationError
 import socket
+
+from datetime import datetime, timedelta
+from smtplib import SMTPAuthenticationError
 from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
 from celery import signature
-from celery.states import PENDING, SUCCESS, FAILURE
+from celery.states import PENDING
 from dateutil.tz import tzutc
 from django.conf import settings
+
 from django.core.exceptions import ValidationError
-from django.core.mail import (EmailMultiAlternatives, SafeMIMEMultipart,
-    get_connection)
+from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
 from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Field
 from django.db.models.query_utils import Q
-from django.template import (Context, BLOCK_TAG_START, BLOCK_TAG_END,
-     VARIABLE_TAG_START, VARIABLE_TAG_END, TemplateSyntaxError)
 from django.template.defaultfilters import truncatechars
+from django.template import (Context, TemplateSyntaxError, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START,
+                             VARIABLE_TAG_END)
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext as _
 
 from lily.messaging.email.decorators import get_safe_template
 from lily.messaging.email.models import EmailAccount, EmailMessage
+from lily.messaging.utils import get_messages_accounts
 from lily.tenant.middleware import get_current_user
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import INBOX
@@ -114,7 +117,7 @@ def get_folder_unread_count(folder, email_accounts=None):
     """
     from lily.messaging.email.models import EmailAccount, EmailMessage  # prevent circular dependency
     if email_accounts is None:
-        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
+        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
 
     return EmailMessage.objects.filter(Q(folder_identifier=folder) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
@@ -504,14 +507,14 @@ def email_auth_update(user):
     """
     Check if there is an email account for the user that needs a new password.
     """
-    email_auth_update = EmailAccount.objects.filter(
+    should_update = EmailAccount.objects.filter(
         is_deleted=False,
         auth_ok=False,
         tenant=user.tenant,
         user_group__pk=user.pk,
     ).exists()
 
-    return email_auth_update
+    return should_update
 
 
 def unread_emails(user):
@@ -520,12 +523,13 @@ def unread_emails(user):
     Limit results with bodies to 10.
     Limit total results to 30.
     """
-    LIMIT_LIST = 10
-    LIMIT_EXCERPT = 5
+    limit_list = 10
+    limit_excerpt = 5
     unread_emails_list = []
 
-    # Look up the last few unread e-mail messages for these accounts
-    email_accounts = user.get_messages_accounts(EmailAccount)
+    # Look up the last few unread e-mail messages for owned accounts
+    ctype = ContentType.objects.get_for_model(EmailAccount)
+    email_accounts = list(user.messages_accounts_owned.filter(polymorphic_ctype=ctype))
     email_messages = EmailMessage.objects.filter(
         folder_identifier=INBOX,
         account__in=email_accounts,
@@ -533,10 +537,10 @@ def unread_emails(user):
     ).order_by('-sort_by_date')
     unread_count = email_messages.count()
 
-    email_messages = email_messages[:LIMIT_LIST]  # eval slice
+    email_messages = email_messages[:limit_list]  # eval slice
 
-    # show excerpt for LIMIT_EXCERPT messages
-    for email_message in email_messages[:LIMIT_EXCERPT]:
+    # show excerpt for limit_excerpt messages
+    for email_message in email_messages[:limit_excerpt]:
         unread_emails_list.append({
             'id': email_message.pk,
             'from': email_message.from_name,
@@ -544,9 +548,9 @@ def unread_emails(user):
             'message_excerpt': truncatechars(email_message.textify().lstrip('&nbsp;\n\r\n '), 100),
         })
 
-    if len(email_messages) > LIMIT_EXCERPT:
-        # for more messages up to LIMIT_LIST don't show excerpt
-        for email_message in email_messages[LIMIT_EXCERPT:]:
+    if len(email_messages) > limit_excerpt:
+        # for more messages up to limit_list don't show excerpt
+        for email_message in email_messages[limit_excerpt:]:
             unread_emails_list.append({
                 'id': email_message.pk,
                 'from': email_message.from_name,

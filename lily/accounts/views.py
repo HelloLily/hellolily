@@ -20,10 +20,9 @@ from lily.contacts.models import Function, Contact
 from lily.notes.models import Note
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
-from lily.utils.templatetags.utils import has_user_in_group
 from lily.utils.views import DataTablesListView, JsonListView
-from lily.utils.views.mixins import SortedListMixin, FilteredListMixin, DeleteBackAddSaveFormViewMixin, \
-    HistoryListViewMixin, ExportListViewMixin, FilteredListByTagMixin, LoginRequiredMixin
+from lily.utils.views.mixins import (SortedListMixin, FilteredListMixin, HistoryListViewMixin, ExportListViewMixin,
+                                     FilteredListByTagMixin, LoginRequiredMixin)
 
 
 class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
@@ -31,7 +30,6 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
     prefetch_related = [
         'phone_numbers',
         'tags',
-        'user'
     ]
 
     # SortedListMixin
@@ -267,7 +265,7 @@ class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
         return kwargs
 
 
-class CreateUpdateAccountMixin(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
+class CreateUpdateAccountMixin(LoginRequiredMixin):
     """
     Base class for AddAccountView and EditAccountView.
     """
@@ -461,11 +459,6 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
         Overloading super().delete to remove the related models and the instance itself.
         """
         self.object = self.get_object()
-
-        # Prevents deleting an account with users and checks if the account has a user that's linked to an admin group
-        if self.object.user.exists() or has_user_in_group(self.object, 'account_admin'):
-            raise Http404()
-
         self.object.email_addresses.remove()
         self.object.addresses.remove()
         self.object.phone_numbers.remove()

@@ -1,11 +1,12 @@
 from django.conf.urls import patterns, url
 
-from lily.messaging.email.views import email_configuration_wizard, EmailMessageDetailView, EmailMessageHTMLView, \
+from lily.messaging.email.views import EmailMessageDetailView, EmailMessageHTMLView, \
     EmailInboxView, EmailSentView, EmailDraftsView, EmailTrashView, EmailSpamView, EmailFolderView, \
     EmailMessageCreateView, EmailMessageReplyView, EmailMessageForwardView, EmailAttachmentProxy, \
     MarkEmailMessageAsReadView, MarkEmailMessageAsUnreadView, TrashEmailMessageView, MoveEmailMessageView, \
     ListEmailTemplateView, CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailSearchView, \
-    EmailShareView, EmailAccountChangePasswordView, EmailAccountDeleteView, DeleteEmailTemplateView
+    DeleteEmailTemplateView, EmailAccountDeleteView, EmailAccountCreateView, EmailAccountUpdateView,\
+    EmailAccountListView, EmailAccountShareView, EmailAccountUnsubscribeView
 
 
 urlpatterns = patterns(
@@ -57,18 +58,11 @@ urlpatterns = patterns(
     url(r'^search/(?P<folder>[^/].+)/$', EmailSearchView.as_view(), name='messaging_email_search_all'),
     url(r'^search/$', ParseEmailTemplateView.as_view(), name='messaging_email_search_empty'),
 
-    # email account wizards
-    url(r'^account/wizard/configuration/(?P<pk>[\w-]+)/$', email_configuration_wizard, name='messaging_email_account_wizard_template'),
-    url(r'^account/wizard/share/(?P<pk>[\w-]+)/$', EmailShareView.as_view(), name='messaging_email_account_share_template'),
-
-    # email account settings
-    url(r'^account/(?P<pk>[\d-]+)/changepassword/$', EmailAccountChangePasswordView.as_view(), name='messaging_email_account_change_password'),
-    url(r'^account/(?P<pk>[\d-]+)/delete/$', EmailAccountDeleteView.as_view(), name='messaging_email_account_delete'),
-
-    # AJAX views
-    # url(r'^history-list-json/(?P<pk>[\w-]+)/$', history_list_email_json_view, name='messaging_history_list_email_json'),
-
-    # # e-mail account views
-    # url(r'^account/edit/(?P<pk>[\w-]+)/$', edit_email_account_view, name='messaging_email_account_edit'),
-    # # url(r'^account/details/(?P<pk>[\w-]+)/$', detail_email_account_view, name='messaging_email_account_details'),
+    # email accounts
+    url(r'^accounts/$', EmailAccountListView.as_view(), name='messaging_email_account_list'),
+    url(r'^accounts/create/(?P<shared_with>[\d-]+)$', EmailAccountCreateView.as_view(), name='messaging_email_account_create'),
+    url(r'^accounts/update/(?P<pk>[\d-]+)$', EmailAccountUpdateView.as_view(), name='messaging_email_account_update'),
+    url(r'^accounts/delete/(?P<pk>[\d-]+)$', EmailAccountDeleteView.as_view(), name='messaging_email_account_delete'),
+    url(r'^accounts/share/(?P<pk>[\d-]+)$', EmailAccountShareView.as_view(), name='messaging_email_account_share'),
+    url(r'^accounts/unsubscribe/(?P<pk>[\d-]+)$', EmailAccountUnsubscribeView.as_view(), name='messaging_email_account_unsubscribe'),
 )

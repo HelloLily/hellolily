@@ -14,9 +14,9 @@ from lily.contacts.search import ContactMapping
 from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
+from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 
 class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
@@ -26,14 +26,13 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     status = forms.ModelChoiceField(
         label=_('Status'),
         queryset=CaseStatus.objects,
-        empty_label='---------',
-        required=True,
+        empty_label=_('Select a status'),
     )
 
     type = forms.ModelChoiceField(
         label=_('Type'),
         queryset=CaseType.objects,
-        empty_label='---------',
+        empty_label=_('Select a type'),
         required=False,
     )
 
@@ -63,7 +62,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
 
     assigned_to = forms.ModelChoiceField(
         label=_('Assigned to'),
-        queryset=CustomUser.objects,
+        queryset=LilyUser.objects,
         empty_label=None)
 
     expires = forms.DateField(
@@ -95,13 +94,13 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         super(CreateUpdateCaseForm, self).__init__(*args, **kwargs)
 
         # FIXME: WORKAROUND FOR TENANT FILTER.
-        # An error will occur when using CustomUser.objects.all(), most likely because
+        # An error will occur when using LilyUser.objects.all(), most likely because
         # the foreign key to contact (and maybe account) is filtered and executed before
-        # the filter for the CustomUser. This way it's possible contacts (and maybe accounts)
+        # the filter for the LilyUser. This way it's possible contacts (and maybe accounts)
         # won't be found for a user. But since it's a required field, an exception is raised.
-        #
-        self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
-        self.fields['assigned_to'].initial = get_current_user()
+        user = get_current_user()
+        self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=user.tenant)
+        self.fields['assigned_to'].initial = user
         self.fields['expires'].initial = datetime.today()
 
         # Setup parcel initial values

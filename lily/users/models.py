@@ -1,149 +1,124 @@
 from django.contrib import messages
-from django.contrib.auth.models import User, UserManager
+from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
-from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Q
-from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import ugettext as _
+from timezone_field import TimeZoneField
 
-from lily.accounts.models import Account
-from lily.contacts.models import Contact
-from lily.tenant.models import TenantMixin
-from lily.utils.models import EmailAddress
-from lily.utils.functions import uniquify
+from lily.settings import LANGUAGES
+from lily.tenant.models import TenantMixin, Tenant
+
 try:
     from lily.tenant.functions import add_tenant
 except ImportError:
     from lily.utils.functions import dummy_function as add_tenant
 
 
-class CustomUser(User, TenantMixin):
+class LilyUserManager(UserManager):
+
+    def _create_user(self, email, password, is_staff, is_superuser, tenant_pk=1, **extra_fields):
+        """
+        Creates and saves a User with the given username, email and password.
+        """
+        now = timezone.now()
+        if not email:
+            raise ValueError('The given email address must be set')
+        email = self.normalize_email(email)
+
+        # Find a tenant
+        tenant = Tenant.objects.get_or_create(pk=tenant_pk)[0]
+
+        user = self.model(tenant=tenant, email=email, is_staff=is_staff, is_active=True, is_superuser=is_superuser,
+                          last_login=now, date_joined=now, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        return self._create_user(email, password, False, False, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        user = self._create_user(email, password, True, True, **extra_fields)
+
+        account_admin = Group.objects.get_or_create(name='account_admin')[0]
+        user.groups.add(account_admin)
+
+        return user
+
+
+class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     """
-    Custom user model, has relation with Contact.
+    A custom user class implementing a fully featured User model with
+    admin-compliant permissions.
+
+    Password and email are required. Other fields are optional.
     """
-    objects = UserManager()
-    contact = models.ForeignKey(Contact, related_name='user')
-    account = models.ForeignKey(Account, related_name='user')
+    first_name = models.CharField(_('first name'), max_length=45)
+    preposition = models.CharField(_('preposition'), max_length=100, blank=True)
+    last_name = models.CharField(_('last name'), max_length=45)
+    email = models.EmailField(_('email address'), max_length=255, unique=True)
+    is_staff = models.BooleanField(_('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.'))
+    is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
+    phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
+
+    language = models.CharField(_('lanaguage'), max_length=3, choices=LANGUAGES, default='en')
+    timezone = TimeZoneField(default='Europe/Amsterdam')
+
+    objects = LilyUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', ]
+
+    def get_absolute_url(self):
+        """
+        Get the url to the user page
+        """
+        return reverse('dashboard')
+
+    def get_full_name(self):
+        """
+        Return full name of this user without unnecessary white space.
+        """
+        if self.preposition:
+            return u' '.join([self.first_name, self.preposition, self.last_name]).strip()
+
+        return u' '.join([self.first_name, self.last_name]).strip()
+
+    def get_short_name(self):
+        """
+        Returns the short name for the user.
+        """
+        return self.first_name
+
+    def email_user(self, subject, message, from_email=None):
+        """
+        Sends an email to this User.
+        """
+        send_mail(subject, message, from_email, [self.email])
 
     def __unicode__(self):
-        return unicode(self.contact)
-
-    @property
-    def primary_email(self):
-        try:
-            if self.contact:
-                return self.contact.email_addresses.get(is_primary=True)
-        except EmailAddress.DoesNotExist:
-            pass
-        return u''
-
-    def get_messages_accounts(self, model=None, pk__in=None):
-        """
-        Returns a list of the users accounts and accounts that are shared with
-        this user.
-
-        Also filters out accounts that are deleted and/or have wrong credentials.
-
-        Arguments:
-            model (optional): filters the accounts on a specific model type
-            pk__in (optional): filters the accounts on specific pks
-
-        Returns:
-            list of MessagesAccounts
-        """
-        # Check cache
-        if hasattr(self, '_messages_accounts_%s_%s' % (model, pk__in)):
-            return getattr(self, '_messages_accounts_%s_%s' % (model, pk__in))
-
-        from lily.messaging.models import MessagesAccount
-        from lily.messaging.email.models import OK_EMAILACCOUNT_AUTH
-
-        # Filter by content type if provided
-        if model is not None:
-            ctype = ContentType.objects.get_for_model(model)
-
-            # Include shared accounts
-            messages_accounts = MessagesAccount.objects.filter(
-                Q(is_deleted=False) &
-                (
-                    # Q(shared_with=1) |
-                    Q(shared_with=2, user_group__pk=self.pk) |
-                    Q(pk__in=self.messages_accounts.filter(polymorphic_ctype=ctype).values_list('pk'))
-                )
-            )
-        else:
-            # Include all type of accounts and include shared accounts
-            messages_accounts = MessagesAccount.objects.filter(
-                Q(is_deleted=False) &
-                (
-                    # Q(shared_with=1) |
-                    Q(shared_with=2, user_group__pk=self.pk) |
-                    Q(pk__in=self.messages_accounts.values_list('pk'))
-                )
-            )
-
-        if pk__in is not None:
-            messages_accounts = messages_accounts.filter(pk__in=pk__in)
-
-        # Uniquify accounts
-        messages_accounts = uniquify(messages_accounts.order_by('emailaccount__email__email_address'), filter=lambda x: x.emailaccount.email.email_address)
-
-        # Filter out on EmailAccounts that not have correct credentials and are not owned by us.
-        own_or_active_accounts = []
-        for account in messages_accounts:
-            # Check if account is an emailaccount
-            if hasattr(account, 'emailaccount'):
-                # Check if account is from user or has correct credentials.
-                if account in self.messages_accounts.all() or account.auth_ok is OK_EMAILACCOUNT_AUTH:
-                    own_or_active_accounts.append(account)
-            else:
-                own_or_active_accounts.append(account)
-
-        # Cache for this request.
-        setattr(self, '_messages_accounts_%s_%s' % (model, pk__in), own_or_active_accounts)
-
-        return own_or_active_accounts
+        return self.get_full_name() or unicode(self.get_username())
 
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
-        ordering = ['contact']
+        ordering = ['first_name', 'last_name']
         permissions = (
             ("send_invitation", _("Can send invitations to invite new users")),
         )
 
 
-## ------------------------------------------------------------------------------------------------
-## Signal listeners
-## ------------------------------------------------------------------------------------------------
-
-
-@receiver(pre_save, sender=CustomUser)
-def post_save_customuser_handler(sender, **kwargs):
-    """
-    If an e-mail attribute was set on an instance of CustomUser, add a primary e-mail address or
-    overwrite the existing one.
-    """
-    instance = kwargs['instance']
-    if instance.__dict__.has_key('primary_email'):
-        new_email_address = instance.__dict__['primary_email']
-        if len(new_email_address.strip()) > 0:
-            try:
-                # Overwrite existing primary e-mail address
-                email = instance.contact.email_addresses.get(is_primary=True)
-                email.email_address = new_email_address
-                email.save()
-            except EmailAddress.DoesNotExist:
-                # Add new e-mail address as primary
-                email = EmailAddress(email_address=new_email_address, is_primary=True)
-                add_tenant(email, instance.tenant)
-                email.save()
-                instance.contact.email_addresses.add(email)
-
-
 @receiver(user_logged_out)
 def logged_out_callback(sender, **kwargs):
+    """
+    Set a confirmation message in the request that the user is logged out successfully.
+    """
     request = kwargs['request']
     messages.info(request, _('You are now logged out.'))

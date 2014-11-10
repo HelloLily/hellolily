@@ -41,12 +41,15 @@ django-activelink>=0.3
 #######################################################
 
 django-extra-views>=0.2.5
+django-braces==1.4.0
 
 django-bootstrap3==2.5.2
-django-bootstrap3-datetimepicker
+django-bootstrap3-datetimepicker==2.2.0
+django-timezone-field==1.0
 django-fields>=0.2.2
 django-formset-js>=0.4.0
 django-form-utils>=0.2.0  # various form tools, we use it for fieldsets
+django-password-strength==1.1.0
 
 #######################################################
 ### Asset management                                ###
@@ -65,6 +68,7 @@ yuicompressor==2.4.8
 # libsass  # for new theme version that has sass
 
 django-js-variable-injector==1.1.1
+django-statici18n==1.1
 
 #######################################################
 ### Celery & Email                                  ###

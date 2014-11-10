@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
 
 from lily.users.forms import CustomPasswordResetForm
-from lily.users.views import (send_invitation_view, AcceptInvitationView, RegistrationView, ActivationView,
-                              ActivationResendView, CustomSetPasswordView, LoginView, DashboardView)
+from lily.users.views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView,
+                              CustomSetPasswordView, LoginView, DashboardView, UserProfileView, UserAccountView,
+                              SendInvitationView)
 
 
 urlpatterns = patterns('',
@@ -20,8 +22,12 @@ urlpatterns = patterns('',
     url(r'^login/$', LoginView.as_view(), name='login'),
 
     # Invitations
-    url(r'^invitation/invite/$', send_invitation_view, name='invitation_invite'),
+    url(r'^invitation/invite/$', SendInvitationView.as_view(), name='invitation_invite'),
     url(r'^invitation/accept/(?P<account_name>.+)/(?P<first_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
+
+    # User profile settings
+    url(r'^user/profile/$', UserProfileView.as_view(), name='user_profile_view'),
+    url(r'^user/account/$', UserAccountView.as_view(), name='user_account_view'),
 
     # Dashboard and other user specific views, which require a logged in user
     url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags and paging for microblog

@@ -1,22 +1,22 @@
 import operator
-
 from datetime import datetime
 
 import anyjson
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.template import RequestContext
+from django.template.loader import render_to_string
 import unicodecsv
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
-from django.core.paginator import Paginator, InvalidPage
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q, FieldDoesNotExist
 from django.forms.models import modelformset_factory
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.datastructures import SortedDict
-from django.utils.encoding import smart_str
 from django.utils.http import base36_to_int
-from django.utils.translation import ugettext as _
 
 from lily.messaging.email.models import EmailMessage
 from lily.notes.models import Note
@@ -35,170 +35,6 @@ class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, *args, **kwargs):
         return login_required(super(LoginRequiredMixin, cls).as_view(*args, **kwargs))
-
-
-class CustomSingleObjectMixin(object):
-    """
-    Namespace the variables so this mixin can be combined with other
-    mixins which also use model/queryset. Behaviour besides this is
-    the same as default Django SingleObjectMixin.
-    """
-    detail_model = None
-    detail_queryset = None
-    detail_slug_field = 'slug'
-    detail_context_object_name = None
-    detail_slug_url_kwarg = 'slug'
-    detail_pk_url_kwarg = 'pk'
-
-    def get_object(self, queryset=None):
-        """
-        Returns the object the view is displaying.
-
-        By default this requires `self.detail_queryset` and a `pk` or `slug` argument
-        in the URLconf, but subclasses can override this to return any object.
-        """
-        # Use a custom detail_queryset if provided; this is required for subclasses
-        # like DateDetailView
-        if queryset is None:
-            queryset = self.get_detail_queryset()
-
-        # Next, try looking up by primary key.
-        pk = self.kwargs.get(self.detail_pk_url_kwarg, None)
-        slug = self.kwargs.get(self.detail_slug_url_kwarg, None)
-        if pk is not None:
-            queryset = queryset.filter(pk=pk)
-
-        # Next, try looking up by slug.
-        elif slug is not None:
-            slug_field = self.get_detail_slug_field()
-            queryset = queryset.filter(**{slug_field: slug})
-
-        # If none of those are defined, it's an error.
-        else:
-            raise AttributeError(u"Generic detail view %s must be called with "
-                                 u"either an object pk or a slug."
-                                 % self.__class__.__name__)
-
-        try:
-            obj = queryset.get()
-        except ObjectDoesNotExist:
-            raise Http404(_(u"No %(verbose_name)s found matching the query") %
-                          {'verbose_name': queryset.detail_model._meta.verbose_name})
-        return obj
-
-    def get_detail_queryset(self):
-        """
-        Get the detail_queryset to look an object up against. May not be called if
-        `get_object` is overridden.
-        """
-        if self.detail_queryset is None:
-            if self.detail_model:
-                return self.detail_model._default_manager.all()
-            else:
-                raise ImproperlyConfigured(u"%(cls)s is missing a detail_queryset. Define "
-                                           u"%(cls)s.detail_model, %(cls)s.detail_queryset, or override "
-                                           u"%(cls)s.get_object()." % {
-                                               'cls': self.__class__.__name__
-                                           })
-        return self.detail_queryset._clone()
-
-    def get_detail_slug_field(self):
-        """
-        Get the name of a slug field to be used to look up by slug.
-        """
-        return self.detail_slug_field
-
-    def get_detail_context_object_name(self, obj):
-        """
-        Get the name to use for the object.
-        """
-        if self.detail_context_object_name:
-            return self.detail_context_object_name
-        elif hasattr(obj, '_meta'):
-            return smart_str(obj._meta.object_name.lower())
-        else:
-            return None
-
-
-class CustomMultipleObjectMixin(object):
-    """
-    Namespace the variables so this mixin can be combined with other
-    mixins which also use model/queryset. Behaviour besides this is
-    the same as default Django MultipleObjectMixin.
-    """
-    allow_empty = True
-    list_queryset = None
-    list_model = None
-    paginate_by = None
-    list_context_object_name = None
-    paginator_class = Paginator
-
-    def get_list_queryset(self):
-        """
-        Get the list of items for this view. This must be an interable, and may
-        be a list_queryset (in which qs-specific behavior will be enabled).
-        """
-        if self.list_queryset is not None:
-            queryset = self.list_queryset
-            if hasattr(queryset, '_clone'):
-                queryset = queryset._clone()
-        elif self.list_model is not None:
-            queryset = self.list_model._default_manager.all()
-        else:
-            raise ImproperlyConfigured(u"'%s' must define 'list_queryset' or 'model'"
-                                       % self.__class__.__name__)
-        return queryset
-
-    def paginate_queryset(self, queryset, page_size):
-        """
-        Paginate the list_queryset, if needed.
-        """
-        paginator = self.get_paginator(queryset, page_size, allow_empty_first_page=self.get_allow_empty())
-        page = self.kwargs.get('page') or self.request.GET.get('page') or 1
-        try:
-            page_number = int(page)
-        except ValueError:
-            if page == 'last':
-                page_number = paginator.num_pages
-            else:
-                raise Http404(_(u"Page is not 'last', nor can it be converted to an int."))
-        try:
-            page = paginator.page(page_number)
-            return (paginator, page, page.object_list, page.has_other_pages())
-        except InvalidPage:
-            raise Http404(_(u'Invalid page (%(page_number)s)') % {
-                'page_number': page_number
-            })
-
-    def get_paginate_by(self, queryset):
-        """
-        Get the number of items to paginate by, or ``None`` for no pagination.
-        """
-        return self.paginate_by
-
-    def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True):
-        """
-        Return an instance of the paginator for this view.
-        """
-        return self.paginator_class(queryset, per_page, orphans=orphans, allow_empty_first_page=allow_empty_first_page)
-
-    def get_allow_empty(self):
-        """
-        Returns ``True`` if the view should display empty lists, and ``False``
-        if a 404 should be raised instead.
-        """
-        return self.allow_empty
-
-    def get_list_context_object_name(self, object_list):
-        """
-        Get the name of the item to be used in the context.
-        """
-        if self.list_context_object_name:
-            return self.list_context_object_name
-        elif hasattr(object_list, 'model'):
-            return smart_str('%s_list' % object_list.model._meta.object_name.lower())
-        else:
-            return None
 
 
 class FilterQuerysetMixin(object):
@@ -512,24 +348,6 @@ class SortedListMixin(object):
         return kwargs
 
 
-class DeleteBackAddSaveFormViewMixin(object):
-    """
-    Add support for four buttons with their respective intended form actions.
-        delete
-        back
-        add or save
-    """
-    def post(self, request, *args, **kwargs):
-        if not is_ajax(request):
-            if request.POST.get('submit-delete', None):
-                pass  # TODO: get delete url
-            if request.POST.get('submit-back', None):
-                success_url = self.get_success_url()  # TODO: ask if the user is sure to cancel when the form has been changed
-                return redirect(success_url) if isinstance(success_url, basestring) else success_url
-        # continue for other options (add or save)
-        return super(DeleteBackAddSaveFormViewMixin, self).post(request, *args, **kwargs)
-
-
 class ModelFormSetViewMixin(object):
     """
     Mixin base class to add a formset to a FormView in an easier fashion.
@@ -807,3 +625,69 @@ class ArchivedFilterMixin(object):
         Filters the queryset to only archived items or non-archived_items.
         """
         return super(ArchivedFilterMixin, self).get_queryset().filter(is_archived=self.show_archived)
+
+
+class AjaxFormMixin(object):
+    """
+    Mixin to provide default functionality for ajax form views.
+    """
+    def form_valid(self, form):
+        response = super(AjaxFormMixin, self).form_valid(form)
+
+        if is_ajax(self.request):
+            return self.form_ajax_valid(form, self.get_success_url())
+
+        return response
+
+    def form_ajax_valid(self, form, redirect_url):
+        return HttpResponse(anyjson.serialize({
+            'error': False,
+            'redirect_url': redirect_url
+        }), content_type='application/json')
+
+    def form_invalid(self, form):
+        """
+        Overloading super().form_invalid to return a different response to ajax requests.
+        """
+        response = super(AjaxFormMixin, self).form_invalid(form)
+
+        if is_ajax(self.request):
+            return self.form_ajax_invalid(form, response.rendered_content)
+
+        return response
+
+    def form_ajax_invalid(self, form, html):
+        context = RequestContext(self.request, self.get_context_data(form=form))
+        return HttpResponse(anyjson.serialize({
+            'error': True,
+            'html': html,
+        }), content_type='application/json')
+
+
+class FormActionMixin(object):
+    form_action_url_name = None
+    form_action_url_args = None
+    form_action_url_kwargs = None
+
+    def get_form_action_url_name(self):
+        return self.form_action_url_name or self.request.resolver_match.url_name
+
+    def get_form_action_url_args(self):
+        return self.form_action_url_args or {}
+
+    def get_form_action_url_kwargs(self):
+        return self.form_action_url_kwargs or {'pk': self.object.pk}
+
+    def get_context_data(self, **kwargs):
+        context = super(FormActionMixin, self).get_context_data(**kwargs)
+
+        context.update({
+            'form_action_url': reverse(
+                viewname=self.get_form_action_url_name(),
+                args=self.get_form_action_url_args(),
+                kwargs=self.get_form_action_url_kwargs(),
+            ),
+
+        })
+
+        return context

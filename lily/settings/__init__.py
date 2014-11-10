@@ -5,13 +5,12 @@ try:
     curfile = os.path.abspath(os.path.dirname(__file__))
     with open(curfile + '/../../.env') as f:
         for line in f:
-            line = line.strip();
+            line = line.strip()
             if len(line) > 0 and not line.startswith('#'):
                 index = line.index('=')
                 key = line[0:index]
-                value = line[index+1:]
+                value = line[index + 1:]
                 os.environ[key] = value
 except:
     pass
-from .celeryconfig import *
 from .settings import *

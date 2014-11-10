@@ -1,16 +1,18 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
+from lily.tenant.middleware import get_current_user
 from lily.tenant.models import PolymorphicTenantMixin
 from lily.utils.models import HistoryListItem
 from lily.utils.models.mixins import DeletedMixin
 
 
+PRIVATE, PUBLIC, SHARED = range(3)
 ACCOUNT_SHARE_CHOICES = [
-    (0, _('Don\'t share')),
-    (1, _('Everybody')),
-    (2, _('Specific users')),
+    (PRIVATE, _('Don\'t share')),
+    (PUBLIC, _('Everybody')),
+    (SHARED, _('Specific users')),
 ]
 
 
@@ -20,8 +22,34 @@ class MessagesAccount(PolymorphicTenantMixin, DeletedMixin):
     Automatically downcasts when queried so unicode is almost never used.
     """
     account_type = models.CharField(max_length=255)
-    shared_with = models.SmallIntegerField(choices=ACCOUNT_SHARE_CHOICES, default=0, help_text='')
-    user_group = models.ManyToManyField(CustomUser, related_name='messages_accounts', verbose_name=_('users'))
+    shared_with = models.SmallIntegerField(choices=ACCOUNT_SHARE_CHOICES, default=0)
+    user_group = models.ManyToManyField(LilyUser, related_name='messages_accounts_shared', verbose_name=_('shared with'))
+    owner = models.ForeignKey(LilyUser, related_name='messages_accounts_owned', verbose_name=_('owner'))
+
+    @property
+    def is_public(self):
+        return self.shared_with == PUBLIC
+
+    @property
+    def is_shared(self):
+        return self.shared_with == SHARED
+
+    @property
+    def is_private(self):
+        return self.shared_with == PRIVATE
+
+    @property
+    def is_owned_by_user(self, user=None):
+        return self.owner == (user or get_current_user())
+
+    @property
+    def is_shared_with_user(self, user=None):
+        user = user or get_current_user()
+
+        if not self.is_shared:
+            return False
+
+        return user in self.user_group.all()
 
     def __unicode__(self):
         return u'%s account' % self.account_type

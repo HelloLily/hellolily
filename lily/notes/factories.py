@@ -8,7 +8,7 @@ from faker.factory import Factory
 from lily.accounts.factories import AccountFactory
 from lily.contacts.factories import ContactFactory
 from lily.notes.models import Note
-from lily.users.factories import CustomUserFactory
+from lily.users.factories import LilyUserFactory
 
 
 faker = Factory.create()
@@ -16,7 +16,7 @@ faker = Factory.create()
 
 class NoteFactory(DjangoModelFactory):
     content = LazyAttribute(lambda o: faker.text())
-    author = SubFactory(CustomUserFactory, tenant=SelfAttribute('..tenant'))
+    author = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
 
     @factory.lazy_attribute
     def subject(self):

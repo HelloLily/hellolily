@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 
-admin.site.register(CustomUser)
+admin.site.register(LilyUser)

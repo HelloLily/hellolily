@@ -211,5 +211,7 @@ class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):
         super(CreateCaseQuickbuttonForm, self).__init__(*args, **kwargs)
 
         self.fields['expires'].initial = datetime.today()
-        self.fields['account'].widget.filter_on = 'id_case_quickbutton_contact'
-        self.fields['contact'].widget.filter_on = 'id_case_quickbutton_account'
+        self.fields['account'].widget.filter_on = ('%s,id_case_quickbutton_contact' %
+                                                   AccountMapping.get_mapping_type_name())
+        self.fields['contact'].widget.filter_on = ('%s,id_case_quickbutton_account' %
+                                                   ContactMapping.get_mapping_type_name())

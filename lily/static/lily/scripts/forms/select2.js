@@ -70,6 +70,9 @@
                                 if (filter.indexOf('id_') === 0) {
                                     var filter_val = $('#'+filter).val()
                                     var filter_name = filter.substring(3)
+                                    if (filter_name.indexOf('case_quickbutton_') === 0) {
+                                        filter_name = filter.substring(20);
+                                    }
                                     data[filter_name] = filter_val;
                                 } else {
                                     data.type = filter;

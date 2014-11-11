@@ -20,38 +20,45 @@ class SearchView(LoginRequiredMixin, View):
         search = search.filter(tenant=tenant)
 
         query = request.GET.get('q', '')
-        for token in query.split(' '):
-            if token:
-                search = search.filter(or_={'name': token.lower(),
-                                            'phone': token.lower()})
+        if query:
+            search = search.query_raw({
+                'multi_match': {
+                    'query': query,
+                    'operator': 'and',
+                    'fields': [
+                        'name',
+                        'phone*',
+                        'email*',
+                        'tag*',
+                    ],
+                }
+            })
+
+        filterquery = request.GET.get('filterquery', '')
+        if filterquery:
+            raw_filters.append({
+                'query': {
+                    'query_string': {
+                        'query': filterquery,
+                        'default_operator': 'AND',
+                    }
+                }
+            })
 
         id_arg = request.GET.get('id', '')
         if id_arg:
             raw_filters.append({'ids': {'values': [id_arg]}})
 
-        for int_field in ['account', 'contact']:
-            get_value = request.GET.get(int_field, '')
-            if get_value:
-                if get_value == '*':
-                    raw_filters.append(self.get_exists_filter(int_field))
-                else:
-                    search = search.filter(or_={int_field: get_value})
-
-        for string_field in ['name', 'phone', 'email', 'tag']:
-            get_value = request.GET.get(string_field, '')
-            if get_value:
-                if get_value == '*':
-                    raw_filters.append(self.get_exists_filter(string_field))
-                else:
-                    search = search.filter(or_={string_field: get_value.lower()})
-
         modeltype = request.GET.get('type', '')
         if modeltype:
             search = search.doctypes(modeltype)
 
-        sort = request.GET.get('sort', '-modified')
+        sort = request.GET.get('sort', '')
         if sort:
             search = search.order_by(sort)
+        if not query:
+            # We have the specific wish to sort by -modified when no query.
+            search = search.order_by('-modified')
 
         page = int(request.GET.get('page', '0'))
         page = 0 if page < 0 else page
@@ -88,6 +95,3 @@ class SearchView(LoginRequiredMixin, View):
 
         results = {'hits': hits, 'total': execute.count, 'took': execute.took}
         return HttpResponse(anyjson.dumps(results), mimetype='application/json; charset=utf-8')
-
-    def get_exists_filter(self, filter_name):
-        return {'exists': {'field': filter_name}}

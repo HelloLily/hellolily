@@ -61,7 +61,7 @@
                         cache: true,
                         data: function (term, page) { // page is the one-based page number tracked by Select2
                             var data = {
-                                q: term, //search term
+                                filterquery: term ? 'name:('+term+')' : '', //search term
                                 size: self.config.ajaxPageLimit, // page size
                                 page: (page - 1), // page number, zero-based
                             };
@@ -71,9 +71,11 @@
                                     var filter_val = $('#'+filter).val()
                                     var filter_name = filter.substring(3)
                                     if (filter_name.indexOf('case_quickbutton_') === 0) {
-                                        filter_name = filter.substring(20);
+	                                    filter_name = filter.substring(20);
                                     }
-                                    data[filter_name] = filter_val;
+                                    if (filter_val && filter_val > 0) {
+                                        data.filterquery += ' '+filter_name+':'+filter_val;
+                                    }
                                 } else {
                                     data.type = filter;
                                 }

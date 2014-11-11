@@ -1,7 +1,7 @@
+import json
 import urllib
 import urllib2
 
-import anyjson
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext as _
 from django.views.generic.base import View
@@ -73,7 +73,7 @@ class ProvideBaseView(View):
         return HttpResponse(self.error_output)
 
     def set_error_output(self, message):
-        self.error_output = anyjson.serialize({'error': {'message': message}})
+        self.error_output = json.dumps({'error': {'message': message}})
 
 
 class DataproviderView(ProvideBaseView):
@@ -107,8 +107,12 @@ class DataproviderView(ProvideBaseView):
         """
         Create a generic json format for account information based on the json from Dataprovider.
         """
+        phone_number_limit = 5
+        email_limit = 5
+        address_limit = 3
+
         # Expected api output is json
-        self.api_output = anyjson.deserialize(self.api_output)
+        self.api_output = json.loads(self.api_output)
 
         # Return 404 when the api returned an error
         if self.api_output.get('error'):
@@ -140,7 +144,22 @@ class DataproviderView(ProvideBaseView):
         # Determine primary email since Dataprovider doesn't provide it
         primary_email = None
         if emails:
-            primary_email = self.get_primary_email(emails)
+            primary_email = self._get_primary_email(emails)
+
+            # Set primary email to the first in the list
+            emails.index(primary_email)
+            emails.remove(primary_email)
+            emails.insert(0, primary_email)
+
+        # Limit number of emails
+        emails = emails[:email_limit]
+
+        phone_numbers = []
+
+        # Get primary phone number and convert to a nicer representation
+        phone_number = result.get('phonenumber')
+        if phone_number:
+            phone_numbers.append(parse_phone_number(phone_number))
 
         # Get phone numbers and convert to list if needed
         raw_phone_numbers = result.get('phonenumbers', []) or []
@@ -148,14 +167,11 @@ class DataproviderView(ProvideBaseView):
             raw_phone_numbers = [raw_phone_numbers]
 
         # Convert all phone numbers to a nicer representation
-        phone_numbers = []
         for raw_phone_number in raw_phone_numbers:
             phone_numbers.append(parse_phone_number(raw_phone_number))
 
-        # Get primary phone number and convert to a nicer representation
-        phone_number = result.get('phonenumber')
-        if phone_number:
-            phone_number = parse_phone_number(result.get('phonenumber'))
+        # Limit number of phonenumbers
+        phone_numbers = phone_numbers[:phone_number_limit]
 
         # Get what kind of company it is (e.g. LLC)
         legalentity = result.get('legalentity')
@@ -194,12 +210,14 @@ class DataproviderView(ProvideBaseView):
                 'postal_code': result.get('zipcode'),
             }]
 
+        addresses = addresses[:address_limit]
+
         # Build dict with account information
         self.view_output = {
             'name': company,
             'description': description,
             'tags': tags,
-            'emails': emails,
+            'email_addresses': emails,
             'primary_email': primary_email,
             'phone_numbers': phone_numbers,
             'phone_number': phone_number,
@@ -212,12 +230,12 @@ class DataproviderView(ProvideBaseView):
             'bic': bic,
         }
 
-        return anyjson.serialize(self.view_output)
+        return json.dumps(self.view_output)
 
     def get_view_output(self):
         return HttpResponse(self.view_output, content_type='application/json')
 
-    def get_primary_email(self, emails):
+    def _get_primary_email(self, emails):
         if len(emails) > 1:
             for email in emails:
                 # The main email address of a company usually starts with info@ or contact@ so check if that exists

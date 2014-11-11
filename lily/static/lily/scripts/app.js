@@ -41,7 +41,6 @@ if (typeof String.prototype.endsWith != 'function') {
             quickContactField: '#id_case_quickbutton_contact',
             accountField: '#id_account',
             quickAccountField: '#id_case_quickbutton_account',
-            contactJsonUrl: "/search/search/?type=accounts_account&contact="
         },
 
         init: function(config) {

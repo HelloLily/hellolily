@@ -28,11 +28,12 @@ class AccountMapping(MappingType, Indexable):
 
     @classmethod
     def get_related_models(cls):
-        return (Function,)
-
-    @classmethod
-    def get_type_set(cls):
-        return 'account_set'
+        """
+        Maps related models, how to get an instance list from a signal sender.
+        """
+        return {
+            Function: lambda obj: [obj.account],
+        }
 
     @classmethod
     def extract_document(cls, obj_id, obj=None):

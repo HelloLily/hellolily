@@ -1,5 +1,6 @@
 from elasticutils.contrib.django import Indexable, MappingType
 
+from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
 from lily.tags.models import Tag
 from lily.utils.models.models import EmailAddress, PhoneNumber
@@ -70,11 +71,16 @@ class ContactMapping(MappingType, Indexable):
 
     @classmethod
     def get_related_models(cls):
-        return (Function, EmailAddress, PhoneNumber, Tag)
-
-    @classmethod
-    def get_type_set(cls):
-        return 'contact_set'
+        """
+        Maps related models, how to get an instance list from a signal sender.
+        """
+        return {
+            Function: lambda obj: [obj.contact],
+            Account: lambda obj: [f.contact for f in obj.functions.all()],
+            Tag: lambda obj: [obj.subject],
+            EmailAddress: lambda obj: obj.contact_set.all(),
+            PhoneNumber: lambda obj: obj.contact_set.all(),
+        }
 
     @classmethod
     def extract_document(cls, obj_id, obj=None):

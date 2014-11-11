@@ -94,4 +94,4 @@ class SearchView(LoginRequiredMixin, View):
             hits.append(hit)
 
         results = {'hits': hits, 'total': execute.count, 'took': execute.took}
-        return HttpResponse(anyjson.dumps(results), mimetype='application/json; charset=utf-8')
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')

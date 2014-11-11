@@ -104,11 +104,13 @@ class ContactMapping(MappingType, Indexable):
             doc['phone_' + phone.type].append(phone.number)
 
         emails = obj.email_addresses.all()
+        emails = list(set([email.email_address for email in emails if email.email_address]))
         if emails:
-            doc['email'] = list(set([email.email_address for email in emails if email.email_address]))
+            doc['email'] = emails
 
         tags = obj.tags.all()
+        tags = [tag.name for tag in tags if tag.name]
         if tags:
-            doc['tag'] = [tag.name for tag in tags if tag.name]
+            doc['tag'] = tags
 
         return doc

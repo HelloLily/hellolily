@@ -212,14 +212,17 @@ class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
                                  'functions__contact__phone_numbers')
         return qs
 
-    def get_notes_list(self):
+    def get_notes_list(self, filter_date):
         """
         Returns an object list containing all notes and all messages related
         to this Account. For the Account overview we also want to show all
         notes and messages related to Contacts related to this Account.
 
+        Arguments:
+            filter_date (datetime): date before the message must be sent.
+
         Returns:
-        TODO: what does it return?
+            A filtered Notes QuerySet.
         """
         account_content_type = ContentType.objects.get_for_model(self.model)
         contact_content_type = ContentType.objects.get_for_model(Contact)
@@ -238,6 +241,9 @@ class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
                 Q(object_id__in=contact_ids)
             )
         ).filter(is_deleted=False)
+
+        if filter_date:
+            notes_list = notes_list.filter(sort_by_date__lt=filter_date)
 
         return notes_list
 

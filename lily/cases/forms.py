@@ -18,7 +18,7 @@ from lily.users.models import LilyUser
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 
-class CreateUpdateCaseForm(TagsFormMixin):
+class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
@@ -86,6 +86,8 @@ class CreateUpdateCaseForm(TagsFormMixin):
 
     parcel_identifier = forms.CharField(max_length=255, required=False, label=_('Parcel identifier'))
 
+    is_archived = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     def __init__(self, *args, **kwargs):
         """
         Set queryset and initial for *assign_to*
@@ -137,6 +139,7 @@ class CreateUpdateCaseForm(TagsFormMixin):
         """
         instance = super(CreateUpdateCaseForm, self).save(commit=commit)
 
+        # Add parcel information
         if self.cleaned_data['parcel_identifier'] and self.cleaned_data['parcel_provider']:
             # There is parcel information stored
             if instance.parcel:
@@ -156,6 +159,10 @@ class CreateUpdateCaseForm(TagsFormMixin):
             # Remove parcel
             instance.parcel = None
 
+        # If archived, set status to last position
+        if instance.is_archived:
+            instance.status = CaseStatus.objects.last()
+
         if commit:
             instance.save()
 
@@ -165,18 +172,19 @@ class CreateUpdateCaseForm(TagsFormMixin):
         model = Case
         fieldsets = (
             (_('Who was it?'), {
-                'fields': ('account', 'contact', ),
+                'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'assigned_to', ),
+                'fields': ('subject', 'description', 'assigned_to',),
             }),
             (_('When to do it?'), {
-                'fields': ('status', 'priority', 'expires', 'type', ),
+                'fields': ('status', 'priority', 'expires', 'type', 'is_archived',),
             }),
             (_('Parcel information'), {
-                'fields': ('parcel_provider', 'parcel_identifier', )
+                'fields': ('parcel_provider', 'parcel_identifier',)
             })
         )
+
         widgets = {
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',

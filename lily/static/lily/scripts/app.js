@@ -41,6 +41,10 @@ if (typeof String.prototype.endsWith != 'function') {
             quickContactField: '#id_case_quickbutton_contact',
             accountField: '#id_account',
             quickAccountField: '#id_case_quickbutton_account',
+            archiveField: '#id_is_archived',
+            archiveButton: '#archive-button',
+            saveArchiveText: 'Save and Archive',
+            saveUnArchiveText: 'Save and Unarchive'
         },
 
         init: function(config) {
@@ -55,6 +59,7 @@ if (typeof String.prototype.endsWith != 'function') {
             self.initToastr();
             self.initDatePicker();
             self.initModalSpinner();
+            self.initArchiveButton();
         },
 
         initListeners: function() {
@@ -96,6 +101,9 @@ if (typeof String.prototype.endsWith != 'function') {
                     // - this helps showing the correct tab immediately on page load after
                     // trying to post a form but receiving errors for instance
                     window.location.hash = e.target.hash;
+                })
+                .on('click', cf.archiveButton, function(event) {
+                    self.switchArchivedForm.call(self, event);
                 });
 
             $(window).on('resize', function() {
@@ -333,7 +341,7 @@ if (typeof String.prototype.endsWith != 'function') {
 
         addCSRFHeader: function(jqXHR, settings) {
             if (!HLApp.safeMethod(settings.type) && HLApp.isSameOrigin(settings.url)) {
-                jqXHR.setRequestHeader("X-CSRFToken", HLApp.getCookie('csrftoken'));
+                jqXHR.setRequestHeader('X-CSRFToken', HLApp.getCookie('csrftoken'));
             }
         },
 
@@ -348,6 +356,31 @@ if (typeof String.prototype.endsWith != 'function') {
                     return decodeURIComponent(sParameterName[1]);
                 }
             }
+        },
+
+        initArchiveButton: function() {
+            var self = this,
+                cf = self.config,
+                $button = $(cf.archiveButton),
+                $archiveField = $(cf.archiveField);
+            if ($archiveField.val() === 'True') {
+                $button.find('span').text(cf.saveUnArchiveText);
+            } else {
+                $button.find('span').text(cf.saveArchiveText);
+            }
+        },
+
+        switchArchivedForm: function(event) {
+            var self = this,
+                cf = self.config,
+                $button = $(cf.archiveButton),
+                $archiveField = $(cf.archiveField),
+                $form = $($button.closest('form').get(0));
+            var archive = ($archiveField.val() === 'True' ? 'False' : 'True');
+            $archiveField.val(archive);
+            $button.button('loading');
+            $form.find(':submit').click();
+            event.preventDefault();
         }
 
     }

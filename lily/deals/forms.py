@@ -52,6 +52,8 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         )
     )
 
+    is_archived = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     def __init__(self, *args, **kwargs):
         """
         Overloading super().__init__() to make accounts available as assignees
@@ -82,12 +84,23 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
     class Meta:
         model = Deal
-        fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
+
+        fieldsets = (
+            (_('For who is it?'), {
+                'fields': ('account', 'is_archived',),
+            }),
+            (_('What is it?'), {
+                'fields': ('name', 'amount', 'currency', 'description',),
+            }),
+            (_('What\'s the status?'), {
+                'fields': ('stage', 'expected_closing_date', 'assigned_to',),
+            }),
+        )
 
         widgets = {
-            'description': ShowHideWidget(forms.Textarea(attrs={
-                'rows': 3,
-            })),
+            'description': forms.Textarea({
+                'rows': 3
+            }),
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
@@ -114,8 +127,16 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
 
     class Meta:
         model = Deal
-        fields = ('name', 'description', 'account', 'currency', 'amount', 'expected_closing_date', 'stage', 'assigned_to')
-        exclude = ('is_deleted', 'closed_date', 'tenant')
+        fields = (
+            'name',
+            'description',
+            'account',
+            'currency',
+            'amount',
+            'expected_closing_date',
+            'stage',
+            'assigned_to',
+        )
 
         widgets = {
             'description': ShowHideWidget(forms.Textarea(attrs={

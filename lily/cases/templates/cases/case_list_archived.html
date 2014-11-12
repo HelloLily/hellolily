@@ -24,7 +24,7 @@
             <i class="icon-angle-down"></i>
         </a>
         <ul class="dropdown-menu pull-right">
-            <li><a href="{% url 'case_unarchive' %}" data-form-submit data-form-selector="#case-unarchive-form"><i class="icon-check"></i> {% trans 'Activate' %}</a></li>
+            <li><a href="{% url 'case_unarchive' %}" data-form-submit data-form-selector="#case-unarchive-form"><i class="icon-check"></i> {% trans 'Unarchive' %}</a></li>
         </ul>
     </div>
     <form action="{% url 'case_unarchive' %}" method="post" id="case-unarchive-form">

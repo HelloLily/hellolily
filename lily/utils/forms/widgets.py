@@ -349,7 +349,9 @@ class AjaxSelect2Widget(Widget):
         final_attrs = self.build_attrs(attrs, name=name)
 
         final_attrs['data-ajax-url'] = self.url
-        final_attrs['placeholder'] = self.choices.field.empty_label
+
+        if not isinstance(self.choices, list):
+            final_attrs['placeholder'] = self.choices.field.empty_label
 
         if self.filter_on:
             final_attrs['data-filter-on'] = self.filter_on
@@ -366,7 +368,7 @@ class AjaxSelect2Widget(Widget):
         if value:
             final_attrs['value'] = value
             try:
-               selected_text = str(self.model.objects.get(pk=value))
+                selected_text = str(self.model.objects.get(pk=value))
             except ObjectDoesNotExist:
                 selected_text = ''
 

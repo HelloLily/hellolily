@@ -394,6 +394,13 @@ if DEBUG:
             'propagate': False,
         }
     })
+    # LOGGING['loggers'].update({
+    #     'django.db.backends': {
+    #         'handlers': ['console'],
+    #         'level': 'DEBUG',
+    #         'propagate': False,
+    #     },
+    # })
 
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #

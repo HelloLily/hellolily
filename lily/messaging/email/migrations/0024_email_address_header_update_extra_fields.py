@@ -16,7 +16,7 @@ class Migration(DataMigration):
         if settings.SOUTH_VERBOSITY > 0:
             print 'DataMigration for setting extra properties to all EmailAddressHeaders'
 
-        headers = orm.EmailAddressHeader.objects.all()
+        headers = orm.EmailAddressHeader.objects.all().select_related('message')
         total_headers = headers.count()
 
         i = 0

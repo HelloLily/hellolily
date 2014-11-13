@@ -19,12 +19,20 @@ class Migration(DataMigration):
         headers = orm.EmailAddressHeader.objects.all().select_related('message')
         total_headers = headers.count()
 
+        email_addresses = {}
+
         i = 0
         for header in headers.iterator():
             header.sent_date = header.message.sent_date
             header.tenant_id = header.message.tenant_id
             header.message_identifier = header.message.message_identifier
-            header.email_address = orm.EmailAddress.objects.get_or_create(email_address=header.value)[0]
+            try:
+                email_address = email_addresses[header.value]
+            except KeyError:
+                email_address = orm.EmailAddress.objects.get_or_create(email_address=header.value)[0].pk
+                email_addresses[header.value] = email_address
+
+            header.email_address_id = email_address
             header.save()
 
             i += 1

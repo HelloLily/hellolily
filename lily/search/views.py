@@ -20,35 +20,45 @@ class SearchView(LoginRequiredMixin, View):
         search = search.filter(tenant=tenant)
 
         query = request.GET.get('q', '')
-        for token in query.split(' '):
-            if token:
-                search = search.filter(name=token.lower())
+        if query:
+            search = search.query_raw({
+                'multi_match': {
+                    'query': query,
+                    'operator': 'and',
+                    'fields': [
+                        'name',
+                        'phone*',
+                        'email*',
+                        'tag*',
+                    ],
+                }
+            })
+
+        filterquery = request.GET.get('filterquery', '')
+        if filterquery:
+            raw_filters.append({
+                'query': {
+                    'query_string': {
+                        'query': filterquery,
+                        'default_operator': 'AND',
+                    }
+                }
+            })
 
         id_arg = request.GET.get('id', '')
         if id_arg:
             raw_filters.append({'ids': {'values': [id_arg]}})
 
-        account = request.GET.get('account', '')
-        if account:
-            if account == '*':
-                raw_filters.append(self.get_exists_filter(account))
-            else:
-                search = search.filter(account=account)
-
-        contact = request.GET.get('contact', '')
-        if contact:
-            if contact == '*':
-                raw_filters.append(self.get_exists_filter(contact))
-            else:
-                search = search.filter(contact=contact)
-
         modeltype = request.GET.get('type', '')
         if modeltype:
             search = search.doctypes(modeltype)
 
-        sort = request.GET.get('sort', '-modified')
+        sort = request.GET.get('sort', '')
         if sort:
             search = search.order_by(sort)
+        if not query:
+            # We have the specific wish to sort by -modified when no query.
+            search = search.order_by('-modified')
 
         page = int(request.GET.get('page', '0'))
         page = 0 if page < 0 else page
@@ -62,35 +72,26 @@ class SearchView(LoginRequiredMixin, View):
             search = search.filter_raw({'and': raw_filters})
 
         # Execute the search, process the hits and return as json.
+        return_fields = filter(None, request.GET.get('fields', '').split(','))
+        if '*' in return_fields:
+            return_fields = ''
         hits = []
         execute = search.execute()
         for result in execute:
             hit = {
                 'id': result.id,
-                'name': result.name,
             }
             if not modeltype:
                 # We will add type if not specifically searched on it.
                 hit['type'] = result.es_meta.type
-            if 'account' in result:
-                hit['account'] = result.account
-            if 'contact' in result:
-                hit['contact'] = result.contact
+            for field in result:
+                # Add specified fields, or all fields when not specified
+                if return_fields:
+                    if field in return_fields:
+                        hit[field] = result[field]
+                else:
+                    hit[field] = result[field]
             hits.append(hit)
 
-        results = {'hits': hits, 'total': execute.count}
-        if settings.DEBUG or request.GET.get('debug'):
-            # Only add non sensitive information.
-            results['debug'] = {
-                'tenant': tenant,
-                'q': query,
-                'type': modeltype,
-                'page': page,
-                'size': size,
-                'took': execute.took,
-                'sort': sort,
-            }
-        return HttpResponse(anyjson.dumps(results), mimetype='application/json; charset=utf-8')
-
-    def get_exists_filter(self, filter_name):
-        return {'exists': {'field': filter_name}}
+        results = {'hits': hits, 'total': execute.count, 'took': execute.took}
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')

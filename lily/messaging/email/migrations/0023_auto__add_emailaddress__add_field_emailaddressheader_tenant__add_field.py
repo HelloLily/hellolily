@@ -8,23 +8,49 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'EmailOutboxMessage.from_email'
-        db.delete_column(u'email_emailoutboxmessage', 'from_email')
+        # Adding model 'EmailAddress'
+        db.create_table(u'email_emailaddress', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('email_address', self.gf('django.db.models.fields.CharField')(max_length=1000, db_index=True)),
+        ))
+        db.send_create_signal('email', ['EmailAddress'])
 
-        # Adding field 'EmailOutboxMessage.send_from'
-        db.add_column(u'email_emailoutboxmessage', 'send_from',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='outbox_messages', to=orm['email.EmailAccount']),
+        # Adding field 'EmailAddressHeader.tenant'
+        db.add_column(u'email_emailaddressheader', 'tenant',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tenant.Tenant'], null=True, blank=True),
                       keep_default=False)
+
+        # Adding field 'EmailAddressHeader.email_address'
+        db.add_column(u'email_emailaddressheader', 'email_address',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['email.EmailAddress'], null=True),
+                      keep_default=False)
+
+        # Adding field 'EmailAddressHeader.sent_date'
+        db.add_column(u'email_emailaddressheader', 'sent_date',
+                      self.gf('django.db.models.fields.DateTimeField')(null=True, db_index=True),
+                      keep_default=False)
+
+        # Adding field 'EmailAddressHeader.message_identifier'
+        db.add_column(u'email_emailaddressheader', 'message_identifier',
+                      self.gf('django.db.models.fields.CharField')(db_index=True, max_length=255, null=True, blank=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        # The following code is provided here to aid in writing a correct migration
-        #  Adding field 'EmailOutboxMessage.from_email'
-        db.add_column(u'email_emailoutboxmessage', 'from_email',
-                      self.gf('django.db.models.fields.TextField')(),
-                      keep_default=False)
+        # Deleting model 'EmailAddress'
+        db.delete_table(u'email_emailaddress')
 
-        # Deleting field 'EmailOutboxMessage.send_from'
-        db.delete_column(u'email_emailoutboxmessage', 'send_from_id')
+        # Deleting field 'EmailAddressHeader.tenant'
+        db.delete_column(u'email_emailaddressheader', 'tenant_id')
+
+        # Deleting field 'EmailAddressHeader.email_address'
+        db.delete_column(u'email_emailaddressheader', 'email_address_id')
+
+        # Deleting field 'EmailAddressHeader.sent_date'
+        db.delete_column(u'email_emailaddressheader', 'sent_date')
+
+        # Deleting field 'EmailAddressHeader.message_identifier'
+        db.delete_column(u'email_emailaddressheader', 'message_identifier')
 
 
     models = {
@@ -99,7 +125,7 @@ class Migration(SchemaMigration):
             'phone_numbers': ('lily.utils.models.fields.PhoneNumberFormSetField', [], {'to': "orm['utils.PhoneNumber']", 'symmetrical': 'False', 'blank': 'True'}),
             'picture': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'blank': 'True'}),
             'preposition': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'salutation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'salutation': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'social_media': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['socialmedia.SocialMedia']", 'symmetrical': 'False', 'blank': 'True'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
@@ -133,11 +159,20 @@ class Migration(SchemaMigration):
             'signature': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'username': ('django_fields.fields.EncryptedCharField', [], {'max_length': '558', 'block_type': "'MODE_CBC'", 'cipher': "'AES'"})
         },
+        'email.emailaddress': {
+            'Meta': {'object_name': 'EmailAddress'},
+            'email_address': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'db_index': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
         'email.emailaddressheader': {
             'Meta': {'object_name': 'EmailAddressHeader'},
+            'email_address': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['email.EmailAddress']", 'null': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['email.EmailMessage']"}),
+            'message_identifier': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
+            'sent_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'db_index': 'True'}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.TextField', [], {'null': 'True', 'db_index': 'True'})
         },
         'email.emailattachment': {

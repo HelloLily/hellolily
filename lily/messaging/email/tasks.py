@@ -889,7 +889,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 # Check for headers
                 headers = message.get_headers()
                 if headers:
-                    email_headers, email_address_headers, message_identifier = get_headers_and_identifier(headers)
+                    email_headers, email_address_headers, message_identifier = get_headers_and_identifier(
+                        headers,
+                        message.get_sent_date(),
+                        account.tenant_id
+                    )
                     if email_headers:
                         update_email_headers.update({message.uid: email_headers})
                     if email_address_headers:

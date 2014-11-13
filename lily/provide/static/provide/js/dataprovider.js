@@ -20,10 +20,6 @@
                 'cocnumber',
                 'iban',
                 'bic',
-                'primary_email',
-                'phone_number',
-                'addresses',
-                'emails'
             ],
             formsets: [
                 'email_addresses',
@@ -45,8 +41,17 @@
         initListeners: function() {
             var self = this,
                 cf = self.config;
+
             $('body').on('click', cf.buttonDataProvider, function(event) {
+                // On button press
                 self.findDataProviderInfo.call(self, this, event);
+            }).on('keydown', 'div' + cf.dataProviderClass + ' > input', function(event) {
+                // Catch ENTER on Dataprovider input
+                if (event.which === 13) {
+                    self.findDataProviderInfo.call(self, cf.buttonDataProvider, event);
+                    // Prevent form submission
+                    event.preventDefault();
+                }
             });
         },
 
@@ -55,7 +60,7 @@
                 cf = self.config,
                 $button = $(button),
                 $form = $button.closest('form'),
-                $input = $($button.parents(cf.dataProviderClass).find(':input:first')),
+                $input = $('div' + cf.dataProviderClass +' > input'),
                 domain = self.sanitizeDomain($input.val());
 
             // Show busy gui to user
@@ -83,7 +88,12 @@
         },
 
         sanitizeDomain: function(url) {
-            return $.trim(url.replace('http://', ''));
+            var domain = $.trim(url.replace('http://', ''));
+            // Always add last '/'
+            if (domain.slice(-1) !== '/') {
+                domain += '/';
+            }
+            return domain;
         },
 
         fillForm: function($form, data, fields, formsets) {

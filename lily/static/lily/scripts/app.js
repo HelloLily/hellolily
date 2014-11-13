@@ -40,7 +40,7 @@ if (typeof String.prototype.endsWith != 'function') {
             contactField: '#id_contact',
             quickContactField: '#id_case_quickbutton_contact',
             accountField: '#id_account',
-            quickAccountField: '#id_case_quickbutton_account'
+            quickAccountField: '#id_case_quickbutton_account',
         },
 
         init: function(config) {
@@ -66,16 +66,16 @@ if (typeof String.prototype.endsWith != 'function') {
                     self.formatPhoneNumber.call(self, this);
                 })
                 .on('change', cf.contactField, function() {
-                    self.changedAccount(cf.contactField, cf.accountField);
-                })
-                .on('change', cf.quickContactField, function() {
-                    self.changedAccount(cf.quickContactField, cf.quickAccountField);
-                })
-                .on('change', cf.accountField, function() {
                     self.changedContact(cf.contactField, cf.accountField);
                 })
-                .on('change', cf.quickAccountField, function() {
+                .on('change', cf.quickContactField, function() {
                     self.changedContact(cf.quickContactField, cf.quickAccountField);
+                })
+                .on('change', cf.accountField, function() {
+                    self.changedAccount(cf.contactField, cf.accountField);
+                })
+                .on('change', cf.quickAccountField, function() {
+                    self.changedAccount(cf.quickContactField, cf.quickAccountField);
                 })
                 .on('hidden.bs.modal', '.modal', function() {
                     // remove any results from other modals
@@ -166,47 +166,35 @@ if (typeof String.prototype.endsWith != 'function') {
             $('body').removeClass('modal-open'); // fix bug when inline picker is used in modal
         },
 
-        //Selects the account belonging to a contact when a contact is selected.
-        //Also, when an account is selected, it will reset the selected contact if it does not belong to it.
-        changedAccount: function(idContact, idAccount) {
-            var contactJq = $(idContact);
-            var accountJq = $(idAccount);
-            var contactPk = contactJq.val();
+        // Selects the Account belonging to a Contact when a Contact is selected.
+        changedContact: function(idContact, idAccount) {
+            var $contact = $(idContact),
+                $account = $(idAccount),
+                contactPk = $contact.val(),
+                accountPk = $account.val();
+            // Resets the Contact & Accounts if Contact clear is selected.
             if (contactPk == -1) {
-                contactJq.select2('data', null);
-                accountJq.select2('data', null);
-            } else if (contactPk) {
+                $contact.select2('data', null);
+                $account.select2('data', null);
+            } else if (contactPk && !accountPk) {
+                // Contact is selected, and no Account is selected.
                 var url = this.config.contactJsonUrl + contactPk;
                 $.getJSON(url, function(data) {
                     if (data.hits.length) {
-                        accountJq.select2('data', {'id': data.hits[0].id, 'text': data.hits[0].name});
+                        $account.select2('data', {'id': data.hits[0].id, 'text': data.hits[0].name});
                     } else {
-                        accountJq.select2('data', null);
+                        $account.select2('data', null);
                     }
                 });
             }
         },
 
-        changedContact: function(idContact, idAccount) {
-            var $contactJq = $(idContact),
-                $accountJq = $(idAccount),
-                contactPk = $contactJq.val(),
-                accountPk = $accountJq.val();
-            if (accountPk === -1) {
-                $contactJq.select2('data', null);
-                $accountJq.select2('data', null);
-            } else if (accountPk && contactPk) {
-                var url = this.config.contactJsonUrl + contactPk;
-                $.getJSON(url, function(worksAt) {
-                    if (worksAt.hits.length) {
-                        var account_id = worksAt.hits[0].id;
-                        if (account_id == accountPk) {
-                            return;
-                        }
-                    }
-                    // selected contact does not work anywhere or at selected account, reset it
-                    $contactJq.select2('data', null);
-                });
+        // Resets the Contact & Accounts if Account clear is selected.
+        changedAccount: function(idContact, idAccount) {
+            var $account = $(idAccount);
+            if ($account.val() == -1) {
+                $(idContact).select2('data', null);
+                $account.select2('data', null);
             }
         },
 

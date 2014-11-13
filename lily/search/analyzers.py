@@ -5,14 +5,19 @@ def get_analyzers():
     analyzers = {
         'analysis': {
             'analyzer': {
+                'email_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'letter',
+                    'filter': ['lowercase', 'my_ascii'],
+                },
                 'name_index_analyzer': {
                     'type': 'custom',
-                    'tokenizer': 'whitespace',
+                    'tokenizer': 'letter',
                     'filter': ['lowercase', 'my_ascii', 'my_ngram_filter'],
                 },
                 'name_search_analyzer': {
                     'type': 'custom',
-                    'tokenizer': 'whitespace',
+                    'tokenizer': 'letter',
                     'filter': ['lowercase', 'my_ascii'],
                 },
             },

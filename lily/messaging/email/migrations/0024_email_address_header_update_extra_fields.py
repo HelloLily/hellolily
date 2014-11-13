@@ -18,12 +18,16 @@ class Migration(DataMigration):
 
         headers = orm.EmailAddressHeader.objects.all()
         total_headers = headers.count()
-        for i, header in enumerate(headers):
+
+        i = 0
+        for header in headers.iterator():
             header.sent_date = header.message.sent_date
             header.tenant_id = header.message.tenant_id
             header.message_identifier = header.message.message_identifier
             header.email_address = orm.EmailAddress.objects.get_or_create(email_address=header.value)[0]
             header.save()
+
+            i += 1
             if settings.SOUTH_VERBOSITY > 0:
                 print_progress(i, total_headers)
 

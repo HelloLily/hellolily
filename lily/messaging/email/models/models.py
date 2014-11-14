@@ -385,6 +385,9 @@ class EmailMessage(Message):
         verbose_name = _('e-mail message')
         verbose_name_plural = _('e-mail messages')
         unique_together = ('uid', 'folder_name', 'account')
+        index_together = [
+            ['folder_name', 'account'],
+        ]
 
 
 class EmailAttachment(TenantMixin):

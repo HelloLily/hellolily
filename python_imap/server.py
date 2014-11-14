@@ -217,7 +217,7 @@ class IMAP(object):
         name = folder.get_search_name()
         is_selected, select_info = self.select_folder(name, readonly=readonly)  # pylint: disable=W0612
         if is_selected:
-            logger.info('Fetching %d messages from %s', len(uids), folder.get_name(full=True))
+            logger.debug('Fetching %d messages from %s', len(uids), folder.get_name(full=True))
 
             response = self.client.fetch(uids, modifiers)
 
@@ -304,7 +304,7 @@ class IMAP(object):
             readonly=False
         )
         if is_selected:
-            logger.info('Deleting %d messages from %s', len(uids), folder.get_name(full=True))
+            logger.debug('Deleting %d messages from %s', len(uids), folder.get_name(full=True))
 
             response = self.client.add_flags(uids, DELETED)
             self.client.close_folder()
@@ -322,7 +322,7 @@ class IMAP(object):
             readonly=False
         )
         if is_selected:
-            logger.info('Marking %d messages from %s with seen=%s',
+            logger.debug('Marking %d messages from %s with seen=%s',
                         len(uids),
                         folder.get_name(full=True),
                         seen)
@@ -354,7 +354,7 @@ class IMAP(object):
             self._folders_reverse = None
             self._folders = None
             target_folder = self.get_folder(to_folder_name)
-            logger.info('Created target folder: %s', target_folder.get_name(full=True))
+            logger.debug('Created target folder: %s', target_folder.get_name(full=True))
 
         is_selected, select_info = self.select_folder(from_folder.get_search_name(), readonly=False)  # pylint: disable=W0612
         if is_selected:

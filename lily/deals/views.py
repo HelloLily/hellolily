@@ -76,8 +76,8 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
     search_fields = [
         'name__icontains',
         'account__name__icontains',
-        'assigned_to__contact__last_name__icontains',
-        'assigned_to__contact__first_name__icontains',
+        'assigned_to__last_name__icontains',
+        'assigned_to__first_name__icontains',
     ]
 
     def get_queryset(self):

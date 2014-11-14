@@ -38,7 +38,7 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         'type',
         'contact',
         'account',
-        'assigned_to__contact',
+        'assigned_to',
     )
 
     # DataTablesListView
@@ -89,8 +89,8 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
         'contact__last_name__icontains',
         'contact__first_name__icontains',
         'account__name__icontains',
-        'assigned_to__contact__last_name__icontains',
-        'assigned_to__contact__first_name__icontains',
+        'assigned_to__last_name__icontains',
+        'assigned_to__first_name__icontains',
         'type__type__icontains',
         'id',
     ]

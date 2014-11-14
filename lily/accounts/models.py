@@ -149,13 +149,11 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         return self.get_addresses(type='other')
 
     def get_deals(self, stage=None):
-        try:
-            if stage is None:
-                return self.deal_set.all()
-            else:
-                return self.deal_set.filter(stage=stage)
-        except:
-            return self.deal_set.none()
+        deal_list = self.deal_set.all()
+        if stage:
+            deal_list = deal_list.filter(stage=stage)
+
+        return deal_list
 
     def get_deals_new(self):
         return self.get_deals(stage=0)
@@ -204,8 +202,9 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
-    email_template_parameters = [name, description, ]
-    email_template_lookup = 'request.user.account'
+    # TODO: Find a new way to insert account variables in email templates
+    # email_template_parameters = [name, description, ]
+    # email_template_lookup = 'request.user.account'
 
     class Meta:
         ordering = ['name']

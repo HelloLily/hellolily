@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+
 import os
 import urllib
 from email import Encoders
@@ -8,19 +9,18 @@ from email.utils import quote
 from email.MIMEBase import MIMEBase
 
 import anyjson
+from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
-from dateutil.tz import tzutc
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives, mail_admins
 from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import HttpResponse, Http404, QueryDict
-from django.shortcuts import redirect, render_to_response
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
@@ -33,22 +33,22 @@ from imapclient.imapclient import DRAFT
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
 from python_imap.utils import convert_html_to_text, parse_search_keys, extract_tags_from_soup
+
+from lily.messaging.utils import get_messages_accounts
+from lily.messaging.models import PUBLIC, PRIVATE, SHARED
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
-                                        EmailConfigurationWizard_1, EmailConfigurationWizard_2,
-                                        EmailConfigurationWizard_3, EmailConfigurationWizard_4, EmailShareForm,
-                                        EmailAccountForm)
-from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate, EmailProvider,
+                                        EmailAccountCreateUpdateForm, EmailAccountShareForm)
+from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate,
                                          OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, EmailOutboxMessage)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, move_messages,
                                         get_from_imap, send_message)
 from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
                                         EmailMultiRelated, get_full_folder_name_by_identifier, LilyIMAP,
                                         create_task_status)
-from lily.tenant.middleware import get_current_user
-from lily.users.models import CustomUser, EmailAddress
 from lily.utils.functions import is_ajax
 from lily.utils.views import DataTablesListView
-from lily.utils.views.mixins import LoginRequiredMixin, SortedListMixin, FilteredListMixin
+from lily.utils.views.mixins import (LoginRequiredMixin, SortedListMixin, FilteredListMixin, AjaxFormMixin,
+                                     FormActionMixin)
 
 
 log = logging.getLogger('django.request')
@@ -62,9 +62,11 @@ class EmailBaseView(LoginRequiredMixin, View):
         """
         Determine which accounts to show messages from.
         """
-        self.all_email_accounts = request.user.get_messages_accounts(EmailAccount)
+        self.all_email_accounts = get_messages_accounts(user=request.user, model_cls=EmailAccount)
         if kwargs.get('account_id'):
-            self.active_email_accounts = request.user.get_messages_accounts(EmailAccount, pk__in=[kwargs.get('account_id')])
+            self.active_email_accounts = get_messages_accounts(
+                user=request.user, model_cls=EmailAccount, pk_list=[kwargs.get('account_id')]
+            )
         else:
             self.active_email_accounts = self.all_email_accounts
 
@@ -75,7 +77,7 @@ class EmailBaseView(LoginRequiredMixin, View):
 
         # EmailAccounts user has access to
         kwargs.update({
-            'list_title': ', '.join([email_account.email.email_address for email_account in self.all_email_accounts]),
+            'list_title': ', '.join([email_account.email for email_account in self.all_email_accounts]),
         })
 
         # Folders for default mailboxes
@@ -131,7 +133,7 @@ class EmailBaseView(LoginRequiredMixin, View):
         # Currently selected mailbox
         if len(self.active_email_accounts) == 1:
             kwargs.update({
-                'active_email_address': self.active_email_accounts[0].email.email_address
+                'active_email_address': self.active_email_accounts[0].email
             })
 
         return kwargs
@@ -190,7 +192,7 @@ class EmailMessageDetailView(EmailBaseView, DetailView):
 
         # Pass message's email account e-mail address
         kwargs.update({
-            'active_email_address': self.object.account.email.email_address,
+            'active_email_address': self.object.account.email,
             'active_email_account': self.object.account,
             'all_mail_folder': get_full_folder_name_by_identifier(ALLMAIL, self.object.account.folders),
             'folder_name': folder_name,
@@ -794,7 +796,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     # Necessary arguments to create an EmailMultiAlternatives/EmailMultiRelated
                     kwargs = dict(
                         subject=unsaved_form.subject,
-                        from_email=email_account.email.email_address,
+                        from_email=email_account.email,
                         to=unsaved_form.send_to_normal.split(', ') if len(unsaved_form.send_to_normal) else None,
                         cc=unsaved_form.send_to_cc.split(', ') if len(unsaved_form.send_to_cc) else None,
                         bcc=unsaved_form.send_to_bcc.split(', ') if len(unsaved_form.send_to_bcc) else None,
@@ -902,7 +904,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                 email_account.save()
 
                 # TODO: should be a form error ? That would return the form's content at least.
-                messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % email_account.email.email_address)
+                messages.warning(self.request, _('Failed to save draft. Cannot login for %s') % email_account.email)
                 return redirect(self.request.META.get('HTTP_REFERER', 'messaging_email_compose'))
 
         if is_ajax(self.request):
@@ -1135,7 +1137,7 @@ class EmailMessageReplyView(EmailMessageComposeBaseView):
             email_account = EmailAccount.objects.get(pk=selected_account)
             # quote() so Reply-To header doesn't break in certain email programs
             reply_to_name = quote(email_account.from_name)
-            reply_to_email = email_account.email.email_address
+            reply_to_email = email_account.email
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
 
@@ -1173,7 +1175,7 @@ class EmailMessageForwardView(EmailMessageReplyView):
             email_account = EmailAccount.objects.get(pk=selected_account)
             # quote() so Reply-To header doesn't break in certain email programs
             reply_to_name = quote(email_account.from_name)
-            reply_to_email = email_account.email.email_address
+            reply_to_email = email_account.email
             email_headers.update({'Reply-To': '"%s" <%s>' % (reply_to_name, reply_to_email)})
         return email_headers
 
@@ -1196,236 +1198,158 @@ class EmailAttachmentProxy(View):
         return response
 
 
-class EmailConfigurationWizardView(LoginRequiredMixin, SessionWizardView):
-    template_name = 'email/emailaccount_configuration_wizard_form.html'
+class EmailAccountListView(LoginRequiredMixin, StaticContextMixin, DetailView):
+    template_name = 'email/emailaccount_list.html'
+    static_context = {
+        'email_private': PRIVATE,
+        'email_public': PUBLIC,
+        'email_shared': SHARED,
+    }
 
-    def get_template_names(self):
-        if self.steps.current == '2':
-            return 'email/emailaccount_configuration_wizard_form_step_3.html'
-        else:
-            return 'email/emailaccount_configuration_wizard_form.html'
+    def get_object(self, queryset=None):
+        return self.request.user
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.email_address = EmailAddress.objects.get(pk=kwargs.get('pk'))
-        except EmailAddress.DoesNotExist:
-            raise Http404()
+    def get_context_data(self, **kwargs):
+        context = super(EmailAccountListView, self).get_context_data(**kwargs)
 
-        return super(EmailConfigurationWizardView, self).dispatch(request, *args, **kwargs)
-
-    def get_next_step(self, step=None):
-        """
-        Returns the next step after the given `step`. If no more steps are
-        available, None will be returned. If the `step` argument is None, the
-        current step will be determined automatically.
-        """
-        if step is None:
-            step = self.steps.current
-
-        if step == '1':
-            step1_cleaned_data = self.get_cleaned_data_for_step('1')
-            preset = step1_cleaned_data.get('preset')
-
-            # If a preset was selected, skip the email server settings form
-            if preset is not None:
-                # step is a string, so convert to int, increment and then convert back
-                step = str(int(step) + 1)
-
-                # The form only accepts strings, so convert non string fields.
-                # Also using urlencode because we need to convert data to a QueryDict
-                data = urllib.urlencode({
-                    '2-imap_host': preset.imap_host,
-                    '2-imap_port': str(preset.imap_port),
-                    '2-imap_ssl': str(preset.imap_ssl),
-                    '2-smtp_host': preset.smtp_host,
-                    '2-smtp_port': str(preset.smtp_port),
-                    '2-smtp_ssl': str(preset.smtp_ssl),
-                })
-
-                form = self.get_form(step, QueryDict(data))
-                self.storage.set_step_data(step, self.process_step(form))
-
-        form_list = self.get_form_list()
-        key = form_list.keyOrder.index(step) + 1
-        if len(form_list.keyOrder) > key:
-            return form_list.keyOrder[key]
-        return None
-
-    def get_form_initial(self, step):
-        if step == '0':
-            return {'email': self.email_address}
-        return self.initial_dict.get(step, {})
-
-    def get_form_kwargs(self, step=None):
-        """
-        Returns the keyword arguments for instantiating the form
-        (or formset) on the given step.
-        """
-        kwargs = super(EmailConfigurationWizardView, self).get_form_kwargs(step)
-        # Provide form EmailConfigurationWizard_3 with the username/password
-        # necessary to test the connection with the server details asked in
-        # this form.
-        if step == '2':
-            step0_cleaned_data = self.get_cleaned_data_for_step('0')
-            step1_cleaned_data = self.get_cleaned_data_for_step('1')
-            if step0_cleaned_data is not None:
-                kwargs.update({
-                    'username': step0_cleaned_data.get('username'),
-                    'password': step0_cleaned_data.get('password'),
-                })
-            if step1_cleaned_data is not None:
-                kwargs.update({
-                    'preset': step1_cleaned_data.get('preset')
-                })
-
-        return kwargs
-
-    def get_context_data(self, form, **kwargs):
-        context = super(EmailConfigurationWizardView, self).get_context_data(form, **kwargs)
         context.update({
-            'email_address': self.email_address,
+            'user_email_addresses': self.object.messages_accounts_owned.filter(is_deleted=False).exclude(shared_with=PUBLIC),
+            'shared_email_addresses': self.object.messages_accounts_shared.filter(is_deleted=False),
+            'company_email_addresses': EmailAccount.objects.filter(is_deleted=False, shared_with=PUBLIC)
         })
+
         return context
 
-    def render(self, form=None, **kwargs):
-        """
-        Return a different response to ajax requests.
-        """
-        form = form or self.get_form()
-        response = self.render_to_response(self.get_context_data(form=form, **kwargs))
-        if is_ajax(self.request) and self.request.method.lower() == 'post':
-            response = anyjson.serialize({
-                'error': True,
-                'html': response.rendered_content
-            })
-            return HttpResponse(response, content_type='application/json')
 
-        return response
-
-    def done(self, form_list, **kwargs):
-        data = {}
-
-        for form in self.form_list.keys():
-            data[form] = self.get_cleaned_data_for_step(form)
-
-        provider = data['1'].get('preset')
-
-        if provider is None:
-            # No preset selected, so create new EmailProvider
-            provider = EmailProvider()
-            provider.__dict__.update(data['2'])
-            provider.name = data['2']['preset_name']
-        provider.save()
-
-        try:
-            account = EmailAccount.objects.get(email=self.email_address)
-            account.is_deleted = False
-        except EmailAccount.DoesNotExist:
-            account = EmailAccount()
-            account.email = self.email_address
-
-        account.account_type = 'email'
-        account.from_name = data['3']['name']
-        #account.signature = data['2']['signature']
-        account.signature = None
-        account.username = data['0']['username']
-        account.password = data['0']['password']
-        account.provider = provider
-        account.last_sync_date = datetime.datetime.now(tzutc()) - datetime.timedelta(days=1)
-        account.auth_ok = OK_EMAILACCOUNT_AUTH
-        account.save()
-
-        # Authorize current user to emailaccount
-        account.user_group.add(get_current_user())
-
-        messages.success(self.request, _('Email address %s has been configured successfully.') % self.email_address.email_address)
-
-        response = render_to_response('email/emailaccount_configuration_wizard_done.html', {
-            'form_data': [form.cleaned_data for form in form_list],
-        })
-        if is_ajax(self.request):
-            response = anyjson.serialize({
-                'error': False,
-                'html': response.content,
-                'clear_serialize': True
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return response
-
-email_configuration_wizard = login_required(EmailConfigurationWizardView.as_view([
-    EmailConfigurationWizard_1,
-    EmailConfigurationWizard_2,
-    EmailConfigurationWizard_3,
-    EmailConfigurationWizard_4
-]))
-
-
-class EmailShareView(LoginRequiredMixin, FormView):
-    """
-    Display a form to share an email account with everybody or certain people only.
-    """
-    template_name = 'email/emailaccount_share_ajax.html'
-    form_class = EmailShareForm
+class EmailAccountCreateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, CreateView):
+    template_name = 'ajax_form.html'
+    model = EmailAccount
+    form_class = EmailAccountCreateUpdateForm
+    success_message = _('%(email)s has been saved.')
+    static_context = {'form_prevent_autofill': True}
 
     def dispatch(self, request, *args, **kwargs):
-        # Verify email address exists
-        email_address_id = kwargs.get('pk')
-        try:
-            self.email_address = EmailAddress.objects.get(pk=email_address_id)
-        except EmailAddress.DoesNotExist:
-            raise Http404()
+        self.shared_with = kwargs.pop('shared_with', PRIVATE)
+        return super(EmailAccountCreateView, self).dispatch(request, *args, **kwargs)
 
-        # Verify email account exists
-        try:
-            self.email_account = EmailAccount.objects.get(email=self.email_address)
-        except EmailAccount.DoesNotExist:
-            raise Http404()
-
-        return super(EmailShareView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self, **kwargs):
-        original_user = None
-        try:
-            original_user = CustomUser.objects.get(tenant=get_current_user().tenant, contact__email_addresses__email_address=self.email_address, contact__email_addresses__is_primary=True)
-        except CustomUser.DoesNotExist:
-            pass
-
-        kwargs = super(EmailShareView, self).get_form_kwargs(**kwargs)
+    def get_form_kwargs(self):
+        kwargs = super(EmailAccountCreateView, self).get_form_kwargs()
         kwargs.update({
-            'instance': self.email_account,
-            'original_user': original_user
+            'shared_with': self.shared_with,
         })
-
         return kwargs
 
-    def form_valid(self, form):
-        """
-        Handle form submission via AJAX or show custom save message.
-        """
-        self.object = form.save()  # copied from ModelFormMixin
+    def get_form_action_url_kwargs(self):
+        return {'shared_with': self.shared_with}
 
-        # Show save message
-        messages.success(self.request, _('Sharing options saved for:<br /> %s') % self.object.email.email_address)
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
 
+
+class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
+    template_name = 'ajax_form.html'
+    model = EmailAccount
+    form_class = EmailAccountCreateUpdateForm
+    success_message = _('%(email)s has been updated.')
+    static_context = {'form_prevent_autofill': True}
+
+    def get_object(self, queryset=None):
+        """
+        A user is only able to edit accounts he owns.
+        """
+        email_account = super(EmailAccountUpdateView, self).get_object(queryset=queryset)
+        if not email_account.is_owned_by_user and not email_account.is_public:
+            raise Http404()
+
+        return email_account
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailAccountUpdateView, self).get_form_kwargs()
+        kwargs.update({
+            'shared_with': self.object.shared_with,
+        })
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
+
+
+class EmailAccountDeleteView(LoginRequiredMixin, FormActionMixin, StaticContextMixin, DeleteView):
+    template_name = 'confirm_delete.html'
+    model = EmailAccount
+    static_context = {'form_object_name': _('email account')}
+
+    def get_object(self, queryset=None):
+        email_account = super(EmailAccountDeleteView, self).get_object(queryset)
+        if not email_account.is_owned_by_user and not email_account.is_public:
+            raise Http404()
+
+        return email_account
+
+    def delete(self, request, *args, **kwargs):
+        response = super(EmailAccountDeleteView, self).delete(request, *args, **kwargs)
+        messages.success(self.request, _('%(email)s has been deleted.' % {'email': self.object.email}))
         if is_ajax(self.request):
-            # Return response
             return HttpResponse(anyjson.serialize({
                 'error': False,
+                'redirect_url': self.get_success_url()
             }), content_type='application/json')
-
-        return super(EmailShareView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        response = self.render_to_response(self.get_context_data(form=form))
-        if is_ajax(self.request):
-            response = anyjson.serialize({
-                'error': True,
-                'html': response.rendered_content
-            })
-            return HttpResponse(response, content_type='application/json')
-
         return response
+
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
+
+
+class EmailAccountShareView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
+    template_name = 'ajax_form.html'
+    model = EmailAccount
+    form_class = EmailAccountShareForm
+
+    def get_success_message(self, cleaned_data):
+        return _('%(email)s has been updated' % {'email': self.object.email})
+
+    def get_object(self, queryset=None):
+        email_account = super(EmailAccountShareView, self).get_object(queryset)
+        if not email_account.is_owned_by_user:
+            raise Http404()
+
+        return email_account
+
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
+
+
+class EmailAccountUnsubscribeView(LoginRequiredMixin, DeleteView):
+    template_name = 'email/emailaccount_unsubscribe.html'
+    model = EmailAccount
+
+    def get_object(self, queryset=None):
+        email_account = super(EmailAccountUnsubscribeView, self).get_object(queryset)
+        if not email_account.is_shared_with_user or email_account.is_owned_by_user:
+            raise Http404()
+        return email_account
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        response = HttpResponseRedirect(success_url)
+
+        self.object.user_group.remove(request.user)
+        if not self.object.user_group.all():
+            self.object.shared_with = PRIVATE
+            self.object.save()
+
+        messages.success(self.request, _('%(email)s is no longer visible.' % {'email': self.object.email}))
+
+        if is_ajax(self.request):
+            return HttpResponse(anyjson.serialize({
+                'error': False,
+                'redirect_url': success_url
+            }), content_type='application/json')
+        return response
+
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
 
 
 class EmailSearchView(EmailFolderView):
@@ -1439,12 +1363,12 @@ class EmailSearchView(EmailFolderView):
         # Get accounts the user has access to
         if account_id is not None:
             accounts = [int(account_id)]
-            accounts_qs = request.user.get_messages_accounts(EmailAccount, pk__in=accounts)
+            accounts_qs = get_messages_accounts(user=request.user, model_cls=EmailAccount, pk_list=accounts)
 
             if len(accounts_qs) == 0:  # when provided, but no matches were found raise 404
                 raise Http404()
         else:
-            accounts_qs = request.user.get_messages_accounts(EmailAccount)
+            accounts_qs = get_messages_accounts(user=request.user, model_cls=EmailAccount)
 
         # Get folder name from url or settle for ALLMAIL
         folder_name = kwargs.get('folder', None)
@@ -1585,63 +1509,3 @@ class EmailSearchView(EmailFolderView):
             'search_key': self.kwargs.get('search_key', ''),
         })
         return kwargs
-
-
-class EmailAccountChangePasswordView(LoginRequiredMixin, UpdateView):
-    template_name = "email/emailaccount_change_password.html"
-    form_class = EmailAccountForm
-    model = EmailAccount
-
-    def get_object(self, queryset=None):
-        """
-        A user is only able to edit accounts he owns.
-        """
-        email_account = super(EmailAccountChangePasswordView, self).get_object(queryset=queryset)
-        if not email_account in self.request.user.messages_accounts.all():
-            raise Http404()
-
-        return email_account
-
-    def form_invalid(self, form):
-        response = super(EmailAccountChangePasswordView, self).form_invalid(form)
-        if is_ajax(self.request):
-            response = anyjson.serialize({
-                'error': True,
-                'html': response.rendered_content
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return response
-
-    def form_valid(self, form):
-        email_account = form.save()
-
-        messages.success(
-            self.request,
-            _('Email account %s has been configured successfully.') % email_account
-        )
-
-        if is_ajax(self.request):
-            response = anyjson.serialize({
-                'error': False,
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return redirect('messaging_email_inbox')
-
-
-class EmailAccountDeleteView(LoginRequiredMixin, DeleteView):
-    model = EmailAccount
-
-    def get_object(self, queryset=None):
-        """
-        Only the owner can delete an Email Account.
-        """
-        email_account = super(EmailAccountDeleteView, self).get_object(queryset=queryset)
-        if not email_account in self.request.user.messages_accounts.all():
-            raise Http404()
-
-        return email_account
-
-    def get_success_url(self):
-        return reverse('messaging_email_inbox')

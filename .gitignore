@@ -9,14 +9,9 @@
 .ropeproject/
 .settings/
 .DS_Store
-
 .idea/
 
 celeryev.pid
 
-lily/media/
 lily/files/
-lily/site_settings.py
-generated_media_dir/
-.idea/
-celeryev.pid
+lily/static/i18n/

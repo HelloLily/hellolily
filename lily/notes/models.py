@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 
 from lily.utils.models import HistoryListItem
 from lily.utils.models.mixins import DeletedMixin
+from lily.users.models import LilyUser
 
 
 class Note(HistoryListItem, DeletedMixin):
@@ -12,7 +13,7 @@ class Note(HistoryListItem, DeletedMixin):
     Note model, simple text fields to store text about another model for everyone to see.
     """
     content = models.TextField(verbose_name=_('note'))
-    author = models.ForeignKey('users.CustomUser', verbose_name=_('author'))
+    author = models.ForeignKey(LilyUser, verbose_name=_('author'))
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()

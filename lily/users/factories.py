@@ -1,31 +1,42 @@
-from uuid import uuid4
-
+from random import randint, choice
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
-from factory.declarations import SubFactory, SelfAttribute, LazyAttribute
+from factory.declarations import LazyAttribute
 from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
+from faker.factory import Factory
 
-from lily.accounts.factories import AccountFactory
-from lily.contacts.factories import ContactWithEmailFactory
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 
 
-class CustomUserFactory(DjangoModelFactory):
-    contact = SubFactory(ContactWithEmailFactory, tenant=SelfAttribute('..tenant'))
-    account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
-    username = LazyAttribute(lambda o: uuid4().get_hex()[:10])
+faker = Factory.create()
+
+
+class LilyUserFactory(DjangoModelFactory):
+    password = make_password('lilyuser')
+
+    first_name = LazyAttribute(lambda o: faker.first_name())
+    preposition = LazyAttribute(lambda o: choice(['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']) if bool(randint(0, 1)) else '')
+    last_name = LazyAttribute(lambda o: faker.last_name())
+    email = LazyAttribute(lambda o: faker.email())
+    is_active = LazyAttribute(lambda o: bool(randint(0, 1)))
+
+    phone_number = LazyAttribute(lambda o: faker.phone_number())
+
+    language = LazyAttribute(lambda o: faker.language_code())
+    timezone = LazyAttribute(lambda o: faker.timezone())
 
     class Meta:
-        model = CustomUser
+        model = LilyUser
 
 
-class AdminCustomUserFactory(CustomUserFactory):
+class LilySuperUserFactory(LilyUserFactory):
+    password = make_password('lilysuperuser')
+
     is_superuser = True
     is_staff = True
 
     @post_generation
     def groups(self, create, extracted, **kwargs):
-        self.password_raw = self.contact.first_name.lower() + '2'
-        self.set_password(self.password_raw)
         group = Group.objects.get_or_create(name='account_admin')[0]
         self.groups.add(group)

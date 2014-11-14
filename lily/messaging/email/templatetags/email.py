@@ -12,7 +12,6 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
 
-from lily.messaging.email.models import EmailAccount
 from lily.messaging.email.utils import get_folder_unread_count
 
 register = template.Library()
@@ -253,22 +252,3 @@ def other_mailbox_folders(email_account, active_url):
                 </div>'''
 
     return html
-
-
-@register.filter(name='can_share')
-def can_share(email_address):
-    # Verify email account exists for email address
-    try:
-        EmailAccount.objects.get(email=email_address, is_deleted=False)
-    except EmailAccount.DoesNotExist:
-        return False
-    else:
-        return True
-
-@register.filter()
-def is_from_email_addresses(email_message, email_addresses):
-    from_email_addresses = getaddresses(email_message.from_combined.split(','))
-    for email_address in from_email_addresses:
-        if email_address[1] in email_addresses:
-            return True
-    return False

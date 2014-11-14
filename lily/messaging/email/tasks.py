@@ -27,7 +27,7 @@ from lily.messaging.email.task_utils import EmailMessageCreationError, save_emai
     create_message_query_string
 from lily.messaging.email.utils import LilyIMAP, smtp_connect, EmailMultiRelated, EmailMultiAlternatives, \
     get_attachment_filename_from_url
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import ALLMAIL, DRAFTS, TRASH, INBOX, SENT
 from python_imap.utils import convert_html_to_text
@@ -69,7 +69,7 @@ def synchronize_email_scheduler():
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:
-                email_address = email_account.email.email_address
+                email_address = email_account.email
 
                 task_logger.info('attempting sync for %s', email_address)
                 if not email_account.last_sync_date:
@@ -131,24 +131,24 @@ def retrieve_new_emails_for(emailaccount_id):
     else:
         # Check for inactivity
         now_utc = datetime.now(tzutc())
-        last_login_utc = CustomUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
+        last_login_utc = LilyUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
 
         activity_timedelta = now_utc - last_login_utc
         if activity_timedelta > timedelta(days=28):
             # Period of inactivity for two weeks: skip synchronize for this email_account
-            task_logger.info('%s inactive for 28 days', email_account.email.email_address)
+            task_logger.info('%s inactive for 28 days', email_account.email)
             return
         else:
-            task_logger.info('%s last activity was %s ago', email_account.email.email_address, str(activity_timedelta))
+            task_logger.info('%s last activity was %s ago', email_account.email, str(activity_timedelta))
 
             # Download new messages since last synchronization if that was some time ago
             last_sync_date = email_account.last_sync_date
             if not last_sync_date:
                 last_sync_date = datetime.fromtimestamp(0)
             last_sync_date_utc = last_sync_date.astimezone(tzutc())
-            task_logger.info('last synchronization for %s happened at %s', email_account.email.email_address, last_sync_date_utc)
+            task_logger.info('last synchronization for %s happened at %s', email_account.email, last_sync_date_utc)
             if now_utc - last_sync_date_utc > timedelta(minutes=5):
-                task_logger.info('start synchronizing folders for %s', email_account.email.email_address)
+                task_logger.info('start synchronizing folders for %s', email_account.email)
                 datetime_since = last_sync_date.strftime('%d-%b-%Y %H:%M:%S')
 
                 with LilyIMAP(email_account) as server:
@@ -161,7 +161,7 @@ def retrieve_new_emails_for(emailaccount_id):
                         try:
                             email_account.folders = get_account_folders_from_server(server)
                             task_logger.info('Retrieving IMAP folder list for %s in %ss',
-                                             email_account.email.email_address,
+                                             email_account.email,
                                              (datetime.now() - before).total_seconds())
 
                             folders = [server.get_folder(INBOX)]
@@ -233,7 +233,7 @@ def synchronize_low_priority_email_scheduler():
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:
-                email_address = email_account.email.email_address
+                email_address = email_account.email
 
                 task_logger.info('attempting sync for %s', email_address)
 
@@ -282,18 +282,15 @@ def retrieve_low_priority_emails_for(emailaccount_id):
     else:
         # Check for inactivity
         now_utc = datetime.now(tzutc())
-        last_login_utc = CustomUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
+        last_login_utc = LilyUser.objects.filter(tenant=email_account.tenant).order_by('-last_login').values_list('last_login')[0][0]
 
         activity_timedelta = now_utc - last_login_utc
         if activity_timedelta > timedelta(days=28):
             # Period of inactivity for two weeks: skip synchronize for this email account
-            task_logger.info('%s inactive for 28 days',
-                             email_account.email.email_address)
+            task_logger.info('%s inactive for 28 days', email_account.email)
             return
         else:
-            task_logger.info('%s last activity was %s ago',
-                             email_account.email.email_address,
-                             str(activity_timedelta))
+            task_logger.info('%s last activity was %s ago', email_account.email, str(activity_timedelta))
             last_sync_date = email_account.last_sync_date
             if not last_sync_date:
                 last_sync_date = datetime.fromtimestamp(0)
@@ -426,7 +423,7 @@ def synchronize_email_flags_scheduler():
                 is_deleted=False,
             ).order_by('-last_sync_date')
             for email_account in email_accounts:
-                email_address = email_account.email.email_address
+                email_address = email_account.email
 
                 task_logger.info('attempting sync for %s', email_address)
                 locked, status = lock_task('retrieve_all_flags_for', email_account.id)
@@ -783,7 +780,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
         folder (instance): Folder object where messages are stored
         new_messages (boolean): True if the messages are new
     """
-    task_logger.info('Saving %s messages for %s in %s in the database', len(messages), account.email.email_address, folder.name_on_server)
+    task_logger.warn('Saving %s messages for %s in %s in the database', len(messages), account.email, folder.name_on_server)
     try:
         update_email_attachments = {}
         update_inline_email_attachments = {}

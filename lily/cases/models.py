@@ -9,7 +9,7 @@ from lily.contacts.models import Contact
 from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
@@ -49,7 +49,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
 
     type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True, blank=True, related_name='cases')
 
-    assigned_to = models.ForeignKey(CustomUser, verbose_name=_('assigned to'))
+    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
 
     account = models.ForeignKey(Account, verbose_name=_('account'), blank=True, null=True)
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), blank=True, null=True)

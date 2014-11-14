@@ -1,11 +1,9 @@
 import json
-from django.conf import settings
 from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
-from django.core.management import call_command
 from django.core.urlresolvers import resolve, reverse_lazy
 from django.db.models import Q
 from django.db.models.loading import get_model
@@ -16,14 +14,12 @@ from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, FormView
-from django.views.generic.base import TemplateResponseMixin, View, TemplateView
-from django.views.generic.edit import FormMixin
-from lily.utils.forms import SugarCsvImportForm
+from django.views.generic.base import View, TemplateView
 
+from lily.utils.forms import SugarCsvImportForm
 from lily.utils.functions import is_ajax
 from lily.utils.tasks import import_sugar_csv
-from lily.utils.views.mixins import CustomSingleObjectMixin, CustomMultipleObjectMixin, FilterQuerysetMixin, \
-    LoginRequiredMixin
+from lily.utils.views.mixins import FilterQuerysetMixin, LoginRequiredMixin
 
 
 class ArchiveView(View):
@@ -134,69 +130,6 @@ class UnarchiveView(ArchiveView):
         Catch post to start un-archive process.
         """
         return self.archive(archive=False)
-
-
-class DetailListFormView(FormMixin, CustomSingleObjectMixin, CustomMultipleObjectMixin, TemplateResponseMixin, View):
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object_list = self.get_list_queryset()
-
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        allow_empty = self.get_allow_empty()
-
-        if not allow_empty and len(self.object_list) == 0:
-            raise Http404(_(u"Empty list and '%(class_name)s.allow_empty' is False.")
-                          % {'class_name': self.__class__.__name__})
-
-        context = self.get_context_data(object=self.object, form=form, object_list=self.object_list)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object_list = self.get_list_queryset()
-
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def get_context_data(self, **kwargs):
-        context = kwargs
-
-        detail_context_object_name = self.get_detail_context_object_name(self.object)
-        if detail_context_object_name:
-            context[detail_context_object_name] = self.object
-
-        queryset = kwargs.pop('object_list')
-        page_size = self.get_paginate_by(queryset)
-        list_context_object_name = self.get_list_context_object_name(queryset)
-
-        if page_size:
-            paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
-            context.update({
-                'paginator': paginator,
-                'page_obj': page,
-                'is_paginated': is_paginated,
-                'object_list': queryset
-            })
-        else:
-            context.update({
-                'paginator': None,
-                'page_obj': None,
-                'is_paginated': False,
-                'object_list': queryset
-            })
-
-        if list_context_object_name is not None:
-            context[list_context_object_name] = queryset
-
-        return context
-
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(object=self.object, form=form, object_list=self.object_list))
 
 
 class MultipleModelListView(object):

@@ -7,7 +7,7 @@ from django.db import models
 
 class Migration(SchemaMigration):
     depends_on = (
-        ('email', '0023_del_accounts_with_no_owner'),
+        ('email', '0025_del_accounts_with_no_owner'),
     )
 
     def forwards(self, orm):

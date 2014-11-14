@@ -31,7 +31,7 @@
                     <i class="icon-envelope"></i>
                 </a>
             {% else %}
-                <a href="javascript:void(0)" class="nav-link pull-right" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_change_password' pk=object.account.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address.' %}">
+                <a href="javascript:void(0)" class="nav-link pull-right" data-target="#emailaccount-configure" data-source="{% url 'messaging_email_account_update' pk=object.account.pk %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address.' %}">
                     {% trans 'Inactive email account' %} <i class="icon-warning-sign"></i>
                 </a>
             {% endif %}

@@ -3,12 +3,14 @@ from hashlib import sha256
 from uuid import uuid4
 
 import anyjson
+from braces.views import StaticContextMixin, GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as user_login
 from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.models import Site
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -16,7 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.views.generic import View, TemplateView, FormView
+from django.views.generic import View, TemplateView, FormView, UpdateView
 from django.utils.http import base36_to_int, int_to_base36, urlunquote
 from django.utils.translation import ugettext as _
 from extra_views import FormSetView
@@ -27,10 +29,10 @@ from lily.contacts.models import Contact, Function
 from lily.tenant.functions import add_tenant
 from lily.updates.forms import CreateBlogEntryForm
 from lily.updates.models import BlogEntry
-from lily.users.decorators import group_required
-from lily.users.forms import CustomAuthenticationForm, RegistrationForm, ResendActivationForm, \
-    InvitationForm, InvitationFormset, UserRegistrationForm, CustomSetPasswordForm
-from lily.users.models import CustomUser
+from lily.users.forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
+                              InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, UserProfileForm,
+                              UserAccountForm)
+from lily.users.models import LilyUser
 from lily.utils.functions import is_ajax
 from lily.utils.models import EmailAddress
 from lily.utils.views import MultipleModelListView
@@ -88,7 +90,7 @@ class RegistrationView(FormView):
         contact.save()
 
         # Create and save user
-        user = CustomUser()
+        user = LilyUser()
         user.contact = contact
         user.account = account
 
@@ -162,9 +164,9 @@ class ActivationView(TemplateView):
         """
         try:
             self.uid = base36_to_int(kwargs['uidb36'])
-            self.user = CustomUser.objects.get(id=self.uid)
+            self.user = LilyUser.objects.get(id=self.uid)
             self.token = kwargs['token']
-        except (ValueError, CustomUser.DoesNotExist):
+        except (ValueError, LilyUser.DoesNotExist):
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
 
@@ -200,10 +202,10 @@ class ActivationResendView(FormView):
         If ResendActivationForm passed the validation, generate new token and send an e-mail.
         """
         self.TGen = PasswordResetTokenGenerator()
-        self.users = CustomUser.objects.filter(
-                                contact__email_addresses__email_address__iexact=form.cleaned_data['email'],
-                                contact__email_addresses__is_primary=True
-                            )
+        self.users = LilyUser.objects.filter(
+            contact__email_addresses__email_address__iexact=form.cleaned_data['email'],
+            contact__email_addresses__is_primary=True
+        )
 
         # Get the current site or empty string
         try:
@@ -264,7 +266,7 @@ class LoginView(View):
         return login(request, template_name=self.template_name, authentication_form=CustomAuthenticationForm, *args, **kwargs)
 
 
-class SendInvitationView(FormSetView):
+class SendInvitationView(GroupRequiredMixin, FormSetView):
     """
     This view is used to invite new people to the site. It works with a formset to allow easy
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
@@ -276,6 +278,7 @@ class SendInvitationView(FormSetView):
     formset_class = InvitationFormset
     extra = 1
     can_delete = True
+    group_required = ['account_admin', ]
 
     def formset_valid(self, formset):
         """
@@ -353,7 +356,6 @@ class SendInvitationView(FormSetView):
         """
         messages.success(self.request, _('The invitations were sent successfully.'))
         return reverse_lazy('dashboard')
-send_invitation_view = group_required('account_admin')(SendInvitationView.as_view())
 
 
 class AcceptInvitationView(FormView):
@@ -433,7 +435,7 @@ class AcceptInvitationView(FormView):
         # Default value is false, only set to true if all checks have passed
         self.valid_link = False
 
-        if CustomUser.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
+        if LilyUser.objects.filter(contact__email_addresses__email_address__iexact=self.email).exists():
             return self.valid_link
 
         try:
@@ -470,7 +472,7 @@ class AcceptInvitationView(FormView):
 
     def form_valid(self, form):
         """
-        Create CustomUser with existing Contact or create Contact.
+        Create LilyUser with existing Contact or create Contact.
         """
         # Check if there is an existing user, otherwise create one.
         try:
@@ -500,7 +502,7 @@ class AcceptInvitationView(FormView):
         Function.objects.create(account=self.account, contact=contact)
 
         # Create and save user
-        user = CustomUser()
+        user = LilyUser()
         user.contact = contact
         user.account = self.account
         user.username = uuid4().get_hex()[:10]
@@ -632,8 +634,8 @@ class CustomSetPasswordView(FormView):
         assert uidb36 is not None and token is not None # checked by URLconf
         try:
             uid_int = base36_to_int(uidb36)
-            user = CustomUser.objects.get(id=uid_int)
-        except (ValueError, CustomUser.DoesNotExist):
+            user = LilyUser.objects.get(id=uid_int)
+        except (ValueError, LilyUser.DoesNotExist):
             user = None
 
         if user is not None and self.token_generator.check_token(user, token):
@@ -658,3 +660,33 @@ class CustomSetPasswordView(FormView):
         """
         form.save()
         return super(CustomSetPasswordView, self).form_valid(form)
+
+
+class UserProfileView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixin, UpdateView):
+    form_class = UserProfileForm
+    template_name = 'profile.html'
+    static_context = {'form_prevent_autofill': True}
+
+    def get_success_message(self, cleaned_data):
+        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self):
+        return reverse('user_profile_view')
+
+
+class UserAccountView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixin, UpdateView):
+    form_class = UserAccountForm
+    template_name = 'users/user_account_form.html'
+    static_context = {'form_prevent_autofill': True}
+
+    def get_success_message(self, cleaned_data):
+        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self):
+        return reverse('user_account_view')

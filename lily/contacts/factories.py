@@ -1,6 +1,5 @@
 import factory
-from factory.declarations import (LazyAttribute, SubFactory, RelatedFactory, \
-                                  SelfAttribute)
+from factory.declarations import (LazyAttribute, SubFactory, RelatedFactory, SelfAttribute)
 from factory.django import DjangoModelFactory
 from faker.factory import Factory
 
@@ -23,9 +22,11 @@ class ContactFactory(DjangoModelFactory):
 class ContactWithEmailFactory(ContactFactory):
     @factory.post_generation
     def email_addresses(self, create, extracted, **kwargs):
-        email_str = '%s.%s@%s' % (self.first_name.lower(),
-                                  self.last_name.lower(),
-                                  faker.free_email_domain())
+        email_str = '%s.%s@%s' % (
+            self.first_name.lower(),
+            self.last_name.lower(),
+            faker.free_email_domain()
+        )
 
         email_address = EmailAddressFactory(tenant=self.tenant, email_address=email_str)
         self.email_addresses.add(email_address)

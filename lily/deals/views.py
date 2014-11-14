@@ -17,8 +17,8 @@ from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
-from lily.utils.views.mixins import SortedListMixin, DeleteBackAddSaveFormViewMixin, HistoryListViewMixin, \
-    ArchivedFilterMixin, LoginRequiredMixin, FilteredListByTagMixin
+from lily.utils.views.mixins import (SortedListMixin, HistoryListViewMixin, ArchivedFilterMixin, LoginRequiredMixin,
+                                     FilteredListByTagMixin)
 
 
 class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListByTagMixin, DataTablesListView):
@@ -107,8 +107,8 @@ class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             )
         elif 'assigned_to':
             return queryset.order_by(
-                '%sassigned_to__contact__last_name' % prefix,
-                '%sassigned_to__contact__first_name' % prefix,
+                '%sassigned_to__last_name' % prefix,
+                '%sassigned_to__first_name' % prefix,
             )
         return queryset
 
@@ -171,7 +171,7 @@ class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
     model = Deal
 
 
-class CreateUpdateDealMixin(LoginRequiredMixin, DeleteBackAddSaveFormViewMixin):
+class CreateUpdateDealMixin(LoginRequiredMixin):
     """
     Base class for CreateDealView and UpdateDealView.
     """

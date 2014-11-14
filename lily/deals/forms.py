@@ -11,7 +11,7 @@ from lily.accounts.search import AccountMapping
 from lily.deals.models import Deal
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
 
@@ -33,7 +33,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
     assigned_to = forms.ModelChoiceField(
         label=_('Assigned to'),
-        queryset=CustomUser.objects,
+        queryset=LilyUser.objects,
         empty_label=None,
         widget=forms.Select()
     )
@@ -59,12 +59,12 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         super(CreateUpdateDealForm, self).__init__(*args, **kwargs)
 
         # FIXME: WORKAROUND FOR TENANT FILTER.
-        # An error will occur when using CustomUser.objects.all(), most likely because
+        # An error will occur when using LilyUser.objects.all(), most likely because
         # the foreign key to contact (and maybe account) is filtered and executed before
-        # the filter for the CustomUser. This way it's possible contacts (and maybe accounts)
+        # the filter for the LilyUser. This way it's possible contacts (and maybe accounts)
         # won't be found for a user. But since it's a required field, an exception is raised.
         #
-        self.fields['assigned_to'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
+        self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
 
     def save(self, commit=True):

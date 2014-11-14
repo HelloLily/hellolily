@@ -80,11 +80,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
-                    <span class="summary-data">
-                        <a href="{% url 'contact_details' pk=object.assigned_to.contact.pk %}">
-                            {{ object.assigned_to.contact.full_name }}
-                        </a>
-                    </span>
+                    <span class="summary-data">{{ object.assigned_to }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>

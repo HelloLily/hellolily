@@ -3,58 +3,38 @@
 {% load bootstrap3 i18n %}
 
 {% block page-container %}
-    <div class="portlet">
-        <div class="portlet-title">
-             <div class="caption">{% block form-title %}{% endblock %}</div>
-        </div>
-        <div class="portlet-body">
-            {% block form %}
-            <form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
-                {% csrf_token %}
-                {% for field in form.hidden_fields %}
-                    {{ field }}
-                {% endfor %}
-                <div class="form-body">
-                    {% block form-fields %}
-                        {% for field in form.visible_fields %}
-                            {% if field.field.is_formset %}
-                                {{ field }}
-                            {% else %}
-                                {% if field.field.required %}
-                                    {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label required" %}
-                                {% else %}
-                                    {% bootstrap_field field field_class="col-md-4" label_class="col-md-2 control-label" %}
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endblock %}
+    <form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if form_prevent_autofill %}autocomplete="off"{% endif %} role="form">
+        {% block form %}
+            {% csrf_token %}
 
-                    {% block form-formsets %}
-                      {% if formsets %}
-                          <hr>
-                          {% for context_name, formset in formsets.items %}
-                              {% include formset.template with formset=formset.instance label=formset.label %}
-                          {% endfor %}
-                      {% endif %}
-                    {% endblock %}
-                </div>
-                {% block form-actions %}
-                    <div class="clearfix"></div>
-                    <div class="form-actions nobg fluid">
-                        <div class="col-md-offset-2 col-md-10">
-                            {% block form-buttons %}
-                                <button type="submit" class="btn btn-primary" name="submit">
-                                    <i class="icon-ok"></i> {% trans 'Save' %}
-                                </button>
-                                <a href="{{ back_url }}" class="btn btn-default">
-                                    {% trans 'Back' %}
-                                </a>
-                            {% endblock %}
-                        </div>
-                    </div>
-                {% endblock %}
-            </form>
+            {% block form-fields %}
+                {% include 'form_fields.html' %}
             {% endblock %}
-        </div>
-    </div>
+
+            {% block form-formsets %}
+                {% if formsets %}
+                    <hr>
+                    {% for context_name, formset in formsets.items %}
+                        {% include formset.template with formset=formset.instance label=formset.label %}
+                    {% endfor %}
+                {% endif %}
+            {% endblock %}
+
+            {% block form-actions %}
+                <div class="clearfix"></div>
+                <div class="form-actions nobg fluid">
+                    <div class="col-md-offset-2 col-md-10">
+                        {% block form-buttons %}
+                            <button type="submit" class="btn btn-primary" name="submit">
+                                <i class="icon-ok"></i> {% trans 'Save' %}
+                            </button>
+                            <a href="{{ back_url }}" class="btn btn-default">
+                                {% trans 'Back' %}
+                            </a>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endblock %}
+    </form>
 {% endblock %}

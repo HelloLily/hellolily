@@ -1,17 +1,22 @@
 from django import forms
 from django.contrib import messages
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import is_password_usable
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import get_current_site
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.forms import TextInput
 from django.forms.formsets import BaseFormSet
 from django.template import loader
 from django.utils.http import int_to_base36
 from django.utils.translation import ugettext as _
+from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
 
-from lily.users.models import CustomUser
-from lily.utils.forms import HelloLilyForm
+from lily.tenant.middleware import get_current_user
+from lily.users.models import LilyUser
+from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.widgets import JqueryPasswordInput
 
 
@@ -51,7 +56,7 @@ class CustomAuthenticationForm(AuthenticationForm):
 class CustomPasswordResetForm(PasswordResetForm):
     """
     This form is a subclass from the default PasswordResetForm.
-    CustomUser is used for validation instead of User.
+    LilyUser is used for validation instead of User.
     """
     error_messages = {
         'unknown': _("That e-mail address doesn't have an associated user account. Are you sure you've registered?"),
@@ -89,11 +94,7 @@ class CustomPasswordResetForm(PasswordResetForm):
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data["email"]
-        self.users_cache = CustomUser.objects.filter(
-            contact__email_addresses__email_address__iexact=email,
-            contact__email_addresses__is_primary=True,
-            is_active=True
-        )
+        self.users_cache = LilyUser.objects.filter(email__iexact=email, is_active=True)
 
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
@@ -141,7 +142,7 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomSetPasswordForm(SetPasswordForm):
     """
     This form is a subclass from the default SetPasswordForm.
-    CustomUser is used for validation instead of User.
+    LilyUser is used for validation instead of User.
     """
     new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput())
     new_password2 = forms.CharField(label=_('Confirmation'), widget=forms.PasswordInput())
@@ -163,10 +164,7 @@ class ResendActivationForm(HelloLilyForm):
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data['email']
-        users_cache = CustomUser.objects.filter(
-            contact__email_addresses__email_address__iexact=email,
-            contact__email_addresses__is_primary=True
-        )
+        users_cache = LilyUser.objects.filter(email__iexact=email)
         if not len(users_cache):
             raise ValidationError(code='invalid', message=self.error_messages['unknown'])
         else:
@@ -201,15 +199,13 @@ class RegistrationForm(HelloLilyForm):
     company = forms.CharField(label=_('Company'), max_length=255)
 
     def clean_username(self):
-        if CustomUser.objects.filter(username=self.cleaned_data['username']).exists():
+        if LilyUser.objects.filter(username=self.cleaned_data['username']).exists():
             raise ValidationError(code='invalid', message=_('Username already exists.'))
         else:
             return self.cleaned_data['username']
 
     def clean_email(self):
-        if CustomUser.objects.filter(
-                contact__email_addresses__email_address__iexact=self.cleaned_data['email']
-        ).exists():
+        if LilyUser.objects.filter(email__iexact=self.cleaned_data['email']).exists():
             raise ValidationError(code='invalid', message=_('E-mail address already in use.'))
         else:
             return self.cleaned_data['email']
@@ -286,8 +282,8 @@ class InvitationForm(HelloLilyForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         try:
-            CustomUser.objects.get(contact__email_addresses__email_address__iexact=email)
-        except CustomUser.DoesNotExist:
+            LilyUser.objects.get(email__iexact=email)
+        except LilyUser.DoesNotExist:
             return email
         else:
             raise ValidationError(code='invalid', message=_('This e-mail address is already linked to a user.'))
@@ -345,3 +341,88 @@ class InvitationFormset(RequiredFirstFormFormset):
                     message=_("You can't invite someone more than once (e-mail addresses must be unique).")
                 )
             emails.append(email)
+
+
+class UserProfileForm(HelloLilyModelForm):
+
+    class Meta:
+        model = LilyUser
+        fieldsets = [
+            (_('Personal information'), {
+                'fields': [
+                    'first_name',
+                    'preposition',
+                    'last_name',
+                ],
+            }),
+            (_('Contact information'), {
+                'fields': ['phone_number'],
+            }),
+            (_('Language and time'), {
+                'fields': [
+                    'language',
+                    'timezone',
+                ],
+            }),
+        ]
+
+
+class UserAccountForm(HelloLilyModelForm):
+    new_email = forms.EmailField(label=_('New email address'), required=False)
+    password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput(), required=False)
+    new_password1 = forms.CharField(label=_('New password'), widget=PasswordStrengthInput(), required=False)
+    new_password2 = forms.CharField(label=_('Confirm new password'), widget=PasswordConfirmationInput(confirm_with='new_password1'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(UserAccountForm, self).__init__(*args, **kwargs)
+
+        self.fields['email'].label = _('Current email address')
+        self.fields['email'].required = False
+        self.fields['password'].help_text = '<a href="%s" tabindex="-1">%s</a>' % (reverse('password_reset'), _('Forgot your password?'))
+
+    def clean(self):
+        cleaned_data = super(UserAccountForm, self).clean()
+        password = cleaned_data.get('password')
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+
+        if new_password1 or new_password2:
+            if not password:
+                self._errors["password"] = self.error_class([_('If you want to change your password, please verify your current one.')])
+            elif not new_password1 == new_password2:
+                self._errors["new_password2"] = self.error_class([_('Your passwords don\'t match.')])
+            else:
+                logged_in_user = get_current_user()
+                user = authenticate(username=logged_in_user.email, password=password)
+                if user is None:
+                    self._errors["password"] = self.error_class([_('Please enter a correct e-mail address and password. '
+                                                                   'Note that both fields are case-sensitive.')])
+        del cleaned_data['password']
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        new_email = self.cleaned_data.get('new_email')
+        if new_email:
+            self.email = new_email
+
+        new_password = self.cleaned_data.get('new_password1')
+        if new_password:
+            logged_in_user = get_current_user()
+            user = authenticate(username=logged_in_user.email, password=self.cleaned_data.get('password'))
+            user.set_password(new_password)
+
+        return super(UserAccountForm, self).save(commit)
+
+    class Meta:
+        model = LilyUser
+        fieldsets = [
+            (_('Change your email address'), {
+                'fields': ['email', 'new_email', ],
+            }), (_('Change your password'), {
+                'fields': ['password', 'new_password1', 'new_password2', ],
+            })
+        ]
+        widgets = {
+            'email': TextInput(attrs={'readonly': 'readonly'}),
+        }

@@ -68,26 +68,24 @@ class EmailAccount(MessagesAccount):
     """
     An e-mail account.
     """
-    from_name = models.CharField(max_length=255)
-    signature = models.TextField(blank=True, null=True)
-    email = models.ForeignKey('utils.EmailAddress', related_name='email', unique=True)
+    from_name = models.CharField(max_length=255, help_text=_('The sender\'s name your recipients see.'))
+    label = models.CharField(max_length=255, blank=True, help_text=_('Give your account a custom name (optional).'))
+    email = models.EmailField(max_length=255, help_text=_('The email address, used to identify you.'))
     username = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
     password = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
-    auth_ok = models.IntegerField(choices=EMAILACCOUNT_AUTH_CHOICES, default=NO_EMAILACCOUNT_AUTH)
+    auth_ok = models.IntegerField(choices=EMAILACCOUNT_AUTH_CHOICES, default=UNKNOWN_EMAILACCOUNT_AUTH)
     provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
     last_sync_date = models.DateTimeField(default=None, null=True)
     folders = JSONField()
 
     def __unicode__(self):
-        if self.from_name:
-            return '%s (%s)' % (self.from_name, self.email.email_address)
-        return self.email
+        return self.label or self.email
 
     class Meta:
         app_label = 'email'
         verbose_name = _('e-mail account')
         verbose_name_plural = _('e-mail accounts')
-        ordering = ['email__email_address']
+        ordering = ['email']
 
 
 class EmailMessage(Message):
@@ -171,7 +169,7 @@ class EmailMessage(Message):
                     operation = 'reply'
                 elif len(to_emails) > 1 or to_cc:
                     operation = 'reply-all'
-        elif from_email == self.account.email.email_address:
+        elif from_email == self.account.email:
              # If the sender is the user's email it's just a sent email
             operation = 'sent'
 
@@ -233,7 +231,7 @@ class EmailMessage(Message):
         if headers:
             to_emails = []
             to_names = []
-            own_email_address = self.account.email.email_address
+            own_email_address = self.account.email
             for header in headers:
                 for address in email.utils.getaddresses(header.value.split(',')):
                     # The name is allowed to be empty, email address is not

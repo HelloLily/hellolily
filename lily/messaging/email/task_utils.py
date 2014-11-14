@@ -176,7 +176,7 @@ def save_email_message(message, account, folder, email_ctype):
 
     # Check if message is sent from account
     name, from_email = message.get_send_from()
-    if account.email.email_address == from_email:
+    if account.email == from_email:
         email_message.sent_from_account = True
 
     email_message.body_html = replace_anchors_in_html(body_html)

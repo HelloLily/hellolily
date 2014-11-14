@@ -17,7 +17,7 @@ except ImportError:
 class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
-    Function. Can be related to CustomUser.
+    Function. Can be related to LilyUser.
     """
     MALE_GENDER, FEMALE_GENDER, UNKNOWN_GENDER = range(3)
     CONTACT_GENDER_CHOICES = (
@@ -156,25 +156,12 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                 self._primary_function = self.functions.none()
         return self._primary_function
 
-    def get_assigned_cases(self):
-        from lily.cases.models import Case
-        try:
-            return Case.objects.filter(assigned_to=self.user.all()[0]).order_by('-created')
-        except:
-            return Case.objects.none()
-
-    def get_assigned_deals(self):
-        from lily.deals.models import Deal
-        try:
-            return Deal.objects.filter(assigned_to=self.user.all()[0]).order_by('-created')
-        except:
-            return Deal.objects.none()
-
     def __unicode__(self):
         return self.full_name()
 
-    email_template_parameters = [first_name, preposition, last_name, full_name]
-    email_template_lookup = 'request.user.contact'
+    # TODO: Find a new way to insert contact variables in email templates
+    # email_template_parameters = [first_name, preposition, last_name, full_name]
+    # email_template_lookup = 'request.user.contact'
 
     class Meta:
         ordering = ['last_name', 'first_name']

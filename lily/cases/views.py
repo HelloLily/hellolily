@@ -124,8 +124,8 @@ class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, Fil
             )
         elif 'assigned_to':
             return queryset.order_by(
-                '%sassigned_to__contact__last_name' % prefix,
-                '%sassigned_to__contact__first_name' % prefix,
+                '%sassigned_to__last_name' % prefix,
+                '%sassigned_to__first_name' % prefix,
             )
         return queryset
 

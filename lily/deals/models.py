@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
 from lily.tags.models import TaggedObjectMixin
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.tenant.models import TenantMixin
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
@@ -40,7 +40,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     expected_closing_date = models.DateField(verbose_name=_('expected closing date'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, default=NEW_STAGE, verbose_name=_('status'))
-    assigned_to = models.ForeignKey(CustomUser, verbose_name=_('assigned to'))
+    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
 

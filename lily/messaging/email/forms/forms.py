@@ -2,203 +2,229 @@ import socket
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
-from django.forms.widgets import RadioSelect, SelectMultiple
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
-
-from lily.messaging.email.models import EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment, \
-    EmailOutboxAttachment
-from lily.messaging.email.utils import get_email_parameter_choices, TemplateParser, verify_imap_credentials, \
-    verify_smtp_credentials
+from lily.messaging.models import PRIVATE, SHARED
+from lily.messaging.utils import get_messages_accounts
+from lily.messaging.email.models import (EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
+    OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment)
+from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, verify_imap_credentials,
+    verify_smtp_credentials)
 from lily.messaging.email.forms.widgets import EmailAttachmentWidget
 from lily.tenant.middleware import get_current_user
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer
+from lily.utils.forms.widgets import ShowHideWidget
 
 
-class EmailConfigurationWizard_1(HelloLilyForm):
-    """
-    Fields in e-mail configuration wizard step 1.
-    """
-    email = forms.CharField(max_length=255, label=_('E-mail address'), widget=forms.TextInput(attrs={
-        'placeholder': _('email@example.com')
-    }))
-    username = forms.CharField(max_length=255, label=_('Username'))
-    password = forms.CharField(max_length=255, label=_('Password'), widget=forms.PasswordInput())
-
-
-class EmailConfigurationWizard_2(HelloLilyForm):
-    """
-    Fields in e-mail configuration wizard step 2.
-    """
+class EmailAccountCreateUpdateForm(HelloLilyModelForm):
     preset = forms.ModelChoiceField(
-        queryset=EmailProvider.objects,
-        empty_label=_('Manually set email server settings'),
-        required=False
+        label=_('Email provider'),
+        queryset=EmailProvider.objects.none(),
+        empty_label=_('Set a custom email provider'),
+        required=False,
     )
-
-    def __init__(self, *args, **kwargs):
-        super(EmailConfigurationWizard_2, self).__init__(*args, **kwargs)
-
-        self.fields['preset'].queryset = EmailProvider.objects.filter(~Q(name=None))
-
-
-class EmailConfigurationWizard_3(HelloLilyForm):
-    """
-    Fields in e-mail configuration wizard step 3.
-    """
-    imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'))
-    imap_port = forms.IntegerField(label=_('Incoming port'))
+    imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'), required=False)
+    imap_port = forms.IntegerField(label=_('Incoming port'), required=False)
     imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
-    smtp_host = HostnameField(max_length=255, label=_('Outgoing server (SMTP)'))
-    smtp_port = forms.IntegerField(label=_('Outgoing port'))
+    smtp_host = HostnameField(max_length=255, label=_('Outgoding server (SMTP)'), required=False)
+    smtp_port = forms.IntegerField(label=_('Outgoing port'), required=False)
     smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
-    share_preset = forms.BooleanField(label=_('Share preset'), required=False)
-    preset_name = forms.CharField(max_length=255, label=_('Preset name'), required=False, widget=forms.HiddenInput(),
-                                  help_text=_('Entering a name will allow other people in your organisation to use these settings as well'))
 
     def __init__(self, *args, **kwargs):
-        self.username = kwargs.pop('username', '')
-        self.password = kwargs.pop('password', '')
-        self.preset = kwargs.pop('preset', None)
+        self.shared_with = kwargs.pop('shared_with')
+        super(EmailAccountCreateUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['preset'].queryset = EmailProvider.objects.exclude(name=None)
 
-        super(EmailConfigurationWizard_3, self).__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields['preset'].initial = self.instance.provider
 
-        if self.preset is not None:
-            self.fields['share_preset'].widget = forms.HiddenInput()
+        # With new gmail api this should change, but for now is fine
+        self.fields['preset'].initial, created = EmailProvider.objects.get_or_create(
+            name='Gmail',
+            imap_host='imap.gmail.com',
+            imap_port=993,
+            imap_ssl=True,
+            smtp_host='smtp.gmail.com',
+            smtp_port=587,
+            smtp_ssl=True,
+        )
 
     def clean(self):
-        if hasattr(self, 'preset') and self.preset is not None:
-            data = {
-                'imap_host': self.preset.imap_host,
-                'imap_port': self.preset.imap_port,
-                'imap_ssl': self.preset.imap_ssl,
-                'smtp_host': self.preset.smtp_host,
-                'smtp_port': self.preset.smtp_port,
-                'smtp_ssl': self.preset.smtp_ssl
-            }
-        else:
-            data = self.cleaned_data
+        cleaned_data = super(EmailAccountCreateUpdateForm, self).clean()
 
-            if not data['share_preset']:
-                # Store name as null/None
-                data['preset_name'] = None
-            elif data['share_preset']:
-                if not data['preset_name'] or data['preset_name'].strip() == '':
-                    # If 'Share preset' is checked and preset name is empty, show error
-                    msg = _('Preset name can\'t be empty when \'Share preset\' is checked')
-                    self._errors['preset_name'] = self.error_class([msg])
+        connection_settings_fields = ['imap_host', 'imap_port', 'imap_ssl', 'smtp_host', 'smtp_port', 'smtp_ssl']
+        connection_settings = {}
+
+        email = cleaned_data.get('email')
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+        preset = cleaned_data.get('preset')
+
+        if preset:
+            # A preset is selected, discard what might have been filled in the custom connection settings.
+            for setting in connection_settings_fields:
+                connection_settings[setting] = getattr(preset, setting)
+        else:
+            # No preset is selected, use what the user filled in as custom connection settings.
+            for setting in connection_settings_fields:
+                field_value = cleaned_data.get(setting)
+
+                # For completeness sake always fill the connection_settings dict.
+                connection_settings[setting] = field_value
+
+                # If no preset is selected, all the connection settings fields are mandatory.
+                if not field_value:
+                    self._errors[setting] = self.error_class([_('This field is required.')])
+
+        # Check if the email address is already configured somewhere else.
+        try:
+            email_account = EmailAccount.objects.get(
+                email=email,
+                provider__imap_host=connection_settings['imap_host'],
+                provider__imap_port=connection_settings['imap_port'],
+                provider__imap_ssl=connection_settings['imap_ssl'],
+                provider__smtp_host=connection_settings['smtp_host'],
+                provider__smtp_port=connection_settings['smtp_port'],
+                provider__smtp_ssl=connection_settings['smtp_ssl'],
+                is_deleted=False,
+            )
+
+            if email_account != self.instance:
+                self._errors['email'] = self.error_class(
+                    [_('This account already exists, please use sharing options for access by multiple persons.')]
+                )
+        except EmailAccount.DoesNotExist:
+            pass
 
         if not self.errors:
-            # Start verifying when the form has no errors
+            # Start verifying when the form has no errors.
             defaulttimeout = socket.getdefaulttimeout()
-            socket.setdefaulttimeout(2)
+            socket.setdefaulttimeout(4)
 
             try:
                 # Check IMAP
                 verify_imap_credentials(
-                    data['imap_host'],
-                    data['imap_port'],
-                    data['imap_ssl'],
-                    self.username,
-                    self.password,
+                    connection_settings['imap_host'],
+                    connection_settings['imap_port'],
+                    connection_settings['imap_ssl'],
+                    username,
+                    password,
                 )
                 # Check SMTP
                 verify_smtp_credentials(
-                    data['smtp_host'],
-                    data['smtp_port'],
-                    data['smtp_ssl'],
-                    self.username,
-                    self.password,
+                    connection_settings['smtp_host'],
+                    connection_settings['smtp_port'],
+                    connection_settings['smtp_ssl'],
+                    username,
+                    password,
                 )
-            except:
+            except ValidationError:
                 raise
             finally:
                 socket.setdefaulttimeout(defaulttimeout)
 
-        return data
-
-
-class EmailConfigurationWizard_4(HelloLilyForm):
-    """
-    Fields in e-mail configuration wizard step 4.
-    """
-    name = forms.CharField(max_length=255, label=_('Your name'), widget=forms.TextInput(attrs={
-        'placeholder': _('First Last')
-    }))
-    # signature = forms.CharField(label=_('Your signature'), widget=forms.Textarea(), required=False)
-
-
-class EmailShareForm(HelloLilyModelForm):
-    """
-    Form to share an e-mail account.
-    """
-    def __init__(self, *args, **kwargs):
-        """
-        Overload super().__init__ to change the appearance of the form.
-        """
-        self.original_user = kwargs.pop('original_user', None)
-        super(EmailShareForm, self).__init__(*args, **kwargs)
-
-        # Exclude original user from queryset when provided
-        if self.original_user is not None:
-            self.fields['user_group'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant).exclude(pk=self.original_user.pk)
-        else:
-            self.fields['user_group'].queryset = CustomUser.objects.filter(tenant=get_current_user().tenant)
-
-        # Overwrite help_text
-        self.fields['user_group'].help_text = ''
-
-        # Only a required field when selecting 'Specific users'
-        self.fields['user_group'].required = False
-
-    def clean(self):
-        """
-        Please specify which users to share this email address with.
-        """
-        cleaned_data = self.cleaned_data
-
-        if cleaned_data.get('shared_with', 0) == 2 and len(cleaned_data.get('user_group', [])) == 0:
-            self._errors['user_group'] = self.error_class([_('Please specify which users to share this email address with.')])
-
         return cleaned_data
 
     def save(self, commit=True):
-        """
-        Overloading super().save to at least always add the original user to user_group when provided.
-        """
-        if self.instance.shared_with < 2:
-            # clear relation set for *don't share* and *everybody*
-            self.instance.user_group.clear()
-        else:
-            # save m2m relations properly
-            super(EmailShareForm, self).save(commit)
+        preset = self.cleaned_data.get('preset')
 
-        if self.original_user is not None:
-            self.instance.user_group.add(self.original_user)
+        try:
+            instance = EmailAccount.objects.get(
+                email=self.cleaned_data.get('email'),
+                provider__imap_host=self.cleaned_data.get('imap_host') or preset.imap_host,
+                provider__imap_port=self.cleaned_data.get('imap_port') or preset.imap_port,
+                provider__imap_ssl=self.cleaned_data.get('imap_ssl') or preset.imap_ssl,
+                provider__smtp_host=self.cleaned_data.get('smtp_host') or preset.smtp_host,
+                provider__smtp_port=self.cleaned_data.get('smtp_port') or preset.smtp_port,
+                provider__smtp_ssl=self.cleaned_data.get('smtp_ssl') or preset.smtp_ssl,
 
-        self.instance.save()
-        return self.instance
+            )
+            instance.is_deleted = False
+            instance.password = self.cleaned_data.get('password')
+            instance.label = self.cleaned_data.get('label')
+        except EmailAccount.DoesNotExist:
+            instance = super(EmailAccountCreateUpdateForm, self).save(commit=False)
+
+            if not preset:
+                provider, created = EmailProvider.objects.get_or_create(
+                    imap_host=self.cleaned_data.get('imap_host'),
+                    imap_port=self.cleaned_data.get('imap_port'),
+                    imap_ssl=self.cleaned_data.get('imap_ssl'),
+                    smtp_host=self.cleaned_data.get('smtp_host'),
+                    smtp_port=self.cleaned_data.get('smtp_port'),
+                    smtp_ssl=self.cleaned_data.get('smtp_ssl'),
+                )
+            else:
+                provider = preset
+
+            instance.provider = provider
+            instance.auth_ok = OK_EMAILACCOUNT_AUTH
+            instance.shared_with = self.shared_with
+            instance.owner = get_current_user()
+
+        if commit:
+            instance.save()
+
+        return instance
 
     class Meta:
-        exclude = (
-            'account_type', 'tenant', 'email_account', 'from_name',
-            'signature', 'email', 'username', 'password', 'provider',
-            'last_sync_date', 'folders', 'auth_ok',
-        )
         model = EmailAccount
+        fieldsets = [
+            (_('Your account'), {
+                'fields': ['from_name', 'label', 'email', ],
+            }), (_('Account credentials'), {
+                'fields': ['username', 'password', 'preset', ],
+            }), (_('Connection settings'), {
+                'fields': ['imap_host', 'imap_port', 'imap_ssl', 'smtp_host', 'smtp_port', 'smtp_ssl', ],
+                'classes': ['hidden', 'advanced_connection_settings'],
+            })
+        ]
         widgets = {
-            'shared_with': RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-            'user_group': SelectMultiple(attrs={'class': 'chzn-select'})
+            'password': forms.PasswordInput(),
         }
+
+
+class EmailAccountShareForm(HelloLilyModelForm):
+
+    user_group = forms.ModelMultipleChoiceField(queryset=LilyUser.objects.none(), label=_('Share with'), required=False, widget=SelectMultiple(attrs={
+        'placeholder': _('Select a user'),
+    }))
+
+    def __init__(self, *args, **kwargs):
+        super(EmailAccountShareForm, self).__init__(*args, **kwargs)
+        user = get_current_user()
+
+        self.fields['user_group'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
+        self.fields['user_group'].help_text = _('To share with everybody create a company email address.')
+
+    def save(self, commit=True):
+        instance = super(EmailAccountShareForm, self).save(commit=False)
+        if self.cleaned_data.get('user_group'):
+            instance.shared_with = SHARED
+        else:
+            instance.shared_with = PRIVATE
+
+        print instance.pk
+        print instance.shared_with
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance
+
+    class Meta:
+        model = EmailAccount
+        fieldsets = [
+            (_('Sharing options'), {
+                'fields': ['user_group', ],
+            })
+        ]
 
 
 class AttachmentBaseForm(HelloLilyModelForm):
@@ -241,7 +267,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
             self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
 
         user = get_current_user()
-        email_accounts = user.get_messages_accounts(EmailAccount)
+        email_accounts = get_messages_accounts(user=user, model_cls=EmailAccount)
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
@@ -251,11 +277,11 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         initial_email_account = self.initial.get('send_from', None)
         if not initial_email_account:
             for email_account in email_accounts:
-                if user.primary_email and email_account.email.email_address == user.primary_email.email_address:
+                if email_account.email == user.email:
                     initial_email_account = email_account
         elif isinstance(initial_email_account, basestring):
             for email_account in email_accounts:
-                if email_account.email.email_address == initial_email_account:
+                if email_account.email == initial_email_account:
                     initial_email_account = email_account
 
         self.initial['send_from'] = initial_email_account
@@ -303,7 +329,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         cleaned_data = self.cleaned_data
         send_from = cleaned_data.get('send_from')
 
-        email_accounts = get_current_user().get_messages_accounts(EmailAccount)
+        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
         if send_from.pk not in [account.pk for account in email_accounts]:
             raise ValidationError(
                 _('Invalid email account selected to use as sender.'),
@@ -438,42 +464,3 @@ class EmailTemplateFileForm(HelloLilyForm):
             self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
 
         return cleaned_data
-
-
-class EmailAccountForm(HelloLilyModelForm):
-    """
-    Form to change the password for an email account.
-    """
-    def clean(self):
-        """
-        Check if connection and login to SMTP client is possible with given data.
-        """
-        defaulttimeout = socket.getdefaulttimeout()
-        socket.setdefaulttimeout(2)
-        try:
-            verify_imap_credentials(
-                self.instance.provider.imap_host,
-                self.instance.provider.imap_port,
-                self.instance.provider.imap_ssl,
-                self.cleaned_data['username'],
-                self.cleaned_data['password'],
-            )
-        except:
-            raise
-        finally:
-            socket.setdefaulttimeout(defaulttimeout)
-
-        return self.cleaned_data
-
-    def save(self, commit=True):
-        email_account = super(EmailAccountForm, self).save(commit=False)
-        email_account.auth_ok = True
-        email_account.save()
-        return email_account
-
-    class Meta:
-        model = EmailAccount
-        fields = ('username', 'password')
-        widgets = {
-            'password': forms.PasswordInput(),
-        }

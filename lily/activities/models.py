@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from django_extensions.db.models import TimeStampedModel
 
-from lily.users.models import CustomUser
+from lily.users.models import LilyUser
 
 
 class Activity(TimeStampedModel):
@@ -10,7 +10,7 @@ class Activity(TimeStampedModel):
     Activity model, base class for several activities that users can create for in an activity
     stream.
     """
-    user = models.ForeignKey(CustomUser)
+    user = models.ForeignKey(LilyUser)
     
     class Meta:
         abstract = True

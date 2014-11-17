@@ -7,7 +7,6 @@ from django.utils.translation import ugettext as _
 from lily.accounts.models import Account
 from lily.accounts.search import AccountMapping
 from lily.contacts.models import Contact, Function
-from lily.socialmedia.connectors import Twitter
 from lily.socialmedia.connectors import Twitter, LinkedIn
 from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin

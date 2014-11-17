@@ -16,8 +16,13 @@ class SearchView(LoginRequiredMixin, View):
         search = search_request.all()
         raw_filters = []
 
-        tenant = request.user.tenant_id
-        search = search.filter(tenant=tenant)
+        # Always filter on Tenant
+        tenant_id = request.user.tenant_id
+        raw_filters.append({
+            'term': {
+                'tenant': tenant_id
+            }
+        })
 
         query = request.GET.get('q', '')
         if query:

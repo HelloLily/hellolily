@@ -19,7 +19,7 @@ from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 
-class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
+class CreateUpdateCaseForm(TagsFormMixin):
     """
     Form for adding or editing a case.
     """
@@ -132,36 +132,6 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
 
         return cleaned_data
 
-    class Meta:
-        model = Case
-        fieldsets = (
-            (_('Who was it?'), {
-                'fields': ('account', 'contact', ),
-            }),
-            (_('What to do?'), {
-                'fields': ('subject', 'description', 'assigned_to', ),
-            }),
-            (_('When to do it?'), {
-                'fields': ('status', 'priority', 'expires', 'type', ),
-            }),
-            (_('Parcel information'), {'fields': (
-                'parcel_provider',
-                'parcel_identifier',
-            )})
-        )
-
-        widgets = {
-            'priority': PrioritySelect(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'description': forms.Textarea({
-                'rows': 3
-            }),
-            'status': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-        }
-
     def save(self, commit=True):
         """
         Check for parcel information and store in separate model
@@ -175,7 +145,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
                 instance.parcel.provider = self.cleaned_data['parcel_provider']
                 instance.parcel.identifier = self.cleaned_data['parcel_identifier']
             else:
-                #Create
+                # Create
                 parcel = Parcel(
                     provider=self.cleaned_data['parcel_provider'],
                     identifier=self.cleaned_data['parcel_identifier']
@@ -191,6 +161,34 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
             instance.save()
 
         return instance
+
+    class Meta:
+        model = Case
+        fieldsets = (
+            (_('Who was it?'), {
+                'fields': ('account', 'contact', ),
+            }),
+            (_('What to do?'), {
+                'fields': ('subject', 'description', 'assigned_to', ),
+            }),
+            (_('When to do it?'), {
+                'fields': ('status', 'priority', 'expires', 'type', ),
+            }),
+            (_('Parcel information'), {
+                'fields': ('parcel_provider', 'parcel_identifier', )
+            })
+        )
+        widgets = {
+            'priority': PrioritySelect(attrs={
+                'class': 'chzn-select-no-search',
+            }),
+            'description': forms.Textarea({
+                'rows': 3
+            }),
+            'status': forms.Select(attrs={
+                'class': 'chzn-select-no-search',
+            }),
+        }
 
 
 class CreateCaseQuickbuttonForm(CreateUpdateCaseForm):

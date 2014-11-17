@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
+from django.utils.translation import ugettext as _
 
 from lily.tags.models import Tag
 from lily.utils.forms import HelloLilyModelForm
@@ -24,12 +25,22 @@ class TagsFormMixin(HelloLilyModelForm):
             content_type=ContentType.objects.get_for_model(self.instance.__class__)
         ).values_list('name', flat=True).distinct())
 
+        if hasattr(self, 'fieldsets'):
+            self.fieldsets.fieldsets = self.fieldsets.fieldsets + (
+                (_('Tags'), {
+                    'fields': ('tags', ),
+                }),
+            )
+
     def save(self, commit=True):
         """
         Overloading super().save to create save tags and create the relationships with
         this account instance. Needs to be done here because the Tags are expected to exist
         before self.instance is saved.
         """
+
+        print self.cleaned_data
+
         # Save model instance
         instance = super(TagsFormMixin, self).save()
 

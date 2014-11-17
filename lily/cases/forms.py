@@ -144,9 +144,6 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
             (_('When to do it?'), {
                 'fields': ('status', 'priority', 'expires', 'type', ),
             }),
-            (_('Tags'), {
-                'fields': ('tags', ),
-            }),
             (_('Parcel information'), {'fields': (
                 'parcel_provider',
                 'parcel_identifier',

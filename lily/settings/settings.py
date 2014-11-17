@@ -408,6 +408,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'elasticsearch.trace': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
     }
 }
 

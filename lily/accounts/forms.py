@@ -7,6 +7,8 @@ from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account, Website
+from lily.socialmedia.connectors import Twitter
+from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import FormSetField, TagsField
@@ -186,10 +188,18 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
     """
     Form for creating or updating an account.
     """
-    primary_website = forms.URLField(max_length=255, label=_('Primary website'), initial='http://', required=False,
-                                     widget=AddonTextInput(icon_attrs={'class': 'icon-magic'},
-                                                           button_attrs={'class': 'btn default dataprovider'},
-                                                           div_attrs={'class': 'input-group dataprovider'}))
+    primary_website = forms.URLField(
+        max_length=255,
+        label=_('Primary website'),
+        initial='http://',
+        required=False,
+        widget=AddonTextInput(
+            icon_attrs={'class': 'icon-magic'},
+            button_attrs={'class': 'btn default dataprovider'},
+            div_attrs={'class': 'input-group dataprovider'}
+        )
+    )
+
     extra_websites = FormSetField(
         queryset=Website.objects,
         formset_class=modelformset_factory(
@@ -203,6 +213,18 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         related_name='account',
     )
 
+    twitter = forms.CharField(
+        label=_('Twitter'),
+        required=False,
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'icon-twitter',
+                'position': 'left',
+                'is_button': False
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Overloading super().__init__() to set the initial value for the primary website if possible.
@@ -210,14 +232,74 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         """
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
 
-        if self.instance:
+        if self.instance.pk:
             self.fields['extra_websites'].initial = self.instance.websites.filter(is_primary=False)
+            
+            twitter = self.instance.social_media.filter(name='twitter').first()
+            self.fields['twitter'].initial = twitter.username if twitter else ''
 
         # Provide initial data for primary website
         try:
             self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
         except IndexError:
             pass
+
+    def clean_twitter(self):
+        """
+        Check if added twitter name or url is valid.
+
+        Returns:
+            string: twitter username or empty string.
+        """
+        twitter = self.cleaned_data.get('twitter')
+
+        if twitter:
+            try:
+                twit = Twitter(twitter)
+            except ValueError:
+                raise ValidationError(_('Please enter a valid username or link'), code='invalid')
+            else:
+                return twit.username
+        return twitter
+
+    def save(self, commit=True):
+        """
+        Save account to instance, and to database if commit is True.
+
+        Returns:
+            instance: an instance of the contact model
+        """
+        instance = super(CreateUpdateAccountForm, self).save(commit)
+
+        if commit:
+            twitter_input = self.cleaned_data.get('twitter')
+
+            if twitter_input and instance.social_media.filter(name='twitter').exists():
+                # There is input and there are one or more twitters connected, so we get the first of those.
+                twitter_queryset = self.instance.social_media.filter(name='twitter')
+                if self.fields['twitter'].initial:  # Only filter on initial if there is initial data.
+                    twitter_queryset = twitter_queryset.filter(username=self.fields['twitter'].initial)
+                twitter_instance = twitter_queryset.first()
+
+                # And we edit it to store our new input.
+                twitter = Twitter(self.cleaned_data.get('twitter'))
+                twitter_instance.username = twitter.username
+                twitter_instance.profile_url = twitter.profile_url
+                twitter_instance.save()
+            elif twitter_input:
+                # There is input but no connected twitter, so we create a new one.
+                twitter = Twitter(self.cleaned_data.get('twitter'))
+                twitter_instance = SocialMedia.objects.create(
+                    name='twitter',
+                    username=twitter.username,
+                    profile_url=twitter.profile_url,
+                )
+                instance.social_media.add(twitter_instance)
+            else:
+                # There is no input and zero or more connected twitters, so we delete them all.
+                instance.social_media.filter(name='twitter').delete()
+
+        return instance
 
     class Meta:
         model = Account

@@ -37,6 +37,14 @@
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
                     <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
+                {% for social_media_connection in object.social_media.all %}
+                    <li>
+                        <span class="summary-label">{{ social_media_connection.get_name_display }}</span>
+                        <span class="summary-data">
+                            <a href="{{ social_media_connection.profile_url }}">{{ social_media_connection.username }}</a>
+                        </span>
+                    </li>
+                {% endfor %}
                 {% if object.get_main_address %}
                     <li>
                         <span class="summary-label">{% trans 'Main address' %}</span>

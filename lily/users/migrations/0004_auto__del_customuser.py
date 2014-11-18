@@ -8,6 +8,7 @@ from django.db import models
 class Migration(SchemaMigration):
     depends_on = (
         ('messaging', '0010_auto__chg_field_messagesaccount_owner'),
+        ('cases', '0012_auto__del_field_case_assigned_to_chg_field_case_assigned_to2'),
     )
 
     def forwards(self, orm):

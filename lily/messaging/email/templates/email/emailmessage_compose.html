@@ -99,14 +99,14 @@
 {% endblock %}
 
 {% block scripts %}
-    {{ block.super }}
-    {% compressed_js 'wysihtml5' %}
+{{ block.super }}
+{% compressed_js 'wysihtml5' %}
 <script>
 {% if template_list %}
-var templateList = {{ template_list|safe }};
+    var templateList = {{ template_list|safe }};
 {% endif %}
 $(function($) {
-    Inbox.init();
+    HLInbox.initWysihtml5();
 });
 </script>
 {% endblock %}

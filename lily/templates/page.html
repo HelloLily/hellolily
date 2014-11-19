@@ -187,9 +187,9 @@
             HLApp.init({
                 contactJsonUrl: "{% url 'search_view' %}?type=accounts_account&filterquery=contact:"
             });
-            HLSelect2.init(
-                    { clearText: "{% trans '--- Clear ---' %}"}
-            );
+            HLSelect2.init({
+                clearText: "{% trans '--- Clear ---' %}"
+            });
             HLDataProvider.init({
                 provideUrl: "{% url 'provide_account_short' %}",
                 loadingText: "{% trans 'Beaming up the information now, almost within range!' %}",

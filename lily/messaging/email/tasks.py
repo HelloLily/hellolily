@@ -16,9 +16,8 @@ from dateutil.tz import tzutc
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.files.storage import default_storage
-from django.core.mail import mail_admins
 from django.db import connection, transaction
-from django.utils.translation import ugettext as _
+from imapclient import DRAFT
 
 from lily.messaging.email.models import EmailAccount, EmailMessage, EmailHeader, OK_EMAILACCOUNT_AUTH, \
     NO_EMAILACCOUNT_AUTH, EmailAddressHeader, UNKNOWN_EMAILACCOUNT_AUTH, EmailOutboxMessage
@@ -1129,7 +1128,6 @@ def send_message(email_account_id, email_outbox_message_id):
         alternatives=None,
     )
 
-    # TODO: Add attachments and relevant code here
     if email_outbox_message.mapped_attachments != 0:
         # Attach an HTML version as alternative to *body*
         email_message = EmailMultiAlternatives(**message_data)
@@ -1146,10 +1144,6 @@ def send_message(email_account_id, email_outbox_message_id):
             storage_file = default_storage._open(attachment.attachment.name)
         except IOError, e:
             task_logger.error(traceback.format_exc(e))
-            admin_mail_subject = _('Failed to load attachment')
-            admin_mail_body = _('Failed to open EmailOutboxAttachment with id %d for email_account %d.') % (attachment.id, email_account_id)
-            admin_mail_body = admin_mail_body + '\n\n' + traceback.format_exc(e)
-            mail_admins(admin_mail_subject, admin_mail_body)
             return False
 
         filename = get_attachment_filename_from_url(attachment.attachment.name)
@@ -1165,6 +1159,7 @@ def send_message(email_account_id, email_outbox_message_id):
         part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
 
         email_message.attach(part)
+
     try:
         email_account = EmailAccount.objects.get(pk=email_account_id)
     except EmailAccount.DoesNotExist, e:
@@ -1220,3 +1215,164 @@ def send_message(email_account_id, email_outbox_message_id):
     # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
     email_outbox_message.delete()
     return True
+
+
+@task(name='save_message', bind=True)
+@monitor_task(logger=task_logger)
+def save_message(email_account_id, email_outbox_message_id):
+    try:
+        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
+    except EmailOutboxMessage.DoesNotExist:
+        return False
+
+    to = json.loads(email_outbox_message.to)
+    cc = json.loads(email_outbox_message.cc)
+    bcc = json.loads(email_outbox_message.bcc)
+
+    send_from = email_outbox_message.send_from
+
+    if send_from.from_name:
+        # Add account name to From header if one is available
+        from_email = '%s (%s)' % (send_from.from_name, send_from.email)
+    else:
+        # Otherwise only add the email address
+        from_email = send_from.email
+
+    message_data = dict(
+        subject=email_outbox_message.subject,
+        from_email=from_email,
+        to=to,
+        cc=cc,
+        bcc=bcc,
+        headers=json.loads(email_outbox_message.headers),
+        body=convert_html_to_text(email_outbox_message.body, keep_linebreaks=True),
+        connection=None,
+        attachments=None,
+        alternatives=None,
+    )
+
+    if email_outbox_message.mapped_attachments != 0:
+        # Attach an HTML version as alternative to *body*
+        email_message = EmailMultiAlternatives(**message_data)
+    else:
+        # Use multipart/related when sending inline images
+        email_message = EmailMultiRelated(**message_data)
+
+    email_message.attach_alternative(email_outbox_message.body, 'text/html')
+
+    attachments = email_outbox_message.attachments.all()
+
+    for attachment in attachments:
+        try:
+            storage_file = default_storage._open(attachment.attachment.name)
+        except IOError, e:
+            task_logger.error(traceback.format_exc(e))
+            return False
+
+        filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+        storage_file.open()
+        content = storage_file.read()
+        storage_file.close()
+
+        filetype = attachment.content_type.split('/')
+        part = MIMEBase(filetype[0], filetype[1])
+        part.set_payload(content)
+        Encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
+
+        email_message.attach(part)
+    try:
+        email_account = EmailAccount.objects.get(pk=email_account_id)
+    except EmailAccount.DoesNotExist, e:
+        task_logger.error(traceback.format_exc(e))
+        return False
+
+    try:
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
+
+            # Save *email_message* as draft
+            folder = server.get_folder(DRAFTS)
+
+            message_string = email_message.message().as_string(unixfrom=False)
+
+            # Save draft remotely
+            uid = server.append(
+                folder,
+                message_string,
+                flags=[DRAFT]
+            )
+
+            # Sync this specific message
+            message = server.get_message(
+                uid,
+                modifiers=['BODY.PEEK[]', 'FLAGS', 'RFC822.SIZE'],
+                folder=folder
+            )
+
+            save_email_messages(
+                [message],
+                email_account,
+                folder,
+                new_messages=True
+            )
+
+            new_draft = EmailMessage.objects.get(
+                account=email_account,
+                uid=uid,
+                folder_name=folder.name_on_server
+            )
+
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            email_outbox_message.delete()
+
+            return new_draft.pk
+    except IMAPConnectionError:
+        return None
+    finally:
+        # Let garbage collection do it's job
+        email_outbox_message = None
+        attachments = None
+        to = None
+        cc = None
+        bcc = None
+        message = None
+        folder = None
+        email_account = None
+        content = None
+        uid = None
+        new_draft = None
+
+        gc.collect()
+
+@task(name='remove_draft', bind=True)
+@monitor_task(logger=task_logger)
+def remove_draft(email_account_id, email_uid):
+    try:
+        email_account = EmailAccount.objects.get(pk=email_account_id)
+    except EmailAccount.DoesNotExist, e:
+        task_logger.error(traceback.format_exc(e))
+        return False
+
+    try:
+        with LilyIMAP(email_account) as server:
+            if server.login(email_account.username, email_account.password):
+                email_account.auth_ok = OK_EMAILACCOUNT_AUTH
+                email_account.save()
+
+                folder = server.get_folder(DRAFTS)
+                server.delete_messages(folder, [email_uid])
+
+    except IMAPConnectionError:
+        return None
+    finally:
+        # Let garbage collection do it's job
+        email_account = None
+        folder = None
+        server = None
+
+        gc.collect()
+

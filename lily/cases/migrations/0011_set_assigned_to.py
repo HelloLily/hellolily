@@ -56,6 +56,7 @@ class Migration(DataMigration):
             lilyuser = case.assigned_to2
             customuser = orm['users.CustomUser'].objects.get(contact__email_addresses__email_address=lilyuser.email)
             case.assigned_to_id = customuser.pk
+            case.save()
 
     models = {
         u'accounts.account': {

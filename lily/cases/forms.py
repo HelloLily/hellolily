@@ -104,6 +104,7 @@ class CreateUpdateCaseForm(TagsFormMixin):
 
         # Setup parcel initial values
         self.fields['parcel_provider'].initial = Parcel.DPD
+        self.fields['status'].initial = CaseStatus.objects.first()
 
         if self.instance.parcel is not None:
             self.fields['parcel_provider'].initial = self.instance.parcel.provider
@@ -123,12 +124,10 @@ class CreateUpdateCaseForm(TagsFormMixin):
             self._errors['contact'] = self._errors['account'] = self.error_class([_('Select a contact or account')])
 
         # Verify that a contact works at selected account
-        if contact and account:
-            linked_accounts = [function.account for function in contact.functions.all()]
-            if contact not in linked_accounts:
-                self._errors['contact'] = self._errors['account'] = self.error_class(
-                    [_('Selected contact doesn\'t work at account')]
-                )
+        if contact and account and not account.functions.filter(contact__id=contact.id).exists():
+            self._errors['contact'] = self._errors['account'] = self.error_class(
+                [_('Selected contact doesn\'t work at account')]
+            )
 
         return cleaned_data
 

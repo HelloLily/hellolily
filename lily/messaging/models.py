@@ -3,7 +3,7 @@ from django.utils.translation import ugettext as _
 
 from lily.users.models import LilyUser
 from lily.tenant.middleware import get_current_user
-from lily.tenant.models import PolymorphicTenantMixin
+from lily.tenant.models import PolymorphicTenantMixin, PolymorphicTenantManager
 from lily.utils.models import HistoryListItem
 from lily.utils.models.mixins import DeletedMixin
 
@@ -25,6 +25,8 @@ class MessagesAccount(PolymorphicTenantMixin, DeletedMixin):
     shared_with = models.SmallIntegerField(choices=ACCOUNT_SHARE_CHOICES, default=0)
     user_group = models.ManyToManyField(LilyUser, related_name='messages_accounts_shared', verbose_name=_('shared with'))
     owner = models.ForeignKey(LilyUser, related_name='messages_accounts_owned', verbose_name=_('owner'))
+
+    objects = PolymorphicTenantManager()
 
     @property
     def is_public(self):

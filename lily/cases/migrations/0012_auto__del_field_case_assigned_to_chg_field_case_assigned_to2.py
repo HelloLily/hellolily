@@ -19,7 +19,7 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         # Renaming field 'Case.assigned_to2' to 'Case.assigned_to'
-        db.rename_column(u'cases_case', 'assigned_to_id', 'assigned_to_id2')
+        db.rename_column(u'cases_case', 'assigned_to_id', 'assigned_to2_id')
 
         # Changing field 'Case.assigned_to'
         db.alter_column(u'cases_case', 'assigned_to2_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['users.LilyUser'], null=True))

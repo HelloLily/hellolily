@@ -8,12 +8,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Case.assigned_to2'
-        db.add_column(u'cases_case', 'assigned_to2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='assigned_to2', null=True, to=orm['users.LilyUser']), keep_default=False)
+        # Adding field 'Note.author2'
+        db.add_column(u'notes_note', 'author2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='author2', null=True, to=orm['users.LilyUser']), keep_default=False)
 
     def backwards(self, orm):
-        # Deleting field 'Case.assigned_to2'
-        db.delete_column(u'cases_case', 'assigned_to2_id')
+        # Deleting field 'Note.author2'
+        db.delete_column(u'notes_note', 'author2_id')
 
     models = {
         u'accounts.account': {
@@ -78,40 +78,6 @@ class Migration(SchemaMigration):
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
             u'user_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
         },
-        u'cases.case': {
-            'Meta': {'object_name': 'Case'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'blank': 'True'}),
-            'assigned_to': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.CustomUser']"}),
-            'assigned_to2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'assigned_to2'", 'null': 'True', 'to': u"orm['users.LilyUser']"}),
-            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contacts.Contact']", 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'expires': ('django.db.models.fields.DateField', [], {'default': 'datetime.datetime(2014, 11, 17, 0, 0)'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_archived': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'parcel': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['parcels.Parcel']", 'null': 'True', 'blank': 'True'}),
-            'priority': ('django.db.models.fields.SmallIntegerField', [], {}),
-            'status': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'cases'", 'to': u"orm['cases.CaseStatus']"}),
-            'subject': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'cases'", 'null': 'True', 'to': u"orm['cases.CaseType']"})
-        },
-        u'cases.casestatus': {
-            'Meta': {'ordering': "['position']", 'unique_together': "(('tenant', 'position'),)", 'object_name': 'CaseStatus'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'position': ('django.db.models.fields.IntegerField', [], {}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'})
-        },
-        u'cases.casetype': {
-            'Meta': {'object_name': 'CaseType'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'})
-        },
         u'contacts.contact': {
             'Meta': {'ordering': "['last_name', 'first_name']", 'object_name': 'Contact'},
             'addresses': ('lily.utils.models.fields.AddressFormSetField', [], {'to': "orm['utils.Address']", 'symmetrical': 'False', 'blank': 'True'}),
@@ -141,12 +107,18 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'parcels.parcel': {
-            'Meta': {'object_name': 'Parcel'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'provider': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'})
+        u'notes.note': {
+            'Meta': {'ordering': "['-sort_by_date']", 'object_name': 'Note', '_ormbases': ['utils.HistoryListItem']},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['users.CustomUser']"}),
+            'author2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'author2'", 'null': 'True', 'to': u"orm['users.LilyUser']"}),
+            'content': ('django.db.models.fields.TextField', [], {}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'deleted': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            u'historylistitem_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['utils.HistoryListItem']", 'unique': 'True', 'primary_key': 'True'}),
+            'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         u'socialmedia.socialmedia': {
             'Meta': {'object_name': 'SocialMedia'},
@@ -181,7 +153,14 @@ class Migration(SchemaMigration):
             'timezone': ('timezone_field.fields.TimeZoneField', [], {'default': "'Europe/Amsterdam'"}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"})
         },
-        'utils.address': {
+        u'utils.historylistitem': {
+            'Meta': {'object_name': 'HistoryListItem'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_utils.historylistitem_set'", 'null': 'True', 'to': u"orm['contenttypes.ContentType']"}),
+            'sort_by_date': ('django.db.models.fields.DateTimeField', [], {}),
+            'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'})
+        },
+        u'utils.address': {
             'Meta': {'object_name': 'Address'},
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'complement': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
@@ -194,7 +173,7 @@ class Migration(SchemaMigration):
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
-        'utils.emailaddress': {
+        u'utils.emailaddress': {
             'Meta': {'object_name': 'EmailAddress'},
             'email_address': ('django.db.models.fields.EmailField', [], {'max_length': '255'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -202,7 +181,7 @@ class Migration(SchemaMigration):
             'status': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '50'}),
             'tenant': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['tenant.Tenant']", 'blank': 'True'})
         },
-        'utils.phonenumber': {
+        u'utils.phonenumber': {
             'Meta': {'object_name': 'PhoneNumber'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'number': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
@@ -214,4 +193,4 @@ class Migration(SchemaMigration):
         }
     }
 
-    complete_apps = ['cases']
+    complete_apps = ['notes']

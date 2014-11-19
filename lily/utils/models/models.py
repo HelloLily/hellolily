@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from lily.utils.functions import parse_phone_number
-from lily.tenant.models import TenantMixin, PolymorphicTenantMixin
+from lily.tenant.models import TenantMixin, PolymorphicTenantMixin, PolymorphicTenantManager
 
 
 PHONE_TYPE_CHOICES = (
@@ -383,6 +383,8 @@ class HistoryListItem(PolymorphicTenantMixin):
     An base model for all items that can appear in a History List
     """
     sort_by_date = models.DateTimeField(verbose_name='date to sort by')
+
+    objects = PolymorphicTenantManager()
 
     class Meta:
         app_label = 'utils'

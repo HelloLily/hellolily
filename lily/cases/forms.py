@@ -15,7 +15,6 @@ from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
-from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 
@@ -33,7 +32,7 @@ class CreateUpdateCaseForm(TagsFormMixin):
         label=_('Type'),
         queryset=CaseType.objects,
         empty_label=_('Select a type'),
-        required=False,
+        required=True,
     )
 
     account = forms.ModelChoiceField(
@@ -116,19 +115,20 @@ class CreateUpdateCaseForm(TagsFormMixin):
         """
         cleaned_data = super(CreateUpdateCaseForm, self).clean()
 
+        contact = cleaned_data.get('contact')
+        account = cleaned_data.get('account')
+
         # Check if a contact or an account has been selected
-        if not cleaned_data.get('contact') and not cleaned_data.get('account'):
+        if not contact and not account:
             self._errors['contact'] = self._errors['account'] = self.error_class([_('Select a contact or account')])
 
-        # Check if contact is selected combined with account
-        if cleaned_data.get('contact') and not cleaned_data.get('account'):
-            self._errors['contact'] = self._errors['account'] = self.error_class([_('When selecting contact you should also provide account')])
-
-        # Check if not both contact or an account have been selected or verify that an account the contact works at
-        if cleaned_data.get('contact') and cleaned_data.get('account'):
-            linked_account = cleaned_data.get('contact').get_primary_function().account
-            if linked_account != cleaned_data.get('account'):
-                self._errors['contact'] = self._errors['account'] = self.error_class([_('Choose either one')])
+        # Verify that a contact works at selected account
+        if contact and account:
+            linked_accounts = [function.account for function in contact.functions.all()]
+            if contact not in linked_accounts:
+                self._errors['contact'] = self._errors['account'] = self.error_class(
+                    [_('Selected contact doesn\'t work at account')]
+                )
 
         return cleaned_data
 

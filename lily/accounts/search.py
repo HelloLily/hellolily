@@ -21,6 +21,7 @@ class AccountMapping(MappingType, Indexable):
                          'search_analyzer': 'name_search_analyzer',
                          'index_analyzer': 'name_index_analyzer'},
                 'contact': {'type': 'integer'},
+                'assigned_to': {'type': 'integer'},
                 'tenant': {'type': 'integer'},
                 'modified': {'type': 'date'},
             }
@@ -48,6 +49,7 @@ class AccountMapping(MappingType, Indexable):
             'name': obj.name,
             'tenant': obj.tenant_id,
             'modified': obj.modified,
+            'assigned_to': obj.assigned_to,
         }
         contacts = [contact.id for contact in obj.get_contacts()]
         doc['contact'] = contacts

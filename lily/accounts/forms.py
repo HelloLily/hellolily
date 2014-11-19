@@ -10,6 +10,8 @@ from lily.accounts.models import Account, Website
 from lily.socialmedia.connectors import Twitter
 from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
+from lily.tenant.middleware import get_current_user
+from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import FormSetField, TagsField
 from lily.utils.forms.formsets import BaseFKFormSet
@@ -225,12 +227,27 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         )
     )
 
+    assigned_to = forms.ModelChoiceField(
+        label=_('Assigned to'),
+        queryset=LilyUser.objects,
+        empty_label=_('Not assigned'),
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Overloading super().__init__() to set the initial value for the primary website if possible.
         Also set initial data for the websites field and set form_attrs for addresses formsetfield.
         """
         super(CreateUpdateAccountForm, self).__init__(*args, **kwargs)
+
+        # FIXME: WORKAROUND FOR TENANT FILTER.
+        # An error will occur when using LilyUser.objects.all(), most likely because
+        # the foreign key to contact (and maybe account) is filtered and executed before
+        # the filter for the LilyUser. This way it's possible contacts (and maybe accounts)
+        # won't be found for a user. But since it's a required field, an exception is raised.
+        user = get_current_user()
+        self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=user.tenant)
+        self.fields['assigned_to'].initial = user
 
         if self.instance.pk:
             self.fields['extra_websites'].initial = self.instance.websites.filter(is_primary=False)
@@ -240,7 +257,10 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
 
         # Provide initial data for primary website
         try:
-            self.fields['primary_website'].initial = Website.objects.filter(account=self.instance, is_primary=True)[0].website
+            self.fields['primary_website'].initial = Website.objects.filter(
+                account=self.instance,
+                is_primary=True
+            )[0].website
         except IndexError:
             pass
 
@@ -303,13 +323,34 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
 
     class Meta:
         model = Account
-        fields = ('primary_website', 'name', 'description', 'legalentity', 'taxnumber', 'bankaccountnumber', 'cocnumber',
-                  'iban', 'bic', 'email_addresses', 'phone_numbers', 'addresses', 'extra_websites', )  # TODO: status field
+
+        fieldsets = (
+            (_('Who was it?'), {
+                'fields': (
+                    'primary_website',
+                    'name',
+                    'description',
+                    # Hidden fields
+                    'legalentity',
+                    'taxnumber',
+                    'bankaccountnumber',
+                    'cocnumber',
+                    'iban',
+                    'bic',
+                ),
+            }),
+            (_('Who is handling the account?'), {
+                'fields': ('assigned_to',),
+            }),
+            (_('Contact information'), {
+                'fields': ('email_addresses', 'addresses', 'extra_websites', ),
+            }),
+        )
 
         widgets = {
-            'description': ShowHideWidget(forms.Textarea({
+            'description': forms.Textarea({
                 'rows': 3,
-            })),
+            }),
             'legalentity': forms.HiddenInput(),
             'taxnumber': forms.HiddenInput(),
             'bankaccountnumber': forms.HiddenInput(),

@@ -161,7 +161,7 @@ class ExportListViewMixin(FilterQuerysetMixin):
             queryset = self.filter_queryset(queryset, search_terms)
 
             # For each item, make a row to export.
-            for item in queryset:
+            for item in queryset.iterator():
                 row = []
                 for column in columns:
                     # Get the value from the item.

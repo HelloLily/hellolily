@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
@@ -9,7 +10,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 from timezone_field import TimeZoneField
 
-from lily.settings import LANGUAGES
 from lily.tenant.models import TenantMixin, Tenant
 
 try:
@@ -68,7 +68,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
 
-    language = models.CharField(_('lanaguage'), max_length=3, choices=LANGUAGES, default='en')
+    language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     objects = LilyUserManager()

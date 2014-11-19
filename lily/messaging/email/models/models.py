@@ -16,7 +16,6 @@ from python_imap.folder import DRAFTS
 from python_imap.utils import convert_html_to_text
 
 from lily.messaging.models import Message, MessagesAccount
-from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.tenant.models import TenantMixin, NullableTenantMixin
 
 
@@ -490,7 +489,10 @@ class EmailTemplateAttachment(models.Model):
 
     """
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
-    attachment = models.FileField(verbose_name=_('template attachment'), upload_to=EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO)
+    attachment = models.FileField(
+        verbose_name=_('template attachment'),
+        upload_to=settings.EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
+    )
 
     def __unicode__(self):
         return u'%s: %s' % (_('attachment of'), self.template)

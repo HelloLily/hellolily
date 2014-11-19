@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
 
-from lily.settings import ACCOUNT_UPLOAD_TO
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
+from lily.users.models import LilyUser
 from lily.utils.functions import flatten
 from lily.utils.models import EmailAddress
 from lily.utils.models.mixins import Common, CaseClientModelMixin
@@ -53,7 +54,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         verbose_name=_('company size'),
         blank=True
     )
-    logo = models.ImageField(upload_to=ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
+    logo = models.ImageField(upload_to=settings.ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
     taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)
@@ -61,6 +62,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     cocnumber = models.CharField(max_length=10, verbose_name=_('coc number'), blank=True)
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
+    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True, blank=True)
 
     def primary_email(self):
         for email in self.email_addresses.all():

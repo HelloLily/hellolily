@@ -8,7 +8,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         """
-        If this migration was done before the deletion of customuser, which it wasn't on live, then use the part at the bottom.
+        If this migration is done before the deletion of customuser, which it wasn't on live, then use the part at the bottom.
         Otherwise use the commented block of code
         """
         # lilyuser_case_dict = {

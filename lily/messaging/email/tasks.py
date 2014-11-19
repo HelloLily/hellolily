@@ -61,7 +61,7 @@ def synchronize_email_scheduler():
 
     if acquire_lock(lock_id):  # this should always work, but just in case..
         try:
-            task_logger.info('synchronize scheduler starting')
+            task_logger.debug('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
@@ -71,14 +71,14 @@ def synchronize_email_scheduler():
             for email_account in email_accounts:
                 email_address = email_account.email
 
-                task_logger.info('attempting sync for %s', email_address)
+                task_logger.debug('attempting sync for %s', email_address)
                 if not email_account.last_sync_date:
                     locked, status = lock_task('retrieve_all_emails_for', email_account.id)
                     if not locked:
-                        task_logger.info('skipping task "retrieve_all_emails_for" for %s', email_address)
+                        task_logger.debug('skipping task "retrieve_all_emails_for" for %s', email_address)
                         continue
 
-                    task_logger.info('syncing %s', email_address)
+                    task_logger.debug('syncing %s', email_address)
 
                     retrieve_all_emails_for.apply_async(
                         args=(email_account.id,),
@@ -89,10 +89,10 @@ def synchronize_email_scheduler():
                 else:
                     locked, status = lock_task('retrieve_new_emails_for', email_account.id)
                     if not locked:
-                        task_logger.info('skipping task "retrieve_new_emails_for" for %s', email_address)
+                        task_logger.debug('skipping task "retrieve_new_emails_for" for %s', email_address)
                         continue
 
-                    task_logger.info('syncing %s', email_address)
+                    task_logger.debug('syncing %s', email_address)
 
                     retrieve_new_emails_for.apply_async(
                         args=(email_account.id,),
@@ -101,11 +101,11 @@ def synchronize_email_scheduler():
                         kwargs={'status_id': status.pk},
                     )
 
-            task_logger.info('synchronize scheduler finished')
+            task_logger.debug('synchronize scheduler finished')
         finally:
             release_lock(lock_id)
     else:
-        task_logger.info('synchronize scheduler already running')
+        task_logger.debug('synchronize scheduler already running')
 
 
 @task(name='retrieve_new_emails_for', bind=True)
@@ -136,19 +136,19 @@ def retrieve_new_emails_for(emailaccount_id):
         activity_timedelta = now_utc - last_login_utc
         if activity_timedelta > timedelta(days=28):
             # Period of inactivity for two weeks: skip synchronize for this email_account
-            task_logger.info('%s inactive for 28 days', email_account.email)
+            task_logger.debug('%s inactive for 28 days', email_account.email)
             return
         else:
-            task_logger.info('%s last activity was %s ago', email_account.email, str(activity_timedelta))
+            task_logger.debug('%s last activity was %s ago', email_account.email, str(activity_timedelta))
 
             # Download new messages since last synchronization if that was some time ago
             last_sync_date = email_account.last_sync_date
             if not last_sync_date:
                 last_sync_date = datetime.fromtimestamp(0)
             last_sync_date_utc = last_sync_date.astimezone(tzutc())
-            task_logger.info('last synchronization for %s happened at %s', email_account.email, last_sync_date_utc)
+            task_logger.debug('last synchronization for %s happened at %s', email_account.email, last_sync_date_utc)
             if now_utc - last_sync_date_utc > timedelta(minutes=5):
-                task_logger.info('start synchronizing folders for %s', email_account.email)
+                task_logger.debug('start synchronizing folders for %s', email_account.email)
                 datetime_since = last_sync_date.strftime('%d-%b-%Y %H:%M:%S')
 
                 with LilyIMAP(email_account) as server:
@@ -160,9 +160,11 @@ def retrieve_new_emails_for(emailaccount_id):
                         before = datetime.now()
                         try:
                             email_account.folders = get_account_folders_from_server(server)
-                            task_logger.info('Retrieving IMAP folder list for %s in %ss',
-                                             email_account.email,
-                                             (datetime.now() - before).total_seconds())
+                            task_logger.debug(
+                                'Retrieving IMAP folder list for %s in %ss',
+                                email_account.email,
+                                (datetime.now() - before).total_seconds()
+                            )
 
                             folders = [server.get_folder(INBOX)]
                             allmail_folder = server.get_folder(ALLMAIL)
@@ -183,7 +185,7 @@ def retrieve_new_emails_for(emailaccount_id):
                                     new_only=True,
                                     batch_size=10
                                 )
-                                task_logger.info('Retrieving new messages in folder %s list since %s in %ss',
+                                task_logger.debug('Retrieving new messages in folder %s list since %s in %ss',
                                                  folder,
                                                  datetime_since,
                                                  (datetime.now() - before).total_seconds())
@@ -202,7 +204,7 @@ def retrieve_new_emails_for(emailaccount_id):
                                 modifiers_new=modifiers_new,
                                 new_only=True
                             )
-                            task_logger.info('Retrieving new messages in folder %s since %s list in %ss',
+                            task_logger.debug('Retrieving new messages in folder %s since %s list in %ss',
                                              allmail_folder,
                                              datetime_since,
                                              (datetime.now() - before).total_seconds())
@@ -225,7 +227,7 @@ def synchronize_low_priority_email_scheduler():
 
     if acquire_lock(lock_id):  # this should always work, but just in case..
         try:
-            task_logger.info('synchronize scheduler starting')
+            task_logger.debug('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
@@ -235,14 +237,14 @@ def synchronize_low_priority_email_scheduler():
             for email_account in email_accounts:
                 email_address = email_account.email
 
-                task_logger.info('attempting sync for %s', email_address)
+                task_logger.debug('attempting sync for %s', email_address)
 
                 locked, status = lock_task('retrieve_low_priority_emails_for', email_account.id)
                 if not locked:
-                    task_logger.info('skipping task "retrieve_low_priority_emails_for" for %s', email_address)
+                    task_logger.debug('skipping task "retrieve_low_priority_emails_for" for %s', email_address)
                     continue
 
-                task_logger.info('syncing %s', email_address)
+                task_logger.debug('syncing %s', email_address)
 
                 retrieve_low_priority_emails_for.apply_async(
                     args=(email_account.id,),
@@ -251,11 +253,11 @@ def synchronize_low_priority_email_scheduler():
                     kwargs={'status_id': status.pk},
                 )
 
-            task_logger.info('synchronize scheduler finished')
+            task_logger.debug('synchronize scheduler finished')
         finally:
             release_lock(lock_id)
     else:
-        task_logger.info('synchronize scheduler already running')
+        task_logger.debug('synchronize scheduler already running')
 
 
 @task(name='retrieve_low_priority_emails_for', bind=True)
@@ -287,10 +289,10 @@ def retrieve_low_priority_emails_for(emailaccount_id):
         activity_timedelta = now_utc - last_login_utc
         if activity_timedelta > timedelta(days=28):
             # Period of inactivity for two weeks: skip synchronize for this email account
-            task_logger.info('%s inactive for 28 days', email_account.email)
+            task_logger.debug('%s inactive for 28 days', email_account.email)
             return
         else:
-            task_logger.info('%s last activity was %s ago', email_account.email, str(activity_timedelta))
+            task_logger.debug('%s last activity was %s ago', email_account.email, str(activity_timedelta))
             last_sync_date = email_account.last_sync_date
             if not last_sync_date:
                 last_sync_date = datetime.fromtimestamp(0)
@@ -326,7 +328,7 @@ def retrieve_low_priority_emails_for(emailaccount_id):
                                 new_only=True,
                                 batch_size=10,
                             )
-                            task_logger.info('Retrieving new messages in folder %s list in %ss',
+                            task_logger.debug('Retrieving new messages in folder %s list in %ss',
                                              folder,
                                              (datetime.now() - before).total_seconds())
 
@@ -415,7 +417,7 @@ def synchronize_email_flags_scheduler():
 
     if acquire_lock(lock_id):  # this should always work, but just in case..
         try:
-            task_logger.info('synchronize scheduler starting')
+            task_logger.debug('synchronize scheduler starting')
 
             # Find email accounts which authentication info should be OK.
             email_accounts = EmailAccount.objects.filter(
@@ -425,13 +427,13 @@ def synchronize_email_flags_scheduler():
             for email_account in email_accounts:
                 email_address = email_account.email
 
-                task_logger.info('attempting sync for %s', email_address)
+                task_logger.debug('attempting sync for %s', email_address)
                 locked, status = lock_task('retrieve_all_flags_for', email_account.id)
                 if not locked:
-                    task_logger.info('skipping task "retrieve_all_flags_for" for %s', email_address)
+                    task_logger.debug('skipping task "retrieve_all_flags_for" for %s', email_address)
                     continue
 
-                task_logger.info('syncing %s', email_address)
+                task_logger.debug('syncing %s', email_address)
 
                 retrieve_all_flags_for.apply_async(
                     args=(email_account.id,),
@@ -440,11 +442,11 @@ def synchronize_email_flags_scheduler():
                     kwargs={'status_id': status.pk},
                 )
 
-            task_logger.info('synchronize scheduler finished')
+            task_logger.debug('synchronize scheduler finished')
         finally:
             release_lock(lock_id)
     else:
-        task_logger.info('synchronize scheduler already running')
+        task_logger.debug('synchronize scheduler already running')
 
 
 @task(name='retrieve_all_flags_for', bind=True)
@@ -780,7 +782,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
         folder (instance): Folder object where messages are stored
         new_messages (boolean): True if the messages are new
     """
-    task_logger.warn('Saving %s messages for %s in %s in the database', len(messages), account.email, folder.name_on_server)
+    task_logger.debug('Saving %s messages for %s in %s in the database', len(messages), account.email, folder.name_on_server)
     try:
         update_email_attachments = {}
         update_inline_email_attachments = {}
@@ -859,7 +861,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
                 save_attachments(new_inline_email_attachments, tenant_id=account.tenant_id, folder=folder, inline=True)
 
         elif not new_messages:
-            task_logger.info('Saving these messages with custom concatenated SQL since they need to be updated')
+            task_logger.debug('Saving these messages with custom concatenated SQL since they need to be updated')
 
             # Build query string and parameter list
             total_query_string = ''
@@ -872,7 +874,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
             if messages:
                 cursor = connection.cursor()
 
-            task_logger.info('Looping through %s messages', len(messages))
+            task_logger.debug('Looping through %s messages', len(messages))
             for message in messages:
                 query_string, param_list, query_count = create_message_query_string(
                     message,
@@ -912,7 +914,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             # Execute queries
             if total_query_count:
-                task_logger.info('Executing (%s) queries for e-mail messages', total_query_count)
+                task_logger.debug('Executing (%s) queries for e-mail messages', total_query_count)
                 cursor.execute(total_query_string, total_param_list)
 
             # Fetch message ids
@@ -993,11 +995,11 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
             # Execute queries
             if total_query_count:
-                task_logger.info('Executing (%s) queries for headers', total_query_count)
+                task_logger.debug('Executing (%s) queries for headers', total_query_count)
                 cursor = connection.cursor()
                 cursor.execute(total_query_string, total_param_list)
             else:
-                task_logger.info('No queries to execute')
+                task_logger.debug('No queries to execute')
 
             if cursor:
                 cursor.close()
@@ -1023,7 +1025,7 @@ def save_email_messages(messages, account, folder, new_messages=False):
 
         gc.collect()
 
-    task_logger.info('Messages saved')
+    task_logger.debug('Messages saved')
 
 
 def _task_prerun_listener(**kwargs):

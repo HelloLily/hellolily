@@ -196,9 +196,9 @@ E.g.:
             self._create_social_media(account, 'twitter', values.get('Twitter'))
             account.save()
             if created:
-                task_logger.info('account created')
+                task_logger.debug('account created')
             else:
-                task_logger.info('account exists')
+                task_logger.debug('account exists')
 
     def _create_contact_data(self, values):
         """
@@ -287,9 +287,9 @@ E.g.:
                 contact.save()
 
                 if created:
-                    task_logger.info('contact created')
+                    task_logger.debug('contact created')
                 else:
-                    task_logger.info('contact exists')
+                    task_logger.debug('contact exists')
 
     def _create_address(self, instance, type, address, postal_code, city, country, primary=False):
         """

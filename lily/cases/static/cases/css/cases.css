@@ -2,3 +2,23 @@
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+td .label-danger {
+    /* Critical priority */
+    background-color: #ff0000;
+}
+
+td .label-warning {
+    /* High priority */
+    background-color: #ff6b00;
+}
+
+td .label-info {
+    /* Medium priority */
+    background-color: #aa8833;
+}
+
+td .label-success {
+    /* Low priority */
+    background-color: #ffd633;
+}

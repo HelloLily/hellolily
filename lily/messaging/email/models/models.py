@@ -291,28 +291,6 @@ class EmailMessage(Message):
         return u''
 
     @property
-    def to_bcc_combined(self):
-        headers = None
-        if hasattr(self, '_to_bcc_headers'):
-            headers = self._to_bcc_headers
-        else:
-            headers = self.headers.filter(name='Bcc')
-            self._to_bcc_headers = headers
-        if headers:
-            to_bcc = []
-            for header in headers[0].value.split(','):
-                parts = email.utils.parseaddr(header)
-                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to_bcc.append(u'"%s" <%s>' % (parts[0], parts[1]))
-                elif len(parts[1]) > 0:
-                    to_bcc.append(u'%s' % parts[1])
-                elif len(parts[0]) > 0:
-                    to_bcc.append(u'"%s"' % parts[0])
-
-            return u', '.join(to_bcc)
-        return u''
-
-    @property
     def from_combined(self):
         header = None
         if hasattr(self, '_from_header'):

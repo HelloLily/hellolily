@@ -1109,10 +1109,10 @@ def send_message(email_account_id, email_outbox_message_id):
 
     if send_from.from_name:
         # Add account name to From header if one is available
-        from_email = '%s (%s)' % (send_from.from_name, send_from.email.email_address)
+        from_email = '%s (%s)' % (send_from.from_name, send_from.email)
     else:
         # Otherwise only add the email address
-        from_email = send_from.email.email_address
+        from_email = send_from.email
 
     message_data = dict(
         subject=email_outbox_message.subject,

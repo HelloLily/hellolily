@@ -372,5 +372,4 @@ class AjaxSelect2Widget(Widget):
 
             final_attrs['data-selected-text'] = selected_text
 
-        output = [format_html('<input type="hidden"{0}>', flatatt(final_attrs))]
-        return mark_safe('\n'.join(output))
+        return mark_safe('<input type="hidden"%s>' % flatatt(final_attrs))

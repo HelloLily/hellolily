@@ -487,6 +487,7 @@ def retrieve_all_flags_for(emailaccount_id):
                             criteria=['ALL'],
                             modifiers_old=modifiers_old,
                             old_only=True,
+                            batch_size=100,
                         )
             elif not server.auth_ok:
                 email_account.auth_ok = NO_EMAILACCOUNT_AUTH

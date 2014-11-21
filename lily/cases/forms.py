@@ -18,7 +18,7 @@ from lily.users.models import LilyUser
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 
-class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
+class CreateUpdateCaseForm(TagsFormMixin):
     """
     Form for adding or editing a case.
     """

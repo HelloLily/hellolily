@@ -120,16 +120,29 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         ),
     )
 
-    twitter = forms.CharField(label=_('Twitter'), required=False, widget=AddonTextInput(icon_attrs={
-        'class': 'icon-twitter',
-        'position': 'left',
-        'is_button': False
-    }))
-    linkedin = forms.CharField(label=_('LinkedIn'), required=False, widget=AddonTextInput(icon_attrs={
-        'class': 'icon-linkedin',
-        'position': 'left',
-        'is_button': False
-    }))
+    twitter = forms.CharField(
+        label=_('Twitter'),
+        required=False,
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'icon-twitter',
+                'position': 'left',
+                'is_button': False
+            }
+        )
+    )
+
+    linkedin = forms.CharField(
+        label=_('LinkedIn'),
+        required=False,
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'icon-linkedin',
+                'position': 'left',
+                'is_button': False
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
@@ -156,7 +169,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
     def clean_twitter(self):
         """
-        Check if added twitter name is a valid twitter name.
+        Check if added twitter name or url is valid.
 
         Returns:
             string: twitter username or empty string.

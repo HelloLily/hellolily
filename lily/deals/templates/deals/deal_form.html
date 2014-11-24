@@ -10,16 +10,6 @@
 {% endif %}
 {% endblock %}
 
-{% comment %}
-{% block page-title %}
-{% if object.pk %}
-    {% trans 'Edit deal' %}
-{% else %}
-    {% trans 'Create deal' %}
-{% endif %}
-{% endblock %}
-{% endcomment %}
-
 {% block form-title %}
 {% if object.pk %}
     {% trans 'Edit deal' %}
@@ -27,3 +17,14 @@
     {% trans 'Create deal' %}
 {% endif %}
 {% endblock %}
+
+{% block form-buttons %}
+    <button type="submit" class="btn btn-primary" name="submit">
+        <i class="icon-ok"></i> {% trans 'Save' %}
+    </button>
+    <button id="archive-button" type="button" class="btn btn-primary" name="archive" data-loading-text="Saving...">
+        <i class="icon-ok"></i> <span>{% trans 'Save and Archive' %}</span>
+    </button>
+    <a href="{{ back_url }}" class="btn btn-default">{% trans 'Back' %}</a>
+{% endblock %}
+

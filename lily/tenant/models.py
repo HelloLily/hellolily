@@ -114,4 +114,4 @@ TenantObjectManager = models.Manager
 if settings.MULTI_TENANT:
     TenantMixin = MultiTenantMixin
     PolymorphicTenantMixin = PolymorphicMultiTenantMixin
-    TenanObjectManager = TenantManager
+    TenantObjectManager = TenantManager

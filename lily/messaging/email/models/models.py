@@ -16,7 +16,6 @@ from python_imap.folder import DRAFTS
 from python_imap.utils import convert_html_to_text
 
 from lily.messaging.models import Message, MessagesAccount
-from lily.settings import EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
 from lily.tenant.models import TenantMixin, NullableTenantMixin
 
 
@@ -205,15 +204,13 @@ class EmailMessage(Message):
 
     @property
     def subject(self):
-        header = None
-
         if hasattr(self, '_subject_header'):
             header = self._subject_header
         else:
             try:
                 header = self.headers.get(name='Subject')
             except MultipleObjectsReturned:
-                header = self.headers.filter(name='Subject').reverse()[0]
+                header = self.headers.filter(name='Subject').first()
             except ObjectDoesNotExist:
                 header = ''
             self._subject_header = header.value if header else ''
@@ -221,11 +218,11 @@ class EmailMessage(Message):
         return self._subject_header
 
     def to_emails(self, include_names=True, include_self=False):
-        headers = None
         if hasattr(self, '_to_headers'):
             headers = self._to_headers
         else:
-            headers = self.headers.filter(name='To')
+            # For some reason certain headers are in the database twice, so get unique headers
+            headers = self.headers.filter(name='To').order_by('name').distinct('name')
             self._to_headers = headers
 
         if headers:
@@ -236,7 +233,7 @@ class EmailMessage(Message):
                 for address in email.utils.getaddresses(header.value.split(',')):
                     # The name is allowed to be empty, email address is not
                     if (include_self or (address[0] != own_email_address and address[1] != own_email_address)) and address[1]:
-                        # If there is no name available, use the email address
+                        # If there's no name available, use the email address
                         if include_names:
                             to_names.append(address[0])
                         to_emails.append(address[1])
@@ -248,12 +245,12 @@ class EmailMessage(Message):
 
     @property
     def to_combined(self):
-        headers = None
         if hasattr(self, '_to_headers'):
             headers = self._to_headers
         else:
             headers = self.headers.filter(name='To')
             self._to_headers = headers
+
         if headers:
             to = []
             for header in headers[0].value.split(','):
@@ -270,12 +267,12 @@ class EmailMessage(Message):
 
     @property
     def to_cc_combined(self):
-        headers = None
         if hasattr(self, '_to_cc_headers'):
             headers = self._to_cc_headers
         else:
             headers = self.headers.filter(name='Cc')
             self._to_cc_headers = headers
+
         if headers:
             to_cc = []
             for header in headers[0].value.split(','):
@@ -291,35 +288,14 @@ class EmailMessage(Message):
         return u''
 
     @property
-    def to_bcc_combined(self):
-        headers = None
-        if hasattr(self, '_to_bcc_headers'):
-            headers = self._to_bcc_headers
-        else:
-            headers = self.headers.filter(name='Bcc')
-            self._to_bcc_headers = headers
-        if headers:
-            to_bcc = []
-            for header in headers[0].value.split(','):
-                parts = email.utils.parseaddr(header)
-                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to_bcc.append(u'"%s" <%s>' % (parts[0], parts[1]))
-                elif len(parts[1]) > 0:
-                    to_bcc.append(u'%s' % parts[1])
-                elif len(parts[0]) > 0:
-                    to_bcc.append(u'"%s"' % parts[0])
 
-            return u', '.join(to_bcc)
-        return u''
-
-    @property
     def from_combined(self):
-        header = None
         if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
+
         if header:
             parts = email.utils.parseaddr(header[0].value)
             if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
@@ -334,24 +310,24 @@ class EmailMessage(Message):
 
     @property
     def from_name(self):
-        header = None
         if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
+
         if header:
             return email.utils.parseaddr(header[0].value)[0]
         return u''
 
     @property
     def from_email(self):
-        header = None
         if hasattr(self, '_from_header'):
             header = self._from_header
         else:
             header = self.headers.filter(name='From')
             self._from_header = header
+
         if header:
             return email.utils.parseaddr(header[0].value)[1]
         return u'<%s>' % _(u'No address')
@@ -512,7 +488,10 @@ class EmailTemplateAttachment(models.Model):
 
     """
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
-    attachment = models.FileField(verbose_name=_('template attachment'), upload_to=EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO)
+    attachment = models.FileField(
+        verbose_name=_('template attachment'),
+        upload_to=settings.EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
+    )
 
     def __unicode__(self):
         return u'%s: %s' % (_('attachment of'), self.template)

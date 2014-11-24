@@ -4,7 +4,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext as _
 
 from lily.accounts.models import Account
-from lily.settings import CONTACT_UPLOAD_TO
+from django.conf import settings
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models import PhoneNumber, EmailAddress
 from lily.utils.models.mixins import Common, DeletedMixin, CaseClientModelMixin
@@ -46,7 +46,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     title = models.CharField(max_length=20, verbose_name=_('title'), blank=True)
     status = models.IntegerField(choices=CONTACT_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
-    picture = models.ImageField(upload_to=CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
+    picture = models.ImageField(upload_to=settings.CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
 
@@ -192,6 +192,7 @@ class Function(DeletedMixin):
     class Meta:
         verbose_name = _('function')
         verbose_name_plural = _('functions')
+        unique_together = ('account', 'contact')
 
 # ------------------------------------------------------------------------------------------------
 # Signal listeners

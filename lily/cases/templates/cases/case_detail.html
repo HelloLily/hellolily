@@ -98,7 +98,7 @@
     <hr />
     <div class="row">
         <div class="col-md-12 summary-info text-center">
-            <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ object.pk }}">
+            <div id="case-status" class="btn-group" data-toggle="buttons">
                 {% for status_choice in status_choices %}
                     <label for="status-{{ status_choice.id }}" class="btn default{% if object.is_archived %} disabled{% else %}{% if status_choice == object.status %} active{% endif %}{% endif %}">
                         <input class="toggle" type="radio" id="status-{{ status_choice.id }}" name="radio" value="{{ status_choice.id }}" {% if not object.is_archived and object.status == status_choice %}checked="checked"{% endif %}>
@@ -145,7 +145,8 @@
     {% compressed_js 'cases'  %}
     <script>
         HLCases.init({
-            caseUpdateUrl: "{% url 'case_update_status_short' %}"
+            caseUpdateUrl: "{% url 'case_update_status_short' %}",
+            caseId: "{{ object.pk }}"
         });
     </script>
 {% endblock %}

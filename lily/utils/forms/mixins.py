@@ -1,5 +1,3 @@
-
-
 class FormSetFormMixin(object):
     """
     Custom form mixin to allow easier use of formset fields.

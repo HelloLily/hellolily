@@ -17,9 +17,19 @@ class DeletedMixin(TimeStampedModel):
     deleted = ModificationDateTimeField(_('deleted'))
     is_deleted = models.BooleanField(default=False)
 
-    def delete(self, using=None):
-        self.is_deleted = True
-        self.save()
+    def delete(self, using=None, hard=False):
+        """
+        Soft delete instance by flagging is_deleted as False.
+
+        Arguments:
+            using (str): which db to use
+            hard (boolean): If True, permanent removal from db
+        """
+        if hard:
+            super(DeletedMixin, self).delete(using=using)
+        else:
+            self.is_deleted = True
+            self.save()
 
     class Meta:
         abstract = True

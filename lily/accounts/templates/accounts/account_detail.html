@@ -12,15 +12,15 @@
 
 {% block details-main %}
     {% if object.description %}
-    <div class="row">
-        <div class="col-md-6">
-            <em>{{ object.description|linebreaks }}</em>
+        <div class="row">
+            <div class="col-md-6">
+                <em>{{ object.description|linebreaks }}</em>
+            </div>
         </div>
-    </div>
     {% endif %}
     <div class="row">
         <div class="col-md-6">
-           <ul class="list-unstyled summary-list">
+            <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Website' %}</span>
                     <span class="summary-data">
@@ -37,6 +37,14 @@
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
                     <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
                 </li>
+                {% for social_media_connection in object.social_media.all %}
+                    <li>
+                        <span class="summary-label">{{ social_media_connection.get_name_display }}</span>
+                        <span class="summary-data">
+                            <a href="{{ social_media_connection.profile_url }}">{{ social_media_connection.username }}</a>
+                        </span>
+                    </li>
+                {% endfor %}
                 {% if object.get_main_address %}
                     <li>
                         <span class="summary-label">{% trans 'Main address' %}</span>
@@ -55,22 +63,26 @@
                         </span>
                     </li>
                 {% endif %}
+                <li class="margin-top-20">
+                    <span class="summary-label">{% trans 'Assigned to' %}</span>
+                    <span class="summary-data">{{ object.assigned_to|default:_('Not assigned yet') }}</span>
+                </li>
             </ul>
         </div>
         <div class="col-md-6">
             <div class="clearfix">
-                 <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'deal_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                     {% trans 'Deals' %}
-                     <span class="badge badge-success pull-right">{{ object.get_deals.count|default:'0' }}</span>
-                 </a>
-                 <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'deal_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    {% trans 'Deals' %}
+                    <span class="badge badge-success pull-right">{{ object.get_deals.count|default:'0' }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
             </div>
             <div>
-                 <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'case_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                     {% trans 'Cases' %}
-                     <span class="badge badge-success pull-right">{{ object.get_cases.count|default:'0' }}</span>
-                 </a>
-                 <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'case_list' %}?filter={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    {% trans 'Cases' %}
+                    <span class="badge badge-success pull-right">{{ object.get_cases.count|default:'0' }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
             </div>
         </div>
     </div>
@@ -97,31 +109,29 @@
             <div class="row no-margin">
                 <table class="table no-margin">
                     <thead>
-                        <tr>
-                            <th>{% trans 'Name' %}</th>
-                            <th>{% trans 'E-mail address' %}</th>
-                            <th>{% trans 'Phone number' %}</th>
-                        </tr>
+                    <tr>
+                        <th>{% trans 'Name' %}</th>
+                        <th>{% trans 'E-mail address' %}</th>
+                        <th>{% trans 'Phone number' %}</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for function in object.functions.all %}
-                            {% for contact_function in function.contact.functions.all %}
-                                <tr>
-                                    <td><a href="{% url 'contact_details' contact_function.contact.pk%}">{{ contact_function.contact.full_name }}</a></td>
-                                    <td>{{ contact_function.contact.primary_email|default:_('Unknown') }}</td>
-                                    <td>{{ contact_function.contact.get_phone_number|default:_('Unknown') }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% empty %}
-                            <tr>
-                                <td colspan="3">{% trans 'There are no known contact for this company' %}</td>
-                            </tr>
-                        {% endfor %}
-                            <tr>
-                                <td colspan="3">
-                                    <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'contact_add' account_pk=object.pk %}" class="btn btn-sm blue col-sm-1"><i class="icon-plus"> Add contact</i></a>
-                                </td>
-                            </tr>
+                    {% for contact in object.get_contacts %}
+                        <tr>
+                            <td><a href="{% url 'contact_details' contact.pk %}">{{ contact.full_name }}</a></td>
+                            <td>{{ contact.primary_email|default:_('Unknown') }}</td>
+                            <td>{{ contact.get_phone_number|default:_('Unknown') }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">{% trans 'There are no known contact for this company' %}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="3">
+                            <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'contact_add' account_pk=object.pk %}" class="btn btn-sm blue col-sm-1"><i class="icon-plus"> Add contact</i></a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -195,7 +205,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 col-xs-6">
-               <h4>{% trans 'Phone numbers' %}</h4>
+                <h4>{% trans 'Phone numbers' %}</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
                     {% for phone_number in object.phone_numbers.all %}
                         <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>

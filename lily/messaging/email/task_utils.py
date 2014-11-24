@@ -276,7 +276,7 @@ def create_headers_query_string(new_headers, existing_headers, table_name):
     total_query_string = ''
     param_list = []
     query_count = 0
-    task_logger.info('Looping through %s headers that need updating', len(header_obj_list))
+    task_logger.debug('Looping through %s headers that need updating', len(header_obj_list))
     for header_obj in header_obj_list:
         # Decide whether to update or insert this email header
         if header_obj.name in existing_headers.get(header_obj.message_id, []):

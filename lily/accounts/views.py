@@ -50,6 +50,9 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
             # Indeterminable on what to sort
             'bSortable': False,
         }),
+        ('assigned_to', {
+            'mData': 'assigned_to',
+        }),
         ('created', {
             'mData': 'created',
             'sClass': 'visible-md visible-lg',
@@ -82,6 +85,10 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
                 'work_phone',
                 'mobile_phone',
             ]
+        },
+        'assigned_to': {
+            'headers': [_('Assigned to')],
+            'columns_for_item': ['assigned_to']
         },
         'created': {
             'headers': [_('Created')],
@@ -127,6 +134,12 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         Used by ExportListViewMixin.
         """
         return account.name
+
+    def value_for_column_assigned_to(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return account.assigned_to
 
     def value_for_column_email(self, account):
         """

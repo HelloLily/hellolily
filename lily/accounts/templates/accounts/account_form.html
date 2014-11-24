@@ -10,16 +10,6 @@
 {% endif %}
 {% endblock %}
 
-{% comment %}
-{% block page-title %}
-{% if object.pk %}
-    {% trans 'Edit account' %}
-{% else %}
-    {% trans 'Add account' %}
-{% endif %}
-{% endblock %}
-{% endcomment %}
-
 {% block form-title %}
 {% if object.pk %}
     {% trans 'Edit account' %}

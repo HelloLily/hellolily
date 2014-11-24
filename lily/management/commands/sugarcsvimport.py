@@ -1,5 +1,6 @@
 import csv
 import logging
+import os
 from tempfile import TemporaryFile
 from django.core.files.storage import default_storage
 
@@ -8,11 +9,12 @@ from django.db import DataError
 
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Contact, Function
-from lily.utils.functions import parse_address
+from lily.users.models import LilyUser
+from lily.utils.functions import parse_address, _isint
 from lily.utils.models import Address, PhoneNumber, EmailAddress, COUNTRIES
 from lily.socialmedia.models import SocialMedia
 
-task_logger = logging.getLogger('celery_task')
+logger = logging.getLogger('sugarimport')
 
 
 class Command(BaseCommand):
@@ -60,23 +62,30 @@ E.g.:
     }
 
     country_codes = set([country[0] for country in COUNTRIES])
+    user_mapping = {}
 
     def handle(self, model, csvfile, tenant_pk, **kwargs):
         self.tenant_pk = tenant_pk
 
         if model in ['account', 'accounts']:
-            task_logger.info('importing accounts started')
+            logger.info('importing accounts started')
 
             for row in self.read_csvfile(csvfile):
                 self._create_account_data(row)
-            task_logger.info('importing accounts finished')
+            logger.info('importing accounts finished')
 
         elif model in ['contact', 'contacts']:
-            task_logger.info('importing contacts started')
+            logger.info('importing contacts started')
+
+            # Get user mapping from env vars
+            user_string = os.environ.get('USERMAPPING')
+            for user in user_string.split(';'):
+                sugar, lily = user.split(':')
+                self.user_mapping[sugar] = lily
 
             for row in self.read_csvfile(csvfile):
                 self._create_contact_data(row)
-            task_logger.info('importing contacts finished')
+            logger.info('importing contacts finished')
 
     def read_csvfile(self, file_name):
         """
@@ -87,12 +96,6 @@ E.g.:
             csv_file = default_storage.open(file_name, 'r')
             previous_line = ''
             for line in csv_file.readlines():
-                # don't write line if:
-                # ...,"open ending
-                # ...," cell with escaped ""qoutes""
-                # do write line if:
-                # ...,"content"
-                # ...,""
                 previous_line += line.strip().replace('\r\n', ' ')
                 if (previous_line[-1:] == '"' and previous_line[-2:] != '""') or previous_line[-3:] == ',""':
                     clear_file.write(previous_line + '\n')
@@ -104,12 +107,6 @@ E.g.:
 
             clear_file.seek(0)
 
-            # Find header from csv file
-            # sample = clear_file.read(2048)
-            # has_header = csv.Sniffer().has_header(sample)
-            # dialect = csv.Sniffer().sniff(sample)
-            # clear_file.seek(0)
-            # reader = csv.reader(clear_file, dialect)
             reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
             for row in reader:
                 yield row
@@ -157,7 +154,7 @@ E.g.:
                     try:
                         Account.objects.filter(id=account.id).update(**account_kwargs)
                     except DataError:
-                        task_logger.warning('could not update account: %s' % account_kwargs)
+                        logger.warning('could not update account: %s' % account_kwargs)
                         return
                     else:
                         created = False
@@ -169,7 +166,7 @@ E.g.:
                 values.get('Billing Street'),
                 values.get('Billing Postal Code'),
                 values.get('Billing City'),
-                values.get('Billing  Country')
+                values.get('Billing Country')
             )
             self._create_address(
                 account,
@@ -194,11 +191,16 @@ E.g.:
             # Create social media
             self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
             self._create_social_media(account, 'twitter', values.get('Twitter'))
+
+            user_name = values.get('Assigned User Name')
+            if user_name and user_name in self.fuser_mapping:
+                account.assigned_to = LilyUser.objects.get(email=self.user_mapping[user_name], tenant_id=self.tenant_pk)
+
             account.save()
             if created:
-                task_logger.info('account created')
+                logger.debug('account created')
             else:
-                task_logger.info('account exists')
+                logger.debug('account exists')
 
     def _create_contact_data(self, values):
         """
@@ -277,19 +279,17 @@ E.g.:
                 # Create social media
                 self._create_social_media(contact, 'twitter', values.get('Twitter'))
 
-                try:
-                    account = Account.objects.get(name=values.get('Account Name'), tenant_id=self.tenant_pk)
-                except Account.DoesNotExist:
-                    pass
-                else:
-                    # Create function (link with account)
-                    Function.objects.create(account=account, contact=contact)
+                accounts = Account.objects.filter(name=values.get('Account Name'), tenant_id=self.tenant_pk)
+                if accounts.exists():
+                    for account in accounts:
+                        # Create function (link with account)
+                        Function.objects.get_or_create(account=account, contact=contact)
                 contact.save()
 
                 if created:
-                    task_logger.info('contact created')
+                    logger.debug('contact created')
                 else:
-                    task_logger.info('contact exists')
+                    logger.debug('contact exists')
 
     def _create_address(self, instance, type, address, postal_code, city, country, primary=False):
         """
@@ -311,10 +311,8 @@ E.g.:
             if _isint(number) and int(number) < 32766:
                 address_kwargs['street_number'] = int(number)
             address_kwargs['complement'] = complement
-            if postal_code and len(postal_code) > 10:
+            if len(postal_code) > 10:
                 postal_code = postal_code[:10]
-            else:
-                postal_code = ''
             address_kwargs['postal_code'] = postal_code
             address_kwargs['city'] = city
             if country:
@@ -324,13 +322,22 @@ E.g.:
                     country = ''
                     address_kwargs['country'] = country
             address_kwargs['tenant_id'] = self.tenant_pk
-            if not instance.addresses.filter(**address_kwargs).exists():
+            if not instance.addresses.filter(
+                    street=address_kwargs['street'],
+                    city=address_kwargs['city']
+            ).exists():
                 try:
                     address = Address.objects.create(**address_kwargs)
                 except DataError:
-                    task_logger.warning('could not create address: %s' % address_kwargs)
+                    logger.warning('could not create address: %s' % address_kwargs)
                 else:
                     instance.addresses.add(address)
+            else:
+                address_kwargs.pop('tenant_id')
+                instance.addresses.filter(
+                    street=address_kwargs['street'],
+                    city=address_kwargs['city']
+                ).update(**address_kwargs)
 
     def _create_email_addresses(self, instance, values):
         """
@@ -417,20 +424,3 @@ E.g.:
             website_kwargs['account'] = account
             website_kwargs['is_primary'] = True
             Website.objects.get_or_create(**website_kwargs)
-
-
-def _isint(string):
-    """
-    Helper function to check if string is int.
-
-    Arguments:
-        string (str): string to check
-
-    Returns:
-        Boolean: True if string is int.
-    """
-    try:
-        int(string)
-        return True
-    except (TypeError, ValueError):
-        return False

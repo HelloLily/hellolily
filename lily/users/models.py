@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
@@ -9,7 +10,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 from timezone_field import TimeZoneField
 
-from lily.settings import LANGUAGES
 from lily.tenant.models import TenantMixin, Tenant
 
 try:
@@ -20,7 +20,7 @@ except ImportError:
 
 class LilyUserManager(UserManager):
 
-    def _create_user(self, email, password, is_staff, is_superuser, tenant_pk=1, **extra_fields):
+    def _create_user(self, email, password, is_staff, is_superuser, tenant_id=None, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -29,8 +29,11 @@ class LilyUserManager(UserManager):
             raise ValueError('The given email address must be set')
         email = self.normalize_email(email)
 
-        # Find a tenant
-        tenant = Tenant.objects.get_or_create(pk=tenant_pk)[0]
+        # Find or create a tenant
+        if tenant_id:
+            tenant = Tenant.objects.get_or_create(pk=tenant_id)[0]
+        else:
+            tenant = Tenant.objects.create()
 
         user = self.model(tenant=tenant, email=email, is_staff=is_staff, is_active=True, is_superuser=is_superuser,
                           last_login=now, date_joined=now, **extra_fields)
@@ -68,7 +71,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
 
-    language = models.CharField(_('lanaguage'), max_length=3, choices=LANGUAGES, default='en')
+    language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     objects = LilyUserManager()

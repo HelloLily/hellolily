@@ -2,7 +2,8 @@ from django.conf import settings
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch.dispatcher import receiver
 
-from lily.search.indexing import get_class, update_in_index, remove_from_index
+from lily.search.indexing import update_in_index, remove_from_index
+from lily.utils.functions import get_class
 
 
 CLASS_MAPPINGS = [get_class(kls) for kls in settings.ES_MODEL_MAPPINGS]

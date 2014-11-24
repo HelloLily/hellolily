@@ -11,7 +11,7 @@ class Activity(TimeStampedModel):
     stream.
     """
     user = models.ForeignKey(LilyUser)
-    
+
     class Meta:
         abstract = True
         verbose_name = _('activity')
@@ -23,7 +23,7 @@ class Poll(Activity):
     Poll model, a poll with max. 5 answers.
     """
     question = models.TextField(verbose_name=_('question'))
-    
+
     def __unicode__(self):
         return self.question
 
@@ -38,7 +38,7 @@ class Choice(models.Model):
     """
     choice = models.CharField(max_length=255, verbose_name=_('choice'))
     poll = models.ForeignKey(Poll, related_name='choices')
-    
+
     class Meta:
         verbose_name = _('choice')
         verbose_name_plural = _('choices')
@@ -49,10 +49,10 @@ class Bookmark(Activity):
     Bookmark model, simple url to share an interesting piece of the internet.
     """
     url = models.URLField(max_length=255, verbose_name=_('bookmark url'))
-    
+
     def __unicode__(self):
         return self.url
-    
+
     class Meta:
         verbose_name = _('bookmark')
         verbose_name_plural = _('bookmarks')
@@ -74,7 +74,7 @@ class Event(Activity):
 
     def __unicode__(self):
         return self.title
-    
+
     class Meta:
         verbose_name = _('event')
         verbose_name_plural = _('events')
@@ -88,7 +88,7 @@ class Status(Activity):
 
     def __unicode__(self):
         return self.message
-    
+
     class Meta:
         verbose_name = _('status')
         verbose_name_plural = _('statuses')

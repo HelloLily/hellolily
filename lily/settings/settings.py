@@ -190,7 +190,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'newrelicextensions.middleware.NewRelicMiddleware',
     'pipeline.middleware.MinifyHTMLMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
 )
@@ -408,9 +407,19 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'elasticsearch.trace': {
+        'elasticsearch': {
             'handlers': ['console'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'search.trace': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'sugarimport': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
     }
@@ -464,25 +473,6 @@ else:
             },
         },
     }
-
-#######################################################################################################################
-# NEW RELIC SETTINGS                                                                                                  #
-#######################################################################################################################
-NEW_RELIC_EXTENSIONS_ENABLED = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_ENABLED', 0))
-NEW_RELIC_EXTENSIONS_DEBUG = boolean(os.environ.get('NEW_RELIC_EXTENSIONS_DEBUG', 1))
-NEW_RELIC_EXTENSIONS_ATTRIBUTES = {
-    'user': {
-        'username': 'Django username',
-        'is_superuser': 'Django super user',
-        'is_staff': 'Django staff user',
-    },
-    'is_secure': 'Secure connection',
-    'is_ajax': 'Ajax request',
-    'method': 'Http Method',
-    'COOKIES': 'Http cookies',
-    'META': 'Http meta data',
-    'session': 'Http session',
-}
 
 #######################################################################################################################
 # ELASTICSEARCH                                                                                                       #

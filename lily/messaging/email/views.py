@@ -19,7 +19,7 @@ from django.core.urlresolvers import reverse
 from django.core.servers.basehttp import FileWrapper
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, QueryDict, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.defaultfilters import truncatechars
 from django.utils.datastructures import SortedDict
@@ -460,7 +460,7 @@ class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMix
         }),
     ])
 
-    # ExportListViewMixin & DataTablesListView
+    # FilteredListMixin
     search_fields = [
         'name__icontains',
         'description__name__icontains',
@@ -474,6 +474,14 @@ class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMix
         Orders the queryset based on given column and sort_order.
 
         Used by DataTablesListView.
+
+        Args:
+            queryset (QuerySet): QuerySet that needs to be ordered.
+            column (str): Name of the column that needs ordering.
+            sort_order (str): Always 'asc' or 'desc'.
+
+        Returns:
+            queryset: The ordered QuerySet.
         """
         # Column contains folder name, so parse the string
         column = column.split('/')[1]
@@ -546,20 +554,20 @@ class DeleteEmailTemplateView(LoginRequiredMixin, DeleteView):
         self.object.delete()
 
         # Show delete message
-        messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
+        messages.success(self.request, _('%s (Email template) has been deleted.') % self.object.subject)
 
-        # redirect_url = self.get_success_url()
-        # if is_ajax(request):
-        #     response = anyjson.serialize({
-        #         'error': False,
-        #         'redirect_url': redirect_url
-        #     })
-        #     return HttpResponse(response, content_type='application/json')
-        #
-        # return HttpResponseRedirect(redirect_url)
+        redirect_url = self.get_success_url()
+        if is_ajax(request):
+            response = anyjson.serialize({
+                'error': False,
+                'redirect_url': redirect_url
+            })
+            return HttpResponse(response, content_type='application/json')
+
+        return HttpResponseRedirect(redirect_url)
 
     def get_success_url(self):
-        return reverse('case_list')
+        return reverse('emailtemplate_list')
 
 
 class ParseEmailTemplateView(LoginRequiredMixin, FormView):
@@ -751,7 +759,6 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     'subject': self.object.subject,
                     'send_to_normal': self.object.to_combined,
                     'send_to_cc': self.object.to_cc_combined,
-                    'send_to_bcc': self.object.to_bcc_combined,
                     'body_html': self.object.body_html,
                 },
             })

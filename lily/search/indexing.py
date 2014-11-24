@@ -14,8 +14,8 @@ def update_in_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    logger.info('Updating instance %s' % instance)
-    if instance.is_deleted:
+    logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
+    if hasattr(instance, 'is_deleted') and instance.is_deleted:
         try:
             tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
         except:
@@ -33,20 +33,8 @@ def remove_from_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    logger.info('Removing instance %s' % instance)
+    logger.info(u'Removing instance %s: %s' % (instance.__class__.__name__, instance.pk))
     try:
         tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
     except Exception, e:
         logger.error(traceback.format_exc(e))
-
-
-def get_class(kls):
-    '''
-    Get a class by fully qualified class name.
-    '''
-    parts = kls.split('.')
-    module = ".".join(parts[:-1])
-    m = __import__(module)
-    for comp in parts[1:]:
-        m = getattr(m, comp)
-    return m

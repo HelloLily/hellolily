@@ -1,6 +1,11 @@
 {% extends 'list.html' %}
 
-{% load i18n utils %}
+{% load i18n utils compressed %}
+
+{% block css %}
+    {{ block.super }}
+    {% compressed_css 'cases' %}
+{% endblock %}
 
 {% block list-title %}
     {% with object_list|first as first_object %}

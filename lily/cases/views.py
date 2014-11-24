@@ -302,16 +302,13 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     success_url = reverse_lazy('case_list')
 
     def archive(self, archive=True, **kwargs):
-        kwargs = {}
+        """
+        Set Case to archived and status to last position (probably closed status)
 
-        try:
-            closed_status = CaseStatus.objects.get(status__iexact='Closed')
-        except CaseStatus.DoesNotExist:
-            pass
-        else:
-            if closed_status:
-                # Set status of cases to closes when archived
-                kwargs.update({'status': closed_status})
+        Arguments:
+            archive (boolean): True if object should be archived, False to unarchive.
+        """
+        kwargs.update({'status': CaseStatus.objects.last()})
 
         # Even if the status can't be set we can still archive the case
         return super(ArchiveCasesView, self).archive(**kwargs)

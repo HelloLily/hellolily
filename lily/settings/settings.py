@@ -407,9 +407,19 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'elasticsearch.trace': {
+        'elasticsearch': {
             'handlers': ['console'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'search.trace': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'sugarimport': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
     }

@@ -231,6 +231,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         label=_('Assigned to'),
         queryset=LilyUser.objects,
         empty_label=_('Not assigned'),
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -251,7 +252,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
 
         if self.instance.pk:
             self.fields['extra_websites'].initial = self.instance.websites.filter(is_primary=False)
-            
+
             twitter = self.instance.social_media.filter(name='twitter').first()
             self.fields['twitter'].initial = twitter.username if twitter else ''
 

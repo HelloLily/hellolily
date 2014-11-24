@@ -215,3 +215,32 @@ def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
     paged_object_list = object_list[:objects_size]
     show_more = len(object_list) > objects_size
     return paged_object_list, show_more
+
+
+def get_class(kls):
+    """
+    Get a class by fully qualified class name.
+    """
+    parts = kls.split('.')
+    module = ".".join(parts[:-1])
+    m = __import__(module)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+    return m
+
+
+def _isint(string):
+    """
+    Helper function to check if string is int.
+
+    Arguments:
+        string (str): string to check
+
+    Returns:
+        Boolean: True if string is int.
+    """
+    try:
+        int(string)
+        return True
+    except (TypeError, ValueError):
+        return False

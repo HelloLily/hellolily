@@ -192,6 +192,7 @@ class Function(DeletedMixin):
     class Meta:
         verbose_name = _('function')
         verbose_name_plural = _('functions')
+        unique_together = ('account', 'contact')
 
 # ------------------------------------------------------------------------------------------------
 # Signal listeners

@@ -116,14 +116,12 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for function in object.functions.all %}
-                        {% for contact_function in function.contact.functions.all %}
-                            <tr>
-                                <td><a href="{% url 'contact_details' contact_function.contact.pk%}">{{ contact_function.contact.full_name }}</a></td>
-                                <td>{{ contact_function.contact.primary_email|default:_('Unknown') }}</td>
-                                <td>{{ contact_function.contact.get_phone_number|default:_('Unknown') }}</td>
-                            </tr>
-                        {% endfor %}
+                    {% for contact in object.get_contacts %}
+                        <tr>
+                            <td><a href="{% url 'contact_details' contact.pk %}">{{ contact.full_name }}</a></td>
+                            <td>{{ contact.primary_email|default:_('Unknown') }}</td>
+                            <td>{{ contact.get_phone_number|default:_('Unknown') }}</td>
+                        </tr>
                     {% empty %}
                         <tr>
                             <td colspan="3">{% trans 'There are no known contact for this company' %}</td>

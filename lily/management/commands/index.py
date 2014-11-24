@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from elasticutils.contrib.django import get_es, tasks
 
 from lily.search.analyzers import get_analyzers
-from lily.search.indexing import get_class
+from lily.utils.functions import get_class
 
 
 class Command(BaseCommand):
@@ -82,9 +82,9 @@ creating a new index, then changing the alias to point to the new index. \
         self.unindex(index_name)
 
     def index(self, index_name):
-        '''
+        """
         Index objects from our index-enabled models.
-        '''
+        """
         for mappingClass in self.MAPPINGS:
             model = mappingClass.get_model()
             self.stdout.write('Indexing %s from index %s' % (model, index_name))
@@ -94,9 +94,9 @@ creating a new index, then changing the alias to point to the new index. \
                 tasks.index_objects(mappingClass, model_ids, index=index_name)
 
     def unindex(self, index_name):
-        '''
+        """
         Removing deleted objects from our index-enabled models.
-        '''
+        """
         for mappingClass in self.MAPPINGS:
             model = mappingClass.get_model()
             self.stdout.write('Removing deleted %s objects from index %s' % (model,

@@ -2,6 +2,7 @@ from elasticutils.contrib.django import Indexable, MappingType
 
 from lily.accounts.models import Account
 from lily.contacts.models import Function
+from lily.users.models import LilyUser
 
 
 class AccountMapping(MappingType, Indexable):
@@ -21,7 +22,7 @@ class AccountMapping(MappingType, Indexable):
                          'search_analyzer': 'name_search_analyzer',
                          'index_analyzer': 'name_index_analyzer'},
                 'contact': {'type': 'integer'},
-                'assigned_to': {'type': 'integer'},
+                'assigned_to': {'type': 'string'},
                 'tenant': {'type': 'integer'},
                 'modified': {'type': 'date'},
             }
@@ -34,6 +35,8 @@ class AccountMapping(MappingType, Indexable):
         """
         return {
             Function: lambda obj: [obj.account],
+            # LilyUser saves every login, which will trigger reindex of all related accounts.
+            # LilyUser: lambda obj: obj.account_set.all(),
         }
 
     @classmethod
@@ -49,8 +52,13 @@ class AccountMapping(MappingType, Indexable):
             'name': obj.name,
             'tenant': obj.tenant_id,
             'modified': obj.modified,
-            'assigned_to': obj.assigned_to,
         }
+
+        if obj.assigned_to:
+            doc.update({
+                'assigned_to': obj.assigned_to.get_full_name(),
+            })
+
         contacts = [contact.id for contact in obj.get_contacts()]
         doc['contact'] = contacts
         return doc

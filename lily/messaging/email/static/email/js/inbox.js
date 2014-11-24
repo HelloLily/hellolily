@@ -274,4 +274,18 @@ $(function ($) {
         // Make sure form always gets submitted
         $(form).submit();
     });
+
+    // Select2 doesn't remove certain values, so make sure that the value of the field is correct
+    $(".tags-ajax").change(function () {
+        var $this = $(this);
+        var values = [];
+        var data = $this.select2('data');
+
+        for(var i=0; i < data.length; i++) {
+            var recipient_data = data[i];
+            values.push(recipient_data.id);
+        }
+
+        $this.val(values.join());
+    });
 });

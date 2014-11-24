@@ -804,9 +804,9 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     kwargs = dict(
                         subject=unsaved_form.subject,
                         from_email=email_account.email,
-                        to=unsaved_form.send_to_normal.split(', ') if len(unsaved_form.send_to_normal) else None,
-                        cc=unsaved_form.send_to_cc.split(', ') if len(unsaved_form.send_to_cc) else None,
-                        bcc=unsaved_form.send_to_bcc.split(', ') if len(unsaved_form.send_to_bcc) else None,
+                        to=unsaved_form.send_to_normal if len(unsaved_form.send_to_normal) else None,
+                        cc=unsaved_form.send_to_cc if len(unsaved_form.send_to_cc) else None,
+                        bcc=unsaved_form.send_to_bcc if len(unsaved_form.send_to_bcc) else None,
                         connection=None,
                         attachments=None,
                         headers=self.get_email_headers(),

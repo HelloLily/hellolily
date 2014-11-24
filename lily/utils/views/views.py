@@ -410,6 +410,7 @@ class DataTablesListView(FilterQuerysetMixin, ListView):
 
         Arguments:
             item (instance): The model instance where the row is generated for.
+
         Returns:
             None or dict with extra information for DataTables
         """
@@ -490,7 +491,7 @@ class JsonListView(FilterQuerysetMixin, ListView):
         """
         Get a filtered and searched queryset.
 
-        The QuerySet is filtered on given GET `q` and on given
+        The QuerySet is filtered on given GET `filterquery` and on given
         ``filter_on_related_object`` and GET `filter`.
 
         Sets ``count`` with number of results in QuerySet.
@@ -499,14 +500,13 @@ class JsonListView(FilterQuerysetMixin, ListView):
             queryset (instance): Filtered and searched QuerySet
         """
         queryset = super(JsonListView, self).get_queryset()
-
         # Filter on related object
         filter = self.request.GET.get('filter', None)
         if filter and self.filter_on_field:
             queryset = queryset.filter(Q(**{self.filter_on_field: filter}))
 
         # Search on queryset
-        search_terms = self.request.GET.get('q', None).split(' ')
+        search_terms = self.request.GET.get('filterquery', None).split(' ')
         if search_terms:
             queryset = self.filter_queryset(queryset, search_terms)
 
@@ -515,15 +515,26 @@ class JsonListView(FilterQuerysetMixin, ListView):
         return queryset
 
     def render_to_response(self, context, **response_kwargs):
-        # Return json response with paginated object results and total queryset count.
+        """
+        Return JSON response with paginated object results and total queryset count.
+
+        Arguments:
+            context (dict): Dict containing context variables.
+            response_kwargs (dict): Arguments that will be passed to the constructor of the response class.
+
+        Returns:
+            JSON response with paginated object results and total queryset count.
+        """
         contacts = []
         for object in context['object_list']:
             contacts.append({'id': object.pk, 'text': str(object)})
+
         response = json.dumps({
             'objects': contacts,
             'total': self._total
         })
-        return HttpResponse(response, content_type="application/javascript")
+
+        return HttpResponse(response, content_type='application/javascript')
 
 
 class SugarCsvImportView(LoginRequiredMixin, FormView):

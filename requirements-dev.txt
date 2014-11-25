@@ -10,6 +10,7 @@
 
 django-debug-toolbar>=0.9.4
 django-template-debug>=0.3.3
+django-debug-toolbar-template-timings==0.6.4
 
 ipython>=2.0.0
 ipdb>=0.8

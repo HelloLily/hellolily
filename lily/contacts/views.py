@@ -73,6 +73,10 @@ class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, 
 
     # ExportListViewMixin
     exportable_columns = {
+        'id': {
+            'headers': [_('ID')],
+            'columns_for_item': ['id']
+        },
         'name': {
             'headers': [_('Name')],
             'columns_for_item': ['name']
@@ -140,6 +144,12 @@ class ListContactView(LoginRequiredMixin, ExportListViewMixin, SortedListMixin, 
                 '%sfunctions__account' % prefix
             )
         return queryset
+
+    def value_for_column_id(self, contact):
+        """
+        Used by ExportListViewMixin.
+        """
+        return contact.id
 
     def value_for_column_name(self, contact):
         """

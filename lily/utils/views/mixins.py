@@ -125,6 +125,8 @@ class ExportListViewMixin(FilterQuerysetMixin):
         columns = []
         export_columns = request.POST.get('export_columns[]', []).split(',')
         if export_columns:
+            # Always insert id
+            export_columns.insert(0, 'id')
             # There were columns in POST, check if they match self.exportable_columns.
             for column in export_columns:
                 if self.exportable_columns.get(column):
@@ -159,6 +161,9 @@ class ExportListViewMixin(FilterQuerysetMixin):
             search_terms = request.POST.get('export_filter', None).split(' ')
             search_terms = set([term.lower() for term in search_terms])
             queryset = self.filter_queryset(queryset, search_terms)
+
+            # Filter deleted items
+            queryset = queryset.filter(is_deleted=False)
 
             # For each item, make a row to export.
             for item in queryset.iterator():

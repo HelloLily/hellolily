@@ -70,6 +70,10 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
 
     # ExportListViewMixin
     exportable_columns = {
+        'id': {
+            'headers': [_('ID')],
+            'columns_for_item': ['id']
+        },
         'account': {
             'headers': [_('Account')],
             'columns_for_item': ['account']
@@ -128,6 +132,12 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         if column in ('name', 'tags', 'created', 'modified'):
             return queryset.order_by('%s%s' % (prefix, column))
         return queryset
+
+    def value_for_column_id(self, account):
+        """
+        Used by ExportListViewMixin.
+        """
+        return account.id
 
     def value_for_column_account(self, account):
         """

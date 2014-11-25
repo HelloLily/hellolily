@@ -294,6 +294,7 @@ if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
         'template_debug',  # in-template tags for debugging purposes
+        'template_timings_panel',
     )
 
 MESSAGE_APPS = (
@@ -535,5 +536,23 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-south
 SOUTH_AUTO_FREEZE_APP = True
 SOUTH_VERBOSITY = 1
+
+DEBUG_TOOLBAR_PANELS = [
+    # 'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'template_timings_panel.panels.TemplateTimings.TemplateTimings',
+    # 'debug_toolbar.panels.settings.SettingsPanel',
+    # 'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    # 'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    # 'debug_toolbar.panels.redirects.RedirectsPanel',
+    # 'debug_toolbar.panels.profiling.ProfilingPanel',
+    # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython
+]
 
 from .celeryconfig import *

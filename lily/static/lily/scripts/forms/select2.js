@@ -60,8 +60,9 @@
                     ajax: {
                         cache: true,
                         data: function (term, page) { // page is the one-based page number tracked by Select2
+                            var term_stripped = term.trim();
                             var data = {
-                                filterquery: term ? 'name:('+term+')' : '', //search term
+                                filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
                                 size: self.config.ajaxPageLimit, // page size
                                 page: (page - 1), // page number, zero-based
                             };

@@ -96,13 +96,13 @@ class EmailMessage(Message):
     body_html = models.TextField(blank=True, null=True)
     body_text = models.TextField(blank=True, null=True)
     size = models.IntegerField(default=0, null=True)  # size in bytes
-    folder_name = models.CharField(max_length=255)
+    folder_name = models.CharField(max_length=255, db_index=True)
     folder_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     is_private = models.BooleanField(default=False)
     account = models.ForeignKey(EmailAccount, related_name='messages')
     sent_from_account = models.BooleanField(default=False)
     message_identifier = models.CharField(max_length=255)  # Message-ID header
-    is_deleted = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False, db_index=True)
 
     def get_list_item_template(self):
         """

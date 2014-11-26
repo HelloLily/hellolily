@@ -66,8 +66,8 @@ class Message(HistoryListItem):
     A message base class, all messages are subclasses of this base class.
     Automatically downcasts when queried so unicode is almost never used.
     """
-    sent_date = models.DateTimeField(null=True)  # time sent in UTC
-    is_seen = models.BooleanField(default=False)
+    sent_date = models.DateTimeField(null=True, db_index=True)  # time sent in UTC
+    is_seen = models.BooleanField(default=False, db_index=True)
 
     def save(self, *args, **kwargs):
         self.sort_by_date = self.sent_date

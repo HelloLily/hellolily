@@ -72,8 +72,9 @@
                                 };
                             }
                             else {
+                                var term_stripped = term.trim();
                                 data = {
-                                    filterquery: term ? 'name:('+term+')' : '', //search term
+                                    filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
                                     size: cf.ajaxPageLimit, // page size
                                     page: (page - 1) // page number, zero-based
                                 };

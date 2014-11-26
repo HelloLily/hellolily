@@ -349,6 +349,9 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
                 parse_result = urlparse(self.request.META['HTTP_REFERER'])
                 if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
                     redirect_url = self.get_success_url()
+                # Redirect to Account if quick create modal from Account.
+                elif account and parse_result.path == reverse('account_details', args=(account.pk,)):
+                    redirect_url = reverse('account_details', args=(account.pk,))
 
             response = anyjson.serialize({
                 'error': False,
@@ -409,9 +412,9 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Get the url to redirect to after this form has successfully been submitted.
         """
-        return '%s?order_by=4&sort_order=desc' % (reverse('contact_list'))
+        return reverse('contact_list')
 
 
 class EditContactView(CreateUpdateContactMixin, UpdateView):

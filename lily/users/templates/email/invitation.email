@@ -2,16 +2,20 @@
 
 {% block subject %}{% trans 'You have been invited to ' %} {{ current_site.name }}{% endblock %}
 
-{% block plain %} {% blocktrans with company_name as company_name and current_site.name as site_name and full_name as full_name and invite_link as invite_link %}
-Hello {{ name }},
+{% block plain %} {% blocktrans with current_site.name as site_name and full_name as full_name and invite_link as invite_link %}
+Hi {{ name }},
 
-You have just been invited by {{ full_name }} to join {{ company_name }} on {{ site_name }}.
+I would like to invite you to join me on {{ site_name }}. {{ full_name }} asked me to get you on board.
 
-This invitation is only valid with this e-mail address and needs to be accepted within seven days.
+This invitation is only valid with this email address and needs to be accepted within seven days.
 
 To accept this invitation, please click on or copy to your address bar the following link:
 {{ invite_link }}
 
-We hope to see you soon!
+I hope to see you soon!
+
+Greetz,
+
+Lily
 {% endblocktrans %}
 {% endblock %}

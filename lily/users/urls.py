@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, url
-from django.views.generic import RedirectView
 
 from lily.users.forms import CustomPasswordResetForm
 from lily.users.views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView,
@@ -23,7 +22,7 @@ urlpatterns = patterns('',
 
     # Invitations
     url(r'^invitation/invite/$', SendInvitationView.as_view(), name='invitation_invite'),
-    url(r'^invitation/accept/(?P<account_name>.+)/(?P<first_name>.+)/(?P<email>.+)/(?P<date>[0-9]+)-(?P<aidb36>[0-9A-Za-z]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
+    url(r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
 
     # User profile settings
     url(r'^user/profile/$', UserProfileView.as_view(), name='user_profile_view'),

@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import is_password_usable
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import get_current_site
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.forms import TextInput
 from django.forms.formsets import BaseFormSet
@@ -115,7 +116,6 @@ class CustomPasswordResetForm(PasswordResetForm):
         Overloading super().save to use a custom email_template_name.
         """
         email_template_name = 'email/password_reset.email'
-        from django.core.mail import send_mail
         for user in self.users_cache:
             if not domain_override:
                 current_site = get_current_site(request)
@@ -124,7 +124,7 @@ class CustomPasswordResetForm(PasswordResetForm):
             else:
                 site_name = domain = domain_override
             context_data = {
-                'email': user.primary_email,
+                'email': user.email,
                 'domain': domain,
                 'site_name': site_name,
                 'uid': int_to_base36(user.id),
@@ -136,7 +136,7 @@ class CustomPasswordResetForm(PasswordResetForm):
             # Email subject *must not* contain newlines
             subject = ''.join(subject.splitlines())
             email = loader.render_to_string(email_template_name, context_data)
-            send_mail(subject, email, from_email, [str(user.primary_email)])
+            send_mail(subject, email, from_email, [str(user.email)])
 
 
 class CustomSetPasswordForm(SetPasswordForm):
@@ -196,13 +196,6 @@ class RegistrationForm(HelloLilyForm):
     first_name = forms.CharField(label=_('First name'), max_length=255)
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)
-    company = forms.CharField(label=_('Company'), max_length=255)
-
-    def clean_username(self):
-        if LilyUser.objects.filter(username=self.cleaned_data['username']).exists():
-            raise ValidationError(code='invalid', message=_('Username already exists.'))
-        else:
-            return self.cleaned_data['username']
 
     def clean_email(self):
         if LilyUser.objects.filter(email__iexact=self.cleaned_data['email']).exists():
@@ -237,26 +230,12 @@ class UserRegistrationForm(RegistrationForm):
             'readonly': 'readonly',
         })
     )
-    company = forms.CharField(
-        label=_('Company'),
-        max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'mws-register-company disabled',
-            'readonly': 'readonly'
-        })
-    )
 
     def clean_email(self):
         if self.cleaned_data['email'] != self.initial['email']:
             raise ValidationError(code='invalid', message=_('You can\'t change the e-mail address of the invitation.'))
         else:
             return self.cleaned_data['email']
-
-    def clean_company(self):
-        if self.cleaned_data['company'] != self.initial['company']:
-            raise ValidationError(code='invalid', message=_('You can\'t change the company name of the invitation.'))
-        else:
-            return self.cleaned_data['company']
 
 
 class InvitationForm(HelloLilyForm):

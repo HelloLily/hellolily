@@ -40,7 +40,7 @@ if (typeof String.prototype.endsWith != 'function') {
             contactField: '#id_contact',
             quickContactField: '#id_case_quickbutton_contact',
             accountField: '#id_account',
-            quickAccountField: '#id_case_quickbutton_account'
+            quickAccountField: '#id_case_quickbutton_account',
             archiveField: '#id_is_archived',
             archiveButton: '#archive-button',
             saveArchiveText: 'Save and Archive',

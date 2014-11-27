@@ -367,10 +367,13 @@ class AjaxSelect2Widget(Widget):
         # Add initial value
         if value:
             final_attrs['value'] = value
-            try:
-                selected_text = str(self.model.objects.get(pk=value))
-            except ObjectDoesNotExist:
-                selected_text = ''
+            if isinstance(value, basestring):
+                selected_text = value
+            else:
+                try:
+                    selected_text = str(self.model.objects.get(pk=value))
+                except ObjectDoesNotExist:
+                    selected_text = ''
 
             final_attrs['data-selected-text'] = selected_text
 

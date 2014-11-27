@@ -61,6 +61,12 @@ CELERY_ROUTES = (
     {'send_message': {  # send an email message
         'queue': 'queue2'
     }},
+    {'save_message': {  # send an email message
+        'queue': 'queue2'
+    }},
+    {'remove_draft': {  # send an email message
+        'queue': 'queue2'
+    }},
     # {'synchronize_folder': {  # email from single folder
     #     'queue': 'queue3'
     # }},

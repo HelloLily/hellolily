@@ -61,9 +61,11 @@
             var load_notifications = function() {
                 $.getScript('{% url 'notifications' %}');
             };
-            {% if messages %}
-                load_notifications();
-            {% endif %}
+            $(function($) {
+                {% if messages %}
+                    load_notifications();
+                {% endif %}
+            });
         </script>
     {% endblock %}
     {% block tasks %}
@@ -71,7 +73,9 @@
             HLTasks.init({
                 placeholderUrl: '{% url 'task_status' task_id='000' %}',
                 sendMessageSuccess: {message: '{% trans 'I successfully delivered your e-mail!' %}', title: '{% trans 'Yay!' %}'},
-                sendMessageError: {message: '{% blocktrans %} Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later. {% endblocktrans %}', title: '{% trans 'Oops!' %}'}
+                sendMessageError: {message: '{% blocktrans %}Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later.{% endblocktrans %}', title: '{% trans 'Oops!' %}'},
+                saveMessageSuccess: {message: '{% trans 'I successfully saved your message as a draft!' %}', title: '{% trans 'Yay!' %}'},
+                saveMessageError: {message: '{% blocktrans %}I couldn\'t save your message as a draft, please try again!{% endblocktrans %}', title: '{% trans 'Oops!' %}'}
             });
             {% if request.session.tasks %}
                 {% for task_name, task_id in request.session.tasks.items %}

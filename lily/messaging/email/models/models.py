@@ -203,6 +203,29 @@ class EmailMessage(Message):
             return ''
 
     @property
+    def reply_body(self):
+        """
+        Return an version of the body which is used for replies or forwards.
+        This is preferably the html part, but in case that doesn't exist we use the text part
+        """
+        if self.body_html:
+            body_html = '<br /><br /><hr />' + self.body_html
+            # In case of html, wrap body in blockquote tag.
+            soup = BeautifulSoup(body_html)
+            if soup.html is None:
+                soup = BeautifulSoup("""<html>%s</html>""" % body_html)  # haven't figured out yet how to do this elegantly..
+
+            soup.html.unwrap()
+            return soup.decode()
+        elif self.body_text:
+            # In case of plain text, prepend '>' to every line of body.
+            reply_body = textwrap.wrap(self.body_text, 80)
+            reply_body = ['> %s' % line for line in reply_body]
+            return '<br /><br />' + '<br />'.join(reply_body)
+        else:
+            return ''
+
+    @property
     def subject(self):
         if hasattr(self, '_subject_header'):
             header = self._subject_header

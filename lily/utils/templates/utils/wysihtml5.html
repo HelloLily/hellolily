@@ -1,6 +1,6 @@
 {% load compressed bootstrap3 i18n %}
 
-<div class="inbox-compose">
+<div>
     <div id="wysihtml5-toolbar" style="display: none;">
         <ul class="wysihtml5-toolbar">
             <li class="dropdown">
@@ -43,6 +43,6 @@
     </div>
 
     <div class="col-md-12" style="padding-top: 10px; padding-bottom: 10px;">
-        <textarea{% for key, value in attrs.items %} {{ key }}="{{ value }}"{% endfor %}>{{ value|default:"" }}</textarea>
+        <textarea {% for key, value in attrs.items %} {{ key }}="{{ value }}"{% endfor %}>{{ value|default:"" }}</textarea>
     </div>
 </div>

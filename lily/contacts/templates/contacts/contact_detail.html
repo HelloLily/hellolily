@@ -105,7 +105,7 @@
                             {% for colleague_function in function.account.functions.all %}
                                 {% if colleague_function.contact != object %}
                                     <tr>
-                                        <td>{{ colleague_function.contact.full_name }}</td>
+                                        <td><a href="{% url 'contact_details' colleague_function.contact.pk %}">{{ colleague_function.contact.full_name }}</a></td>
                                         <td>{{ colleague_function.contact.primary_email|default:_('Unknown') }}</td>
                                         <td>{{ colleague_function.contact.get_phone_number|default:_('Unknown') }}</td>
                                     </tr>

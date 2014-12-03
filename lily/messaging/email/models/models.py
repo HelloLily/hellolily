@@ -460,15 +460,14 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     A template is a predefined email in which parameters can be dynamically inserted.
 
     @name: name that is used to display templates in a list
-    @description: what is this template handy for?
     @subject: default subject for the e-mail using this template
     @body_html: html part of the e-mail
 
     """
     name = models.CharField(verbose_name=_('template name'), max_length=255)
-    description = models.TextField(verbose_name=_('template description'), blank=True)
     subject = models.CharField(verbose_name=_('message subject'), max_length=255, blank=True)
     body_html = models.TextField(verbose_name=_('html part'), blank=True)
+    default_for = models.ManyToManyField(EmailAccount, through='DefaultEmailTemplate')
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -477,6 +476,24 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
         app_label = 'email'
         verbose_name = _('e-mail template')
         verbose_name_plural = _('e-mail templates')
+
+
+class DefaultEmailTemplate(models.Model):
+    """
+    Define a default template for a user.
+    """
+    user = models.ForeignKey('users.LilyUser', related_name='default_templates')
+    template = models.ForeignKey(EmailTemplate, related_name='default_templates')
+    account = models.ForeignKey(EmailAccount, related_name='default_templates')
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.account, self.template)
+
+    class Meta:
+        app_label = 'email'
+        verbose_name = _('default e-mail template')
+        verbose_name_plural = _('default e-mail templates')
+        unique_together = ('user', 'account')
 
 
 class EmailTemplateAttachment(models.Model):

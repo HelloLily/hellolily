@@ -41,11 +41,7 @@ def get_messages_accounts(user, model_cls=None, pk_list=None):
     if pk_list is not None:
         messages_accounts = messages_accounts.filter(Q(pk__in=pk_list))
 
-    # Uniquify accounts
-    messages_accounts = uniquify(
-        messages_accounts.order_by('emailaccount__email'),
-        filter=lambda x: x.emailaccount.email
-    )
+    messages_accounts = messages_accounts.order_by('emailaccount__email').distinct('emailaccount__email')
 
     # Cache for this request.
     setattr(user, '_messages_accounts_%s_%s' % (model_cls, pk_list), messages_accounts)

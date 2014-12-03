@@ -10,39 +10,13 @@
 {% endif %}
 {% endblock %}
 
-{% block page-title %}
-{% if object.pk %}
-    {% trans 'Edit email template' %}
-{% else %}
-    {% trans 'Create email template' %}
-{% endif %}
-{% endblock %}
-
-{% block form-title %}
-{% if object.pk %}
-    {% trans 'Edit email template' %}
-{% else %}
-    {% trans 'Create email template' %}
-{% endif %}
-{% endblock %}
-
 {% block css %}
     {{ block.super }}
     {% compressed_css 'inbox' %}
     {% compressed_css 'wysihtml5' %}
 {% endblock %}
 
-{% block hor-menu %}
-{{ block.super }}
-<li>
-    <a href="{% url 'emailtemplate_list' %}">{% trans 'View e-mail templates' %}</a>
-</li>
-<li>
-    <a href="{% url 'emailtemplate_create' %}">{% trans 'Add an e-mail template' %}</a>
-</li>
-{% endblock %}
-
-{% block form %}
+{% block page-container %}
     <form id="file_upload_form" action="" method="post" enctype="multipart/form-data" style="display: none;">
         {% csrf_token %}
         <input id="id_body_file" type="file" class="clearablefileinput" name="body_file" accept="text/html,text/plain">
@@ -52,7 +26,6 @@
 
 {% block form-fields %}
     {% bootstrap_field form.name field_class="col-md-4" label_class="col-md-2 control-label" %}
-    {% bootstrap_field form.description field_class="col-md-4" label_class="col-md-2 control-label" %}
     {% bootstrap_field form.subject field_class="col-md-4" label_class="col-md-2 control-label" %}
 
     <div class="form-group">
@@ -72,12 +45,7 @@
             <span id="id_text_value" class="form-control-static"></span>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-md-offset-1 col-md-10 inbox-compose">
-            {% include 'wysihtml5_toolbar.html' %}
-            {% bootstrap_field form.body_html field_class="col-md-12" show_label=False %}
-        </div>
-    </div>
+    {% bootstrap_field form.body_html field_class="col-md-10" label_class="col-md-2 control-label" %}
 {% endblock %}
 
 {% block scripts %}
@@ -116,7 +84,7 @@ $(function($) {
                 url: '{% url 'messaging_email_template_parse' %}',
                 success: function(response) {
                     if(!response.error && response.form) {
-                        var fields = ['name', 'description', 'subject'];
+                        var fields = ['name', 'subject'];
                         $.each(fields, function(index, field) {
                             if(response.form.hasOwnProperty(field)) {
                                 $('#id_' + field).val(response.form[field]);

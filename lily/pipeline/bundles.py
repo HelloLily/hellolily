@@ -135,7 +135,7 @@ PIPELINE_CSS = {
     'inbox': {
         'source_filenames': (
             'metronic/css/pages/inbox.css',
-            'lily/css/inbox.css',
+            'email/css/inbox.css',
         ),
         'output_filename': 'compiled/css/inbox.css',
     },
@@ -161,6 +161,7 @@ PIPELINE_JS = {
             'lily/scripts/gettext.js',
             'lily/scripts/forms/select2.js',
             'lily/plugins/jquery.truncate.js',
+            'lily/plugins/content-toggle/jquery.contentToggle.js',
         ),
         'output_filename': 'compiled/js/core.js',
     },

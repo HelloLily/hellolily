@@ -204,10 +204,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
-    # TODO: Find a new way to insert account variables in email templates
-    # email_template_parameters = [name, description, ]
-    # email_template_lookup = 'request.user.account'
-
     class Meta:
         ordering = ['name']
         verbose_name = _('account')

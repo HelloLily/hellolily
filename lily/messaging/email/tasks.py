@@ -596,10 +596,11 @@ def delete_messages(message_ids):
                     email_account.save()
 
 
-@task(name='move_messages')
+@task(name='move_messages', bind=True)
+@monitor_task(logger=task_logger)
 def move_messages(message_ids, to_folder_name):
     """
-    Move n messages in the background.
+    Move messages asynchronously.
     """
     if not isinstance(message_ids, list):
         message_ids = [message_ids]
@@ -626,7 +627,7 @@ def move_messages(message_ids, to_folder_name):
                 is_deleted=False,
             )
         except EmailAccount.DoesNotExist:
-            pass
+            return False
         else:
             with LilyIMAP(email_account) as server:
                 if server.login(email_account.username, email_account.password):
@@ -647,7 +648,7 @@ def move_messages(message_ids, to_folder_name):
                     except IMAPConnectionError:
                         # Move failed, do not mark the message as deleted anymore.
                         EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=False)
-                        # TODO: warn user that move has failed
+                        return False
                     else:
                         # Delete local messages
                         EmailMessage.objects.filter(id__in=message_ids).delete()
@@ -658,10 +659,12 @@ def move_messages(message_ids, to_folder_name):
                     email_account.auth_ok = NO_EMAILACCOUNT_AUTH
                     email_account.save()
 
+    return True
 
 ###
-## HELPER METHODS
+# HELPER METHODS
 ###
+
 
 def get_account_folders_from_server(server):
     """
@@ -1347,6 +1350,7 @@ def save_message(email_account_id, email_outbox_message_id):
         new_draft = None
 
         gc.collect()
+
 
 @task(name='remove_draft', bind=True)
 @monitor_task(logger=task_logger)

@@ -53,3 +53,14 @@
 .mail-actions .mail-checkbox {
     pointer-events: all;
 }
+
+.inbox-content .select2-container .select2-choice,
+.inbox-content .select2-container-multi .select2-choices {
+    border: 0;
+    padding: 4px 0 0 8px;
+}
+
+.no-spacing-right {
+    padding-right: 0;
+    margin-right: 0;
+}

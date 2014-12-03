@@ -36,9 +36,11 @@ from python_imap.utils import convert_html_to_text, parse_search_keys, extract_t
 from lily.messaging.utils import get_messages_accounts
 from lily.messaging.models import PUBLIC, PRIVATE, SHARED
 from lily.messaging.email.forms import (CreateUpdateEmailTemplateForm, EmailTemplateFileForm, ComposeEmailForm,
-                                        EmailAccountCreateUpdateForm, EmailAccountShareForm)
+                                        EmailAccountCreateUpdateForm, EmailAccountShareForm,
+                                        EmailTemplateSetDefaultForm)
 from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAccount, EmailTemplate,
-                                         OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, EmailOutboxMessage)
+                                         OK_EMAILACCOUNT_AUTH, NO_EMAILACCOUNT_AUTH, EmailOutboxMessage,
+                                         DefaultEmailTemplate)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, move_messages,
                                         get_from_imap, send_message, save_message, remove_draft)
 from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
@@ -66,7 +68,7 @@ class EmailBaseView(LoginRequiredMixin, View):
                 user=request.user, model_cls=EmailAccount, pk_list=[kwargs.get('account_id')]
             )
         else:
-            self.active_email_accounts = self.all_email_accounts
+            self.active_email_accounts = self.all_email_accounts.get_real_instances()
 
         return super(EmailBaseView, self).dispatch(request, *args, **kwargs)
 
@@ -439,56 +441,9 @@ class EmailSpamView(EmailFolderView):
 # EmailTemplate Views.
 #
 
-class ListEmailTemplateView(LoginRequiredMixin, SortedListMixin, FilteredListMixin, DataTablesListView):
+class EmailTemplateListView(LoginRequiredMixin, ListView):
+    template_name = 'email/emailtemplate_list.html'
     model = EmailTemplate
-    sortable = [1, 2]
-    default_order_by = 1
-
-    # DataTablesListView
-    columns = SortedDict([
-        ('edit', {
-            'mData': 'emailtemplate/edit',
-            'bSortable': False,
-        }),
-        ('name', {
-            'mData': 'emailtemplate/name',
-        }),
-        ('description', {
-            'mData': 'emailtemplate/description',
-        }),
-    ])
-
-    # FilteredListMixin
-    search_fields = [
-        'name__icontains',
-        'description__name__icontains',
-    ]
-
-    def get_queryset(self):
-        return super(ListEmailTemplateView, self).get_queryset()
-
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset based on given column and sort_order.
-
-        Used by DataTablesListView.
-
-        Args:
-            queryset (QuerySet): QuerySet that needs to be ordered.
-            column (str): Name of the column that needs ordering.
-            sort_order (str): Always 'asc' or 'desc'.
-
-        Returns:
-            queryset: The ordered QuerySet.
-        """
-        # Column contains folder name, so parse the string
-        column = column.split('/')[1]
-        prefix = ''
-        if sort_order == 'desc':
-            prefix = '-'
-        if column in ('name', 'description'):
-            return queryset.order_by('%s%s' % (prefix, column))
-        return queryset
 
 
 class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
@@ -510,13 +465,13 @@ class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
         """
         Return to email template list after creating or updating an email template.
         """
-        return reverse('emailtemplate_list')
+        return reverse('messaging_email_template_list')
 
 
 class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
     def form_valid(self, form):
         # Show save messages
-        message = _('%s (EmailTemplate) has been created')
+        message = _('%s has been created')
 
         # Saves instance
         response = super(CreateEmailTemplateView, self).form_valid(form)
@@ -530,7 +485,7 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
 class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
     def form_valid(self, form):
         # Show save messages
-        message = _('%s (EmailTemplate) has been updated')
+        message = _('%s has been updated')
 
         # Saves instance
         response = super(UpdateEmailTemplateView, self).form_valid(form)
@@ -541,31 +496,23 @@ class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
         return response
 
 
-class DeleteEmailTemplateView(LoginRequiredMixin, DeleteView):
-    """
-    Delete an instance and all instances of m2m relationships.
-    """
+class EmailTemplateDeleteView(LoginRequiredMixin, FormActionMixin, StaticContextMixin, DeleteView):
+    template_name = 'confirm_delete.html'
     model = EmailTemplate
+    static_context = {'form_object_name': _('email template')}
 
     def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-
-        # Show delete message
-        messages.success(self.request, _('%s (Email template) has been deleted.') % self.object.subject)
-
-        redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
+        response = super(EmailTemplateDeleteView, self).delete(request, *args, **kwargs)
+        messages.success(self.request, _('%s has been deleted.' % self.object.name))
+        if is_ajax(self.request):
+            return HttpResponse(anyjson.serialize({
                 'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return HttpResponseRedirect(redirect_url)
+                'redirect_url': self.get_success_url()
+            }), content_type='application/json')
+        return response
 
     def get_success_url(self):
-        return reverse('emailtemplate_list')
+        return reverse('messaging_email_account_list')
 
 
 class ParseEmailTemplateView(LoginRequiredMixin, FormView):
@@ -589,6 +536,25 @@ class ParseEmailTemplateView(LoginRequiredMixin, FormView):
             'error': True
         }), content_type='application/json')
 
+
+class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
+    template_name = 'ajax_form.html'
+    model = EmailTemplate
+    form_class = EmailTemplateSetDefaultForm
+
+    def get_success_message(self, cleaned_data):
+        default_for = self.object.default_for.all()
+        default_for_length = len(default_for)
+        if default_for_length == 0:
+            message = _('%s is no longer a default template' % self.object)
+        elif default_for_length == 1:
+            message = _('%s has been set as default for: %s' % (self.object, default_for[0]))
+        else:
+            message = _('%s has been set as default for: %s and %s others' % (self.object, default_for[0], default_for_length - 1))
+        return message
+
+    def get_success_url(self):
+        return reverse('messaging_email_account_list')
 
 class EmailMessageUpdateBaseView(LoginRequiredMixin, View):
     """

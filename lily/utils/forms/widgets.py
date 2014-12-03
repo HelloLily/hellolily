@@ -2,7 +2,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer
+from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
@@ -378,3 +378,25 @@ class AjaxSelect2Widget(Widget):
             final_attrs['data-selected-text'] = selected_text
 
         return mark_safe('<input type="hidden"%s>' % flatatt(final_attrs))
+
+
+class Wysihtml5Input(Textarea):
+    """
+    Widget for displaying the textarea as wysihtml5 input
+    """
+
+    def __init__(self, attrs=None):
+        default_attrs = {
+            'class': 'inbox-editor inbox-wysihtml5 form-control'
+        }
+        if attrs:
+            default_attrs.update(attrs)
+        super(Wysihtml5Input, self).__init__(default_attrs)
+
+    def render(self, name, value, attrs=None):
+        final_attrs = self.build_attrs(attrs, name=name)
+        return render_to_string('utils/wysihtml5.html', {
+            'name': name,
+            'value': value,
+            'attrs': final_attrs,
+        })

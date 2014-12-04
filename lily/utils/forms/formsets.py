@@ -19,7 +19,7 @@ class BaseM2MFormSet(BaseModelFormSet):
 
         if commit and hasattr(self, 'related_instance') and hasattr(self, 'related_name'):
             for form in self.forms:
-                if not form.cleaned_data.get('DELETE'):
+                if form.cleaned_data and not form.cleaned_data.get('DELETE'):
                     getattr(self.related_instance, self.related_name).add(form.instance)
 
         return instance_list

@@ -15,3 +15,5 @@ celeryev.pid
 
 lily/files/
 lily/static/i18n/
+
+Procfile.local

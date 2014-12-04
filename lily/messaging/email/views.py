@@ -723,7 +723,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     'subject': self.object.subject,
                     'send_to_normal': self.object.to_combined,
                     'send_to_cc': self.object.to_cc_combined,
-                    'body_html': self.object.body_html,
+                    'body_html': self.object.reply_body,
                 },
             })
         return kwargs

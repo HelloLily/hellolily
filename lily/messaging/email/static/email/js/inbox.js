@@ -13,7 +13,8 @@
             searchFormSubmit: '.search-form [type="submit"]',
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             replyButton: '.reply-btn',
-            inboxFrame: null
+            inboxFrame: null,
+            tagsAjaxSelector: '.tags-ajax'
         },
 
         init: function (config) {
@@ -70,7 +71,11 @@
                 })
                 .on('click', cf.inboxComposeSubmit, function (event) {
                     self.handleInboxComposeSubmit(this, event);
+                })
+                .on('change', cf.tags, function () {
+                    self.handleTagsAjaxChange(this);
                 });
+
 
             // Set heading properly after change
             var toolbar = $('#wysihtml5-toolbar');
@@ -303,22 +308,21 @@
             $(form).submit();
         },
 
+        handleTagsAjaxChange: function (tagsAjax) {
+            // Select2 doesn't remove certain values (values with quotes), so make sure that the value of the field is correct
+            var values = [];
+            var data = $(tagsAjax).select2('data');
+
+            for(var i=0; i < data.length; i++) {
+                var recipient_data = data[i];
+                values.push(recipient_data.id);
+            }
+
+            $(tagsAjax).val(values.join());
+        },
+
         getEditor: function() {
             return editor;
         }
     }
 })(jQuery, window, document);
-
-    // Select2 doesn't remove certain values, so make sure that the value of the field is correct
-    $(".tags-ajax").change(function () {
-        var $this = $(this);
-        var values = [];
-        var data = $this.select2('data');
-
-        for(var i=0; i < data.length; i++) {
-            var recipient_data = data[i];
-            values.push(recipient_data.id);
-        }
-
-        $this.val(values.join());
-    });

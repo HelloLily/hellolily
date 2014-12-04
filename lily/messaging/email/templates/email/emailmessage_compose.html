@@ -64,7 +64,7 @@
                 </div>
             </div>
             {% endif %}
-            {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class=" " form_group_class="inbox-form-group margin-bottom-10" %}
+            {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" %}
             {{ form.attachments }}
             <div class="inbox-compose-btn">
                 <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send' %}</button>

@@ -11,6 +11,7 @@
 .DS_Store
 .idea/
 
+celerybeat-schedule
 celeryev.pid
 
 lily/files/

@@ -34,7 +34,7 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
     imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'), required=False)
     imap_port = forms.IntegerField(label=_('Incoming port'), required=False)
     imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
-    smtp_host = HostnameField(max_length=255, label=_('Outgoding server (SMTP)'), required=False)
+    smtp_host = HostnameField(max_length=255, label=_('Outgoing server (SMTP)'), required=False)
     smtp_port = forms.IntegerField(label=_('Outgoing port'), required=False)
     smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
 

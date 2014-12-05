@@ -169,7 +169,7 @@ class EmailMessage(Message):
                 elif len(to_emails) > 1 or to_cc:
                     operation = 'reply-all'
         elif from_email == self.account.email:
-             # If the sender is the user's email it's just a sent email
+            # If the sender is the user's email it's just a sent email
             operation = 'sent'
 
         return {

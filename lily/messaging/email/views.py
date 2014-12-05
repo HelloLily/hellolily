@@ -67,6 +67,7 @@ class EmailBaseView(LoginRequiredMixin, View):
             self.active_email_accounts = get_messages_accounts(
                 user=request.user, model_cls=EmailAccount, pk_list=[kwargs.get('account_id')]
             )
+            self.active_email_accounts = self.active_email_accounts.get_real_instances()
         else:
             self.active_email_accounts = self.all_email_accounts.get_real_instances()
 

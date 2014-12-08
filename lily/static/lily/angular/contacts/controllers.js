@@ -48,7 +48,7 @@ angular.module('contactControllers', [
                 })};
 
             /**
-             * updateCache() sets scope variables to the cookie
+             * updateTableSettings() sets scope variables to the cookie
              */
             function updateTableSettings() {
                 Cookie.setCookieValue('filter', $scope.table.filter);
@@ -90,7 +90,7 @@ angular.module('contactControllers', [
              * needs to store the info to the cache
              */
             $scope.$watchCollection('table.visibility', function() {
-               updateCache();
+               updateTableSettings();
             });
 
 

@@ -5,5 +5,6 @@ angular.module('lilyApp', [
     'contactControllers',
 
     // global modules
-    'lilyDirectives'
+    'lilyDirectives',
+    'lilyServices'
 ]);

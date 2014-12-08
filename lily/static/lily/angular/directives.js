@@ -108,12 +108,12 @@ angular.module('template/directive/checkbox.html', [])
     .run(['$templateCache', function($templateCache) {
         $templateCache.put('template/directive/checkbox.html',
                 '<label>' +
-                '<div class="checker">' +
-                '<span ng-class="{checked: model}">' +
-                '<input type="checkbox" data-skip-uniform ng-model="model">' +
-                '</span>' +
-                '</div> ' +
-                '<ng-transclude></ng-transclude>' +
+                    '<div class="checker">' +
+                        '<span ng-class="{checked: model}">' +
+                            '<input type="checkbox" data-skip-uniform ng-model="model">' +
+                        '</span>' +
+                    '</div> ' +
+                    '<ng-transclude></ng-transclude>' +
                 '</label>');
     }]
 );

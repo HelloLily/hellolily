@@ -293,9 +293,11 @@ PIPELINE_JS = {
     'angularapp': {
         'source_filenames': (
             'lily/angular/angular-1.3.5/angular.js',
+            'lily/angular/angular-1.3.5/angular-cookies.js',
             'lily/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
             'lily/angular/app.js',
             'lily/angular/directives.js',
+            'lily/angular/services.js',
             'lily/angular/contacts/services.js',
             'lily/angular/contacts/controllers.js',
         ),

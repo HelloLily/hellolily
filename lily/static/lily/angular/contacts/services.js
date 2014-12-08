@@ -1,3 +1,6 @@
+/**
+ * contactServices is a container for all contact related Angular services
+ */
 angular.module('contactServices', [])
 
     /**

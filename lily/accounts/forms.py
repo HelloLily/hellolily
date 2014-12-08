@@ -344,7 +344,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
                 'fields': ('assigned_to',),
             }),
             (_('Contact information'), {
-                'fields': ('email_addresses', 'addresses', 'extra_websites', ),
+                'fields': ('email_addresses', 'phone_numbers', 'addresses', 'extra_websites', ),
             }),
         )
 

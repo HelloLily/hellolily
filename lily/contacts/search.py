@@ -23,8 +23,8 @@ class ContactMapping(MappingType, Indexable):
                     'mapping': {
                         'type': 'string',
                         'index': 'analyzed',
-                        'search_analyzer': 'name_search_analyzer',
-                        'index_analyzer': 'name_index_analyzer'
+                        'search_analyzer': 'letter_analyzer',
+                        'index_analyzer': 'letter_ngram_analyzer'
                     },
                 },
             }],
@@ -35,8 +35,12 @@ class ContactMapping(MappingType, Indexable):
                 'name': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'search_analyzer': 'name_search_analyzer',
-                    'index_analyzer': 'name_index_analyzer',
+                    'search_analyzer': 'letter_analyzer',
+                    'index_analyzer': 'letter_ngram_analyzer',
+                },
+                'last_name': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
                 },
                 'email': {
                     'type': 'string',
@@ -46,12 +50,11 @@ class ContactMapping(MappingType, Indexable):
                 'tag': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'simple',
+                    'analyzer': 'letter_analyzer',
                 },
                 'account_name': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'simple'
                 },
                 'account': {
                     'type': 'integer',
@@ -61,7 +64,6 @@ class ContactMapping(MappingType, Indexable):
                 },
                 'created': {
                     'type': 'date',
-                    'index': 'no',
                 },
                 'modified': {
                     'type': 'date',
@@ -92,7 +94,8 @@ class ContactMapping(MappingType, Indexable):
 
         doc = {
             'id': obj.id,
-            'name': '%s %s' % (obj.first_name, obj.last_name),
+            'name': obj.full_name(),
+            'last_name': obj.last_name,
             'tenant': obj.tenant_id,
             'created': obj.created,
             'modified': obj.modified,

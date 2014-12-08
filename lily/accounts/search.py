@@ -2,7 +2,6 @@ from elasticutils.contrib.django import Indexable, MappingType
 
 from lily.accounts.models import Account
 from lily.contacts.models import Function
-from lily.users.models import LilyUser
 
 
 class AccountMapping(MappingType, Indexable):
@@ -18,9 +17,12 @@ class AccountMapping(MappingType, Indexable):
         return {
             'properties': {
                 'id': {'type': 'integer'},
-                'name': {'type': 'string', 'index': 'analyzed',
-                         'search_analyzer': 'name_search_analyzer',
-                         'index_analyzer': 'name_index_analyzer'},
+                'name': {
+                    'type': 'string',
+                    'index': 'analyzed',
+                    'search_analyzer': 'letter_analyzer',
+                    'index_analyzer': 'letter_ngram_analyzer',
+                },
                 'contact': {'type': 'integer'},
                 'assigned_to': {'type': 'string'},
                 'tenant': {'type': 'integer'},

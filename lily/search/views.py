@@ -24,20 +24,44 @@ class SearchView(LoginRequiredMixin, View):
             }
         })
 
-        query = request.GET.get('q', '')
+        query = request.GET.get('q', '').lower()
         if query:
-            search = search.query_raw({
-                'multi_match': {
-                    'query': query,
-                    'operator': 'and',
-                    'fields': [
-                        'name',
-                        'phone*',
-                        'email*',
-                        'tag*',
-                    ],
+            raw_query = {
+                'bool': {
+                    'should': [
+                        {
+                            'multi_match': {
+                                'query': query,
+                                'operator': 'and',
+                                'fields': [
+                                    'name',
+                                ],
+                            }
+                        },
+                    ]
                 }
-            })
+            }
+
+            # Prefix query is not analyzed on ES side, so split up into different tokens
+            for token in query.split(' '):
+                raw_query['bool']['should'].extend([
+                    {
+                        'prefix': {
+                            'tag': token,
+                        }
+                    },
+                    {
+                        'prefix': {
+                            'email*': token,
+                        }
+                    },
+                    {
+                        'prefix': {
+                            'account_name': token,
+                        }
+                    },
+                ])
+            search = search.query_raw(raw_query)
 
         filterquery = request.GET.get('filterquery', '')
         if filterquery:
@@ -61,7 +85,7 @@ class SearchView(LoginRequiredMixin, View):
         sort = request.GET.get('sort', '')
         if sort:
             search = search.order_by(sort)
-        if not query:
+        elif not query:
             # We have the specific wish to sort by -modified when no query.
             search = search.order_by('-modified')
 

@@ -51,61 +51,61 @@
             <div class="row">
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
-                    <th class="table-checkbox"></th>
-                    <th ng-show="table.visibility.name" sort-column="last_name" table="table">Name</th>
-                    <th ng-show="table.visibility.contactInformation" >Contact information</th>
-                    <th ng-show="table.visibility.worksAt" sort-column="account" table="table">Works at</th>
-                    <th ng-show="table.visibility.created" sort-column="created" table="table">Created</th>
-                    <th ng-show="table.visibility.modified" sort-column="modified" table="table">Modified</th>
-                    <th ng-show="table.visibility.tags">Tags</th>
+                        <th class="table-checkbox"></th>
+                        <th ng-show="table.visibility.name" sort-column="last_name" table="table">Name</th>
+                        <th ng-show="table.visibility.contactInformation" >Contact information</th>
+                        <th ng-show="table.visibility.worksAt" sort-column="account" table="table">Works at</th>
+                        <th ng-show="table.visibility.created" sort-column="created" table="table">Created</th>
+                        <th ng-show="table.visibility.modified" sort-column="modified" table="table">Modified</th>
+                        <th ng-show="table.visibility.tags">Tags</th>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="contact in table.items">
-                        <td>
-                            <a href="/contacts/details/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
-                                <i class="icon-edit"></i>
-                            </a>
-                            <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
-                                <i class="icon-trash"></i>
-                            </button>
-                        </td>
-                        <td ng-show="table.visibility.name">
-                            <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ contact.name }}</a>
-                        </td>
-                        <td ng-show="table.visibility.contactInformation">
-                            <div ng-repeat="email in contact.email">
-                                <a href="mailto:{{ ::email }}" title="{{ ::email }}">
-                                    <i class="icon-envelope-alt"></i>
-                                    {{ email }}
+                        <tr ng-repeat="contact in table.items">
+                            <td>
+                                <a href="/contacts/details/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
+                                    <i class="icon-edit"></i>
                                 </a>
-                            </div>
-                            <div ng-repeat="phone in contact.phone_work track by $index">
-                                <a href="tel:{{ ::phone }}">
-                                    <i class="icon-phone"></i>
-                                    {{ phone }}
-                                </a>
-                            </div>
-                            <div ng-repeat="phone in contact.phone_mobile track by $index">
-                                <a href="tel:{{ ::phone }}">
-                                    <i class="icon-mobile-phone"></i>
-                                    {{ phone }}
-                                </a>
-                            </div>
-                        </td>
-                        <td ng-show="table.visibility.worksAt">
-                            <div ng-repeat="account in contact.account">
-                                <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
-                            </div>
-                        </td>
-                        <td ng-show="table.visibility.created">{{ ::contact.created | date:'medium' }}</td>
-                        <td ng-show="table.visibility.modified">{{ ::contact.modified | date:'medium' }}</td>
-                        <td ng-show="table.visibility.tags">
-                            <span ng-repeat="tag in contact.tag">
-                                <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
-                                <br>
-                            </span>
-                        </td>
-                    </tr>
+                                <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
+                                    <i class="icon-trash"></i>
+                                </button>
+                            </td>
+                            <td ng-show="table.visibility.name">
+                                <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ contact.name }}</a>
+                            </td>
+                            <td ng-show="table.visibility.contactInformation">
+                                <div ng-repeat="email in contact.email">
+                                    <a href="mailto:{{ ::email }}" title="{{ ::email }}">
+                                        <i class="icon-envelope-alt"></i>
+                                        {{ email }}
+                                    </a>
+                                </div>
+                                <div ng-repeat="phone in contact.phone_work track by $index">
+                                    <a href="tel:{{ ::phone }}">
+                                        <i class="icon-phone"></i>
+                                        {{ phone }}
+                                    </a>
+                                </div>
+                                <div ng-repeat="phone in contact.phone_mobile track by $index">
+                                    <a href="tel:{{ ::phone }}">
+                                        <i class="icon-mobile-phone"></i>
+                                        {{ phone }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td ng-show="table.visibility.worksAt">
+                                <div ng-repeat="account in contact.account">
+                                    <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
+                                </div>
+                            </td>
+                            <td ng-show="table.visibility.created">{{ ::contact.created | date:'medium' }}</td>
+                            <td ng-show="table.visibility.modified">{{ ::contact.modified | date:'medium' }}</td>
+                            <td ng-show="table.visibility.tags">
+                                <span ng-repeat="tag in contact.tag">
+                                    <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
+                                    <br>
+                                </span>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

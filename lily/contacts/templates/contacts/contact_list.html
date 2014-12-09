@@ -10,18 +10,13 @@
         <div class="portlet-title">
             <div class="caption">Contacts</div>
             <div class="actions">
-                <form method="post" id="form_export">
-                    <input type="hidden" class="export_type" name="export" value="">
-                    <input type="hidden" class="export_columns" name="export_columns[]" value="">
-                    <input type="hidden" class="export_filter" name="export_filter" value="">
-                </form>
                 <div class="btn-group">
                     <a class="btn default" href="#" data-toggle="dropdown">
                         Tools
                         <i class="icon-angle-down"></i>
                     </a>
                     <ul class="dropdown-menu pull-right">
-                        <li><a href="javascript:void(0)" class="export_link" data-export-type="csv"><i class="icon-download"></i> Export to csv</a></li>
+                        <li><a href="javascript:void(0)" ng-click="exportToCsv()"><i class="icon-download"></i> Export to csv</a></li>
                     </ul>
                 </div>
                 <div class="btn-group">

@@ -19,10 +19,11 @@ angular.module('contactControllers', [
     .controller('ContactListController', [
         '$scope',
         '$cookieStore',
+        '$window',
 
         'Contact',
         'Cookie',
-        function($scope, $cookieStore, Contact, Cookie) {
+        function($scope, $cookieStore, $window, Contact, Cookie) {
 
             Cookie.prefix ='contactList';
 
@@ -93,7 +94,6 @@ angular.module('contactControllers', [
                updateTableSettings();
             });
 
-
             /**
              * setFilter() sets the filter of the table
              *
@@ -101,6 +101,34 @@ angular.module('contactControllers', [
              */
             $scope.setFilter = function(queryString) {
                 $scope.table.filter = queryString;
+            };
+
+            /**
+             * exportToCsv() creates an export link and opens it
+             */
+            $scope.exportToCsv = function() {
+                var getParams = '';
+
+                // If there is a filter, add it
+                if ($scope.table.filter) {
+                    getParams += '&export_filter=' + $scope.table.filter;
+                }
+
+                // Add all visible columns
+                angular.forEach($scope.table.visibility, function(value, key) {
+                   if (value) {
+                       getParams += '&export_columns='+ key;
+                   }
+                });
+
+                // Setup url
+                var url = '/contacts/export/';
+                if (getParams) {
+                    url += '?' + getParams.substr(1);
+                }
+
+                // Open url
+                $window.open(url);
             }
         }
     ]

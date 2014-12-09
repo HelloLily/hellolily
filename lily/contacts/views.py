@@ -9,15 +9,18 @@ from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account
-from lily.contacts.forms import CreateUpdateContactForm, AddContactQuickbuttonForm
-from lily.contacts.models import Contact, Function
+from lily.search.utils import LilySearch
 from lily.utils.functions import is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView
-from lily.utils.views.mixins import (HistoryListViewMixin, LoginRequiredMixin)
+from lily.utils.views.mixins import (HistoryListViewMixin, LoginRequiredMixin, ExportListViewMixin)
+
+from .forms import CreateUpdateContactForm, AddContactQuickbuttonForm
+from .models import Contact, Function
 
 
 class ListContactView(LoginRequiredMixin, AngularView):
@@ -25,6 +28,71 @@ class ListContactView(LoginRequiredMixin, AngularView):
     Display a list of all contacts
     """
     template_name = 'contacts/contact_list.html'
+
+
+class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
+
+    http_method_names = ['get']
+    file_name = 'contacts.csv'
+
+    # ExportListViewMixin
+    exportable_columns = {
+        'id': {
+            'headers': [_('ID')],
+            'columns_for_item': ['id']
+        },
+        'name': {
+            'headers': [_('Name')],
+            'columns_for_item': ['name']
+        },
+        'contactInformation': {
+            'headers': [
+                _('Email'),
+                _('Work Phone'),
+                _('Mobile Phone'),
+            ],
+            'columns_for_item': [
+                'email',
+                'phone_work',
+                'phone_mobile',
+            ]
+        },
+        'worksAt': {
+            'headers': [_('Works at')],
+            'columns_for_item': ['account_name']
+        },
+        'created': {
+            'headers': [_('Created')],
+            'columns_for_item': ['created']
+        },
+        'modified': {
+            'headers': [_('Modified')],
+            'columns_for_item': ['modified']
+        },
+        'tags': {
+            'headers': [_('Tags')],
+            'columns_for_item': ['tag']
+        },
+    }
+
+    # ExportListViewMixin
+    def value_for_column(self, contact, column):
+        try:
+            value = contact[column]
+            if isinstance(value, list):
+                value = ', '.join(value)
+        except KeyError:
+            value = ''
+        return value
+
+    # ExportListViewMixin
+    def get_items(self):
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='contacts_contact',
+        )
+
+        return search.raw_query(query=self.request.GET.get('export_filter'))[0]
 
 
 class JsonContactListView(LoginRequiredMixin, JsonListView):

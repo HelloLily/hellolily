@@ -62,7 +62,7 @@
                     <tbody>
                         <tr ng-repeat="contact in table.items">
                             <td>
-                                <a href="/contacts/details/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
+                            <a href="/contacts/details/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
                                     <i class="icon-edit"></i>
                                 </a>
                                 <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >

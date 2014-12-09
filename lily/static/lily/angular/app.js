@@ -3,6 +3,7 @@
  */
 angular.module('lilyApp', [
     'contactControllers',
+    'accountControllers',
 
     // global modules
     'lilyDirectives',

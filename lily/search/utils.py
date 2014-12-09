@@ -118,6 +118,7 @@ class LilySearch(object):
                                 'operator': 'and',
                                 'fields': [
                                     'name',
+                                    'assigned_to',
                                 ],
                             }
                         },

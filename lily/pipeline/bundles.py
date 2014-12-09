@@ -298,6 +298,8 @@ PIPELINE_JS = {
             'lily/angular/app.js',
             'lily/angular/directives.js',
             'lily/angular/services.js',
+            'lily/angular/accounts/services.js',
+            'lily/angular/accounts/controllers.js',
             'lily/angular/contacts/services.js',
             'lily/angular/contacts/controllers.js',
         ),

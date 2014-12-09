@@ -11,10 +11,10 @@
 {% block hor-menu %}
 {{ block.super }}
 <li>
-    <a href="{% url 'emailtemplate_list' %}">{% trans 'View e-mail templates' %}</a>
+    <a href="{% url 'messaging_email_template_list' %}">{% trans 'View e-mail templates' %}</a>
 </li>
 <li>
-    <a href="{% url 'emailtemplate_create' %}">{% trans 'Add an e-mail template' %}</a>
+    <a href="{% url 'messaging_email_template_create' %}">{% trans 'Add an e-mail template' %}</a>
 </li>
 {% endblock %}
 
@@ -118,4 +118,12 @@
 {% block scripts %}
     {{ block.super }}
     {% compressed_js 'inbox' %}
+    <script>
+    $(function($) {
+        HLInbox.init({
+            accountDeactivatedMessage: '{% blocktrans %}Your account doesn\'t seem to be active. Please activate your account to view your email.{% endblocktrans %}',
+            inboxFrame: $('.inbox-view iframe')[0]
+        });
+    });
+    </script>
 {% endblock %}

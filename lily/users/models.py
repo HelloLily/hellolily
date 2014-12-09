@@ -76,6 +76,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     objects = LilyUserManager()
 
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name']
+    EMAIL_TEMPLATE_LOOKUP = 'request.user'
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
 
@@ -84,6 +87,10 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         Get the url to the user page
         """
         return reverse('dashboard')
+
+    @property
+    def full_name(self):
+        return self.get_full_name()
 
     def get_full_name(self):
         """

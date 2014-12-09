@@ -2,8 +2,10 @@
     window.HLTasks = {
         config: {
             placeholderUrl: '/taskmonitor/task/status/000/',
-            sendMessageSuccess: {message: 'Your message has been sent!', title: 'Success!'},
-            sendMessageError: {message: 'There was an error while sending your mail, please try again!', title: 'Oops!'}
+            sendMessageSuccess: {message: 'I successfully delivered your e-mail!', title: 'Yay!'},
+            sendMessageError: {message: 'Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later.', title: 'Oops!'},
+            saveMessageSuccess: {message: 'I successfully saved your message as a draft!', title: 'Yay!'},
+            saveMessageError: {message: 'I couldn\'t save your message as a draft, please try again!', title: 'Oops!'}
         },
 
         init: function (config) {
@@ -25,6 +27,13 @@
                     }
                     else {
                         toastr.error(cf.sendMessageError.message, cf.sendMessageError.title);
+                    }
+                })
+                .on('taskmonitor_save_message', function (event) {
+                    if (event.task_result) {
+                        toastr.success(cf.saveMessageSuccess.message, cf.saveMessageSuccess.title);
+                    } else {
+                        toastr.error(cf.saveMessageError.message, cf.saveMessageError.title);
                     }
                 });
         },

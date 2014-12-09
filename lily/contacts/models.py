@@ -159,10 +159,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     def __unicode__(self):
         return self.full_name()
 
-    # TODO: Find a new way to insert contact variables in email templates
-    # email_template_parameters = [first_name, preposition, last_name, full_name]
-    # email_template_lookup = 'request.user.contact'
-
     class Meta:
         ordering = ['last_name', 'first_name']
         verbose_name = _('contact')

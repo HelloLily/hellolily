@@ -11,7 +11,10 @@
 .DS_Store
 .idea/
 
+celerybeat-schedule
 celeryev.pid
 
 lily/files/
 lily/static/i18n/
+
+Procfile.local

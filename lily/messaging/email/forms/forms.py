@@ -1,15 +1,18 @@
+import re
 import socket
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse_lazy
 from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
 from lily.messaging.models import PRIVATE, SHARED
+from lily.contacts.models import Contact
 from lily.messaging.utils import get_messages_accounts
 from lily.messaging.email.models import (EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
-    OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment)
+    OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment, DefaultEmailTemplate)
 from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, verify_imap_credentials,
     verify_smtp_credentials)
 from lily.messaging.email.forms.widgets import EmailAttachmentWidget
@@ -18,7 +21,7 @@ from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import ShowHideWidget
+from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
 
 class EmailAccountCreateUpdateForm(HelloLilyModelForm):
@@ -31,7 +34,7 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
     imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'), required=False)
     imap_port = forms.IntegerField(label=_('Incoming port'), required=False)
     imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
-    smtp_host = HostnameField(max_length=255, label=_('Outgoding server (SMTP)'), required=False)
+    smtp_host = HostnameField(max_length=255, label=_('Outgoing server (SMTP)'), required=False)
     smtp_port = forms.IntegerField(label=_('Outgoing port'), required=False)
     smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
 
@@ -174,7 +177,7 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
 
     class Meta:
         model = EmailAccount
-        fieldsets = [
+        fieldsets = (
             (_('Your account'), {
                 'fields': ['from_name', 'label', 'email', ],
             }), (_('Account credentials'), {
@@ -183,7 +186,7 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
                 'fields': ['imap_host', 'imap_port', 'imap_ssl', 'smtp_host', 'smtp_port', 'smtp_ssl', ],
                 'classes': ['hidden', 'advanced_connection_settings'],
             })
-        ]
+        )
         widgets = {
             'password': forms.PasswordInput(),
         }
@@ -220,11 +223,6 @@ class EmailAccountShareForm(HelloLilyModelForm):
 
     class Meta:
         model = EmailAccount
-        fieldsets = [
-            (_('Sharing options'), {
-                'fields': ['user_group', ],
-            })
-        ]
 
 
 class AttachmentBaseForm(HelloLilyModelForm):
@@ -249,9 +247,43 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         empty_label=_('Choose a template'),
         required=False
     )
-    send_to_normal = TagsField(label=_('To'))
-    send_to_cc = TagsField(required=False, label=_('Cc'))
-    send_to_bcc = TagsField(required=False, label=_('Bcc'))
+
+    send_to_normal = TagsField(
+        label=_('To'),
+        widget=AjaxSelect2Widget(
+            attrs={
+                'class': 'tags-ajax'
+            },
+            url=reverse_lazy('search_view'),
+            model=Contact,
+            filter_on='contacts_contact',
+        ),
+    )
+    send_to_cc = TagsField(
+        label=_('Cc'),
+        required=False,
+        widget=AjaxSelect2Widget(
+            attrs={
+                'class': 'tags-ajax'
+            },
+            url=reverse_lazy('search_view'),
+            model=Contact,
+            filter_on='contacts_contact',
+        ),
+    )
+    send_to_bcc = TagsField(
+        label=_('Bcc'),
+        required=False,
+        widget=AjaxSelect2Widget(
+            attrs={
+                'class': 'tags-ajax'
+            },
+            url=reverse_lazy('search_view'),
+            model=Contact,
+            filter_on='contacts_contact',
+        ),
+    )
+
     attachments = FormSetField(
         queryset=EmailOutboxAttachment.objects,
         formset_class=modelformset_factory(EmailOutboxAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
@@ -298,7 +330,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         # Make sure at least one of the send_to_X fields is filled in when sending it.
         if 'submit-send' in self.data:
             if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
-                self._errors["send_to_normal"] = self.error_class([_('Please provide at least one recipient.')])
+                self._errors['send_to_normal'] = self.error_class([_('Please provide at least one recipient.')])
 
         # Clean send_to addresses.
         cleaned_data['send_to_normal'] = self.format_recipients(cleaned_data.get('send_to_normal'))
@@ -310,17 +342,29 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     def format_recipients(self, recipients):
         """
         Strips newlines and trailing spaces & commas from recipients.
-
         Args:
             recipients (str): The string that needs cleaning up.
-
         Returns:
             String of comma separated email addresses.
         """
         formatted_recipients = []
         for recipient in recipients:
-            formatted_recipients.append(recipient.rstrip(', '))
-        return ', '.join(formatted_recipients)
+            # Clean each part of the string
+            formatted_recipients.append(recipient.rstrip(', ').strip())
+
+        # Create one string from the parts
+        formatted_recipients = ', '.join(formatted_recipients)
+
+        # Regex to split a string by comma while ignoring commas in between quotes
+        pattern = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
+
+        # Split the single string into separate recipients
+        formatted_recipients = pattern.split(formatted_recipients)[1::2]
+
+        # It's possible that an extra space is added, so strip it
+        formatted_recipients = [recipient.strip() for recipient in formatted_recipients]
+
+        return formatted_recipients
 
     def clean_send_from(self):
         """
@@ -343,10 +387,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',
                   'attachments')
         widgets = {
-            'body_html': forms.Textarea(attrs={
-                'rows': 12,
-                'class': 'inbox-editor inbox-wysihtml5 form-control',
-            }),
+            'body_html': Wysihtml5Input(),
         }
 
 
@@ -413,19 +454,69 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
 
     class Meta:
         model = EmailTemplate
-        fields = ('name', 'description', 'subject', 'variables', 'values', 'body_html',)
+        fields = ('name', 'subject', 'variables', 'values', 'body_html',)
         widgets = {
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'description': ShowHideWidget(forms.Textarea(attrs={
-                'rows': 2,
-            })),
-            'body_html': forms.Textarea(attrs={
-                'class': 'inbox-editor inbox-wysihtml5 form-control',
-            }),
+            'body_html': Wysihtml5Input(),
         }
 
+
+class EmailTemplateSetDefaultForm(HelloLilyModelForm):
+    default_for = forms.ModelMultipleChoiceField(queryset=EmailAccount.objects.none(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(EmailTemplateSetDefaultForm, self).__init__(*args, **kwargs)
+        self.fields['default_for'].queryset = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
+
+    def save(self, commit=True):
+        default_for_data = self.cleaned_data.get('default_for')
+        current_user = get_current_user()
+
+        if commit:
+            # Only save to db on commit
+            for email_account in default_for_data:
+                default_template, created = DefaultEmailTemplate.objects.get_or_create(
+                    user=current_user,
+                    account=email_account,
+                    defaults={
+                        'template': self.instance,
+                    }
+                )
+                if not created:
+                    # If default already exists, override the linked template and set to this one
+                    default_template.template = self.instance
+                    default_template.save()
+            if not default_for_data:
+                # There are no accounts submitted, delete previous defaults
+                DefaultEmailTemplate.objects.filter(
+                    user=current_user,
+                    template=self.instance
+                ).delete()
+            else:
+                # Delete defaults that were removed from selection
+                account_id_list = []
+                default_for_id_list = default_for_data.values_list('pk', flat=True)
+                for email_account in self.initial.get('default_for'):
+                    if email_account not in default_for_id_list:
+                        account_id_list.append(email_account)
+
+                DefaultEmailTemplate.objects.filter(
+                    user=current_user,
+                    template=self.instance,
+                    account_id__in=account_id_list
+                ).delete()
+
+        return self.instance
+
+    class Meta:
+        model = EmailTemplate
+        fieldsets = (
+            (_('Set as default for'), {
+                'fields': ['default_for', ],
+            }),
+        )
 
 class EmailTemplateFileForm(HelloLilyForm):
     """

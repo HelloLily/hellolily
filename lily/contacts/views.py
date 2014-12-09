@@ -1,16 +1,16 @@
+import json
 from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
-from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account

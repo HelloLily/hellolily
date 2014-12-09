@@ -372,6 +372,10 @@ class EmailAddress(TenantMixin):
     def __unicode__(self):
         return self.email_address
 
+    def save(self, *args, **kwargs):
+        super(EmailAddress, self).save(*args, **kwargs)
+        self.email_address = self.email_address.lower()
+
     class Meta:
         app_label = 'utils'
         verbose_name = _('e-mail address')

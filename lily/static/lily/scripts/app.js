@@ -382,6 +382,5 @@ if (typeof String.prototype.endsWith != 'function') {
             $form.find(':submit').click();
             event.preventDefault();
         }
-
     }
 })(jQuery, window, document);

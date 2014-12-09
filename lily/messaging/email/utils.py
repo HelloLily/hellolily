@@ -43,19 +43,12 @@ _EMAIL_PARAMETER_CHOICES = {}
 
 def get_field_names(field):
     """
-    Set the field name and the verbose field name depending on the type of field
+    Return the field name and the verbose field name.
 
     :param field: The field from which we want the name
     :return: The field name and the verbose field name
     """
-    if isinstance(field, FunctionType):
-        field_name = field.__name__
-        field_verbose_name = field.__name__.replace('_', ' ')
-    elif isinstance(field, Field):
-        field_name = field.name
-        field_verbose_name = field.verbose_name
-
-    return field_name, field_verbose_name
+    return field, field.replace('_', ' ')
 
 
 def get_email_parameter_dict():
@@ -68,8 +61,8 @@ def get_email_parameter_dict():
     """
     if not _EMAIL_PARAMETER_DICT:
         for model in models.get_models():
-            if hasattr(model, 'email_template_parameters'):
-                for field in model.email_template_parameters:
+            if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
+                for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
 
                     _EMAIL_PARAMETER_DICT.update({
@@ -93,8 +86,8 @@ def get_email_parameter_choices():
     """
     if not _EMAIL_PARAMETER_CHOICES:
         for model in models.get_models():
-            if hasattr(model, 'email_template_parameters'):
-                for field in model.email_template_parameters:
+            if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
+                for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
 
                     if '%s' % model._meta.verbose_name.title() in _EMAIL_PARAMETER_CHOICES:
@@ -104,10 +97,9 @@ def get_email_parameter_choices():
                     else:
                         _EMAIL_PARAMETER_CHOICES.update({
                             '%s' % model._meta.verbose_name.title(): {
-                                '%s_%s' % (model._meta.verbose_name.lower(), field.name.lower()): field_verbose_name.title(),
+                                '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
                             }
                         })
-
     return _EMAIL_PARAMETER_CHOICES
 
 
@@ -117,7 +109,7 @@ def get_folder_unread_count(folder, email_accounts=None):
     """
     from lily.messaging.email.models import EmailAccount, EmailMessage  # prevent circular dependency
     if email_accounts is None:
-        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
+        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount).get_real_instances()
 
     return EmailMessage.objects.filter(Q(folder_identifier=folder) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
@@ -172,7 +164,7 @@ class TemplateParser(object):
         :param default_part: which part is filled when no parts are defined.
         :param parts: override the default recognized parts.
         """
-        parts = parts or ['name', 'description', 'subject', 'body_html']
+        parts = parts or ['name', 'subject', 'body_html']
         response = {}
 
         for part in parts:
@@ -199,7 +191,7 @@ class TemplateParser(object):
         for param in parameters:
             model = param_dict[param]['model']
             field = param_dict[param]['field']
-            lookup = model.email_template_lookup
+            lookup = model.EMAIL_TEMPLATE_LOOKUP
 
             if model not in result_dict:
                 result_dict.update({

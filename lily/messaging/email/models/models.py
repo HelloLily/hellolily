@@ -169,7 +169,7 @@ class EmailMessage(Message):
                 elif len(to_emails) > 1 or to_cc:
                     operation = 'reply-all'
         elif from_email == self.account.email:
-             # If the sender is the user's email it's just a sent email
+            # If the sender is the user's email it's just a sent email
             operation = 'sent'
 
         return {
@@ -199,6 +199,29 @@ class EmailMessage(Message):
             indented_body = textwrap.wrap(self.body_text, 80)
             indented_body = ['> %s' % line for line in indented_body]
             return '<br />'.join(indented_body)
+        else:
+            return ''
+
+    @property
+    def reply_body(self):
+        """
+        Return an version of the body which is used for replies or forwards.
+        This is preferably the html part, but in case that doesn't exist we use the text part
+        """
+        if self.body_html:
+            body_html = '<br /><br /><hr />' + self.body_html
+            # In case of html, wrap body in blockquote tag.
+            soup = BeautifulSoup(body_html)
+            if soup.html is None:
+                soup = BeautifulSoup("""<html>%s</html>""" % body_html)  # haven't figured out yet how to do this elegantly..
+
+            soup.html.unwrap()
+            return soup.decode()
+        elif self.body_text:
+            # In case of plain text, prepend '>' to every line of body.
+            reply_body = textwrap.wrap(self.body_text, 80)
+            reply_body = ['> %s' % line for line in reply_body]
+            return '<br /><br />' + '<br />'.join(reply_body)
         else:
             return ''
 
@@ -460,15 +483,14 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     A template is a predefined email in which parameters can be dynamically inserted.
 
     @name: name that is used to display templates in a list
-    @description: what is this template handy for?
     @subject: default subject for the e-mail using this template
     @body_html: html part of the e-mail
 
     """
     name = models.CharField(verbose_name=_('template name'), max_length=255)
-    description = models.TextField(verbose_name=_('template description'), blank=True)
     subject = models.CharField(verbose_name=_('message subject'), max_length=255, blank=True)
     body_html = models.TextField(verbose_name=_('html part'), blank=True)
+    default_for = models.ManyToManyField(EmailAccount, through='DefaultEmailTemplate')
 
     def __unicode__(self):
         return u'%s' % self.name
@@ -477,6 +499,24 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
         app_label = 'email'
         verbose_name = _('e-mail template')
         verbose_name_plural = _('e-mail templates')
+
+
+class DefaultEmailTemplate(models.Model):
+    """
+    Define a default template for a user.
+    """
+    user = models.ForeignKey('users.LilyUser', related_name='default_templates')
+    template = models.ForeignKey(EmailTemplate, related_name='default_templates')
+    account = models.ForeignKey(EmailAccount, related_name='default_templates')
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.account, self.template)
+
+    class Meta:
+        app_label = 'email'
+        verbose_name = _('default e-mail template')
+        verbose_name_plural = _('default e-mail templates')
+        unique_together = ('user', 'account')
 
 
 class EmailTemplateAttachment(models.Model):

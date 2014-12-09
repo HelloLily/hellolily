@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from celery import signature
-from celery.states import PENDING, SUCCESS, FAILURE
+from celery.states import PENDING, SUCCESS, FAILURE, RECEIVED, STARTED, REVOKED, RETRY, IGNORED, REJECTED
 from dateutil.tz import tzutc
 from django.conf import settings
 from django.db import transaction
@@ -38,8 +38,9 @@ def lock_task(task_name, *args, **kwargs):
     if not TaskStatus.objects\
             .filter(Q(expires_at__gte=datetime.now(tzutc())) | Q(expires_at__isnull=True),
                     signature=sig)\
-            .exclude(status__in=[SUCCESS, FAILURE])\
+            .filter(status__in=[PENDING, RECEIVED, STARTED, REVOKED, RETRY, IGNORED, REJECTED])\
             .exists():
+
         # Set status to PENDING since it's not running yet
         init_status = PENDING
 

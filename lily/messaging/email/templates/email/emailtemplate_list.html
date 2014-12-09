@@ -1,23 +1,61 @@
-{% extends 'list.html' %}
+{% extends 'profile.html' %}
 
-{% load i18n utils %}
+{% load i18n compressed %}
 
-{% block head-title %}{% trans 'Email templates' %}{% endblock %}
-{% block page-title %}{% trans 'Email templates' %}{% endblock %}
-{% block list-title %}{% trans 'Email templates' %}{% endblock %}
-
-{% block hor-menu %}
-{{ block.super }}
-<li>
-    <a href="{% url 'emailtemplate_list' %}">{% trans 'View e-mail templates' %}</a>
-</li>
-<li>
-    <a href="{% url 'emailtemplate_create' %}">{% trans 'Add an e-mail template' %}</a>
-</li>
+{% block scripts %}
+    {{ block.super }}
+    {% compressed_js 'password_strength' %}
 {% endblock %}
 
-{% block list-headings %}
-    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-    <th>{% trans 'Name' %}</th>
-    <th>{% trans 'Description' %}</th>
+{% block form %}
+    <div class="portlet">
+        <div class="portlet-title">
+             <div class="caption">{% trans 'Your email templates' %}</div>
+        </div>
+        <div class="portlet-body">
+            <div class="col-md-8">
+                <ul class="list-group">
+                    {% for email_template in object_list %}
+                        <li class="list-group-item">
+                            {{ email_template }}
+                            <span class="pull-right">
+                                {% if email_template.default_for.exists %}
+                                    <a class="btn btn-xs default toggle-content" data-source="{% url 'messaging_email_template_set_default' pk=email_template.pk %}" data-target="#emailtemplate-modal">
+                                        <span><i class="icon-star"></i></span>
+                                        <span style="display: none;"><i class="icon-star-half-empty"></i> {% trans 'Manage defaults' %}</span>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-xs default toggle-content" data-source="{% url 'messaging_email_template_set_default' pk=email_template.pk %}" data-target="#emailtemplate-modal">
+                                        <span style="display: none;"><i class="icon-star-half-full"></i> {%  trans 'Make default' %}</span>
+                                        <span><i class="icon-star-empty"></i></span>
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'messaging_email_template_update' pk=email_template.pk %}" class="btn btn-xs default toggle-content">
+                                    <span><i class="icon-edit"></i></span>
+                                    <span style="display: none;"><i class="icon-edit"></i> {% trans 'Edit' %}</span>
+                                </a>
+                                <button class="btn btn-xs default toggle-content" data-source="{% url 'messaging_email_template_delete' pk=email_template.pk %}" data-target="#emailtemplate-modal">
+                                    <span><i class="icon-trash"></i></span>
+                                    <span style="display: none;"><i class="icon-trash"></i> {% trans 'Delete' %}</span>
+                                </button>
+                            </span>
+                        </li>
+
+                    {% endfor %}
+                    <li class="list-group-item">
+                        <a href="{% url 'messaging_email_template_create' %}">
+                            {% trans 'Add an email template' %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    <div class="hidden">
+        <div id="emailtemplate-modal" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
+    </div>
 {% endblock %}

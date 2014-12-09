@@ -89,8 +89,19 @@
         </a>
         <ul class="dropdown-menu">
             <li>
+                <a href="{% url 'dashboard' %}"><i class="icon-home"></i> {% trans 'Dashboard' %}</a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <span class="text-muted" style="padding-left: 13px;">{% trans 'Settings' %}</span>
+            </li>
+            <li>
                 <a href="{% url 'user_profile_view' %}"><i class="icon-user"></i> {% trans 'Profile' %}</a>
             </li>
+            <li>
+                <a href="{% url 'messaging_email_account_list' %}"><i class="icon-inbox"></i> {% trans 'Email' %}</a>
+            </li>
+            <li class="divider"></li>
             <li>
                 <a href="{% url 'logout' %}"><i class="icon-key"></i> {% trans 'Log out' %}</a>
             </li>
@@ -187,9 +198,9 @@
             HLApp.init({
                 contactJsonUrl: "{% url 'search_view' %}?type=accounts_account&filterquery=contact:"
             });
-            HLSelect2.init(
-                    { clearText: "{% trans '--- Clear ---' %}"}
-            );
+            HLSelect2.init({
+                clearText: "{% trans '--- Clear ---' %}"
+            });
             HLDataProvider.init({
                 provideUrl: "{% url 'provide_account_short' %}",
                 loadingText: "{% trans 'Beaming up the information now, almost within range!' %}",

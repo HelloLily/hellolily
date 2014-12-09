@@ -23,6 +23,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+from lily.tenant.middleware import get_current_user
 
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
@@ -551,6 +552,31 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
 
     def get_success_url(self):
         return reverse('messaging_email_account_list')
+
+
+class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        account_id = kwargs.pop('account_id')
+
+        try:
+            email_account = EmailAccount.objects.get(pk=account_id)
+        except EmailAccount.DoesNotExist:
+            raise Http404()
+        else:
+            default_email_template_id = None
+
+            try:
+                current_user = get_current_user()
+                default_email_template = email_account.default_templates.get(user_id=current_user.id)
+                default_email_template_id = default_email_template.template.id
+            except DefaultEmailTemplate.DoesNotExist:
+                pass
+
+            return HttpResponse(anyjson.serialize({
+                'template_id': default_email_template_id,
+            }), content_type='application/json')
 
 
 class EmailMessageUpdateBaseView(LoginRequiredMixin, View):

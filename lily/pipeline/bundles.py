@@ -297,6 +297,7 @@ PIPELINE_JS = {
             'lily/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
             'lily/angular/app.js',
             'lily/angular/directives.js',
+            'lily/angular/filters.js',
             'lily/angular/services.js',
             'lily/angular/accounts/services.js',
             'lily/angular/accounts/controllers.js',

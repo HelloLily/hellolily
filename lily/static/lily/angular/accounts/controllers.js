@@ -36,7 +36,7 @@ angular.module('accountControllers', [
                 totalItems: 0, // total number of items
                 filter: Cookie.getCookieValue('filter', ''),  // search filter
                 order:  Cookie.getCookieValue('order', {
-                    direction: 1,  // 1: descending, 0: ascending
+                    ascending: true,
                     column:  'modified'  // string: current sorted column
                 }),
                 visibility: Cookie.getCookieValue('visibility', {
@@ -79,7 +79,7 @@ angular.module('accountControllers', [
             $scope.$watchGroup([
                 'table.page',
                 'table.order.column',
-                'table.order.direction',
+                'table.order.ascending',
                 'table.filter'
             ], function() {
                 updateTableSettings();

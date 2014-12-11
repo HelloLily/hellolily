@@ -18,8 +18,7 @@ angular.module('accountServices', [])
          * @param page int: current page of pagination
          * @param pageSize int: current page size of pagination
          * @param orderColumn string: current sorting of accounts
-         * @param orderDirection {int|boolean|string}: current ordering of sorting
-         *      if truthy ordering will be descending, otherwise ascending
+         * @param orderedAsc {boolean}: current ordering
          *
          * @returns Promise object: when promise is completed:
          *      {
@@ -27,10 +26,10 @@ angular.module('accountServices', [])
          *          total int: total number of account objects
          *      }
          */
-        var getAccounts = function(queryString, page, pageSize, orderColumn, orderDirection) {
+        var getAccounts = function(queryString, page, pageSize, orderColumn, orderedAsc) {
 
             var sort = '';
-            if (orderDirection) sort += '-';
+            if (orderedAsc) sort += '-';
             sort += orderColumn;
 
             return $http({
@@ -64,7 +63,7 @@ angular.module('accountServices', [])
          *      }
          */
         Account.query = function(table) {
-            return getAccounts(table.filter, table.page, table.pageSize, table.order.column, table.order.direction);
+            return getAccounts(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending);
         };
 
         return Account;

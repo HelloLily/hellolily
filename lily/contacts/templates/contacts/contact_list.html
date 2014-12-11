@@ -62,7 +62,7 @@
                     <tbody>
                         <tr ng-repeat="contact in table.items">
                             <td>
-                            <a href="/contacts/details/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
+                            <a href="/contacts/edit/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
                                     <i class="icon-edit"></i>
                                 </a>
                                 <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
@@ -70,7 +70,7 @@
                                 </button>
                             </td>
                             <td ng-show="table.visibility.name">
-                                <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ contact.name }}</a>
+                                <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ ::contact.name }}</a>
                             </td>
                             <td ng-show="table.visibility.contactInformation">
                                 <div ng-repeat="email in contact.email">
@@ -97,8 +97,8 @@
                                     <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
                                 </div>
                             </td>
-                            <td ng-show="table.visibility.created">{{ ::contact.created | date:'medium' }}</td>
-                            <td ng-show="table.visibility.modified">{{ ::contact.modified | date:'medium' }}</td>
+                            <td ng-show="table.visibility.created">{{ ::contact.created | date:'longDate' }}</td>
+                            <td ng-show="table.visibility.modified">{{ ::contact.modified | date:'longDate' }}</td>
                             <td ng-show="table.visibility.tags">
                                 <span ng-repeat="tag in contact.tag">
                                     <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>

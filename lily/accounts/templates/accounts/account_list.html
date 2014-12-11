@@ -70,7 +70,7 @@
                             </button>
                         </td>
                         <td ng-show="table.visibility.name">
-                            <a href="/accounts/details/{{ ::account.id }}/" title="{{ ::account.name }}">{{ account.name }}</a>
+                            <a href="/accounts/details/{{ ::account.id }}/" title="{{ ::account.name }}">{{ ::account.name }}</a>
                         </td>
                         <td ng-show="table.visibility.contactInformation">
                             <div ng-repeat="email in account.email">
@@ -95,8 +95,8 @@
                         <td ng-show="table.visibility.assignedTo">
                             {{ ::account.assigned_to }}
                         </td>
-                        <td ng-show="table.visibility.created">{{ ::account.created | date:'medium' }}</td>
-                        <td ng-show="table.visibility.modified">{{ ::account.modified | date:'medium' }}</td>
+                        <td ng-show="table.visibility.created">{{ ::account.created | date:'longDate' }}</td>
+                        <td ng-show="table.visibility.modified">{{ ::account.modified | date:'longDate' }}</td>
                         <td ng-show="table.visibility.tags">
                             <span ng-repeat="tag in account.tag">
                                 <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>

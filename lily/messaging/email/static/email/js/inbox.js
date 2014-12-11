@@ -195,6 +195,7 @@
             });
 
             editor.observe('load', function() {
+                editor.focus();
                 editor.composer.element.addEventListener('keyup', function() {
                     self.resizeEditor();
                 });
@@ -235,19 +236,46 @@
             if (templateList) {
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
-                if (value) {
-                    var messageType = self.config.messageType;
+                var subject = '';
+                var htmlPart = '';
 
-                    if (messageType === 'new' && templateList[value].subject != '') {
-                        subjectField.val(templateList[value].subject);
-                    }
-                    self.getEditor().setValue(templateList[value].html_part + '<br>' + self.getEditor().getValue());
-                    self.resizeEditor();
-                } else {
-                    subjectField.val('');
-                    self.getEditor().setValue('');
-                    self.resizeEditor();
+                if (value) {
+                    subject = templateList[value].subject;
+                    htmlPart = templateList[value].html_part;
                 }
+
+                var messageType = self.config.messageType;
+
+                if (messageType === 'new' && subject != '') {
+                    subjectField.val(subject);
+                }
+
+                // getValue returns a string, so convert to elements
+                var editorValue = $(editor.getValue());
+                var currentTemplate = editorValue.closest('#compose-email-template');
+                var newEditorValue = '';
+
+                // Check if an email template has already been loaded
+                if (currentTemplate.length) {
+                    // Change the html of the existing email template
+                    currentTemplate.html(htmlPart);
+
+                    // Since editorValue is actually an array of elements we can't easily convert it back to text
+                    var container = $('<div>');
+                    // Add the (edited) html to the newly created container
+                    container.append(editorValue);
+                    // Get the text version of the new html
+                    newEditorValue = container[0].innerHTML
+                }
+                else {
+                    // No email template loaded so create our email template container
+                    var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
+                    // Append the existing text
+                    newEditorValue = emailTemplate + '<br>' + editor.getValue()
+                }
+
+                editor.setValue(newEditorValue);
+                self.resizeEditor();
             }
         },
 

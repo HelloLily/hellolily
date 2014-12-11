@@ -103,7 +103,7 @@ class LilySearch(object):
 
         # Prefix query is not analyzed on ES side, so split up into different tokens.
         for token in query.split(' '):
-            for prefix_field in ['tag', 'email*', 'account_name', 'subject', 'body']:
+            for prefix_field in ['tag', 'email*', 'account_name']:
                 raw_query['bool']['should'].extend([
                     {
                         'prefix': {
@@ -111,6 +111,7 @@ class LilySearch(object):
                         }
                     },
                 ])
+        self.search = self.search.query_raw(raw_query)
 
     def filter_query(self, filterquery):
         """

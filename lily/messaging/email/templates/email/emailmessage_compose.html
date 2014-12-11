@@ -56,12 +56,12 @@
                 </div>
             </div>
             {% if template_list %}
-            <div class="inbox-form-group">
-                <label class="control-label">{% trans 'Template' %}:</label>
-                <div class="controls">
-                    {% bootstrap_field form.template layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                <div class="inbox-form-group">
+                    <label class="control-label">{% trans 'Template' %}:</label>
+                    <div class="controls">
+                        {% bootstrap_field form.template layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    </div>
                 </div>
-            </div>
             {% endif %}
             {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" %}
             {{ form.attachments }}
@@ -102,7 +102,10 @@
             var templateList = {{ template_list|safe }};
         {% endif %}
         $(function($) {
-            HLInbox.initWysihtml5();
+            HLInbox.initEmailCompose({
+                defaultEmailTemplateUrl: '{% url 'messaging_email_template_get_default' %}',
+                messageType: '{{ form.message_type }}'
+            });
         });
     </script>
 {% endblock %}

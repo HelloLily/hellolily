@@ -14,7 +14,8 @@
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             replyButton: '.reply-btn',
             inboxFrame: null,
-            tagsAjaxSelector: '.tags-ajax'
+            tagsAjaxSelector: '.tags-ajax',
+            emailAccountInput: '#id_send_from'
         },
 
         init: function (config) {
@@ -75,7 +76,6 @@
                 .on('change', cf.tags, function () {
                     self.handleTagsAjaxChange(this);
                 });
-
 
             // Set heading properly after change
             var toolbar = $('#wysihtml5-toolbar');
@@ -174,6 +174,17 @@
             return parse;
         },
 
+        initEmailCompose: function (emailComposeConfig) {
+            var self = this;
+
+            if (typeof (emailComposeConfig === 'object')) {
+                $.extend(this.config, emailComposeConfig);
+            }
+
+            self.initWysihtml5();
+            self.loadDefaultEmailTemplate();
+        },
+
         initWysihtml5: function () {
             var self = this;
 
@@ -225,7 +236,9 @@
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
                 if (value) {
-                    if (templateList[value].subject != '') {
+                    var messageType = self.config.messageType;
+
+                    if (messageType === 'new' && templateList[value].subject != '') {
                         subjectField.val(templateList[value].subject);
                     }
                     self.getEditor().setValue(templateList[value].html_part + '<br>' + self.getEditor().getValue());
@@ -323,6 +336,16 @@
 
         getEditor: function() {
             return editor;
+        },
+
+        loadDefaultEmailTemplate: function() {
+            var self = this;
+            var emailAccountId = $(self.config.emailAccountInput).val();
+            var url = self.config.defaultEmailTemplateUrl + emailAccountId;
+
+            $.getJSON(url, function(data) {
+                $(self.config.templateField).select2('val', data['template_id']).trigger('change');
+            });
         }
     }
 })(jQuery, window, document);

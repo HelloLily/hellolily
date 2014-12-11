@@ -53,7 +53,7 @@ class SearchView(LoginRequiredMixin, View):
                 return_fields=return_fields,
             )
 
-        elif 'filterquery' in request.GET:
+        if 'filterquery' in request.GET:
             hits, total, took = search.filter_query(
                 filterquery=filter_query,
                 return_fields=return_fields,

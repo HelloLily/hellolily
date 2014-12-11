@@ -17,6 +17,9 @@ class ContactMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            '_all': {
+                'enabled': False,
+            },
             'dynamic_templates': [{
                 'phone': {
                     'match': 'phone_*',
@@ -29,6 +32,9 @@ class ContactMapping(MappingType, Indexable):
                 },
             }],
             'properties': {
+                'tenant': {
+                    'type': 'integer',
+                },
                 'id': {
                     'type': 'integer',
                 },
@@ -45,7 +51,7 @@ class ContactMapping(MappingType, Indexable):
                 'email': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'email_analyzer',
+                    'analyzer': 'letter_analyzer',
                 },
                 'tag': {
                     'type': 'string',
@@ -57,9 +63,6 @@ class ContactMapping(MappingType, Indexable):
                     'index': 'analyzed',
                 },
                 'account': {
-                    'type': 'integer',
-                },
-                'tenant': {
                     'type': 'integer',
                 },
                 'created': {
@@ -93,10 +96,10 @@ class ContactMapping(MappingType, Indexable):
             obj = cls.get_model().objects.get(pk=obj_id)
 
         doc = {
+            'tenant': obj.tenant_id,
             'id': obj.id,
             'name': obj.full_name(),
             'last_name': obj.last_name,
-            'tenant': obj.tenant_id,
             'created': obj.created,
             'modified': obj.modified,
         }

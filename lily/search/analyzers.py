@@ -5,11 +5,6 @@ def get_analyzers():
     analyzers = {
         'analysis': {
             'analyzer': {
-                'email_analyzer': {
-                    'type': 'custom',
-                    'tokenizer': 'letter',
-                    'filter': ['lowercase', 'my_ascii'],
-                },
                 'letter_ngram_analyzer': {
                     'type': 'custom',
                     'tokenizer': 'letter',

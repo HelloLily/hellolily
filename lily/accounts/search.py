@@ -15,6 +15,9 @@ class AccountMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            '_all': {
+                'enabled': False,
+            },
             'dynamic_templates': [{
                 'phone': {
                     'match': 'phone_*',
@@ -28,7 +31,12 @@ class AccountMapping(MappingType, Indexable):
             }],
 
             'properties': {
-                'id': {'type': 'integer'},
+                'tenant': {
+                    'type': 'integer',
+                },
+                'id': {
+                    'type': 'integer'
+                },
                 'name': {
                     'type': 'string',
                     'index': 'analyzed',
@@ -41,7 +49,7 @@ class AccountMapping(MappingType, Indexable):
                 'email': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'email_analyzer',
+                    'analyzer': 'letter_analyzer',
                 },
                 'tag': {
                     'type': 'string',
@@ -53,9 +61,6 @@ class AccountMapping(MappingType, Indexable):
                     'index': 'analyzed',
                     'search_analyzer': 'letter_analyzer',
                     'index_analyzer': 'letter_ngram_analyzer',
-                },
-                'tenant': {
-                    'type': 'integer',
                 },
                 'created': {
                     'type': 'date',

@@ -90,9 +90,13 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
         search = LilySearch(
             tenant_id=self.request.user.tenant_id,
             model_type='contacts_contact',
+            page=0,
+            size=1000000000,
         )
 
-        return search.raw_query(query=self.request.GET.get('export_filter'))[0]
+        if self.request.GET.get('export_filter'):
+            search.raw_query(self.request.GET.get('export_filter'))
+        return search.do_search()[0]
 
 
 class JsonContactListView(LoginRequiredMixin, JsonListView):

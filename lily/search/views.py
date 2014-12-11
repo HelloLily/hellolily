@@ -16,48 +16,47 @@ class SearchView(LoginRequiredMixin, View):
         Parses the GET parameters to create a search
 
         Returns:
-            JSON dict:
+            HttpResponse with JSON dict:
                 hits (list): dicts with search results per item
                 total (int): total number of results
                 took (int): milliseconds Elastic search took to get the results
         """
-        tenant_id = request.user.tenant_id
-        id_arg = request.GET.get('id', '')
-        model_type = request.GET.get('type', '')
-        sort = request.GET.get('sort', '')
-        page = int(request.GET.get('page', '0'))
-        page = 0 if page < 0 else page
-        size = int(request.GET.get('size', '10'))
-        size = 1 if size < 1 else size
-        return_fields = filter(None, request.GET.get('fields', '').split(','))
-        if '*' in return_fields:
-            return_fields = ''
+        kwargs = {}
+        model_type = request.GET.get('type')
+        if model_type:
+            kwargs['model_type'] = model_type
+        sort = request.GET.get('sort')
+        if sort:
+            kwargs['sort'] = sort
+        page = request.GET.get('page')
+        if page:
+            kwargs['page'] = int(page)
+        size = request.GET.get('size')
+        if size:
+            kwargs['size'] = int(size)
 
+        # Passing arguments as **kwargs means we can use the defaults.
         search = LilySearch(
-            tenant_id=tenant_id,
-            id_arg=id_arg,
-            model_type=model_type,
-            sort=sort,
-            page=page,
-            size=size,
+            tenant_id=request.user.tenant_id,
+            **kwargs
         )
 
-        hits, total, took = [], 0, 0
+        id_arg = request.GET.get('id', '')
+        if id_arg:
+            search.get_by_id(id_arg)
 
         query = request.GET.get('q', '').lower()
-        filter_query = request.GET.get('filterquery', '')
+        if query:
+            search.raw_query(query)
 
-        if 'q' in request.GET:
-            hits, total, took = search.raw_query(
-                query=query,
-                return_fields=return_fields,
-            )
+        filterquery = request.GET.get('filterquery', '')
+        if filterquery:
+            search.filter_query(filterquery)
 
-        if 'filterquery' in request.GET:
-            hits, total, took = search.filter_query(
-                filterquery=filter_query,
-                return_fields=return_fields,
-            )
+        return_fields = filter(None, request.GET.get('fields', '').split(','))
+        if '*' in return_fields:
+            return_fields = None
+        hits, total, took = search.do_search(return_fields)
 
         results = {'hits': hits, 'total': total, 'took': took}
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')

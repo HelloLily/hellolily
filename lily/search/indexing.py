@@ -1,3 +1,4 @@
+from datetime import date
 import logging
 import traceback
 
@@ -38,3 +39,23 @@ def remove_from_index(instance, mapping):
         tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
     except Exception, e:
         logger.error(traceback.format_exc(e))
+
+
+def prepare_dict(arg_dict):
+    """
+    Cleans up a dict to be indexed. Returns a new dict.
+    """
+
+    # Remove entries with empty values.
+    new_dict = {k: v for k, v in arg_dict.items() if v}
+
+    for k, v in new_dict.iteritems():
+        # Normalize dates.
+        if type(v) is date:
+            new_dict[k] = '%sT00:00:00.000000+00:00' % str(v)
+
+        # Dedup lists.
+        elif type(v) is list and len(v) > 1:
+            new_dict[k] = list(set(v))
+
+    return new_dict

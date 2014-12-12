@@ -1,16 +1,16 @@
 from elasticutils.contrib.django import Indexable, MappingType
 
-from lily.contacts.models import Function
+from lily.accounts.models import Account
+from lily.cases.models import Case
+from lily.contacts.models import Contact
 from lily.search.indexing import prepare_dict
 from lily.tags.models import Tag
 
-from .models import Account
 
-
-class AccountMapping(MappingType, Indexable):
+class CaseMapping(MappingType, Indexable):
     @classmethod
     def get_model(cls):
-        return Account
+        return Case
 
     @classmethod
     def get_mapping(cls):
@@ -21,37 +21,24 @@ class AccountMapping(MappingType, Indexable):
             '_all': {
                 'enabled': False,
             },
-            'dynamic_templates': [{
-                'phone': {
-                    'match': 'phone_*',
-                    'mapping': {
-                        'type': 'string',
-                        'search_analyzer': 'letter_analyzer',
-                        'index_analyzer': 'letter_ngram_analyzer'
-                    },
-                },
-            }],
-
             'properties': {
                 'tenant': {
                     'type': 'integer',
                 },
                 'id': {
-                    'type': 'integer'
+                    'type': 'integer',
                 },
-                'name': {
+                'subject': {
                     'type': 'string',
+                    'index': 'analyzed',
                     'search_analyzer': 'letter_analyzer',
                     'index_analyzer': 'letter_ngram_analyzer',
                 },
-                'contact': {
-                    'type': 'integer'
-                },
-                'email': {
+                'body': {
                     'type': 'string',
                     'analyzer': 'letter_analyzer',
                 },
-                'tag': {
+                'client': {
                     'type': 'string',
                     'analyzer': 'letter_analyzer',
                 },
@@ -59,8 +46,21 @@ class AccountMapping(MappingType, Indexable):
                     'type': 'string',
                     'analyzer': 'letter_analyzer',
                 },
-                'created': {
-                    'type': 'date',
+                'priority': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
+                },
+                'status': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
+                },
+                'tag': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
+                },
+                'type': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
                 },
                 'modified': {
                     'type': 'date',
@@ -74,10 +74,9 @@ class AccountMapping(MappingType, Indexable):
         Maps related models, how to get an instance list from a signal sender.
         """
         return {
-            Function: lambda obj: [obj.account],
+            Contact: lambda obj: obj.case_set.all(),
+            Account: lambda obj: obj.case_set.all(),
             Tag: lambda obj: [obj.subject],
-            # LilyUser saves every login, which will trigger reindex of all related accounts.
-            # LilyUser: lambda obj: obj.account_set.all(),
         }
 
     @classmethod
@@ -89,21 +88,20 @@ class AccountMapping(MappingType, Indexable):
             obj = cls.get_model().objects.get(pk=obj_id)
 
         doc = {
-            'id': obj.id,
-            'name': obj.name,
             'tenant': obj.tenant_id,
-            'modified': obj.modified,
-            'created': obj.created,
+            'id': obj.id,
+            'subject': obj.subject,
+            'body': obj.description,
+            'account': obj.account_id if obj.account else None,
+            'account_name': obj.account.name if obj.account else None,
+            'contact': obj.contact_id if obj.contact else None,
+            'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'contact': [contact.id for contact in obj.get_contacts()],
+            'priority': Case.PRIORITY_CHOICES[obj.priority][1],
+            'status': obj.status.status,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'type': obj.type.type if obj.type else None,
+            'modified': obj.expires,
         }
-
-        phones = obj.phone_numbers.all().distinct('number')
-        for phone in phones:
-            if 'phone_' + phone.type not in doc:
-                doc['phone_' + phone.type] = []
-            doc['phone_' + phone.type].append(phone.number)
 
         return prepare_dict(doc)

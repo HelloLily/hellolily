@@ -7,7 +7,7 @@ django-extensions>=0.9
 
 gevent>=0.13.7
 greenlet>=0.4.0
-gunicorn>=0.14.6
+gunicorn==18.0
 
 python-dateutil>=1.5
 pytz>=2012c

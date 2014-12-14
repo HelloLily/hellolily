@@ -109,7 +109,7 @@ class ContactMapping(MappingType, Indexable):
             doc['account'] = [function.account_id for function in functions]
             doc['account_name'] = [function.account.name for function in functions if function.account.name]
 
-        phones = obj.phone_numbers.all()
+        phones = obj.phone_numbers.all().distinct('number')
         for phone in phones:
             if 'phone_' + phone.type not in doc:
                 doc['phone_' + phone.type] = []

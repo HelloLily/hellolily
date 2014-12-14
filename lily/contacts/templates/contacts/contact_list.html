@@ -97,8 +97,8 @@
                                     <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
                                 </div>
                             </td>
-                            <td ng-show="table.visibility.created">{{ ::contact.created | date:'longDate' }}</td>
-                            <td ng-show="table.visibility.modified">{{ ::contact.modified | date:'longDate' }}</td>
+                            <td ng-show="table.visibility.created">{{ ::contact.created | relativeDate }}</td>
+                            <td ng-show="table.visibility.modified">{{ ::contact.modified | relativeDate }}</td>
                             <td ng-show="table.visibility.tags">
                                 <span ng-repeat="tag in contact.tag">
                                     <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>

@@ -7,5 +7,6 @@ angular.module('lilyApp', [
 
     // global modules
     'lilyDirectives',
-    'lilyServices'
+    'lilyServices',
+    'lilyFilters'
 ]);

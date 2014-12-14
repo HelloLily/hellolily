@@ -1,12 +1,8 @@
-import datetime
 import json
 import logging
 
-import os
 import urllib
-from email import Encoders
 from email.utils import quote
-from email.MIMEBase import MIMEBase
 
 import anyjson
 from braces.views import StaticContextMixin
@@ -27,7 +23,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
-from imapclient.imapclient import DRAFT
+from lily.tenant.middleware import get_current_user
 
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import DRAFTS, INBOX, SENT, TRASH, SPAM, ALLMAIL, IMPORTANT, STARRED
@@ -557,6 +553,32 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
     def get_success_url(self):
         return reverse('messaging_email_account_list')
 
+
+class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        account_id = kwargs.pop('account_id')
+
+        try:
+            email_account = EmailAccount.objects.get(pk=account_id)
+        except EmailAccount.DoesNotExist:
+            raise Http404()
+        else:
+            default_email_template_id = None
+
+            try:
+                current_user = get_current_user()
+                default_email_template = email_account.default_templates.get(user_id=current_user.id)
+                default_email_template_id = default_email_template.template.id
+            except DefaultEmailTemplate.DoesNotExist:
+                pass
+
+            return HttpResponse(anyjson.serialize({
+                'template_id': default_email_template_id,
+            }), content_type='application/json')
+
+
 class EmailMessageUpdateBaseView(LoginRequiredMixin, View):
     """
     Base for classes that update an EmailMessage in various ways:
@@ -665,8 +687,16 @@ class MoveEmailMessageView(EmailMessageUpdateBaseView):
             # Mark in database first for immediate effect.
             EmailMessage.objects.filter(id__in=message_ids).update(is_deleted=True)
 
-            # Create task to delete messages async.
-            move_messages.delay(message_ids, self.request.POST.get('folder'))
+            # Create task to move messages asynchronously
+            status = create_task_status('archive_message')
+
+            move_messages.apply_async(
+                args=(message_ids, self.request.POST.get('folder')),
+                max_retries=1,
+                default_retry_delay=100,
+                kwargs={'status_id': status.pk},
+            )
+
             if len(message_ids) == 1:
                 message = _('Message has been moved')
             else:
@@ -715,7 +745,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
         kwargs = super(EmailMessageComposeBaseView, self).get_form_kwargs()
         kwargs['message_type'] = 'new'
 
-        # Provide initial data if we're editing a draft
+        # Provide initial data if we're editing a draft or replying
         if self.object is not None:
             kwargs.update({
                 'draft_id': self.object.pk,
@@ -747,7 +777,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                 email_account.save()
 
                 # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
-                if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST:
+                if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST or 'submit-send-archive' in self.request.POST:
                     soup = BeautifulSoup(unsaved_form.body_html, 'permissive')
                     soup = extract_tags_from_soup(soup, settings.BLACKLISTED_EMAIL_TAGS)
 
@@ -822,7 +852,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                             messages.error(self.request, _('Sorry, I couldn\'t save your e-mail as a draft, please try again later'))
                             error_message = _('Failed to create save_message task for email account %d. Outbox message id was %d.') % (email_account.id, email_outbox_message.id)
                             logging.error(error_message)
-                    elif 'submit-send' in self.request.POST:  # Send draft
+                    elif 'submit-send' in self.request.POST or 'submit-send-archive' in self.request.POST:
                         task = self.create_send_message_task(email_account, email_outbox_message.id)
 
                         if task:
@@ -830,6 +860,16 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                             cc = kwargs['cc'] if kwargs['cc'] else []
                             bcc = kwargs['bcc'] if kwargs['bcc'] else []
                             recipients = ', '.join(to + cc + bcc)
+
+                            if 'submit-send-archive' in self.request.POST:
+                                folder_name = get_full_folder_name_by_identifier(ALLMAIL, email_account.folders)
+                                archive_message_task = self.create_archive_message_task(self.object.id, folder_name)
+
+                                if not archive_message_task:
+                                    messages.error(self.request, _('Sorry, I couldn\'t archive your e-mail. You should try to archive it again later'))
+                                    error_message = _('Failed to create archive_message task for email account %d. Message id was %d and folder was %s.') % (email_account.id, self.object.id, folder_name)
+                                    logging.error(error_message)
+
                             messages.info(self.request, _('Gonna deliver your email as fast as I can to %s') % truncatechars(recipients, 140))
                             self.request.session['tasks'].update({'send_message': task.id})
                             self.request.session.modified = True
@@ -909,6 +949,25 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
 
         status.task_id = task.id
         status.save()
+
+        return task
+
+    def create_archive_message_task(self, email_message_id, folder_name):
+        status = create_task_status('archive_message')
+
+        task = move_messages.apply_async(
+            args=([email_message_id], folder_name),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
+
+        status.task_id = task.id
+        status.save()
+
+        if task:
+            # Mark in database first for immediate effect.
+            EmailMessage.objects.filter(id__in=[email_message_id]).update(is_deleted=True)
 
         return task
 

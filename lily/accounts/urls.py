@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from lily.accounts.views import JsonAccountListView, AddAccountView, EditAccountView, DetailAccountView, \
-    DeleteAccountView, ListAccountView, ExistsAccountView
+    DeleteAccountView, ListAccountView, ExistsAccountView, ExportAccountView
 
 
 urlpatterns = patterns('',
@@ -11,7 +11,8 @@ urlpatterns = patterns('',
      url(r'^delete/(?P<pk>[\w-]+)/$', DeleteAccountView.as_view(), name='account_delete'),
      url(r'^json_list/$', JsonAccountListView.as_view(), name='json_account_list'),
      url(r'^tag/(?P<tag>[\w-]+)/$', ListAccountView.as_view(), name='account_list_filtered_by_tag'),
-     url(r'^(?P<b36_pks>[\w;]*)/$', ListAccountView.as_view(), name='account_list_filtered'),
      url(r'^exists/(?P<account_name>.*)/$', ExistsAccountView.as_view(), name='account_exists'),
+     url(r'^export/$', ExportAccountView.as_view(), name='account_export'),
+     url(r'^(?P<b36_pks>[\w;]*)/$', ListAccountView.as_view(), name='account_list_filtered'),
      url(r'^$', ListAccountView.as_view(), name='account_list'),
 )

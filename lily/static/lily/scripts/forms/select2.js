@@ -76,7 +76,8 @@
                                 data = {
                                     filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
                                     size: cf.ajaxPageLimit, // page size
-                                    page: (page - 1) // page number, zero-based
+                                    page: (page - 1), // page number, zero-based
+                                    sort: '-modified' //sort modified descending
                                 };
                             }
 

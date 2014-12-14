@@ -567,6 +567,15 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
         file.close()
         return file_name
 
+
+class AngularView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(AngularView, self).get_context_data(**kwargs)
+        context.update({
+            'angular_app': True
+        })
+        return context
+
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
 notifications_view = NotificationsView.as_view()

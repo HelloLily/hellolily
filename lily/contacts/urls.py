@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from lily.contacts.views import (JsonContactListView, AddContactView, EditContactView, DetailContactView,
-                                 DeleteContactView, ListContactView)
+                                 DeleteContactView, ListContactView, ExportContactView)
 
 
 urlpatterns = patterns('',
@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^details/(?P<pk>[\w-]+)/$', DetailContactView.as_view(), name='contact_details'),
     url(r'^delete/xhr/(?P<pk>[\w-]+)/$', DeleteContactView.as_view(), name='contact_delete'),
     url(r'^json_list/$', JsonContactListView.as_view(), name='json_contact_list'),
+    url(r'^export/$', ExportContactView.as_view(), name='contact_export'),
     url(r'^tag/(?P<tag>[\w-]+)/$', ListContactView.as_view(), name='contact_list_filtered_by_tag'),
     url(r'^(?P<b36_pks>[\w;]*)/$', ListContactView.as_view(), name='contact_list_filtered'),
     url(r'^$', ListContactView.as_view(), name='contact_list'),

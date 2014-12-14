@@ -17,51 +17,56 @@ class ContactMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            '_all': {
+                'enabled': False,
+            },
             'dynamic_templates': [{
                 'phone': {
                     'match': 'phone_*',
                     'mapping': {
                         'type': 'string',
                         'index': 'analyzed',
-                        'search_analyzer': 'name_search_analyzer',
-                        'index_analyzer': 'name_index_analyzer'
+                        'search_analyzer': 'letter_analyzer',
+                        'index_analyzer': 'letter_ngram_analyzer'
                     },
                 },
             }],
             'properties': {
+                'tenant': {
+                    'type': 'integer',
+                },
                 'id': {
                     'type': 'integer',
                 },
                 'name': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'search_analyzer': 'name_search_analyzer',
-                    'index_analyzer': 'name_index_analyzer',
+                    'search_analyzer': 'letter_analyzer',
+                    'index_analyzer': 'letter_ngram_analyzer',
+                },
+                'last_name': {
+                    'type': 'string',
+                    'index': 'not_analyzed',
                 },
                 'email': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'email_analyzer',
+                    'analyzer': 'letter_analyzer',
                 },
                 'tag': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'simple',
+                    'analyzer': 'letter_analyzer',
                 },
                 'account_name': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'analyzer': 'simple'
                 },
                 'account': {
                     'type': 'integer',
                 },
-                'tenant': {
-                    'type': 'integer',
-                },
                 'created': {
                     'type': 'date',
-                    'index': 'no',
                 },
                 'modified': {
                     'type': 'date',
@@ -91,9 +96,10 @@ class ContactMapping(MappingType, Indexable):
             obj = cls.get_model().objects.get(pk=obj_id)
 
         doc = {
-            'id': obj.id,
-            'name': '%s %s' % (obj.first_name, obj.last_name),
             'tenant': obj.tenant_id,
+            'id': obj.id,
+            'name': obj.full_name(),
+            'last_name': obj.last_name,
             'created': obj.created,
             'modified': obj.modified,
         }

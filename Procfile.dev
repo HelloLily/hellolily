@@ -16,4 +16,4 @@ worker2: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h
 worker3: celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h -c 1 -P eventlet
 
 ### Run Elasticsearch locally (preferrably from an extracted Elasticsearch package tar).
-# search: elasticsearch
+# search: elasticsearch -Des.cluster.name=myClusterName

@@ -1,7 +1,15 @@
-{% load compressed statici18n i18n static %}<!DOCTYPE html>
+{% load compressed statici18n i18n static %}
+
+<!DOCTYPE html>
+{% if angular_app %}
+<!--[if IE 8]> <html lang="en" class="ie8 no-js" ng-app="lilyApp"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js" ng-app="lilyApp"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en" class="no-js" ng-app="lilyApp"> <!--<![endif]-->
+{% else %}
 <!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
 <!--[if !IE]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+{% endif %}
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

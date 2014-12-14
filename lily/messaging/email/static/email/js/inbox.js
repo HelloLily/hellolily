@@ -14,7 +14,8 @@
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             replyButton: '.reply-btn',
             inboxFrame: null,
-            tagsAjaxSelector: '.tags-ajax'
+            tagsAjaxSelector: '.tags-ajax',
+            emailAccountInput: '#id_send_from'
         },
 
         init: function (config) {
@@ -75,7 +76,6 @@
                 .on('change', cf.tags, function () {
                     self.handleTagsAjaxChange(this);
                 });
-
 
             // Set heading properly after change
             var toolbar = $('#wysihtml5-toolbar');
@@ -174,6 +174,17 @@
             return parse;
         },
 
+        initEmailCompose: function (emailComposeConfig) {
+            var self = this;
+
+            if (typeof (emailComposeConfig === 'object')) {
+                $.extend(this.config, emailComposeConfig);
+            }
+
+            self.initWysihtml5();
+            self.loadDefaultEmailTemplate();
+        },
+
         initWysihtml5: function () {
             var self = this;
 
@@ -184,6 +195,7 @@
             });
 
             editor.observe('load', function() {
+                editor.focus();
                 editor.composer.element.addEventListener('keyup', function() {
                     self.resizeEditor();
                 });
@@ -224,17 +236,46 @@
             if (templateList) {
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
+                var subject = '';
+                var htmlPart = '';
+
                 if (value) {
-                    if (templateList[value].subject != '') {
-                        subjectField.val(templateList[value].subject);
-                    }
-                    self.getEditor().setValue(templateList[value].html_part + '<br>' + self.getEditor().getValue());
-                    self.resizeEditor();
-                } else {
-                    subjectField.val('');
-                    self.getEditor().setValue('');
-                    self.resizeEditor();
+                    subject = templateList[value].subject;
+                    htmlPart = templateList[value].html_part;
                 }
+
+                var messageType = self.config.messageType;
+
+                if (messageType === 'new' && subject != '') {
+                    subjectField.val(subject);
+                }
+
+                // getValue returns a string, so convert to elements
+                var editorValue = $(editor.getValue());
+                var currentTemplate = editorValue.closest('#compose-email-template');
+                var newEditorValue = '';
+
+                // Check if an email template has already been loaded
+                if (currentTemplate.length) {
+                    // Change the html of the existing email template
+                    currentTemplate.html(htmlPart);
+
+                    // Since editorValue is actually an array of elements we can't easily convert it back to text
+                    var container = $('<div>');
+                    // Add the (edited) html to the newly created container
+                    container.append(editorValue);
+                    // Get the text version of the new html
+                    newEditorValue = container[0].innerHTML
+                }
+                else {
+                    // No email template loaded so create our email template container
+                    var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
+                    // Append the existing text
+                    newEditorValue = emailTemplate + '<br>' + editor.getValue()
+                }
+
+                editor.setValue(newEditorValue);
+                self.resizeEditor();
             }
         },
 
@@ -323,6 +364,16 @@
 
         getEditor: function() {
             return editor;
+        },
+
+        loadDefaultEmailTemplate: function() {
+            var self = this;
+            var emailAccountId = $(self.config.emailAccountInput).val();
+            var url = self.config.defaultEmailTemplateUrl + emailAccountId;
+
+            $.getJSON(url, function(data) {
+                $(self.config.templateField).select2('val', data['template_id']).trigger('change');
+            });
         }
     }
 })(jQuery, window, document);

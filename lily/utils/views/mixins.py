@@ -2,21 +2,18 @@ import operator
 from datetime import datetime
 
 import anyjson
-from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
-from django.template.loader import render_to_string
-import unicodecsv
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q, FieldDoesNotExist
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.datastructures import SortedDict
 from django.utils.http import base36_to_int
+import unicodecsv
 
 from lily.messaging.email.models import EmailMessage
 from lily.notes.models import Note
@@ -113,73 +110,69 @@ class ExportListViewMixin(FilterQuerysetMixin):
         search_fields (list of strings): The fields of the queryset where the queryset will be filtered on. The filter
             will match any object that has all the search strings on any of the fields of the object.
     """
-    exportable_columns = []
+    exportable_columns = {}
     search_fields = []
+    file_name = 'export_list.csv'
 
-    def post(self, request, *args, **kwargs):
+    def get_items(self):
+        # Get all items.
+        queryset = self.get_queryset()
+
+        # Filter items.
+        search_terms = self.request.GET.get('export_filter', None)
+        if search_terms:
+            search_terms = set([term.lower() for term in search_terms.split(' ')])
+            queryset = self.filter_queryset(queryset, search_terms)
+
+        # Filter deleted items
+        queryset = queryset.filter(is_deleted=False)
+
+        return queryset.iterator()
+
+    def value_for_column(self, item, column):
+        return ''
+
+    def get(self, request, *args, **kwargs):
         """
-        Does a check if post has value of 'export' and handles export.
         """
         # Setup headers, columns and search
         headers = []
         columns = []
-        export_columns = request.POST.get('export_columns[]', []).split(',')
+        export_columns = request.GET.getlist('export_columns', None)
         if export_columns:
             # Always insert id
             export_columns.insert(0, 'id')
-            # There were columns in POST, check if they match self.exportable_columns.
+            # There were columns in GET, check if they match self.exportable_columns.
             for column in export_columns:
-                if self.exportable_columns.get(column):
+                if self.exportable_columns.get(column, None):
                     headers.extend(self.exportable_columns[column].get('headers', []))
                     columns.extend(self.exportable_columns[column].get('columns_for_item', []))
         else:
             # Nothing in POST, we export every column set by view.
-            for key, value in self.exportable_columns:
+            for key, value in self.exportable_columns.iteritems():
                 headers.extend(value.get('headers', []))
                 columns.extend(value.get('columns_for_item', []))
 
-        # Find out what to export.
-        export_type = request.POST.get('export', False)
+        # Setup response type.
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % self.file_name
 
-        # Export csv.
-        if export_type == 'csv':
+        # Setup writer.
+        writer = unicodecsv.writer(response)
 
-            # Setup response type.
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="export_list.csv"'
+        # Add headers to response.
+        writer.writerow(headers)
 
-            # Setup writer.
-            writer = unicodecsv.writer(response)
-
-            # Add headers to response.
-            writer.writerow(headers)
-
-            # Get all items.
-            queryset = self.get_queryset()
-
-            # Filter items.
-            search_terms = request.POST.get('export_filter', None).split(' ')
-            search_terms = set([term.lower() for term in search_terms])
-            queryset = self.filter_queryset(queryset, search_terms)
-
-            # Filter deleted items
-            queryset = queryset.filter(is_deleted=False)
-
-            # For each item, make a row to export.
-            for item in queryset.iterator():
-                row = []
-                for column in columns:
-                    # Get the value from the item.
-                    value = getattr(self, 'value_for_column_%s' % column)(item)
-                    if value is None:
-                        value = ''
-                    row.append(value)
-                # Add complete row to response.
-                writer.writerow(row)
-            return response
-
-        # nothing to export, this post is not for this view.
-        return super(ExportListViewMixin, self).post(request, *args, **kwargs)
+        # For each item, make a row to export.
+        for item in self.get_items():
+            row = []
+            for column in columns:
+                # Get the value from the item.
+                value = self.value_for_column(item, column)
+                row.append(value)
+            # Add complete row to response.
+            writer.writerow(row)
+        return response
 
 
 class FilteredListByTagMixin(object):

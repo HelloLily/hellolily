@@ -9,64 +9,35 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 
-from lily.accounts.forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
-from lily.accounts.models import Account, Website
 from lily.contacts.models import Function, Contact
 from lily.notes.models import Note
+from lily.search.utils import LilySearch
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
-from lily.utils.views import DataTablesListView, JsonListView
-from lily.utils.views.mixins import (SortedListMixin, FilteredListMixin, HistoryListViewMixin, ExportListViewMixin,
-                                     FilteredListByTagMixin, LoginRequiredMixin)
+from lily.utils.views import JsonListView, AngularView
+from lily.utils.views.mixins import (HistoryListViewMixin, ExportListViewMixin, LoginRequiredMixin)
+
+from .forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
+from .models import Account, Website
 
 
-class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
-    model = Account
-    prefetch_related = [
-        'phone_numbers',
-        'tags',
-    ]
+class ListAccountView(LoginRequiredMixin, AngularView):
+    """
+    Display a list of all accounts
+    """
+    template_name = 'accounts/account_list.html'
 
-    # SortedListMixin
-    sortable = [1, 3, 4]
-    default_order_by = 1
 
-    # DataTablesListView
-    columns = SortedDict([
-        ('edit', {
-            'mData': 'edit',
-            'bSortable': False,
-        }),
-        ('name', {
-            'mData': 'name',
-        }),
-        ('contact', {
-            'mData': 'contact',
-            # Indeterminable on what to sort
-            'bSortable': False,
-        }),
-        ('assigned_to', {
-            'mData': 'assigned_to',
-        }),
-        ('created', {
-            'mData': 'created',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('modified', {
-            'mData': 'modified',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('tags', {
-            'mData': 'tags',
-            # Generic relations are not sortable on QuerySet.
-            'bSortable': False,
-        }),
-    ])
+class ExportAccountView(ExportListViewMixin, View):
+    """
+
+    """
+    http_method_names = ['get']
+    file_name = 'accounts.csv'
 
     # ExportListViewMixin
     exportable_columns = {
@@ -74,11 +45,11 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
             'headers': [_('ID')],
             'columns_for_item': ['id']
         },
-        'account': {
+        'name': {
             'headers': [_('Account')],
-            'columns_for_item': ['account']
+            'columns_for_item': ['name']
         },
-        'contact_information': {
+        'contactInformation': {
             'headers': [
                 _('Email'),
                 _('Work Phone'),
@@ -86,11 +57,11 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
             ],
             'columns_for_item': [
                 'email',
-                'work_phone',
-                'mobile_phone',
+                'phone_work',
+                'phone_mobile',
             ]
         },
-        'assigned_to': {
+        'assignedTo': {
             'headers': [_('Assigned to')],
             'columns_for_item': ['assigned_to']
         },
@@ -104,88 +75,31 @@ class ListAccountView(ExportListViewMixin, SortedListMixin, FilteredListByTagMix
         },
         'tags': {
             'headers': [_('Tags')],
-            'columns_for_item': ['tags']
+            'columns_for_item': ['tag']
         },
     }
 
-    # ExportListViewMixin & DataTablesListView
-    search_fields = [
-        'name__icontains',
-        'tags__name__icontains',
-        # TODO: Searching trough relations doesn't work on large datasets
-        # 'phone_numbers__number__icontains',
-        # 'email_addresses__email_address__icontains',
-    ]
+    # ExportListViewMixin
+    def value_for_column(self, account, column):
+        try:
+            value = account[column]
+            if isinstance(value, list):
+                value = ', '.join(value)
+        except KeyError:
+            value = ''
+        return value
 
-    def get_queryset(self):
-        return super(ListAccountView, self).get_queryset().filter(is_deleted=False)
-
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset based on given column and sort_order.
-
-        Used by DataTablesListView.
-        """
-        prefix = ''
-        if sort_order == 'desc':
-            prefix = '-'
-        if column in ('name', 'tags', 'created', 'modified'):
-            return queryset.order_by('%s%s' % (prefix, column))
-        return queryset
-
-    def value_for_column_id(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.id
-
-    def value_for_column_account(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.name
-
-    def value_for_column_assigned_to(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.assigned_to
-
-    def value_for_column_email(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.get_any_email_address()
-
-    def value_for_column_work_phone(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.get_work_phone()
-
-    def value_for_column_mobile_phone(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.get_mobile_phone()
-
-    def value_for_column_tags(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return ', '.join([tag.name for tag in account.get_tags()])
-
-    def value_for_column_created(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.created
-
-    def value_for_column_modified(self, account):
-        """
-        Used by ExportListViewMixin.
-        """
-        return account.modified
+    # ExportListViewMixin
+    def get_items(self):
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='accounts_account',
+            page=0,
+            size=1000000000,
+        )
+        if self.request.GET.get('export_filter'):
+            search.raw_query(self.request.GET.get('export_filter'))
+        return search.do_search()[0]
 
 
 class JsonAccountListView(LoginRequiredMixin, JsonListView):

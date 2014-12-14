@@ -24,13 +24,7 @@
             DTSorting: [],
 
             // Export config
-            exportColumnsSelector: '.export_columns',
-            exportColumnSelector: 'export_column',
             exportCheckBoxes: '#list_column_toggler input[type="checkbox"]',
-            exportLinkSelector: '.export_link',
-            exportTypeInput: '.export_type',
-            exportFilterInput: '.export_filter',
-            exportForm: '#form_export',
 
             // Mass Actions
             groupChangeCheckbox: '.group-checkbox',
@@ -50,7 +44,6 @@
             self.setupFilteringDelay();
             self.setupDataTable();
             self.setupCss();
-            self.updateExportColumns();
             $(self.config.actionClass).addClass('disabled');
             self.setupDefaultSearch();
         },
@@ -60,10 +53,6 @@
                 cf = self.config;
             $(cf.exportCheckBoxes).on('change', function() {
                 self.toggleColumnVisibility.call(self, this);
-            });
-
-            $(cf.exportLinkSelector).on('click', function(event) {
-                self.exportTable.call(self, this, event);
             });
 
             $(cf.groupChangeCheckbox).on('change', function() {
@@ -166,34 +155,11 @@
             }
         },
 
-        //Export functions
-
-        updateExportColumns: function() {
-            //Find all selected columns and updates export field.
-            var cf = this.config;
-            var selectedColumns = $.map($('input[name="'+ cf.exportColumnSelector +'"]:checked'), function(input) {
-                return $(input).val();
-            });
-            $(cf.exportColumnsSelector).val(selectedColumns.join(','));
-        },
-
         toggleColumnVisibility: function(checkbox) {
             // Get column number which visibility is being toggled.
             var iCol = parseInt($(checkbox).attr('data-column'));
             var bVis = DTTable.fnSettings().aoColumns[iCol].bVisible;
             DTTable.fnSetColumnVis(iCol, (bVis ? false : true));
-            // Only visible columns will be exported, update export field.
-            this.updateExportColumns();
-        },
-
-        exportTable: function(element, event) {
-            var cf = this.config;
-            // Setup the export type in a field.
-            $(cf.exportTypeInput).val($(element).data('export-type'));
-            // Keep current search also for export.
-            $(cf.exportFilterInput).val(DTTable.fnSettings().oPreviousSearch.sSearch);
-            $(cf.exportForm).submit();
-            event.preventDefault();
         },
 
         // Mass actions on tables

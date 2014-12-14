@@ -40,7 +40,7 @@ angular.module('accountControllers', [
                     column:  'modified'  // string: current sorted column
                 }),
                 visibility: Cookie.getCookieValue('visibility', {
-                    account: true,
+                    name: true,
                     contactInformation: true,
                     assignedTo: true,
                     created: true,

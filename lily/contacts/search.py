@@ -2,6 +2,7 @@ from elasticutils.contrib.django import Indexable, MappingType
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact, Function
+from lily.search.indexing import prepare_dict
 from lily.tags.models import Tag
 from lily.utils.models.models import EmailAddress, PhoneNumber
 
@@ -50,17 +51,14 @@ class ContactMapping(MappingType, Indexable):
                 },
                 'email': {
                     'type': 'string',
-                    'index': 'analyzed',
                     'analyzer': 'letter_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'index': 'analyzed',
                     'analyzer': 'letter_analyzer',
                 },
                 'account_name': {
                     'type': 'string',
-                    'index': 'analyzed',
                 },
                 'account': {
                     'type': 'integer',
@@ -102,6 +100,8 @@ class ContactMapping(MappingType, Indexable):
             'last_name': obj.last_name,
             'created': obj.created,
             'modified': obj.modified,
+            'tag': [tag.name for tag in obj.tags.all() if tag.name],
+            'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
         }
 
         functions = obj.functions.all()
@@ -115,14 +115,4 @@ class ContactMapping(MappingType, Indexable):
                 doc['phone_' + phone.type] = []
             doc['phone_' + phone.type].append(phone.number)
 
-        emails = obj.email_addresses.all()
-        emails = list(set([email.email_address for email in emails if email.email_address]))
-        if emails:
-            doc['email'] = emails
-
-        tags = obj.tags.all()
-        tags = [tag.name for tag in tags if tag.name]
-        if tags:
-            doc['tag'] = tags
-
-        return doc
+        return prepare_dict(doc)

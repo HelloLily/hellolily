@@ -98,7 +98,7 @@ class ExportAccountView(ExportListViewMixin, View):
             size=1000000000,
         )
         if self.request.GET.get('export_filter'):
-            search.raw_query(self.request.GET.get('export_filter'))
+            search.query_common_fields(self.request.GET.get('export_filter'))
         return search.do_search()[0]
 
 

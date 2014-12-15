@@ -508,7 +508,9 @@ ES_INDEXES = {'default': 'main_index'}
 # Enable models for search. Used for batch indexing and realtime updating.
 ES_MODEL_MAPPINGS = (
     'lily.accounts.search.AccountMapping',
+    'lily.cases.search.CaseMapping',
     'lily.contacts.search.ContactMapping',
+    'lily.deals.search.DealMapping',
 )
 
 #######################################################################################################################

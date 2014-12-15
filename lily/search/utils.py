@@ -77,7 +77,7 @@ class LilySearch(object):
 
         return hits, execute.count, execute.took
 
-    def raw_query(self, query):
+    def query_common_fields(self, query):
         """
         Set a raw_query based on common indexed fields.
 
@@ -93,7 +93,6 @@ class LilySearch(object):
                             'operator': 'and',
                             'fields': [
                                 'name',
-                                'assigned_to',
                             ],
                         }
                     },
@@ -103,7 +102,7 @@ class LilySearch(object):
 
         # Prefix query is not analyzed on ES side, so split up into different tokens.
         for token in query.split(' '):
-            for prefix_field in ['tag', 'email*', 'account_name']:
+            for prefix_field in ['tag', 'email*', 'account_name', 'assigned_to']:
                 raw_query['bool']['should'].extend([
                     {
                         'prefix': {

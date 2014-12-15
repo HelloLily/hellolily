@@ -48,4 +48,7 @@ def check_related(sender, instance):
         related = mapping.get_related_models().get(type(instance))
         if related:
             for obj in related(instance):
-                update_in_index(obj, mapping)
+                # Some related objects are not specific to one model, such as
+                # 'subject' of Tag, so we do a double check to match the model.
+                if type(obj) is mapping.get_model():
+                    update_in_index(obj, mapping)

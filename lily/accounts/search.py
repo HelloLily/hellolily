@@ -81,6 +81,19 @@ class AccountMapping(MappingType, Indexable):
         }
 
     @classmethod
+    def prepare_batch(cls, queryset):
+        """
+        Optimize a queryset for batch indexing.
+        """
+        return queryset.prefetch_related(
+            'tags',
+            'email_addresses',
+            'phone_numbers',
+            'functions__contact',
+            'assigned_to',
+        )
+
+    @classmethod
     def extract_document(cls, obj_id, obj=None):
         """
         Converts this instance into an Elasticsearch document.
@@ -100,10 +113,13 @@ class AccountMapping(MappingType, Indexable):
             'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
         }
 
-        phones = obj.phone_numbers.all().distinct('number')
+        phones = obj.phone_numbers.all()
+        dedup_phones = set()
         for phone in phones:
-            if 'phone_' + phone.type not in doc:
-                doc['phone_' + phone.type] = []
-            doc['phone_' + phone.type].append(phone.number)
+            if phone.number not in dedup_phones:
+                dedup_phones.add(phone.number)
+                if 'phone_' + phone.type not in doc:
+                    doc['phone_' + phone.type] = []
+                doc['phone_' + phone.type].append(phone.number)
 
         return prepare_dict(doc)

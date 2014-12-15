@@ -1,10 +1,12 @@
 from elasticutils.contrib.django import Indexable, MappingType
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact, Function
+from lily.contacts.models import Function
 from lily.search.indexing import prepare_dict
 from lily.tags.models import Tag
 from lily.utils.models.models import EmailAddress, PhoneNumber
+
+from .models import Contact
 
 
 class ContactMapping(MappingType, Indexable):
@@ -86,6 +88,18 @@ class ContactMapping(MappingType, Indexable):
         }
 
     @classmethod
+    def prepare_batch(cls, queryset):
+        """
+        Optimize a queryset for batch indexing.
+        """
+        return queryset.prefetch_related(
+            'tags',
+            'email_addresses',
+            'phone_numbers',
+            'functions__account',
+        )
+
+    @classmethod
     def extract_document(cls, obj_id, obj=None):
         """
         Converts this instance into an Elasticsearch document.
@@ -109,10 +123,13 @@ class ContactMapping(MappingType, Indexable):
             doc['account'] = [function.account_id for function in functions]
             doc['account_name'] = [function.account.name for function in functions if function.account.name]
 
-        phones = obj.phone_numbers.all().distinct('number')
+        phones = obj.phone_numbers.all()
+        dedup_phones = set()
         for phone in phones:
-            if 'phone_' + phone.type not in doc:
-                doc['phone_' + phone.type] = []
-            doc['phone_' + phone.type].append(phone.number)
+            if phone.number not in dedup_phones:
+                dedup_phones.add(phone.number)
+                if 'phone_' + phone.type not in doc:
+                    doc['phone_' + phone.type] = []
+                doc['phone_' + phone.type].append(phone.number)
 
         return prepare_dict(doc)

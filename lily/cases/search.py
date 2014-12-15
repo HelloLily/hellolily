@@ -80,6 +80,20 @@ class CaseMapping(MappingType, Indexable):
         }
 
     @classmethod
+    def prepare_batch(cls, queryset):
+        """
+        Optimize a queryset for batch indexing.
+        """
+        return queryset.prefetch_related(
+            'status',
+            'type',
+            'account',
+            'contact',
+            'assigned_to',
+            'tags',
+        )
+
+    @classmethod
     def extract_document(cls, obj_id, obj=None):
         """
         Converts this instance into an Elasticsearch document.

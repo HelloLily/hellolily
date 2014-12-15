@@ -73,6 +73,12 @@ or use an existent tenant if passed as an argument."""
         AccountFactory.create_batch(size, tenant=tenant)
         # create account with multi contacts
         function_factory(tenant).create_batch(size, account=AccountFactory(tenant=tenant))
+        # create account with assigned_to
+        function_factory(tenant).create_batch(
+            size,
+            account=AccountFactory(tenant=tenant,
+                                   assigned_to=LilyUserFactory(tenant=tenant))
+        )
 
     def cases(self, size, tenant):
         CaseFactory.create_batch(size, tenant=tenant)

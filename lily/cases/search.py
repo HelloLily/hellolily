@@ -47,6 +47,9 @@ class CaseMapping(MappingType, Indexable):
                     'analyzer': 'letter_analyzer',
                 },
                 'priority': {
+                    'type': 'integer',
+                },
+                'priority_name': {
                     'type': 'string',
                     'index': 'not_analyzed',
                 },
@@ -62,8 +65,11 @@ class CaseMapping(MappingType, Indexable):
                     'type': 'string',
                     'index': 'not_analyzed',
                 },
-                'modified': {
+                'expires': {
                     'type': 'date',
+                },
+                'archived': {
+                    'type': 'boolean',
                 },
             }
         }
@@ -111,11 +117,13 @@ class CaseMapping(MappingType, Indexable):
             'contact': obj.contact_id if obj.contact else None,
             'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'priority': Case.PRIORITY_CHOICES[obj.priority][1],
+            'priority': obj.priority,
+            'priority_name': Case.PRIORITY_CHOICES[obj.priority][1],
             'status': obj.status.status,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'type': obj.type.type if obj.type else None,
-            'modified': obj.expires,
+            'expires': obj.expires,
+            'archived': obj.is_archived,
         }
 
         return prepare_dict(doc)

@@ -106,7 +106,7 @@ def prepare_dict(arg_dict):
     """
 
     # Remove entries with empty values.
-    new_dict = {k: v for k, v in arg_dict.items() if v}
+    new_dict = {k: v for k, v in arg_dict.items() if v not in ([], '', {}, None)}
 
     for k, v in new_dict.iteritems():
         # Normalize dates.

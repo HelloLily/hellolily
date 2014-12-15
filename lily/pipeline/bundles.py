@@ -303,6 +303,8 @@ PIPELINE_JS = {
             'lily/angular/accounts/controllers.js',
             'lily/angular/contacts/services.js',
             'lily/angular/contacts/controllers.js',
+            'lily/angular/cases/services.js',
+            'lily/angular/cases/controllers.js',
         ),
         'output_filename': 'compiled/js/angularapp.js',
     },

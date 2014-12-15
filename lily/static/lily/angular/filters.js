@@ -41,7 +41,7 @@ angular.module('lilyFilters', [])
 
             // Calculate delta in seconds
             calculateDelta = function() {
-                return delta = Math.round((now - date) / 1000);
+                return delta = Math.round((date - now) / 1000);
             };
             calculateDelta();
             if (delta > day && delta < week) {
@@ -49,43 +49,53 @@ angular.module('lilyFilters', [])
                 calculateDelta();
             }
 
+            fallbackDateFormat = fallbackDateFormat !== undefined ? fallbackDateFormat : 'longDate';
+
             // Check delta and return result
-            switch (false) {
-                case !(delta < 30):
-                    return 'just now';
-                case !(delta < minute):
-                    return '' + delta + ' seconds ago';
-                case !(delta < 2 * minute):
-                    return 'a minute ago';
-                case !(delta < hour):
-                    return '' + (Math.floor(delta / minute)) + ' minutes ago';
-                case Math.floor(delta / hour) !== 1:
-                    return 'an hour ago';
-                case !(delta < day):
-                    return '' + (Math.floor(delta / hour)) + ' hours ago';
-                case !(delta < day * 2):
-                    return 'yesterday';
-                case !(delta < week):
-                    return '' + (Math.floor(delta / day)) + ' days ago';
-                case Math.floor(delta / week) !== 1:
-                    return 'a week ago';
-
-// For now, longer than a week ago is not relevant to show relative
-//
-//                case !(delta < month):
-//                    return '' + (Math.floor(delta / week)) + ' weeks ago';
-//                case Math.floor(delta / month) !== 1:
-//                    return 'a month ago';
-//                case !(delta < year):
-//                    return '' + (Math.floor(delta / month)) + ' months ago';
-//                case Math.floor(delta / year) !== 1:
-//                    return 'a year ago';
-
-                default:
-                    // Check fallbackFormat
-                    fallbackDateFormat = fallbackDateFormat !== undefined ? fallbackDateFormat : 'longDate';
-                    // Use angular $filter
-                    return $filter('date')(date, fallbackDateFormat);
+            if (delta < 0) {
+                switch (false) {
+                    case !(-delta > week):
+                        return $filter('date')(date, fallbackDateFormat);
+                    case !(-delta > day * 2):
+                        return '' + -(Math.ceil(delta / day)) + ' days ago';
+                    case !(-delta > day):
+                        return 'yesterday';
+                    case !(-delta > hour):
+                        return '' + -(Math.ceil(delta / hour)) + ' hours ago';
+                    case !(-delta > minute * 2):
+                        return '' + -(Math.ceil(delta / minute)) + ' minutes ago';
+                    case !(-delta > minute):
+                        return 'a minutes ago';
+                    case !(-delta > 30):
+                        return '' + -delta + ' seconds ago';
+                    default:
+                        return 'just now';
+                }
+            } else {
+                switch (false) {
+                    case !(delta < 30):
+                        return 'just now';
+                    case !(delta < minute):
+                        return '' + delta + ' seconds';
+                    case !(delta < 2 * minute):
+                        return 'a minute';
+                    case !(delta < hour):
+                        return '' + (Math.floor(delta / minute)) + ' minutes';
+                    case Math.floor(delta / hour) !== 1:
+                        return 'an hour';
+                    case !(delta < day):
+                        return '' + (Math.floor(delta / hour)) + ' hours';
+                    case !(delta < day * 2):
+                        return 'tomorrow';
+                    case !(delta < week):
+                        return '' + (Math.floor(delta / day)) + ' days';
+                    case Math.floor(delta / week) !== 1:
+                        return 'a week';
+                    default:
+                        // Use angular $filter
+                        return $filter('date')(date, fallbackDateFormat);
+                }
             }
         }
     }]);
+

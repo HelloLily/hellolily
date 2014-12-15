@@ -1,4 +1,3 @@
-from datetime import date
 import json
 from urlparse import urlparse
 
@@ -6,141 +5,26 @@ import anyjson
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account
-from lily.cases.forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
-from lily.cases.models import Case, CaseStatus
 from lily.contacts.models import Contact
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
-from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
-from lily.utils.views.mixins import SortedListMixin, HistoryListViewMixin, LoginRequiredMixin, ArchivedFilterMixin, \
-    FilteredListMixin, FilteredListByTagMixin
+from lily.utils.views import AjaxUpdateView, ArchiveView, UnarchiveView, AngularView
+from lily.utils.views.mixins import HistoryListViewMixin, LoginRequiredMixin
 
 
-class ListCaseView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListByTagMixin, FilteredListMixin, DataTablesListView):
+from .forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
+from .models import Case, CaseStatus
+
+
+class ListCaseView(LoginRequiredMixin, AngularView):
     """
     Display a list of all cases.
     """
-    model = Case
-    template_name = 'cases/case_list_active.html'
-
-    # SortedListMxin
-    sortable = [2, 3, 4, 5, 6, 7, 8, 9]
-    default_order_by = 2
-    default_sort_order = SortedListMixin.DESC
-
-    # FilteredListMixin
-    select_related = (
-        'type',
-        'contact',
-        'account',
-        'assigned_to',
-    )
-
-    # DataTablesListView
-    columns = SortedDict([
-        ('checkbox', {
-            'mData': 'checkbox',
-            'bSortable': False,
-        }),
-        ('edit', {
-            'mData': 'edit',
-            'bSortable': False,
-        }),
-        ('case_number', {
-            'mData': 'case_number',
-        }),
-        ('contact_account', {
-            'mData': 'contact_account',
-        }),
-        ('subject', {
-            'mData': 'subject',
-        }),
-        ('priority', {
-            'mData': 'priority',
-        }),
-        ('type', {
-            'mData': 'type',
-        }),
-        ('status', {
-            'mData': 'status',
-        }),
-        ('expires', {
-            'mData': 'expires',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('assigned_to', {
-            'mData': 'assigned_to',
-        }),
-        ('tags', {
-            'mData': 'tags',
-            # Generic relations are not sortable on QuerySet.
-            'bSortable': False,
-        }),
-    ])
-
-    # DataTablesListView
-    search_fields = [
-        'subject__icontains',
-        'contact__last_name__icontains',
-        'contact__first_name__icontains',
-        'account__name__icontains',
-        'assigned_to__last_name__icontains',
-        'assigned_to__first_name__icontains',
-        'type__type__icontains',
-        'id',
-    ]
-
-    def get_queryset(self):
-        return super(ListCaseView, self).get_queryset().filter(is_deleted=False)
-
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset based on given column and sort_order.
-
-        Used by DataTablesListView.
-        """
-        prefix = ''
-        if sort_order == 'desc':
-            prefix = '-'
-
-        if column in ('subject', 'status', 'created', 'modified', 'expires'):
-            return queryset.order_by('%s%s' % (prefix, column))
-        elif column == 'priority':
-            return queryset.order_by('%spriority' % prefix, 'expires')
-        elif column == 'case_number':
-            return queryset.order_by('%spk' % prefix)
-        elif column == 'type':
-            return queryset.order_by('%stype__type' % prefix, '-priority')
-        elif column == 'contact_account':
-            return queryset.order_by(
-                '%saccount__name' % prefix,
-                '%scontact__last_name' % prefix,
-                '%scontact__first_name' % prefix,
-            )
-        elif 'assigned_to':
-            return queryset.order_by(
-                '%sassigned_to__last_name' % prefix,
-                '%sassigned_to__first_name' % prefix,
-            )
-        return queryset
-
-    def get_extra_row_data(self, item):
-        extra_row_data = {}
-
-        # Visual feedback on item expired
-        if item.expires > date.today():
-            extra_row_data.update({'checkboxClass': 'success'})
-        if item.expires == date.today():
-            extra_row_data.update({'checkboxClass': 'warning'})
-        elif item.expires < date.today():
-            extra_row_data.update({'checkboxClass': 'danger'})
-
-        return extra_row_data
+    template_name = 'cases/case_list.html'
 
 
 class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):

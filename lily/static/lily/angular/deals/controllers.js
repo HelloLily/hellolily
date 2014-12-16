@@ -38,7 +38,7 @@ angular.module('dealControllers', [
                 archived: Cookie.getCookieValue('archived', false),
                 order:  Cookie.getCookieValue('order', {
                     ascending: true,
-                    column:  'expires'  // string: current sorted column
+                    column:  'closing_date'  // string: current sorted column
                 }),
                 visibility: Cookie.getCookieValue('visibility', {
                     deal: true,

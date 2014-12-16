@@ -188,10 +188,11 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
     def get_contacts(self):
         if not hasattr(self, '_contacts'):
-            functions = self.functions.filter(is_deleted=False, contact__is_deleted=False)
+            functions = self.functions.all()
             self._contacts = []
             for function in functions:
-                self._contacts.append(function.contact)
+                if not (function.is_deleted or function.contact.is_deleted):
+                    self._contacts.append(function.contact)
 
         return self._contacts
 

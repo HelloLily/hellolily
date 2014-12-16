@@ -25,11 +25,11 @@ configured mappings, which will create a new index, apply mappings and such:
 The second way is to target a specific model, in which no new index will be
 created and no mappings will be applied. It only indexes the specific model:
 
-    index Contact
+    index -t Contact
 
 or with fully qualified name:
 
-    index lily.contacts.models.Contact
+    index -t lily.contacts.models.Contact
 
 It is possible to specify multiple models, using comma separation."""
 

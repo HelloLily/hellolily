@@ -47,7 +47,7 @@ class SearchView(LoginRequiredMixin, View):
 
         query = request.GET.get('q', '').lower()
         if query:
-            search.raw_query(query)
+            search.query_common_fields(query)
 
         filterquery = request.GET.get('filterquery', '')
         if filterquery:

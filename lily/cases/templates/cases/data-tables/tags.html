@@ -1,3 +1,0 @@
-{% for tag in item.get_tags %}
-    <a href="{% url 'case_list_filtered_by_tag' tag.pk %}" class="tag">{{ tag }}</a><br />
-{% endfor %}

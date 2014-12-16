@@ -1,18 +1,15 @@
 from elasticutils.contrib.django import Indexable, MappingType
 
 from lily.accounts.models import Account
-from lily.contacts.models import Function
+from lily.deals.models import Deal
 from lily.search.indexing import prepare_dict
 from lily.tags.models import Tag
-from lily.utils.models.models import EmailAddress, PhoneNumber
-
-from .models import Contact
 
 
-class ContactMapping(MappingType, Indexable):
+class DealMapping(MappingType, Indexable):
     @classmethod
     def get_model(cls):
-        return Contact
+        return Deal
 
     @classmethod
     def get_mapping(cls):
@@ -23,17 +20,6 @@ class ContactMapping(MappingType, Indexable):
             '_all': {
                 'enabled': False,
             },
-            'dynamic_templates': [{
-                'phone': {
-                    'match': 'phone_*',
-                    'mapping': {
-                        'type': 'string',
-                        'index': 'analyzed',
-                        'search_analyzer': 'letter_analyzer',
-                        'index_analyzer': 'letter_ngram_analyzer'
-                    },
-                },
-            }],
             'properties': {
                 'tenant': {
                     'type': 'integer',
@@ -43,33 +29,41 @@ class ContactMapping(MappingType, Indexable):
                 },
                 'name': {
                     'type': 'string',
-                    'index': 'analyzed',
                     'search_analyzer': 'letter_analyzer',
                     'index_analyzer': 'letter_ngram_analyzer',
                 },
-                'last_name': {
+                'body': {
+                    'type': 'string',
+                    'analyzer': 'letter_analyzer',
+                },
+                'account': {
+                    'type': 'string',
+                    'analyzer': 'letter_analyzer',
+                },
+                'assigned_to': {
+                    'type': 'string',
+                    'analyzer': 'letter_analyzer',
+                },
+                'stage': {
+                    'type': 'integer',
+                },
+                'stage_name': {
                     'type': 'string',
                     'index': 'not_analyzed',
                 },
-                'email': {
-                    'type': 'string',
-                    'analyzer': 'letter_analyzer',
-                },
                 'tag': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index': 'not_analyzed',
                 },
-                'account_name': {
-                    'type': 'string',
-                },
-                'account': {
-                    'type': 'integer',
-                },
-                'created': {
-                    'type': 'date',
+                'amount': {
+                    'type': 'float',
+                    'index': 'not_analyzed',
                 },
                 'modified': {
                     'type': 'date',
+                },
+                'archived': {
+                    'type': 'boolean',
                 },
             }
         }
@@ -80,11 +74,8 @@ class ContactMapping(MappingType, Indexable):
         Maps related models, how to get an instance list from a signal sender.
         """
         return {
-            Function: lambda obj: [obj.contact],
-            Account: lambda obj: [f.contact for f in obj.functions.all()],
+            Account: lambda obj: obj.deal_set.all(),
             Tag: lambda obj: [obj.subject],
-            EmailAddress: lambda obj: obj.contact_set.all(),
-            PhoneNumber: lambda obj: obj.contact_set.all(),
         }
 
     @classmethod
@@ -93,10 +84,9 @@ class ContactMapping(MappingType, Indexable):
         Optimize a queryset for batch indexing.
         """
         return queryset.prefetch_related(
+            'account',
+            'assigned_to',
             'tags',
-            'email_addresses',
-            'phone_numbers',
-            'functions__account',
         )
 
     @classmethod
@@ -110,26 +100,18 @@ class ContactMapping(MappingType, Indexable):
         doc = {
             'tenant': obj.tenant_id,
             'id': obj.id,
-            'name': obj.full_name(),
-            'last_name': obj.last_name,
-            'created': obj.created,
-            'modified': obj.modified,
+            'name': obj.name,
+            'body': obj.description,
+            'account': obj.account_id if obj.account else None,
+            'account_name': obj.account.name if obj.account else None,
+            'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'stage': obj.stage,
+            'stage_name': Deal.STAGE_CHOICES[obj.stage][1],
+            'amount': obj.amount,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'created': obj.created,
+            'closing_date': obj.expected_closing_date,
+            'archived': obj.is_archived,
         }
-
-        functions = obj.functions.all()
-        if functions:
-            doc['account'] = [function.account_id for function in functions]
-            doc['account_name'] = [function.account.name for function in functions if function.account.name]
-
-        phones = obj.phone_numbers.all()
-        dedup_phones = set()
-        for phone in phones:
-            if phone.number not in dedup_phones:
-                dedup_phones.add(phone.number)
-                if 'phone_' + phone.type not in doc:
-                    doc['phone_' + phone.type] = []
-                doc['phone_' + phone.type].append(phone.number)
 
         return prepare_dict(doc)

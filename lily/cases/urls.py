@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from lily.cases.views import CreateCaseView, DetailCaseView, UpdateCaseView, DeleteCaseView, ListCaseView, \
-    UpdateStatusAjaxView, ArchiveCasesView, UnarchiveCasesView, ArchivedCasesView, UpdateAndUnarchiveCaseView
+    UpdateStatusAjaxView, ArchiveCasesView, UnarchiveCasesView, UpdateAndUnarchiveCaseView
 
 
 urlpatterns = patterns(
@@ -18,8 +18,5 @@ urlpatterns = patterns(
     url(r'^delete/(?P<pk>[\w-]+)/$', DeleteCaseView.as_view(), name='case_delete'),
     url(r'^archive/$', ArchiveCasesView.as_view(), name='case_archive'),
     url(r'^unarchive/$', UnarchiveCasesView.as_view(), name='case_unarchive'),
-    url(r'^archived/$', ArchivedCasesView.as_view(), name='case_archived_list'),
-    url(r'^tag/(?P<tag>[\w-]+)/$', ListCaseView.as_view(), name='case_list_filtered_by_tag'),
-    url(r'^archived/tag/(?P<tag>[\w-]+)/$', ListCaseView.as_view(), name='case_archived_list_filtered_by_tag'),
     url(r'^$', ListCaseView.as_view(), name='case_list'),
 )

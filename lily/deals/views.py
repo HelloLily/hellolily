@@ -6,130 +6,25 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils.datastructures import SortedDict
 from django.utils.timezone import utc
 from django.utils.translation import ugettext as _, ungettext
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
 from lily.accounts.models import Account
-from lily.deals.forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
-from lily.deals.models import Deal
 from lily.utils.functions import is_ajax
-from lily.utils.views import AjaxUpdateView, DataTablesListView, ArchiveView, UnarchiveView
-from lily.utils.views.mixins import (SortedListMixin, HistoryListViewMixin, ArchivedFilterMixin, LoginRequiredMixin,
-                                     FilteredListByTagMixin)
+from lily.utils.views import AjaxUpdateView, ArchiveView, UnarchiveView, AngularView
+from lily.utils.views.mixins import HistoryListViewMixin, LoginRequiredMixin
+
+from .forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
+from .models import Deal
 
 
-class ListDealView(LoginRequiredMixin, ArchivedFilterMixin, SortedListMixin, FilteredListByTagMixin, DataTablesListView):
+class ListDealView(LoginRequiredMixin, AngularView):
     """
     Display a list of all deals.
     """
-    model = Deal
-    template_name = 'deals/deal_list_active.html'
-
-    # SortedListMxin
-    sortable = [2, 3, 4, 5, 6, 7, 8]
-    default_order_by = 2
-
-    # DataTablesListView
-    columns = SortedDict([
-        ('checkbox', {
-            'mData': 'checkbox',
-            'bSortable': False,
-        }),
-        ('edit', {
-            'mData': 'edit',
-            'bSortable': False,
-        }),
-        ('account', {
-            'mData': 'account',
-        }),
-        ('stage', {
-            'mData': 'stage',
-        }),
-        ('created', {
-            'mData': 'created',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('name', {
-            'mData': 'name',
-        }),
-        ('amount', {
-            'mData': 'amount',
-        }),
-        ('assigned_to', {
-            'mData': 'assigned_to',
-        }),
-        ('closed_date', {
-            'mData': 'closed_date',
-            'sClass': 'visible-md visible-lg',
-        }),
-        ('tags', {
-            'mData': 'tags',
-            # Generic relations are not sortable on QuerySet.
-            'bSortable': False,
-        }),
-    ])
-
-    # DataTablesListView
-    search_fields = [
-        'name__icontains',
-        'account__name__icontains',
-        'assigned_to__last_name__icontains',
-        'assigned_to__first_name__icontains',
-    ]
-
-    def get_queryset(self):
-        return super(ListDealView, self).get_queryset().filter(is_deleted=False)
-
-    def order_queryset(self, queryset, column, sort_order):
-        """
-        Orders the queryset based on given column and sort_order.
-
-        Used by DataTablesListView.
-        """
-        prefix = ''
-        if sort_order == 'desc':
-            prefix = '-'
-        if column in ('stage', 'amount', 'created'):
-            return queryset.order_by('%s%s' % (prefix, column))
-        elif column == 'name':
-            return queryset.order_by('%saccount' % prefix)
-        elif column == 'closed_date':
-            return queryset.order_by(
-                '%sexpected_closing_date' % prefix,
-                '%sclosed_date' % prefix,
-            )
-        elif column == 'account':
-            return queryset.order_by(
-                '%saccount__name' % prefix,
-            )
-        elif 'assigned_to':
-            return queryset.order_by(
-                '%sassigned_to__last_name' % prefix,
-                '%sassigned_to__first_name' % prefix,
-            )
-        return queryset
-
-    def get_extra_row_data(self, item):
-        extra_row_data = {}
-
-        # Visual feedback on item stage
-        if item.stage not in (Deal.LOST_STAGE, Deal.WON_STAGE):
-            if item.expected_closing_date > datetime.date.today():
-                extra_row_data.update({'checkboxClass': 'success'})
-            if item.expected_closing_date == datetime.date.today():
-                extra_row_data.update({'checkboxClass': 'warning'})
-            elif item.expected_closing_date < datetime.date.today():
-                extra_row_data.update({'checkboxClass': 'danger'})
-
-        return extra_row_data
-
-
-class ArchivedDealsView(ListDealView):
-    show_archived = True
-    template_name = 'deals/deal_list_archived.html'
+    template_name = 'deals/deal_list.html'
 
 
 class ArchiveDealsView(LoginRequiredMixin, ArchiveView):

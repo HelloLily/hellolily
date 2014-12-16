@@ -62,6 +62,9 @@ class DealMapping(MappingType, Indexable):
                 'modified': {
                     'type': 'date',
                 },
+                'closing_date': {
+                    'type': 'date',
+                },
                 'archived': {
                     'type': 'boolean',
                 },

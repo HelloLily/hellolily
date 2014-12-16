@@ -84,33 +84,42 @@ class LilySearch(object):
         Arguments:
             query (string): query tokens (space separated)
         """
-        raw_query = {
-            'bool': {
-                'should': [
-                    {
-                        'multi_match': {
-                            'query': query,
-                            'operator': 'and',
-                            'fields': [
-                                'name',
-                            ],
-                        }
-                    },
-                ]
+        tokens = [token.strip() for token in query.split(' ') if token.strip()]
+        if tokens:
+            # Every token must be present in at least one of all fields.
+            # This means we use a 'must' bool query for the terms,
+            # with sub bool queries using 'should' for the fields.
+            raw_query = {
+                'bool': {
+                    'must': []
+                }
             }
-        }
-
-        # Prefix query is not analyzed on ES side, so split up into different tokens.
-        for token in query.split(' '):
-            for prefix_field in ['tag', 'email', 'account_name', 'assigned_to', 'subject']:
-                raw_query['bool']['should'].extend([
-                    {
-                        'prefix': {
-                            prefix_field: token,
-                        }
-                    },
-                ])
-        self.search = self.search.query_raw(raw_query)
+            for token in tokens:
+                token_query = {
+                    'bool': {
+                        'should': []
+                    }
+                }
+                for field_name in ['name']:
+                    token_query['bool']['should'].extend([
+                        {
+                            'term': {
+                                field_name: token,
+                            }
+                        },
+                    ])
+                for field_name in ['tag', 'email', 'account_name', 'assigned_to', 'subject']:
+                    token_query['bool']['should'].extend([
+                        {
+                            'prefix': {
+                                field_name: token,
+                            }
+                        },
+                    ])
+                raw_query['bool']['must'].extend(
+                    [token_query]
+                )
+            self.search = self.search.query_raw(raw_query)
 
     def filter_query(self, filterquery):
         """

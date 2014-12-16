@@ -27,7 +27,7 @@ class DealMapping(MappingType, Indexable):
                 'id': {
                     'type': 'integer',
                 },
-                'subject': {
+                'name': {
                     'type': 'string',
                     'search_analyzer': 'letter_analyzer',
                     'index_analyzer': 'letter_ngram_analyzer',
@@ -45,6 +45,9 @@ class DealMapping(MappingType, Indexable):
                     'analyzer': 'letter_analyzer',
                 },
                 'stage': {
+                    'type': 'integer',
+                },
+                'stage_name': {
                     'type': 'string',
                     'index': 'not_analyzed',
                 },
@@ -58,6 +61,9 @@ class DealMapping(MappingType, Indexable):
                 },
                 'modified': {
                     'type': 'date',
+                },
+                'archived': {
+                    'type': 'boolean',
                 },
             }
         }
@@ -99,10 +105,13 @@ class DealMapping(MappingType, Indexable):
             'account': obj.account_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'stage': Deal.STAGE_CHOICES[obj.stage][1],
+            'stage': obj.stage,
+            'stage_name': Deal.STAGE_CHOICES[obj.stage][1],
             'amount': obj.amount,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'modified': obj.expected_closing_date,
+            'created': obj.created,
+            'closing_date': obj.expected_closing_date,
+            'archived': obj.is_archived,
         }
 
         return prepare_dict(doc)

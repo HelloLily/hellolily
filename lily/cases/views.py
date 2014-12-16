@@ -170,14 +170,6 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
         return response
 
 
-class ArchivedCasesView(ListCaseView):
-    show_archived = True
-    template_name = 'cases/case_list_archived.html'
-
-    def get_extra_row_data(self, item):
-        return None
-
-
 class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
     """
     Archives one or more cases.

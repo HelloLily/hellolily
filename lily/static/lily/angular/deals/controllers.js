@@ -1,7 +1,7 @@
 /**
- * caseControllers is a container for all case related Controllers
+ * dealControllers is a container for all deal related Controllers
  */
-angular.module('caseControllers', [
+angular.module('dealControllers', [
     // Angular dependencies
     'ngCookies',
 
@@ -9,23 +9,23 @@ angular.module('caseControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'caseServices'
+    'dealServices'
 ])
 
     /**
-     * CaseListController controller to show list of cases
+     * DealListController controller to show list of deals
      *
      */
-    .controller('CaseListController', [
+    .controller('DealListController', [
         '$scope',
         '$cookieStore',
         '$window',
 
-        'Case',
+        'Deal',
         'Cookie',
-        function($scope, $cookieStore, $window, Case, Cookie) {
+        function($scope, $cookieStore, $window, Deal, Cookie) {
 
-            Cookie.prefix ='caseList';
+            Cookie.prefix ='dealList';
 
             /**
              * table object: stores all the information to correctly display the table
@@ -41,14 +41,13 @@ angular.module('caseControllers', [
                     column:  'expires'  // string: current sorted column
                 }),
                 visibility: Cookie.getCookieValue('visibility', {
-                    caseId: true,
-                    client: true,
-                    subject: true,
-                    priority: true,
-                    type: true,
-                    status: true,
-                    expires: true,
+                    deal: true,
+                    stage: true,
+                    created: true,
+                    name: true,
+                    amount: true,
                     assignedTo: true,
+                    closingDate: true,
                     tags: true
                 })};
 
@@ -63,15 +62,15 @@ angular.module('caseControllers', [
             }
 
             /**
-             * updateCases() reloads the cases trough a service
+             * updateDeals() reloads the deals trough a service
              *
              * Updates table.items and table.totalItems
              */
-            function updateCases() {
-                Case.query(
+            function updateDeals() {
+                Deal.query(
                     $scope.table
                 ).then(function(data) {
-                        $scope.table.items = data.cases;
+                        $scope.table.items = data.deals;
                         $scope.table.totalItems = data.total;
                     }
                 );
@@ -79,7 +78,7 @@ angular.module('caseControllers', [
 
             /**
              * Watches the model info from the table that, when changed,
-             * needs a new set of cases
+             * needs a new set of deals
              */
             $scope.$watchGroup([
                 'table.page',
@@ -89,7 +88,7 @@ angular.module('caseControllers', [
                 'table.archived'
             ], function() {
                 updateTableSettings();
-                updateCases();
+                updateDeals();
             });
 
             /**

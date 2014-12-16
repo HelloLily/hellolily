@@ -1,4 +1,0 @@
-{% load i18n utils %}
-
-<a href="{% url 'deal_update' pk=item.pk %}" class="btn btn-xs default" title="{% trans 'Edit' %}"><i class="icon-edit"></i></a>
-    <button type="button" class="btn btn-xs default" title="{% trans 'Delete' %}" data-target="#confirm-delete" data-source="{% url 'deal_delete' pk=item.pk %}" ><i class="icon-trash"></i></button>

@@ -1,5 +1,5 @@
 /**
- * accountServices is a container for all case related Angular services
+ * caseServices is a container for all case related Angular services
  */
 angular.module('caseServices', [])
 
@@ -12,13 +12,14 @@ angular.module('caseServices', [])
         var Case = {};
 
         /**
-         * getCases() gets the accounts from the search backend trough a promise
+         * getCases() gets the cases from the search backend trough a promise
          *
          * @param queryString string: current filter on the caselist
          * @param page int: current page of pagination
          * @param pageSize int: current page size of pagination
          * @param orderColumn string: current sorting of cases
          * @param orderedAsc {boolean}: current ordering
+         * @param archived {boolean}: when true, only archived are fetched, if false, only active
          *
          * @returns Promise object: when promise is completed:
          *      {
@@ -46,21 +47,21 @@ angular.module('caseServices', [])
             })
                 .then(function(response) {
                     return {
-                        accounts: response.data.hits,
+                        cases: response.data.hits,
                         total: response.data.total
                     };
                 });
         };
 
         /**
-         * query() makes it possible to query on accounts on backend search
+         * query() makes it possible to query on cases on backend search
          *
-         * @param table object: holds all the info needed to get accounts from backend
+         * @param table object: holds all the info needed to get cases from backend
          *
          * @returns Promise object: when promise is completed:
          *      {
-         *          accounts list: paginated account objects
-         *          total int: total number of account objects
+         *          cases list: paginated case objects
+         *          total int: total number of case objects
          *      }
          */
         Case.query = function(table) {

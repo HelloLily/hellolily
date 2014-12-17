@@ -108,6 +108,8 @@ class ArchiveView(View):
         queryset = self.get_queryset()
         kwargs.update({'is_archived': archive})
         queryset.update(**kwargs)
+        for item in queryset.all():
+            item.save()
         self.get_success_message(len(queryset))
 
         return HttpResponseRedirect(self.get_success_url())

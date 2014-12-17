@@ -29,8 +29,11 @@ urlpatterns = patterns('',
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 
     (r'^favicon\.ico$', RedirectView.as_view(url=settings.STATIC_URL + 'lily/images/core/favicon.ico')),
-    # url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog', name='jsi18n'),
 )
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('', url(r'^__debug__/', include(debug_toolbar.urls)), )
 
 # Works only in debug mode
 if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:

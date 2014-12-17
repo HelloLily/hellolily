@@ -13,28 +13,18 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-# import os
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lily.settings.settings")
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lily.settings")
-
-# # # This application object is used by any WSGI server configured to use this
-# # # file. This includes Django's development server, if the WSGI_APPLICATION
-# # # setting points here.
-# from django.core.wsgi import get_wsgi_application
-# application = get_wsgi_application()
+# # This application object is used by any WSGI server configured to use this
+# # file. This includes Django's development server, if the WSGI_APPLICATION
+# # setting points here.
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
 
 # # Apply WSGI middleware here.
 # # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)
-
-# import os
-# import site
-
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lily.settings")
-# site.addsitedir('/home/cornelis/.virtualenvs/hellolily/lib/python2.7/site-packages/')
-
-from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application()
 
 # TODO: once we use Django 1.7 this should go in apps.py (http://stackoverflow.com/a/16111968)
 from Crypto import Random

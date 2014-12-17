@@ -87,7 +87,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROW
 X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')
 ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
+    'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
+    'app.hellolilly.com',
     'app.hellolily.nl',
     'app.hellolilly.nl',
 
@@ -259,7 +261,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'djangoformsetjs',
     'easy_thumbnails',
-    'gunicorn',
     'pipeline',
     'collectfast',
     'templated_email',
@@ -337,96 +338,103 @@ TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 #######################################################################################################################
 # LOGGING CONFIG                                                                                                      #
 #######################################################################################################################
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+USE_LOGGING = boolean(os.environ.get('USE_LOGGING', 1))
+if USE_LOGGING:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse',
+            },
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+            },
         },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+        'formatters': {
+            'verbose': {
+                'format': '[%(asctime)s] (%(levelname)s) %(filename)s#%(lineno)s %(funcName)s():\n%(message)s',
+                'datefmt': '%H:%M:%S',
+            },
+            'simple': {
+                'format': '[%(asctime)s] (%(levelname)s): %(message)s'
+            },
         },
-    },
-    'formatters': {
-        'verbose': {
-            'format': '[%(asctime)s] (%(levelname)s) %(filename)s#%(lineno)s %(funcName)s():\n%(message)s',
-            'datefmt': '%H:%M:%S',
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                # 'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
+            },
+            'null': {
+                'class': 'django.utils.log.NullHandler',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
         },
-        'simple': {
-            'format': '[%(asctime)s] (%(levelname)s): %(message)s'
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            # 'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
-        'null': {
-            'class': 'django.utils.log.NullHandler',
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'django': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.db.backends': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.security': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'py.warnings': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'search': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'elasticsearch': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'search.trace': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'sugarimport': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
+        'loggers': {
+            '': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'django': {
+                'handlers': ['mail_admins', 'console'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+            'django.request': {
+                'handlers': ['mail_admins', 'console'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+            'django.db.backends': {
+                'handlers': ['mail_admins', 'console'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+            'django.security': {
+                'handlers': ['mail_admins', 'console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'py.warnings': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'search': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'elasticsearch': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'search.trace': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'sugarimport': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+        }
     }
-}
+else:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': True,
+    }
 
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #
@@ -541,6 +549,7 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 SOUTH_AUTO_FREEZE_APP = True
 SOUTH_VERBOSITY = 1
 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.versions.VersionsPanel',
     'debug_toolbar.panels.timer.TimerPanel',

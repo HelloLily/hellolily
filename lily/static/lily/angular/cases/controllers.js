@@ -32,7 +32,7 @@ angular.module('caseControllers', [
              */
             $scope.table = {
                 page: 1,  // current page of pagination: 1-index
-                pageSize: 20,  // number of items per page
+                pageSize: 60,  // number of items per page
                 totalItems: 0, // total number of items
                 filter: Cookie.getCookieValue('filter', ''),  // search filter
                 archived: Cookie.getCookieValue('archived', false),

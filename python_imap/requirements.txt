@@ -1,4 +1,4 @@
 # packages you can install with pip
-imapclient
-beautifulsoup4
-python-dateutil>=1.5,<2
+imapclient==0.10.2
+beautifulsoup4==4.3.2
+python-dateutil==2.3

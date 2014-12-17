@@ -1,16 +1,16 @@
 ### Django runs on this
-web: newrelic-admin run-program python manage.py run_gunicorn 0.0.0.0:$PORT -w 4 -k gevent
+web: bin/start-pgbouncer-stunnel newrelic-admin run-program gunicorn --config=lily/settings/gunicorn.py lily.wsgi:application
 
 ### Celery workers
 
 ## beat: Trigger tasks for all queues, and processes the ones in queue 'celery'
-beat: newrelic-admin run-program celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h
+beat: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h
 
 ## worker: Execute tasks in queue 'queue1'
-worker1: newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 10 -P eventlet
+worker1: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 10 -P eventlet
 
 ## worker: Execute tasks in queue 'queue2'
-worker2: newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 10 -P eventlet
+worker2: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 10 -P eventlet
 
 ## worker: Execute tasks in queue 'queue3'
-worker3: newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h -c 10 -P eventlet
+worker3: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue3 -n worker3.%h -c 10 -P eventlet

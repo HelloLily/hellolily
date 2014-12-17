@@ -1,0 +1,2890 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-17 14:16+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Website"
+msgstr ""
+
+msgid "Company name"
+msgstr ""
+
+msgid "E-mail addresses"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Company name already in use."
+msgstr ""
+
+msgid "E-mail address already in use."
+msgstr ""
+
+msgid "Website already in use."
+msgstr ""
+
+msgid "Extra website(s)"
+msgstr ""
+
+msgid "Primary website"
+msgstr ""
+
+msgid "Twitter"
+msgstr ""
+
+msgid "Assigned to"
+msgstr ""
+
+msgid "Not assigned"
+msgstr ""
+
+msgid "Please enter a valid username or link"
+msgstr ""
+
+msgid "Who was it?"
+msgstr ""
+
+msgid "Who is handling the account?"
+msgstr ""
+
+msgid "Contact information"
+msgstr ""
+
+msgid "bankrupt"
+msgstr ""
+
+msgid "previous customer"
+msgstr ""
+
+msgid "customer id"
+msgstr ""
+
+msgid "company name"
+msgstr ""
+
+msgid "status"
+msgstr ""
+
+msgid "company size"
+msgstr ""
+
+msgid "logo"
+msgstr ""
+
+msgid "description"
+msgstr ""
+
+msgid "legal entity"
+msgstr ""
+
+msgid "tax number"
+msgstr ""
+
+msgid "bank account number"
+msgstr ""
+
+msgid "coc number"
+msgstr ""
+
+msgid "iban"
+msgstr ""
+
+msgid "bic"
+msgstr ""
+
+msgid "assigned to"
+msgstr ""
+
+msgid "account"
+msgstr ""
+
+msgid "accounts"
+msgstr ""
+
+msgid "website"
+msgstr ""
+
+msgid "primary website"
+msgstr ""
+
+msgid "websites"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Work Phone"
+msgstr ""
+
+msgid "Mobile Phone"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "Modified"
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+#, python-format
+msgid "%s (Account) has been saved."
+msgstr ""
+
+#, python-format
+msgid "%s (Account) has been edited."
+msgstr ""
+
+#, python-format
+msgid "%s (Account) has been deleted."
+msgstr ""
+
+msgid "Deleting this account cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Sending.."
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+#, python-format
+msgid "%(account_name)s"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "E-mail address"
+msgstr ""
+
+msgid "Main address"
+msgstr ""
+
+msgid "Not assigned yet"
+msgstr ""
+
+msgid "Deals"
+msgstr ""
+
+msgid "Cases"
+msgstr ""
+
+msgid "Contacts"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "There are no known contact for this company"
+msgstr ""
+
+msgid "General information"
+msgstr ""
+
+msgid "No description"
+msgstr ""
+
+msgid "Click to add one"
+msgstr ""
+
+msgid "Phone numbers"
+msgstr ""
+
+msgid "Addresses"
+msgstr ""
+
+msgid "Edit account"
+msgstr ""
+
+msgid "Add account"
+msgstr ""
+
+msgid "Create account"
+msgstr ""
+
+msgid "Accounts"
+msgstr ""
+
+#, python-format
+msgid "Filtered by tag '%(tag_name)s'"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Export to csv"
+msgstr ""
+
+msgid "Columns"
+msgstr ""
+
+msgid "Undo the deletion of this row"
+msgstr ""
+
+msgid "Delete this row"
+msgstr ""
+
+msgid "Add a website"
+msgstr ""
+
+msgid "activity"
+msgstr ""
+
+msgid "activities"
+msgstr ""
+
+msgid "question"
+msgstr ""
+
+msgid "poll"
+msgstr ""
+
+msgid "polls"
+msgstr ""
+
+msgid "choice"
+msgstr ""
+
+msgid "choices"
+msgstr ""
+
+msgid "bookmark url"
+msgstr ""
+
+msgid "bookmark"
+msgstr ""
+
+msgid "bookmarks"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "start date"
+msgstr ""
+
+msgid "start time"
+msgstr ""
+
+msgid "end date"
+msgstr ""
+
+msgid "end time"
+msgstr ""
+
+msgid "location"
+msgstr ""
+
+msgid "url"
+msgstr ""
+
+msgid "event"
+msgstr ""
+
+msgid "events"
+msgstr ""
+
+msgid "message"
+msgstr ""
+
+msgid "statuses"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Select a status"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Select a type"
+msgstr ""
+
+msgid "Select an account"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Select a contact"
+msgstr ""
+
+msgid "Expires"
+msgstr ""
+
+msgid "Parcel provider"
+msgstr ""
+
+msgid "Parcel identifier"
+msgstr ""
+
+msgid "Select a contact or account"
+msgstr ""
+
+msgid "Selected contact doesn't work at account"
+msgstr ""
+
+msgid "What to do?"
+msgstr ""
+
+msgid "When to do it?"
+msgstr ""
+
+msgid "Parcel information"
+msgstr ""
+
+msgid "case statuses"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Critical"
+msgstr ""
+
+msgid "priority"
+msgstr ""
+
+msgid "subject"
+msgstr ""
+
+msgid "type"
+msgstr ""
+
+msgid "contact"
+msgstr ""
+
+msgid "list of notes"
+msgstr ""
+
+msgid "expires"
+msgstr ""
+
+msgid "parcel"
+msgstr ""
+
+msgid "case"
+msgstr ""
+
+msgid "cases"
+msgstr ""
+
+#, python-format
+msgid "%s (Case) has been created."
+msgstr ""
+
+#, python-format
+msgid "%s (Case) has been updated."
+msgstr ""
+
+msgid "Case has been archived."
+msgstr ""
+
+#, python-format
+msgid "%d cases have been archived."
+msgstr ""
+
+msgid "Case has been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%d cases have been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%s (Case) has been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%s (Case) has been deleted."
+msgstr ""
+
+msgid "Status could not be changed"
+msgstr ""
+
+#, python-format
+msgid "Status has been changed to %s"
+msgstr ""
+
+msgid "Deleting this case cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Case"
+msgstr ""
+
+msgid "Case name"
+msgstr ""
+
+msgid "Case Number"
+msgstr ""
+
+msgid "Priority"
+msgstr ""
+
+msgid "Archived"
+msgstr ""
+
+msgid "Parcel"
+msgstr ""
+
+msgid "Unarchive"
+msgstr ""
+
+msgid "Archive"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Edit case"
+msgstr ""
+
+msgid "Create case"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Save and Archive"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Sending..."
+msgstr ""
+
+msgid "No."
+msgstr ""
+
+msgid "Client"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Archived Cases"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Works at"
+msgstr ""
+
+msgid "Name can't be empty"
+msgstr ""
+
+msgid "LinkedIn"
+msgstr ""
+
+msgid "Male"
+msgstr ""
+
+msgid "Female"
+msgstr ""
+
+msgid "Unknown/Other"
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Formal"
+msgstr ""
+
+msgid "Informal"
+msgstr ""
+
+msgid "first name"
+msgstr ""
+
+msgid "preposition"
+msgstr ""
+
+msgid "last name"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "picture"
+msgstr ""
+
+msgid "salutation"
+msgstr ""
+
+msgid "contacts"
+msgstr ""
+
+msgid "department"
+msgstr ""
+
+msgid "manager"
+msgstr ""
+
+msgid "is active"
+msgstr ""
+
+msgid "list of phone numbers"
+msgstr ""
+
+msgid "list of email addresses"
+msgstr ""
+
+msgid "function"
+msgstr ""
+
+msgid "functions"
+msgstr ""
+
+#, python-format
+msgid "%s (Contact) has been saved."
+msgstr ""
+
+#, python-format
+msgid "%s (Contact) has been edited."
+msgstr ""
+
+#, python-format
+msgid "%s (Contact) has been deleted."
+msgstr ""
+
+msgid "Deleting this contact cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Mobile number"
+msgstr ""
+
+msgid "Colleagues"
+msgstr ""
+
+msgid "This is the only known contact for this company"
+msgstr ""
+
+msgid "There are no known colleagues for this contact"
+msgstr ""
+
+msgid "Title"
+msgstr ""
+
+msgid "Salutation"
+msgstr ""
+
+msgid "Gender"
+msgstr ""
+
+msgid "Function"
+msgstr ""
+
+msgid "More information"
+msgstr ""
+
+msgid "Less information"
+msgstr ""
+
+msgid "Edit contact"
+msgstr ""
+
+msgid "Add contact"
+msgstr ""
+
+msgid "Create contact"
+msgstr ""
+
+msgid "Expected closing date"
+msgstr ""
+
+msgid "For who is it?"
+msgstr ""
+
+msgid "What is it?"
+msgstr ""
+
+msgid "What's the status?"
+msgstr ""
+
+msgid "Euro"
+msgstr ""
+
+msgid "British pound"
+msgstr ""
+
+msgid "Norwegian krone"
+msgstr ""
+
+msgid "Danish krone"
+msgstr ""
+
+msgid "Swedish krone"
+msgstr ""
+
+msgid "Swiss franc"
+msgstr ""
+
+msgid "United States dollar"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Won"
+msgstr ""
+
+msgid "Lost"
+msgstr ""
+
+msgid "name"
+msgstr ""
+
+msgid "currency"
+msgstr ""
+
+msgid "amount"
+msgstr ""
+
+msgid "expected closing date"
+msgstr ""
+
+msgid "closed date"
+msgstr ""
+
+msgid "deal"
+msgstr ""
+
+msgid "deals"
+msgstr ""
+
+msgid "Deal has been archived."
+msgstr ""
+
+#, python-format
+msgid "%d deals have been archived."
+msgstr ""
+
+msgid "Deal has been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%d deals have been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%s (Deal) has been created."
+msgstr ""
+
+#, python-format
+msgid "%s (Deal) has been updated."
+msgstr ""
+
+#, python-format
+msgid "%s (Deal) has been unarchived."
+msgstr ""
+
+#, python-format
+msgid "%s (Deal) has been deleted."
+msgstr ""
+
+msgid "Stage could not be changed"
+msgstr ""
+
+msgid "Stage has been changed to"
+msgstr ""
+
+msgid "Deleting this deal cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Deal"
+msgstr ""
+
+msgid "Deal name"
+msgstr ""
+
+msgid "Closing date"
+msgstr ""
+
+msgid "expected"
+msgstr ""
+
+msgid "Amount"
+msgstr ""
+
+msgid "Edit deal"
+msgstr ""
+
+msgid "Create deal"
+msgstr ""
+
+msgid "Stage"
+msgstr ""
+
+msgid "Archived Deals"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "Don't share"
+msgstr ""
+
+msgid "Everybody"
+msgstr ""
+
+msgid "Specific users"
+msgstr ""
+
+msgid "shared with"
+msgstr ""
+
+msgid "owner"
+msgstr ""
+
+msgid "messaging account"
+msgstr ""
+
+msgid "messaging accounts"
+msgstr ""
+
+msgid "messages"
+msgstr ""
+
+#, python-format
+msgid "Could not resolve %(imap_host)s"
+msgstr ""
+
+#, python-format
+msgid "Could not connect to %(imap_host)s:%(imap_port)s"
+msgstr ""
+
+msgid "Unable to login with provided username and password on the IMAP host"
+msgstr ""
+
+#, python-format
+msgid "Could not resolve %(smtp_host)s"
+msgstr ""
+
+msgid "Unable to login with provided username and password on the SMTP host"
+msgstr ""
+
+#, python-format
+msgid "Could not connect to %(smtp_host)s:%(smtp_port)s"
+msgstr ""
+
+msgid "Inbox"
+msgstr ""
+
+msgid "Sent"
+msgstr ""
+
+msgid "Drafts"
+msgstr ""
+
+msgid "Trash"
+msgstr ""
+
+msgid "Spam"
+msgstr ""
+
+msgid "Failed to retrieve email message. Please try again later."
+msgstr ""
+
+#, python-format
+msgid "%s has been created"
+msgstr ""
+
+#, python-format
+msgid "%s has been updated"
+msgstr ""
+
+msgid "email template"
+msgstr ""
+
+#, python-format
+msgid "%s has been deleted."
+msgstr ""
+
+#, python-format
+msgid "%s is no longer a default template"
+msgstr ""
+
+#, python-format
+msgid "%s has been set as default for: %s"
+msgstr ""
+
+#, python-format
+msgid "%s has been set as default for: %s and %s others"
+msgstr ""
+
+msgid "Message has been marked as read"
+msgstr ""
+
+msgid "Messages have been marked as read"
+msgstr ""
+
+msgid "Message has been marked as unread"
+msgstr ""
+
+msgid "Messages have been marked as unread"
+msgstr ""
+
+msgid "Message has been deleted"
+msgstr ""
+
+msgid "Messages have been deleted"
+msgstr ""
+
+msgid "Message has been moved"
+msgstr ""
+
+msgid "Messages have been moved"
+msgstr ""
+
+msgid "Sorry, I couldn't save your e-mail as a draft, please try again later"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create save_message task for email account %d. Outbox message id "
+"was %d."
+msgstr ""
+
+msgid ""
+"Sorry, I couldn't archive your e-mail. You should try to archive it again "
+"later"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create archive_message task for email account %d. Message id was "
+"%d and folder was %s."
+msgstr ""
+
+#, python-format
+msgid "Gonna deliver your email as fast as I can to %s"
+msgstr ""
+
+msgid ""
+"Sorry, I couldn't deliver your e-mail, but I did save it as a draft so you "
+"can try again later"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create send_message task for email account %d. Outbox message id "
+"was %d."
+msgstr ""
+
+#, python-format
+msgid "Failed to save draft. Cannot login for %s"
+msgstr ""
+
+#, python-format
+msgid "%(email)s has been saved."
+msgstr ""
+
+#, python-format
+msgid "%(email)s has been updated."
+msgstr ""
+
+msgid "email account"
+msgstr ""
+
+#, python-format
+msgid "%(email)s has been deleted."
+msgstr ""
+
+#, python-format
+msgid "%(email)s has been updated"
+msgstr ""
+
+#, python-format
+msgid "%(email)s is no longer visible."
+msgstr ""
+
+msgid "Failed to connect to your mail server. Please try again later."
+msgstr ""
+
+#, python-format
+msgid "%s for %s"
+msgstr ""
+
+msgid "Email provider"
+msgstr ""
+
+msgid "Set a custom email provider"
+msgstr ""
+
+msgid "Incoming server (IMAP)"
+msgstr ""
+
+msgid "Incoming port"
+msgstr ""
+
+msgid "Incoming SSL"
+msgstr ""
+
+msgid "Outgoing server (SMTP)"
+msgstr ""
+
+msgid "Outgoing port"
+msgstr ""
+
+msgid "Outgoing SSL"
+msgstr ""
+
+msgid "This field is required."
+msgstr ""
+
+msgid ""
+"This account already exists, please use sharing options for access by "
+"multiple persons."
+msgstr ""
+
+msgid "Your account"
+msgstr ""
+
+msgid "Account credentials"
+msgstr ""
+
+msgid "Connection settings"
+msgstr ""
+
+msgid "Share with"
+msgstr ""
+
+msgid "Select a user"
+msgstr ""
+
+msgid "To share with everybody create a company email address."
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Choose a template"
+msgstr ""
+
+msgid "To"
+msgstr ""
+
+msgid "Cc"
+msgstr ""
+
+msgid "Bcc"
+msgstr ""
+
+msgid "Please provide at least one recipient."
+msgstr ""
+
+msgid "Invalid email account selected to use as sender."
+msgstr ""
+
+msgid "Insert variable"
+msgstr ""
+
+msgid "Insert value"
+msgstr ""
+
+msgid ""
+"Please fill in the html part or the text part, at least one of these is "
+"required."
+msgstr ""
+
+msgid "Set as default for"
+msgstr ""
+
+msgid "Email Template file"
+msgstr ""
+
+#, python-format
+msgid "Upload a valid template file. Valid files are: %s."
+msgstr ""
+
+#, python-format
+msgid "There was an error in your file:<br> %s"
+msgstr ""
+
+msgid "e-mail provider"
+msgstr ""
+
+msgid "e-mail providers"
+msgstr ""
+
+msgid "No (working) credentials"
+msgstr ""
+
+msgid "Working credentials"
+msgstr ""
+
+msgid "Credentials needs testing"
+msgstr ""
+
+msgid "The sender's name your recipients see."
+msgstr ""
+
+msgid "Give your account a custom name (optional)."
+msgstr ""
+
+msgid "The email address, used to identify you."
+msgstr ""
+
+msgid "e-mail account"
+msgstr ""
+
+msgid "e-mail accounts"
+msgstr ""
+
+msgid "No address"
+msgstr ""
+
+msgid "e-mail message"
+msgstr ""
+
+msgid "e-mail messages"
+msgstr ""
+
+msgid "e-mail attachment"
+msgstr ""
+
+msgid "e-mail attachments"
+msgstr ""
+
+msgid "Low priority"
+msgstr ""
+
+msgid "Normal priority"
+msgstr ""
+
+msgid "High priority"
+msgstr ""
+
+msgid "template name"
+msgstr ""
+
+msgid "message subject"
+msgstr ""
+
+msgid "html part"
+msgstr ""
+
+msgid "e-mail template"
+msgstr ""
+
+msgid "e-mail templates"
+msgstr ""
+
+msgid "default e-mail template"
+msgstr ""
+
+msgid "default e-mail templates"
+msgstr ""
+
+msgid "template attachment"
+msgstr ""
+
+msgid "attachment of"
+msgstr ""
+
+msgid "e-mail template attachment"
+msgstr ""
+
+msgid "e-mail template attachments"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "Html body"
+msgstr ""
+
+msgid "e-mail draft"
+msgstr ""
+
+msgid "e-mail drafts"
+msgstr ""
+
+msgid "Email headers"
+msgstr ""
+
+msgid "Number of mapped attachments"
+msgstr ""
+
+msgid "e-mail outbox message"
+msgstr ""
+
+msgid "e-mail outbox messages"
+msgstr ""
+
+msgid "e-mail outbox attachment"
+msgstr ""
+
+msgid "e-mail outbox attachments"
+msgstr ""
+
+msgid "Your email addresses"
+msgstr ""
+
+msgid "Add an email address"
+msgstr ""
+
+msgid "Email addresses shared with you"
+msgstr ""
+
+msgid "No email addresses shared with you."
+msgstr ""
+
+msgid "Company email addresses"
+msgstr ""
+
+msgid "Start wizard to set up incoming and outgoing email for this address"
+msgstr ""
+
+msgid "Sharing is caring"
+msgstr ""
+
+msgid "Just manage it"
+msgstr ""
+
+msgid "Throw it away"
+msgstr ""
+
+msgid "I don't want to see this"
+msgstr ""
+
+msgid "Are you sure you no longer want access to this email address?"
+msgstr ""
+
+msgid "View e-mail templates"
+msgstr ""
+
+msgid "Add an e-mail template"
+msgstr ""
+
+msgid "Mailbox"
+msgstr ""
+
+msgid "Compose"
+msgstr ""
+
+msgid ""
+"Please be patient for the mail from this account will be retrieved soon."
+msgstr ""
+
+msgid "Edit your email account configuration."
+msgstr ""
+
+msgid "You cannot edit this account, since it is not yours."
+msgstr ""
+
+msgid ""
+"Your account doesn\\'t seem to be active. Please activate your account to "
+"view your email."
+msgstr ""
+
+msgid "Send"
+msgstr ""
+
+msgid "Send and archive"
+msgstr ""
+
+msgid "Discarding.."
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "Saving.."
+msgstr ""
+
+msgid "Draft"
+msgstr ""
+
+msgid "I'm sorry"
+msgstr ""
+
+msgid ""
+"I couldn't find a recipient, could you please fill in where I need to send "
+"this mail."
+msgstr ""
+
+msgid "Ok"
+msgstr ""
+
+msgid "in"
+msgstr ""
+
+msgid "Loading"
+msgstr ""
+
+msgid "Reply"
+msgstr ""
+
+msgid "Forward"
+msgstr ""
+
+msgid "Mark as unread"
+msgstr ""
+
+msgid "Archiving"
+msgstr ""
+
+msgid "Deleting"
+msgstr ""
+
+msgid "Loading.."
+msgstr ""
+
+#, python-format
+msgid "%(counter)s attachment"
+msgid_plural "%(counter)s attachments"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Download"
+msgstr ""
+
+msgid "No subject"
+msgstr ""
+
+msgid "No details available"
+msgstr ""
+
+msgid "Start wizard to set up incoming and outgoing email for this address."
+msgstr ""
+
+msgid "Inactive email account"
+msgstr ""
+
+#, python-format
+msgid "with %(counter)s result for `%(search_key)s`"
+msgid_plural "with %(counter)s results for `%(search_key)s`"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Search.."
+msgstr ""
+
+msgid "Mark as read"
+msgstr ""
+
+msgid "Move to"
+msgstr ""
+
+msgid "of"
+msgstr ""
+
+msgid "&lt;No subject&gt;"
+msgstr ""
+
+msgid "There are no messages in this folder."
+msgstr ""
+
+msgid "Deleting this email template cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Edit email template"
+msgstr ""
+
+msgid "Create email template"
+msgstr ""
+
+msgid "Type your template below or upload your template file"
+msgstr ""
+
+msgid "Insert"
+msgstr ""
+
+msgid "Your email templates"
+msgstr ""
+
+msgid "Manage defaults"
+msgstr ""
+
+msgid "Make default"
+msgstr ""
+
+msgid "Add an email template"
+msgstr ""
+
+msgid "Attachments"
+msgstr ""
+
+msgid "Add an attachment"
+msgstr ""
+
+#, python-format
+msgid "%s (%s days ago)"
+msgstr ""
+
+#, python-format
+msgid "%s (yesterday)"
+msgstr ""
+
+#, python-format
+msgid "%s (2 days ago)"
+msgstr ""
+
+#, python-format
+msgid "%s (just now)"
+msgstr ""
+
+#, python-format
+msgid "%s (%d seconds ago)"
+msgstr ""
+
+#, python-format
+msgid "%s (1 minute ago)"
+msgstr ""
+
+#, python-format
+msgid "%s (%d minutes ago)"
+msgstr ""
+
+msgid "1 hour ago"
+msgstr ""
+
+#, python-format
+msgid "%s (%d hours ago)"
+msgstr ""
+
+msgid "Write your note here"
+msgstr ""
+
+msgid "note"
+msgstr ""
+
+msgid "author"
+msgstr ""
+
+msgid "notes"
+msgstr ""
+
+msgid "The note was successfully deleted."
+msgstr ""
+
+msgid "Note has been updated."
+msgstr ""
+
+msgid "Deleting this note cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Add note"
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Create Case"
+msgstr ""
+
+msgid "I'm so sorry, I couldn't find any data for this website."
+msgstr ""
+
+msgid "Dutch"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Invalid username or url"
+msgstr ""
+
+msgid "Facebook"
+msgstr ""
+
+msgid "Google+"
+msgstr ""
+
+msgid "Qzone"
+msgstr ""
+
+msgid "Orkut"
+msgstr ""
+
+msgid "username"
+msgstr ""
+
+msgid "profile link"
+msgstr ""
+
+msgid "social media"
+msgstr ""
+
+msgid "tag"
+msgstr ""
+
+msgid "tags"
+msgstr ""
+
+msgid "list of tags"
+msgstr ""
+
+msgid "Oops! You're lost."
+msgstr ""
+
+msgid "We can not find the page you're looking for."
+msgstr ""
+
+msgid "Return home"
+msgstr ""
+
+msgid "or try the search bar below."
+msgstr ""
+
+msgid "Oops! Something went wrong."
+msgstr ""
+
+msgid "We are fixing it!"
+msgstr ""
+
+msgid "Please come back in a while."
+msgstr ""
+
+msgid "I successfully delivered your e-mail!"
+msgstr ""
+
+msgid "Yay!"
+msgstr ""
+
+msgid ""
+"Sorry, I couldn\\'t deliver your e-mail, but I did save it as a draft so you "
+"can try again later."
+msgstr ""
+
+msgid "Oops!"
+msgstr ""
+
+msgid "I successfully saved your message as a draft!"
+msgstr ""
+
+msgid "I couldn\\'t save your message as a draft, please try again!"
+msgstr ""
+
+#, python-format
+msgid "Deleting this %(form_object_name)s cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "History"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Prev"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "Records"
+msgstr ""
+
+msgid "Showing _START_ to _END_ of _TOTAL_ records"
+msgstr ""
+
+msgid "Add case"
+msgstr ""
+
+msgid "Add deal"
+msgstr ""
+
+#, python-format
+msgid "You have one new message"
+msgid_plural "You have %(counter)s new messages"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "And %(count)s more new messages!"
+msgstr ""
+
+msgid "See all messages"
+msgstr ""
+
+msgid "Hello"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Profile"
+msgstr ""
+
+msgid "Log out"
+msgstr ""
+
+msgid "E-mail"
+msgstr ""
+
+msgid "--- Clear ---"
+msgstr ""
+
+msgid "Beaming up the information now, almost within range!"
+msgstr ""
+
+msgid "I\\'m on my way!"
+msgstr ""
+
+msgid "There was an error trying to fetch your data, please don\\'t be mad."
+msgstr ""
+
+msgid "We did it! Your new data should be right there waiting for you."
+msgstr ""
+
+msgid "Yeah!"
+msgstr ""
+
+msgid "Do you wish to overwrite the following fields?\\n"
+msgstr ""
+
+msgid "Your profile"
+msgstr ""
+
+msgid "You"
+msgstr ""
+
+msgid "Your company"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Workflow"
+msgstr ""
+
+msgid "Your email"
+msgstr ""
+
+msgid "Templates"
+msgstr ""
+
+msgid "Normal Text"
+msgstr ""
+
+msgid "Heading 1"
+msgstr ""
+
+msgid "Heading 2"
+msgstr ""
+
+msgid "Heading 3"
+msgstr ""
+
+msgid "Heading 4"
+msgstr ""
+
+msgid "Heading 5"
+msgstr ""
+
+msgid "Heading 6"
+msgstr ""
+
+msgid "bold"
+msgstr ""
+
+msgid "italic"
+msgstr ""
+
+msgid "underline"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Write something here"
+msgstr ""
+
+msgid "Post successful."
+msgstr ""
+
+msgid "Post deleted."
+msgstr ""
+
+msgid "Deleting this blogpost cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Reply to"
+msgstr ""
+
+msgid "Add blogpost"
+msgstr ""
+
+msgid "wrote on"
+msgstr ""
+
+msgid "Create Blogpost"
+msgstr ""
+
+msgid "Please enter a correct e-mail address and password. "
+msgstr ""
+
+msgid "Your Web browser doesn't appear to have cookies "
+msgstr ""
+
+msgid "This account is inactive."
+msgstr ""
+
+msgid "Email address"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Remember me on this device"
+msgstr ""
+
+msgid ""
+"That e-mail address doesn't have an associated user account. Are you sure "
+"you've registered?"
+msgstr ""
+
+msgid ""
+"The user account associated with this e-mail address cannot reset the "
+"password."
+msgstr ""
+
+msgid "You cannot request a password reset for an account that is inactive."
+msgstr ""
+
+#, python-format
+msgid "An <nobr>e-mail</nobr> with reset instructions has been sent to %s."
+msgstr ""
+
+msgid "New password"
+msgstr ""
+
+msgid "Confirmation"
+msgstr ""
+
+msgid ""
+"You cannot request a new activation e-mail for an account that is already "
+"active."
+msgstr ""
+
+msgid "Password confirmation"
+msgstr ""
+
+msgid "First name"
+msgstr ""
+
+msgid "Preposition"
+msgstr ""
+
+msgid "Last name"
+msgstr ""
+
+msgid "The two password fields didn't match."
+msgstr ""
+
+msgid "You can't change the e-mail address of the invitation."
+msgstr ""
+
+msgid "Email Adress"
+msgstr ""
+
+msgid "This e-mail address is already linked to a user."
+msgstr ""
+
+msgid "We need some data before we can proceed. Fill out at least one form."
+msgstr ""
+
+msgid ""
+"You can't invite someone more than once (e-mail addresses must be unique)."
+msgstr ""
+
+msgid "Personal information"
+msgstr ""
+
+msgid "Language and time"
+msgstr ""
+
+msgid "New email address"
+msgstr ""
+
+msgid "Current password"
+msgstr ""
+
+msgid "Confirm new password"
+msgstr ""
+
+msgid "Current email address"
+msgstr ""
+
+msgid "Forgot your password?"
+msgstr ""
+
+msgid "If you want to change your password, please verify your current one."
+msgstr ""
+
+msgid "Your passwords don't match."
+msgstr ""
+
+msgid "Change your email address"
+msgstr ""
+
+msgid "Change your password"
+msgstr ""
+
+msgid "email address"
+msgstr ""
+
+msgid "staff status"
+msgstr ""
+
+msgid "Designates whether the user can log into this admin site."
+msgstr ""
+
+msgid "active"
+msgstr ""
+
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr ""
+
+msgid "date joined"
+msgstr ""
+
+msgid "phone number"
+msgstr ""
+
+msgid "language"
+msgstr ""
+
+msgid "user"
+msgstr ""
+
+msgid "users"
+msgstr ""
+
+msgid "Can send invitations to invite new users"
+msgstr ""
+
+msgid "You are now logged out."
+msgstr ""
+
+msgid "I\\m sorry, but I can't let anyone register at the moment."
+msgstr ""
+
+msgid ""
+"Registration completed. I've sent you an email, please check it to activate "
+"your account."
+msgstr ""
+
+msgid "I've activated your account, please login."
+msgstr ""
+
+msgid ""
+"Reactivation successful. I've sent you an email, please check it to activate "
+"your account."
+msgstr ""
+
+msgid "The invitations were sent successfully"
+msgstr ""
+
+msgid "I did it! I've sent the invitations successfully."
+msgstr ""
+
+#, python-format
+msgid "%(name)s has been updated"
+msgstr ""
+
+msgid "Account activation failed"
+msgstr ""
+
+msgid ""
+"Activation failed. This happened because either the link is invalid, the "
+"activation period expired or the associated account has already been "
+"activated. You can apply for a new activation link or try to log in."
+msgstr ""
+
+msgid "Try again"
+msgstr ""
+
+msgid "Back to Log in"
+msgstr ""
+
+msgid "Resend activation e-mail"
+msgstr ""
+
+msgid ""
+"Didn\\'t receive your activation e-mail? Enter your e-mail address below, "
+"and I'll e-mail it again, free of charge!"
+msgstr ""
+
+msgid "Go to log in"
+msgstr ""
+
+msgid "HelloLily"
+msgstr ""
+
+msgid "Welcome to the HelloLily beta!"
+msgstr ""
+
+msgid ""
+"I'd like you to help me the best personal assistant on the web. Please "
+"report you bugs, questions and ideas via the <strong>support</strong> link "
+"in the menu."
+msgstr ""
+
+msgid "Latest contacts"
+msgstr ""
+
+msgid "View details for "
+msgstr ""
+
+msgid "All contacts"
+msgstr ""
+
+msgid "Latest accounts"
+msgstr ""
+
+msgid "All accounts"
+msgstr ""
+
+msgid "Microblog"
+msgstr ""
+
+msgid "Post"
+msgstr ""
+
+msgid "Filtered by"
+msgstr ""
+
+msgid "remove filter"
+msgstr ""
+
+#, python-format
+msgid "No entries found for #%(tag)s."
+msgstr ""
+
+msgid "Show everything"
+msgstr ""
+
+msgid "There are no entries in the microblog yet."
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Registration"
+msgstr ""
+
+msgid "Register"
+msgstr ""
+
+msgid "Registration is closed at the moment. Please try again later."
+msgstr ""
+
+msgid "Accept invitation"
+msgstr ""
+
+msgid "invitations"
+msgstr ""
+
+msgid "Verifying invitation unsuccessful"
+msgstr ""
+
+msgid "The invitation could not be accepted."
+msgstr ""
+
+msgid "Invite others"
+msgstr ""
+
+msgid "Send invitation(s)"
+msgstr ""
+
+msgid "Add an invite"
+msgstr ""
+
+msgid "Password reset complete"
+msgstr ""
+
+msgid "Your password has been reset. You can go ahead and log in now."
+msgstr ""
+
+msgid "Reset password"
+msgstr ""
+
+msgid "Password reset unsuccessful"
+msgstr ""
+
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used. Please request a new password reset."
+msgstr ""
+
+msgid "Enter your new password"
+msgstr ""
+
+msgid ""
+"Please enter your new password twice so I can verify you typed it in "
+"correctly."
+msgstr ""
+
+msgid "Change my password"
+msgstr ""
+
+msgid "Password reset successful"
+msgstr ""
+
+msgid ""
+"I've emailed you instructions for setting your password to the e-mail "
+"address you submitted. You should be receiving it shortly."
+msgstr ""
+
+msgid "Reset my password"
+msgstr ""
+
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and I'll email "
+"instructions for setting a new one."
+msgstr ""
+
+msgid "invalid input"
+msgstr ""
+
+msgid "Phone Number"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
+msgid "CSV"
+msgstr ""
+
+msgid "Import rows as"
+msgstr ""
+
+msgid "Enter a valid hostname."
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "deleted"
+msgstr ""
+
+msgid "list of social media"
+msgstr ""
+
+msgid "list of addresses"
+msgstr ""
+
+msgid "list of e-mail addresses"
+msgstr ""
+
+msgid "Work"
+msgstr ""
+
+msgid "Mobile"
+msgstr ""
+
+msgid "phone numbers"
+msgstr ""
+
+msgid "Select a country"
+msgstr ""
+
+msgid "Netherlands"
+msgstr ""
+
+msgid "Belgium"
+msgstr ""
+
+msgid "Germany"
+msgstr ""
+
+msgid "United Kingdom"
+msgstr ""
+
+msgid "United States"
+msgstr ""
+
+msgid "Afghanistan"
+msgstr ""
+
+msgid "Aland Islands"
+msgstr ""
+
+msgid "Albania"
+msgstr ""
+
+msgid "Algeria"
+msgstr ""
+
+msgid "American Samoa"
+msgstr ""
+
+msgid "Andorra"
+msgstr ""
+
+msgid "Angola"
+msgstr ""
+
+msgid "Anguilla"
+msgstr ""
+
+msgid "Antarctica"
+msgstr ""
+
+msgid "Antigua and Barbuda"
+msgstr ""
+
+msgid "Argentina"
+msgstr ""
+
+msgid "Armenia"
+msgstr ""
+
+msgid "Aruba"
+msgstr ""
+
+msgid "Australia"
+msgstr ""
+
+msgid "Austria"
+msgstr ""
+
+msgid "Azerbaijan"
+msgstr ""
+
+msgid "Bahamas"
+msgstr ""
+
+msgid "Bahrain"
+msgstr ""
+
+msgid "Bangladesh"
+msgstr ""
+
+msgid "Barbados"
+msgstr ""
+
+msgid "Belarus"
+msgstr ""
+
+msgid "Belize"
+msgstr ""
+
+msgid "Benin"
+msgstr ""
+
+msgid "Bermuda"
+msgstr ""
+
+msgid "Bhutan"
+msgstr ""
+
+msgid "Bolivia"
+msgstr ""
+
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+msgid "Botswana"
+msgstr ""
+
+msgid "Bouvet Island"
+msgstr ""
+
+msgid "Brazil"
+msgstr ""
+
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+msgid "Brunei Darussalam"
+msgstr ""
+
+msgid "Bulgaria"
+msgstr ""
+
+msgid "Burkina Faso"
+msgstr ""
+
+msgid "Burundi"
+msgstr ""
+
+msgid "Cambodia"
+msgstr ""
+
+msgid "Cameroon"
+msgstr ""
+
+msgid "Canada"
+msgstr ""
+
+msgid "Cape Verde"
+msgstr ""
+
+msgid "Cayman Islands"
+msgstr ""
+
+msgid "Central African Republic"
+msgstr ""
+
+msgid "Chad"
+msgstr ""
+
+msgid "Chile"
+msgstr ""
+
+msgid "China"
+msgstr ""
+
+msgid "Christmas Island"
+msgstr ""
+
+msgid "Cocos (Keeling) Islands"
+msgstr ""
+
+msgid "Colombia"
+msgstr ""
+
+msgid "Comoros"
+msgstr ""
+
+msgid "Congo"
+msgstr ""
+
+msgid "Congo, The Democratic Republic of the"
+msgstr ""
+
+msgid "Cook Islands"
+msgstr ""
+
+msgid "Costa Rica"
+msgstr ""
+
+msgid "Cote d'Ivoire"
+msgstr ""
+
+msgid "Croatia"
+msgstr ""
+
+msgid "Cuba"
+msgstr ""
+
+msgid "Cyprus"
+msgstr ""
+
+msgid "Czech Republic"
+msgstr ""
+
+msgid "Denmark"
+msgstr ""
+
+msgid "Djibouti"
+msgstr ""
+
+msgid "Dominica"
+msgstr ""
+
+msgid "Dominican Republic"
+msgstr ""
+
+msgid "Ecuador"
+msgstr ""
+
+msgid "Egypt"
+msgstr ""
+
+msgid "El Salvador"
+msgstr ""
+
+msgid "Equatorial Guinea"
+msgstr ""
+
+msgid "Eritrea"
+msgstr ""
+
+msgid "Estonia"
+msgstr ""
+
+msgid "Ethiopia"
+msgstr ""
+
+msgid "Falkland Islands (Malvinas)"
+msgstr ""
+
+msgid "Faroe Islands"
+msgstr ""
+
+msgid "Fiji"
+msgstr ""
+
+msgid "Finland"
+msgstr ""
+
+msgid "France"
+msgstr ""
+
+msgid "French Guiana"
+msgstr ""
+
+msgid "French Polynesia"
+msgstr ""
+
+msgid "French Southern Territories"
+msgstr ""
+
+msgid "Gabon"
+msgstr ""
+
+msgid "Gambia"
+msgstr ""
+
+msgid "Georgia"
+msgstr ""
+
+msgid "Ghana"
+msgstr ""
+
+msgid "Gibraltar"
+msgstr ""
+
+msgid "Greece"
+msgstr ""
+
+msgid "Greenland"
+msgstr ""
+
+msgid "Grenada"
+msgstr ""
+
+msgid "Guadeloupe"
+msgstr ""
+
+msgid "Guam"
+msgstr ""
+
+msgid "Guatemala"
+msgstr ""
+
+msgid "Guernsey"
+msgstr ""
+
+msgid "Guinea"
+msgstr ""
+
+msgid "Guinea-Bissau"
+msgstr ""
+
+msgid "Guyana"
+msgstr ""
+
+msgid "Haiti"
+msgstr ""
+
+msgid "Heard Island and McDonald Islands"
+msgstr ""
+
+msgid "Holy See (Vatican City State)"
+msgstr ""
+
+msgid "Honduras"
+msgstr ""
+
+msgid "Hong Kong"
+msgstr ""
+
+msgid "Hungary"
+msgstr ""
+
+msgid "Iceland"
+msgstr ""
+
+msgid "India"
+msgstr ""
+
+msgid "Indonesia"
+msgstr ""
+
+msgid "Iran, Islamic Republic of"
+msgstr ""
+
+msgid "Iraq"
+msgstr ""
+
+msgid "Ireland"
+msgstr ""
+
+msgid "Isle of Man"
+msgstr ""
+
+msgid "Israel"
+msgstr ""
+
+msgid "Italy"
+msgstr ""
+
+msgid "Jamaica"
+msgstr ""
+
+msgid "Japan"
+msgstr ""
+
+msgid "Jersey"
+msgstr ""
+
+msgid "Jordan"
+msgstr ""
+
+msgid "Kazakhstan"
+msgstr ""
+
+msgid "Kenya"
+msgstr ""
+
+msgid "Kiribati"
+msgstr ""
+
+msgid "Korea, Democratic People's Republic of"
+msgstr ""
+
+msgid "Korea, Republic of"
+msgstr ""
+
+msgid "Kuwait"
+msgstr ""
+
+msgid "Kyrgyzstan"
+msgstr ""
+
+msgid "Lao People's Democratic Republic"
+msgstr ""
+
+msgid "Latvia"
+msgstr ""
+
+msgid "Lebanon"
+msgstr ""
+
+msgid "Lesotho"
+msgstr ""
+
+msgid "Liberia"
+msgstr ""
+
+msgid "Libyan Arab Jamahiriya"
+msgstr ""
+
+msgid "Liechtenstein"
+msgstr ""
+
+msgid "Lithuania"
+msgstr ""
+
+msgid "Luxembourg"
+msgstr ""
+
+msgid "Macao"
+msgstr ""
+
+msgid "Macedonia, The Former Yugoslav Republic of"
+msgstr ""
+
+msgid "Madagascar"
+msgstr ""
+
+msgid "Malawi"
+msgstr ""
+
+msgid "Malaysia"
+msgstr ""
+
+msgid "Maldives"
+msgstr ""
+
+msgid "Mali"
+msgstr ""
+
+msgid "Malta"
+msgstr ""
+
+msgid "Marshall Islands"
+msgstr ""
+
+msgid "Martinique"
+msgstr ""
+
+msgid "Mauritania"
+msgstr ""
+
+msgid "Mauritius"
+msgstr ""
+
+msgid "Mayotte"
+msgstr ""
+
+msgid "Mexico"
+msgstr ""
+
+msgid "Micronesia, Federated States of"
+msgstr ""
+
+msgid "Moldova"
+msgstr ""
+
+msgid "Monaco"
+msgstr ""
+
+msgid "Mongolia"
+msgstr ""
+
+msgid "Montenegro"
+msgstr ""
+
+msgid "Montserrat"
+msgstr ""
+
+msgid "Morocco"
+msgstr ""
+
+msgid "Mozambique"
+msgstr ""
+
+msgid "Myanmar"
+msgstr ""
+
+msgid "Namibia"
+msgstr ""
+
+msgid "Nauru"
+msgstr ""
+
+msgid "Nepal"
+msgstr ""
+
+msgid "Netherlands Antilles"
+msgstr ""
+
+msgid "New Caledonia"
+msgstr ""
+
+msgid "New Zealand"
+msgstr ""
+
+msgid "Nicaragua"
+msgstr ""
+
+msgid "Niger"
+msgstr ""
+
+msgid "Nigeria"
+msgstr ""
+
+msgid "Niue"
+msgstr ""
+
+msgid "Norfolk Island"
+msgstr ""
+
+msgid "Northern Mariana Islands"
+msgstr ""
+
+msgid "Norway"
+msgstr ""
+
+msgid "Oman"
+msgstr ""
+
+msgid "Pakistan"
+msgstr ""
+
+msgid "Palau"
+msgstr ""
+
+msgid "Palestinian Territory, Occupied"
+msgstr ""
+
+msgid "Panama"
+msgstr ""
+
+msgid "Papua New Guinea"
+msgstr ""
+
+msgid "Paraguay"
+msgstr ""
+
+msgid "Peru"
+msgstr ""
+
+msgid "Philippines"
+msgstr ""
+
+msgid "Pitcairn"
+msgstr ""
+
+msgid "Poland"
+msgstr ""
+
+msgid "Portugal"
+msgstr ""
+
+msgid "Puerto Rico"
+msgstr ""
+
+msgid "Qatar"
+msgstr ""
+
+msgid "Reunion"
+msgstr ""
+
+msgid "Romania"
+msgstr ""
+
+msgid "Russian Federation"
+msgstr ""
+
+msgid "Rwanda"
+msgstr ""
+
+msgid "Saint Barthelemy"
+msgstr ""
+
+msgid "Saint Helena"
+msgstr ""
+
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+msgid "Saint Lucia"
+msgstr ""
+
+msgid "Saint Martin"
+msgstr ""
+
+msgid "Saint Pierre and Miquelon"
+msgstr ""
+
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+msgid "Samoa"
+msgstr ""
+
+msgid "San Marino"
+msgstr ""
+
+msgid "Sao Tome and Principe"
+msgstr ""
+
+msgid "Saudi Arabia"
+msgstr ""
+
+msgid "Senegal"
+msgstr ""
+
+msgid "Serbia"
+msgstr ""
+
+msgid "Seychelles"
+msgstr ""
+
+msgid "Sierra Leone"
+msgstr ""
+
+msgid "Singapore"
+msgstr ""
+
+msgid "Slovakia"
+msgstr ""
+
+msgid "Slovenia"
+msgstr ""
+
+msgid "Solomon Islands"
+msgstr ""
+
+msgid "Somalia"
+msgstr ""
+
+msgid "South Africa"
+msgstr ""
+
+msgid "South Georgia and the South Sandwich Islands"
+msgstr ""
+
+msgid "Spain"
+msgstr ""
+
+msgid "Sri Lanka"
+msgstr ""
+
+msgid "Sudan"
+msgstr ""
+
+msgid "Suriname"
+msgstr ""
+
+msgid "Svalbard and Jan Mayen"
+msgstr ""
+
+msgid "Swaziland"
+msgstr ""
+
+msgid "Sweden"
+msgstr ""
+
+msgid "Switzerland"
+msgstr ""
+
+msgid "Syrian Arab Republic"
+msgstr ""
+
+msgid "Taiwan, Province of China"
+msgstr ""
+
+msgid "Tajikistan"
+msgstr ""
+
+msgid "Tanzania, United Republic of"
+msgstr ""
+
+msgid "Thailand"
+msgstr ""
+
+msgid "Timor-Leste"
+msgstr ""
+
+msgid "Togo"
+msgstr ""
+
+msgid "Tokelau"
+msgstr ""
+
+msgid "Tonga"
+msgstr ""
+
+msgid "Trinidad and Tobago"
+msgstr ""
+
+msgid "Tunisia"
+msgstr ""
+
+msgid "Turkey"
+msgstr ""
+
+msgid "Turkmenistan"
+msgstr ""
+
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+msgid "Tuvalu"
+msgstr ""
+
+msgid "Uganda"
+msgstr ""
+
+msgid "Ukraine"
+msgstr ""
+
+msgid "United Arab Emirates"
+msgstr ""
+
+msgid "United States Minor Outlying Islands"
+msgstr ""
+
+msgid "Uruguay"
+msgstr ""
+
+msgid "Uzbekistan"
+msgstr ""
+
+msgid "Vanuatu"
+msgstr ""
+
+msgid "Venezuela"
+msgstr ""
+
+msgid "Viet Nam"
+msgstr ""
+
+msgid "Virgin Islands, British"
+msgstr ""
+
+msgid "Virgin Islands, U.S."
+msgstr ""
+
+msgid "Wallis and Futuna"
+msgstr ""
+
+msgid "Western Sahara"
+msgstr ""
+
+msgid "Yemen"
+msgstr ""
+
+msgid "Zambia"
+msgstr ""
+
+msgid "Zimbabwe"
+msgstr ""
+
+msgid "Visiting address"
+msgstr ""
+
+msgid "Billing address"
+msgstr ""
+
+msgid "Shipping address"
+msgstr ""
+
+msgid "Home address"
+msgstr ""
+
+msgid "street"
+msgstr ""
+
+msgid "street number"
+msgstr ""
+
+msgid "complement"
+msgstr ""
+
+msgid "postal code"
+msgstr ""
+
+msgid "city"
+msgstr ""
+
+msgid "state/province"
+msgstr ""
+
+msgid "country"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "addresses"
+msgstr ""
+
+msgid "e-mail address"
+msgstr ""
+
+msgid "primary e-mail"
+msgstr ""
+
+msgid "e-mail addresses"
+msgstr ""
+
+msgid "Add an address"
+msgstr ""
+
+msgid "Add an e-mail address"
+msgstr ""
+
+msgid "Add a phone number"
+msgstr ""
+
+msgid "End of list"
+msgstr ""
+
+msgid "Show more"
+msgstr ""
+
+msgid "Text type"
+msgstr ""
+
+msgid "Make bold"
+msgstr ""
+
+msgid "Make italic"
+msgstr ""
+
+msgid "Make underlined"
+msgstr ""
+
+msgid "Create an unordered list"
+msgstr ""
+
+msgid "Create an ordered list"
+msgstr ""
+
+msgid "Indent, move right"
+msgstr ""
+
+msgid "Outdent, move left"
+msgstr ""
+
+msgid "Edit raw html"
+msgstr ""
+
+msgid "Create a link"
+msgstr ""
+
+#, python-format
+msgid "Show all posts with tag #%s"
+msgstr ""
+
+msgid "tomorrow"
+msgstr ""
+
+msgid "yesterday"
+msgstr ""
+
+msgid "Import started, you should see results in de appropriate list"
+msgstr ""

@@ -57,7 +57,6 @@ def get_email_parameter_dict():
     The e-mail parameter dict consists of all posible variables for e-mail templates.
 
     This function returns parameters organized by variable name for easy parsing.
-
     """
     if not _EMAIL_PARAMETER_DICT:
         for model in models.get_models():
@@ -135,14 +134,19 @@ class TemplateParser(object):
             self.template = None
             self.error = e
 
-    def render(self, request, context=None):
+    def render(self, request, context=None, lookup=None):
         """
         Render the template in a form that is ready for output.
 
-        :param request: request that is used to fill context.
-        :param context: override the default context.
+        Arguments:
+            request (dict): request that is used to fill context
+            context (instance): override the default context
+            lookup (list):
+
+        Returns:
+            Parsed template
         """
-        context = context or self.get_template_context(request)
+        context = context or self.get_template_context(lookup)
         return get_template_from_string(self.get_text()).render(context=Context(context))
 
     def is_valid(self):
@@ -178,7 +182,7 @@ class TemplateParser(object):
 
         return response
 
-    def get_template_context(self, request):
+    def get_template_context(self, lookup):
         """
         Retrieve the context used for rendering of the template in a dict.
         """
@@ -187,20 +191,36 @@ class TemplateParser(object):
         result_dict = {}
         filled_param_dict = {}
 
-        # Get needed results from database
+        lookup_types = []
+        for object in lookup:
+            lookup_types.append(type(object))
+
         for param in parameters:
             model = param_dict[param]['model']
-            field = param_dict[param]['field']
-            lookup = model.EMAIL_TEMPLATE_LOOKUP
+            found_object = None
 
-            if model not in result_dict:
-                result_dict.update({
-                    '%s' % model: eval(lookup)
+            for object in lookup:
+                if isinstance(object, model):
+                    # Check if the model we're looking at is actually in our lookup so we can load the data
+                    found_object = object
+
+            if found_object:
+                field = param_dict[param]['field']
+
+                if model not in result_dict:
+                    result_dict.update({
+                        '%s' % model: found_object
+                    })
+
+                field_name, field_verbose_name = get_field_names(field)
+                filled_param_dict.update({
+                    '%s' % param: getattr(result_dict['%s' % model], field_name),
                 })
-            field_name, field_verbose_name = get_field_names(field)
-            filled_param_dict.update({
-                '%s' % param: getattr(result_dict['%s' % model], field_name),
-            })
+            else:
+                # If the model isn't in the lookup just return the variable so the user knows what's going on
+                filled_param_dict.update({
+                    '%s' % param: param,
+                })
 
         return filled_param_dict
 
@@ -244,7 +264,7 @@ class TemplateParser(object):
         block_lookups = block_lookups or {}
         for node in template:
             if isinstance(node, BlockNode) and node.name == name:
-                #Rudimentary handling of extended templates, for issue #3
+                # Rudimentary handling of extended templates, for issue #3
                 for i in xrange(len(node.nodelist)):
                     n = node.nodelist[i]
                     if isinstance(n, BlockNode) and n.name in block_lookups:

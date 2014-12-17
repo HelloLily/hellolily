@@ -23,6 +23,9 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, FormView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 
 from python_imap.errors import IMAPConnectionError
@@ -42,9 +45,7 @@ from lily.messaging.email.tasks import (save_email_messages, mark_messages, dele
 from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
                                         get_full_folder_name_by_identifier, LilyIMAP, create_task_status)
 from lily.utils.functions import is_ajax
-from lily.utils.views import DataTablesListView
-from lily.utils.views.mixins import (LoginRequiredMixin, SortedListMixin, FilteredListMixin, AjaxFormMixin,
-                                     FormActionMixin)
+from lily.utils.views.mixins import LoginRequiredMixin, AjaxFormMixin, FormActionMixin
 
 
 log = logging.getLogger('django.request')
@@ -479,6 +480,31 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
         return response
 
 
+class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
+    def get(self, request, *args, **kwargs):
+        template = EmailTemplate.objects.get(pk=kwargs.get('template_id'))
+        lookup = [self.request.user]
+
+        if self.request.GET.get('account_id'):
+            try:
+                recipient = Account.objects.get(pk=self.request.GET.get('account_id'))
+                lookup.append(recipient)
+            except Account.DoesNotExist:
+                pass
+        elif self.request.GET.get('contact_id'):
+            try:
+                recipient = Contact.objects.get(pk=self.request.GET.get('contact_id'))
+                lookup.append(recipient)
+            except Contact.DoesNotExist:
+                pass
+
+        template = TemplateParser(template.body_html).render(self.request, lookup=lookup)
+
+        return HttpResponse(anyjson.serialize({
+            'template': template,
+        }), content_type='application/json')
+
+
 class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
     def form_valid(self, form):
         # Show save messages
@@ -757,6 +783,16 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
                     'body_html': self.object.reply_body,
                 },
             })
+
+            try:
+                from_contact = Contact.objects.filter(email_addresses__email_address=self.object.from_email)
+            except Contact.DoesNotExist:
+                pass
+            else:
+                if from_contact.exists():
+                    kwargs.update({
+                        'from_contact': from_contact[0]
+                    })
         return kwargs
 
     def form_valid(self, form):
@@ -1021,7 +1057,7 @@ class EmailMessageComposeBaseView(EmailBaseView, FormView, SingleObjectMixin):
             template_list.update({
                 template.pk: {
                     'subject': template.subject,
-                    'html_part': TemplateParser(template.body_html).render(self.request),
+                    'html_part': template.body_html,
                 }
             })
 

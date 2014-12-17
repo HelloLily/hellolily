@@ -205,6 +205,8 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
+    EMAIL_TEMPLATE_PARAMETERS = ['name', 'description']
+
     class Meta:
         ordering = ['name']
         verbose_name = _('account')

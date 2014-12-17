@@ -311,7 +311,6 @@ class EmailMessage(Message):
         return u''
 
     @property
-
     def from_combined(self):
         if hasattr(self, '_from_header'):
             header = self._from_header

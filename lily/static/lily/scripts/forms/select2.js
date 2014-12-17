@@ -124,7 +124,9 @@
                                             var used_text = '"' + hit.name + '" <' + hit.email[i] + '>';
                                             // The displayed text
                                             var displayed_text = hit.name + ' <' + hit.email[i] + '>';
-                                            parsed_data.push({id: used_text, text: displayed_text});
+                                            // Select2 sends 'id' as the value, but we want to use the email
+                                            // So store the actual id (hit.id) under a different name
+                                            parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
                                         }
                                     }
                                 });

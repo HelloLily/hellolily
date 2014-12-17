@@ -15,7 +15,9 @@
             replyButton: '.reply-btn',
             inboxFrame: null,
             tagsAjaxSelector: '.tags-ajax',
-            emailAccountInput: '#id_send_from'
+            emailAccountInput: '#id_send_from',
+            sendToNormalField: '#id_send_to_normal',
+            overwriteTemplateConfirm: 'Selecting a different template will overwrite the text you\'ve typed. Do you want to load the template anyway?'
         },
 
         init: function (config) {
@@ -45,7 +47,10 @@
                     self.handleAdditionalRecipientsInput('bcc');
                 })
                 .on('change', cf.templateField, function () {
-                    self.changeTemplateField.call(self, this);
+                    self.changeTemplateField.call(self, this, true);
+                })
+                .on('change', cf.sendToNormalField, function () {
+                    self.changeTemplateField.call(self, cf.templateField, false);
                 })
                 .on('click', cf.singleMessageSelector, function () {
                     self.openMessage.call(self, this);
@@ -231,51 +236,50 @@
             });
         },
 
-        changeTemplateField: function (templateField) {
+        changeTemplateField: function (templateField, templateChanged) {
             var self = this;
             if (templateList) {
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
                 var subject = '';
                 var htmlPart = '';
+                var recipientId = null;
 
                 if (value) {
                     subject = templateList[value].subject;
-                    htmlPart = templateList[value].html_part;
+
+                    var messageType = this.config.messageType;
+
+                    if (messageType === 'new' && subject != '') {
+                        // Only overwrite the subject if a new email is being created
+                        subjectField.val(subject);
+                    }
+
+                    var recipient = $('#id_send_to_normal').select2('data')[0];
+
+                    if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
+                        // Check if a contact has been entered
+                        recipientId = recipient.object_id;
+                    }
+                    else if (self.config.fromContact !== '' && self.config.fromContact != null) {
+                        // If it's a reply there might be contact set
+                        recipientId = self.config.fromContact;
+                        self.config.fromContact = null;
+                    }
+
+                    // Always get a template
+                    var url = self.config.getTemplateUrl + value;
+
+                    if (recipientId != null) {
+                        // If a recipient has been set we can fill extra variables
+                        url += '?contact_id=' + recipientId;
+                    }
+
+                    $.getJSON(url, function (data) {
+                        htmlPart = data['template'];
+                        self.setNewEditorValue(htmlPart, templateChanged);
+                    });
                 }
-
-                var messageType = self.config.messageType;
-
-                if (messageType === 'new' && subject != '') {
-                    subjectField.val(subject);
-                }
-
-                // getValue returns a string, so convert to elements
-                var editorValue = $(editor.getValue());
-                var currentTemplate = editorValue.closest('#compose-email-template');
-                var newEditorValue = '';
-
-                // Check if an email template has already been loaded
-                if (currentTemplate.length) {
-                    // Change the html of the existing email template
-                    currentTemplate.html(htmlPart);
-
-                    // Since editorValue is actually an array of elements we can't easily convert it back to text
-                    var container = $('<div>');
-                    // Add the (edited) html to the newly created container
-                    container.append(editorValue);
-                    // Get the text version of the new html
-                    newEditorValue = container[0].innerHTML
-                }
-                else {
-                    // No email template loaded so create our email template container
-                    var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
-                    // Append the existing text
-                    newEditorValue = emailTemplate + '<br>' + editor.getValue()
-                }
-
-                editor.setValue(newEditorValue);
-                self.resizeEditor();
             }
         },
 
@@ -313,6 +317,9 @@
 
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
+
+            // Make sure replies on this email don't break the application
+            editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
 
             var button_name = $(inboxCompose).attr('name');
             var form = $(inboxCompose).closest('form');
@@ -374,6 +381,51 @@
             $.getJSON(url, function(data) {
                 $(self.config.templateField).select2('val', data['template_id']).trigger('change');
             });
+        },
+
+        setNewEditorValue: function (htmlPart, templateChanged) {
+            // getValue returns a string, so convert to elements
+            var editorValue = $(editor.getValue());
+            var currentTemplate = editorValue.closest('#compose-email-template');
+            var newEditorValue = '';
+
+            // Check if an email template has already been loaded
+            if (currentTemplate.length) {
+                if (currentTemplate.html().length) {
+                    var changeTemplate = false;
+
+                    if (templateChanged) {
+                        // If a different template was selected we want to warn the user
+                        changeTemplate = confirm(this.config.overwriteTemplateConfirm);
+                    }
+                    else {
+                        // Template wasn't changed, so a new recipient was entered
+                        changeTemplate = true;
+                    }
+
+                    if (changeTemplate) {
+                        // Change the html of the existing email template
+                        currentTemplate.html(htmlPart);
+                        // Since editorValue is actually an array of elements we can't easily convert it back to text
+                        var container = $('<div>');
+                        // Add the (edited) html to the newly created container
+                        container.append(editorValue);
+                        // Get the text version of the new html
+                        newEditorValue = container[0].innerHTML;
+                    }
+                }
+            }
+            else {
+                // No email template loaded so create our email template container
+                var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
+                // Append the existing text
+                newEditorValue = emailTemplate + '<br>' + editor.getValue();
+            }
+
+            if (newEditorValue.length) {
+                editor.setValue(newEditorValue + '<br>');
+                this.resizeEditor();
+            }
         }
     }
 })(jQuery, window, document);

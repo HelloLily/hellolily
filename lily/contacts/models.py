@@ -159,6 +159,8 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     def __unicode__(self):
         return self.full_name()
 
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name']
+
     class Meta:
         ordering = ['last_name', 'first_name']
         verbose_name = _('contact')

@@ -290,6 +290,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
+        self.from_contact = kwargs.pop('from_contact', None)
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         if self.message_type is not 'reply':
@@ -514,6 +515,7 @@ class EmailTemplateSetDefaultForm(HelloLilyModelForm):
                 'fields': ['default_for', ],
             }),
         )
+
 
 class EmailTemplateFileForm(HelloLilyForm):
     """

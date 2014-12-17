@@ -457,7 +457,7 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'body_html': Wysihtml5Input(),
+            'body_html': Wysihtml5Input(attrs={'container_class': 'email-template-create'}),
         }
 
 

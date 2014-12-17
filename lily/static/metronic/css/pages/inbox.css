@@ -341,10 +341,13 @@ Inbox Page
   margin-bottom: 15px;
 }
 
-
 /*Inbox Compose*/
 .inbox-compose {
   margin-top: 1px;
+  border: solid 1px #eee;
+}
+
+.email-template-create {
   border: solid 1px #eee;
 }
 
@@ -378,7 +381,8 @@ Inbox Page
   margin-right: 3px;
 }
 
-.inbox-compose .inbox-form-group {
+.inbox-compose .inbox-form-group,
+.email-template-create .inbox-form-group {
   margin-bottom: 0;
   position: relative;
   border-bottom: solid 1px #eee;
@@ -447,15 +451,17 @@ Inbox Page
   color: #777;
 }
 
-.inbox-compose .wysihtml5 {
-  padding: 0px !important;
-  margin: 0px !important;
+.inbox-compose .wysihtml5,
+.email-template-create .wysihtml5 {
+  padding: 0 !important;
+  margin: 0 !important;
   border: 0 !important;
 }
 
-.inbox-compose .wysihtml5-sandbox {
-  padding: 0px !important;
-  margin: 0px !important;
+.inbox-compose .wysihtml5-sandbox,
+.email-template-create .wysihtml5-sandbox {
+  padding: 0 !important;
+  margin: 0 !important;
   display: block !important;
   border: 0 !important;
   margin-top: 5px;
@@ -465,31 +471,34 @@ Inbox Page
   border-color: #eee;
 }
 
-.inbox-compose .wysihtml5-toolbar {  
+.inbox-compose .wysihtml5-toolbar,
+.email-template-create .wysihtml5-toolbar {
   border: 0;
   border-bottom: 1px solid #eee;
 }
 
-.inbox-compose .wysihtml5-toolbar > li {
+.inbox-compose .wysihtml5-toolbar > li,
+.email-template-create .wysihtml5-toolbar > li {
   height: 34px;
   margin-right: 0;
   margin-bottom: 0;
 }
 
 .inbox-compose .wysihtml5-toolbar > li > a,
-.inbox-compose .wysihtml5-toolbar > li > div > a {
+.inbox-compose .wysihtml5-toolbar > li > div > a,
+.email-template-create .wysihtml5-toolbar > li > a,
+.email-template-create .wysihtml5-toolbar > li > div > a {
   background: #fff;
 }
 
 .inbox-compose .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
+.email-template-create .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
 ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
   background: #eee !important;
 }
 
 @media (max-width: 480px) {
-
   .inbox-compose .inbox-form-group > label {
     margin-top: 7px;
   }
-
 }

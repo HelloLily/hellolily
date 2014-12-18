@@ -17,9 +17,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'email', ['EmailAddressHeader'])
 
-        # Adding index on 'EmailHeader', fields ['name']
-        db.create_index(u'email_emailheader', ['name'])
-
         # Adding index on 'EmailMessage', fields ['folder_identifier']
         db.create_index(u'email_emailmessage', ['folder_identifier'])
 

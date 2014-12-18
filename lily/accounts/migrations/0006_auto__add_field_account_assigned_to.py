@@ -6,6 +6,9 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+    depends_on = (
+        ('users', '0002_auto__add_lilyuser'),
+    )
 
     def forwards(self, orm):
         # Adding field 'Account.assigned_to'

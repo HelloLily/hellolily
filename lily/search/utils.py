@@ -84,7 +84,7 @@ class LilySearch(object):
         Arguments:
             query (string): query tokens (space separated)
         """
-        tokens = [token.strip() for token in query.split(' ') if token.strip()]
+        tokens = [token.strip().lower() for token in query.split(' ') if token.strip()]
         if tokens:
             # Every token must be present in at least one of all fields.
             # This means we use a 'must' bool query for the terms,

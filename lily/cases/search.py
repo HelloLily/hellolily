@@ -63,7 +63,7 @@ class CaseMapping(MappingType, Indexable):
                 },
                 'type': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'analyzer': 'letter_analyzer',
                 },
                 'expires': {
                     'type': 'date',

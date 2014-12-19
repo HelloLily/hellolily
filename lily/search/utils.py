@@ -108,7 +108,7 @@ class LilySearch(object):
                             }
                         },
                     ])
-                for field_name in ['tag', 'email', 'account_name', 'assigned_to', 'subject', 'name', 'stage_name']:
+                for field_name in ['tag', 'email', 'account_name', 'assigned_to', 'subject', 'name', 'stage_name', 'type']:
                     token_query['bool']['should'].extend([
                         {
                             'prefix': {

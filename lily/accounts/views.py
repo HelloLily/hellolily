@@ -54,11 +54,13 @@ class ExportAccountView(ExportListViewMixin, View):
                 _('Email'),
                 _('Work Phone'),
                 _('Mobile Phone'),
+                _('Address'),
             ],
             'columns_for_item': [
                 'email',
                 'phone_work',
                 'phone_mobile',
+                'address',
             ]
         },
         'assignedTo': {
@@ -86,6 +88,19 @@ class ExportAccountView(ExportListViewMixin, View):
             if isinstance(value, list):
                 value = ', '.join(value)
         except KeyError:
+            # Fetch address info from database
+            if column == 'address':
+                account = Account.objects.get(pk=account['id'])
+                address = account.get_addresses().first()
+                if address:
+                    return '%s %s %s, %s, %s, %s' % (
+                        address.street or '',
+                        address.street_number or '',
+                        address.complement or '',
+                        address.postal_code or '',
+                        address.city or '',
+                        address.country or '',
+                    )
             value = ''
         return value
 

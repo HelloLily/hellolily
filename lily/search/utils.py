@@ -52,6 +52,8 @@ class LilySearch(object):
             count (int): total number of results
             took (int): milliseconds Elastic search took to get the results
         """
+        if settings.ES_DISABLED:
+            return [], 0, 0
         self.search = self.search.filter_raw({'and': self.raw_filters})
         if self.model_type:
             self.search = self.search.doctypes(self.model_type)

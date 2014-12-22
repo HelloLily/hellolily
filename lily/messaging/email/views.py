@@ -16,6 +16,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.template import Context, Template
 from django.template.defaultfilters import truncatechars
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
@@ -42,7 +43,7 @@ from lily.messaging.email.models import (EmailAttachment, EmailMessage, EmailAcc
                                          DefaultEmailTemplate)
 from lily.messaging.email.tasks import (save_email_messages, mark_messages, delete_messages, move_messages,
                                         get_from_imap, send_message, save_message, remove_draft)
-from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, get_attachment_filename_from_url,
+from lily.messaging.email.utils import (get_email_parameter_choices, get_attachment_filename_from_url,
                                         get_full_folder_name_by_identifier, LilyIMAP, create_task_status)
 from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, AjaxFormMixin, FormActionMixin
@@ -483,25 +484,36 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
 class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         template = EmailTemplate.objects.get(pk=kwargs.get('template_id'))
-        lookup = [self.request.user]
+        lookup = {'user': self.request.user}
 
-        if self.request.GET.get('account_id'):
+        if 'account_id' in self.request.GET:
             try:
-                recipient = Account.objects.get(pk=self.request.GET.get('account_id'))
-                lookup.append(recipient)
+                account = Account.objects.get(pk=self.request.GET.get('account_id'))
             except Account.DoesNotExist:
                 pass
-        elif self.request.GET.get('contact_id'):
+            else:
+                lookup.update({'account': account})
+
+        if 'contact_id' in self.request.GET:
             try:
-                recipient = Contact.objects.get(pk=self.request.GET.get('contact_id'))
-                lookup.append(recipient)
+                contact = Contact.objects.get(pk=self.request.GET.get('contact_id'))
             except Contact.DoesNotExist:
                 pass
+            else:
+                lookup.update({'contact': contact})
+                functions = contact.functions.all()
+                if len(functions) == 1:
+                    try:
+                        account = Account.objects.get(pk=functions[0].account_id)
+                    except Account.DoesNotExist:
+                        pass
+                    else:
+                        lookup.update({'account': account})
 
-        template = TemplateParser(template.body_html).render(self.request, lookup=lookup)
+        parsed_template = Template(template.body_html).render(Context(lookup))
 
         return HttpResponse(anyjson.serialize({
-            'template': template,
+            'template': parsed_template,
         }), content_type='application/json')
 
 

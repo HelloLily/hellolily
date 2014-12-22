@@ -3,7 +3,6 @@ import socket
 
 from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
-from types import FunctionType
 from urllib import unquote
 
 from bs4 import BeautifulSoup
@@ -17,7 +16,6 @@ from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_conn
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Field
 from django.db.models.query_utils import Q
 from django.template.defaultfilters import truncatechars
 from django.template import (Context, TemplateSyntaxError, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START,
@@ -65,7 +63,7 @@ def get_email_parameter_dict():
                     field_name, field_verbose_name = get_field_names(field)
 
                     _EMAIL_PARAMETER_DICT.update({
-                        '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): {
+                        '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): {
                             'model': model,
                             'model_verbose': model._meta.verbose_name.title(),
                             'field': field,
@@ -91,12 +89,12 @@ def get_email_parameter_choices():
 
                     if '%s' % model._meta.verbose_name.title() in _EMAIL_PARAMETER_CHOICES:
                         _EMAIL_PARAMETER_CHOICES.get('%s' % model._meta.verbose_name.title()).update({
-                            '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
+                            '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
                         })
                     else:
                         _EMAIL_PARAMETER_CHOICES.update({
                             '%s' % model._meta.verbose_name.title(): {
-                                '%s_%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
+                                '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
                             }
                         })
     return _EMAIL_PARAMETER_CHOICES
@@ -134,21 +132,6 @@ class TemplateParser(object):
             self.template = None
             self.error = e
 
-    def render(self, request, context=None, lookup=None):
-        """
-        Render the template in a form that is ready for output.
-
-        Arguments:
-            request (dict): request that is used to fill context
-            context (instance): override the default context
-            lookup (list):
-
-        Returns:
-            Parsed template
-        """
-        context = context or self.get_template_context(lookup)
-        return get_template_from_string(self.get_text()).render(context=Context(context))
-
     def is_valid(self):
         """
         Return wheter the template is valid or not.
@@ -182,69 +165,15 @@ class TemplateParser(object):
 
         return response
 
-    def get_template_context(self, lookup):
-        """
-        Retrieve the context used for rendering of the template in a dict.
-        """
-        parameters = self.valid_parameters
-        param_dict = get_email_parameter_dict()
-        result_dict = {}
-        filled_param_dict = {}
-
-        lookup_types = []
-        for object in lookup:
-            lookup_types.append(type(object))
-
-        for param in parameters:
-            model = param_dict[param]['model']
-            found_object = None
-
-            for object in lookup:
-                if isinstance(object, model):
-                    # Check if the model we're looking at is actually in our lookup so we can load the data
-                    found_object = object
-
-            if found_object:
-                field = param_dict[param]['field']
-
-                if model not in result_dict:
-                    result_dict.update({
-                        '%s' % model: found_object
-                    })
-
-                field_name, field_verbose_name = get_field_names(field)
-                filled_param_dict.update({
-                    '%s' % param: getattr(result_dict['%s' % model], field_name),
-                })
-            else:
-                # If the model isn't in the lookup just return the variable so the user knows what's going on
-                filled_param_dict.update({
-                    '%s' % param: param,
-                })
-
-        return filled_param_dict
-
-    def get_parameter_list(self, text):
-        """
-        Retrieve all parameters using a regex.
-        """
-        param_re = (re.compile('(%s[\s]*[a-zA-Z_|]+[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
-
-        return [x for x in re.findall(param_re, text)]
-
-    def get_block_list(self, text):
-        """
-        Retrieve all tags using a regex.
-        """
-        param_re = (re.compile('(%s[\s]*.*[\s]*%s)' % (re.escape(BLOCK_TAG_START), re.escape(BLOCK_TAG_END))))
-
-        return [x for x in re.findall(param_re, text)]
-
     def _escape_text(self, text):
         """
-        Escape variables and delete django syntax around variables that are not allowed.
+        Escape variables and delete Django syntax around variables that are not allowed.
         """
-        for parameter in self.get_parameter_list(text):
+        # Filter on parameters with the following syntax: model.field
+        param_regex = (re.compile('(%s[\s]*[a-zA-Z]+\.[a-zA-Z_]+[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
+        parameter_list = [x for x in re.findall(param_regex, text)]
+
+        for parameter in parameter_list:
             stripped_parameter = parameter.strip(' {}')
             split_parameter = stripped_parameter.split('|')[0]
             if split_parameter in get_email_parameter_dict():

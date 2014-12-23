@@ -7,7 +7,7 @@ from elasticutils.contrib.django import get_es
 
 from lily.search.analyzers import get_analyzers
 from lily.search.indexing import index_objects, unindex_objects
-from lily.utils.functions import get_class
+from lily.search.scan_search import ModelMappings
 
 
 class Command(BaseCommand):
@@ -31,13 +31,12 @@ or with fully qualified name:
 
     index -t lily.contacts.models.Contact
 
-It is possible to specify multiple models, using comma separation."""
+It is possible to specify multiple models, using comma separation.
 
-    # The mappings for models with 'is_deleted' properties.
-    # If you add a mapping for a regular model, then some extra steps are needed
-    # to make sure deletions are picked up (during this management command).
-    # You can do this by comparing the list of PKs before and after.
-    MAPPINGS = [get_class(kls) for kls in settings.ES_MODEL_MAPPINGS]
+Note: Mappings are only suported for models with 'is_deleted' properties.
+If you add a mapping for a regular model, then some extra steps are needed
+to make sure deletions are picked up (during this management command).
+You can do this by comparing the list of PKs before and after."""
 
     option_list = BaseCommand.option_list + (
         make_option('-u', '--url',
@@ -77,9 +76,9 @@ It is possible to specify multiple models, using comma separation."""
             index_settings = {'mappings': {}, 'settings': get_analyzers()}
 
             # Retrieve the mappings for the index-enabled models.
-            for mappingClass in self.MAPPINGS:
-                model_name = mappingClass.get_mapping_type_name()
-                index_settings['mappings'].update({model_name: mappingClass.get_mapping()})
+            for mapping_class in ModelMappings.get_model_mappings().values():
+                model_name = mapping_class.get_mapping_type_name()
+                index_settings['mappings'].update({model_name: mapping_class.get_mapping()})
 
             # Create a new index.
             new_index = 'index_%s' % (int(time.time()))
@@ -128,21 +127,21 @@ It is possible to specify multiple models, using comma separation."""
         """
         Index objects from our index-enabled models.
         """
-        for mappingClass in self.MAPPINGS:
-            model = mappingClass.get_model()
+        for mapping_class in ModelMappings.get_model_mappings().values():
+            model = mapping_class.get_model()
             # Skip this model if there are specific targets and not specified.
             if not self.model_targetted(model, specific_targets):
                 continue
-            model = mappingClass.get_model()
+            model = mapping_class.get_model()
             self.stdout.write('%s: Indexing %s' % (index_name,
                                                    self.full_name(model)))
 
             model_objs = model.objects.filter(is_deleted=False)
-            index_objects(mappingClass, model_objs, index_name, print_progress=True)
+            index_objects(mapping_class, model_objs, index_name, print_progress=True)
 
             if with_unindex:
                 model_objs = model.objects.filter(is_deleted=True)
-                unindex_objects(mappingClass, model_objs, index_name, print_progress=True)
+                unindex_objects(mapping_class, model_objs, index_name, print_progress=True)
 
     def model_targetted(self, model, specific_targets):
         """

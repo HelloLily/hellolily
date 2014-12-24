@@ -199,11 +199,15 @@
                 handleTables: false
             });
 
-            editor.observe('load', function() {
-                editor.focus();
-                editor.composer.element.addEventListener('keyup', function() {
+            editor.observe('load', function () {
+                this.focus();
+
+                $(this.composer.element).on('keypress keyup keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });
+
+                // Make the editor the correct height on load
+                self.resizeEditor();
             });
 
             // Set heading properly after change

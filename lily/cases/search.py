@@ -1,13 +1,11 @@
-from elasticutils.contrib.django import Indexable, MappingType
-
 from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.contacts.models import Contact
-from lily.search.indexing import prepare_dict
+from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
 
 
-class CaseMapping(MappingType, Indexable):
+class CaseMapping(BaseMapping):
     @classmethod
     def get_model(cls):
         return Case
@@ -17,18 +15,9 @@ class CaseMapping(MappingType, Indexable):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        return {
-            'analyzer': 'normal_analyzer',
-            '_all': {
-                'enabled': False,
-            },
+        mapping = super(CaseMapping, cls).get_mapping()
+        mapping.update({
             'properties': {
-                'tenant': {
-                    'type': 'integer',
-                },
-                'id': {
-                    'type': 'integer',
-                },
                 'subject': {
                     'type': 'string',
                     'index_analyzer': 'normal_ngram_analyzer',
@@ -81,7 +70,8 @@ class CaseMapping(MappingType, Indexable):
                     'type': 'boolean',
                 },
             }
-        }
+        })
+        return mapping
 
     @classmethod
     def get_related_models(cls):
@@ -109,16 +99,11 @@ class CaseMapping(MappingType, Indexable):
         )
 
     @classmethod
-    def extract_document(cls, obj_id, obj=None):
+    def obj_to_doc(cls, obj):
         """
-        Converts this instance into an Elasticsearch document.
+        Translate an object to an index document.
         """
-        if obj is None:
-            obj = cls.get_model().objects.get(pk=obj_id)
-
-        doc = {
-            'tenant': obj.tenant_id,
-            'id': obj.id,
+        return {
             'subject': obj.subject,
             'body': obj.description,
             'account': obj.account_id if obj.account else None,
@@ -134,5 +119,3 @@ class CaseMapping(MappingType, Indexable):
             'expires': obj.expires,
             'archived': obj.is_archived,
         }
-
-        return prepare_dict(doc)

@@ -3,6 +3,8 @@ import inspect
 from django.conf import settings
 from elasticutils.contrib.django import MappingType
 
+from lily.search.base_mapping import BaseMapping
+
 
 class ModelMappings:
     _cache_model_mappings = None
@@ -25,8 +27,10 @@ class ModelMappings:
                     for name_member in inspect.getmembers(search_module, inspect.isclass):
                         member = name_member[1]
                         # Check if we defined a mapping class. We shall exclude
-                        # members of MappingType itself.
-                        if issubclass(member, MappingType) and member is not MappingType:
+                        # members of BaseMapping or MappingType itself.
+                        if (issubclass(member, MappingType)
+                                and member is not BaseMapping
+                                and member is not MappingType):
                             mappings.append(member)
                 except:
                     pass

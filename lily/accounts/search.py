@@ -1,13 +1,11 @@
-from elasticutils.contrib.django import Indexable, MappingType
-
 from lily.contacts.models import Function
-from lily.search.indexing import prepare_dict
+from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
 
 from .models import Account
 
 
-class AccountMapping(MappingType, Indexable):
+class AccountMapping(BaseMapping):
     @classmethod
     def get_model(cls):
         return Account
@@ -17,11 +15,8 @@ class AccountMapping(MappingType, Indexable):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        return {
-            'analyzer': 'normal_analyzer',
-            '_all': {
-                'enabled': False,
-            },
+        mapping = super(AccountMapping, cls).get_mapping()
+        mapping.update({
             'dynamic_templates': [{
                 'phone': {
                     'match': 'phone_*',
@@ -32,12 +27,6 @@ class AccountMapping(MappingType, Indexable):
                 },
             }],
             'properties': {
-                'tenant': {
-                    'type': 'integer',
-                },
-                'id': {
-                    'type': 'integer'
-                },
                 'name': {
                     'type': 'string',
                     'index_analyzer': 'normal_ngram_analyzer',
@@ -64,7 +53,8 @@ class AccountMapping(MappingType, Indexable):
                     'type': 'date',
                 },
             }
-        }
+        })
+        return mapping
 
     @classmethod
     def get_related_models(cls):
@@ -92,17 +82,12 @@ class AccountMapping(MappingType, Indexable):
         )
 
     @classmethod
-    def extract_document(cls, obj_id, obj=None):
+    def obj_to_doc(cls, obj):
         """
-        Converts this instance into an Elasticsearch document.
+        Translate an object to an index document.
         """
-        if obj is None:
-            obj = cls.get_model().objects.get(pk=obj_id)
-
         doc = {
-            'id': obj.id,
             'name': obj.name,
-            'tenant': obj.tenant_id,
             'modified': obj.modified,
             'created': obj.created,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
@@ -120,4 +105,4 @@ class AccountMapping(MappingType, Indexable):
                     doc['phone_' + phone.type] = []
                 doc['phone_' + phone.type].append(phone.number)
 
-        return prepare_dict(doc)
+        return doc

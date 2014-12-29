@@ -1,15 +1,13 @@
-from elasticutils.contrib.django import Indexable, MappingType
-
 from lily.accounts.models import Account
 from lily.contacts.models import Function
-from lily.search.indexing import prepare_dict
+from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
 from lily.utils.models.models import EmailAddress, PhoneNumber
 
 from .models import Contact
 
 
-class ContactMapping(MappingType, Indexable):
+class ContactMapping(BaseMapping):
     @classmethod
     def get_model(cls):
         return Contact
@@ -19,11 +17,8 @@ class ContactMapping(MappingType, Indexable):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        return {
-            'analyzer': 'normal_analyzer',
-            '_all': {
-                'enabled': False,
-            },
+        mapping = super(ContactMapping, cls).get_mapping()
+        mapping.update({
             'dynamic_templates': [{
                 'phone': {
                     'match': 'phone_*',
@@ -35,12 +30,6 @@ class ContactMapping(MappingType, Indexable):
                 },
             }],
             'properties': {
-                'tenant': {
-                    'type': 'integer',
-                },
-                'id': {
-                    'type': 'integer',
-                },
                 'name': {
                     'type': 'string',
                     'index': 'analyzed',
@@ -72,7 +61,8 @@ class ContactMapping(MappingType, Indexable):
                     'type': 'date',
                 },
             }
-        }
+        })
+        return mapping
 
     @classmethod
     def get_related_models(cls):
@@ -100,16 +90,11 @@ class ContactMapping(MappingType, Indexable):
         )
 
     @classmethod
-    def extract_document(cls, obj_id, obj=None):
+    def obj_to_doc(cls, obj):
         """
-        Converts this instance into an Elasticsearch document.
+        Translate an object to an index document.
         """
-        if obj is None:
-            obj = cls.get_model().objects.get(pk=obj_id)
-
         doc = {
-            'tenant': obj.tenant_id,
-            'id': obj.id,
             'name': obj.full_name(),
             'last_name': obj.last_name,
             'created': obj.created,
@@ -132,4 +117,4 @@ class ContactMapping(MappingType, Indexable):
                     doc['phone_' + phone.type] = []
                 doc['phone_' + phone.type].append(phone.number)
 
-        return prepare_dict(doc)
+        return doc

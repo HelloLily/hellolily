@@ -18,6 +18,7 @@ class AccountMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            'analyzer': 'normal_analyzer',
             '_all': {
                 'enabled': False,
             },
@@ -26,12 +27,10 @@ class AccountMapping(MappingType, Indexable):
                     'match': 'phone_*',
                     'mapping': {
                         'type': 'string',
-                        'search_analyzer': 'letter_analyzer',
-                        'index_analyzer': 'letter_ngram_analyzer'
+                        'index_analyzer': 'normal_ngram_analyzer'
                     },
                 },
             }],
-
             'properties': {
                 'tenant': {
                     'type': 'integer',
@@ -41,23 +40,22 @@ class AccountMapping(MappingType, Indexable):
                 },
                 'name': {
                     'type': 'string',
-                    'search_analyzer': 'letter_analyzer',
-                    'index_analyzer': 'letter_ngram_analyzer',
+                    'index_analyzer': 'normal_ngram_analyzer',
                 },
                 'contact': {
                     'type': 'integer'
                 },
                 'email': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'email_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'assigned_to': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'created': {
                     'type': 'date',

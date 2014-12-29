@@ -17,6 +17,7 @@ class DealMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            'analyzer': 'normal_analyzer',
             '_all': {
                 'enabled': False,
             },
@@ -29,35 +30,36 @@ class DealMapping(MappingType, Indexable):
                 },
                 'name': {
                     'type': 'string',
-                    'search_analyzer': 'letter_analyzer',
-                    'index_analyzer': 'letter_ngram_analyzer',
+                    'index_analyzer': 'normal_ngram_analyzer',
                 },
                 'body': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'account': {
+                    'type': 'integer',
+                },
+                'account_name': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'assigned_to': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'stage': {
                     'type': 'integer',
                 },
                 'stage_name': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'amount': {
                     'type': 'float',
-                    'index': 'not_analyzed',
                 },
                 'modified': {
                     'type': 'date',

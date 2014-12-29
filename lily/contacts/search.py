@@ -20,6 +20,7 @@ class ContactMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            'analyzer': 'normal_analyzer',
             '_all': {
                 'enabled': False,
             },
@@ -29,8 +30,7 @@ class ContactMapping(MappingType, Indexable):
                     'mapping': {
                         'type': 'string',
                         'index': 'analyzed',
-                        'search_analyzer': 'letter_analyzer',
-                        'index_analyzer': 'letter_ngram_analyzer'
+                        'index_analyzer': 'normal_ngram_analyzer'
                     },
                 },
             }],
@@ -44,23 +44,23 @@ class ContactMapping(MappingType, Indexable):
                 'name': {
                     'type': 'string',
                     'index': 'analyzed',
-                    'search_analyzer': 'letter_analyzer',
-                    'index_analyzer': 'letter_ngram_analyzer',
+                    'index_analyzer': 'normal_ngram_analyzer',
                 },
                 'last_name': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'email': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'email_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'account_name': {
                     'type': 'string',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'account': {
                     'type': 'integer',

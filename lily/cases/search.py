@@ -18,6 +18,7 @@ class CaseMapping(MappingType, Indexable):
         Returns an Elasticsearch mapping for this MappingType.
         """
         return {
+            'analyzer': 'normal_analyzer',
             '_all': {
                 'enabled': False,
             },
@@ -30,40 +31,48 @@ class CaseMapping(MappingType, Indexable):
                 },
                 'subject': {
                     'type': 'string',
-                    'index': 'analyzed',
-                    'search_analyzer': 'letter_analyzer',
-                    'index_analyzer': 'letter_ngram_analyzer',
+                    'index_analyzer': 'normal_ngram_analyzer',
                 },
                 'body': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
-                'client': {
+                'account': {
+                    'type': 'integer',
+                },
+                'account_name': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
+                },
+                'contact': {
+                    'type': 'integer',
+                },
+                'contact_name': {
+                    'type': 'string',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'assigned_to': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'priority': {
                     'type': 'integer',
                 },
                 'priority_name': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'status': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'type': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'expires': {
                     'type': 'date',

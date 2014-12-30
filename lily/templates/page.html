@@ -214,9 +214,13 @@
         });
     </script>
 {% if not debug %}
-<script type="text/javascript" src="https://loader.engage.gsfn.us/loader.js"></script>
+<script type="text/javascript" async src="https://loader.engage.gsfn.us/loader.js"></script>
 <script type="text/javascript">
-    if (typeof GSFN !== "undefined") { GSFN.loadWidget(7393,{"containerId":"getsat-widget-7393"}); }
+    $(function($) {
+        if (typeof GSFN !== "undefined") {
+            GSFN.loadWidget(7393, {"containerId": "getsat-widget-7393"});
+        }
+    });
 </script>
 {% endif %}
 {% endblock %}

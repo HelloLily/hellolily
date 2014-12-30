@@ -52,6 +52,8 @@ class LilySearch(object):
             count (int): total number of results
             took (int): milliseconds Elastic search took to get the results
         """
+        if settings.ES_DISABLED:
+            return [], 0, 0
         self.search = self.search.filter_raw({'and': self.raw_filters})
         if self.model_type:
             self.search = self.search.doctypes(self.model_type)
@@ -82,43 +84,29 @@ class LilySearch(object):
         Set a raw_query based on common indexed fields.
 
         Arguments:
-            query (string): query tokens (space separated)
+            query (string): query tokens
         """
-        tokens = [token.strip().lower() for token in query.split(' ') if token.strip()]
-        if tokens:
-            # Every token must be present in at least one of all fields.
-            # This means we use a 'must' bool query for the terms,
-            # with sub bool queries using 'should' for the fields.
+        if query.strip():
             raw_query = {
-                'bool': {
-                    'must': []
-                }
+                'multi_match': {
+                    'query': query,
+                    'type': 'cross_fields',
+                    'operator': 'and',
+                    'analyzer': 'cross_analyzer',
+                    'fields': [
+                        'tag',
+                        'email',
+                        'account_name',
+                        'assigned_to',
+                        'subject',
+                        'name',
+                        'stage_name',
+                        'status',
+                        'type',
+                        'phone_*',
+                    ],
+                },
             }
-            for token in tokens:
-                token_query = {
-                    'bool': {
-                        'should': []
-                    }
-                }
-                for field_name in ['name']:
-                    token_query['bool']['should'].extend([
-                        {
-                            'term': {
-                                field_name: token,
-                            }
-                        },
-                    ])
-                for field_name in ['tag', 'email', 'account_name', 'assigned_to', 'subject', 'name', 'stage_name', 'type']:
-                    token_query['bool']['should'].extend([
-                        {
-                            'prefix': {
-                                field_name: token,
-                            }
-                        },
-                    ])
-                raw_query['bool']['must'].extend(
-                    [token_query]
-                )
             self.search = self.search.query_raw(raw_query)
 
     def filter_query(self, filterquery):

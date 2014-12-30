@@ -513,14 +513,6 @@ ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:
 # The indexes Elasticsearch uses.
 ES_INDEXES = {'default': 'main_index'}
 
-# Enable models for search. Used for batch indexing and realtime updating.
-ES_MODEL_MAPPINGS = (
-    'lily.accounts.search.AccountMapping',
-    'lily.cases.search.CaseMapping',
-    'lily.contacts.search.ContactMapping',
-    'lily.deals.search.DealMapping',
-)
-
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################

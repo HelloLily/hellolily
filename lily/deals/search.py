@@ -1,12 +1,10 @@
-from elasticutils.contrib.django import Indexable, MappingType
-
 from lily.accounts.models import Account
 from lily.deals.models import Deal
-from lily.search.indexing import prepare_dict
+from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
 
 
-class DealMapping(MappingType, Indexable):
+class DealMapping(BaseMapping):
     @classmethod
     def get_model(cls):
         return Deal
@@ -16,48 +14,41 @@ class DealMapping(MappingType, Indexable):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        return {
-            '_all': {
-                'enabled': False,
-            },
+        mapping = super(DealMapping, cls).get_mapping()
+        mapping.update({
             'properties': {
-                'tenant': {
-                    'type': 'integer',
-                },
-                'id': {
-                    'type': 'integer',
-                },
                 'name': {
                     'type': 'string',
-                    'search_analyzer': 'letter_analyzer',
-                    'index_analyzer': 'letter_ngram_analyzer',
+                    'index_analyzer': 'normal_ngram_analyzer',
                 },
                 'body': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'account': {
+                    'type': 'integer',
+                },
+                'account_name': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'assigned_to': {
                     'type': 'string',
-                    'analyzer': 'letter_analyzer',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'stage': {
                     'type': 'integer',
                 },
                 'stage_name': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'tag': {
                     'type': 'string',
-                    'index': 'not_analyzed',
+                    'index_analyzer': 'normal_edge_analyzer',
                 },
                 'amount': {
                     'type': 'float',
-                    'index': 'not_analyzed',
                 },
                 'modified': {
                     'type': 'date',
@@ -69,7 +60,8 @@ class DealMapping(MappingType, Indexable):
                     'type': 'boolean',
                 },
             }
-        }
+        })
+        return mapping
 
     @classmethod
     def get_related_models(cls):
@@ -93,16 +85,11 @@ class DealMapping(MappingType, Indexable):
         )
 
     @classmethod
-    def extract_document(cls, obj_id, obj=None):
+    def obj_to_doc(cls, obj):
         """
-        Converts this instance into an Elasticsearch document.
+        Translate an object to an index document.
         """
-        if obj is None:
-            obj = cls.get_model().objects.get(pk=obj_id)
-
-        doc = {
-            'tenant': obj.tenant_id,
-            'id': obj.id,
+        return {
             'name': obj.name,
             'body': obj.description,
             'account': obj.account_id if obj.account else None,
@@ -116,5 +103,3 @@ class DealMapping(MappingType, Indexable):
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
         }
-
-        return prepare_dict(doc)

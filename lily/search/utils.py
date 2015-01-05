@@ -104,6 +104,7 @@ class LilySearch(object):
                         'status',
                         'type',
                         'phone_*',
+                        'contact_name',
                     ],
                 },
             }

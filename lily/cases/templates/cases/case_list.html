@@ -100,7 +100,6 @@
                             <a href="/contacts/details/{{ ::case.contact }}/" ng-if="::case.contact">{{ ::case.contact_name }}</a>
                             <span ng-if="case.contact && case.account"> at </span>
                             <a href="/accounts/details/{{ ::case.account }}/">{{ ::case.account_name }}</a>
-
                         </td>
                         <td ng-show="table.visibility.subject">
                             <a href="/cases/details/{{ ::case.id }}/">{{ ::case.subject }}</a>

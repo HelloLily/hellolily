@@ -27,6 +27,18 @@ angular.module('dealControllers', [
 
             Cookie.prefix ='dealList';
 
+            // Setup filter
+            var filter = '';
+
+            // Check if filter is set as query parameter
+            var search = $location.search().search;
+            if (search != undefined) {
+                filter = search;
+            } else {
+                // Get filter from cookie
+                filter = Cookie.getCookieValue('filter', '');
+            }
+
             /**
              * table object: stores all the information to correctly display the table
              */
@@ -34,7 +46,7 @@ angular.module('dealControllers', [
                 page: 1,  // current page of pagination: 1-index
                 pageSize: 20,  // number of items per page
                 totalItems: 0, // total number of items
-                filter: Cookie.getCookieValue('filter', ''),  // search filter
+                filter: filter,  // search filter
                 archived: Cookie.getCookieValue('archived', false),
                 order:  Cookie.getCookieValue('order', {
                     ascending: true,

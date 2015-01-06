@@ -20,10 +20,11 @@ angular.module('dealControllers', [
         '$scope',
         '$cookieStore',
         '$window',
+        '$location',
 
         'Deal',
         'Cookie',
-        function($scope, $cookieStore, $window, Deal, Cookie) {
+        function($scope, $cookieStore, $window, $location, Deal, Cookie) {
 
             Cookie.prefix ='dealList';
 

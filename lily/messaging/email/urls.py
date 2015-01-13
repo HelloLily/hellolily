@@ -7,7 +7,7 @@ from lily.messaging.email.views import EmailMessageDetailView, EmailMessageHTMLV
     CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailSearchView, \
     EmailAccountDeleteView, EmailAccountCreateView, EmailAccountUpdateView,\
     EmailAccountListView, EmailAccountShareView, EmailAccountUnsubscribeView, EmailTemplateListView, \
-    EmailTemplateDeleteView, EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, DetailEmailTemplateView
+    DeleteEmailTemplateView, EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, DetailEmailTemplateView
 
 
 urlpatterns = patterns(
@@ -49,7 +49,7 @@ urlpatterns = patterns(
     url(r'^templates/$', EmailTemplateListView.as_view(), name='messaging_email_template_list'),
     url(r'^templates/create/$', CreateEmailTemplateView.as_view(), name='messaging_email_template_create'),
     url(r'^templates/update/(?P<pk>[\d-]+)/$', UpdateEmailTemplateView.as_view(), name='messaging_email_template_update'),
-    url(r'^templates/delete/(?P<pk>[\d-]+)/$', EmailTemplateDeleteView.as_view(), name='messaging_email_template_delete'),
+    url(r'^templates/delete/(?P<pk>[\d-]+)/$', DeleteEmailTemplateView.as_view(), name='messaging_email_template_delete'),
     url(r'^templates/parse/$', ParseEmailTemplateView.as_view(), name='messaging_email_template_parse'),
     url(r'^templates/set-default/(?P<pk>[\d-]+)/$', EmailTemplateSetDefaultView.as_view(), name='messaging_email_template_set_default'),
     url(r'^templates/get-default/(?P<account_id>[\d-]+)/$', EmailTemplateGetDefaultView.as_view(), name='messaging_email_template_get_default'),

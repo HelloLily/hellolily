@@ -4,6 +4,7 @@ import textwrap
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -21,17 +22,23 @@ from lily.tenant.models import TenantMixin, NullableTenantMixin
 
 def get_attachment_upload_path(instance, filename):
     if isinstance(instance, EmailOutboxAttachment):
-        return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
-            'tenant_id': instance.tenant_id,
-            'message_id': instance.email_outbox_message_id,
-            'filename': filename
-        }
+        message_id = instance.email_outbox_message_id
     else:
-        return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
-            'tenant_id': instance.tenant_id,
-            'message_id': instance.message_id,
-            'filename': filename
-        }
+        message_id = instance.message_id
+
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': message_id,
+        'filename': filename
+    }
+
+
+def get_template_attachment_upload_path(instance, filename):
+    return settings.EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'template_id': instance.template_id,
+        'filename': filename
+    }
 
 
 class EmailProvider(NullableTenantMixin):
@@ -518,7 +525,7 @@ class DefaultEmailTemplate(models.Model):
         unique_together = ('user', 'account')
 
 
-class EmailTemplateAttachment(models.Model):
+class EmailTemplateAttachment(TenantMixin):
     """
     Default attachments that are added to templates.
 
@@ -527,10 +534,17 @@ class EmailTemplateAttachment(models.Model):
 
     """
     template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
-    attachment = models.FileField(
-        verbose_name=_('template attachment'),
-        upload_to=settings.EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO
-    )
+    attachment = models.FileField(verbose_name=_('template attachment'), upload_to=get_template_attachment_upload_path, max_length=255)
+    size = models.PositiveIntegerField(default=0)
+    content_type = models.CharField(max_length=255, verbose_name=_('content type'))
+
+    def save(self):
+        if isinstance(self.attachment.file, (TemporaryUploadedFile, InMemoryUploadedFile)):
+            # FieldFile object doesn't have the content_type attribute, so only set it if we're uploading new files
+            self.content_type = self.attachment.file.content_type
+            self.size = self.attachment.file.size
+
+        super(EmailTemplateAttachment, self).save()
 
     def __unicode__(self):
         return u'%s: %s' % (_('attachment of'), self.template)
@@ -543,11 +557,11 @@ class EmailTemplateAttachment(models.Model):
 
 class EmailDraft(TimeStampedModel):
     send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')  # or simple charfield with modelchoices?
-    send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('To'))
-    send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
-    send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
-    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
-    body_html = models.TextField(null=True, blank=True, verbose_name=_('Html body'))
+    send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('to'))
+    send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
+    send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
+    body_html = models.TextField(null=True, blank=True, verbose_name=_('html body'))
 
     def __unicode__(self):
         return u'%s - %s' % (self.send_from, self.subject)
@@ -559,14 +573,14 @@ class EmailDraft(TimeStampedModel):
 
 
 class EmailOutboxMessage(TenantMixin, models.Model):
-    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Subject'))
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
     send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='outbox_messages')
     to = models.TextField(verbose_name=_('To'))
-    cc = models.TextField(null=True, blank=True, verbose_name=_('Cc'))
-    bcc = models.TextField(null=True, blank=True, verbose_name=_('Bcc'))
-    body = models.TextField(null=True, blank=True, verbose_name=_('Html body'))
-    headers = models.TextField(null=True, blank=True, verbose_name=_('Email headers'))
-    mapped_attachments = models.IntegerField(verbose_name=_('Number of mapped attachments'))
+    cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
+    bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
+    body = models.TextField(null=True, blank=True, verbose_name=_('html body'))
+    headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
+    mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
 
     class Meta:
         app_label = 'email'
@@ -578,7 +592,7 @@ class EmailOutboxAttachment(TenantMixin):
     inline = models.BooleanField(default=False)
     attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
     size = models.PositiveIntegerField(default=0)
-    content_type = models.CharField(max_length=255, verbose_name=_('Subject'))
+    content_type = models.CharField(max_length=255, verbose_name=_('content type'))
     email_outbox_message = models.ForeignKey(EmailOutboxMessage, related_name='attachments')
 
     def __unicode__(self):

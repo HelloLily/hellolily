@@ -29,10 +29,8 @@ class EmailAttachmentWidget(ClearableFileInput):
         if value and hasattr(value, "url"):
             template = self.template_with_initial
 
-            url = reverse('email_attachment_proxy_view', kwargs={'pk': value.instance.pk})
-            substitutions['initial'] = (u'<a href="%s">%s</a>'
-                                        % (escape(url),
-                                           escape(get_attachment_filename_from_url(force_unicode(value)))))
+            substitutions['initial'] = get_attachment_filename_from_url(force_unicode(value))
+
             if not self.is_required:
                 checkbox_name = self.clear_checkbox_name(name)
                 checkbox_id = self.clear_checkbox_id(checkbox_name)

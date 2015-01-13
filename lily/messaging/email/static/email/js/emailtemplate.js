@@ -6,7 +6,11 @@
             fileUploadField: '#body_file_upload',
             valuesField: '#id_values',
             bodyFileField: '#id_body_file',
-            templateVariableField: '#id_text_value'
+            templateVariableField: '#id_text_value',
+            attachmentDeleteButton: '.email-template-attachments [data-formset-delete-button]',
+            attachmentUndoDeleteButton: '.email-template-attachments [data-formset-undo-delete]',
+            templateAttachmentName: '.template-attachment-name',
+            wysiHtmlToolbar: '#wysihtml5-toolbar'
         },
 
         init: function (config) {
@@ -46,10 +50,18 @@
                 })
                 .on('change', cf.bodyFileField, function () {
                     self.handleBodyFileChange.call(self, this);
+                })
+                .on('click', cf.attachmentDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.toggleMarkDeleted(attachmentRow);
+                })
+                .on('click', cf.attachmentUndoDeleteButton , function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.toggleMarkDeleted(attachmentRow);
                 });
 
             // Set heading properly after change
-            var toolbar = $('#wysihtml5-toolbar');
+            var toolbar = $(cf.wysiHtmlToolbar);
             $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
                 var target = e.target || e.srcElement;
                 var el = $(target);
@@ -124,6 +136,17 @@
                         load_notifications();
                     }
                 });
+            }
+        },
+
+        toggleMarkDeleted: function (attachmentRow) {
+            var rowAttachmentName = attachmentRow.find(this.config.templateAttachmentName);
+
+            if (rowAttachmentName.hasClass('mark-deleted')) {
+                rowAttachmentName.removeClass('mark-deleted');
+            }
+            else {
+                rowAttachmentName.addClass('mark-deleted');
             }
         }
     }

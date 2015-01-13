@@ -347,7 +347,7 @@ Inbox Page
   border: solid 1px #eee;
 }
 
-.email-template-create {
+.email-template-body {
   border: solid 1px #eee;
 }
 
@@ -382,7 +382,7 @@ Inbox Page
 }
 
 .inbox-compose .inbox-form-group,
-.email-template-create .inbox-form-group {
+.email-template-body .inbox-form-group {
   margin-bottom: 0;
   position: relative;
   border-bottom: solid 1px #eee;
@@ -452,14 +452,14 @@ Inbox Page
 }
 
 .inbox-compose .wysihtml5,
-.email-template-create .wysihtml5 {
+.email-template-body .wysihtml5 {
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
 }
 
 .inbox-compose .wysihtml5-sandbox,
-.email-template-create .wysihtml5-sandbox {
+.email-template-body .wysihtml5-sandbox {
   padding: 0 !important;
   margin: 0 !important;
   display: block !important;
@@ -472,13 +472,13 @@ Inbox Page
 }
 
 .inbox-compose .wysihtml5-toolbar,
-.email-template-create .wysihtml5-toolbar {
+.email-template-body .wysihtml5-toolbar {
   border: 0;
   border-bottom: 1px solid #eee;
 }
 
 .inbox-compose .wysihtml5-toolbar > li,
-.email-template-create .wysihtml5-toolbar > li {
+.email-template-body .wysihtml5-toolbar > li {
   height: 34px;
   margin-right: 0;
   margin-bottom: 0;
@@ -486,13 +486,13 @@ Inbox Page
 
 .inbox-compose .wysihtml5-toolbar > li > a,
 .inbox-compose .wysihtml5-toolbar > li > div > a,
-.email-template-create .wysihtml5-toolbar > li > a,
-.email-template-create .wysihtml5-toolbar > li > div > a {
+.email-template-body .wysihtml5-toolbar > li > a,
+.email-template-body .wysihtml5-toolbar > li > div > a {
   background: #fff;
 }
 
 .inbox-compose .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
-.email-template-create .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
+.email-template-body .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
 ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
   background: #eee !important;
 }
@@ -501,4 +501,22 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
   .inbox-compose .inbox-form-group > label {
     margin-top: 7px;
   }
+}
+
+.inbox-compose #attachments input,
+.email-template-attachments #attachments input {
+  width: 100%;
+}
+
+.inbox-form-group.email-template-attachments {
+  border: 1px solid #EEE;
+  padding-top: 10px;
+}
+
+.template-attachment-name {
+  padding: 1px 3px;
+}
+
+.template-attachment-name.mark-deleted{
+  background-color: #F9F9F9 !important
 }

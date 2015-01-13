@@ -12,12 +12,21 @@
             singleInboxCheckbox: '.mail-checkbox:not(.mail-group-checkbox)',
             searchFormSubmit: '.search-form [type="submit"]',
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
+            wysiHtmlToolbar: '#wysihtml5-toolbar',
             replyButton: '.reply-btn',
             inboxFrame: null,
             tagsAjaxSelector: '.tags-ajax',
             emailAccountInput: '#id_send_from',
             sendToNormalField: '#id_send_to_normal',
-            overwriteTemplateConfirm: 'Selecting a different template will overwrite the text you\'ve typed. Do you want to load the template anyway?'
+            overwriteTemplateConfirm: 'Selecting a different template will overwrite the text you\'ve typed. Do you want to load the template anyway?',
+            emptyTemplateAttachmentRow: '#empty-template-attachment-row',
+            templateAttachmentDeleteButton: '#template-attachments [data-formset-delete-button]',
+            templateAttachmentUndoDeleteButton: '#template-attachments [data-formset-undo-delete]',
+            templateAttachmentsDiv: '#template-attachments',
+            templateAttachmentName: '.template-attachment-name',
+            templateAttachmentIds: '#template-attachment-ids',
+            templateAttachmentId: '.template-attachment-id',
+            templateAttachmentRow: '.template-attachment-row'
         },
 
         init: function (config) {
@@ -80,15 +89,15 @@
                 })
                 .on('change', cf.tags, function () {
                     self.handleTagsAjaxChange(this);
+                })
+                .on('click', cf.templateAttachmentDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.handleTemplateAttachmentsChange(attachmentRow);
+                })
+                .on('click', cf.templateAttachmentUndoDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.handleTemplateAttachmentsChange(attachmentRow);
                 });
-
-            // Set heading properly after change
-            var toolbar = $('#wysihtml5-toolbar');
-            $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                $(toolbar).find('.current-font').text(el.html());
-            });
 
             // autogrow on frame load
             $(cf.inboxFrame).load(self.emailFrameAutogrow());
@@ -211,7 +220,7 @@
             });
 
             // Set heading properly after change
-            var toolbar = $('#wysihtml5-toolbar');
+            var toolbar = $(self.config.wysiHtmlToolbar);
             $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
                 var target = e.target || e.srcElement;
                 var el = $(target);
@@ -246,7 +255,6 @@
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
                 var subject = '';
-                var htmlPart = '';
                 var recipientId = null;
 
                 if (value) {
@@ -280,8 +288,7 @@
                     }
 
                     $.getJSON(url, function (data) {
-                        htmlPart = data['template'];
-                        self.setNewEditorValue(htmlPart, templateChanged);
+                        self.setNewEditorValue(data, templateChanged);
                     });
                 }
             }
@@ -325,29 +332,29 @@
             // Make sure replies on this email don't break the application
             editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
 
-            var button_name = $(inboxCompose).attr('name');
+            var buttonName = $(inboxCompose).attr('name');
             var form = $(inboxCompose).closest('form');
 
             // Add button name which is used for certain checks
             $('<input>').attr('type', 'hidden')
-                .attr('name', button_name)
+                .attr('name', buttonName)
                 .attr('value', '')
                 .appendTo(form);
 
-            if (button_name == 'submit-send') {
+            if (buttonName == 'submit-send') {
                 // Validation of fields.
                 if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
                     $('#modal_no_email_address').modal();
                     event.preventDefault();
                     return;
                 }
-            } else if (button_name == 'submit-discard') {
+            } else if (buttonName == 'submit-discard') {
                 // Discarding email, remove all attachments to prevent unneeded uploading.
                 $('[id|=id_attachments]:file').remove();
             }
 
             // Make sure both buttons of the same name are set to the loading state
-            $('button[name="' + button_name + '"]').button('loading');
+            $('button[name="' + buttonName + '"]').button('loading');
 
             // No validation needed, remove attachments to prevent unneeded uploading.
             $('[id|=id_attachments]:file').filter(function () {
@@ -387,7 +394,9 @@
             });
         },
 
-        setNewEditorValue: function (htmlPart, templateChanged) {
+        setNewEditorValue: function (data, templateChanged) {
+            var self = this;
+            var htmlPart = data['template'];
             // getValue returns a string, so convert to elements
             var editorValue = $(editor.getValue());
             var currentTemplate = editorValue.closest('#compose-email-template');
@@ -400,7 +409,7 @@
 
                     if (templateChanged) {
                         // If a different template was selected we want to warn the user
-                        changeTemplate = confirm(this.config.overwriteTemplateConfirm);
+                        changeTemplate = confirm(self.config.overwriteTemplateConfirm);
                     }
                     else {
                         // Template wasn't changed, so a new recipient was entered
@@ -428,8 +437,65 @@
 
             if (newEditorValue.length) {
                 editor.setValue(newEditorValue + '<br>');
-                this.resizeEditor();
+                self.resizeEditor();
+                self.processAttachments(data['attachments']);
             }
+        },
+
+        processAttachments: function (attachments) {
+            var cf = this.config;
+            // Clear any existing template attachments
+            $(cf.templateAttachmentsDiv).empty();
+
+            var attachmentIds = [];
+
+            for (var i = 0; i < attachments.length; i++) {
+                var attachment = attachments[i];
+
+                attachmentIds.push(attachment.id);
+
+                var attachmentRow = $(cf.emptyTemplateAttachmentRow).clone();
+                attachmentRow.find(cf.templateAttachmentName).html(attachment.name);
+                attachmentRow.find(cf.templateAttachmentId).val(attachment.id);
+                attachmentRow.removeAttr('id');
+                attachmentRow.removeClass('hidden');
+
+                $(cf.templateAttachmentsDiv).append(attachmentRow);
+            }
+
+            $(cf.templateAttachmentIds).val(attachmentIds);
+        },
+
+        handleTemplateAttachmentsChange: function (attachmentRow) {
+            var self = this,
+                cf = self.config;
+
+            var rowAttachmentName = attachmentRow.find(cf.templateAttachmentName);
+
+            if (rowAttachmentName.hasClass('mark-deleted')) {
+                rowAttachmentName.removeClass('mark-deleted');
+            }
+            else {
+                rowAttachmentName.addClass('mark-deleted');
+            }
+
+            attachmentRow.find('[data-formset-delete-button]').toggleClass('hidden');
+            attachmentRow.find('[data-formset-undo-delete]').toggleClass('hidden');
+
+            var newAttachmentIds = [];
+
+            var attachments = $(cf.templateAttachmentRow);
+            attachments.each(function () {
+                if (!$(this).find(cf.templateAttachmentName).hasClass('mark-deleted')) {
+                    var attachmentId = $(this).find(cf.templateAttachmentId).val();
+                    if (attachmentId !== "") {
+                        // Make sure the value of the empty attachment row doesn't get added
+                        newAttachmentIds.push(attachmentId);
+                    }
+                }
+            });
+
+            $(cf.templateAttachmentIds).val(newAttachmentIds);
         }
     }
 })(jQuery, window, document);

@@ -1,0 +1,40 @@
+db:
+  build: dockers/db
+es:
+  build: dockers/es
+redis:
+  image: redis:2.8
+web:
+  build: .
+  command: python manage.py runserver 0.0.0.0:8000
+  volumes:
+    - .:/home/docker
+  ports:
+    - 8000:8000
+  links:
+    - db
+    - es
+  environment:
+    - SEARCHBOX_SSL_URL=http://es:9200
+rabbit:
+  build: dockers/rabbit
+beat:
+  build: .
+  command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
+  volumes: [".:/home/docker"]
+  links: [rabbit, db, redis]
+worker1:
+  build: .
+  command: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 1 -P eventlet
+  volumes: [".:/home/docker"]
+  links: [rabbit, db, redis]
+worker2:
+  build: .
+  command: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 1 -P eventlet
+  volumes: [".:/home/docker"]
+  links: [rabbit, db, redis]
+worker3:
+  build: .
+  command: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker3.%h -c 1 -P eventlet
+  volumes: [".:/home/docker"]
+  links: [rabbit, db, redis]

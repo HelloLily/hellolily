@@ -444,8 +444,8 @@ class AcceptInvitationView(FormView):
         """
         user = LilyUser()
         user.email = self.email
-        user.first_name = form.cleaned_data['first_name'],
-        user.preposition = form.cleaned_data['preposition'],
+        user.first_name = form.cleaned_data['first_name']
+        user.preposition = form.cleaned_data['preposition']
         user.last_name = form.cleaned_data['last_name']
         user.set_password(form.cleaned_data['password'])
         user.tenant_id = self.tenant_id

@@ -38,7 +38,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     account = models.ForeignKey(Account, verbose_name=_('account'))
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='EUR',
                                 verbose_name=_('currency'))
-    amount = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('amount'))
+    amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
+    amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'))
     expected_closing_date = models.DateField(verbose_name=_('expected closing date'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, default=OPEN_STAGE, verbose_name=_('status'))

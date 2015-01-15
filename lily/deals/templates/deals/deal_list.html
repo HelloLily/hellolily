@@ -43,13 +43,13 @@
                         <checkbox model="table.visibility.stage">Stage</checkbox>
                         <checkbox model="table.visibility.created">Created</checkbox>
                         <checkbox model="table.visibility.name">Subject</checkbox>
-                        <checkbox model="table.visibility.amount">Amount</checkbox>
+                        <checkbox model="table.visibility.amountOnce">One-time cost</checkbox>
+                        <checkbox model="table.visibility.amountRecurring">Recurring costs</checkbox>
                         <checkbox model="table.visibility.assignedTo">Assigned to</checkbox>
                         <checkbox model="table.visibility.closingDate">Closing date</checkbox>
                         <checkbox model="table.visibility.tags">Tags</checkbox>
                     </div>
                 </div>
-
             </div>
         </div>
         <div class="portlet-body dataTables_wrapper form-inline">
@@ -75,7 +75,8 @@
                         <th ng-show="table.visibility.stage" sort-column="stage" table="table">Stage</th>
                         <th ng-show="table.visibility.created" sort-column="created" table="table">Created</th>
                         <th ng-show="table.visibility.name" table="table">Subject</th>
-                        <th ng-show="table.visibility.amount" sort-column="amount" table="table">Amount</th>
+                        <th ng-show="table.visibility.amountOnce" sort-column="amount_once" table="table">One-time cost</th>
+                        <th ng-show="table.visibility.amountRecurring" sort-column="amount_recurring" table="table">Recurring costs</th>
                         <th ng-show="table.visibility.assignedTo" sort-column="assigned_to" table="table">Assigned to</th>
                         <th ng-show="table.visibility.closingDate" sort-column="closing_date" table="table">Closing date</th>
                         <th ng-show="table.visibility.tags">Tags</th>
@@ -103,8 +104,11 @@
                         <td ng-show="table.visibility.name">
                             <a href="/deals/details/{{ ::deal.id }}/">{{ ::deal.name }}</a>
                         </td>
-                        <td ng-show="table.visibility.amount">
-                            {{ ::deal.amount |currency:'&euro; ' }}
+                        <td ng-show="table.visibility.amountOnce">
+                            {{ ::deal.amount_once |currency:'&euro; ' }}
+                        </td>
+                        <td ng-show="table.visibility.amountRecurring">
+                            {{ ::deal.amount_recurring |currency:'&euro; ' }}
                         </td>
                         <td ng-show="table.visibility.assignedTo">
                             {{ ::deal.assigned_to }}

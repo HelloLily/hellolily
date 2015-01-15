@@ -90,7 +90,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'fields': ('account', 'is_archived',),
             }),
             (_('What is it?'), {
-                'fields': ('name', 'amount', 'currency', 'description',),
+                'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description',),
             }),
             (_('What\'s the status?'), {
                 'fields': ('stage', 'expected_closing_date', 'assigned_to',),
@@ -132,7 +132,8 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
             'description',
             'account',
             'currency',
-            'amount',
+            'amount_once',
+            'amount_recurring',
             'expected_closing_date',
             'stage',
             'assigned_to',

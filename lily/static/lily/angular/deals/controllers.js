@@ -58,7 +58,8 @@ angular.module('dealControllers', [
                     stage: true,
                     created: true,
                     name: true,
-                    amount: true,
+                    amountOnce: true,
+                    amountRecurring: true,
                     assignedTo: true,
                     closingDate: true,
                     tags: true

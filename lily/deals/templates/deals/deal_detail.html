@@ -52,8 +52,12 @@
                     <span class="summary-data">{{ object.assigned_to }}</span>
                 </li>
                 <li>
-                    <span class="summary-label">{% trans 'Amount' %}</span>
-                    <span class="summary-data">{{ object.amount }}&nbsp;{{ object.get_currency_display }}</span>
+                    <span class="summary-label">{% trans 'One-time cost' %}</span>
+                    <span class="summary-data">{{ object.amount_once }}&nbsp;{{ object.get_currency_display }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">{% trans 'Recurring costs' %}</span>
+                    <span class="summary-data">{{ object.amount_recurring }}&nbsp;{{ object.get_currency_display }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Status' %}</span>

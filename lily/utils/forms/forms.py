@@ -125,3 +125,4 @@ class SugarCsvImportForm(HelloLilyForm):
     """
     csvfile = forms.FileField(label=_('CSV'))
     model = forms.ChoiceField(label=_('Import rows as'), choices=(('contact', _('Contacts')), ('account', _('Accounts'))))
+    sugar_import = forms.ChoiceField(label=_('From source:'), choices=((1, _('Sugar')), (0, _('Other'))))

@@ -1,6 +1,7 @@
 import json
-from django.contrib import messages
+import logging
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
@@ -20,6 +21,9 @@ from lily.utils.forms import SugarCsvImportForm
 from lily.utils.functions import is_ajax
 from lily.utils.tasks import import_sugar_csv
 from lily.utils.views.mixins import FilterQuerysetMixin, LoginRequiredMixin
+
+
+logger = logging.getLogger(__name__)
 
 
 class ArchiveView(View):
@@ -548,7 +552,8 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         path = self.write_to_tmp(form.cleaned_data.get('csvfile'))
 
-        import_sugar_csv.delay(form.cleaned_data.get('model'), path, self.request.user.tenant_id)
+        sugar_import = form.cleaned_data.get('sugar_import')
+        import_sugar_csv.delay(form.cleaned_data.get('model'), path, self.request.user.tenant_id, sugar_import)
 
         messages.info(self.request, _('Import started, you should see results in de appropriate list'))
 

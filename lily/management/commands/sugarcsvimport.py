@@ -14,7 +14,8 @@ from lily.utils.functions import parse_address, _isint
 from lily.utils.models import Address, PhoneNumber, EmailAddress, COUNTRIES
 from lily.socialmedia.models import SocialMedia
 
-logger = logging.getLogger('sugarimport')
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -64,8 +65,9 @@ E.g.:
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
 
-    def handle(self, model, csvfile, tenant_pk, **kwargs):
+    def handle(self, model, csvfile, tenant_pk, sugar='1', **kwargs):
         self.tenant_pk = tenant_pk
+        self.sugar_import = sugar == '1'
 
         if model in ['account', 'accounts']:
             logger.info('importing accounts started')
@@ -91,25 +93,32 @@ E.g.:
         """
         Read from path assuming it's a file with ',' separated values.
         """
-        # Newlines are breaking correct csv parsing. Write correct temporary file to parse.
-        with TemporaryFile() as clear_file:
-            csv_file = default_storage.open(file_name, 'r')
-            previous_line = ''
-            for line in csv_file.readlines():
-                previous_line += line.strip().replace('\r\n', ' ')
-                if (previous_line[-1:] == '"' and previous_line[-2:] != '""') or previous_line[-3:] == ',""':
-                    clear_file.write(previous_line + '\n')
-                    previous_line = ''
-            csv_file.close()
-            default_storage.delete(file_name)
-            if previous_line:
-                clear_file.write(previous_line)
+        if self.sugar_import:
+            # Newlines are breaking correct csv parsing. Write correct temporary file to parse.
+            with TemporaryFile() as clear_file:
+                csv_file = default_storage.open(file_name, 'r')
+                previous_line = ''
+                for line in csv_file.readlines():
+                    previous_line += line.strip().replace('\r\n', ' ')
+                    if (previous_line[-1:] == '"' and previous_line[-2:] != '""') or previous_line[-3:] == ',""':
+                        clear_file.write(previous_line + '\n')
+                        previous_line = ''
+                csv_file.close()
+                default_storage.delete(file_name)
+                if previous_line:
+                    clear_file.write(previous_line)
 
-            clear_file.seek(0)
+                clear_file.seek(0)
 
-            reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
+                reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
+                for row in reader:
+                    yield row
+        else:
+            csv_file = default_storage.open(file_name, 'rU')
+            reader = csv.DictReader(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             for row in reader:
                 yield row
+            # default_storage.delete(file_name)
 
     def _create_account_data(self, values):
         """
@@ -158,6 +167,8 @@ E.g.:
                         return
                     else:
                         created = False
+
+                account = Account.objects.get(id=account.id)
 
             # Create addresses
             self._create_address(
@@ -210,8 +221,9 @@ E.g.:
             values (dict):
 
         """
-        if not values.get('ID') or 30 > len(values.get('ID')) > 40:
-            return
+        if self.sugar_import:
+            if not values.get('ID') or 30 > len(values.get('ID')) > 40:
+                return
 
         column_attribute_mapping = {
             'First Name': 'first_name',
@@ -420,6 +432,7 @@ E.g.:
         """
         if url and len(url) > 2:
             website_kwargs = dict()
+            website_kwargs['tenant_id'] = self.tenant_pk
             website_kwargs['website'] = url
             website_kwargs['account'] = account
             website_kwargs['is_primary'] = True

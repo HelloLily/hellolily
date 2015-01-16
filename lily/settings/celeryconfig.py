@@ -10,7 +10,7 @@ from .settings import DEBUG, TIME_ZONE
 if os.environ.get('IRON_MQ_PROJECT_ID') and os.environ.get('IRON_MQ_TOKEN'):
     BROKER_URL = 'ironmq://%s:%s@mq-aws-eu-west-1.iron.io' % (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))
 else:
-    BROKER_URL = 'amqp://guest@127.0.0.1:5672'
+    BROKER_URL = 'amqp://guest@%s:5672' % os.environ.get('BROKER_HOST', '127.0.0.1')
 
 BROKER_POOL_LIMIT = 128
 CELERY_ACCEPT_CONTENT = ['json']  # ignore other content

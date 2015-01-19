@@ -96,7 +96,7 @@ class DealMapping(BaseMapping):
             'account_name': obj.account.name if obj.account else None,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'stage': obj.stage,
-            'stage_name': Deal.STAGE_CHOICES[obj.stage][1],
+            'stage_name': obj.get_stage_display(),
             'amount': obj.amount,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'created': obj.created,

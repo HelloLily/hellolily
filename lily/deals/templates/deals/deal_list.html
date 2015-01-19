@@ -47,6 +47,7 @@
                         <checkbox model="table.visibility.amountRecurring">Recurring costs</checkbox>
                         <checkbox model="table.visibility.assignedTo">Assigned to</checkbox>
                         <checkbox model="table.visibility.closingDate">Closing date</checkbox>
+                        <checkbox model="table.visibility.feedbackFormSent">Feedback form sent</checkbox>
                         <checkbox model="table.visibility.tags">Tags</checkbox>
                     </div>
                 </div>
@@ -79,6 +80,7 @@
                         <th ng-show="table.visibility.amountRecurring" sort-column="amount_recurring" table="table">Recurring costs</th>
                         <th ng-show="table.visibility.assignedTo" sort-column="assigned_to" table="table">Assigned to</th>
                         <th ng-show="table.visibility.closingDate" sort-column="closing_date" table="table">Closing date</th>
+                        <th ng-show="table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="table">Feedback form sent</th>
                         <th ng-show="table.visibility.tags">Tags</th>
                     </thead>
                     <tbody>
@@ -115,6 +117,10 @@
                         </td>
                         <td ng-show="table.visibility.closingDate">
                             {{ ::deal.closing_date | relativeDate }}
+                        </td>
+                        <td ng-show="table.visibility.feedbackFormSent">
+                            <span ng-if="deal.feedback_form_sent"><i class="icon-ok text-success"></i></span>
+                            <span ng-if="!deal.feedback_form_sent"><i class="icon-remove text-danger"></i></span>
                         </td>
                         <td ng-show="table.visibility.tags">
                             <span ng-repeat="tag in deal.tag">

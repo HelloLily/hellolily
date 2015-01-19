@@ -33,6 +33,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (LOST_STAGE, _('Lost')),
     )
 
+    NO, YES = range(2)
+    SENT_CHOICES = (
+        (NO, _('No')),
+        (YES, _('Yes')),
+    )
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'))
@@ -46,6 +52,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name='list of notes')
+    feedback_form_sent = models.IntegerField(choices=SENT_CHOICES, default=NO, verbose_name=_('feedback form sent'))
 
     def __unicode__(self):
         return self.name

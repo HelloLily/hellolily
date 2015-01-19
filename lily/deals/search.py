@@ -62,6 +62,9 @@ class DealMapping(BaseMapping):
                 'archived': {
                     'type': 'boolean',
                 },
+                'feedback_form_sent': {
+                    'type': 'boolean',
+                }
             }
         })
         return mapping
@@ -106,4 +109,5 @@ class DealMapping(BaseMapping):
             'created': obj.created,
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
+            'feedback_form_sent': obj.feedback_form_sent
         }

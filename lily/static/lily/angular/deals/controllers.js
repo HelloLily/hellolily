@@ -62,6 +62,7 @@ angular.module('dealControllers', [
                     amountRecurring: true,
                     assignedTo: true,
                     closingDate: true,
+                    feedbackFormSent: true,
                     tags: true
                 })};
 

@@ -63,6 +63,10 @@
                     <span class="summary-label">{% trans 'Status' %}</span>
                     <span id="status" class="summary-data">{{ object.get_stage_display }}{% if object.is_archived %} - {% trans 'Archived' %}{% endif %}</span>
                 </li>
+                <li>
+                    <span class="summary-label">{% trans 'Feedback form sent' %}</span>
+                    <span class="summary-data">{{ object.feedback_form_sent }}</span>
+                </li>
             </ul>
         </div>
     </div>

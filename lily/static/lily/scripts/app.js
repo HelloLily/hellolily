@@ -43,8 +43,8 @@ if (typeof String.prototype.endsWith != 'function') {
             quickAccountField: '#id_case_quickbutton_account',
             archiveField: '#id_is_archived',
             archiveButton: '#archive-button',
-            saveArchiveText: 'Save and Archive',
-            saveUnArchiveText: 'Save and Unarchive'
+            saveArchiveText: 'Save and archive',
+            saveUnArchiveText: 'Save and unarchive'
         },
 
         init: function(config) {

@@ -33,7 +33,7 @@ USER docker
 ENV DEBUG 1
 ENV SECRET_KEY abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
 ENV DATABASE_URL postgres://hellolily:@db/hellolily
-ENV REDISTOGO_URL=redis://redis:6379
+ENV REDISTOGO_URL redis://redis:6379
 ENV MULTI_TENANT 1
 ENV BROKER_HOST rabbit
 

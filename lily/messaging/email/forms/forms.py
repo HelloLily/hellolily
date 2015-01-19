@@ -255,8 +255,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
     send_to_cc = TagsField(
@@ -267,8 +266,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
     send_to_bcc = TagsField(
@@ -279,8 +277,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
 

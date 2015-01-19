@@ -37,4 +37,6 @@ ENV REDISTOGO_URL=redis://redis:6379
 ENV MULTI_TENANT 1
 ENV BROKER_HOST rabbit
 
+WORKDIR /home/docker/hellolily
+
 CMD /bin/bash

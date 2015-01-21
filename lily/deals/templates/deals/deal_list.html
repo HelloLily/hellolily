@@ -7,7 +7,6 @@
     {% compressed_css 'deals' %}
 {% endblock %}
 
-
 {% block head-title %}{% trans 'Deals' %}{% endblock %}
 
 {% block page-container %}
@@ -56,17 +55,31 @@
         </div>
         <div class="portlet-body dataTables_wrapper form-inline">
             <div class="row">
-                <div class="col-md-6 col-sm-12"></div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="actions">
+                        <div class="btn-group">
+                            <a class="btn default" href="#" data-toggle="dropdown">
+                                Filter on
+                                <i class="icon-angle-down"></i>
+                            </a>
+                            <div id="deal-filters" class="dropdown-menu hold-on-click dropdown-checkboxes">
+                                <div ng-repeat="filter in filterList">
+                                    <checkbox model="filter.selected" ng-click="updateFilterQuery()">{{filter.name}}</checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6 col-sm-12">
                     <div class="dataTables_filter">
                         <label>
                             Search:
-                            <input type="text" class="form-control input-small" ng-model="table.filter"><button class="btn default" ng-click="setFilter('')" ng-disabled="!table.filter">Clear</button>
+                            <input type="text" class="form-control input-small" ng-model="table.searchQuery"><button class="btn default" ng-click="setSearchQuery('')" ng-disabled="!table.searchQuery">Clear</button>
                         </label>
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row no-margin">
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
                         <th class="table-checkbox">
@@ -115,7 +128,7 @@
                             {{ ::deal.amount_recurring |currency:'&euro; ' }}
                         </td>
                         <td ng-show="table.visibility.assignedTo">
-                            {{ ::deal.assigned_to }}
+                            {{ ::deal.assigned_to_name }}
                         </td>
                         <td ng-show="table.visibility.closingDate">
                             {{ ::deal.closing_date | relativeDate }}
@@ -130,7 +143,7 @@
                         </td>
                         <td ng-show="table.visibility.tags">
                             <span ng-repeat="tag in deal.tag">
-                                <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
+                                <a href="javascript:void(0)" ng-click="setSearchQuery(tag)">{{ ::tag }}</a>
                                 <br>
                             </span>
                         </td>

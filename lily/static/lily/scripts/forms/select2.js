@@ -69,12 +69,12 @@
                                     term = '*';
                                 }
                                 // search for contacts and accounts containing the search term, but only those with an email address
-                                var filterquery = '((_type:contacts_contact AND (name:' + term + ' OR email:' + term + ')) ' +
+                                var filterQuery = '((_type:contacts_contact AND (name:' + term + ' OR email:' + term + ')) ' +
                                                 'OR (_type:accounts_account AND (name:' + term + ' OR email:' + term + '))) ' +
                                                 'AND email:*';
 
                                 data = {
-                                    filterquery: filterquery,
+                                    filterquery: filterQuery,
                                     size: cf.ajaxPageLimit, // page size
                                     page: (page - 1), // page number, zero-based
                                     sort: '-modified' //sort modified descending

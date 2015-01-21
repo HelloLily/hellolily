@@ -14,12 +14,13 @@ angular.module('dealServices', [])
         /**
          * getDeals() gets the deals from the search backend trough a promise
          *
-         * @param queryString string: current filter on the deallist
+         * @param queryString string: current search query on the deallist
          * @param page int: current page of pagination
          * @param pageSize int: current page size of pagination
          * @param orderColumn string: current sorting of deals
          * @param orderedAsc {boolean}: current ordering
          * @param archived {boolean}: when true, only archived are fetched, if false, only active
+         * @param filterQuery {string}:
          *
          * @returns Promise object: when promise is completed:
          *      {
@@ -27,7 +28,21 @@ angular.module('dealServices', [])
          *          total int: total number of deal objects
          *      }
          */
-        var getDeals = function(queryString, page, pageSize, orderColumn, orderedAsc, archived) {
+        var getDeals = function(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
+            // Check if there's a filter set
+            if (filterQuery !== '') {
+                // Check if we're looking for archived cases or not
+                if (archived) {
+                    filterQuery += ' AND archived:true';
+                }
+                else {
+                    filterQuery += ' AND archived:false';
+                }
+            }
+            else {
+                // Otherwise only check if we're displaying archived cases or not
+                filterQuery = archived ? 'archived:true' : 'archived:false';
+            }
 
             var sort = '';
             if (orderedAsc) sort += '-';
@@ -42,15 +57,15 @@ angular.module('dealServices', [])
                     page: page - 1,
                     size: pageSize,
                     sort: sort,
-                    filterquery: archived ? 'archived:true' : 'archived:false'
+                    filterquery: filterQuery
                 }
             })
-                .then(function(response) {
-                    return {
-                        deals: response.data.hits,
-                        total: response.data.total
-                    };
-                });
+            .then(function(response) {
+                return {
+                    deals: response.data.hits,
+                    total: response.data.total
+                };
+            });
         };
 
         /**
@@ -65,7 +80,7 @@ angular.module('dealServices', [])
          *      }
          */
         Deal.query = function(table) {
-            return getDeals(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived);
+            return getDeals(table.searchQuery, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived, table.filterQuery);
         };
 
         return Deal;

@@ -450,3 +450,7 @@ label.required::after {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+.dropdown-checkboxes .checker:hover {
+    background-color: #F0F0F0;
+}

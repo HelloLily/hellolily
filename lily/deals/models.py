@@ -27,10 +27,10 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     STAGE_CHOICES = (
         (OPEN_STAGE, _('Open')),
         (PENDING_STAGE, _('Proposal sent')),
-        (CALLED_STAGE, _('Called')),
-        (EMAILED_STAGE, _('Emailed')),
         (WON_STAGE, _('Won')),
         (LOST_STAGE, _('Lost')),
+        (CALLED_STAGE, _('Called')),
+        (EMAILED_STAGE, _('Emailed')),
     )
 
     NO_YES_CHOICES = (

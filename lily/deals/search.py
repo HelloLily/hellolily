@@ -47,7 +47,10 @@ class DealMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'amount': {
+                'amount_once': {
+                    'type': 'float',
+                },
+                'amount_recurring': {
                     'type': 'float',
                 },
                 'modified': {
@@ -59,6 +62,9 @@ class DealMapping(BaseMapping):
                 'archived': {
                     'type': 'boolean',
                 },
+                'feedback_form_sent': {
+                    'type': 'boolean',
+                }
             }
         })
         return mapping
@@ -97,9 +103,11 @@ class DealMapping(BaseMapping):
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'stage': obj.stage,
             'stage_name': obj.get_stage_display(),
-            'amount': obj.amount,
+            'amount_once': obj.amount_once,
+            'amount_recurring': obj.amount_recurring,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'created': obj.created,
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
+            'feedback_form_sent': obj.feedback_form_sent
         }

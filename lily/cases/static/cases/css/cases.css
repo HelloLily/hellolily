@@ -3,6 +3,11 @@
     margin-bottom: 15px;
 }
 
+td .label-sm {
+    display: block;
+    padding: 4px 6px !important;
+}
+
 td .label-danger {
     /* Critical priority */
     background-color: #ff0000;

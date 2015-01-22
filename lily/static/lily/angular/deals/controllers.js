@@ -63,6 +63,7 @@ angular.module('dealControllers', [
                     assignedTo: true,
                     closingDate: true,
                     feedbackFormSent: true,
+                    newBusiness: true,
                     tags: true
                 })};
 

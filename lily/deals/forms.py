@@ -86,10 +86,10 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
         fieldsets = (
             (_('For who is it?'), {
-                'fields': ('account', 'is_archived',),
+                'fields': ('account', 'is_archived', 'new_business'),
             }),
             (_('What is it?'), {
-                'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description',),
+                'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description'),
             }),
             (_('What\'s the status?'), {
                 'fields': ('stage', 'expected_closing_date', 'assigned_to', 'feedback_form_sent'),
@@ -107,6 +107,10 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'class': 'chzn-select-no-search',
             }),
             'feedback_form_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
+            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
                 'data-skip-uniform': 'true',
                 'data-uniformed': 'true',
             }),

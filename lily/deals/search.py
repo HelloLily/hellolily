@@ -109,5 +109,6 @@ class DealMapping(BaseMapping):
             'created': obj.created,
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
-            'feedback_form_sent': obj.feedback_form_sent
+            'feedback_form_sent': obj.feedback_form_sent,
+            'new_business': obj.new_business
         }

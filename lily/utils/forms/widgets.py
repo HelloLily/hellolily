@@ -2,7 +2,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea
+from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea, CheckboxFieldRenderer
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
@@ -290,11 +290,11 @@ class BootstrapRadioFieldRenderer(RadioFieldRenderer):
         buttons_html = mark_safe('')
 
         # Render each radioinput bootstrap-like.
-        for w in self:
+        for choice in self:
             buttons_html += u'''<label class="btn btn-primary %(is_active)s">%(tag)s %(label)s</label>''' % {
-                'is_active': ('active' if w.is_checked() else ''),
-                'tag': w.tag(),
-                'label': w.choice_label,
+                'is_active': ('active' if choice.is_checked() else ''),
+                'tag': choice.tag(),
+                'label': choice.choice_label,
             }
 
         return mark_safe(u'''<div class="btn-group" data-toggle="buttons">%s</div>''' % buttons_html)

@@ -20,6 +20,7 @@ class HellolilyFieldsetCollection(FieldsetCollection):
         except TypeError:
             return list(itertools.islice(self._cached_fieldsets, index.start, index.stop, index.step))
 
+
 class HelloLilyForm(BetterForm):
     """
     Inherit from BetterForm django-form-utils.

@@ -12,10 +12,21 @@
             singleInboxCheckbox: '.mail-checkbox:not(.mail-group-checkbox)',
             searchFormSubmit: '.search-form [type="submit"]',
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
+            wysiHtmlToolbar: '#wysihtml5-toolbar',
             replyButton: '.reply-btn',
             inboxFrame: null,
             tagsAjaxSelector: '.tags-ajax',
-            emailAccountInput: '#id_send_from'
+            emailAccountInput: '#id_send_from',
+            sendToNormalField: '#id_send_to_normal',
+            overwriteTemplateConfirm: 'Selecting a different template will overwrite the text you\'ve typed. Do you want to load the template anyway?',
+            emptyTemplateAttachmentRow: '#empty-template-attachment-row',
+            templateAttachmentDeleteButton: '#template-attachments [data-formset-delete-button]',
+            templateAttachmentUndoDeleteButton: '#template-attachments [data-formset-undo-delete]',
+            templateAttachmentsDiv: '#template-attachments',
+            templateAttachmentName: '.template-attachment-name',
+            templateAttachmentIds: '#template-attachment-ids',
+            templateAttachmentId: '.template-attachment-id',
+            templateAttachmentRow: '.template-attachment-row'
         },
 
         init: function (config) {
@@ -45,7 +56,10 @@
                     self.handleAdditionalRecipientsInput('bcc');
                 })
                 .on('change', cf.templateField, function () {
-                    self.changeTemplateField.call(self, this);
+                    self.changeTemplateField.call(self, this, true);
+                })
+                .on('change', cf.sendToNormalField, function () {
+                    self.changeTemplateField.call(self, cf.templateField, false);
                 })
                 .on('click', cf.singleMessageSelector, function () {
                     self.openMessage.call(self, this);
@@ -75,15 +89,15 @@
                 })
                 .on('change', cf.tags, function () {
                     self.handleTagsAjaxChange(this);
+                })
+                .on('click', cf.templateAttachmentDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.handleTemplateAttachmentsChange(attachmentRow);
+                })
+                .on('click', cf.templateAttachmentUndoDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.handleTemplateAttachmentsChange(attachmentRow);
                 });
-
-            // Set heading properly after change
-            var toolbar = $('#wysihtml5-toolbar');
-            $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
-                var target = e.target || e.srcElement;
-                var el = $(target);
-                $(toolbar).find('.current-font').text(el.html());
-            });
 
             // autogrow on frame load
             $(cf.inboxFrame).load(self.emailFrameAutogrow());
@@ -194,15 +208,19 @@
                 handleTables: false
             });
 
-            editor.observe('load', function() {
-                editor.focus();
-                editor.composer.element.addEventListener('keyup', function() {
+            editor.observe('load', function () {
+                this.focus();
+
+                $(this.composer.element).on('keypress keyup keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });
+
+                // Make the editor the correct height on load
+                self.resizeEditor();
             });
 
             // Set heading properly after change
-            var toolbar = $('#wysihtml5-toolbar');
+            var toolbar = $(self.config.wysiHtmlToolbar);
             $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
                 var target = e.target || e.srcElement;
                 var el = $(target);
@@ -231,51 +249,48 @@
             });
         },
 
-        changeTemplateField: function (templateField) {
+        changeTemplateField: function (templateField, templateChanged) {
             var self = this;
             if (templateList) {
                 var value = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
                 var subject = '';
-                var htmlPart = '';
+                var recipientId = null;
 
                 if (value) {
                     subject = templateList[value].subject;
-                    htmlPart = templateList[value].html_part;
+
+                    var messageType = this.config.messageType;
+
+                    if (messageType === 'new' && subject != '') {
+                        // Only overwrite the subject if a new email is being created
+                        subjectField.val(subject);
+                    }
+
+                    var recipient = $('#id_send_to_normal').select2('data')[0];
+
+                    if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
+                        // Check if a contact has been entered
+                        recipientId = recipient.object_id;
+                    }
+                    else if (self.config.fromContact !== '' && self.config.fromContact != null) {
+                        // If it's a reply there might be contact set
+                        recipientId = self.config.fromContact;
+                        self.config.fromContact = null;
+                    }
+
+                    // Always get a template
+                    var url = self.config.getTemplateUrl + value;
+
+                    if (recipientId != null) {
+                        // If a recipient has been set we can fill extra variables
+                        url += '?contact_id=' + recipientId;
+                    }
+
+                    $.getJSON(url, function (data) {
+                        self.setNewEditorValue(data, templateChanged);
+                    });
                 }
-
-                var messageType = self.config.messageType;
-
-                if (messageType === 'new' && subject != '') {
-                    subjectField.val(subject);
-                }
-
-                // getValue returns a string, so convert to elements
-                var editorValue = $(editor.getValue());
-                var currentTemplate = editorValue.closest('#compose-email-template');
-                var newEditorValue = '';
-
-                // Check if an email template has already been loaded
-                if (currentTemplate.length) {
-                    // Change the html of the existing email template
-                    currentTemplate.html(htmlPart);
-
-                    // Since editorValue is actually an array of elements we can't easily convert it back to text
-                    var container = $('<div>');
-                    // Add the (edited) html to the newly created container
-                    container.append(editorValue);
-                    // Get the text version of the new html
-                    newEditorValue = container[0].innerHTML
-                }
-                else {
-                    // No email template loaded so create our email template container
-                    var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
-                    // Append the existing text
-                    newEditorValue = emailTemplate + '<br>' + editor.getValue()
-                }
-
-                editor.setValue(newEditorValue);
-                self.resizeEditor();
             }
         },
 
@@ -314,29 +329,32 @@
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
 
-            var button_name = $(inboxCompose).attr('name');
+            // Make sure replies on this email don't break the application
+            editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
+
+            var buttonName = $(inboxCompose).attr('name');
             var form = $(inboxCompose).closest('form');
 
             // Add button name which is used for certain checks
             $('<input>').attr('type', 'hidden')
-                .attr('name', button_name)
+                .attr('name', buttonName)
                 .attr('value', '')
                 .appendTo(form);
 
-            if (button_name == 'submit-send') {
+            if (buttonName == 'submit-send') {
                 // Validation of fields.
                 if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
                     $('#modal_no_email_address').modal();
                     event.preventDefault();
                     return;
                 }
-            } else if (button_name == 'submit-discard') {
+            } else if (buttonName == 'submit-discard') {
                 // Discarding email, remove all attachments to prevent unneeded uploading.
                 $('[id|=id_attachments]:file').remove();
             }
 
             // Make sure both buttons of the same name are set to the loading state
-            $('button[name="' + button_name + '"]').button('loading');
+            $('button[name="' + buttonName + '"]').button('loading');
 
             // No validation needed, remove attachments to prevent unneeded uploading.
             $('[id|=id_attachments]:file').filter(function () {
@@ -374,6 +392,110 @@
             $.getJSON(url, function(data) {
                 $(self.config.templateField).select2('val', data['template_id']).trigger('change');
             });
+        },
+
+        setNewEditorValue: function (data, templateChanged) {
+            var self = this;
+            var htmlPart = data['template'];
+            // getValue returns a string, so convert to elements
+            var editorValue = $(editor.getValue());
+            var currentTemplate = editorValue.closest('#compose-email-template');
+            var newEditorValue = '';
+
+            // Check if an email template has already been loaded
+            if (currentTemplate.length) {
+                if (currentTemplate.html().length) {
+                    var changeTemplate = false;
+
+                    if (templateChanged) {
+                        // If a different template was selected we want to warn the user
+                        changeTemplate = confirm(self.config.overwriteTemplateConfirm);
+                    }
+                    else {
+                        // Template wasn't changed, so a new recipient was entered
+                        changeTemplate = true;
+                    }
+
+                    if (changeTemplate) {
+                        // Change the html of the existing email template
+                        currentTemplate.html(htmlPart);
+                        // Since editorValue is actually an array of elements we can't easily convert it back to text
+                        var container = $('<div>');
+                        // Add the (edited) html to the newly created container
+                        container.append(editorValue);
+                        // Get the text version of the new html
+                        newEditorValue = container[0].innerHTML;
+                    }
+                }
+            }
+            else {
+                // No email template loaded so create our email template container
+                var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
+                // Append the existing text
+                newEditorValue = emailTemplate + '<br>' + editor.getValue();
+            }
+
+            if (newEditorValue.length) {
+                editor.setValue(newEditorValue + '<br>');
+                self.resizeEditor();
+                self.processAttachments(data['attachments']);
+            }
+        },
+
+        processAttachments: function (attachments) {
+            var cf = this.config;
+            // Clear any existing template attachments
+            $(cf.templateAttachmentsDiv).empty();
+
+            var attachmentIds = [];
+
+            for (var i = 0; i < attachments.length; i++) {
+                var attachment = attachments[i];
+
+                attachmentIds.push(attachment.id);
+
+                var attachmentRow = $(cf.emptyTemplateAttachmentRow).clone();
+                attachmentRow.find(cf.templateAttachmentName).html(attachment.name);
+                attachmentRow.find(cf.templateAttachmentId).val(attachment.id);
+                attachmentRow.removeAttr('id');
+                attachmentRow.removeClass('hidden');
+
+                $(cf.templateAttachmentsDiv).append(attachmentRow);
+            }
+
+            $(cf.templateAttachmentIds).val(attachmentIds);
+        },
+
+        handleTemplateAttachmentsChange: function (attachmentRow) {
+            var self = this,
+                cf = self.config;
+
+            var rowAttachmentName = attachmentRow.find(cf.templateAttachmentName);
+
+            if (rowAttachmentName.hasClass('mark-deleted')) {
+                rowAttachmentName.removeClass('mark-deleted');
+            }
+            else {
+                rowAttachmentName.addClass('mark-deleted');
+            }
+
+            attachmentRow.find('[data-formset-delete-button]').toggleClass('hidden');
+            attachmentRow.find('[data-formset-undo-delete]').toggleClass('hidden');
+
+            var newAttachmentIds = [];
+
+            var attachments = $(cf.templateAttachmentRow);
+            attachments.each(function () {
+                if (!$(this).find(cf.templateAttachmentName).hasClass('mark-deleted')) {
+                    var attachmentId = $(this).find(cf.templateAttachmentId).val();
+                    if (attachmentId !== "") {
+                        // Make sure the value of the empty attachment row doesn't get added
+                        newAttachmentIds.push(attachmentId);
+                    }
+                }
+            });
+
+            $(cf.templateAttachmentIds).val(newAttachmentIds);
         }
     }
 })(jQuery, window, document);

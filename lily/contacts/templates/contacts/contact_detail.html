@@ -30,11 +30,11 @@
             <ul class="list-unstyled summary-list">
                 <li>
                     <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span class="summary-data">{{ object.get_work_phone|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.work_phone|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Mobile number' %}</span>
-                    <span class="summary-data">{{ object.get_mobile_phone|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.mobile_phone|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
@@ -107,7 +107,7 @@
                                     <tr>
                                         <td><a href="{% url 'contact_details' colleague_function.contact.pk %}">{{ colleague_function.contact.full_name }}</a></td>
                                         <td>{{ colleague_function.contact.primary_email|default:_('Unknown') }}</td>
-                                        <td>{{ colleague_function.contact.get_phone_number|default:_('Unknown') }}</td>
+                                        <td>{{ colleague_function.contact.phone_number|default:_('Unknown') }}</td>
                                     </tr>
                                 {% elif forloop.counter == 1 and forloop.revcounter0 == 0 %}
                                     <tr>

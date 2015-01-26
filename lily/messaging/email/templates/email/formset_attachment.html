@@ -8,6 +8,25 @@
                     {{ formset.management_form }}
                     <div data-formset-body>
                         <!-- New forms will be inserted in here -->
+                        <input id="template-attachment-ids" name="template_attachment_ids" type="hidden" />
+                        <div id="empty-template-attachment-row" class="hidden form-group">
+                            <div class="template-attachment-row">
+                                <div class="col-md-4 form-control-static">
+                                    <input type="hidden" class="template-attachment-id" />
+                                    <div class="template-attachment-name"></div>
+                                </div>
+                                <div class="col-md-1">
+                                    <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
+                                        <i class="icon-undo"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="{% trans 'Delete this row' %}">
+                                        <i class="icon-trash"></i>
+                                    </a>
+                                    {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
+                                </div>
+                            </div>
+                        </div>
+                        <div id="template-attachments"></div>
                         {% for form in formset %}
                             <div data-formset-form>
                                 {% for field in form.hidden_fields %}
@@ -53,7 +72,6 @@
                                     {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
                                 </div>
                             </div>
-
                         </div>
                     </script>
                 </div>

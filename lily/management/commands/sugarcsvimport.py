@@ -67,7 +67,7 @@ E.g.:
 
     def handle(self, model, csvfile, tenant_pk, sugar='1', **kwargs):
         self.tenant_pk = tenant_pk
-        self.sugar_import = sugar == '1'
+        self.sugar_import = False
 
         if model in ['account', 'accounts']:
             logger.info('importing accounts started')

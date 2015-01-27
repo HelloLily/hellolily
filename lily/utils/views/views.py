@@ -553,7 +553,12 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
         path = self.write_to_tmp(form.cleaned_data.get('csvfile'))
 
         sugar_import = form.cleaned_data.get('sugar_import')
-        import_sugar_csv.delay(form.cleaned_data.get('model'), path, self.request.user.tenant_id, sugar_import)
+        import_sugar_csv.apply_async(args=(
+            form.cleaned_data.get('model'),
+            path,
+            self.request.user.tenant_id,
+            sugar_import,
+        ))
 
         messages.info(self.request, _('Import started, you should see results in de appropriate list'))
 

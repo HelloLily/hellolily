@@ -454,3 +454,8 @@ label.required::after {
 .dropdown-checkboxes .checker:hover {
     background-color: #F0F0F0;
 }
+
+.radio-btns .btn.btn-primary:not(.active) {
+    background-color: rgba(66, 139, 202, 0.65);
+}
+

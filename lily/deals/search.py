@@ -32,9 +32,12 @@ class DealMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'assigned_to': {
+                'assigned_to_name': {
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
+                },
+                'assigned_to_id': {
+                    'type': 'integer',
                 },
                 'stage': {
                     'type': 'integer',
@@ -100,7 +103,8 @@ class DealMapping(BaseMapping):
             'body': obj.description,
             'account': obj.account_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
-            'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_id': obj.assigned_to.id,
             'stage': obj.stage,
             'stage_name': obj.get_stage_display(),
             'amount_once': obj.amount_once,

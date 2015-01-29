@@ -193,6 +193,13 @@
     {% compressed_js 'ajax-submit' %}
     {% compressed_js 'forms' %} {# this also includes scripts used in quickbutton forms #}
     <script>
+        var currentUser = {
+            id: '{{ user.id }}',
+            firstName: '{{ user.first_name }}',
+            lastName: '{{ user.last_name }}',
+            email: '{{ user.email }}'
+        };
+
         $(function($){
             App.init();
             HLApp.init({

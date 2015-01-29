@@ -20,8 +20,6 @@ angular.module('lilyFilters', [])
      */
     .filter('relativeDate', ['$filter', function($filter) {
         return function(date, fallbackDateFormat) {
-
-
             // Get current date
             var now = new Date(),
                 calculateDelta, day, delta, hour, minute, week, month, year;

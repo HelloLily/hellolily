@@ -41,13 +41,23 @@ angular.module('lilyFilters', [])
             calculateDelta = function() {
                 return delta = Math.round((date - now) / 1000);
             };
+
             calculateDelta();
+
             if (delta > day && delta < week) {
                 date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
                 calculateDelta();
             }
 
-            fallbackDateFormat = fallbackDateFormat !== undefined ? fallbackDateFormat : 'longDate';
+            if(!fallbackDateFormat) {
+                if(window.innerWidth < 992) {
+                    // Display as a short version if it's a small screen (tablet, smartphone, etc.)
+                    fallbackDateFormat = 'dd MMM. yyyy'; // Renders as 29 Jan. 2015
+                }
+                else {
+                    fallbackDateFormat = 'dd MMMM yyyy'; // Renders as 29 January 2015
+                }
+            }
 
             // Check delta and return result
             if (delta < 0) {

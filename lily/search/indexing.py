@@ -52,8 +52,11 @@ def index_objects(mapping, queryset, index, print_progress=False):
     for instance in queryset_iterator(mapping, queryset, print_progress=print_progress):
         documents.append(mapping.extract_document(instance.id, instance))
 
-    if documents:
-        mapping.bulk_index(documents, id_field='id', index=index)
+        if len(documents) >= 100:
+            mapping.bulk_index(documents, id_field='id', index=index)
+            documents = []
+
+    mapping.bulk_index(documents, id_field='id', index=index)
 
 
 def unindex_objects(mapping, queryset, index, print_progress=False):

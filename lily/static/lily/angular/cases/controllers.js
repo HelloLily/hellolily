@@ -62,6 +62,7 @@ angular.module('caseControllers', [
                     status: true,
                     expires: true,
                     assignedTo: true,
+                    createdBy: true,
                     tags: true
                 })};
 

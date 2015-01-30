@@ -46,6 +46,7 @@
         </div>
     </div>
     {% bootstrap_field form.body_html field_class="col-md-10" label_class="col-md-2 control-label" %}
+    {% bootstrap_field form.attachments field_class="col-md-10" label_class="col-md-2 control-label margin-top-10" %}
 {% endblock %}
 
 {% block scripts %}
@@ -53,98 +54,13 @@
     {% compressed_js 'emailtemplate' %}
     {% compressed_js 'wysihtml5' %}
 <script>
-var parameter_choices = {{ parameter_choices|safe }};
+var parameterChoices = {{ parameter_choices|safe }};
 $(function($) {
-    Inbox.init();
-
-    $('#id_values').change(function() {
-
-        var text_value_input = $('#id_text_value');
-        var text_value = $(this).val();
-
-        if (text_value !== ''){
-            text_value_input.html('{% templatetag openvariable %} ' + text_value + ' {% templatetag closevariable %}')
-        } else {
-            text_value_input.html('');
-        }
-    });
-
-    $('#id_body_file').change(function() {
-        var form = $(this).closest('form');
-        var value = form.find('#id_body_file').val();
-
-        if (value) {
-            $(form).ajaxStart(function() {
-                App.blockUI($(form).nextAll('form').eq(0), false, '');
-            }).ajaxStop(function() {
-                App.unblockUI($(form).nextAll('form').eq(0));
-            }).ajaxSubmit({
-                type: 'post',
-                dataType: 'json',
-                url: '{% url 'messaging_email_template_parse' %}',
-                success: function(response) {
-                    if(!response.error && response.form) {
-                        var fields = ['name', 'subject'];
-                        $.each(fields, function(index, field) {
-                            if(response.form.hasOwnProperty(field)) {
-                                $('#id_' + field).val(response.form[field]);
-                            }
-                        });
-
-                        // set the html
-                        var wedit = $('#id_body_html').data("wysihtml5").editor;
-                        wedit.setValue(response.form.body_html);
-                        wedit.focus();
-                        wedit.composer.element.blur();
-                    }
-
-                    // loads notifications if any
-                    load_notifications();
-                },
-                error: function() {
-                    // loads notifications if any
-                    load_notifications();
-                }
-            });
-            // $(form).ajaxSubmit({
-            //     type: 'post',
-            //     dataType: 'json',
-            //     url: '{% url 'messaging_email_template_parse' %}',
-            //     success: function(response) {
-            //         if (response.valid) {
-            //             if (response.name !== undefined) {
-            //                 $('#id_name').val(response.name);
-            //             }
-
-            //             if (response.description) {
-            //                 var description = $('#id_description');
-            //                 description.val(response.description);
-            //                 description.trigger('update');
-            //             }
-
-            //             if (response.subject) {
-            //                 $('#id_subject').val(response.subject)
-            //             }
-
-            //             if (response.html_part) {
-            //                 var body_html = $('#email-body').contents().find('#email-content');
-            //                 body_html.html(response.html_part);
-            //             }
-
-            //             if (response.text_part) {
-            //                 var body_text = $('#id_body_text');
-            //                 body_text.val(response.text_part);
-            //                 body_text.trigger('update');
-            //             }
-            //         } else {
-            //             $('#templateDialogMessage').html(response.errors['body_file']);
-            //             $("#templateDialog").dialog('open');
-            //         }
-            //     }, error: function(){
-            //         $("#errorDialog").dialog('open');
-            //     }
-            // });
-        }
+    HLInbox.initWysihtml5();
+    HLEmailTemplates.init({
+        parseEmailTemplateUrl: '{% url 'messaging_email_template_parse' %}',
+        openVariable: '{% templatetag openvariable %}',
+        closeVariable: '{% templatetag closevariable %}'
     });
 });
 </script>

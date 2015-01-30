@@ -4,6 +4,7 @@ import socket
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
+from django.db.models.fields.files import FieldFile
 from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
@@ -12,9 +13,10 @@ from lily.messaging.models import PRIVATE, SHARED
 from lily.contacts.models import Contact
 from lily.messaging.utils import get_messages_accounts
 from lily.messaging.email.models import (EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
-    OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment, DefaultEmailTemplate)
+                                         OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment, DefaultEmailTemplate,
+                                         EmailTemplateAttachment)
 from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, verify_imap_credentials,
-    verify_smtp_credentials)
+                                        verify_smtp_credentials)
 from lily.messaging.email.forms.widgets import EmailAttachmentWidget
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
@@ -193,7 +195,6 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
 
 
 class EmailAccountShareForm(HelloLilyModelForm):
-
     user_group = forms.ModelMultipleChoiceField(queryset=LilyUser.objects.none(), label=_('Share with'), required=False, widget=SelectMultiple(attrs={
         'placeholder': _('Select a user'),
     }))
@@ -211,9 +212,6 @@ class EmailAccountShareForm(HelloLilyModelForm):
             instance.shared_with = SHARED
         else:
             instance.shared_with = PRIVATE
-
-        print instance.pk
-        print instance.shared_with
 
         if commit:
             instance.save()
@@ -255,8 +253,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
     send_to_cc = TagsField(
@@ -267,8 +264,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
     send_to_bcc = TagsField(
@@ -279,8 +275,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=Contact,
-            filter_on='contacts_contact',
+            model=None,
         ),
     )
 
@@ -293,6 +288,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
+        self.from_contact = kwargs.pop('from_contact', None)
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         if self.message_type is not 'reply':
@@ -398,6 +394,12 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
 
+    attachments = FormSetField(
+        queryset=EmailTemplateAttachment.objects,
+        formset_class=modelformset_factory(EmailTemplateAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        template='email/formset_template_attachment.html'
+    )
+
     def __init__(self, *args, **kwargs):
         """
         Overload super().__init__ to change the appearance of the form and add parameter fields if necessary.
@@ -412,6 +414,8 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
                 self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+
+        self.fields['attachments'].initial = EmailTemplateAttachment.objects.filter(template_id=self.instance.id)
 
     def clean(self):
         """
@@ -450,16 +454,37 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
 
         if commit:
             instance.save()
+
+        for attachment_form in self.cleaned_data.get('attachments'):
+            attachment = attachment_form.cleaned_data.get('attachment', None)
+
+            if attachment:
+                if isinstance(attachment, FieldFile) and attachment_form.cleaned_data.get('DELETE'):
+                    # We can only delete attachments that exist, so check if it's a new file or an existing file
+                    attachment_form.instance.attachment.delete(save=False)
+                    attachment_form.instance.delete()
+                elif not attachment_form.cleaned_data.get('DELETE'):
+                    # If we're not deleting the attachment we can just save it
+                    attachment = attachment_form.save(commit=False)
+                    attachment.template = instance
+                    attachment.save()
+
         return instance
+
+    def is_multipart(self):
+        """
+        Return True since file uploads are possible.
+        """
+        return True
 
     class Meta:
         model = EmailTemplate
-        fields = ('name', 'subject', 'variables', 'values', 'body_html',)
+        fields = ('name', 'subject', 'variables', 'values', 'body_html', 'attachments')
         widgets = {
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'body_html': Wysihtml5Input(),
+            'body_html': Wysihtml5Input(attrs={'container_class': 'email-template-body'}),
         }
 
 
@@ -517,6 +542,7 @@ class EmailTemplateSetDefaultForm(HelloLilyModelForm):
                 'fields': ['default_for', ],
             }),
         )
+
 
 class EmailTemplateFileForm(HelloLilyForm):
     """

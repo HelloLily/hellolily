@@ -48,7 +48,7 @@ class FormSetField(Field):
             if self.error_messages and 'invalid' in self.error_messages:
                 raise ValidationError(self.error_messages['invalid'])
             else:
-                raise ValidationError(code='invalid', message=_('invalid input'))
+                raise ValidationError(code='invalid', message=_('Invalid input'))
 
     def clean(self, value):
         return super(FormSetField, self).clean(value)

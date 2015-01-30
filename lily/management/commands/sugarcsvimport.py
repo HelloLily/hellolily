@@ -67,7 +67,7 @@ E.g.:
 
     def handle(self, model, csvfile, tenant_pk, sugar='1', **kwargs):
         self.tenant_pk = tenant_pk
-        self.sugar_import = False
+        self.sugar_import = sugar == '1'
 
         if model in ['account', 'accounts']:
             logger.info('importing accounts started')
@@ -118,7 +118,7 @@ E.g.:
             reader = csv.DictReader(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             for row in reader:
                 yield row
-            # default_storage.delete(file_name)
+            default_storage.delete(file_name)
 
     def _create_account_data(self, values):
         """

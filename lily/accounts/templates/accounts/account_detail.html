@@ -31,7 +31,7 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span class="summary-data">{{ object.get_phone_number|default:_('Unknown') }}</span>
+                    <span class="summary-data">{{ object.phone_number|default:_('Unknown') }}</span>
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'E-mail address' %}</span>
@@ -120,7 +120,7 @@
                         <tr>
                             <td><a href="{% url 'contact_details' contact.pk %}">{{ contact.full_name }}</a></td>
                             <td>{{ contact.primary_email|default:_('Unknown') }}</td>
-                            <td>{{ contact.get_phone_number|default:_('Unknown') }}</td>
+                            <td>{{ contact.phone_number|default:_('Unknown') }}</td>
                         </tr>
                     {% empty %}
                         <tr>

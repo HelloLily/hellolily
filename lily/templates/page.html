@@ -132,7 +132,7 @@
         </li>
         <li class="start {% ifstartswith "account_list" %}active{% endifstartswith %}">
             <a href="{% url 'account_list' %}">
-            <i class="icon-briefcase"></i>
+            <i class="icon-building"></i>
             <span class="title">{% trans 'Accounts' %}</span>
             <span class="{% ifstartswith "account_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
@@ -154,7 +154,7 @@
         </li>
         <li class="start {% ifstartswith "case_list" %}active{% endifstartswith %}">
             <a href="{% url 'case_list' %}">
-            <i class="icon-archive"></i>
+            <i class="icon-briefcase"></i>
             <span class="title">{% trans 'Cases' %}</span>
             <span class="{% ifstartswith "case_list" %}selected{% else %}arrow{% endifstartswith %}"></span>
             </a>
@@ -193,6 +193,13 @@
     {% compressed_js 'ajax-submit' %}
     {% compressed_js 'forms' %} {# this also includes scripts used in quickbutton forms #}
     <script>
+        var currentUser = {
+            id: '{{ user.id }}',
+            firstName: '{{ user.first_name }}',
+            lastName: '{{ user.last_name }}',
+            email: '{{ user.email }}'
+        };
+
         $(function($){
             App.init();
             HLApp.init({

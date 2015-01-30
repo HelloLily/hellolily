@@ -32,9 +32,12 @@ class DealMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'assigned_to': {
+                'assigned_to_name': {
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
+                },
+                'assigned_to_id': {
+                    'type': 'integer',
                 },
                 'stage': {
                     'type': 'integer',
@@ -47,7 +50,10 @@ class DealMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'amount': {
+                'amount_once': {
+                    'type': 'float',
+                },
+                'amount_recurring': {
                     'type': 'float',
                 },
                 'modified': {
@@ -59,6 +65,9 @@ class DealMapping(BaseMapping):
                 'archived': {
                     'type': 'boolean',
                 },
+                'feedback_form_sent': {
+                    'type': 'boolean',
+                }
             }
         })
         return mapping
@@ -94,12 +103,16 @@ class DealMapping(BaseMapping):
             'body': obj.description,
             'account': obj.account_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
-            'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_id': obj.assigned_to.id,
             'stage': obj.stage,
-            'stage_name': Deal.STAGE_CHOICES[obj.stage][1],
-            'amount': obj.amount,
+            'stage_name': obj.get_stage_display(),
+            'amount_once': obj.amount_once,
+            'amount_recurring': obj.amount_recurring,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'created': obj.created,
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
+            'feedback_form_sent': obj.feedback_form_sent,
+            'new_business': obj.new_business
         }

@@ -77,30 +77,33 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                     pass
         return self._any_email_address
 
-    def get_work_phone(self):
+    @property
+    def work_phone(self):
         for phone in self.phone_numbers.all():
             if phone.type == 'work':
                 return phone
         return None
 
-    def get_mobile_phone(self):
+    @property
+    def mobile_phone(self):
         for phone in self.phone_numbers.all():
             if phone.type == 'mobile':
                 return phone
         return None
 
-    def get_phone_number(self):
+    @property
+    def phone_number(self):
         """
         Return a phone number for an account in the order of:
         - a work phone
         - mobile phone
         - any other existing phone number (except of the type fax or data)
         """
-        work_phone = self.get_work_phone()
+        work_phone = self.work_phone
         if work_phone:
             return work_phone
 
-        mobile_phone = self.get_mobile_phone()
+        mobile_phone = self.mobile_phone
         if mobile_phone:
             return mobile_phone
 
@@ -159,6 +162,8 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     def __unicode__(self):
         return self.full_name()
 
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
+                                 'work_phone', 'mobile_phone']
     class Meta:
         ordering = ['last_name', 'first_name']
         verbose_name = _('contact')

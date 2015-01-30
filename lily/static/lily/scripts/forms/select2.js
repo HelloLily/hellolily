@@ -64,11 +64,20 @@
                         data: function (term, page) { // page is the one-based page number tracked by Select2
                             var data = null;
                             if ($this.hasClass(cf.tagsAjaxClass)) {
+                                if (term === '') {
+                                    // elasticsearch breaks when the term is empty, so just look for non-empty results
+                                    term = '*';
+                                }
+                                // search for contacts and accounts containing the search term, but only those with an email address
+                                var filterQuery = '((_type:contacts_contact AND (name:' + term + ' OR email:' + term + ')) ' +
+                                                'OR (_type:accounts_account AND (name:' + term + ' OR email:' + term + '))) ' +
+                                                'AND email:*';
+
                                 data = {
-                                    q: term, // search term
-                                    filterquery: 'email:*', // only return contacts that have an email address
+                                    filterquery: filterQuery,
                                     size: cf.ajaxPageLimit, // page size
-                                    page: (page - 1) // page number, zero-based
+                                    page: (page - 1), // page number, zero-based
+                                    sort: '-modified' //sort modified descending
                                 };
                             }
                             else {
@@ -82,20 +91,23 @@
                             }
 
                             var filters = $this.data('filter-on');
-                            filters.split(',').forEach(function(filter) {
-                                if (filter.indexOf('id_') === 0) {
-                                    var filter_val = $('#'+filter).val();
-                                    var filter_name = filter.substring(3);
-                                    if (filter_name.indexOf('case_quickbutton_') === 0) {
-	                                    filter_name = filter.substring(20);
+                            if (typeof filters !== 'undefined' && filters !== '') {
+                                filters.split(',').forEach(function (filter) {
+                                    if (filter.indexOf('id_') === 0) {
+                                        var filter_val = $('#' + filter).val();
+                                        var filter_name = filter.substring(3);
+                                        if (filter_name.indexOf('case_quickbutton_') === 0) {
+                                            filter_name = filter.substring(20);
+                                        }
+                                        if (filter_val && filter_val > 0) {
+                                            data.filterquery += ' ' + filter_name + ':' + filter_val;
+                                        }
+                                    } else {
+                                        data.type = filter;
                                     }
-                                    if (filter_val && filter_val > 0) {
-                                        data.filterquery += ' '+filter_name+':'+filter_val;
-                                    }
-                                } else {
-                                    data.type = filter;
-                                }
-                            });
+                                });
+                            }
+
                             return data;
                         },
                         results: function (data, page) {
@@ -112,7 +124,9 @@
                                             var used_text = '"' + hit.name + '" <' + hit.email[i] + '>';
                                             // The displayed text
                                             var displayed_text = hit.name + ' <' + hit.email[i] + '>';
-                                            parsed_data.push({id: used_text, text: displayed_text});
+                                            // Select2 sends 'id' as the value, but we want to use the email
+                                            // So store the actual id (hit.id) under a different name
+                                            parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
                                         }
                                     }
                                 });

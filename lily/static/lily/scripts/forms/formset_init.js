@@ -27,7 +27,7 @@ $(function() {
         $(this).find('[data-formset-undo-delete]').toggleClass('hidden');
     });
 
-    $('body').on('click', '[data-formset-undo-delete]', function() {
+    $('body').on('click', '[data-formset-form] [data-formset-undo-delete]', function() {
         var formset = $(this).closest('[data-formset-form]');
 
         formset.find('[data-formset-disabled=true]').removeAttr('data-formset-disabled').removeAttr('readonly');

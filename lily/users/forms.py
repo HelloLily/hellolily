@@ -268,9 +268,9 @@ class InvitationForm(HelloLilyForm):
             raise ValidationError(code='invalid', message=_('This e-mail address is already linked to a user.'))
 
 
-## ------------------------------------------------------------------------------------------------
-## Formsets
-## ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# Formsets
+# ------------------------------------------------------------------------------------------------
 class RequiredFirstFormFormset(BaseFormSet):
     """
     This formset requires that the first form that is submitted is filled in.
@@ -317,7 +317,7 @@ class InvitationFormset(RequiredFirstFormFormset):
             if email and email in emails:
                 raise ValidationError(
                     code='invalid',
-                    message=_("You can't invite someone more than once (e-mail addresses must be unique).")
+                    message=_('You can\'t invite someone more than once (e-mail addresses must be unique).')
                 )
             emails.append(email)
 

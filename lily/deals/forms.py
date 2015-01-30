@@ -13,7 +13,7 @@ from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget
+from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 
 class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
@@ -65,7 +65,6 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         # the foreign key to contact (and maybe account) is filtered and executed before
         # the filter for the LilyUser. This way it's possible contacts (and maybe accounts)
         # won't be found for a user. But since it's a required field, an exception is raised.
-        #
         self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
 
@@ -87,13 +86,13 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
         fieldsets = (
             (_('For who is it?'), {
-                'fields': ('account', 'is_archived',),
+                'fields': ('account', 'is_archived', 'new_business'),
             }),
             (_('What is it?'), {
-                'fields': ('name', 'amount', 'currency', 'description',),
+                'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description'),
             }),
             (_('What\'s the status?'), {
-                'fields': ('stage', 'expected_closing_date', 'assigned_to',),
+                'fields': ('stage', 'expected_closing_date', 'assigned_to', 'feedback_form_sent'),
             }),
         )
 
@@ -106,6 +105,14 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
             }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
+            }),
+            'feedback_form_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
+            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
             }),
         }
 
@@ -132,7 +139,8 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
             'description',
             'account',
             'currency',
-            'amount',
+            'amount_once',
+            'amount_recurring',
             'expected_closing_date',
             'stage',
             'assigned_to',

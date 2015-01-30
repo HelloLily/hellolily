@@ -62,7 +62,8 @@ class CreateUpdateCaseForm(TagsFormMixin):
     assigned_to = forms.ModelChoiceField(
         label=_('Assigned to'),
         queryset=LilyUser.objects,
-        empty_label=None)
+        empty_label=_('Select a user'),
+        required=False)
 
     expires = forms.DateField(
         label=_('Expires'),
@@ -101,12 +102,13 @@ class CreateUpdateCaseForm(TagsFormMixin):
         # won't be found for a user. But since it's a required field, an exception is raised.
         user = get_current_user()
         self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=user.tenant)
-        self.fields['assigned_to'].initial = user
         self.fields['expires'].initial = datetime.today()
 
         # Setup parcel initial values
         self.fields['parcel_provider'].initial = Parcel.DPD
         self.fields['status'].initial = CaseStatus.objects.first()
+
+        self.fields['type'].queryset = CaseType.objects.filter(is_archived=False)
 
         if self.instance.parcel is not None:
             self.fields['parcel_provider'].initial = self.instance.parcel.provider
@@ -137,6 +139,9 @@ class CreateUpdateCaseForm(TagsFormMixin):
         """
         Check for parcel information and store in separate model
         """
+        if not self.instance.id:
+            self.instance.created_by = get_current_user()
+
         instance = super(CreateUpdateCaseForm, self).save(commit=commit)
 
         # Add parcel information

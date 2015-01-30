@@ -1,6 +1,6 @@
 {% load compressed bootstrap3 i18n %}
 
-<div>
+<div{% if attrs.container_class %} class="{{ attrs.container_class }}"{% endif %}>
     <div id="wysihtml5-toolbar" style="display: none;">
         <ul class="wysihtml5-toolbar">
             <li class="dropdown">

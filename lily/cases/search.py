@@ -111,6 +111,7 @@ class CaseMapping(BaseMapping):
             'contact': obj.contact_id if obj.contact else None,
             'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'created_by': obj.created_by.get_full_name() if obj.created_by else None,
             'priority': obj.priority,
             'priority_name': Case.PRIORITY_CHOICES[obj.priority][1],
             'status': obj.status.status,

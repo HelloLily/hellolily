@@ -13,7 +13,7 @@ from lily.users.models import LilyUser
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
-class CaseType(TenantMixin):
+class CaseType(TenantMixin, ArchivedMixin):
     type = models.CharField(max_length=255, db_index=True)
 
     def __unicode__(self):
@@ -49,17 +49,18 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
 
     type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True, blank=True, related_name='cases')
 
-    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
+    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), related_name='assigned_to', null=True, blank=True)
+    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'), related_name='created_by', null=True, blank=True)
 
-    account = models.ForeignKey(Account, verbose_name=_('account'), blank=True, null=True)
-    contact = models.ForeignKey(Contact, verbose_name=_('contact'), blank=True, null=True)
+    account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=True)
+    contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
 
     notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name=_('list of notes'))
 
     expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
 
-    parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), blank=True, null=True)
+    parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
 
     def __unicode__(self):
         return self.subject

@@ -98,6 +98,7 @@ class LilySearch(object):
                         'email',
                         'account_name',
                         'assigned_to',
+                        'created_by',
                         'subject',
                         'name',
                         'stage_name',

@@ -83,7 +83,7 @@ SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))
 # Prevent client side javascript from accessing session, for production this needs to be set to True
 SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0))
 SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 0))
-# Only allow iframes from our own domain, for production this needs to be set to DENY
+# Only allow iframes from our own domain, for production this needs to be set to SAMEORIGIN
 X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')
 ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
@@ -186,6 +186,8 @@ AUTHENTICATION_BACKENDS = (
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
+    'sslify.middleware.SSLifyMiddleware',  # Force all traffic over https
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

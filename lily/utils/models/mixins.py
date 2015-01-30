@@ -48,7 +48,7 @@ class Common(DeletedMixin, TenantMixin):
     @property
     def twitter(self):
         try:
-            twitter = self.social_media.filter(name='twitter')[0]
+            twitter = self.social_media.filter(name='twitter').first()
         except SocialMedia.DoesNotExist:
             pass
         else:
@@ -57,7 +57,7 @@ class Common(DeletedMixin, TenantMixin):
     @property
     def linkedin(self):
         try:
-            linkedin = self.social_media.filter(name='linkedin')[0]
+            linkedin = self.social_media.filter(name='linkedin').first()
         except SocialMedia.DoesNotExist:
             pass
         else:

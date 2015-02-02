@@ -99,18 +99,20 @@ or use an existent tenant if passed as an argument."""
         )
 
     def users(self, size, tenant):
-        user_list = LilyUserFactory.create_batch(size, tenant=tenant)
+        LilyUserFactory.create_batch(size, tenant=tenant)
+        user = LilyUserFactory.create(tenant=tenant, is_active=True)
         self.stdout.write('You can now login as a normal user in %(tenant)s with:\n%(email)s\n%(password)s\n' % {
             'tenant': tenant,
-            'email': user_list[0].email,
+            'email': user.email,
             'password': 'lilyuser'
         })
 
     def superusers(self, size, tenant):
-        user_list = LilySuperUserFactory.create_batch(size, tenant=tenant)
+        LilySuperUserFactory.create_batch(size, tenant=tenant)
+        user = LilySuperUserFactory.create(tenant=tenant, is_active=True)
         self.stdout.write('\nYou can now login as a superuser in %(tenant)s with:\n%(email)s\n%(password)s\n\n' % {
             'tenant': tenant,
-            'email': user_list[0].email,
+            'email': user.email,
             'password': 'lilysuperuser'
         })
 

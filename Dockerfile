@@ -10,7 +10,8 @@ RUN apt-get install -y \
     postgresql-server-dev-9.3 \
     libxml2-dev \
     libxslt1-dev \
-    libncurses5-dev
+    libncurses5-dev \
+    rsync
 
 RUN useradd docker
 RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers

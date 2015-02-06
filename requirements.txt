@@ -12,6 +12,7 @@ gevent==1.0.1
 greenlet==0.4.5
 gunicorn==19.1.1
 wsgiref==0.1.2
+django-sslify==0.2.5
 
 python-dateutil==2.3  # Old version is: 1.5
 pytz==2014.10  # Old version is: 2012c

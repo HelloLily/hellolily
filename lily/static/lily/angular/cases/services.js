@@ -20,6 +20,7 @@ angular.module('caseServices', [])
          * @param orderColumn string: current sorting of cases
          * @param orderedAsc {boolean}: current ordering
          * @param archived {boolean}: when true, only archived are fetched, if false, only active
+         * @param filterQuery {string}: contains the filters which are used in ElasticSearch
          *
          * @returns Promise object: when promise is completed:
          *      {
@@ -27,7 +28,21 @@ angular.module('caseServices', [])
          *          total int: total number of case objects
          *      }
          */
-        var getCases = function(queryString, page, pageSize, orderColumn, orderedAsc, archived) {
+        var getCases = function(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
+            // Check if there's a filter set
+            if (filterQuery !== '') {
+                // Check if we're looking for archived cases or not
+                if (archived) {
+                    filterQuery += ' AND archived:true';
+                }
+                else {
+                    filterQuery += ' AND archived:false';
+                }
+            }
+            else {
+                // Otherwise only check if we're displaying archived cases or not
+                filterQuery = archived ? 'archived:true' : 'archived:false';
+            }
 
             var sort = '';
             if (orderedAsc) sort += '-';
@@ -42,15 +57,24 @@ angular.module('caseServices', [])
                     page: page - 1,
                     size: pageSize,
                     sort: sort,
-                    filterquery: archived ? 'archived:true' : 'archived:false'
+                    filterquery: filterQuery
                 }
             })
-                .then(function(response) {
-                    return {
-                        cases: response.data.hits,
-                        total: response.data.total
-                    };
-                });
+            .then(function(response) {
+                return {
+                    cases: response.data.hits,
+                    total: response.data.total
+                };
+            });
+        };
+
+        Case.getCaseTypes = function () {
+            return $http({
+                url: '/cases/casetypes/',
+                method: 'GET'
+            }).then(function (response) {
+                return response.data.casetypes;
+            });
         };
 
         /**
@@ -65,7 +89,7 @@ angular.module('caseServices', [])
          *      }
          */
         Case.query = function(table) {
-            return getCases(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived);
+            return getCases(table.searchQuery, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived, table.filterQuery);
         };
 
         return Case;

@@ -15,6 +15,7 @@ from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 class CaseType(TenantMixin, ArchivedMixin):
     type = models.CharField(max_length=255, db_index=True)
+    use_as_filter = models.BooleanField(default=True)  # whether it shows in the filter list or not
 
     def __unicode__(self):
         return self.type

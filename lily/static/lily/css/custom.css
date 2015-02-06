@@ -455,6 +455,10 @@ label.required::after {
     background-color: #F0F0F0;
 }
 
+.list-filters {
+    width: 250px;
+}
+
 .radio-btns .btn.btn-primary:not(.active) {
     background-color: rgba(66, 139, 202, 0.65);
 }

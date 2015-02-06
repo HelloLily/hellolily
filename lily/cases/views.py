@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _, ungettext
+from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account
@@ -17,7 +18,7 @@ from lily.utils.views.mixins import HistoryListViewMixin, LoginRequiredMixin
 
 
 from .forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
-from .models import Case, CaseStatus
+from .models import Case, CaseStatus, CaseType
 
 
 class ListCaseView(LoginRequiredMixin, AngularView):
@@ -310,3 +311,22 @@ class UpdateStatusAjaxView(AjaxUpdateView):
         messages.success(self.request, message)
         # Return response
         return HttpResponse(json.dumps({'status': status.status}), content_type='application/json')
+
+
+class GetCaseTypesView(LoginRequiredMixin, View):
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        casetypes_objects = CaseType.objects.all()
+        casetypes = {}
+
+        for casetypes_object in casetypes_objects:
+            if casetypes_object.use_as_filter:
+                casetypes.update({
+                    casetypes_object.id: casetypes_object.type
+                })
+
+        return HttpResponse(anyjson.serialize({
+            'casetypes': casetypes,
+        }), content_type='application/json')
+

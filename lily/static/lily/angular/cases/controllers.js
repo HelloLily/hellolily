@@ -21,23 +21,22 @@ angular.module('caseControllers', [
         '$cookieStore',
         '$window',
         '$location',
-
         'Case',
         'Cookie',
-        function($scope, $cookieStore, $window, $location, Case, Cookie) {
-
+        'HLDate',
+        function($scope, $cookieStore, $window, $location, Case, Cookie, HLDate) {
             Cookie.prefix ='caseList';
 
-            // Setup filter
-            var filter = '';
+            // Setup search query
+            var searchQuery = '';
 
             // Check if filter is set as query parameter
             var search = $location.search().search;
             if (search != undefined) {
-                filter = search;
+                searchQuery = search;
             } else {
-                // Get filter from cookie
-                filter = Cookie.getCookieValue('filter', '');
+                // Get searchQuery from cookie
+                searchQuery = Cookie.getCookieValue('searchQuery', '');
             }
 
             /**
@@ -47,7 +46,7 @@ angular.module('caseControllers', [
                 page: 1,  // current page of pagination: 1-index
                 pageSize: 60,  // number of items per page
                 totalItems: 0, // total number of items
-                filter: filter,  // search filter
+                searchQuery: searchQuery,  // search query
                 archived: Cookie.getCookieValue('archived', false),
                 order:  Cookie.getCookieValue('order', {
                     ascending: true,
@@ -66,15 +65,73 @@ angular.module('caseControllers', [
                     tags: true
                 })};
 
+            getFilterList();
+
+            /**
+             * Gets the filter list. Is either the value in the cookie or a new list
+             *
+             * @returns filterList (object): object containing the filter list
+             */
+            function getFilterList () {
+                var filterListCookie = Cookie.getCookieValue('filterList', null);
+
+                if (!filterListCookie) {
+                    var filterList = [{
+                        name: 'Assigned to me',
+                        value: 'assigned_to_id:' + currentUser.id,
+                        selected: false
+                    },
+                    {
+                        name: 'Assigned to nobody',
+                        value: 'NOT(assigned_to_id:*)',
+                        selected: false
+                    },
+                    {
+                        name: 'Expired 7 days or more ago',
+                        value: 'expires:[* TO ' + HLDate.getSubtractedDate(7) + ']',
+                        selected: false
+                    },
+                    {
+                        name: 'Expired 30 days or more ago',
+                        value: 'expires:[* TO ' + HLDate.getSubtractedDate(30) + ']',
+                        selected: false
+                    }];
+
+                    // Update filterList for now
+                    $scope.filterList = filterList;
+
+                    Case.getCaseTypes().then(function (cases) {
+                        for (var key in cases) {
+                            if (cases.hasOwnProperty(key)) {
+                                filterList.push({
+                                    name: 'Case type ' + cases[key],
+                                    value: 'casetype_id:' + key,
+                                    selected: false
+                                });
+                            }
+                        }
+
+                        // Update filterList once AJAX call is done
+                        $scope.filterList = filterList;
+                        // Watch doesn't get triggered here, so manually call updateTableSettings
+                        updateTableSettings();
+                    });
+                }
+                else {
+                    // Cookie is set, so use it as the filterList
+                    $scope.filterList = filterListCookie;
+                }
+            }
 
             /**
              * updateTableSettings() sets scope variables to the cookie
              */
             function updateTableSettings() {
-                Cookie.setCookieValue('filter', $scope.table.filter);
+                Cookie.setCookieValue('searchQuery', $scope.table.searchQuery);
                 Cookie.setCookieValue('archived', $scope.table.archived);
                 Cookie.setCookieValue('order', $scope.table.order);
                 Cookie.setCookieValue('visibility', $scope.table.visibility);
+                Cookie.setCookieValue('filterList', $scope.filterList);
             }
 
             /**
@@ -100,8 +157,9 @@ angular.module('caseControllers', [
                 'table.page',
                 'table.order.column',
                 'table.order.ascending',
-                'table.filter',
-                'table.archived'
+                'table.searchQuery',
+                'table.archived',
+                'table.filterQuery'
             ], function() {
                 updateTableSettings();
                 updateCases();
@@ -116,16 +174,38 @@ angular.module('caseControllers', [
             });
 
             /**
-             * setFilter() sets the filter of the table
-             *
-             * @param queryString string: string that will be set as the new filter on the table
+             * Watches the filters so when the cookie is loaded,
+             * the filterQuery changes and a new set of deals is fetched
              */
-            $scope.setFilter = function(queryString) {
-                $scope.table.filter = queryString;
+            $scope.$watchCollection('filterList', function() {
+                $scope.updateFilterQuery();
+            });
+
+            /**
+             * setSearchQuery() sets the search query of the table
+             *
+             * @param queryString string: string that will be set as the new search query on the table
+             */
+            $scope.setSearchQuery = function(queryString) {
+                $scope.table.searchQuery = queryString;
             };
 
             $scope.toggleArchived = function() {
                 $scope.table.archived = !$scope.table.archived;
+            };
+
+            $scope.updateFilterQuery = function() {
+                $scope.table.filterQuery = '';
+                var filterStrings = [];
+
+                for (var i = 0; i < $scope.filterList.length; i++) {
+                    var filter = $scope.filterList[i];
+                    if (filter.selected) {
+                        filterStrings.push(filter.value);
+                    }
+                }
+
+                $scope.table.filterQuery = filterStrings.join(' AND ');
             }
         }
     ]

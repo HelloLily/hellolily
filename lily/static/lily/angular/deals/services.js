@@ -20,7 +20,7 @@ angular.module('dealServices', [])
          * @param orderColumn string: current sorting of deals
          * @param orderedAsc {boolean}: current ordering
          * @param archived {boolean}: when true, only archived are fetched, if false, only active
-         * @param filterQuery {string}:
+         * @param filterQuery {string}: contains the filters which are used in ElasticSearch
          *
          * @returns Promise object: when promise is completed:
          *      {
@@ -28,7 +28,7 @@ angular.module('dealServices', [])
          *          total int: total number of deal objects
          *      }
          */
-        var getDeals = function(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
+        var getDeals = function (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
             // Check if there's a filter set
             if (filterQuery !== '') {
                 // Check if we're looking for archived cases or not
@@ -59,8 +59,7 @@ angular.module('dealServices', [])
                     sort: sort,
                     filterquery: filterQuery
                 }
-            })
-            .then(function(response) {
+            }).then(function (response) {
                 return {
                     deals: response.data.hits,
                     total: response.data.total

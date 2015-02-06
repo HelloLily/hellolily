@@ -10,18 +10,24 @@
 {% block form %}
     <div class="portlet">
         <div class="portlet-title">
-             <div class="caption">{% trans 'Your email addresses' %}</div>
+             <div class="caption">{% trans 'Your email accounts' %}</div>
         </div>
         <div class="portlet-body">
             <div class="col-md-8">
                 <ul class="list-group">
-                    {% for email_address in user_email_addresses %}
+                    {% for email_account in user_email_accounts %}
                         {% include 'email/emailaccount_list_item.html' %}
+                    {% empty %}
+                        <li class="list-group-item">
+                            {% trans 'No email accounts setup.' %}
+                        </li>
                     {% endfor %}
                     <li class="list-group-item">
-                        <a href="javascript:void(0)" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_create' shared_with=email_private %}">
-                            {% trans 'Add an email address' %}
+                        <a href="{% url 'messaging_email_account_setup' %}" data-target="#emailaccount-modal">
+                            {% trans 'Add an email account' %}
                         </a>
+                        <br>
+                        <i>{% trans 'Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize' %}</i>
                     </li>
                 </ul>
             </div>
@@ -29,16 +35,16 @@
     </div>
     <div class="portlet">
         <div class="portlet-title">
-             <div class="caption">{% trans 'Email addresses shared with you' %}</div>
+             <div class="caption">{% trans 'Email accounts shared with you' %}</div>
         </div>
         <div class="portlet-body">
             <div class="col-md-8">
                 <ul class="list-group">
-                    {% for email_address in shared_email_addresses %}
+                    {% for email_account in shared_email_accounts %}
                         {% include 'email/emailaccount_list_item.html' %}
                     {% empty %}
                         <li class="list-group-item">
-                            {% trans 'No email addresses shared with you.' %}
+                            {% trans 'No email accounts shared with you.' %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -47,18 +53,24 @@
     </div>
     <div class="portlet">
         <div class="portlet-title">
-             <div class="caption">{% trans 'Company email addresses' %}</div>
+             <div class="caption">{% trans 'Company email accounts' %}</div>
         </div>
         <div class="portlet-body">
             <div class="col-md-8">
                 <ul class="list-group">
-                    {% for email_address in company_email_addresses %}
+                    {% for email_account in company_email_accounts %}
                         {% include 'email/emailaccount_list_item.html' %}
+                    {% empty %}
+                        <li class="list-group-item">
+                            {% trans 'No company wide email accounts.' %}
+                        </li>
                     {% endfor %}
                     <li class="list-group-item">
-                        <a href="javascript:void(0)" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_create' shared_with=email_public %}" title="{% trans 'Start wizard to set up incoming and outgoing email for this address' %}">
-                            {% trans 'Add an email address' %}
+                        <a href="{% url 'messaging_email_account_setup' %}" data-target="#emailaccount-modal">
+                            {% trans 'Add an email account' %}
                         </a>
+                        <br>
+                        <i>{% trans 'Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize' %}</i>
                     </li>
                 </ul>
             </div>

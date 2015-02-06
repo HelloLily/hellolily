@@ -93,32 +93,19 @@ E.g.:
         """
         Read from path assuming it's a file with ',' separated values.
         """
-        if self.sugar_import:
-            # Newlines are breaking correct csv parsing. Write correct temporary file to parse.
-            with TemporaryFile() as clear_file:
-                csv_file = default_storage.open(file_name, 'r')
-                previous_line = ''
-                for line in csv_file.readlines():
-                    previous_line += line.strip().replace('\r\n', ' ')
-                    if (previous_line[-1:] == '"' and previous_line[-2:] != '""') or previous_line[-3:] == ',""':
-                        clear_file.write(previous_line + '\n')
-                        previous_line = ''
-                csv_file.close()
-                default_storage.delete(file_name)
-                if previous_line:
-                    clear_file.write(previous_line)
-
-                clear_file.seek(0)
-
-                reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
-                for row in reader:
-                    yield row
-        else:
+        # Newlines are breaking correct csv parsing. Write correct temporary file to parse.
+        with TemporaryFile() as clear_file:
             csv_file = default_storage.open(file_name, 'rU')
-            reader = csv.DictReader(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            for line in csv_file.readlines():
+                clear_file.write(line.strip().replace('\r', ''))
+            csv_file.close()
+            default_storage.delete(file_name)
+
+            clear_file.seek(0)
+
+            reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
             for row in reader:
                 yield row
-            default_storage.delete(file_name)
 
     def _create_account_data(self, values):
         """
@@ -204,8 +191,16 @@ E.g.:
             self._create_social_media(account, 'twitter', values.get('Twitter'))
 
             user_name = values.get('Assigned User Name')
-            if user_name and user_name in self.fuser_mapping:
-                account.assigned_to = LilyUser.objects.get(email=self.user_mapping[user_name], tenant_id=self.tenant_pk)
+            if user_name and user_name in self.user_mapping:
+                try:
+                    account.assigned_to = LilyUser.objects.get(
+                        email=self.user_mapping[user_name],
+                        tenant_id=self.tenant_pk
+                    )
+                except LilyUser.DoesNotExist:
+                    logger.exception(u'Assignee does not exists as an LilyUser. %s' % user_name)
+            else:
+                logger.warning(u'Assignee does not have an usermapping. %s' % user_name)
 
             account.save()
             if created:

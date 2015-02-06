@@ -4,9 +4,19 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
+from rest_framework import routers
+
+from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
 
 
 admin.autodiscover()
+
+
+# Routers provide an easy way of automatically determining the URL conf.
+router = routers.DefaultRouter()
+router.register(r'messaging/email/label', EmailLabelViewSet)
+router.register(r'messaging/email/account', EmailAccountViewSet)
+router.register(r'messaging/email/email', EmailMessageViewSet)
 
 urlpatterns = patterns('',
     url(r'^accounts/', include('lily.accounts.urls', app_name='accounts')),
@@ -25,6 +35,10 @@ urlpatterns = patterns('',
     # Django admin urls
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Django rest
+    url(r'^api/', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 

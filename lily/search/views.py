@@ -49,6 +49,14 @@ class SearchView(LoginRequiredMixin, View):
         if query:
             search.query_common_fields(query)
 
+        account_related = request.GET.get('account_related', '')
+        if account_related:
+            search.account_related(int(account_related))
+
+        user_email_related = request.GET.get('user_email_related', '')
+        if user_email_related:
+            search.user_email_related(self.request.user)
+
         filterquery = request.GET.get('filterquery', '')
         if filterquery:
             search.filter_query(filterquery)

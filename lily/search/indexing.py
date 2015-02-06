@@ -117,7 +117,7 @@ def prepare_dict(arg_dict):
             new_dict[k] = '%sT00:00:00.000000+00:00' % str(v)
 
         # Dedup lists.
-        elif type(v) is list and len(v) > 1:
+        elif type(v) is list and len(v) > 1 and type(v[0]) is not dict:
             new_dict[k] = list(set(v))
 
     return new_dict

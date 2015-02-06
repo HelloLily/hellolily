@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ('deals', '0001_initial'),
+        ('updates', '0001_initial'),
+    )
+
     def forwards(self, orm):
         # Adding model 'LilyUser'
         db.create_table(u'users_lilyuser', (

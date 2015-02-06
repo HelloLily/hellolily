@@ -24,7 +24,7 @@ class Migration(SchemaMigration):
         db.alter_column('email_emailaccount', 'username', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES'))
 
         # Changing field 'EmailAccount.last_sync_date'
-        db.alter_column('email_emailaccount', 'last_sync_date', self.gf('django.db.models.fields.DateTimeField')(default='0000-00-00 00:00:00'))
+        db.alter_column('email_emailaccount', 'last_sync_date', self.gf('django.db.models.fields.DateTimeField')(default='2014-01-01 00:00:00'))
 
         # Changing field 'EmailAccount.password'
         db.alter_column('email_emailaccount', 'password', self.gf('django_fields.fields.EncryptedCharField')(max_length=549, cipher='AES'))

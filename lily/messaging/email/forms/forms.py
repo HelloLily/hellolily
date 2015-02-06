@@ -1,226 +1,64 @@
 import re
-import socket
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.db.models.fields.files import FieldFile
+from django.db.models import Q
 from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext as _
-from lily.messaging.models import PRIVATE, SHARED
 from lily.contacts.models import Contact
-from lily.messaging.utils import get_messages_accounts
-from lily.messaging.email.models import (EmailProvider, EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
-                                         OK_EMAILACCOUNT_AUTH, EmailOutboxAttachment, DefaultEmailTemplate,
-                                         EmailTemplateAttachment)
-from lily.messaging.email.utils import (get_email_parameter_choices, TemplateParser, verify_imap_credentials,
-                                        verify_smtp_credentials)
-from lily.messaging.email.forms.widgets import EmailAttachmentWidget
+
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
-from lily.utils.forms.fields import TagsField, HostnameField, FormSetField
+from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
+from .widgets import EmailAttachmentWidget
+from ..models import (EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
+                      EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
+from ..utils import get_email_parameter_choices, TemplateParser, get_messages_accounts
+
 
 class EmailAccountCreateUpdateForm(HelloLilyModelForm):
-    preset = forms.ModelChoiceField(
-        label=_('Email provider'),
-        queryset=EmailProvider.objects.none(),
-        empty_label=_('Set a custom email provider'),
-        required=False,
-    )
-    imap_host = HostnameField(max_length=255, label=_('Incoming server (IMAP)'), required=False)
-    imap_port = forms.IntegerField(label=_('Incoming port'), required=False)
-    imap_ssl = forms.BooleanField(label=_('Incoming SSL'), required=False)
-    smtp_host = HostnameField(max_length=255, label=_('Outgoing server (SMTP)'), required=False)
-    smtp_port = forms.IntegerField(label=_('Outgoing port'), required=False)
-    smtp_ssl = forms.BooleanField(label=_('Outgoing SSL'), required=False)
-
-    def __init__(self, *args, **kwargs):
-        self.shared_with = kwargs.pop('shared_with')
-        super(EmailAccountCreateUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['preset'].queryset = EmailProvider.objects.exclude(name=None)
-
-        if self.instance.pk:
-            self.fields['preset'].initial = self.instance.provider
-
-        # With new gmail api this should change, but for now is fine
-        self.fields['preset'].initial, created = EmailProvider.objects.get_or_create(
-            name='Gmail',
-            imap_host='imap.gmail.com',
-            imap_port=993,
-            imap_ssl=True,
-            smtp_host='smtp.gmail.com',
-            smtp_port=587,
-            smtp_ssl=True,
-        )
-
-    def clean(self):
-        cleaned_data = super(EmailAccountCreateUpdateForm, self).clean()
-
-        connection_settings_fields = ['imap_host', 'imap_port', 'imap_ssl', 'smtp_host', 'smtp_port', 'smtp_ssl']
-        connection_settings = {}
-
-        email = cleaned_data.get('email')
-        username = cleaned_data.get('username')
-        password = cleaned_data.get('password')
-        preset = cleaned_data.get('preset')
-
-        if preset:
-            # A preset is selected, discard what might have been filled in the custom connection settings.
-            for setting in connection_settings_fields:
-                connection_settings[setting] = getattr(preset, setting)
-        else:
-            # No preset is selected, use what the user filled in as custom connection settings.
-            for setting in connection_settings_fields:
-                field_value = cleaned_data.get(setting)
-
-                # For completeness sake always fill the connection_settings dict.
-                connection_settings[setting] = field_value
-
-                # If no preset is selected, all the connection settings fields are mandatory.
-                if not field_value:
-                    self._errors[setting] = self.error_class([_('This field is required.')])
-
-        # Check if the email address is already configured somewhere else.
-        try:
-            email_account = EmailAccount.objects.get(
-                email=email,
-                provider__imap_host=connection_settings['imap_host'],
-                provider__imap_port=connection_settings['imap_port'],
-                provider__imap_ssl=connection_settings['imap_ssl'],
-                provider__smtp_host=connection_settings['smtp_host'],
-                provider__smtp_port=connection_settings['smtp_port'],
-                provider__smtp_ssl=connection_settings['smtp_ssl'],
-                is_deleted=False,
-            )
-
-            if email_account != self.instance:
-                self._errors['email'] = self.error_class(
-                    [_('This account already exists, please use sharing options for access by multiple persons.')]
-                )
-        except EmailAccount.DoesNotExist:
-            pass
-
-        if not self.errors:
-            # Start verifying when the form has no errors.
-            defaulttimeout = socket.getdefaulttimeout()
-            socket.setdefaulttimeout(4)
-
-            try:
-                # Check IMAP
-                verify_imap_credentials(
-                    connection_settings['imap_host'],
-                    connection_settings['imap_port'],
-                    connection_settings['imap_ssl'],
-                    username,
-                    password,
-                )
-                # Check SMTP
-                verify_smtp_credentials(
-                    connection_settings['smtp_host'],
-                    connection_settings['smtp_port'],
-                    connection_settings['smtp_ssl'],
-                    username,
-                    password,
-                )
-            except ValidationError:
-                raise
-            finally:
-                socket.setdefaulttimeout(defaulttimeout)
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        preset = self.cleaned_data.get('preset')
-
-        try:
-            instance = EmailAccount.objects.get(
-                email=self.cleaned_data.get('email'),
-                provider__imap_host=self.cleaned_data.get('imap_host') or preset.imap_host,
-                provider__imap_port=self.cleaned_data.get('imap_port') or preset.imap_port,
-                provider__imap_ssl=self.cleaned_data.get('imap_ssl') or preset.imap_ssl,
-                provider__smtp_host=self.cleaned_data.get('smtp_host') or preset.smtp_host,
-                provider__smtp_port=self.cleaned_data.get('smtp_port') or preset.smtp_port,
-                provider__smtp_ssl=self.cleaned_data.get('smtp_ssl') or preset.smtp_ssl,
-
-            )
-            instance.is_deleted = False
-            instance.password = self.cleaned_data.get('password')
-            instance.label = self.cleaned_data.get('label')
-        except EmailAccount.DoesNotExist:
-            instance = super(EmailAccountCreateUpdateForm, self).save(commit=False)
-
-            if not preset:
-                provider, created = EmailProvider.objects.get_or_create(
-                    imap_host=self.cleaned_data.get('imap_host'),
-                    imap_port=self.cleaned_data.get('imap_port'),
-                    imap_ssl=self.cleaned_data.get('imap_ssl'),
-                    smtp_host=self.cleaned_data.get('smtp_host'),
-                    smtp_port=self.cleaned_data.get('smtp_port'),
-                    smtp_ssl=self.cleaned_data.get('smtp_ssl'),
-                )
-            else:
-                provider = preset
-
-            instance.provider = provider
-            instance.auth_ok = OK_EMAILACCOUNT_AUTH
-            instance.shared_with = self.shared_with
-            instance.owner = get_current_user()
-
-        if commit:
-            instance.save()
-
-        return instance
 
     class Meta:
         model = EmailAccount
         fieldsets = (
             (_('Your account'), {
-                'fields': ['from_name', 'label', 'email', ],
-            }), (_('Account credentials'), {
-                'fields': ['username', 'password', 'preset', ],
-            }), (_('Connection settings'), {
-                'fields': ['imap_host', 'imap_port', 'imap_ssl', 'smtp_host', 'smtp_port', 'smtp_ssl', ],
-                'classes': ['hidden', 'advanced_connection_settings'],
-            })
+                'fields': ['from_name', 'label', 'email_address', 'public'],
+            }),
         )
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
 
 
 class EmailAccountShareForm(HelloLilyModelForm):
-    user_group = forms.ModelMultipleChoiceField(queryset=LilyUser.objects.none(), label=_('Share with'), required=False, widget=SelectMultiple(attrs={
-        'placeholder': _('Select a user'),
-    }))
+    shared_with_users = forms.ModelMultipleChoiceField(
+        queryset=LilyUser.objects,
+        label=_('Share with'),
+        required=False,
+        widget=SelectMultiple(attrs={
+            'placeholder': _('Select a user'),
+        })
+    )
 
     def __init__(self, *args, **kwargs):
         super(EmailAccountShareForm, self).__init__(*args, **kwargs)
         user = get_current_user()
 
-        self.fields['user_group'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
-        self.fields['user_group'].help_text = _('To share with everybody create a company email address.')
 
-    def save(self, commit=True):
-        instance = super(EmailAccountShareForm, self).save(commit=False)
-        if self.cleaned_data.get('user_group'):
-            instance.shared_with = SHARED
-        else:
-            instance.shared_with = PRIVATE
-
-        if commit:
-            instance.save()
-            self.save_m2m()
-
-        return instance
+        self.fields['shared_with_users'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
 
     class Meta:
         model = EmailAccount
+        fieldsets = (
+            (_('Your account'), {
+                'fields': ['shared_with_users', 'public'],
+            }),
+        )
 
 
 class AttachmentBaseForm(HelloLilyModelForm):
@@ -253,7 +91,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=None,
+            model=Contact,
+            filter_on='contacts_contact',
         ),
     )
     send_to_cc = TagsField(
@@ -264,7 +103,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=None,
+            model=Contact,
+            filter_on='contacts_contact',
         ),
     )
     send_to_bcc = TagsField(
@@ -275,7 +115,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
                 'class': 'tags-ajax'
             },
             url=reverse_lazy('search_view'),
-            model=None,
+            model=Contact,
+            filter_on='contacts_contact',
         ),
     )
 
@@ -288,27 +129,30 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         self.draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
-        self.from_contact = kwargs.pop('from_contact', None)
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
         if self.message_type is not 'reply':
             self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
 
         user = get_current_user()
-        email_accounts = get_messages_accounts(user=user, model_cls=EmailAccount)
+        self.email_accounts = EmailAccount.objects.filter(
+            Q(owner=user) |
+            Q(shared_with_users=user) |
+            Q(public=True)
+        ).filter(tenant=user.tenant)
 
         # Only provide choices you have access to
-        self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in email_accounts]
+        self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]
         self.fields['send_from'].empty_label = None
 
         # Set user's primary_email as default choice if there is no initial value
         initial_email_account = self.initial.get('send_from', None)
         if not initial_email_account:
-            for email_account in email_accounts:
-                if email_account.email == user.email:
+            for email_account in self.email_accounts:
+                if email_account.email_address == user.email:
                     initial_email_account = email_account
         elif isinstance(initial_email_account, basestring):
-            for email_account in email_accounts:
+            for email_account in self.email_accounts:
                 if email_account.email == initial_email_account:
                     initial_email_account = email_account
 
@@ -369,8 +213,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         cleaned_data = self.cleaned_data
         send_from = cleaned_data.get('send_from')
 
-        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
-        if send_from.pk not in [account.pk for account in email_accounts]:
+        if send_from.pk not in [account.pk for account in self.email_accounts]:
             raise ValidationError(
                 _('Invalid email account selected to use as sender.'),
                 code='invalid',
@@ -493,7 +336,12 @@ class EmailTemplateSetDefaultForm(HelloLilyModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EmailTemplateSetDefaultForm, self).__init__(*args, **kwargs)
-        self.fields['default_for'].queryset = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount)
+        user = get_current_user()
+        self.fields['default_for'].queryset = EmailAccount.objects.filter(
+            Q(owner=user) |
+            Q(public=True) |
+            Q(shared_with_users__id=user.pk)
+        )
 
     def save(self, commit=True):
         default_for_data = self.cleaned_data.get('default_for')

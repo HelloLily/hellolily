@@ -1,18 +1,22 @@
 from random import randint, choice
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
-from factory.declarations import LazyAttribute
+from factory.declarations import LazyAttribute, SubFactory
 from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
 from faker.factory import Factory
 
-from lily.users.models import LilyUser
+from lily.tenant.factories import TenantFactory
+
+from .models import LilyUser
 
 
 faker = Factory.create()
 
 
 class LilyUserFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
     password = make_password('lilyuser')
 
     first_name = LazyAttribute(lambda o: faker.first_name())

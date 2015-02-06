@@ -25,7 +25,7 @@ from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext as _
 
 from lily.messaging.email.decorators import get_safe_template
-from lily.messaging.email.models import EmailAccount, EmailMessage
+from lily.messaging.email.models import EmailMessage
 from lily.messaging.utils import get_messages_accounts
 from lily.tenant.middleware import get_current_user
 from python_imap.errors import IMAPConnectionError
@@ -33,10 +33,40 @@ from python_imap.folder import INBOX
 from python_imap.server import IMAP
 from taskmonitor.models import TaskStatus
 from taskmonitor.utils import resolve_annotations
+from oauth2client.django_orm import Storage
+
+
+from .models import GmailCredentialsModel, EmailAccount
+from .services import build_gmail_service
 
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
+
+
+#######################################################################################################################
+# NEW                                                                                                                 #
+#######################################################################################################################
+
+def create_account(credentials, user):
+    # Setup service to retrieve email address
+    service = build_gmail_service(credentials)
+    response = service.users().getProfile(userId='me').execute()
+
+    # Create account based on email address
+    account = EmailAccount.objects.get_or_create(
+        owner=user,
+        email_address=response.get('emailAddress'))[0]
+
+    # Store credentials based on new email account
+    storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')
+    storage.put(credentials)
+
+    # Set account as authorized
+    account.is_authorized = True
+    account.is_deleted = False
+    account.save()
+    return account
 
 
 def get_field_names(field):
@@ -98,17 +128,6 @@ def get_email_parameter_choices():
                             }
                         })
     return _EMAIL_PARAMETER_CHOICES
-
-
-def get_folder_unread_count(folder, email_accounts=None):
-    """
-    Return the number of unread email messages in folder for given email accounts.
-    """
-    from lily.messaging.email.models import EmailAccount, EmailMessage  # prevent circular dependency
-    if email_accounts is None:
-        email_accounts = get_messages_accounts(user=get_current_user(), model_cls=EmailAccount).get_real_instances()
-
-    return EmailMessage.objects.filter(Q(folder_identifier=folder) | Q(folder_name=folder), account__in=email_accounts, is_seen=False).count()
 
 
 class TemplateParser(object):
@@ -268,7 +287,7 @@ class EmailMultiRelated(EmailMultiAlternatives):
     def __init__(self, subject='', body='', from_email=None, to=None, bcc=None,
                  connection=None, attachments=None, headers=None, alternatives=None, cc=None):
         self.related_attachments = []
-        return super(EmailMultiRelated, self).__init__(subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc)
+        super(EmailMultiRelated, self).__init__(subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc)
 
     def attach_related(self, filename=None, content=None, mimetype=None):
         """
@@ -449,10 +468,8 @@ def email_auth_update(user):
     Check if there is an email account for the user that needs a new password.
     """
     should_update = EmailAccount.objects.filter(
-        is_deleted=False,
-        auth_ok=False,
+        is_authorized=False,
         tenant=user.tenant,
-        user_group__pk=user.pk,
     ).exists()
 
     return should_update

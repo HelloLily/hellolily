@@ -553,6 +553,7 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
         path = self.write_to_tmp(form.cleaned_data.get('csvfile'))
 
         sugar_import = form.cleaned_data.get('sugar_import')
+
         import_sugar_csv.apply_async(args=(
             form.cleaned_data.get('model'),
             path,

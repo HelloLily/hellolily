@@ -8,9 +8,6 @@
             inboxBccInput: '.inbox-compose .mail-to .inbox-bcc',
             singleMessageSelector: '.inbox-content .view-message',
             templateField: '#id_template',
-            mailGroupCheckbox: '.mail-group-checkbox',
-            singleInboxCheckbox: '.mail-checkbox:not(.mail-group-checkbox)',
-            searchFormSubmit: '.search-form [type="submit"]',
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             wysiHtmlToolbar: '#wysihtml5-toolbar',
             replyButton: '.reply-btn',
@@ -64,25 +61,11 @@
                 .on('click', cf.singleMessageSelector, function () {
                     self.openMessage.call(self, this);
                 })
-                .on('change', cf.mailGroupCheckbox, function () {
-                    self.toggleGroupCheckbox.call(self, this);
-                })
-                .on('change', cf.singleInboxCheckbox, function () {
-                    // Handle single checkbox toggle
-                    $(this).parents('tr').toggleClass('active');
-
-                    self.toggleActionsButton();
-                    self.updateBulkIds();
-                })
                 .on('click', cf.replyButton, function () {
                     // Open links when clicking the reply button
                     $('.inbox-view').hide();
                     $('.inbox-loading').show();
                     HLApp.redirectTo($(this).data('href'));
-                })
-                .on('click', cf.searchFormSubmit, function () {
-                    App.blockUI($('.inbox-content'), false, '');
-                    $(this).button('loading');
                 })
                 .on('click', cf.inboxComposeSubmit, function (event) {
                     self.handleInboxComposeSubmit(this, event);

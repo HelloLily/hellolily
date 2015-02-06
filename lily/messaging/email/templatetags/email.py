@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import urllib
 from datetime import datetime
-from email.utils import getaddresses
 
 from dateutil.tz import gettz, tzutc
 from dateutil.parser import parse
@@ -11,8 +10,6 @@ from django.core.urlresolvers import reverse
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
-
-from lily.messaging.email.utils import get_folder_unread_count
 
 register = template.Library()
 
@@ -95,46 +92,6 @@ def pretty_datetime_relative(time, format=None):
             return _('%s (%d hours ago)') % (result, (s/3600))
 
 
-class UnreadMessagesNode(template.Node):
-    def __init__(self, folder, accounts=None):
-        self.folder = folder
-        self.accounts = accounts
-
-    def render(self, context):
-        folder = self.folder.resolve(context)
-        accounts = self.accounts
-        if self.accounts is not None:
-            accounts = self.accounts.resolve(context)
-            if not isinstance(accounts, list):
-                accounts = [accounts]
-
-        return get_folder_unread_count(folder, accounts)
-
-
-@register.tag(name='unread_emails_folder_count')
-def unread_emails_folder_count(parser, token):
-    """
-    Template tag as an interface to *get_folder_unread_count*
-    """
-    try:
-        # Parse folder from arguments
-        tag_name, folder = token.split_contents()
-        folder = template.Variable(folder)
-    except ValueError:
-        try:
-            # Parse folder and email account from arguments
-            tag_name, folder, accounts = token.split_contents()
-            folder = template.Variable(folder)
-            accounts = template.Variable(accounts)
-        except ValueError:
-            raise template.TemplateSyntaxError("%r tag requires either one or two arguments" % token.contents.split()[0])
-    else:
-        # Allow all accounts
-        accounts = None
-
-    return UnreadMessagesNode(folder=folder, accounts=accounts)
-
-
 @register.filter(name='other_mailbox_folders')
 def other_mailbox_folders(email_account, active_url):
     def filter_other_folders(folder_tree):
@@ -165,7 +122,6 @@ def other_mailbox_folders(email_account, active_url):
             else:
                 folder_name = u'''%(folder_name)s (%(unread_emails_count)s)''' % {
                     'folder_name': folder_name,
-                    'unread_emails_count': get_folder_unread_count(folder_name, email_accounts=[email_account]),
                 }
 
             html += u'''<div class="tree-folder">
@@ -199,7 +155,6 @@ def other_mailbox_folders(email_account, active_url):
                 'tree_item_class': 'tree-selected' if is_endpoint else '',
                 'data_href': data_href,
                 'folder_name': folder_name,
-                'unread_emails_count': get_folder_unread_count(folder_name, email_accounts=[email_account]),
             }
 
         return is_active, html

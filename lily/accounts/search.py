@@ -1,6 +1,9 @@
+from lily.accounts.models import Website
 from lily.contacts.models import Function
 from lily.search.base_mapping import BaseMapping
+from lily.socialmedia.models import SocialMedia
 from lily.tags.models import Tag
+from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 from .models import Account
 
@@ -26,33 +29,66 @@ class AccountMapping(BaseMapping):
                     },
                 },
             }],
-            'properties': {
-                'name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_ngram_analyzer',
+        })
+        mapping['properties'].update({
+            'name': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'contact': {
+                'type': 'integer'
+            },
+            'email': {
+                'type': 'string',
+                'index_analyzer': 'email_analyzer',
+            },
+            'tag': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'assigned_to': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'created': {
+                'type': 'date',
+            },
+            'modified': {
+                'type': 'date',
+            },
+            'description': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'website': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'address_full': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'address': {
+                'type': 'object',
+                'index': 'no',
+                'properties': {
+                    'address_street': {'type': 'string'},
+                    'address_street_number': {'type': 'integer'},
+                    'address_complement': {'type': 'string'},
+                    'address_postal_code': {'type': 'string'},
+                    'address_city': {'type': 'string'},
+                    'address_country': {'type': 'string'},
                 },
-                'contact': {
-                    'type': 'integer'
+            },
+            'social': {
+                'type': 'object',
+                'index': 'no',
+                'properties': {
+                    'social_name': {'type': 'string'},
+                    'social_url': {'type': 'string'},
+                    'social_profile': {'type': 'string'},
                 },
-                'email': {
-                    'type': 'string',
-                    'index_analyzer': 'email_analyzer',
-                },
-                'tag': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'assigned_to': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'created': {
-                    'type': 'date',
-                },
-                'modified': {
-                    'type': 'date',
-                },
-            }
+            },
         })
         return mapping
 
@@ -64,6 +100,11 @@ class AccountMapping(BaseMapping):
         return {
             Function: lambda obj: [obj.account],
             Tag: lambda obj: [obj.subject],
+            Website: lambda obj: [obj.account],
+            EmailAddress: lambda obj: obj.account_set.all(),
+            PhoneNumber: lambda obj: obj.account_set.all(),
+            Address: lambda obj: obj.account_set.all(),
+            SocialMedia: lambda obj: obj.account_set.all(),
             # LilyUser saves every login, which will trigger reindex of all related accounts.
             # LilyUser: lambda obj: obj.account_set.all(),
         }
@@ -77,6 +118,8 @@ class AccountMapping(BaseMapping):
             'tags',
             'email_addresses',
             'phone_numbers',
+            'social_media',
+            'addresses',
             'functions__contact',
             'assigned_to',
         )
@@ -94,6 +137,22 @@ class AccountMapping(BaseMapping):
             'contact': [contact.id for contact in obj.get_contacts()],
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'description': obj.description,
+            'website': [website.website for website in obj.websites.all()],
+            'address': [{
+                'address_street': address.street,
+                'address_street_number': address.street_number,
+                'address_complement': address.complement,
+                'address_postal_code': address.postal_code,
+                'address_city': address.city,
+                'address_country': address.get_country_display()
+            } for address in obj.addresses.all()],
+            'social': [{
+                'social_name': soc.get_name(),
+                'social_profile': soc.username,
+                'social_url': soc.profile_url
+            } for soc in obj.social_media.all()],
+            'address_full': [address.full() for address in obj.addresses.all()],
         }
 
         phones = obj.phone_numbers.all()

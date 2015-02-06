@@ -1,0 +1,73 @@
+{% load i18n utils %}
+
+{% verbatim %}
+<ul class="timeline" id="history-list">
+    <li ng-repeat="item in history" ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email}" class="history-list-item">
+        <div ng-if="::item.note">
+            <div class="timeline-time time-right">
+                <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
+                    <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                    <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+                </a>
+            </div>
+            <div class="timeline-icon icon-right">
+                <i class="icon-comment"></i>
+            </div>
+            <div class="timeline-body body-right">
+                <h2>Note</h2>
+                <div class="timeline-content">
+                    <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
+                </div>
+                <div class="timeline-footer">
+                    <a ng-href="/notes/update/{{ ::item.id }}/" class="nav-link pull-right" data-target="#object-update" data-source="/notes/update/{{ ::item.id }}/">
+                        Edit<i class="icon-edit"></i>
+                    </a>
+                    <a href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
+                        Delete<i class="icon-trash"></i>
+                    </a>
+                    <br/><br/>
+                    <i class="icon-user"></i>
+                    {{ ::item.author }}
+                </div>
+            </div>
+        </div>
+        <div ng-if="::item.email">
+            <div class="timeline-time" ng-class="{'time-right': item.right}">
+                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+            </div>
+            <div class="timeline-icon" ng-class="{'icon-right': item.right}">
+                <i class="icon-envelope"></i>
+            </div>
+            <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
+            {{::item.date}}
+                <h2>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></h2>
+                <div class="timeline-content">{{ left }}
+                    <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
+                </div>
+                <div class="timeline-footer">
+                    <a href="javascript:alert('TODO')" class="nav-link pull-right">
+                        Reply
+                        <i class="icon-reply"></i>
+                    </a>
+                    <a href="javascript:alert('TODO')" class="nav-link pull-right">
+                        Forward
+                        <i class="icon-arrow-right"></i>
+                    </a>
+                    <a href="/messaging/email/#/detail/{{ ::item.id }}" class="nav-link pull-right">
+                        View
+                        <i class="icon-envelope"></i>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class="icon-user"></i>
+                        <span>{{ ::item.sender_name }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </li>
+</ul>
+<p class="text-center">
+    <button ng-click="loadHistoryFromButton()" class="btn btn-primary margin-top-20">{{ showMoreText }}</button>
+</p>
+{% endverbatim %}

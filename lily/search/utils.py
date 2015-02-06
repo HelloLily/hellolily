@@ -1,5 +1,9 @@
 from django.conf import settings
+from django.db.models.query_utils import Q
+
 from elasticutils import S
+from lily.accounts.models import Account
+from lily.messaging.email.models.models import EmailAccount
 
 
 class LilySearch(object):
@@ -106,6 +110,21 @@ class LilySearch(object):
                         'type',
                         'phone_*',
                         'contact_name',
+                        'account_email',
+                        'sender_email_address',
+                        'sender_name',
+                        'received_by_email_address',
+                        'received_by_name',
+                        'received_by_cc_email_address',
+                        'received_by_cc_name',
+                        'subject',
+                        'snippet',
+                        'message_id',
+                        'thread_id',
+                        'body',
+                        'content',
+                        'author',
+                        'about_name',
                     ],
                 },
             }
@@ -126,6 +145,58 @@ class LilySearch(object):
                 }
             }
         })
+
+    def account_related(self, account_id):
+        """
+        Search email related to an account.
+
+        Args:
+            account_id (integer): search with this account's email addresses
+        """
+        account = Account.objects.get(id=account_id)
+        emails = [email.email_address for email in account.email_addresses.all() if email.email_address]
+        contacts = account.get_contacts()
+        for contact in contacts:
+            contact_emails = [email.email_address for email in contact.email_addresses.all() if email.email_address]
+            emails.extend(contact_emails)
+        if not emails:
+            # Disable results if no email at all for account.
+            self.raw_filters.append({
+                'limit': {
+                    'value': 0
+                }
+            })
+            return
+        # Enclose emails with quotes.
+        emails = ['"%s"' % email for email in emails]
+        join = ' OR '.join(emails)
+        filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
+        self.filter_query(filterquery)
+
+    def user_email_related(self, user):
+        """
+        Search emails that the user is allowed to see.
+
+        Args:
+            user (User): The user to use with the search
+        """
+        email_accounts = EmailAccount.objects.filter(
+            Q(owner=user) |
+            Q(public=True) |
+            Q(shared_with_users__id=user.pk)
+        )
+        if not email_accounts:
+            # Disable results if no email at all for account.
+            self.raw_filters.append({
+                'limit': {
+                    'value': 0
+                }
+            })
+            return
+        email_accounts = ['"%s"' % email.email_address for email in email_accounts]
+        join = ' OR '.join(email_accounts)
+        filterquery = 'account_email:(%s)' % join
+        self.filter_query(filterquery)
 
     def get_by_id(self, id_arg):
         """

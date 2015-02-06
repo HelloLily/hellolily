@@ -1,23 +1,34 @@
-import email
-import textwrap
-
+import anyjson
 from bs4 import BeautifulSoup
+from email.header import Header
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
+import logging
+import mimetypes
+import os
+import textwrap
+import traceback
+
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
+from django.core.files.storage import default_storage
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from django.template.defaultfilters import truncatechars
-from django_extensions.db.fields.json import JSONField
 from django_extensions.db.models import TimeStampedModel
-from django.utils.translation import ugettext as _
-from django_fields.fields import EncryptedCharField
-from python_imap.folder import DRAFTS
+from django.utils.translation import ugettext_lazy as _
+from oauth2client.django_orm import CredentialsField
 from python_imap.utils import convert_html_to_text
 
-from lily.messaging.models import Message, MessagesAccount
-from lily.tenant.models import TenantMixin, NullableTenantMixin
+from lily.tenant.models import TenantMixin
+from lily.users.models import LilyUser
+from lily.utils.models.mixins import DeletedMixin
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_attachment_upload_path(instance, filename):
@@ -41,173 +52,109 @@ def get_template_attachment_upload_path(instance, filename):
     }
 
 
-class EmailProvider(NullableTenantMixin):
+class EmailAccount(TenantMixin, DeletedMixin):
     """
-    A provider contains the connection information for an account.
+    Email Account linked to a user
     """
-    name = models.CharField(max_length=30, blank=True, null=True)  # named providers can be selected to pre-fill the form.
-    imap_host = models.CharField(max_length=32)
-    imap_port = models.PositiveIntegerField()
-    imap_ssl = models.BooleanField(default=False)
-    smtp_host = models.CharField(max_length=32)
-    smtp_port = models.PositiveIntegerField()
-    smtp_ssl = models.BooleanField(default=False)
+    email_address = models.EmailField(max_length=254)
+    from_name = models.CharField(max_length=254, default='')
+    label = models.CharField(max_length=254, default='')
+    is_authorized = models.BooleanField(default=False)
+
+    # History id is a field to keep track of the sync status of a gmail box
+    history_id = models.BigIntegerField(null=True)
+    temp_history_id = models.BigIntegerField(null=True)
+
+    owner = models.ForeignKey(LilyUser, related_name='email_accounts_owned')
+    shared_with_users = models.ManyToManyField(
+        LilyUser,
+        related_name='shared_email_accounts',
+        help_text=_('Select the users wich to share the account with.'),
+        blank=True,
+    )
+    public = models.BooleanField(default=False, help_text=_('Make the email account accessible for the whole company.'))
 
     def __unicode__(self):
-        return self.imap_host if self.name and len(self.name.strip()) == 0 else self.name or ''
+        return u'%s  (%s)' % (self.label, self.email_address)
+
+    def is_owned_by_user(self):
+        return True
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail provider')
-        verbose_name_plural = _('e-mail providers')
 
 
-NO_EMAILACCOUNT_AUTH, OK_EMAILACCOUNT_AUTH, UNKNOWN_EMAILACCOUNT_AUTH = range(3)
-EMAILACCOUNT_AUTH_CHOICES = (
-    (NO_EMAILACCOUNT_AUTH, _('No (working) credentials')),
-    (OK_EMAILACCOUNT_AUTH, _('Working credentials')),
-    (UNKNOWN_EMAILACCOUNT_AUTH, _('Credentials needs testing')),
-)
-
-
-class EmailAccount(MessagesAccount):
+class GmailCredentialsModel(models.Model):
     """
-    An e-mail account.
+    OAuth2 credentials for gmail api
     """
-    from_name = models.CharField(max_length=255, help_text=_('The sender\'s name your recipients see.'))
-    label = models.CharField(max_length=255, blank=True, help_text=_('Give your account a custom name (optional).'))
-    email = models.EmailField(max_length=255, help_text=_('The email address, used to identify you.'))
-    username = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
-    password = EncryptedCharField(max_length=255, cipher='AES', block_type='MODE_CBC')
-    auth_ok = models.IntegerField(choices=EMAILACCOUNT_AUTH_CHOICES, default=UNKNOWN_EMAILACCOUNT_AUTH)
-    provider = models.ForeignKey(EmailProvider, related_name='email_accounts')
-    last_sync_date = models.DateTimeField(default=None, null=True)
-    folders = JSONField()
-
-    def __unicode__(self):
-        return self.label or self.email
+    id = models.ForeignKey(EmailAccount, primary_key=True)
+    credentials = CredentialsField()
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail account')
-        verbose_name_plural = _('e-mail accounts')
-        ordering = ['email']
 
 
-class EmailMessage(Message):
+class EmailLabel(models.Model):
     """
-    A single e-mail message.
+    Label for EmailAccount and EmailMessage
     """
-    uid = models.IntegerField()  # unique id on the server
-    flags = models.TextField(blank=True, null=True)
-    body_html = models.TextField(blank=True, null=True)
-    body_text = models.TextField(blank=True, null=True)
-    size = models.IntegerField(default=0, null=True)  # size in bytes
-    folder_name = models.CharField(max_length=255, db_index=True)
-    folder_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    is_private = models.BooleanField(default=False)
+    LABEL_SYSTEM, LABEL_USER = range(2)
+    LABEL_TYPES = (
+        (LABEL_SYSTEM, _('System')),
+        (LABEL_USER, _('User')),
+    )
+
+    account = models.ForeignKey(EmailAccount, related_name='labels')
+    label_type = models.IntegerField(choices=LABEL_TYPES, default=LABEL_SYSTEM)
+    label_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    unread = models.PositiveIntegerField(default=0)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'email'
+
+
+class Recipient(models.Model):
+    """
+    Name and email address of a recipient
+    """
+    name = models.CharField(max_length=1000, null=True)
+    email_address = models.CharField(max_length=1000, null=True, db_index=True)
+
+    def __unicode__(self):
+        return u'%s <%s>' % (self.name, self.email_address)
+
+    class Meta:
+        app_label = 'email'
+        unique_together = ('name', 'email_address')
+
+
+class EmailMessage(models.Model):
+    """
+    EmailMessage has all information from an email message
+    """
     account = models.ForeignKey(EmailAccount, related_name='messages')
-    sent_from_account = models.BooleanField(default=False)
-    message_identifier = models.CharField(max_length=255)  # Message-ID header
-    is_deleted = models.BooleanField(default=False, db_index=True)
-
-    def get_list_item_template(self):
-        """
-        Return the template that must be used for history list rendering
-        """
-        return 'email/emailmessage_historylistitem.html'
-
-    def has_attachments(self):
-        return self.attachments.count() > 0
-
-    def get_conversation(self):
-        """
-        Return the entire conversation this message is a part of.
-        """
-        messages = []
-        message = self.headers.filter(name='In-Reply-To')
-        while message is not None:
-            messages.append(message)
-            try:
-                message_id = message.headers.filter(name='In-Reply-To')
-                message = EmailMessage.objects.get(header__name='MSG-ID', header_value=message_id)
-            except EmailMessage.DoesNotExist:
-                message = None
-
-        return messages
-
-    def textify(self):
-        """
-        Return a plain text version of the html body, and optionally replace <br> tags with line breaks (\n).
-        """
-        return self.body_text or convert_html_to_text(self.body_html, keep_linebreaks=True)
-
-    def htmlify(self):
-        """
-        Return a html version of the text body, and optionally replace line breaks (\n) with <br> tags.
-        """
-        if self.body_text:
-            return self.body_text.replace('\n', '<br />')
-        return None
-
-    def get_email_operation_icon(self):
-        """
-        Return an icon which corresponds to the operation (sent, forward, reply, reply all) of the email
-        """
-        if not hasattr(self, '_in_reply_to_headers'):
-            self._in_reply_to_headers = self.headers.filter(name__iexact='In-Reply-To')
-
-        from_email = self.from_email
-        operation = None
-
-        # If this header is present, it's a reply to another email
-        if self._in_reply_to_headers.exists():
-            subject = self.subject
-            # Check if it's a forwarded email
-            if subject.lower().startswith('fwd:'):
-                operation = 'forward'
-            else:
-                # Check if this reply is sent to a single or multiple recipients
-                to_emails = self.to_emails(include_names=False)
-                to_cc = self.to_cc_combined
-
-                if len(to_emails) == 1 and not to_cc:
-                    operation = 'reply'
-                elif len(to_emails) > 1 or to_cc:
-                    operation = 'reply-all'
-        elif from_email == self.account.email:
-            # If the sender is the user's email it's just a sent email
-            operation = 'sent'
-
-        return {
-            'forward': 'icon-share-alt',  # TODO: Temp icon, change to fa-share once we upgrade to FontAwesome 4
-            'reply': 'icon-reply',
-            'reply-all': 'icon-reply-all',
-            'sent': 'icon-location-arrow',  # TODO: Temp icon, change to fa-paper-plane once we upgrade to FontAwesome 4
-        }.get(operation)
+    labels = models.ManyToManyField(EmailLabel, related_name='messages')
+    sender = models.ForeignKey(Recipient, related_name='sent_messages')
+    received_by = models.ManyToManyField(Recipient, related_name='received_messages')
+    received_by_cc = models.ManyToManyField(Recipient, related_name='received_messages_as_cc')
+    message_id = models.CharField(max_length=50, db_index=True)
+    thread_id = models.CharField(max_length=50, db_index=True)
+    sent_date = models.DateTimeField(db_index=True)
+    read = models.BooleanField(default=False, db_index=True)
+    subject = models.TextField(default='')
+    snippet = models.TextField(default='')
+    has_attachment = models.BooleanField(default=False)
+    body_html = models.TextField(default='')
+    body_text = models.TextField(default='')
 
     @property
-    def indented_body(self):
-        """
-        Return an indented version of the body, preferably the html part, but in case that doesn't exist the text part.
-        This indented version of the body can be used to reply or forward an e-mail message.
-        """
-        if self.body_html:
-            # In case of html, wrap body in blockquote tag.
-            soup = BeautifulSoup(self.body_html)
-            if soup.html is None:
-                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)  # haven't figured out yet how to do this elegantly..
-
-            soup.html.wrap(soup.new_tag('blockquote', type='cite'))
-            soup.html.unwrap()
-            return soup.decode()
-        elif self.body_text:
-            # In case of plain text, prepend '>' to every line of body.
-            indented_body = textwrap.wrap(self.body_text, 80)
-            indented_body = ['> %s' % line for line in indented_body]
-            return '<br />'.join(indented_body)
-        else:
-            return ''
+    def tenant_id(self):
+        return self.account.tenant_id
 
     @property
     def reply_body(self):
@@ -232,172 +179,33 @@ class EmailMessage(Message):
         else:
             return ''
 
-    @property
-    def subject(self):
-        if hasattr(self, '_subject_header'):
-            header = self._subject_header
-        else:
-            try:
-                header = self.headers.get(name='Subject')
-            except MultipleObjectsReturned:
-                header = self.headers.filter(name='Subject').first()
-            except ObjectDoesNotExist:
-                header = ''
-            self._subject_header = header.value if header else ''
-
-        return self._subject_header
-
-    def to_emails(self, include_names=True, include_self=False):
-        if hasattr(self, '_to_headers'):
-            headers = self._to_headers
-        else:
-            # For some reason certain headers are in the database twice, so get unique headers
-            headers = self.headers.filter(name='To').order_by('name').distinct('name')
-            self._to_headers = headers
-
-        if headers:
-            to_emails = []
-            to_names = []
-            own_email_address = self.account.email
-            for header in headers:
-                for address in email.utils.getaddresses(header.value.split(',')):
-                    # The name is allowed to be empty, email address is not
-                    if (include_self or (address[0] != own_email_address and address[1] != own_email_address)) and address[1]:
-                        # If there's no name available, use the email address
-                        if include_names:
-                            to_names.append(address[0])
-                        to_emails.append(address[1])
-            if include_names:
-                return zip(to_names, to_emails)
-            else:
-                return to_emails
-        return u'<%s>' % _(u'No address')
-
-    @property
-    def to_combined(self):
-        if hasattr(self, '_to_headers'):
-            headers = self._to_headers
-        else:
-            headers = self.headers.filter(name='To')
-            self._to_headers = headers
-
-        if headers:
-            to = []
-            for header in headers[0].value.split(','):
-                parts = email.utils.parseaddr(header)
-                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to.append(u'"%s" <%s>' % (parts[0], parts[1]))
-                elif len(parts[1]) > 0:
-                    to.append(u'%s' % parts[1])
-                elif len(parts[0]) > 0:
-                    to.append(u'"%s"' % parts[0])
-
-            return u', '.join(to)
-        return u''
-
-    @property
-    def to_cc_combined(self):
-        if hasattr(self, '_to_cc_headers'):
-            headers = self._to_cc_headers
-        else:
-            headers = self.headers.filter(name='Cc')
-            self._to_cc_headers = headers
-
-        if headers:
-            to_cc = []
-            for header in headers[0].value.split(','):
-                parts = email.utils.parseaddr(header)
-                if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                    to_cc.append(u'"%s" <%s>' % (parts[0], parts[1]))
-                elif len(parts[1]) > 0:
-                    to_cc.append(u'%s' % parts[1])
-                elif len(parts[0]) > 0:
-                    to_cc.append(u'"%s"' % parts[0])
-
-            return u', '.join(to_cc)
-        return u''
-
-    @property
-    def from_combined(self):
-        if hasattr(self, '_from_header'):
-            header = self._from_header
-        else:
-            header = self.headers.filter(name='From')
-            self._from_header = header
-
-        if header:
-            parts = email.utils.parseaddr(header[0].value)
-            if len(parts[0].strip()) > 0 and len(parts[1].strip()) > 0:
-                from_combi = '"%s" <%s>' % (parts[0], parts[1])
-            elif len(parts[1]) > 0:
-                from_combi = '%s' % parts[1]
-            else:
-                from_combi = '"%s"' % parts[0]
-
-            return from_combi
-        return u''
-
-    @property
-    def from_name(self):
-        if hasattr(self, '_from_header'):
-            header = self._from_header
-        else:
-            header = self.headers.filter(name='From')
-            self._from_header = header
-
-        if header:
-            return email.utils.parseaddr(header[0].value)[0]
-        return u''
-
-    @property
-    def from_email(self):
-        if hasattr(self, '_from_header'):
-            header = self._from_header
-        else:
-            header = self.headers.filter(name='From')
-            self._from_header = header
-
-        if header:
-            return email.utils.parseaddr(header[0].value)[1]
-        return u'<%s>' % _(u'No address')
-
-    @property
-    def is_plain(self):
-        header = self.headers.filter(name='Content-Type')
-        if header:
-            return header[0].value.startswith('text/plain')
-        return False
-
-    @property
-    def is_draft(self):
-        return DRAFTS in self.flags or self.folder_identifier == DRAFTS
-
-    @property
-    def is_readable(self):
-        """
-        Boolean set to True if emailmessage is in db or should be fetchable from IMAP.
-        """
-        if self.body_html is None or not self.body_html.strip() and (self.body_text is None or not self.body_text.strip()):
-            if not self.account.is_deleted:
-                return self.account.auth_ok is OK_EMAILACCOUNT_AUTH
-        return True
+    class Meta:
+        app_label = 'email'
+        unique_together = ('account', 'message_id')
+        ordering = ['-sent_date']
 
     def __unicode__(self):
-        return u'%s - %s'.strip() % (email.utils.parseaddr(self.from_email), truncatechars(self.subject, 130))
+        return u'%s: %s' % (self.sender, self.snippet)
+
+
+class EmailHeader(models.Model):
+    """
+    Headers for an EmailMessage
+    """
+    message = models.ForeignKey(EmailMessage, related_name='headers')
+    name = models.CharField(max_length=100)
+    value = models.TextField()
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.name, self.value)
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail message')
-        verbose_name_plural = _('e-mail messages')
-        unique_together = ('uid', 'folder_name', 'account')
-        index_together = [
-            ['folder_name', 'account'],
-        ]
 
 
-class EmailAttachment(TenantMixin):
+class EmailAttachment(models.Model):
     """
-    A single attachment linked to an e-mail message.
+    Email attachment for an EmailMessage
     """
     inline = models.BooleanField(default=False)
     attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
@@ -409,75 +217,14 @@ class EmailAttachment(TenantMixin):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail attachment')
-        verbose_name_plural = _('e-mail attachments')
 
 
-class EmailHeader(models.Model):
+class NoEmailMessageId(models.Model):
     """
-    A single e-mail header linked to an e-mail message.
-    Most common are: 'to', 'from' and 'content-type'.
+    Place to store message_ids that are not an email
     """
-    name = models.CharField(max_length=255, db_index=True)
-    value = models.TextField(null=True)
-    message = models.ForeignKey(EmailMessage, related_name='headers')
-
-    def __unicode__(self):
-        return u'%s - %s' % (self.name, self.value)
-
-    class Meta:
-        app_label = 'email'
-
-
-class EmailAddress(models.Model):
-    email_address = models.CharField(max_length=1000, db_index=True)
-
-    class Meta:
-        app_label = 'email'
-
-
-class EmailAddressHeader(TenantMixin):
-    """
-    A simplified header with just the name of the header and the email address from the value of the header.
-    """
-    name = models.CharField(max_length=255, db_index=True)
-    value = models.TextField(null=True, db_index=True)
-    email_address = models.ForeignKey(EmailAddress, null=True)
-    message = models.ForeignKey(EmailMessage)
-    sent_date = models.DateTimeField(null=True, db_index=True)
-    message_identifier = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-
-    def __unicode__(self):
-        return u'%s - %s' % (self.name, self.value)
-
-    class Meta:
-        app_label = 'email'
-
-
-class EmailLabel(models.Model):
-    """
-    A single label in which an e-mail message can be linked to.
-    """
-    name = models.CharField(max_length=50)
-    message = models.ForeignKey(EmailMessage, related_name='labels')
-
-    class Meta:
-        app_label = 'email'
-
-
-class ActionStep(TenantMixin):
-    """
-    ActionStep helping decide the order in which to process e-mail messages.
-    """
-    LOW, NORMAL, HIGH = range(3)
-    ACTION_STEP_PRIO = (
-        (LOW, _('Low priority')),
-        (NORMAL, _('Normal priority')),
-        (HIGH, _('High priority'))
-    )
-    priority = models.IntegerField()
-    done = models.BooleanField(default=False)
-    message = models.ForeignKey(EmailMessage)
+    account = models.ForeignKey(EmailAccount, related_name='no_messages')
+    message_id = models.CharField(max_length=50, db_index=True)
 
     class Meta:
         app_label = 'email'
@@ -574,13 +321,157 @@ class EmailDraft(TimeStampedModel):
 
 class EmailOutboxMessage(TenantMixin, models.Model):
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
-    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='outbox_messages')
-    to = models.TextField(verbose_name=_('To'))
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
+    to = models.TextField(verbose_name=_('to'))
     cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
     bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
     body = models.TextField(null=True, blank=True, verbose_name=_('html body'))
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
+
+    def message(self):
+        from ..utils import EmailMultiRelated, get_attachment_filename_from_url
+
+        to = anyjson.loads(self.to)
+        cc = anyjson.loads(self.cc)
+        bcc = anyjson.loads(self.bcc)
+
+        if self.send_from.from_name:
+            # Add account name to From header if one is available
+            from_email = '"%s" <%s>' % (
+                Header(u'%s' % self.send_from.from_name, 'utf-8'),
+                self.send_from.email_address
+            )
+        else:
+            # Otherwise only add the email address
+            from_email = self.send_from.email_address
+
+        message_data = dict(
+            subject=self.subject,
+            from_email=from_email,
+            to=to,
+            cc=cc,
+            bcc=bcc,
+            headers=anyjson.loads(self.headers),
+            body=convert_html_to_text(self.body, keep_linebreaks=True),
+        )
+
+        if self.mapped_attachments != 0:
+            # Attach an HTML version as alternative to *body*
+            email_message = EmailMultiAlternatives(**message_data)
+        else:
+            # Use multipart/related when sending inline images
+            email_message = EmailMultiRelated(**message_data)
+
+        email_message.attach_alternative(self.body, 'text/html')
+
+        attachments = self.attachments.all()
+
+        for attachment in attachments:
+            try:
+                storage_file = default_storage._open(attachment.attachment.name)
+            except IOError, e:
+                logger.error(traceback.format_exc(e))
+                return False
+
+            filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+            storage_file.open()
+            content = storage_file.read()
+            storage_file.close()
+
+            content_type, encoding = mimetypes.guess_type(filename)
+            if content_type is None or encoding is not None:
+                content_type = 'application/octet-stream'
+            main_type, sub_type = content_type.split('/', 1)
+
+            if main_type == 'text':
+                msg = MIMEText(content, _subtype=sub_type)
+            elif main_type == 'image':
+                msg = MIMEImage(content, _subtype=sub_type)
+            elif main_type == 'audio':
+                msg = MIMEAudio(content, _subtype=sub_type)
+            else:
+                msg = MIMEBase(main_type, sub_type)
+                msg.set_payload(content)
+
+            msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(filename))
+
+            email_message.attach(msg)
+
+        return email_message.message()
+
+    def message(self):
+        from ..utils import EmailMultiRelated, get_attachment_filename_from_url
+
+        to = anyjson.loads(self.to)
+        cc = anyjson.loads(self.cc)
+        bcc = anyjson.loads(self.bcc)
+
+        if self.send_from.from_name:
+            # Add account name to From header if one is available
+            from_email = '"%s" <%s>' % (
+                Header(u'%s' % self.send_from.from_name, 'utf-8'),
+                self.send_from.email_address
+            )
+        else:
+            # Otherwise only add the email address
+            from_email = self.send_from.email_address
+
+        message_data = dict(
+            subject=self.subject,
+            from_email=from_email,
+            to=to,
+            cc=cc,
+            bcc=bcc,
+            headers=anyjson.loads(self.headers),
+            body=convert_html_to_text(self.body, keep_linebreaks=True),
+        )
+
+        if self.mapped_attachments != 0:
+            # Attach an HTML version as alternative to *body*
+            email_message = EmailMultiAlternatives(**message_data)
+        else:
+            # Use multipart/related when sending inline images
+            email_message = EmailMultiRelated(**message_data)
+
+        email_message.attach_alternative(self.body, 'text/html')
+
+        attachments = self.attachments.all()
+
+        for attachment in attachments:
+            try:
+                storage_file = default_storage._open(attachment.attachment.name)
+            except IOError, e:
+                logger.error(traceback.format_exc(e))
+                return False
+
+            filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+            storage_file.open()
+            content = storage_file.read()
+            storage_file.close()
+
+            content_type, encoding = mimetypes.guess_type(filename)
+            if content_type is None or encoding is not None:
+                content_type = 'application/octet-stream'
+            main_type, sub_type = content_type.split('/', 1)
+
+            if main_type == 'text':
+                msg = MIMEText(content, _subtype=sub_type)
+            elif main_type == 'image':
+                msg = MIMEImage(content, _subtype=sub_type)
+            elif main_type == 'audio':
+                msg = MIMEAudio(content, _subtype=sub_type)
+            else:
+                msg = MIMEBase(main_type, sub_type)
+                msg.set_payload(content)
+
+            msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(filename))
+
+            email_message.attach(msg)
+
+        return email_message.message()
 
     class Meta:
         app_label = 'email'

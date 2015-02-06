@@ -19,7 +19,7 @@ from lily.search.utils import LilySearch
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView
-from lily.utils.views.mixins import (HistoryListViewMixin, ExportListViewMixin, LoginRequiredMixin)
+from lily.utils.views.mixins import ExportListViewMixin, LoginRequiredMixin
 
 from .forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from .models import Account, Website
@@ -137,84 +137,11 @@ class JsonAccountListView(LoginRequiredMixin, JsonListView):
         return queryset.filter(is_deleted=False)
 
 
-class DetailAccountView(LoginRequiredMixin, HistoryListViewMixin):
+class DetailAccountView(LoginRequiredMixin, AngularView):
     """
-    Display a detail page for a single account.
+    Display the details of an account.
     """
-    model = Account
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        This is a copy from HistoryListViewMixin.
-        """
-        if is_ajax(request):
-            self.template_name = 'utils/historylist.html'
-
-        return super(DetailAccountView, self).dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        """
-        Prefetch related objects to reduce lazy lookups.
-        """
-        qs = super(DetailAccountView, self).get_queryset()
-        qs = qs.prefetch_related('functions__contact__functions',
-                                 'functions__contact__email_addresses',
-                                 'functions__contact__phone_numbers')
-        return qs
-
-    def get_notes_list(self, filter_date):
-        """
-        Returns an object list containing all notes and all messages related
-        to this Account. For the Account overview we also want to show all
-        notes and messages related to Contacts related to this Account.
-
-        Arguments:
-            filter_date (datetime): date before the message must be sent.
-
-        Returns:
-            A filtered Notes QuerySet.
-        """
-        account_content_type = ContentType.objects.get_for_model(self.model)
-        contact_content_type = ContentType.objects.get_for_model(Contact)
-
-        contact_ids = Contact.objects.filter(functions__account_id=self.object.pk).values_list('pk', flat=True)
-
-        # Build initial list with just notes.
-        # TODO: replace _default_manager with objects when Polymorphic works.
-        notes_list = Note._default_manager.filter(
-            (
-                Q(content_type=account_content_type) &
-                Q(object_id=self.object.pk)
-            ) |
-            (
-                Q(content_type=contact_content_type) &
-                Q(object_id__in=contact_ids)
-            )
-        ).filter(is_deleted=False)
-
-        if filter_date:
-            notes_list = notes_list.filter(sort_by_date__lt=filter_date)
-
-        return notes_list
-
-    def get_related_email_addresses_for_object(self):
-        # Get email addresses from related contacts.
-        email_address_list = []
-        for contact in self.object.get_contacts():
-            email_address_list.extend(contact.email_addresses.all())
-
-        # Add email addresses of Account.
-        email_address_list.extend(self.object.email_addresses.all())
-
-        return email_address_list
-
-    def get_context_data(self, **kwargs):
-        kwargs = super(DetailAccountView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'email_count': self.get_emails_list().count(),
-        })
-
-        return kwargs
+    template_name = 'accounts/account_detail.html'
 
 
 class CreateUpdateAccountMixin(LoginRequiredMixin):

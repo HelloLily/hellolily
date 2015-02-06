@@ -1,7 +1,39 @@
 /**
  * caseServices is a container for all case related Angular services
  */
-angular.module('caseServices', [])
+angular.module('caseServices', ['ngResource'])
+
+    /**
+     * $resource for Case model, now only used for detail page.
+     */
+    .factory('CaseDetail', ['$resource', function($resource) {
+        return $resource(
+            '/search/search/?type=cases_case&filterquery=id\::id',
+            {},
+            {
+                get: {
+                    transformResponse: function(data) {
+                        data = angular.fromJson(data);
+                        if (data && data.hits && data.hits.length > 0) {
+                            var obj = data.hits[0];
+                            return obj;
+                        }
+                        return null;
+                    }
+                },
+                totalize: {
+                    url: '/search/search/?type=cases_case&size=0&filterquery=:filterquery',
+                    transformResponse: function(data) {
+                        data = angular.fromJson(data);
+                        if (data && data.total) {
+                            return {total: data.total};
+                        }
+                        return {total: 0};
+                    }
+                }
+            }
+        );
+    }])
 
     /**
      * Case Service makes it possible to get Cases from search backend

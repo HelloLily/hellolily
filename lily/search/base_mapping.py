@@ -17,6 +17,9 @@ class BaseMapping(MappingType, Indexable):
             '_all': {
                 'enabled': False,
             },
+            '_source': {
+                'excludes': [],
+            },
             'properties': {
                 'tenant': {
                     'type': 'integer',
@@ -53,3 +56,7 @@ class BaseMapping(MappingType, Indexable):
         Translate an object to an index document.
         """
         raise NotImplementedError
+
+    @classmethod
+    def has_deleted(cls):
+        return True

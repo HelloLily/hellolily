@@ -13,7 +13,7 @@ class Migration(DataMigration):
             account.save()
 
     def backwards(self, orm):
-        raise RuntimeError("It is not possible to reset the data via this migration, because of automatic encryption by the EncryptedCharField.")
+        pass
 
     models = {
         'accounts.account': {

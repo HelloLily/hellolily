@@ -13,10 +13,12 @@ PIPELINE_CSS = {
             'metronic/css/style-metronic.css',
             'metronic/fonts/font.css',
             'metronic/css/style.css',
+            'metronic_new/css/layout.css',
             'metronic/css/style-responsive.css',
             'metronic/css/plugins.css',
             'metronic/css/themes/default.css',
             'lily/css/custom.css',
+            'metronic_new/css/custom.css',  # Should me merged with above after complete theme update
         ),
         'output_filename': 'compiled/css/metronic-theme.css',
     },
@@ -32,6 +34,7 @@ PIPELINE_CSS = {
     'font-awesome': {
         'source_filenames': (
             'metronic/plugins/font-awesome/css/font-awesome.css',
+            'metronic_new/plugins/font-awesome/css/font-awesome.css',
         ),
         'output_filename': 'compiled/css/font-awesome.css',
     },
@@ -134,7 +137,7 @@ PIPELINE_CSS = {
     },
     'inbox': {
         'source_filenames': (
-            'metronic/css/pages/inbox.css',
+            'metronic_new/css/pages/inbox.css',
             'email/css/inbox.css',
         ),
         'output_filename': 'compiled/css/inbox.css',
@@ -305,8 +308,11 @@ PIPELINE_JS = {
     'angularapp': {
         'source_filenames': (
             'lily/angular/angular-1.3.5/angular.js',
+            'lily/angular/angular-1.3.5/angular-resource.js',
             'lily/angular/angular-1.3.5/angular-cookies.js',
+            'lily/angular/angular-1.3.5/angular-resource.js',
             'lily/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
+            'lily/angular/angular-ui-router/angular-ui-router.js',
             'lily/angular/app.js',
             'lily/angular/directives.js',
             'lily/angular/filters.js',
@@ -319,6 +325,9 @@ PIPELINE_JS = {
             'lily/angular/contacts/controllers.js',
             'lily/angular/deals/services.js',
             'lily/angular/deals/controllers.js',
+            'lily/angular/email/services.js',
+            'lily/angular/email/controllers.js',
+            'lily/angular/notes/services.js',
         ),
         'output_filename': 'compiled/js/angularapp.js',
     },

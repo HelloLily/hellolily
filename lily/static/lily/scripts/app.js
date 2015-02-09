@@ -104,6 +104,11 @@ if (typeof String.prototype.endsWith != 'function') {
                 })
                 .on('click', cf.archiveButton, function(event) {
                     self.switchArchivedForm.call(self, event);
+                })
+                .on('submit', 'form', function() {
+                    // Make sure current form is blocked
+                    App.blockUI(this, false, '');
+                    $('.btn.btn-primary[name="submit"]').button('loading');
                 });
 
             $(window).on('resize', function() {

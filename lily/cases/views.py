@@ -317,14 +317,13 @@ class GetCaseTypesView(LoginRequiredMixin, View):
     http_method_names = ['get']
 
     def get(self, request, *args, **kwargs):
-        casetypes_objects = CaseType.objects.all()
+        casetypes_objects = CaseType.objects.filter(is_archived=False, use_as_filter=True)
         casetypes = {}
 
         for casetypes_object in casetypes_objects:
-            if casetypes_object.use_as_filter:
-                casetypes.update({
-                    casetypes_object.id: casetypes_object.type
-                })
+            casetypes.update({
+                casetypes_object.id: casetypes_object.type
+            })
 
         return HttpResponse(anyjson.serialize({
             'casetypes': casetypes,

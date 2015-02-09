@@ -27,3 +27,11 @@ td .label-success {
     /* Low priority */
     background-color: #afe4F5;
 }
+
+.assign-me-btn {
+    float: right;
+}
+
+.assign-me-btn:hover {
+    text-decoration: none;
+}

@@ -2,6 +2,11 @@
 
 {% load i18n compressed %}
 
+{% block css %}
+    {{ block.super }}
+    {% compressed_css 'cases' %}
+{% endblock %}
+
 {% block head-title %}
 {% if object.pk %}
     {% trans 'Edit case' %}
@@ -32,10 +37,12 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'cases'  %}
+    {% compressed_js 'cases' %}
     <script>
         HLCases.init({
             caseUpdateUrl: "{% url 'case_update_status_short' %}"
         });
+
+        HLCases.addAssignToMeButton();
     </script>
 {% endblock %}

@@ -139,6 +139,18 @@ PIPELINE_CSS = {
         ),
         'output_filename': 'compiled/css/inbox.css',
     },
+    'accounts': {
+        'source_filenames': (
+            'accounts/css/accounts.css',
+        ),
+        'output_filename': 'compiled/css/accounts.css',
+    },
+    'contacts': {
+        'source_filenames': (
+            'contacts/css/contacts.css',
+        ),
+        'output_filename': 'compiled/css/contacts.css',
+    },
 }
 
 PIPELINE_JS = {

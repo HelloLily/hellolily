@@ -10,20 +10,28 @@ td .label-sm {
 
 td .label-danger {
     /* Critical priority */
-    background-color: #ff0000;
+    background-color: #00008b;
 }
 
 td .label-warning {
     /* High priority */
-    background-color: #ff6b00;
+    background-color: #0000ff;
 }
 
 td .label-info {
     /* Medium priority */
-    background-color: #aa8833;
+    background-color: #32bbed;
 }
 
 td .label-success {
     /* Low priority */
-    background-color: #ffd633;
+    background-color: #afe4F5;
+}
+
+.assign-me-btn {
+    float: right;
+}
+
+.assign-me-btn:hover {
+    text-decoration: none;
 }

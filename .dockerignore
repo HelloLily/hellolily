@@ -1,5 +1,7 @@
 .git
 bin
+dist-packages
+dockers
 lily
 locale
 python_imap

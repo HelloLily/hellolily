@@ -8,7 +8,8 @@
             statusSpan: '#status',
             statusDiv: '#case-status',
             parcelProviderSelect: '#id_parcel_provider',
-            parcelIdentifierInput: '#id_parcel_identifier'
+            parcelIdentifierInput: '#id_parcel_identifier',
+            assignedToField: '#id_assigned_to'
         },
 
         init: function(config) {
@@ -75,6 +76,18 @@
             if (!$select.val()) {
                 $(this.config.parcelIdentifierInput).val('');
             }
+        },
+
+        addAssignToMeButton: function() {
+            var self = this;
+            var assignToMeButton = $('<button class="btn btn-link assign-me-btn">Assign to me</button>');
+
+            $(self.config.assignedToField).after(assignToMeButton);
+
+            assignToMeButton.click(function (event) {
+                event.preventDefault();
+                $(self.config.assignedToField).val(currentUser.id).change();
+            });
         }
     }
 })(jQuery, window, document);

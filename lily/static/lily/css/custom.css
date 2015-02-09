@@ -454,3 +454,38 @@ label.required::after {
 .dropdown-checkboxes .checker:hover {
     background-color: #F0F0F0;
 }
+
+.list-filters {
+    width: 250px;
+}
+
+.radio-btns .btn.btn-primary:not(.active) {
+    background-color: rgba(66, 139, 202, 0.65);
+}
+
+.table-fixed-layout {
+    table-layout: fixed;
+}
+
+.table-fixed-layout td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.table-fixed-layout th.width-4 {
+    width: 4%;
+}
+
+.table-fixed-layout th.width-10 {
+    width: 10%;
+}
+
+.table-fixed-layout th.width-20 {
+    width: 20%;
+}
+
+.table-fixed-layout th.width-22 {
+    width: 22%;
+}
+

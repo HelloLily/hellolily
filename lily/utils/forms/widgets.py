@@ -297,7 +297,7 @@ class BootstrapRadioFieldRenderer(RadioFieldRenderer):
                 'label': choice.choice_label,
             }
 
-        return mark_safe(u'''<div class="btn-group" data-toggle="buttons">%s</div>''' % buttons_html)
+        return mark_safe(u'''<div class="btn-group radio-btns" data-toggle="buttons">%s</div>''' % buttons_html)
 
 
 class FormSetWidget(Widget):

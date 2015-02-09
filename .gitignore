@@ -10,6 +10,7 @@
 .settings/
 .DS_Store
 .idea/
+dist-packages/
 
 celerybeat-schedule
 celeryev.pid

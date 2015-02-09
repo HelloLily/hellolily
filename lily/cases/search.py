@@ -1,5 +1,5 @@
 from lily.accounts.models import Account
-from lily.cases.models import Case
+from lily.cases.models import Case, CaseType
 from lily.contacts.models import Contact
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
@@ -40,9 +40,12 @@ class CaseMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'assigned_to': {
+                'assigned_to_name': {
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
+                },
+                'assigned_to_id': {
+                    'type': 'integer',
                 },
                 'priority': {
                     'type': 'integer',
@@ -59,9 +62,12 @@ class CaseMapping(BaseMapping):
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
                 },
-                'type': {
+                'casetype_name': {
                     'type': 'string',
                     'index_analyzer': 'normal_edge_analyzer',
+                },
+                'casetype_id': {
+                    'type': 'integer',
                 },
                 'expires': {
                     'type': 'date',
@@ -110,13 +116,15 @@ class CaseMapping(BaseMapping):
             'account_name': obj.account.name if obj.account else None,
             'contact': obj.contact_id if obj.contact else None,
             'contact_name': obj.contact.full_name() if obj.contact else None,
-            'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'created_by': obj.created_by.get_full_name() if obj.created_by else None,
             'priority': obj.priority,
             'priority_name': Case.PRIORITY_CHOICES[obj.priority][1],
             'status': obj.status.status,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'type': obj.type.type if obj.type else None,
+            'casetype_name': obj.type.type if obj.type else None,
+            'casetype_id': obj.type.id if obj.type else None,
             'expires': obj.expires,
             'archived': obj.is_archived,
         }

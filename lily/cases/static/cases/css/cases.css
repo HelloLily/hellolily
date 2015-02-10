@@ -32,6 +32,7 @@ td .label-success {
     float: right;
 }
 
+.assign-me-btn:focus,
 .assign-me-btn:hover {
     text-decoration: none;
 }

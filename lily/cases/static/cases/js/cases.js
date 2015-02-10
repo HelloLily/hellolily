@@ -4,12 +4,15 @@
     window.HLCases = {
         config: {
             caseUpdateUrl: '/cases/update/status/',
+            caseUpdateAssignedToUrl: '/cases/update/assigned_to/',
             caseId: null,
             statusSpan: '#status',
             statusDiv: '#case-status',
             parcelProviderSelect: '#id_parcel_provider',
             parcelIdentifierInput: '#id_parcel_identifier',
-            assignedToField: '#id_assigned_to'
+            assignedToField: '#id_assigned_to',
+            assignToMeButton: '.assign-me-btn',
+            currentAssignedTo: null
         },
 
         init: function(config) {
@@ -33,6 +36,10 @@
             $(cf.parcelProviderSelect).on('change', function() {
                self.changedParcelProviderSelect.call(self, this);
             });
+
+            $(cf.assignToMeButton).on('click', function() {
+                self.changeAssignedTo.call(self, this);
+            });
         },
 
         setCurrentStatus: function() {
@@ -50,7 +57,7 @@
                         url: cf.caseUpdateUrl + cf.caseId + '/',
                         type: 'POST',
                         data: {
-                            'status': $radio_element.val()
+                            status: $radio_element.val()
                         },
                         beforeSend: HLApp.addCSRFHeader,
                         dataType: 'json'
@@ -75,6 +82,46 @@
             var $select = $(select);
             if (!$select.val()) {
                 $(this.config.parcelIdentifierInput).val('');
+            }
+        },
+
+        changeAssignedTo: function () {
+            var self = this,
+                cf = self.config;
+
+            var assignee = null;
+
+            if (cf.currentAssignedTo != currentUser.id) {
+                assignee = currentUser.id;
+            }
+
+            if (cf.caseId != null) {
+                $.ajax({
+                    url: cf.caseUpdateAssignedToUrl + cf.caseId + '/',
+                    type: 'POST',
+                    data: {
+                        assignee: assignee
+                    },
+                    beforeSend: HLApp.addCSRFHeader,
+                    dataType: 'json'
+                }).done(function (data) {
+                    var assignee = data.assignee;
+
+                    // TODO: This will be made prettier once we Angularify the detail page(s)
+                    if (assignee) {
+                        $('.summary-data.assigned-to').html(data.assignee.name);
+                        $('.assign-me-btn').html('Unassign');
+                        cf.currentAssignedTo = data.assignee.id;
+                    }
+                    else {
+                        $('.summary-data.assigned-to').html('Unassigned');
+                        $('.assign-me-btn').html('Assign to me');
+                        cf.currentAssignedTo = null;
+                    }
+                }).always(function () {
+                    // loads notifications if any
+                    load_notifications();
+                });
             }
         },
 

@@ -84,7 +84,13 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
-                    <span class="summary-data">{{ object.assigned_to|default:_('Unassigned') }}</span>
+                    {% if object.assigned_to.id == user.id %}
+                        <span class="summary-data assigned-to">{{ object.assigned_to }}</span>
+                        <button class="btn btn-link assign-me-btn no-padding">{% trans 'Unassign' %}</button>
+                    {% else %}
+                        <span class="summary-data assigned-to">{% trans 'Unassigned' %}</span>
+                        <button class="btn btn-link assign-me-btn no-padding">{% trans 'Assign to me' %}</button>
+                    {% endif %}
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Created by' %}</span>
@@ -150,7 +156,9 @@
     <script>
         HLCases.init({
             caseUpdateUrl: "{% url 'case_update_status_short' %}",
-            caseId: "{{ object.pk }}"
+            caseUpdateAssignedToUrl: "{% url 'case_assign_to_user_short' %}",
+            caseId: "{{ object.pk }}",
+            currentAssignedTo: "{{ object.assigned_to_id }}"
         });
     </script>
 {% endblock %}

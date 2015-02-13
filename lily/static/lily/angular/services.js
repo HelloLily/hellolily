@@ -44,9 +44,32 @@ angular.module('lilyServices', [])
         this.setCookieValue = function(field, value) {
             $cookieStore.put(this.prefix + field, value);
         };
-    }])
 
-    .service('HLDate', [function() {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        this.getCsrftoken = function() {
+            if (!this._csrftoken) {
+                this._csrftoken = getCookie('csrftoken');
+                $cookieStore.put('x-csrftoken', this._csrftoken);
+            }
+            return this._csrftoken;
+        };
+    }])
+        .service('HLDate', [function() {
         /**
          * getSubtractedDate() subtracts x amount of days from the current date
          *
@@ -59,5 +82,5 @@ angular.module('lilyServices', [])
             date.setDate(date.getDate() - days);
 
             return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        }
+        };
     }]);

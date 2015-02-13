@@ -2,9 +2,10 @@ from lily.accounts.models import Account
 from lily.contacts.models import Function
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
-from lily.utils.models.models import EmailAddress, PhoneNumber
+from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 from .models import Contact
+from lily.socialmedia.models import SocialMedia
 
 
 class ContactMapping(BaseMapping):
@@ -29,38 +30,70 @@ class ContactMapping(BaseMapping):
                     },
                 },
             }],
-            'properties': {
-                'name': {
-                    'type': 'string',
-                    'index': 'analyzed',
-                    'index_analyzer': 'normal_ngram_analyzer',
+        })
+        mapping['properties'].update({
+            'name': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'description': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'social': {
+                'type': 'object',
+                'index': 'no',
+                'properties': {
+                    'social_name': {'type': 'string'},
+                    'social_url': {'type': 'string'},
+                    'social_profile': {'type': 'string'},
                 },
-                'last_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'email': {
-                    'type': 'string',
-                    'index_analyzer': 'email_analyzer',
-                },
-                'tag': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'account_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'account': {
-                    'type': 'integer',
-                },
-                'created': {
-                    'type': 'date',
-                },
-                'modified': {
-                    'type': 'date',
-                },
-            }
+            },
+            'title': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'salutation': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'gender': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'function': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'address': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'last_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'email': {
+                'type': 'string',
+                'index_analyzer': 'email_analyzer',
+            },
+            'tag': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'account_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'account': {
+                'type': 'integer',
+            },
+            'created': {
+                'type': 'date',
+            },
+            'modified': {
+                'type': 'date',
+            },
         })
         return mapping
 
@@ -75,6 +108,8 @@ class ContactMapping(BaseMapping):
             Tag: lambda obj: [obj.subject],
             EmailAddress: lambda obj: obj.contact_set.all(),
             PhoneNumber: lambda obj: obj.contact_set.all(),
+            Address: lambda obj: obj.contact_set.all(),
+            SocialMedia: lambda obj: obj.contact_set.all(),
         }
 
     @classmethod
@@ -86,6 +121,8 @@ class ContactMapping(BaseMapping):
             'tags',
             'email_addresses',
             'phone_numbers',
+            'social_media',
+            'addresses',
             'functions__account',
         )
 
@@ -101,6 +138,15 @@ class ContactMapping(BaseMapping):
             'modified': obj.modified,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'description': obj.description,
+            'social': [{'social_name': soc.get_name(),
+                        'social_profile': soc.username,
+                        'social_url': soc.profile_url} for soc in obj.social_media.all()],
+            'title': obj.title,
+            'salutation': Contact.SALUTATION_CHOICES[obj.salutation][1],
+            'gender': Contact.CONTACT_GENDER_CHOICES[obj.gender][1],
+            'function': obj.get_primary_function().title if obj.get_primary_function() else None,
+            'address': [address.full() for address in obj.addresses.all()],
         }
 
         functions = obj.functions.all()

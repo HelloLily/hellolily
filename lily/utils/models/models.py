@@ -347,6 +347,15 @@ class Address(TenantMixin):
     def __unicode__(self):
         return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
 
+    def full(self):
+        return u'%s %s %s %s %s' % (
+            self.street or '',
+            self.street_number or '',
+            self.postal_code or '',
+            self.city or '',
+            self.get_country_display() if self.country else '',
+        )
+
     class Meta:
         app_label = 'utils'
         verbose_name = _('address')

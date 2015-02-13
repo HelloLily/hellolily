@@ -4,14 +4,12 @@ from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
-from lily.messaging.email.models import EmailHeader
-
 
 class Migration(DataMigration):
 
     def forwards(self, orm):
         for email_message in orm.EmailMessage.objects.all():
-            header = EmailHeader.objects.filter(message_id=email_message.id, name__iexact='Message-ID')
+            header = orm.EmailHeader.objects.filter(message_id=email_message.id, name__iexact='Message-ID')
             if header.exists():
                 email_message.message_identifier = header[0].value
                 email_message.save()

@@ -105,5 +105,23 @@ angular.module('lilyFilters', [])
                 }
             }
         }
+    }])
+    .filter('minValue', function() {
+        return function(values) {
+            values.sort(function(a, b){return a-b});
+            return values[0];
+        }
+    })
+    .filter('nl2br', ['$sce', function($sce) {
+        return function(msg,is_xhtml) {
+            var is_xhtml = is_xhtml || true;
+            var breakTag = (is_xhtml) ? '<br />' : '<br>';
+            var msg = (msg + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
+            return $sce.trustAsHtml(msg);
+        }
+    }])
+    .filter('trustAsResourceUrl', ['$sce', function($sce) {
+        return function(val) {
+            return $sce.trustAsResourceUrl(val);
+        };
     }]);
-

@@ -1,11 +1,11 @@
 {% if not request.is_ajax %}
     <td>
 {% endif %}
-{% if item.get_any_email_address %}
+{% if item.any_email_address %}
     <div>
-        <a href="mailto:{{ item.get_any_email_address }}" title="{{ item.get_any_email_address }}">
+        <a href="mailto:{{ item.any_email_address }}" title="{{ item.any_email_address }}">
             <i class="icon-envelope-alt"></i>
-            {{ item.get_any_email_address|truncatechars:"35" }}
+            {{ item.any_email_address|truncatechars:"35" }}
         </a>
     </div>
 {% endif %}

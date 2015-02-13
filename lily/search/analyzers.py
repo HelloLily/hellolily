@@ -31,7 +31,7 @@ def get_analyzers():
                 'email_analyzer': {
                     'type': 'custom',
                     'tokenizer': 'email_tokenizer',
-                    'filter': ['lowercase', 'my_ascii', 'my_edge_filter'],
+                    'filter': ['lowercase', 'my_ascii'],
                 },
                 # The analyzer used for searching across all fields.
                 # It is a union of the indexing tokenizers.

@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ('utils', '0006_auto__add_field_historylistitem_tenant'),
+    )
+
     def forwards(self, orm):
         """
         If this migration is done before the deletion of customuser, which it wasn't on live, then use the part at the bottom.

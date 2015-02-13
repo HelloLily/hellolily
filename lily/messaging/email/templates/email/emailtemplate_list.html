@@ -30,13 +30,9 @@
                                         <span><i class="icon-star-empty"></i></span>
                                     </a>
                                 {% endif %}
-                                <a href="{% url 'messaging_email_template_update' pk=email_template.pk %}" class="btn btn-xs default toggle-content">
-                                    <span><i class="icon-edit"></i></span>
-                                    <span style="display: none;"><i class="icon-edit"></i> {% trans 'Edit' %}</span>
-                                </a>
-                                <button class="btn btn-xs default toggle-content" data-source="{% url 'messaging_email_template_delete' pk=email_template.pk %}" data-target="#emailtemplate-modal">
-                                    <span><i class="icon-trash"></i></span>
-                                    <span style="display: none;"><i class="icon-trash"></i> {% trans 'Delete' %}</span>
+                                <a href="{% url 'messaging_email_template_update' pk=email_template.pk %}" class="btn btn-xs default"><i class="icon-edit"></i></a>
+                                <button class="btn btn-xs default" data-source="{% url 'messaging_email_template_delete' pk=email_template.pk %}" data-target="#emailtemplate-modal">
+                                    <i class="icon-trash"></i>
                                 </button>
                             </span>
                         </li>

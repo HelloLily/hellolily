@@ -17,7 +17,7 @@ from lily.search.utils import LilySearch
 from lily.utils.functions import is_ajax
 from lily.utils.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView
-from lily.utils.views.mixins import (HistoryListViewMixin, LoginRequiredMixin, ExportListViewMixin)
+from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
 
 from .forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from .models import Contact, Function
@@ -121,30 +121,11 @@ class JsonContactListView(LoginRequiredMixin, JsonListView):
         return queryset.filter(is_deleted=False)
 
 
-class DetailContactView(LoginRequiredMixin, HistoryListViewMixin):
+class DetailContactView(LoginRequiredMixin, AngularView):
     """
-    Display a detail page for a single contact.
+    Display the details of a contact.
     """
     template_name = 'contacts/contact_detail.html'
-    model = Contact
-
-    def get_queryset(self):
-        """
-        Prefetch related objects to reduce lazy lookups.
-        """
-        qs = super(DetailContactView, self).get_queryset()
-        qs = qs.prefetch_related('functions__account__functions__contact',
-                                 'functions__account__functions__contact__email_addresses',
-                                 'functions__account__functions__contact__phone_numbers')
-        return qs
-
-    def get_context_data(self, **kwargs):
-        kwargs = super(DetailContactView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'email_count': self.get_emails_list().count(),
-        })
-
-        return kwargs
 
 
 class CreateUpdateContactMixin(LoginRequiredMixin):

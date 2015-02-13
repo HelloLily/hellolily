@@ -70,7 +70,8 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
                 return email
         return None
 
-    def get_any_email_address(self):
+    @property
+    def any_email_address(self):
         """
         Will return any email address set to this account if one exists.
 

@@ -1,75 +1,76 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils %}
+{% load i18n utils compressed %}
 
-{% block head-title %}{{ object.full_name }}{% if object.get_primary_function.account %} - {{ object.get_primary_function.account }}{% endif %}{% endblock %}
+{% block default-controller %}ng-controller="ContactDetailController"{% endblock %}
+
+{% block head-outer-title %}
+    <title ng-bind="::pageTitle"></title>
+{% endblock %}
+
 {% block page-title %}
-    {{ object.full_name }}
-    {% if object.get_primary_function.account %} -
-        <a href="{% url 'account_details' pk=object.get_primary_function.account.pk %}">
-            {{ object.get_primary_function.account }}
-        </a>
-    {% endif %}
+    {% verbatim %}
+    <div ng-cloak>
+	   {{::contact.name}}
+	   <span ng-if="::contact.account"> -
+	       <a ng-href="/accounts/details/{{ ::contact.account[0] }}/">
+	           {{ ::contact.account_name[0] }}
+	       </a>
+	    </span>
+    </div>
+    {% endverbatim %}
 {% endblock %}
 
 {% block page-actions %}
-    <a href="{% url 'contact_edit' pk=object.pk %}" class="btn blue"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
-    <a href="{% url 'contact_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'contact_delete' pk=object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
+    {% verbatim %}
+    <a ng-href="/contacts/edit/{{ ::contact.id }}/" class="btn blue"><i class="icon-edit"></i>Edit</a>
+    <!--  Note remove xhr when merging! -->
+    <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="icon-trash"></i>Delete</a>
+    {% endverbatim %}
 {% endblock %}
 
 {% block details-main %}
-    {% if object.description %}
-    <div class="row">
-        <div class="col-md-6">
-            <em>{{ object.description|linebreaks }}</em>
-        </div>
+    {% verbatim %}
+    <div ng-cloak ng-if="::contact.description">
+	    <div class="row">
+	        <div class="col-md-6">
+	            <em class="pre-wrap">{{ ::contact.description }}</em>
+	        </div>
+	    </div>
     </div>
-    {% endif %}
-    <div class="row">
+    <div ng-cloak class="row">
         <div class="col-md-6">
             <ul class="list-unstyled summary-list">
                 <li>
-                    <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span class="summary-data">{{ object.work_phone|default:_('Unknown') }}</span>
+                    <span class="summary-label">Phone number</span>
+                    <span class="summary-data">{{ ::contact.phone_work[0] }}</span>
                 </li>
                 <li>
-                    <span class="summary-label">{% trans 'Mobile number' %}</span>
-                    <span class="summary-data">{{ object.mobile_phone|default:_('Unknown') }}</span>
+                    <span class="summary-label">Mobile number</span>
+                     <span class="summary-data">{{ ::contact.phone_mobile[0] }}</span>
                 </li>
                 <li>
-                    <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
+                    <span class="summary-label">E-mail address</span>
+                     <span class="summary-data">{{ ::contact.email[0] }}</span>
                 </li>
-                {% for social_media_connection in object.social_media.all %}
-                    <li>
-                        <span class="summary-label">{{ social_media_connection.get_name_display }}</span>
-                        <span class="summary-data">
-                            <a href="{{ social_media_connection.profile_url }}">{{ social_media_connection.username }}</a>
-                        </span>
-                    </li>
-                {% endfor %}
+                <li ng-repeat="social in ::contact.social">
+                    <span class="summary-label">{{ ::social.social_name }}</span>
+                    <span class="summary-data">
+                    <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                    </span>
+                </li>
             </ul>
         </div>
         <div class="col-md-6 text-right">
-            {% if object.account %}
-                <div class="clearfix">
-                     <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'deal_list' %}#/?search={{ object.full_name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                         {% trans 'Deals' %}
-                         <span class="badge badge-success pull-right">{{ object.get_deals.count|default:'0' }}</span>
-                     </a>
-                     <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.get_primary_function.account.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
-                </div>
-            {% endif %}
-            <div>
-                 <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'case_list' %}#/?search={{ object.full_name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                     {% trans 'Cases' %}
-                     <span class="badge badge-success pull-right">{{ object.get_cases.count|default:'0' }}</span>
-                 </a>
-                 <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' contact_pk=object.pk %}" class="btn blue pull-right col-md-1 col-sm-1"><i class="icon-plus"></i></a>
+            <div class="clearfix">
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" ng-href="/cases/#/?search={{ ::contact.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    Cases<span class="badge badge-success pull-right">{{ ::numCases }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
             </div>
         </div>
-
     </div>
+    {% endverbatim %}
 {% endblock %}
 
 {% block details-tab-headers %}
@@ -87,158 +88,119 @@
 {% endblock %}
 
 {% block details-tab-content %}
-    {{ block.super }}
-    <div class="tab-pane" id="tab-colleagues">
-        {% for function in object.functions.all %}
-            <h4>{{ function.account }}</h4>
-            <div class="well well-sm">
-                <div class="row no-margin">
-                    <table class="table no-margin">
-                        <thead>
-                            <tr>
-                                <th>{% trans 'Name' %}</th>
-                                <th>{% trans 'E-mail address' %}</th>
-                                <th>{% trans 'Phone number' %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for colleague_function in function.account.functions.all %}
-                                {% if colleague_function.contact != object %}
-                                    <tr>
-                                        <td><a href="{% url 'contact_details' colleague_function.contact.pk %}">{{ colleague_function.contact.full_name }}</a></td>
-                                        <td>{{ colleague_function.contact.primary_email|default:_('Unknown') }}</td>
-                                        <td>{{ colleague_function.contact.phone_number|default:_('Unknown') }}</td>
-                                    </tr>
-                                {% elif forloop.counter == 1 and forloop.revcounter0 == 0 %}
-                                    <tr>
-                                        <td colspan="3">{% trans 'This is the only known contact for this company' %}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    {% verbatim %}
+    <div ng-cloak class="tab-pane active" id="tab-history">
+        <div class="row">
+            <div class="form-group">
+                <form method="POST" action="/notes/create/">
+                    {% endverbatim %}{% csrf_token %}{% verbatim %}
+                    <div class="form-group note-input-wrapper">
+                        <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
+                        <input type="hidden" name="content_type" value="contact">
+                        <input type="hidden" name="object_id" value="{{ ::contact.id }}">
+                        <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </form>
             </div>
-        {% empty %}
-            <div class="well well-sm">
-                <div class="row no-margin">
-                    <table class="table no-margin">
-                        <thead>
-                            <tr>
-                                <th>{% trans 'Name' %}</th>
-                                <th>{% trans 'E-mail address' %}</th>
-                                <th>{% trans 'Phone number' %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="3">{% trans 'There are no known colleagues for this contact' %}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endfor %}
+        </div>
+        {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
     </div>
-    <div class="tab-pane" id="tab-other">
-        <div class="row no-margin">
-            <h4>{% trans 'General information' %}</h4>
+    <div ng-cloak class="tab-pane" id="tab-colleagues">
+        <div ng-repeat="work in ::works">
+            <h4>{{ ::work.name }}</h4>
+            <div class="well well-sm">
+                <div class="row no-margin">
+                    <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>E-mail address</th>
+                                <th>Phone number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+	                        <tr ng-repeat="worker in ::work.colleagues">
+	                            <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
+	                            <td>{{ ::worker.email[0] }}</td>
+	                            <td>{{ ::worker.phone }}</td>
+	                        </tr>
+	                        <tr ng-if="work.colleagues.length == 0">
+	                            <td colspan="3">This is the only known contact for this company</td>
+	                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="row no-margin">
-            <p>
-                {{ object.description|default:_('No description')|linebreaks }}
-            </p>
-        </div>
+    </div>
+    <div ng-cloak class="tab-pane" id="tab-other">
         <div class="row">
             <div class="col-md-6 col-xs-6">
                 <ul class="list-unstyled summary-list small-summary-list">
                     <li>
-                        <span class="summary-label">{% trans 'Title' %}</span>
-                        <span class="summary-data">{{ object.title|default:_('Unknown') }}</span>
+                        <span class="summary-label">Title</span>
+                        <span class="summary-data">{{ ::contact.title }}</span>
                     </li>
                     <li>
-                        <span class="summary-label">{% trans 'Salutation' %}</span>
-                        <span class="summary-data">{{ object.get_salutation_display }}</span>
+                        <span class="summary-label">Salutation</span>
+                        <span class="summary-data">{{ ::contact.salutation }}</span>
                     </li>
                 </ul>
             </div>
             <div class="col-md-6 col-xs-6">
                 <ul class="list-unstyled summary-list small-summary-list">
                     <li>
-                        <span class="summary-label">{% trans 'Gender' %}</span>
-                        {% if object.gender != 2 %}
-                            <span class="summary-data">{{ object.get_gender_display }}</span>
-                        {% else %}
-                            <span class="summary-data">{% trans 'Unknown' %}</span>
-                        {% endif %}
+                        <span class="summary-label">Gender</span>
+                        <span class="summary-data">{{ ::contact.gender }}</span>
                     </li>
                     <li>
-                        <span class="summary-label">{% trans 'Function' %}</span>
-                        <span class="summary-data">{{ object.get_primary_function|default:_('Unknown') }}</span>
+                        <span class="summary-label">Function</span>
+                        <span class="summary-data">{{ ::contact.function }}</span>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'Tags' %}</h4>
+                <h4>Tags</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for tag in object.tags.all %}
-                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ tag }}</span></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
+	                <li class="no-padding" ng-repeat="tag in ::contact.tag"><span class="label label-btn label-btn-sm label-btn-default">{{ ::tag }}</span></li>
+	                <li class="no-padding" ng-if="!contact.tag"><a ng-href="/contacts/edit/{{ ::contact.id }}#id_tags" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>
             <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'E-mail addresses' %}</h4>
+                <h4>E-mail addresses</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for email_address in object.email_addresses.all %}
-                        <li class="no-padding"><a href="#" class="btn btn-sm default">{{ email_address }}</a></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
+                    <li class="no-padding" ng-repeat="email in ::contact.email"><a href="#" class="btn btn-sm default">{{ ::email }}</a></li>
+                    <li class="no-padding" ng-if="!contact.email"><a ng-href="/contacts/edit/{{ ::contact.id }}#email_addresses" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6 col-xs-6">
-               <h4>{% trans 'Phone numbers' %}</h4>
+               <h4>Phone numbers</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for phone_number in object.phone_numbers.all %}
-                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
+                    <li class="no-padding" ng-repeat="phone in ::contact.phones"><span class="label label-btn label-btn-sm label-btn-default">{{ ::phone }}</span></li>
+                    <li class="no-padding" ng-if="!contact.phone"><a ng-href="/contacts/edit/{{ ::contact.id }}#phone_numbers" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>
             <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'Addresses' %}</h4>
+                <h4>Addresses</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for address in object.addresses.all %}
-                        <li class="no-padding">
-                            <span class="label label-btn label-btn-sm label-btn-default text-left">
-                            {% if address.street or address.street_number or address.complement %}
-                                {{ address }} <br/>
-                            {% endif %}
-                                {% if address.postal_code or address.city %}
-                                    {{ address.postal_code }} {{ address.city }} <br/>
-                                {% endif %}
-                                {% if address.country %}
-                                    {{ address.get_country_display }}
-                                {% endif %}
-                            </span>
-                        </li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'contact_edit' pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
+                    <li class="no-padding" ng-repeat="address in ::contact.address">
+                        <span class="label label-btn label-btn-sm label-btn-default text-left">{{ ::address }}</span>
+                    </li>
+                    <li class="no-padding" ng-if="!contact.address"><a ng-href="/contacts/edit/{{ ::contact.id }}#addresses" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>
         </div>
     </div>
+    {% endverbatim %}
 {% endblock %}
 
 {% block scripts %}
+    {% compressed_js 'angularapp' %}
     {{ block.super }}
     <script>
         $(function($) {

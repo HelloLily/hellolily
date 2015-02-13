@@ -9,8 +9,111 @@ angular.module('accountControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'accountServices'
+    'accountServices',
+    'contactServices',
+    'caseServices',
+    'dealServices',
+    'noteServices',
+    'emailServices'
 ])
+
+    /**
+     * AccountDetailController is a controller to show details of an account.
+     */
+    .controller('AccountDetailController', [
+        'AccountDetail',
+        'CaseDetail',
+        'DealDetail',
+        'ContactDetail',
+        'NoteDetail',
+        'EmailDetail',
+        'EmailAccount',
+        '$scope',
+        '$q',
+        '$filter',
+        function(Account, Case, Deal, Contact, Note, Email, EmailAccount, $scope, $q, $filter) {
+            $scope.showMoreText = 'Show more';
+            var id = window.location.pathname;
+            if (id.substr(-1) == '/') {
+                id = id.substr(0, id.length - 1);
+            }
+            id = id.substr(id.lastIndexOf('/') + 1);
+
+            var add = 10,
+                size = add,
+                currentSize = 0;
+            $scope.history = [];
+            function loadHistory(account, tenantEmails) {
+            	var history = [];
+                var notesPromise = Note.query({
+                    filterquery: 'content_type:account AND object_id:' + id,
+                    size: size
+                }).$promise;
+                var emailPromise = Email.query  ({
+                    account_related: account.id,
+                    size: size
+                }).$promise;
+                $q.all([notesPromise, emailPromise]).then(function(results) {
+                    var notes = results[0];
+                    notes.forEach(function(note) {
+                        note.note = true;
+                        history.push(note);
+                    });
+
+                    var emails = results[1];
+                    emails.forEach(function(email) {
+                        email.email = true;
+                        email.date = email.sent_date;
+                        email.right = false;
+                        // Check if the sender is from tenant.
+                        tenantEmails.forEach(function(emailAddress) {
+                            if (emailAddress.email_address == email.sender_email) {
+                                email.right = true;
+                            }
+                        });
+                        history.push(email);
+                    });
+                    $scope.history.splice(0, $scope.history.length);
+                    $filter('orderBy')(history, 'date', true).forEach(function(item) {
+                    	$scope.history.push(item);
+                    });
+                    $scope.history.splice(size, size * 2);
+                    size += add;
+                    if ($scope.history.length == 0) {
+                        $scope.showMoreText = 'No history (refresh)';
+                    }
+                    else if ($scope.history.length <= currentSize || $scope.history.length < size / 2) {
+                        $scope.showMoreText = 'End reached (refresh)';
+                    }
+                    currentSize = $scope.history.length;
+                });
+            }
+
+            var accountPromise = Account.get({id: id}).$promise;
+            accountPromise.then(function(account) {
+                $scope.account = account;
+            });
+            var tenantEmailsPromise = EmailAccount.query();
+            $scope.loadHistoryFromButton = function() {
+                $q.all([accountPromise, tenantEmailsPromise]).then(function(results) {
+                    loadHistory(results[0], results[1]);
+                });
+            };
+            $scope.loadHistoryFromButton();
+
+            Case.totalize({filterquery: 'archived:false AND account:' + id}).$promise.then(function(total) {
+                $scope.numCases = total.total;
+            });
+
+            Deal.totalize({filterquery: 'archived:false AND account:' + id}).$promise.then(function(total) {
+                $scope.numDeals = total.total;
+            });
+
+            Contact.query({filterquery: 'account:' + id}).$promise.then(function(contacts) {
+                $scope.workers = contacts;
+            });
+        }
+    ])
 
     /**
      * AccountListController controller to show list of accounts

@@ -1,28 +1,25 @@
 {% load i18n %}
 
 <li class="list-group-item">
-    {% if not email_address.auth_ok %}<i class="icon icon-warning-sign"></i>{% endif %}
+    {% if not email_account.is_authorized %}<i class="icon icon-warning-sign"></i>{% endif %}
 
-    {{ email_address }}
-
-    {# Check for the label, because the unicode function returns either label or email #}
-    {% if email_address.label %}<span class="text-muted">({{ email_address.email }})</span>{% endif %}
+    {{ email_account }}
 
     <span class="pull-right">
-        {% if email_address.is_owned_by_user and not email_address.is_public %}
-            <button type="button" class="btn btn-xs default" title="{% trans 'Sharing is caring' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_share' pk=email_address.pk %}">
-                <i class="icon-group"></i> {{ email_address.user_group.all|length }}
+        {% if email_account.owner == request.user and not email_account.public %}
+            <button type="button" class="btn btn-xs default" title="{% trans 'Sharing is caring' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_share' pk=email_account.pk %}">
+                <i class="icon-group"></i> {{ email_account.shared_with_users.all|length }}
             </button>
         {% endif %}
-        {% if email_address.is_public or email_address.is_owned_by_user %}
-            <button type="button" class="btn btn-xs default" title="{% trans 'Just manage it' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_update' pk=email_address.pk %}">
+        {% if email_account.is_public or email_account.owner == request.user %}
+            <button type="button" class="btn btn-xs default" title="{% trans 'Just manage it' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_update' pk=email_account.pk %}">
                 <i class="icon-edit"></i>
             </button>
-            <button type="button" class="btn btn-xs default" title="{% trans 'Throw it away' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_delete' pk=email_address.pk %}">
+            <button type="button" class="btn btn-xs default" title="{% trans 'Throw it away' %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_delete' pk=email_account.pk %}">
                 <i class="icon-trash"></i>
             </button>
         {% elif email_address.is_shared %}
-            <button type="button" class="btn btn-xs default" title="{% trans "I don't want to see this" %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_unsubscribe' pk=email_address.pk %}">
+            <button type="button" class="btn btn-xs default" title="{% trans "I don't want to see this" %}" data-target="#emailaccount-modal" data-source="{% url 'messaging_email_account_unsubscribe' pk=email_account.pk %}">
                 <i class="icon-remove"></i>
             </button>
         {% endif %}

@@ -4,6 +4,38 @@
 angular.module('dealServices', [])
 
     /**
+     * $resource for Deal model, now only used for detail page.
+     */
+    .factory('DealDetail', ['$resource', function($resource) {
+        return $resource(
+            '/search/search/?type=deals_deal&filterquery=id\::id',
+            {},
+            {
+                get: {
+                    transformResponse: function(data) {
+                        data = angular.fromJson(data);
+                        if (data && data.hits && data.hits.length > 0) {
+                            var obj = data.hits[0];
+                            return obj;
+                        }
+                        return null;
+                    }
+                },
+                totalize: {
+                    url: '/search/search/?type=deals_deal&size=0&filterquery=:filterquery',
+                    transformResponse: function(data) {
+                        data = angular.fromJson(data);
+                        if (data && data.total) {
+                            return {total: data.total};
+                        }
+                        return {total: 0};
+                    }
+                }
+            }
+        );
+    }])
+
+    /**
      * Deal Service makes it possible to get Deals from search backend
      *
      * @returns: Deal object: object with functions related to Deals

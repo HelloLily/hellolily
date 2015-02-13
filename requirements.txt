@@ -17,6 +17,9 @@ django-sslify==0.2.5
 python-dateutil==2.3  # Old version is: 1.5
 pytz==2014.10  # Old version is: 2012c
 
+djangorestframework==3.0.3
+django-filter==0.9.1
+
 #######################################################
 ### Database & Models                               ###
 #######################################################
@@ -92,12 +95,21 @@ kombu==3.0.24  # Old version is: 3.0.14
 IMAPClient==0.10.2
 beautifulsoup4==4.3.2
 lxml==3.4.1  # Old version is: 3.2.3, on max install with: STATIC_DEPS=true pip install lxml, because they can't code properly
+google-api-python-client==1.3.1
 
 #######################################################
 ### Search                                          ###
 #######################################################
 elasticutils==0.10.2
 elasticsearch==1.2.0
+
+#######################################################
+### Testing                                         ###
+#######################################################
+django-nose==1.2
+factory_boy==2.4.1
+fake-factory==0.4.2
+mock==1.0.1
 
 #######################################################
 ### Random                                          ###

@@ -15,59 +15,57 @@ class DealMapping(BaseMapping):
         Returns an Elasticsearch mapping for this MappingType.
         """
         mapping = super(DealMapping, cls).get_mapping()
-        mapping.update({
-            'properties': {
-                'name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_ngram_analyzer',
-                },
-                'body': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'account': {
-                    'type': 'integer',
-                },
-                'account_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'assigned_to_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'assigned_to_id': {
-                    'type': 'integer',
-                },
-                'stage': {
-                    'type': 'integer',
-                },
-                'stage_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'tag': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'amount_once': {
-                    'type': 'float',
-                },
-                'amount_recurring': {
-                    'type': 'float',
-                },
-                'modified': {
-                    'type': 'date',
-                },
-                'closing_date': {
-                    'type': 'date',
-                },
-                'archived': {
-                    'type': 'boolean',
-                },
-                'feedback_form_sent': {
-                    'type': 'boolean',
-                }
+        mapping['properties'].update({
+            'name': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'body': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'account': {
+                'type': 'integer',
+            },
+            'account_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'assigned_to_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'assigned_to_id': {
+                'type': 'integer',
+            },
+            'stage': {
+                'type': 'integer',
+            },
+            'stage_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'tag': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'amount_once': {
+                'type': 'float',
+            },
+            'amount_recurring': {
+                'type': 'float',
+            },
+            'modified': {
+                'type': 'date',
+            },
+            'closing_date': {
+                'type': 'date',
+            },
+            'archived': {
+                'type': 'boolean',
+            },
+            'feedback_form_sent': {
+                'type': 'boolean',
             }
         })
         return mapping

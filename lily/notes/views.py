@@ -5,11 +5,40 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import DeleteView, UpdateView, BaseFormView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView, BaseFormView
 
 from lily.notes.forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
 from lily.notes.models import Note
 from lily.utils.functions import is_ajax
+from django.contrib.contenttypes.models import ContentType
+
+
+class CreateNoteView(CreateView):
+    model = Note
+    form_class = NoteForm
+
+    def form_valid(self, form):
+        note = form.save(commit=False)
+        note.author = self.request.user
+
+        model = self.request.POST['content_type']
+        if model not in ['account', 'contact', 'deal', 'case']:
+            raise BaseException("Invalid content_type")
+
+        object_id = self.request.POST['object_id']
+        content_type = ContentType.objects.get(model=model)
+        note.subject = content_type.get_object_for_this_type(id=object_id)
+        note.save()
+        return CreateView.form_valid(self, form)
+
+    def get_success_url(self):
+        """
+        Return to the history tab if possible.
+        """
+        if self.request.META.get('HTTP_REFERER'):
+            return '%s#history' % self.request.META.get('HTTP_REFERER')
+        else:
+            return reverse('dashboard')
 
 
 class DeleteNoteView(DeleteView):
@@ -164,6 +193,7 @@ class NoteDetailViewMixin(BaseFormView, DetailView):
             return reverse('dashboard')
 
 
+create_note_view = login_required(CreateNoteView.as_view())
 delete_note_view = login_required(DeleteNoteView.as_view())
 edit_note_view = login_required(UpdateNoteView.as_view())
 edit_date_note_view = login_required(UpdateDateNoteView.as_view())

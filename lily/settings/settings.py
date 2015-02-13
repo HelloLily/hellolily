@@ -273,12 +273,13 @@ INSTALLED_APPS = (
     'elasticutils',
     'statici18n',
     'timezone_field',
+    'django_nose',
     'django_password_strength',
+    'rest_framework',
 
     # Lily
     'lily',  # required for management command
     'lily.accounts',
-    'lily.activities',
     'lily.cases',
     'lily.deals',
     'lily.contacts',
@@ -293,6 +294,7 @@ INSTALLED_APPS = (
     'lily.utils',
     'lily.parcels',
     'lily.socialmedia',
+    'lily.google',
 )
 
 if DEBUG:
@@ -369,6 +371,12 @@ if USE_LOGGING:
                 'class': 'logging.StreamHandler',
                 'formatter': 'verbose'
             },
+            'console_debug': {
+                'level': 'DEBUG',
+                # 'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose'
+            },
             'null': {
                 'class': 'django.utils.log.NullHandler',
             },
@@ -428,6 +436,26 @@ if USE_LOGGING:
             'sugarimport': {
                 'handlers': ['console'],
                 'level': 'INFO',
+                'propagate': True,
+            },
+            'factory': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'googleapiclient.discovery': {
+                'handlers': ['console'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+            'email': {
+                'handlers': ['console_debug'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+            'urllib3': {
+                'handlers': ['console_debug'],
+                'level': 'ERROR',
                 'propagate': True,
             },
         }
@@ -516,7 +544,30 @@ ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:
 ES_INDEXES = {'default': 'main_index'}
 
 #######################################################################################################################
-# MISCELLANEOUS SETTINGS                                                                                              #
+## Gmail api settings                                                                                                ##
+#######################################################################################################################
+GA_CLIENT_ID = os.environ.get('GA_CLIENT_ID', '')
+GA_CLIENT_SECRET = os.environ.get('GA_CLIENT_SECRET', '')
+GMAIL_FULL_MESSAGE_BATCH_SIZE = os.environ.get('GMAIL_FULL_MESSAGE_BATCH_SIZE', 300)
+GMAIL_LABEL_UPDATE_BATCH_SIZE = os.environ.get('GMAIL_LABEL_UPDATE_BATCH_SIZE', 500)
+GMAIL_UNREAD_LABEL = os.environ.get('GMAIL_UNREAD_LABEL', 'UNREAD')
+GMAIL_PARTIAL_SYNC_LIMIT = os.environ.get('GMAIL_PARTIAL_SYNC_LIMIT', 899)
+GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000/messaging/email/callback/')
+
+#######################################################################################################################
+## Django rest settings                                                                                              ##
+#######################################################################################################################
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+}
+
+#######################################################################################################################
+## MISCELLANEOUS SETTINGS                                                                                            ##
 #######################################################################################################################
 # Registration form
 REGISTRATION_POSSIBLE = boolean(os.environ.get('REGISTRATION_POSSIBLE', 0))
@@ -542,6 +593,12 @@ THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 # django-south
 SOUTH_AUTO_FREEZE_APP = True
 SOUTH_VERBOSITY = 1
+# On default, no migrations are tested, run `SOUTH_TESTS_MIGRATE=1 ./manage.py test` to test migrations
+SOUTH_TESTS_MIGRATE = boolean(os.environ.get('SOUTH_TESTS_MIGRATE', 0))
+
+# django-nose
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = ['--nocapture', '--nologcapture']
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [

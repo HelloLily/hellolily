@@ -6,14 +6,16 @@ from factory.fuzzy import FuzzyDecimal, FuzzyDate, FuzzyChoice
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
-from lily.deals.models import Deal
 from lily.users.factories import LilyUserFactory
+from lily.tenant.factories import TenantFactory
 
+from .models import Deal
 
 faker = Factory.create()
 
 
 class DealFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
     name = LazyAttribute(lambda o: faker.word())
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
     amount_once = FuzzyDecimal(42.7)

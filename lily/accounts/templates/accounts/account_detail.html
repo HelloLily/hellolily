@@ -1,91 +1,92 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils %}
+{% load i18n utils compressed %}
 
-{% block head-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
-{% block page-title %}{% blocktrans with account_name=object.name%}{{ account_name }}{% endblocktrans %}{% endblock %}
+{% block default-controller %}ng-controller="AccountDetailController"{% endblock %}
+
+{% block head-outer-title %}
+    <title ng-bind="::account.name"></title>
+{% endblock %}
+
+{% block page-title %}
+    {% verbatim %}
+    <div ng-cloak>{{::account.name}}</div>
+    {% endverbatim %}
+{% endblock %}
 
 {% block page-actions %}
-    <a href="{% url 'account_edit' pk=object.pk %}" class="btn blue"><i class="icon-edit"></i> {% trans 'Edit' %}</a>
-    <a href="{% url 'account_delete' pk=object.pk %}" class="btn blue" data-target="#confirm-delete" data-source="{% url 'account_delete' pk=object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
+    {% verbatim %}
+    <a ng-href="/accounts/edit/{{ ::account.id }}/" class="btn blue"><i class="icon-edit"></i>Edit</a>
+    <a ng-href="/accounts/delete/{{ ::account.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/accounts/delete/{{ ::account.id }}/"><i class="icon-trash"></i>Delete</a>
+    {% endverbatim %}
 {% endblock %}
 
 {% block details-main %}
-    {% if object.description %}
+    {% verbatim %}
+    <div ng-cloak ng-if="::account.description">
         <div class="row">
             <div class="col-md-6">
-                <em>{{ object.description|linebreaks }}</em>
-            </div>
-        </div>
-    {% endif %}
-    <div class="row">
-        <div class="col-md-6">
-            <ul class="list-unstyled summary-list">
-                <li>
-                    <span class="summary-label">{% trans 'Website' %}</span>
-                    <span class="summary-data">
-                        {% for website in object.websites.all %}{% if website.is_primary %}
-                            <a href="{{ website.website }}">{{ website.website }}</a>
-                        {% endif %}{% endfor %}
-                    </span>
-                </li>
-                <li>
-                    <span class="summary-label">{% trans 'Phone number' %}</span>
-                    <span class="summary-data">{{ object.phone_number|default:_('Unknown') }}</span>
-                </li>
-                <li>
-                    <span class="summary-label">{% trans 'E-mail address' %}</span>
-                    <span class="summary-data">{{ object.get_any_email_address|default:_('Unknown') }}</span>
-                </li>
-                {% for social_media_connection in object.social_media.all %}
-                    <li>
-                        <span class="summary-label">{{ social_media_connection.get_name_display }}</span>
-                        <span class="summary-data">
-                            <a href="{{ social_media_connection.profile_url }}">{{ social_media_connection.username }}</a>
-                        </span>
-                    </li>
-                {% endfor %}
-                {% if object.get_main_address %}
-                    <li>
-                        <span class="summary-label">{% trans 'Main address' %}</span>
-                        <span class="summary-data">
-                            {% with object.get_main_address as main_address %}
-                                {% if main_address.street or main_address.street_number or main_address.complement %}
-                                    {{ main_address }} <br/>
-                                {% endif %}
-                                {% if main_address.postal_code or main_address.city %}
-                                    {{ main_address.postal_code }} {{ main_address.city }} <br/>
-                                {% endif %}
-                                {% if main_address.country %}
-                                    {{ main_address.get_country_display }}
-                                {% endif %}
-                            {% endwith %}
-                        </span>
-                    </li>
-                {% endif %}
-                <li class="margin-top-20">
-                    <span class="summary-label">{% trans 'Assigned to' %}</span>
-                    <span class="summary-data">{{ object.assigned_to|default:_('Not assigned yet') }}</span>
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-6">
-            <div class="clearfix">
-                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'deal_list' %}#/?search={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                    {% trans 'Deals' %}
-                    <span class="badge badge-success pull-right">{{ object.get_deals.count|default:'0' }}</span>
-                </a>
-                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'deal_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
-            </div>
-            <div>
-                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" href="{% url 'case_list' %}#/?search={{ object.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                    {% trans 'Cases' %}
-                    <span class="badge badge-success pull-right">{{ object.get_cases.count|default:'0' }}</span>
-                </a>
-                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'case_create' account_pk=object.pk %}" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+                <em class="pre-wrap">{{ ::account.description }}</em>
             </div>
         </div>
     </div>
+    <div ng-cloak class="row">
+        <div class="col-md-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">Website</span>
+                    <span class="summary-data" ng-repeat="website in ::account.website"><a href="{{ ::website }}">{{ ::website }}</a></span>
+                </li>
+                <li>
+                    <span class="summary-label">Phone number</span>
+                     <span class="summary-data">{{ ::account.phone }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">E-mail address</span>
+                     <span class="summary-data">{{ ::account.email[0] }}</span>
+                </li>
+                <li ng-repeat="social in ::account.social">
+                    <span class="summary-label">{{ ::social.social_name }}</span>
+                    <span class="summary-data">
+                        <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                    </span>
+                </li>
+                <li ng-if="::account.address">
+	                <span class="summary-label">Main address</span>
+	                <span class="summary-data">
+	                    {{ ::account.address[0].address_street }} {{ ::account.address[0].address_street_number }}{{ ::account.address[0].address_complement }}<br/>
+	                    {{ ::account.address[0].address_postal_code }} {{ ::account.address[0].address_city }}<br/>
+	                    {{ ::account.address[0].address_country }}
+	                </span>
+	            </li>
+	            <li class="margin-top-20">
+                    <span class="summary-label">Assigned to</span>
+                    <span class="summary-data" ng-show="::account.assigned_to">
+                        {{ ::account.assigned_to }}
+                    </span>
+                    <span class="summary-data" ng-hide="::account.assigned_to">
+                        Not assigned yet
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-6 text-right">
+            <div class="clearfix">
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" ng-href="/deals/#/?search={{ ::account.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    Deals<span class="badge badge-success pull-right">{{ ::numDeals }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="/deals/create/from_account/{{ ::account.id }}/" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+            </div>
+            <div>
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" ng-href="/cases/#/?search={{ ::account.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    Cases<span class="badge badge-success pull-right">{{ ::numCases }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_account/{{ ::account.id }}/" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
 {% endblock %}
 
 {% block details-tab-headers %}
@@ -103,139 +104,98 @@
 {% endblock %}
 
 {% block details-tab-content %}
+    {% verbatim %}
+    <div ng-cloak class="tab-pane active" id="tab-history">
+        <div class="row">
+		    <div class="form-group">
+		        <form method="POST" action="/notes/create/">
+		            {% endverbatim %}{% csrf_token %}{% verbatim %}
+		            <div class="form-group note-input-wrapper">
+		                <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
+		                <input type="hidden" name="content_type" value="account">
+		                <input type="hidden" name="object_id" value="{{ ::account.id }}">
+		                <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
+		                <div class="clearfix"></div>
+		            </div>
+		        </form>
+		    </div>
+		</div>
+        {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
+    </div>
+
+    <div ng-cloak class="tab-pane" id="tab-contacts">
+        <div>
+            <div class="well well-sm">
+                <div class="row no-margin">
+                    <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>E-mail address</th>
+                                <th>Phone number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="worker in ::workers">
+                                <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
+                                <td>{{ ::worker.email[0] }}</td>
+                                <td>{{ ::worker.phone }}</td>
+                            </tr>
+                            <tr ng-if="workers.length == 0">
+                                <td colspan="3">There are no known contact for this company</td>
+                            </tr>
+                            <tr>
+	                            <td colspan="3">
+	                                <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="/contacts/add/from_account/{{ ::account.id }}/" class="btn btn-sm blue col-sm-1"><i class="icon-plus"> Add contact</i></a>
+	                            </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-cloak class="tab-pane" id="tab-other">
+        <div class="row">
+            <div class="col-md-6 col-xs-6">
+                <h4>Tags</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    <li class="no-padding" ng-repeat="tag in ::account.tag"><span class="label label-btn label-btn-sm label-btn-default">{{ ::tag }}</span></li>
+                    <li class="no-padding" ng-if="!account.tag"><a ng-href="/accounts/edit/{{ ::account.id }}#id_tags" class="btn btn-sm default">Click to add one</a></li>
+                </ul>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h4>E-mail addresses</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    <li class="no-padding" ng-repeat="email in ::account.email"><a href="#" class="btn btn-sm default">{{ ::email }}</a></li>
+                    <li class="no-padding" ng-if="!account.email"><a ng-href="/accounts/edit/{{ ::account.id }}#email_addresses" class="btn btn-sm default">Click to add one</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-xs-6">
+               <h4>Phone number</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    <li class="no-padding" ng-repeat="phone in ::account.phones"><span class="label label-btn label-btn-sm label-btn-default">{{ ::phone }}</span></li>
+                    <li class="no-padding" ng-if="!account.phones"><a ng-href="/accounts/edit/{{ ::account.id }}#phone_numbers" class="btn btn-sm default">Click to add one</a></li>
+                </ul>
+            </div>
+            <div class="col-md-6 col-xs-6">
+                <h4>Addresses</h4>
+                <ul class="list-unstyled list-inline no-margin block-list">
+                    <li class="no-padding" ng-repeat="address in ::account.address_full">
+                        <span class="label label-btn label-btn-sm label-btn-default text-left">{{ ::address }}</span>
+                    </li>
+                    <li class="no-padding" ng-if="!account.address"><a ng-href="/accounts/edit/{{ ::account.id }}#addresses" class="btn btn-sm default">Click to add one</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+{% endblock %}
+
+{% block scripts %}
+    {% compressed_js 'angularapp' %}
     {{ block.super }}
-    <div class="tab-pane" id="tab-contacts">
-        <div class="well well-sm">
-            <div class="row no-margin">
-                <table class="table no-margin">
-                    <thead>
-                    <tr>
-                        <th>{% trans 'Name' %}</th>
-                        <th>{% trans 'E-mail address' %}</th>
-                        <th>{% trans 'Phone number' %}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for contact in object.get_contacts %}
-                        <tr>
-                            <td><a href="{% url 'contact_details' contact.pk %}">{{ contact.full_name }}</a></td>
-                            <td>{{ contact.primary_email|default:_('Unknown') }}</td>
-                            <td>{{ contact.phone_number|default:_('Unknown') }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">{% trans 'There are no known contact for this company' %}</td>
-                        </tr>
-                    {% endfor %}
-                    <tr>
-                        <td colspan="3">
-                            <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="{% url 'contact_add' account_pk=object.pk %}" class="btn btn-sm blue col-sm-1"><i class="icon-plus"> Add contact</i></a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="tab-pane" id="tab-other">
-        <div class="row no-margin">
-            <h4>{% trans 'General information' %}</h4>
-        </div>
-        <div class="row no-margin">
-            <p>
-                {{ object.description|default:_('No description')|linebreaks }}
-            </p>
-        </div>
-{#  Once we start using the extra info uncomment this  #}
-{#        <div class="row">#}
-{#            <div class="col-md-6 col-xs-6">#}
-{#                <ul class="list-unstyled summary-list small-summary-list">#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'Legal entity' %}</span>#}
-{#                        <span class="pull-right">{{ object.legalentity|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'Tax number' %}</span>#}
-{#                        <span class="pull-right">{{ object.cocnumber|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'COC number' %}</span>#}
-{#                        <span class="pull-right">{{ object.taxnumber|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                </ul>#}
-{#            </div>#}
-{#            <div class="col-md-6 col-xs-6">#}
-{#                <ul class="list-unstyled summary-list small-summary-list">#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'Bank account' %}</span>#}
-{#                        <span class="pull-right">{{ object.bankaccount|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'IBAN number' %}</span>#}
-{#                        <span class="pull-right">{{ object.iban|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <span class="summary-label">{% trans 'BIC number' %}</span>#}
-{#                        <span class="pull-right">{{ object.bic|default:_('Unkown') }}</span>#}
-{#                    </li>#}
-{#                </ul>#}
-{#            </div>#}
-{#        </div>#}
-        <div class="row">
-            <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'Tags' %}</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for tag in object.tags.all %}
-                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ tag }}</span></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#id_tags" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'E-mail addresses' %}</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for email_address in object.email_addresses.all %}
-                        <li class="no-padding"><a href="#" class="btn btn-sm default">{{ email_address }}</a></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#email_addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'Phone numbers' %}</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for phone_number in object.phone_numbers.all %}
-                        <li class="no-padding"><span class="label label-btn label-btn-sm label-btn-default">{{ phone_number }}</span></li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#phone_numbers" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <h4>{% trans 'Addresses' %}</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    {% for address in object.addresses.all %}
-                        <li class="no-padding">
-                            <span class="label label-btn label-btn-sm label-btn-default text-left">
-                            {% if address.street or address.street_number or address.complement %}
-                                {{ address }} <br/>
-                            {% endif %}
-                                {% if address.postal_code or address.city %}
-                                    {{ address.postal_code }} {{ address.city }} <br/>
-                                {% endif %}
-                                {% if address.country %}
-                                    {{ address.get_country_display }}
-                                {% endif %}
-                            </span>
-                        </li>
-                    {% empty %}
-                        <li class="no-padding"><a href="{% url 'account_edit' pk=object.pk %}#addresses" class="btn btn-sm default">{% trans 'Click to add one' %}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
 {% endblock %}

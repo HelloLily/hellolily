@@ -136,12 +136,19 @@ You can do this by comparing the list of PKs before and after."""
             self.stdout.write('%s: Indexing %s' % (index_name,
                                                    self.full_name(model)))
 
-            model_objs = model.objects.filter(is_deleted=False)
+            if mapping_class.has_deleted():
+                model_objs = model.objects.filter(is_deleted=False)
+            else:
+                model_objs = model.objects.all()
             index_objects(mapping_class, model_objs, index_name, print_progress=True)
 
             if with_unindex:
-                model_objs = model.objects.filter(is_deleted=True)
-                unindex_objects(mapping_class, model_objs, index_name, print_progress=True)
+                if mapping_class.has_deleted():
+                    model_objs = model.objects.filter(is_deleted=True)
+                    unindex_objects(mapping_class, model_objs, index_name, print_progress=True)
+                else:
+                    # TODO: implement unindex for deleted items
+                    pass
 
     def model_targetted(self, model, specific_targets):
         """

@@ -16,66 +16,64 @@ class CaseMapping(BaseMapping):
         Returns an Elasticsearch mapping for this MappingType.
         """
         mapping = super(CaseMapping, cls).get_mapping()
-        mapping.update({
-            'properties': {
-                'subject': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_ngram_analyzer',
-                },
-                'body': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'account': {
-                    'type': 'integer',
-                },
-                'account_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'contact': {
-                    'type': 'integer',
-                },
-                'contact_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'assigned_to_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'assigned_to_id': {
-                    'type': 'integer',
-                },
-                'priority': {
-                    'type': 'integer',
-                },
-                'priority_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'status': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'tag': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'casetype_name': {
-                    'type': 'string',
-                    'index_analyzer': 'normal_edge_analyzer',
-                },
-                'casetype_id': {
-                    'type': 'integer',
-                },
-                'expires': {
-                    'type': 'date',
-                },
-                'archived': {
-                    'type': 'boolean',
-                },
-            }
+        mapping['properties'].update({
+            'subject': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'body': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'account': {
+                'type': 'integer',
+            },
+            'account_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'contact': {
+                'type': 'integer',
+            },
+            'contact_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'assigned_to_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'assigned_to_id': {
+                'type': 'integer',
+            },
+            'priority': {
+                'type': 'integer',
+            },
+            'priority_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'status': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'tag': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'casetype_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'casetype_id': {
+                'type': 'integer',
+            },
+            'expires': {
+                'type': 'date',
+            },
+            'archived': {
+                'type': 'boolean',
+            },
         })
         return mapping
 

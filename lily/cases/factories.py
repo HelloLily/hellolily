@@ -7,9 +7,10 @@ from factory.fuzzy import FuzzyChoice, FuzzyDate
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
-from lily.cases.models import Case, CaseStatus, CaseType
+from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
 
+from .models import Case, CaseStatus, CaseType
 
 faker = Factory.create()
 
@@ -30,6 +31,7 @@ class CaseStatusFactory(DjangoModelFactory):
 
 
 class CaseFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
     status = SubFactory(CaseStatusFactory, tenant=SelfAttribute('..tenant'))
     priority = FuzzyChoice(dict(Case.PRIORITY_CHOICES).keys())
     subject = LazyAttribute(lambda o: faker.word())

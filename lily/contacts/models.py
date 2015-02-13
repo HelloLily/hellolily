@@ -58,7 +58,8 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                     self._primary_email = email
         return self._primary_email
 
-    def get_any_email_address(self):
+    @property
+    def any_email_address(self):
         """
         Will return any email address set to this contact if one exists.
 

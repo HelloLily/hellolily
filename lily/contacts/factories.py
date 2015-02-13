@@ -4,14 +4,16 @@ from factory.django import DjangoModelFactory
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
-from lily.contacts.models import Contact, Function
+from lily.tenant.factories import TenantFactory
 from lily.utils.models.factories import EmailAddressFactory
 
+from .models import Contact, Function
 
 faker = Factory.create()
 
 
 class ContactFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
     first_name = LazyAttribute(lambda o: faker.first_name())
     last_name = LazyAttribute(lambda o: faker.last_name())
 
@@ -22,14 +24,15 @@ class ContactFactory(DjangoModelFactory):
 class ContactWithEmailFactory(ContactFactory):
     @factory.post_generation
     def email_addresses(self, create, extracted, **kwargs):
-        email_str = '%s.%s@%s' % (
-            self.first_name.lower(),
-            self.last_name.lower(),
-            faker.free_email_domain()
-        )
+        if create:
+            email_str = '%s.%s@%s' % (
+                self.first_name.lower(),
+                self.last_name.lower(),
+                faker.free_email_domain()
+            )
 
-        email_address = EmailAddressFactory(tenant=self.tenant, email_address=email_str)
-        self.email_addresses.add(email_address)
+            email_address = EmailAddressFactory(tenant=self.tenant, email_address=email_str)
+            self.email_addresses.add(email_address)
 
 
 def function_factory(tenant):

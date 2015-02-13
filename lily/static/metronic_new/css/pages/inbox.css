@@ -431,8 +431,8 @@ Inbox Page
   margin-left: 5px;
 }
 
-.inbox-compose .mail-to inbox-cc:hover,
-.inbox-compose .mail-to inbox-bcc:hover {
+.inbox-compose .mail-to .inbox-cc:hover,
+.inbox-compose .mail-to .inbox-bcc:hover {
   color: #777;
 }
 

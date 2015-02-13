@@ -64,3 +64,71 @@
     padding-right: 0;
     margin-right: 0;
 }
+
+.email-template-body {
+  border: solid 1px #eee;
+}
+
+.email-template-body .inbox-form-group {
+  margin-bottom: 0;
+  position: relative;
+  border-bottom: solid 1px #eee;
+}
+
+.email-template-body .wysihtml5 {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+
+.email-template-body .wysihtml5-sandbox {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  border: 0 !important;
+  margin-top: 5px;
+  width: 100% !important;
+  border-left: none;
+  border-right: none;
+  border-color: #eee;
+}
+
+.email-template-body .wysihtml5-toolbar {
+  border: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.email-template-body .wysihtml5-toolbar > li {
+  height: 34px;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+.email-template-body .wysihtml5-toolbar > li > a,
+.email-template-body .wysihtml5-toolbar > li > div > a {
+  background: #fff;
+}
+
+.email-template-body .wysihtml5-toolbar .dropdown.open .dropdown-toggle,
+ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
+  background: #eee !important;
+}
+
+.inbox-compose #attachments input,
+.email-template-attachments #attachments input {
+  width: 100%;
+}
+
+.inbox-form-group.email-template-attachments {
+  border: 1px solid #EEE;
+  padding-top: 10px;
+}
+
+.template-attachment-name {
+  padding: 1px 3px;
+}
+
+.template-attachment-name.mark-deleted{
+  background-color: #F9F9F9 !important
+}
+

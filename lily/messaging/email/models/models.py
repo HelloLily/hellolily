@@ -116,6 +116,7 @@ class EmailLabel(models.Model):
 
     class Meta:
         app_label = 'email'
+        unique_together = ('account', 'label_id')
 
 
 class Recipient(models.Model):

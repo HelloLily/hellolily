@@ -52,6 +52,9 @@
                     // Handle compose/reply bcc input toggle
                     self.handleAdditionalRecipientsInput('bcc');
                 })
+                .on('change', cf.emailAccountInput, function () {
+                    self.changeTemplateField.call(self, this, false);
+                })
                 .on('change', cf.templateField, function () {
                     self.changeTemplateField.call(self, this, true);
                 })
@@ -239,6 +242,7 @@
                 var subjectField = $('#id_subject');
                 var subject = '';
                 var recipientId = null;
+                var emailAccountId = $(self.config.emailAccountInput).val();
 
                 if (value) {
                     subject = templateList[value].subject;
@@ -266,8 +270,11 @@
                     var url = self.config.getTemplateUrl + value;
 
                     if (recipientId != null) {
-                        // If a recipient has been set we can fill extra variables
-                        url += '?contact_id=' + recipientId;
+                        // If a recipient has been set we can set extra url parameters
+                        url += '?contact_id=' + recipientId + '&emailaccount_id=' + emailAccountId;
+                    }
+                    else {
+                        url += '?emailaccount_id=' + emailAccountId;
                     }
 
                     $.getJSON(url, function (data) {

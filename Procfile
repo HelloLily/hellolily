@@ -7,4 +7,4 @@ web: bin/start-pgbouncer-stunnel newrelic-admin run-program gunicorn --config=li
 beat: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h
 
 ## worker: Execute tasks in queue 'queue1'
-worker1: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 8 -P eventlet
+worker1: bin/start-pgbouncer-stunnel newrelic-admin run-program celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 12 -P eventlet

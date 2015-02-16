@@ -165,9 +165,13 @@ class MessageBuilder(object):
                 if date:
                     self.message.sent_date = datetime.datetime.fromtimestamp(email.utils.mktime_tz(date), pytz.UTC)
                 else:
-                    date = parse(header_value)
-                    if date:
-                        self.message.sent_date = date
+                    try:
+                        date = parse(header_value)
+                    except ValueError:
+                        pass
+                    else:
+                        if date:
+                            self.message.sent_date = date
             elif header_name == 'Subject':
                 self.message.subject = header_value
             elif header_name.lower() in ['to', 'from', 'cc', 'delivered-to']:

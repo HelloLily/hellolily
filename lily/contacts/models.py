@@ -165,6 +165,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
                                  'work_phone', 'mobile_phone']
+
     class Meta:
         ordering = ['last_name', 'first_name']
         verbose_name = _('contact')

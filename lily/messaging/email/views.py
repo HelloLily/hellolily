@@ -613,6 +613,14 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                     else:
                         lookup.update({'account': account})
 
+        if 'emailaccount_id' in self.request.GET:
+            try:
+                emailaccount = EmailAccount.objects.get(pk=self.request.GET.get('emailaccount_id'))
+            except EmailAccount.DoesNotExist:
+                pass
+            else:
+                lookup.get('user').current_email_address = emailaccount.email_address
+
         parsed_template = Template(template.body_html).render(Context(lookup))
 
         attachments = []

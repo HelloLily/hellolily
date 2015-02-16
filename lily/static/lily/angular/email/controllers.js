@@ -302,7 +302,6 @@ angular.module('emailControllers', [
             }
 
             $scope.hasUnreadLabel = function(account, labelId) {
-                console.log(unreadCountForLabel(account, labelId));
                 return unreadCountForLabel(account, labelId) > 0;
 
             };

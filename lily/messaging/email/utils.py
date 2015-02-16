@@ -95,9 +95,9 @@ def get_email_parameter_dict():
                     _EMAIL_PARAMETER_DICT.update({
                         '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): {
                             'model': model,
-                            'model_verbose': model._meta.verbose_name.title(),
+                            'model_verbose': model._meta.verbose_name.capitalize(),
                             'field': field,
-                            'field_verbose': field_verbose_name.title(),
+                            'field_verbose': field_verbose_name.capitalize(),
                         }
                     })
     return _EMAIL_PARAMETER_DICT
@@ -117,14 +117,14 @@ def get_email_parameter_choices():
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
 
-                    if '%s' % model._meta.verbose_name.title() in _EMAIL_PARAMETER_CHOICES:
-                        _EMAIL_PARAMETER_CHOICES.get('%s' % model._meta.verbose_name.title()).update({
-                            '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
+                    if '%s' % model._meta.verbose_name.capitalize() in _EMAIL_PARAMETER_CHOICES:
+                        _EMAIL_PARAMETER_CHOICES.get('%s' % model._meta.verbose_name.capitalize()).update({
+                            '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize(),
                         })
                     else:
                         _EMAIL_PARAMETER_CHOICES.update({
-                            '%s' % model._meta.verbose_name.title(): {
-                                '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.title(),
+                            '%s' % model._meta.verbose_name.capitalize(): {
+                                '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize(),
                             }
                         })
     return _EMAIL_PARAMETER_CHOICES

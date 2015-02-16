@@ -9,8 +9,12 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from timezone_field import TimeZoneField
+from lily.socialmedia.models import SocialMedia
 
 from lily.tenant.models import TenantMixin, Tenant
+from lily.utils.models import PhoneNumber, Address
+from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField
+from lily.utils.models.mixins import Common
 
 try:
     from lily.tenant.functions import add_tenant
@@ -70,13 +74,14 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
+    social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
 
     language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     objects = LilyUserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin', 'phone_number', 'current_email_address']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
@@ -111,6 +116,24 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
+
+    @property
+    def twitter(self):
+        try:
+            twitter = self.social_media.filter(name='twitter').first()
+        except SocialMedia.DoesNotExist:
+            pass
+        else:
+            return twitter.username
+
+    @property
+    def linkedin(self):
+        try:
+            linkedin = self.social_media.filter(name='linkedin').first()
+        except SocialMedia.DoesNotExist:
+            pass
+        else:
+            return linkedin.profile_url
 
     def __unicode__(self):
         return self.get_full_name() or unicode(self.get_username())

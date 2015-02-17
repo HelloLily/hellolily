@@ -120,8 +120,9 @@ class GmailConnector(object):
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
-            for history_item in response['history']:
-                messages += history_item['messages']
+            if 'history' in response:
+                for history_item in response['history']:
+                    messages += history_item['messages']
 
         return messages
 

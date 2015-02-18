@@ -75,12 +75,15 @@
             <td class="inbox-small-cells">
                 <checkbox model="checkboxes[message.id]"></checkbox>
             </td>
-            <td class="view-message hidden-xs" ng-if="label.label_id != 'SENT'" ui-sref="email.detail({id: message.id})">
+            <td class="view-message hidden-xs" ng-if="label.name != 'Sent' && label.name != 'Draft'" ui-sref="email.detail({id: message.id})">
                 <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
                 <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
             </td>
-            <td class="view-message hidden-xs" ng-if="label.label_id == 'SENT'" ui-sref="email.detail({id: message.id})">
+            <td class="view-message hidden-xs" ng-if="label.name == 'Sent'" ui-sref="email.detail({id: message.id})">
                 {{ message.received_by_name.join(', ') }}
+            </td>
+            <td class="view-message hidden-xs" ng-if="label.name == 'Draft'" ng-click="goToDraft(message.id)">
+               {{ message.received_by_email.join(',') }}
             </td>
             <td class="view-message" ui-sref="email.detail({id: message.id})">
                 {{ message.subject }}

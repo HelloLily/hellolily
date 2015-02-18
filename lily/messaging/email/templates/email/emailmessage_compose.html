@@ -17,6 +17,9 @@
 
         <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
             <div class="inbox-form-group mail-from">
                 <label class="control-label">{% trans 'From' %}:</label>
                 <div class="controls controls-from">
@@ -71,7 +74,7 @@
                     <button type="submit" name="submit-send-archive" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send and archive' %}</button>
                 {% endif %}
 {#                <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>#}
-{#                <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>#}
+                <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
             </div>
         </form>
     </div>

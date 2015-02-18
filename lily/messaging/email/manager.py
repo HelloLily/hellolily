@@ -326,7 +326,6 @@ class GmailManager(object):
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-        self.synchronize()
 
     def delete_email_message(self, email_message):
         """
@@ -336,7 +335,6 @@ class GmailManager(object):
             email_message (instance): EmailMessage instance
         """
         self.connector.delete_email_message(email_message.message_id)
-        self.synchronize()
 
     def send_email_message(self, email_message):
         """
@@ -348,6 +346,20 @@ class GmailManager(object):
         # Send message
         message_dict = self.connector.send_email_message(email_message.as_string())
         full_message_dict = self.connector.get_message_info(message_dict['id'])
+
+        # Store updated message
+        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+
+    def create_draft_email_message(self, email_message):
+        """
+        Create email draft.
+
+        Args:
+            email_message (instance): Email instance
+        """
+        # Send message
+        message_dict = self.connector.create_draft_email_message(email_message.as_string())
+        full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])

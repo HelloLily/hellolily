@@ -308,6 +308,17 @@ class GmailConnector(object):
             self.service.users().messages().send(userId='me', body=message_dict)
         )
 
+    def create_draft_email_message(self, message_string):
+        message_dict = {'message': {'raw': base64.urlsafe_b64encode(message_string)}}
+        return self.execute_service_call(
+            self.service.users().drafts().create(userId='me', body=message_dict)
+        )
+
+    def remove_draft_email_message(self, message_id):
+        return self.execute_service_call(
+            self.service.users().drafts().delete(userId='me', id=message_id)
+        )
+
     def cleanup(self):
         """
         Cleanup references, to prevent reference cycle

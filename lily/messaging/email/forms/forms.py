@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django import forms
@@ -19,10 +20,13 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
-from ..models.models import (EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
+from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment,
                              EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
-from ..utils import get_email_parameter_choices, TemplateParser
 from .widgets import EmailAttachmentWidget
+from ..utils import get_email_parameter_choices, TemplateParser
+
+
+logger = logging.getLogger(__name__)
 
 
 class EmailAccountCreateUpdateForm(HelloLilyModelForm):
@@ -73,16 +77,20 @@ class AttachmentBaseForm(HelloLilyModelForm):
         }
 
 
-class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
+class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
+    draft_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
     template = forms.ModelChoiceField(
         label=_('Template'),
         queryset=EmailTemplate.objects,
         empty_label=_('Choose a template'),
         required=False
     )
+
+    send_from = forms.ChoiceField()
 
     send_to_normal = TagsField(
         label=_('To'),
@@ -126,13 +134,18 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         template='email/formset_attachment.html',
     )
 
+    subject = forms.CharField()
+    body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
+
     def __init__(self, *args, **kwargs):
-        self.draft_id = kwargs.pop('draft_id', None)
+        draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
+        if draft_id:
+            self.fields['draft_pk'].initial = draft_id
 
         if self.message_type is not 'reply':
-            self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
+            self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=draft_id)
 
         user = get_current_user()
         self.email_accounts = EmailAccount.objects.filter(
@@ -213,21 +226,33 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         cleaned_data = self.cleaned_data
         send_from = cleaned_data.get('send_from')
 
-        if send_from.pk not in [account.pk for account in self.email_accounts]:
-            raise ValidationError(
-                _('Invalid email account selected to use as sender.'),
-                code='invalid',
-            )
+        try:
+            send_from = int(send_from)
+        except ValueError:
+            pass
         else:
-            return send_from
+            try:
+                send_from = self.email_accounts.get(pk=send_from)
+            except EmailAccount.DoesNotExist:
+                raise ValidationError(
+                    _('Invalid email account selected to use as sender.'),
+                    code='invalid',
+                )
+            else:
+                return send_from
 
     class Meta:
-        model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',
-                  'attachments')
-        widgets = {
-            'body_html': Wysihtml5Input(),
-        }
+        fields = (
+            'object_pk',
+            'send_from',
+            'send_to_normal',
+            'send_to_cc',
+            'send_to_bcc',
+            'subject',
+            'template',
+            'body_html',
+            'attachments',
+        )
 
 
 class CreateUpdateEmailTemplateForm(HelloLilyModelForm):

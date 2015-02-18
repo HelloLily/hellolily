@@ -165,6 +165,10 @@ angular.module('emailControllers', [
                 reloadMessages();
             };
 
+            $scope.goToDraft = function(messageId) {
+                window.open('/messaging/email/draft/' + messageId + '/', '_self');
+            };
+
             function reloadMessages() {
                 var filterquery = [];
 

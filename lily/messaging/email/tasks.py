@@ -250,3 +250,41 @@ def send_message(email_outbox_message_id):
             manager.cleanup()
 
     return sent_success
+
+@task(name='create_draft_email_message', bind=True)
+@monitor_task(logger=logger)
+def create_draft_email_message(email_outbox_message_id):
+    """
+    Send EmailOutboxMessage.
+
+    Args:
+        email_outbox_message_id (int): id of the EmailOutboxMessage
+    """
+    draft_success = False
+    try:
+        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
+    except EmailOutboxMessage.DoesNotExist:
+        raise
+
+    email_account = email_outbox_message.send_from
+
+    if not email_account.is_authorized:
+        logger.error('EmailAccount not authorized: %s', email_account)
+    else:
+        manager = GmailManager(email_account)
+        try:
+            manager.create_draft_email_message(email_outbox_message.message())
+            logger.debug('Message saved as draft for: %s', email_account)
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            email_outbox_message.delete()
+            draft_success = True
+        except ManagerError, e:
+            logger.error(traceback.format_exc(e))
+            raise
+        except Exception, e:
+            logger.error(traceback.format_exc(e))
+            raise
+        finally:
+            manager.cleanup()
+
+    return draft_success

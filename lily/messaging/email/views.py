@@ -33,7 +33,7 @@ from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateU
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment)
 from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status
-from .tasks import send_message, archive_email_message
+from .tasks import send_message, archive_email_message, create_draft_email_message, delete_email_message
 
 
 logger = logging.getLogger(__name__)
@@ -210,82 +210,96 @@ class EmailMessageComposeView(FormView):
     template_name = 'email/emailmessage_compose.html'
     form_class = ComposeEmailForm
     object = None
+    remove_old_message = True
+
+    def get(self, request, *args, **kwargs):
+        self.get_object(request, **kwargs)
+        return super(EmailMessageComposeView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.get_object(request, **kwargs)
+        return super(EmailMessageComposeView, self).post(request, *args, **kwargs)
+
+    def get_object(self, request, **kwargs):
+        if 'pk' in kwargs:
+            try:
+                self.object = EmailMessage.objects.get(
+                    account__tenant=request.user.tenant,
+                    id=kwargs['pk'],
+                )
+            except EmailMessage.DoesNotExist:
+                pass
 
     def form_valid(self, form):
         """
         Process form to do either of these actions:
             - send an email message
         """
-        unsaved_email_draft = form.save(commit=False)
+        email_draft = form.cleaned_data
 
-        email_account = unsaved_email_draft.send_from
+        email_account = email_draft['send_from']
 
-        # Prepare an instance of EmailMultiAlternatives or EmailMultiRelated
-        if 'submit-save' in self.request.POST or 'submit-send' in self.request.POST or 'submit-send-archive' in self.request.POST:
-            soup = BeautifulSoup(unsaved_email_draft.body_html, 'permissive')
-            soup = extract_tags_from_soup(soup, settings.BLACKLISTED_EMAIL_TAGS)
+        soup = BeautifulSoup(email_draft['body_html'], 'permissive')
+        soup = extract_tags_from_soup(soup, settings.BLACKLISTED_EMAIL_TAGS)
 
-            # Replace the src attribute of inline images with a Content-ID for each image
-            inline_application_url = '/messaging/email/attachment/'
-            inline_application_images = soup.findAll('img', {
-                'src': lambda src: src and src.startswith(inline_application_url)
-            })
+        # Replace the src attribute of inline images with a Content-ID for each image
+        inline_application_url = '/messaging/email/attachment/'
+        inline_application_images = soup.findAll('img', {
+            'src': lambda src: src and src.startswith(inline_application_url)
+        })
 
-            # Mapping {attachment.pk : image element}
-            mapped_attachments = {}
-            for image in inline_application_images:
-                # Parse attachment pks from image paths
-                pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
-                pk = int(pk_and_path.split('/')[0])
-                mapped_attachments[pk] = image
+        # Mapping {attachment.pk : image element}
+        mapped_attachments = {}
+        for image in inline_application_images:
+            # Parse attachment pks from image paths
+            pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
+            pk = int(pk_and_path.split('/')[0])
+            mapped_attachments[pk] = image
 
-            if 'tasks' not in self.request.session:
-                self.request.session['tasks'] = {}
+        if 'tasks' not in self.request.session:
+            self.request.session['tasks'] = {}
 
-            email_outbox_message = EmailOutboxMessage.objects.create(
-                subject=unsaved_email_draft.subject,
-                send_from=email_account,
-                to=anyjson.dumps(unsaved_email_draft.send_to_normal if len(unsaved_email_draft.send_to_normal) else None),
-                cc=anyjson.dumps(unsaved_email_draft.send_to_cc if len(unsaved_email_draft.send_to_cc) else None),
-                bcc=anyjson.dumps(unsaved_email_draft.send_to_bcc if len(unsaved_email_draft.send_to_bcc) else None),
-                body=unsaved_email_draft.body_html,
-                headers=anyjson.dumps(self.get_email_headers()),
-                mapped_attachments=len(mapped_attachments.keys())
-            )
+        email_outbox_message = EmailOutboxMessage.objects.create(
+            subject=email_draft['subject'],
+            send_from=email_account,
+            to=anyjson.dumps(email_draft['send_to_normal'] if len(email_draft['send_to_normal']) else None),
+            cc=anyjson.dumps(email_draft['send_to_cc'] if len(email_draft['send_to_cc']) else None),
+            bcc=anyjson.dumps(email_draft['send_to_bcc'] if len(email_draft['send_to_bcc']) else None),
+            body=email_draft['body_html'],
+            headers=anyjson.dumps(self.get_email_headers()),
+            mapped_attachments=len(mapped_attachments.keys())
+        )
 
-            for attachment_form in form.cleaned_data.get('attachments'):
-                if not attachment_form.cleaned_data['DELETE']:
-                    uploaded_attachment = attachment_form.cleaned_data['attachment']
-                    attachment = attachment_form.save(commit=False)
-                    attachment.content_type = uploaded_attachment.content_type
-                    attachment.size = uploaded_attachment.size
+        for attachment_form in form.cleaned_data.get('attachments'):
+            if not attachment_form.cleaned_data['DELETE']:
+                uploaded_attachment = attachment_form.cleaned_data['attachment']
+                attachment = attachment_form.save(commit=False)
+                attachment.content_type = uploaded_attachment.content_type
+                attachment.size = uploaded_attachment.size
+                attachment.email_outbox_message = email_outbox_message
+                attachment.save()
+
+        template_attachment_ids = self.request.POST.get('template_attachment_ids').split(',')
+        for template_attachment_id in template_attachment_ids:
+            # An empty string gives a ValueError, so check for an empty string
+            if template_attachment_id:
+                try:
+                    template_attachment = EmailTemplateAttachment.objects.get(pk=template_attachment_id)
+                except EmailTemplateAttachment.DoesNotExist:
+                    pass
+                else:
+                    attachment = EmailOutboxAttachment()
+                    attachment.content_type = template_attachment.content_type
+                    attachment.size = template_attachment.size
                     attachment.email_outbox_message = email_outbox_message
+                    attachment.attachment = template_attachment.attachment
                     attachment.save()
 
-            template_attachment_ids = self.request.POST.get('template_attachment_ids').split(',')
-            for template_attachment_id in template_attachment_ids:
-                # An empty string gives a ValueError, so check for an empty string
-                if template_attachment_id:
-                    try:
-                        template_attachment = EmailTemplateAttachment.objects.get(pk=template_attachment_id)
-                    except EmailTemplateAttachment.DoesNotExist:
-                        pass
-                    else:
-                        attachment = EmailOutboxAttachment()
-                        attachment.content_type = template_attachment.content_type
-                        attachment.size = template_attachment.size
-                        attachment.email_outbox_message = email_outbox_message
-                        attachment.attachment = template_attachment.attachment
-                        attachment.save()
+        # Remove an old draft when sending an e-mail message or saving a new draft
+        if self.object and self.remove_old_message:
+            self.remove_draft()
 
-            return email_outbox_message
-
-            # # Remove an old draft when sending an e-mail message or saving a new draft
-            # if self.object and self.remove_old_message:
-            #     self.remove_draft(email_account)
-
-        # if 'submit-discard' in self.request.POST and self.object and self.remove_old_message:
-        #     self.remove_draft(server)
+        return email_outbox_message
 
     def get_context_data(self, **kwargs):
         """
@@ -319,18 +333,6 @@ class EmailMessageComposeView(FormView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = 'new'
 
-        # Provide initial data if we're editing a draft or replying
-        if self.object is not None:
-            kwargs.update({
-                'draft_id': self.object.pk,
-                'initial': {
-                    'send_from': self.object.from_email,
-                    'subject': self.object.subject,
-                    'send_to_normal': self.object.to_combined,
-                    'send_to_cc': self.object.to_cc_combined,
-                    'body_html': self.object.reply_body,
-                },
-            })
         return kwargs
 
     def get_success_url(self):
@@ -342,13 +344,24 @@ class EmailMessageComposeView(FormView):
         """
         pass
 
-    def remove_draft(self, email_account):
+    def remove_draft(self):
         """
         This function is not implemented jet.
 
         Removes the current draft.
         """
-        pass
+        task = delete_email_message.apply_async(args=(self.object.id,))
+
+        if not task:
+            messages.error(
+                self.request,
+                _('Sorry, I couldn\'t remove your e-mail draft')
+            )
+            logging.error(_('Failed to create remove_draft task for email account %d. Draft message id was %d.') % (
+                self.object.send_from, self.object.id
+            ))
+
+        return task
 
 
 class EmailMessageSendOrArchiveView(EmailMessageComposeView):
@@ -442,6 +455,77 @@ class EmailMessageSendAndArchiveView(EmailMessageSendOrArchiveView):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
             return HttpResponseRedirect(self.get_success_url())
+
+
+class EmailMessageDraftView(EmailMessageComposeView):
+
+    def form_valid(self, form):
+        email_message = super(EmailMessageDraftView, self).form_valid(form)
+
+        task = self.draft_message(email_message)
+
+        if is_ajax(self.request):
+            return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+    def draft_message(self, email_outbox_message):
+        """
+        Creates and task for async sending an EmailOutboxMessage and sets messages for feedback.
+
+        Args:
+            email_outbox_message (instance): EmailOutboxMessage instance
+
+        Returns:
+            Task instance
+        """
+        status = create_task_status('create_draft_email_message')
+
+        task = create_draft_email_message.apply_async(
+            args=(email_outbox_message.id,),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
+
+        status.task_id = task.id
+        status.save()
+
+        if task:
+            messages.info(
+                self.request,
+                _('Saving email as fast as I can')
+            )
+            self.request.session['tasks'].update({'create_draft_email_message': task.id})
+            self.request.session.modified = True
+        else:
+            messages.error(
+                self.request,
+                _('Sorry, I couldn\'t save your e-mail')
+            )
+            logging.error(_('Failed to create create_draft_email_message task for email account %d. Outbox message id was %d.') % (
+                email_outbox_message.send_from, email_outbox_message.id
+            ))
+
+        return task
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = 'draft'
+
+        # Provide initial data if we're editing a draft or replying
+        if self.object is not None:
+            kwargs.update({
+                'draft_id': self.object.pk,
+                'initial': {
+                    'send_from': self.object.sender,
+                    'subject': self.object.subject,
+                    'send_to_normal': ','.join(self.object.received_by.all().values_list('email_address', flat=True)),
+                    'send_to_cc': ','.join(self.object.received_by_cc.all().values_list('email_address', flat=True)),
+                    'body_html': self.object.body_html,
+                },
+            })
+        return kwargs
 
 
 #

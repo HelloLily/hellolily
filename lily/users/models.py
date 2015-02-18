@@ -12,8 +12,6 @@ from timezone_field import TimeZoneField
 from lily.socialmedia.models import SocialMedia
 
 from lily.tenant.models import TenantMixin, Tenant
-from lily.utils.models import PhoneNumber, Address
-from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField
 from lily.utils.models.mixins import Common
 
 try:

@@ -70,7 +70,7 @@ class GmailConnector(object):
                     sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
                     logger.warning('Too many concurrent requests for user, sleeping for %d seconds' % sleep_time)
                     time.sleep(sleep_time)
-                elif error.get('code') == 503:
+                elif error.get('code') == 503 or error.get('code') == 500:
                     # Apply exponential backoff.
                     sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
                     logger.warning('Backend error, sleeping for %d seconds' % sleep_time)

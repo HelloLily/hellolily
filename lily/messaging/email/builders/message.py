@@ -267,10 +267,15 @@ class MessageBuilder(object):
             file_data = part['body']['data']
         elif 'attachmentId' in part['body']:
             file_data = self.manager.get_attachment(self.message.message_id, part['body']['attachmentId'])
-            file_data = file_data['data']
+            if file_data:
+                file_data = file_data.get('data')
+            else:
+                logger.warning('No attachment could be downloaded, not storing anything')
+                return
         else:
             logger.warning('No attachment, not storing anything')
             return
+
         file_data = base64.urlsafe_b64decode(file_data.encode('UTF-8'))
 
         # create as string file

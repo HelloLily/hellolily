@@ -69,7 +69,7 @@ angular.module('lilyServices', [])
             return this._csrftoken;
         };
     }])
-        .service('HLDate', [function() {
+    .service('HLDate', [function () {
         /**
          * getSubtractedDate() subtracts x amount of days from the current date
          *
@@ -77,10 +77,22 @@ angular.module('lilyServices', [])
          *
          * @returns (string): returns the subtracted date in a yyyy-mm-dd format
          */
-        this.getSubtractedDate = function(days) {
+        this.getSubtractedDate = function (days) {
             var date = new Date();
             date.setDate(date.getDate() - days);
 
             return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
         };
+    }])
+    .service('HLText', [function() {
+        /**
+         * hlCapitalize() lowercases the whole string and makes the first character uppercase
+         * This means 'STRING' becomes 'String'
+         *
+         * @returns (string): returns a string with only the first character uppercased
+         */
+        String.prototype.hlCapitalize = function () {
+            var newString = this.toLowerCase();
+            return newString.charAt(0).toUpperCase() + newString.substring(1);
+        }
     }]);

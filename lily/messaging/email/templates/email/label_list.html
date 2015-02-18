@@ -9,25 +9,25 @@
         </ul>
         <ul class="inbox-nav margin-bottom-10">
             <li class="inbox" ui-sref-active="active">
-                <a class="btn" ui-sref="email.list({labelId:'Inbox'})">
+                <a class="btn" ui-sref="email.list({labelId:'INBOX'})">
                     Inbox <span ng-if="labelCount['INBOX'] > 0"> ({{ labelCount['INBOX'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="sent" ui-sref-active="active">
-                <a class="btn" ui-sref="email.list({labelId:'Sent'})">
+                <a class="btn" ui-sref="email.list({labelId:'SENT'})">
                     Sent <span ng-if="labelCount['SENT'] > 0"> ({{ labelCount['SENT'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="draft" ui-sref-active="active">
-                <a class="btn" ui-sref="email.list({labelId:'Draft'})">
+                <a class="btn" ui-sref="email.list({labelId:'DRAFT'})">
                     Draft <span ng-if="labelCount['DRAFT'] > 0"> ({{ labelCount['DRAFT'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="trash" ui-sref-active="active">
-                <a class="btn" ui-sref="email.list({labelId:'Trash'})">
+                <a class="btn" ui-sref="email.list({labelId:'TRASH'})">
                     Trash <span ng-if="labelCount['TRASH'] > 0"> ({{ labelCount['TRASH'] }})</span>
                 </a>
                 <b></b>
@@ -40,25 +40,25 @@
         <ul class="inbox-nav margin-bottom-10" ng-repeat="account in accountList | orderBy:id">
             <li class="mailbox-header">{{ account.label }}</li>
             <li class="inbox" ui-sref-active="active">
-                <a class="btn" ui-sref="email.accountList({labelId:'Inbox', accountId: account.id})">
+                <a class="btn" ui-sref="email.accountList({labelId:'INBOX', accountId: account.id})">
                     Inbox <span ng-if="hasUnreadLabel(account, 'INBOX')"> ({{ unreadCountForLabel(account, 'INBOX') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="sent" ui-sref-active="active">
-                <a class="btn" ui-sref="email.accountList({labelId:'Sent', accountId: account.id})">
+                <a class="btn" ui-sref="email.accountList({labelId:'SENT', accountId: account.id})">
                     Sent <span ng-if="hasUnreadLabel(account, 'SENT')"> ({{ unreadCountForLabel(account, 'SENT') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="draft" ui-sref-active="active">
-                <a class="btn" ui-sref="email.accountList({labelId:'Draft', accountId: account.id})">
+                <a class="btn" ui-sref="email.accountList({labelId:'DRAFT', accountId: account.id})">
                     Draft <span ng-if="hasUnreadLabel(account, 'DRAFT')"> ({{ unreadCountForLabel(account, 'DRAFT') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="trash" ui-sref-active="active">
-                <a class="btn" ui-sref="email.accountList({labelId:'Trash', accountId: account.id})">
+                <a class="btn" ui-sref="email.accountList({labelId:'TRASH', accountId: account.id})">
                     Trash <span ng-if="hasUnreadLabel(account, 'TRASH')"> ({{ unreadCountForLabel(account, 'TRASH') }})</span>
                 </a>
                 <b></b>

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.provide.views import DataproviderView
+from .views import DataproviderView
 
 
 urlpatterns = patterns('',

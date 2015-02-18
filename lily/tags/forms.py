@@ -1,13 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.tags.models import Tag
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import TagsField
-
-
 from lily.utils.forms.widgets import ShowHideWidget, TagInput
+
+from .models import Tag
 
 
 class TagsFormMixin(HelloLilyModelForm):

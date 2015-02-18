@@ -14,8 +14,8 @@
                             {{ field }}
                         {% endfor %}
                         <div class="form-group">
-                            {% bootstrap_field form.first_name layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                            {% bootstrap_field form.email layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                            {% bootstrap_field form.first_name layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
+                            {% bootstrap_field form.email layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
 
                             {% if formset.can_delete %}
                                 <div class="col-md-1">
@@ -41,8 +41,8 @@
             <script type="form-template" data-formset-empty-form>
                 <div data-formset-form>
                     <div class="form-group">
-                        {% bootstrap_field formset.empty_form.first_name layout="horizontal" form_group_class="form-group-inline" show_label=False %}
-                        {% bootstrap_field formset.empty_form.email layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                        {% bootstrap_field formset.empty_form.first_name layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
+                        {% bootstrap_field formset.empty_form.email layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
                         <div class="col-md-4"></div>
                         <div class="col-md-1">
                             <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm green hidden">

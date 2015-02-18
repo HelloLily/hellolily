@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from lily.tags.models import Tag
+from .models import Tag
 
 admin.site.register(Tag)

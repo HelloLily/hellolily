@@ -1,7 +1,7 @@
 import gc
 from django.db import transaction
 
-from ..models import EmailLabel
+from ..models.models import EmailLabel
 
 
 class LabelBuilder(object):

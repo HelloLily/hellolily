@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.accounts.search import AccountMapping
@@ -14,7 +14,7 @@ from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.fields import TagsField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
-from lily.utils.models import EmailAddress
+from lily.utils.models.models import EmailAddress
 
 
 class AddContactQuickbuttonForm(HelloLilyModelForm):

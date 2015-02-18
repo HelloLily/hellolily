@@ -1,10 +1,10 @@
 {% extends 'page.html' %}
 
-{% load compressed i18n %}
+{% load pipeline i18n %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'tables' %}
+    {% stylesheet 'tables' %}
 {% endblock %}
 
 {% block page-container %}
@@ -38,7 +38,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'tables' %}
+    {% javascript 'tables' %}
     <script>
         $(function($){
             HLList.init({

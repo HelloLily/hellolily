@@ -7,8 +7,9 @@ from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
 from lily.contacts.factories import ContactFactory
-from lily.notes.models import Note
 from lily.users.factories import LilyUserFactory
+
+from .models import Note
 
 
 faker = Factory.create()

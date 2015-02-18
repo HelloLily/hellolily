@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from lily.search.base_mapping import BaseMapping
 
-from .models import EmailMessage
+from .models.models import EmailMessage
 from python_imap.utils import convert_br_to_newline
 
 

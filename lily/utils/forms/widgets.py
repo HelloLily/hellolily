@@ -2,13 +2,13 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea, CheckboxFieldRenderer
+from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_unicode, force_text
 from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 
@@ -301,6 +301,8 @@ class BootstrapRadioFieldRenderer(RadioFieldRenderer):
 
 
 class FormSetWidget(Widget):
+    choices = None
+
     def __init__(self, queryset=None, form_attrs=None, attrs=None):
         super(FormSetWidget, self).__init__(attrs)
 

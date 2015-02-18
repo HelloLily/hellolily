@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, url
 
-from lily.cases.views import CreateCaseView, DetailCaseView, UpdateCaseView, DeleteCaseView, ListCaseView, \
-    UpdateStatusAjaxView, ArchiveCasesView, UnarchiveCasesView, UpdateAndUnarchiveCaseView, GetCaseTypesView, \
-    UpdateAssignedToView
+from .views import (CreateCaseView, DetailCaseView, UpdateCaseView, DeleteCaseView, ListCaseView, UpdateStatusAjaxView,
+                    ArchiveCasesView, UnarchiveCasesView, UpdateAndUnarchiveCaseView, GetCaseTypesView,
+                    UpdateAssignedToView)
 
 
 urlpatterns = patterns(

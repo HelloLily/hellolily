@@ -1,12 +1,12 @@
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from django.conf import settings
 from lily.tags.models import TaggedObjectMixin
-from lily.utils.models import PhoneNumber, EmailAddress
+from lily.utils.models.models import PhoneNumber, EmailAddress
 from lily.utils.models.mixins import Common, DeletedMixin, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant

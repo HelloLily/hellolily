@@ -1,7 +1,7 @@
 from django import template
 register = template.Library()
 
-from lily.utils.functions import uniquify
+from ..functions import uniquify
 
 # Map message levels to CSS classes
 tag_mapping = {

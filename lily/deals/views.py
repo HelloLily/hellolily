@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.timezone import utc
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
@@ -35,7 +35,7 @@ class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
     success_url = reverse_lazy('deal_list')
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Deal has been archived.'),
             _('%d deals have been archived.') % count,
             count
@@ -51,7 +51,7 @@ class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
     success_url = reverse_lazy('deal_archived_list')
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Deal has been unarchived.'),
             _('%d deals have been unarchived.') % count,
             count

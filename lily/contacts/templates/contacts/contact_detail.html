@@ -1,6 +1,6 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils compressed %}
+{% load i18n utils pipeline %}
 
 {% block default-controller %}ng-controller="ContactDetailController"{% endblock %}
 
@@ -200,7 +200,7 @@
 {% endblock %}
 
 {% block scripts %}
-    {% compressed_js 'angularapp' %}
+    {% javascript 'angularapp' %}
     {{ block.super }}
     <script>
         $(function($) {

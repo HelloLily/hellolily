@@ -1,14 +1,7 @@
 
 
 PIPELINE_CSS = {
-    'metronic-core': {
-        'source_filenames': (
-            'metronic/plugins/bootstrap/css/bootstrap.css',
-            'metronic/plugins/uniform/css/uniform.default.css',
-        ),
-        'output_filename': 'compiled/css/metronic-core.css',
-    },
-    'metronic-theme': {
+    'base': {
         'source_filenames': (
             'metronic/css/style-metronic.css',
             'metronic/fonts/font.css',
@@ -17,10 +10,14 @@ PIPELINE_CSS = {
             'metronic/css/style-responsive.css',
             'metronic/css/plugins.css',
             'metronic/css/themes/default.css',
+            'metronic/plugins/bootstrap/css/bootstrap.css',
+            'metronic/plugins/uniform/css/uniform.default.css',
+            'metronic/plugins/font-awesome/css/font-awesome.css',
+            'metronic_new/plugins/font-awesome/css/font-awesome.css',
             'lily/css/custom.css',
             'metronic_new/css/custom.css',  # Should me merged with above after complete theme update
         ),
-        'output_filename': 'compiled/css/metronic-theme.css',
+        'output_filename': 'compiled/css/base.css',
     },
     'print': {
         'source_filenames': (
@@ -30,13 +27,6 @@ PIPELINE_CSS = {
             'media': 'print',
         },
         'output_filename': 'compiled/css/print.css',
-    },
-    'font-awesome': {
-        'source_filenames': (
-            'metronic/plugins/font-awesome/css/font-awesome.css',
-            'metronic_new/plugins/font-awesome/css/font-awesome.css',
-        ),
-        'output_filename': 'compiled/css/font-awesome.css',
     },
     'modal': {
         'source_filenames': (

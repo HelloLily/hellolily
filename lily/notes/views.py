@@ -3,14 +3,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, BaseFormView
 
-from lily.notes.forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
-from lily.notes.models import Note
 from lily.utils.functions import is_ajax
 from django.contrib.contenttypes.models import ContentType
+
+from .models import Note
+from .forms import NoteForm, UpdateNoteForm, UpdateDateNoteForm
 
 
 class CreateNoteView(CreateView):
@@ -39,6 +40,9 @@ class CreateNoteView(CreateView):
             return '%s#history' % self.request.META.get('HTTP_REFERER')
         else:
             return reverse('dashboard')
+
+from .forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
+from .models import Note
 
 
 class DeleteNoteView(DeleteView):

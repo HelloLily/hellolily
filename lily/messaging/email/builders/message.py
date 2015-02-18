@@ -15,7 +15,7 @@ import pytz
 
 from python_imap.utils import get_extensions_for_type
 
-from ..models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
+from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
 
 
 logger = logging.getLogger(__name__)

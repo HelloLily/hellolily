@@ -16,18 +16,13 @@ from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_conn
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.query_utils import Q
+
 from django.template.defaultfilters import truncatechars
-from django.template import (Context, TemplateSyntaxError, BLOCK_TAG_START, BLOCK_TAG_END, VARIABLE_TAG_START,
-                             VARIABLE_TAG_END)
+from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.messaging.email.decorators import get_safe_template
-from lily.messaging.email.models import EmailMessage
-from lily.messaging.utils import get_messages_accounts
-from lily.tenant.middleware import get_current_user
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import INBOX
 from python_imap.server import IMAP
@@ -35,8 +30,8 @@ from taskmonitor.models import TaskStatus
 from taskmonitor.utils import resolve_annotations
 from oauth2client.django_orm import Storage
 
-
-from .models import GmailCredentialsModel, EmailAccount
+from .decorators import get_safe_template
+from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage
 from .services import build_gmail_service
 
 

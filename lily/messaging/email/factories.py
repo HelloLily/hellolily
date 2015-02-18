@@ -2,7 +2,7 @@ import factory
 
 from lily.users.factories import LilyUserFactory
 
-from .models import EmailAccount, EmailMessage, EmailHeader, EmailLabel
+from .models.models import EmailAccount, EmailMessage, EmailHeader, EmailLabel
 
 
 class GmailAccountFactory(factory.DjangoModelFactory):

@@ -1,9 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.utils.models import HistoryListItem
+from lily.utils.models.models import HistoryListItem
 from lily.utils.models.mixins import DeletedMixin
 from lily.users.models import LilyUser
 
@@ -17,7 +17,7 @@ class Note(HistoryListItem, DeletedMixin):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    subject = generic.GenericForeignKey('content_type', 'object_id')
+    subject = GenericForeignKey('content_type', 'object_id')
 
     def get_list_item_template(self):
         """

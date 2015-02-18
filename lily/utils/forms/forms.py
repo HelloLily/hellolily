@@ -1,10 +1,10 @@
 import itertools
 
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from form_utils.forms import BetterForm, BetterModelForm, FieldsetCollection
 
-from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
+from ..models.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
 
 
 class HellolilyFieldsetCollection(FieldsetCollection):

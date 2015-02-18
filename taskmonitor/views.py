@@ -5,7 +5,7 @@ from celery.result import AsyncResult, TimeoutError
 from django.http import HttpResponse
 from django.views.generic.base import View
 
-from taskmonitor.models import TaskStatus
+from .models import TaskStatus
 from lily.utils.views.mixins import LoginRequiredMixin
 
 

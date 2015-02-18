@@ -1,8 +1,9 @@
 from lily.accounts.models import Account
-from lily.cases.models import Case, CaseType
 from lily.contacts.models import Contact
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
+
+from .models import Case
 
 
 class CaseMapping(BaseMapping):
@@ -118,7 +119,7 @@ class CaseMapping(BaseMapping):
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'created_by': obj.created_by.get_full_name() if obj.created_by else None,
             'priority': obj.priority,
-            'priority_name': Case.PRIORITY_CHOICES[obj.priority][1],
+            'priority_name': obj.get_priority_display(),
             'status': obj.status.status,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'casetype_name': obj.type.type if obj.type else None,

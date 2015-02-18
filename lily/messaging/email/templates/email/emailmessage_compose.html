@@ -1,10 +1,10 @@
 {% extends 'email/emailmessage_base.html' %}
 
-{% load compressed i18n email bootstrap3 %}
+{% load pipeline i18n email bootstrap3 %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'wysihtml5' %}
+    {% stylesheet 'wysihtml5' %}
 {% endblock %}
 
 {% block inbox %}
@@ -20,14 +20,14 @@
             <div class="inbox-form-group mail-from">
                 <label class="control-label">{% trans 'From' %}:</label>
                 <div class="controls controls-from">
-                    {% bootstrap_field form.send_from layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    {% bootstrap_field form.send_from layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
                 </div>
             </div>
             <div class="mail-to">
                 <div class="inbox-form-group {% if form.errors.send_to_normal %}has-error{% endif %}">
                     <label class="control-label">{% trans 'To' %}:</label>
                     <div class="controls controls-to">
-                        {% bootstrap_field form.send_to_normal layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                        {% bootstrap_field form.send_to_normal layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
                         <span class="inbox-cc-bcc">
                             <span class="inbox-cc">{% trans 'Cc' %}</span>
                             <span class="inbox-bcc">{% trans 'Bcc' %}</span>
@@ -38,32 +38,32 @@
                     <a href="javascript:void(0)" class="close"></a>
                     <label class="control-label">{% trans 'Cc' %}:</label>
                     <div class="controls controls-cc">
-                        {% bootstrap_field form.send_to_cc layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
+                        {% bootstrap_field form.send_to_cc layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
                     </div>
                 </div>
                 <div class="inbox-form-group input-bcc{% if not form.send_to_bcc.value %} display-hide{% endif %}">
                     <a href="javascript:void(0)" class="close"></a>
                     <label class="control-label">{% trans 'Bcc' %}:</label>
                     <div class="controls controls-bcc">
-                        {% bootstrap_field form.send_to_bcc layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                        {% bootstrap_field form.send_to_bcc layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
                     </div>
                 </div>
             </div>
             <div class="inbox-form-group">
                 <label class="control-label">{% trans 'Subject' %}:</label>
                 <div class="controls">
-                    {% bootstrap_field form.subject layout="horizontal" show_label=False field_class="col-md-12" form_group_class="" %}
+                    {% bootstrap_field form.subject layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
                 </div>
             </div>
             {% if template_list %}
                 <div class="inbox-form-group">
                     <label class="control-label">{% trans 'Template' %}:</label>
                     <div class="controls">
-                        {% bootstrap_field form.template layout="horizontal" show_label=False field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                        {% bootstrap_field form.template layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
                     </div>
                 </div>
             {% endif %}
-            {% bootstrap_field form.body_html layout="horizontal" show_label=False field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" %}
+            {% bootstrap_field form.body_html layout="horizontal" field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" label_class="hidden" %}
             {{ form.attachments }}
             <div class="inbox-compose-btn">
                 <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send' %}</button>
@@ -96,7 +96,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'wysihtml5' %}
+    {% javascript 'wysihtml5' %}
     <script>
         {% if template_list %}
             var templateList = {{ template_list|safe }};

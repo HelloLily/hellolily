@@ -8,7 +8,8 @@ from django.db.models import Q
 from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
+
 from lily.contacts.models import Contact
 
 from lily.tenant.middleware import get_current_user
@@ -18,10 +19,10 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
+from ..models.models import (EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
+                             EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
+from ..utils import get_email_parameter_choices, TemplateParser
 from .widgets import EmailAttachmentWidget
-from ..models import (EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
-                      EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
-from ..utils import get_email_parameter_choices, TemplateParser, get_messages_accounts
 
 
 class EmailAccountCreateUpdateForm(HelloLilyModelForm):
@@ -48,7 +49,6 @@ class EmailAccountShareForm(HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         super(EmailAccountShareForm, self).__init__(*args, **kwargs)
         user = get_current_user()
-
 
         self.fields['shared_with_users'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from lily.tenant.models import Tenant
+from .models import Tenant
 
 admin.site.register(Tenant)

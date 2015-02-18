@@ -1,7 +1,7 @@
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.tenant.models import TenantMixin
 
@@ -14,7 +14,7 @@ class Tag(TenantMixin):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    subject = generic.GenericForeignKey('content_type', 'object_id')
+    subject = GenericForeignKey('content_type', 'object_id')
 
     def __unicode__(self):
         return self.name
@@ -31,8 +31,8 @@ class TaggedObjectMixin(models.Model):
     Tagged Mixin, supplying a relation with tags
     """
 
-    tags = generic.GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id',
-                                   verbose_name=_('list of tags'))
+    tags = GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id',
+                           verbose_name=_('list of tags'))
 
     class Meta:
         abstract = True

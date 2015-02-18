@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .serializers import EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer
-from ..models import EmailLabel, EmailAccount, EmailMessage
+from ..models.models import EmailLabel, EmailAccount, EmailMessage
 from ..tasks import trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message
 
 

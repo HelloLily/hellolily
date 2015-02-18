@@ -1,6 +1,6 @@
 from django.conf.urls import url, patterns
 
-from lily.search.views import SearchView
+from .views import SearchView
 
 
 urlpatterns = patterns('',

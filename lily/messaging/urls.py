@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
 
-from lily.messaging.views import DashboardView
+from .views import DashboardView
 
 
 urlpatterns = patterns('',

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.updates.views import add_blogentry_view, delete_blogentry_view
+from .views import add_blogentry_view, delete_blogentry_view
 
 
 urlpatterns = patterns('',

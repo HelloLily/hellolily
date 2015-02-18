@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.contacts.views import (JsonContactListView, AddContactView, EditContactView, DetailContactView,
+from .views import (JsonContactListView, AddContactView, EditContactView, DetailContactView,
                                  DeleteContactView, ListContactView, ExportContactView)
 
 

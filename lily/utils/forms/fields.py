@@ -1,8 +1,8 @@
 from django.forms import Field, CharField, ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.utils.forms.validators import HostnameValidator
-from lily.utils.forms.widgets import TagInput, FormSetWidget
+from .validators import HostnameValidator
+from .widgets import TagInput, FormSetWidget
 
 
 class TagsField(CharField):
@@ -32,12 +32,14 @@ class FormSetField(Field):
     widget = FormSetWidget
     is_formset = True
 
-    def __init__(self, queryset=None, formset_class=None, template=None, form_attrs=None, related_name=None, *args, **kwargs):
+    def __init__(self, queryset=None, formset_class=None, template=None, form_attrs=None, related_name=None,
+                 limit_choices_to=None, *args, **kwargs):
         self.queryset = queryset
         self.formset_class = formset_class
         self.template = template
         self.form_attrs = form_attrs
         self.related_name = related_name
+        self.limit_choices_to = limit_choices_to
 
         widget = self.widget(self.queryset)
 

@@ -1,4 +1,5 @@
 import operator
+from collections import OrderedDict
 from datetime import datetime
 
 import anyjson
@@ -11,15 +12,15 @@ from django.db.models import Q, FieldDoesNotExist
 from django.forms.models import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.datastructures import SortedDict
 from django.utils.http import base36_to_int
 import unicodecsv
 
-from lily.messaging.email.models import EmailMessage
+from lily.messaging.email.models.models import EmailMessage
 from lily.notes.models import Note
 from lily.notes.views import NoteDetailViewMixin
-from lily.utils.functions import is_ajax, combine_notes_qs_email_qs, get_emails_for_email_addresses
 from lily.tags.models import Tag
+
+from ..functions import is_ajax, combine_notes_qs_email_qs, get_emails_for_email_addresses
 
 
 class LoginRequiredMixin(object):
@@ -369,13 +370,13 @@ class ModelFormSetViewMixin(object):
         return instance.%related_name%.filter(filters)
     """
     formset_data = {}
-    formset_classes = SortedDict()
-    formsets = SortedDict()
+    formset_classes = OrderedDict()
+    formsets = OrderedDict()
 
     def __init__(self, *args, **kwargs):
         self.formset_data = {}
-        self.formset_classes = SortedDict()
-        self.formsets = SortedDict()
+        self.formset_classes = OrderedDict()
+        self.formsets = OrderedDict()
 
     def get_form(self, form_class):
         """
@@ -464,7 +465,7 @@ class ModelFormSetViewMixin(object):
         kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):  # filter formsets from ajax requests
             if not 'formsets' in kwargs:
-                kwargs['formsets'] = SortedDict()
+                kwargs['formsets'] = OrderedDict()
 
             for context_name, instance in self.formsets.items():
                 kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}

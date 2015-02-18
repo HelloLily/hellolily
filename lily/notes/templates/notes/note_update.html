@@ -4,7 +4,7 @@
     {% csrf_token %}
     <div class="modal-body">
         {% for field in form.visible_fields %}
-            {% bootstrap_field field show_label=False %}
+            {% bootstrap_field field label_class="hidden" %}
         {% endfor %}
     </div>
     <div class="modal-footer">

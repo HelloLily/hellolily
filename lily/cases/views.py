@@ -5,7 +5,7 @@ import anyjson
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
@@ -193,7 +193,7 @@ class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
         return super(ArchiveCasesView, self).archive(**kwargs)
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Case has been archived.'),
             _('%d cases have been archived.') % count,
             count
@@ -209,7 +209,7 @@ class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
     success_url = reverse_lazy('case_archived_list')
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Case has been unarchived.'),
             _('%d cases have been unarchived.') % count,
             count

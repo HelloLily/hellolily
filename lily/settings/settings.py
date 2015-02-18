@@ -50,10 +50,6 @@ DATABASES = {
     'default': dj_database_url.config(default='postgres://localhost')
 }
 
-# Make unaccented search possible on db.
-DATABASES['default']['ENGINE'] = 'lily.db.backends.unaccent_postgresql_psycopg2'
-SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
-
 SITE_ID = os.environ.get('SITE_ID', 1)
 
 #######################################################################################################################
@@ -102,6 +98,7 @@ ALLOWED_HOSTS = [
 #######################################################################################################################
 if DEBUG:
     JQUERY_URL = ''  # Debug toolbar
+    COLLECTFAST_ENABLED = False
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
@@ -161,7 +158,7 @@ PIPELINE_CLOSURE_ARGUMENTS = '--language_in ECMASCRIPT5'
 
 PIPELINE_DISABLE_WRAPPER = True
 
-COLLECTFAST_CACHE = 'collectfast'
+COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
 
 try:
     from lily.pipeline.bundles import *
@@ -209,9 +206,8 @@ if DEBUG:
 #######################################################################################################################
 # TEMPLATE SETTINGS                                                                                                   #
 #######################################################################################################################
-# Template settings
 TEMPLATE_DIRS = (
-    local_path('templates/')
+    local_path('templates/'),
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -246,39 +242,8 @@ else:
 # INSTALLED APPS                                                                                                      #
 #######################################################################################################################
 INSTALLED_APPS = (
-    # Django
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.formtools',
-    'django.contrib.humanize',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
-    'django.contrib.messages',
-
-    # 3rd party
-    'activelink',
-    'bootstrap3',
-    'django_extensions',
-    'djangoformsetjs',
-    'easy_thumbnails',
-    'pipeline',
-    'collectfast',
-    'templated_email',
-    'storages',
-    'south',
-    'taskmonitor',
-    'injector',
-    'elasticutils',
-    'statici18n',
-    'timezone_field',
-    'django_nose',
-    'django_password_strength',
-    'rest_framework',
-
     # Lily
-    'lily',  # required for management command
+    'lily',  # required for management commands
     'lily.accounts',
     'lily.cases',
     'lily.deals',
@@ -295,13 +260,45 @@ INSTALLED_APPS = (
     'lily.parcels',
     'lily.socialmedia',
     'lily.google',
+
+    # 3rd party
+    'activelink',
+    'bootstrap3',
+    'django_extensions',
+    'djangoformsetjs',
+    'easy_thumbnails',
+    'collectfast',
+    'pipeline',
+    'templated_email',
+    'storages',
+    'taskmonitor',
+    'injector',
+    'elasticutils',
+    'statici18n',
+    'timezone_field',
+    'django_nose',
+    'django_password_strength',
+    'rest_framework',
+
+    # Django
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.formtools',
+    'django.contrib.humanize',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'django.contrib.messages',
 )
+#######################################################################################################################
 
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
         'template_debug',  # in-template tags for debugging purposes
         'template_timings_panel',
+        # 'debug_toolbar_line_profiler',  # Gedetailleerde
     )
 
 MESSAGE_APPS = (
@@ -496,7 +493,7 @@ else:
         'staticfiles': {
             'BACKEND': 'redis_cache.RedisCache',
             'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
-            'TIMEOUT': 31536000,  # One year, from django 1.7 this can be set to None for keys to never expire
+            'TIMEOUT': None,
             'OPTIONS': {
                 'DB': 0,
                 'PASSWORD': redis_url.password,
@@ -567,7 +564,13 @@ REST_FRAMEWORK = {
 }
 
 #######################################################################################################################
-## MISCELLANEOUS SETTINGS                                                                                            ##
+# TESTING                                                                                                             #
+#######################################################################################################################
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = ['--nocapture', '--nologcapture']
+
+#######################################################################################################################
+# MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################
 # Registration form
 REGISTRATION_POSSIBLE = boolean(os.environ.get('REGISTRATION_POSSIBLE', 0))
@@ -590,16 +593,6 @@ DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
 THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
 THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 
-# django-south
-SOUTH_AUTO_FREEZE_APP = True
-SOUTH_VERBOSITY = 1
-# On default, no migrations are tested, run `SOUTH_TESTS_MIGRATE=1 ./manage.py test` to test migrations
-SOUTH_TESTS_MIGRATE = boolean(os.environ.get('SOUTH_TESTS_MIGRATE', 0))
-
-# django-nose
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = ['--nocapture', '--nologcapture']
-
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.versions.VersionsPanel',
@@ -612,11 +605,11 @@ DEBUG_TOOLBAR_PANELS = [
     # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
     'debug_toolbar.panels.templates.TemplatesPanel',
     'debug_toolbar.panels.cache.CachePanel',
-    # 'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
     'debug_toolbar.panels.logging.LoggingPanel',
     # 'debug_toolbar.panels.redirects.RedirectsPanel',
-    # 'debug_toolbar.panels.profiling.ProfilingPanel',
-    # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython
+    'debug_toolbar.panels.profiling.ProfilingPanel',
+    # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython and debug_toolbar_line_profiler
 ]
 
 from .celeryconfig import *

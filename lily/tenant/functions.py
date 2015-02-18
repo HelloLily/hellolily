@@ -1,7 +1,7 @@
 from django.db import models
 
-from lily.tenant.middleware import get_current_user
-from lily.tenant.models import Tenant
+from .middleware import get_current_user
+from .models import Tenant
 
 
 def add_tenant(model, tenant=None):

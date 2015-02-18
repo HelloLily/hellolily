@@ -1,10 +1,11 @@
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.notes.models import Note
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import LilyDateTimePicker
+
+from .models import Note
 
 
 class NoteForm(HelloLilyModelForm):

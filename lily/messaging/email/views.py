@@ -1,7 +1,7 @@
+import anyjson
 import logging
 import mimetypes
 
-import anyjson
 from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -30,8 +30,8 @@ from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFor
 
 from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm,
                     EmailTemplateFileForm, EmailTemplateSetDefaultForm, ComposeEmailForm)
-from .models import EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate, EmailOutboxMessage, \
-    EmailTemplateAttachment, EmailOutboxAttachment
+from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
+                            EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment)
 from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status
 from .tasks import send_message, archive_email_message
 

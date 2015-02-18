@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
@@ -56,7 +56,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=True)
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
 
-    notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
+    notes = GenericRelation('notes.Note', content_type_field='content_type',
                                     object_id_field='object_id', verbose_name=_('list of notes'))
 
     expires = models.DateField(verbose_name=_('expires'), default=datetime.today)

@@ -1,9 +1,8 @@
 from django.contrib import admin
 
-from lily.utils.models import PhoneNumber, Address, EmailAddress
-from lily.socialmedia.models import SocialMedia
+from .models.models import PhoneNumber, Address, EmailAddress
+
 
 admin.site.register(PhoneNumber)
-admin.site.register(SocialMedia)
 admin.site.register(Address)
 admin.site.register(EmailAddress)

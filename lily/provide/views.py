@@ -2,11 +2,11 @@ import json
 import urllib
 import urllib2
 
+from django.conf import settings
 from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
-from lily import settings
 from lily.utils.functions import parse_address, parse_phone_number
 
 

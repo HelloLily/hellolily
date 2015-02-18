@@ -8,14 +8,14 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from lily.accounts.models import Account
 from lily.search.utils import LilySearch
 from lily.utils.functions import is_ajax
-from lily.utils.models import PhoneNumber
+from lily.utils.models.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView
 from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
 

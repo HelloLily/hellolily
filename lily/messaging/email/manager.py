@@ -9,7 +9,7 @@ from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
 from .connector import GmailConnector
 from .credentials import InvalidCredentialsError
-from .models import EmailLabel, EmailMessage, NoEmailMessageId
+from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
 
 logger = logging.getLogger(__name__)

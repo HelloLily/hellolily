@@ -1,10 +1,9 @@
 from django import forms
 from django.contrib import messages
-from django.contrib.auth import authenticate
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
 from django.contrib.auth.hashers import is_password_usable
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.models import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
@@ -12,15 +11,16 @@ from django.forms import TextInput
 from django.forms.formsets import BaseFormSet
 from django.template import loader
 from django.utils.http import int_to_base36
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
 from lily.socialmedia.connectors import LinkedIn, Twitter
 from lily.socialmedia.models import SocialMedia
 
 from lily.tenant.middleware import get_current_user
-from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.widgets import JqueryPasswordInput, AddonTextInput
+
+from .models import LilyUser
 
 
 class CustomAuthenticationForm(AuthenticationForm):

@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% load compressed i18n email activelink static %}
+{% load pipeline i18n email activelink static %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'modal' %}
-    {% compressed_css 'forms' %}  {# this also includes styles used in quickbutton forms #}
+    {% stylesheet 'modal' %}
+    {% stylesheet 'forms' %}  {# this also includes styles used in quickbutton forms #}
 {% endblock %}
 
 {% block page-header %}
@@ -188,10 +188,10 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'app' %}
-    {% compressed_js 'modal' %}
-    {% compressed_js 'ajax-submit' %}
-    {% compressed_js 'forms' %} {# this also includes scripts used in quickbutton forms #}
+    {% javascript 'app' %}
+    {% javascript 'modal' %}
+    {% javascript 'ajax-submit' %}
+    {% javascript 'forms' %} {# this also includes scripts used in quickbutton forms #}
     <script>
         var currentUser = {
             id: '{{ user.id }}',

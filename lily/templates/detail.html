@@ -1,11 +1,11 @@
 {% extends 'page.html' %}
 
-{% load bootstrap3 i18n compressed %}
+{% load bootstrap3 i18n pipeline %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'profile' %}
-    {% compressed_css 'timeline' %}
+    {% stylesheet 'profile' %}
+    {% stylesheet 'timeline' %}
 {% endblock %}
 
 {% block content %}
@@ -55,5 +55,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'historylist' %}
+    {% javascript 'historylist' %}
 {% endblock %}

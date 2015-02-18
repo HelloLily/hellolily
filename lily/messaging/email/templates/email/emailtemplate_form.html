@@ -1,6 +1,6 @@
 {% extends 'form.html' %}
 
-{% load compressed bootstrap3 i18n %}
+{% load pipeline bootstrap3 i18n %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -12,8 +12,8 @@
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'inbox' %}
-    {% compressed_css 'wysihtml5' %}
+    {% stylesheet 'inbox' %}
+    {% stylesheet 'wysihtml5' %}
 {% endblock %}
 
 {% block page-container %}
@@ -38,8 +38,8 @@
 
     <div class="form-group">
         <label class="col-md-2 control-label">{{ form.variables.label }}</label>
-        {% bootstrap_field form.variables form_group_class="" field_class="col-md-2" show_label=False %}
-        {% bootstrap_field form.values form_group_class="" field_class="col-md-2" show_label=False %}
+        {% bootstrap_field form.variables form_group_class="" field_class="col-md-2" label_class="hidden" %}
+        {% bootstrap_field form.values form_group_class="" field_class="col-md-2" label_class="hidden" %}
         <div class="col-md-4">
             <button type="button" id="id_insert_button" name="variable_submit" class="btn default">{% trans 'Insert' %}</button>
             <span id="id_text_value" class="form-control-static"></span>
@@ -51,8 +51,8 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'emailtemplate' %}
-    {% compressed_js 'wysihtml5' %}
+    {% javascript 'emailtemplate' %}
+    {% javascript 'wysihtml5' %}
 <script>
 var parameterChoices = {{ parameter_choices|safe }};
 $(function($) {

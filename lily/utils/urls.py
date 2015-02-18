@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.utils.views import ajax_update_view, notifications_view, SugarCsvImportView
+from .views import ajax_update_view, notifications_view, SugarCsvImportView
 
 
 urlpatterns = patterns('',

@@ -3,12 +3,11 @@ import traceback
 
 from celery.task import task
 from django.conf import settings
-
 from taskmonitor.decorators import monitor_task
 from taskmonitor.utils import lock_task
 
 from .manager import GmailManager, ManagerError, SyncLimitReached
-from .models import EmailAccount, EmailMessage, EmailOutboxMessage
+from .models.models import EmailAccount, EmailMessage, EmailOutboxMessage
 
 
 logger = logging.getLogger(__name__)

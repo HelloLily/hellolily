@@ -6,6 +6,7 @@ from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailA
                     UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView,
                     DetailEmailTemplateView)
 
+
 urlpatterns = patterns(
     '',
     url(r'^setup/$', SetupEmailAuth.as_view(), name='messaging_email_account_setup'),

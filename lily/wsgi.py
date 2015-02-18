@@ -21,11 +21,3 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lily.settings.settings")
 # # setting points here.
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
-
-# # Apply WSGI middleware here.
-# # from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)
-
-# TODO: once we use Django 1.7 this should go in apps.py (http://stackoverflow.com/a/16111968)
-from Crypto import Random
-Random.atfork()

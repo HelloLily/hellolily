@@ -1,11 +1,11 @@
 from lily.accounts.models import Account
-from lily.contacts.models import Function
+
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
-
-from .models import Contact
 from lily.socialmedia.models import SocialMedia
+
+from .models import Contact, Function
 
 
 class ContactMapping(BaseMapping):
@@ -143,8 +143,8 @@ class ContactMapping(BaseMapping):
                         'social_profile': soc.username,
                         'social_url': soc.profile_url} for soc in obj.social_media.all()],
             'title': obj.title,
-            'salutation': Contact.SALUTATION_CHOICES[obj.salutation][1],
-            'gender': Contact.CONTACT_GENDER_CHOICES[obj.gender][1],
+            'salutation': obj.get_salutation_display(),
+            'gender': obj.get_gender_display(),
             'function': obj.get_primary_function().title if obj.get_primary_function() else None,
             'address': [address.full() for address in obj.addresses.all()],
         }

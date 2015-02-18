@@ -1,7 +1,7 @@
 import logging
 from oauth2client.django_orm import Storage
 
-from .models import GmailCredentialsModel
+from .models.models import GmailCredentialsModel
 
 
 logger = logging.getLogger(__name__)

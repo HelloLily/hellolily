@@ -2,13 +2,13 @@ from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
 from lily.utils.functions import flatten
-from lily.utils.models import EmailAddress
+from lily.utils.models.models import EmailAddress
 from lily.utils.models.mixins import Common, CaseClientModelMixin
 try:
     from lily.tenant.functions import add_tenant
@@ -244,7 +244,7 @@ def post_save_account_handler(sender, **kwargs):
     overwrite the existing one.
     """
     instance = kwargs['instance']
-    if instance.__dict__.has_key('primary_email'):
+    if 'primary_email' in instance.__dict__:
         new_email_address = instance.__dict__['primary_email']
         if new_email_address and len(new_email_address.strip()) > 0:
             try:

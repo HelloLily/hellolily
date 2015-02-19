@@ -1,8 +1,8 @@
 {% extends 'anonymous/page_wide.html' %}
 
-{% load i18n pipeline %}
+{% load i18n compressed %}
 
-{% block css %}{% stylesheet 'error' %}{% endblock %}
+{% block css %}{% compressed_css 'error' %}{% endblock %}
 {% block head-title %}Error 500{% endblock %}
 {% block page-title %}Error 500{% endblock %}
 {% block body-class %}page-500-full-page{% endblock %}

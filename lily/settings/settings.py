@@ -128,11 +128,10 @@ STATICFILES_DIRS = (
 )
 
 STATICFILES_FINDERS = (
-    'pipeline.finders.FileSystemFinder',
-    'pipeline.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'pipeline.finders.PipelineFinder',
     'pipeline.finders.CachedFileFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')

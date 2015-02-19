@@ -1,10 +1,10 @@
 {% extends 'page.html' %}
 
-{% load bootstrap3 humanize i18n utils pipeline %}
+{% load bootstrap3 humanize i18n utils compressed %}
 
 {% block css %}
     {{ block.super }}
-    {% stylesheet 'blog' %}
+    {% compressed_css 'blog' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'HelloLily' %}{% endblock %}

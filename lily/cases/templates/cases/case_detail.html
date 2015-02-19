@@ -1,10 +1,10 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils pipeline %}
+{% load i18n utils compressed %}
 
 {% block css %}
     {{ block.super }}
-    {% stylesheet 'cases' %}
+    {% compressed_css 'cases' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Case' %} - {{ object }}{% endblock %}
@@ -152,7 +152,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% javascript 'cases'  %}
+    {% compressed_js 'cases'  %}
     <script>
         HLCases.init({
             caseUpdateUrl: "{% url 'case_update_status_short' %}",

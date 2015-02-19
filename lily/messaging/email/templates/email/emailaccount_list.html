@@ -1,10 +1,10 @@
 {% extends 'profile.html' %}
 
-{% load i18n pipeline %}
+{% load i18n compressed %}
 
 {% block scripts %}
     {{ block.super }}
-    {% javascript 'password_strength' %}
+    {% compressed_js 'password_strength' %}
 {% endblock %}
 
 {% block form %}

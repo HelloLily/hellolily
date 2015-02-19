@@ -1,4 +1,4 @@
-{% load pipeline statici18n i18n static %}
+{% load compressed statici18n i18n static %}
 
 <!DOCTYPE html>
 {% if angular_app %}
@@ -15,12 +15,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="MobileOptimized" content="320">
-    {% stylesheet 'base' %}
+    {% compressed_css 'base' %}
     {% block css %}
-        {% stylesheet 'notifications' %}
+        {% compressed_css 'notifications' %}
     {% endblock %}
-    {% stylesheet 'print' %}
-    {% javascript 'jquery' %}
+    {% compressed_css 'print' %}
+    {% compressed_js 'jquery' %}
     <link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />
     {% block head-outer-title %}
         <title>{% block head-title %}HelloLily{% endblock %}</title>
@@ -58,13 +58,13 @@
 
     {% block scripts %}
         <!--[if lt IE 9]>
-            {% javascript 'ie9' %}
+            {% compressed_js 'ie9' %}
         <![endif]-->
         {% with LANGUAGE_CODE|add:'_translations' as translation_bundle %}
-            {% javascript translation_bundle %}
+            {% compressed_js translation_bundle %}
         {% endwith %}
-        {% javascript 'core' %}
-        {% javascript 'notifications' %}
+        {% compressed_js 'core' %}
+        {% compressed_js 'notifications' %}
         <script>
             var load_notifications = function() {
                 $.getScript('{% url 'notifications' %}');

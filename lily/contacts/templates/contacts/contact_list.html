@@ -1,10 +1,10 @@
 {% extends 'list.html' %}
 
-{% load i18n utils pipeline %}
+{% load i18n utils compressed %}
 
 {% block css %}
     {{ block.super }}
-    {% stylesheet 'contacts' %}
+    {% compressed_css 'contacts' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Contacts' %}{% endblock %}
@@ -128,5 +128,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% javascript 'angularapp' %}
+    {% compressed_js 'angularapp' %}
 {% endblock %}

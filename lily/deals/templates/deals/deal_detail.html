@@ -1,10 +1,10 @@
 {% extends 'detail.html' %}
 
-{% load i18n utils pipeline %}
+{% load i18n utils compressed %}
 
 {% block css %}
     {{ block.super }}
-    {% stylesheet 'deals' %}
+    {% compressed_css 'deals' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Deal' %} - {{ object }}{% endblock %}
@@ -117,7 +117,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% javascript 'deals' %}
+    {% compressed_js 'deals' %}
     <script>
         HLDeals.init({
             dealsUpdateStageUrl: "{% url 'deal_update_stage_short' %}"

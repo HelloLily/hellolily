@@ -487,8 +487,7 @@ class UserProfileForm(HelloLilyModelForm):
 
 
 class UserAccountForm(HelloLilyModelForm):
-    new_email = forms.EmailField(label=_('New email address'), required=False)
-    password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput(), required=False)
+    password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput())
     new_password1 = forms.CharField(label=_('New password'), widget=PasswordStrengthInput(), required=False)
     new_password2 = forms.CharField(
         label=_('Confirm new password'),
@@ -499,41 +498,33 @@ class UserAccountForm(HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         super(UserAccountForm, self).__init__(*args, **kwargs)
 
-        self.fields['email'].label = _('Current email address')
         self.fields['email'].required = False
         self.fields['password'].help_text = '<a href="%s" tabindex="-1">%s</a>' % (
             reverse('password_reset'),
-            _('Forgot your password?')
+            unicode(_('Forgot your password?'))
         )
 
     def clean(self):
         cleaned_data = super(UserAccountForm, self).clean()
-        password = cleaned_data.get('password')
         new_password1 = cleaned_data.get('new_password1')
         new_password2 = cleaned_data.get('new_password2')
 
         if new_password1 or new_password2:
-            if not password:
-                self._errors["password"] = self.error_class(
-                    [_('If you want to change your password, please verify your current one.')]
-                )
-            elif not new_password1 == new_password2:
+            if not new_password1 == new_password2:
                 self._errors["new_password2"] = self.error_class([_('Your passwords don\'t match.')])
-            else:
-                logged_in_user = get_current_user()
-                if not logged_in_user.check_password(password):
-                    self._errors["password"] = self.error_class(
-                        [_('Please enter a correct e-mail address and password. '
-                           'Note that both fields are case-sensitive.')]
-                    )
 
         return cleaned_data
 
-    def save(self, commit=True):
-        new_email = self.cleaned_data.get('new_email')
-        if new_email:
-            self.email = new_email
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        logged_in_user = get_current_user()
 
+        if not logged_in_user.check_password(password):
+            self._errors["password"] = self.error_class([_('Password is incorrect.')])
+
+        return password
+
+    def save(self, commit=True):
         new_password = self.cleaned_data.get('new_password1')
         if new_password:
             logged_in_user = get_current_user()
@@ -546,11 +537,10 @@ class UserAccountForm(HelloLilyModelForm):
         model = LilyUser
         fieldsets = [
             (_('Change your email address'), {
-                'fields': ['email', 'new_email', ],
+                'fields': ['email', ],
             }), (_('Change your password'), {
-                'fields': ['password', 'new_password1', 'new_password2', ],
+                'fields': ['new_password1', 'new_password2', ],
+            }), (_('Confirm your password'), {
+                'fields': ['password', ],
             })
         ]
-        widgets = {
-            'email': TextInput(attrs={'readonly': 'readonly'}),
-        }

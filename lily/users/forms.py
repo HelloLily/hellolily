@@ -487,7 +487,7 @@ class UserProfileForm(HelloLilyModelForm):
 
 
 class UserAccountForm(HelloLilyModelForm):
-    password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput())
+    old_password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput())
     new_password1 = forms.CharField(label=_('New password'), widget=PasswordStrengthInput(), required=False)
     new_password2 = forms.CharField(
         label=_('Confirm new password'),
@@ -499,7 +499,7 @@ class UserAccountForm(HelloLilyModelForm):
         super(UserAccountForm, self).__init__(*args, **kwargs)
 
         self.fields['email'].required = False
-        self.fields['password'].help_text = '<a href="%s" tabindex="-1">%s</a>' % (
+        self.fields['old_password'].help_text = '<a href="%s" tabindex="-1">%s</a>' % (
             reverse('password_reset'),
             unicode(_('Forgot your password?'))
         )
@@ -515,14 +515,14 @@ class UserAccountForm(HelloLilyModelForm):
 
         return cleaned_data
 
-    def clean_password(self):
-        password = self.cleaned_data['password']
+    def clean_old_password(self):
+        old_password = self.cleaned_data['old_password']
         logged_in_user = get_current_user()
 
-        if not logged_in_user.check_password(password):
-            self._errors["password"] = self.error_class([_('Password is incorrect.')])
+        if not logged_in_user.check_password(old_password):
+            self._errors["old_password"] = self.error_class([_('Password is incorrect.')])
 
-        return password
+        return old_password
 
     def save(self, commit=True):
         new_password = self.cleaned_data.get('new_password1')
@@ -541,6 +541,6 @@ class UserAccountForm(HelloLilyModelForm):
             }), (_('Change your password'), {
                 'fields': ['new_password1', 'new_password2', ],
             }), (_('Confirm your password'), {
-                'fields': ['password', ],
+                'fields': ['old_password', ],
             })
         ]

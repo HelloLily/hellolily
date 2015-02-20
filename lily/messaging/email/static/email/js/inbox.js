@@ -11,7 +11,6 @@
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             wysiHtmlToolbar: '#wysihtml5-toolbar',
             replyButton: '.reply-btn',
-            inboxFrame: null,
             tagsAjaxSelector: '.tags-ajax',
             emailAccountInput: '#id_send_from',
             sendToNormalField: '#id_send_to_normal',
@@ -82,9 +81,6 @@
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
 
-            // autogrow on frame load
-            $(cf.inboxFrame).load(self.emailFrameAutogrow());
-
             // initialize uniform checkboxes
             App.initUniform('.mail-group-checkbox');
 
@@ -116,53 +112,6 @@
             $('.bulk-ids').val(selectedIds.join(','));
         },
 
-        emailFrameAutogrow: function () {
-            var cf = this.config;
-
-            setTimeout(function () {
-                $('.inbox-loading').hide();
-                $('.inbox-view').show();
-                App.fixContentHeight();
-
-                // highlight selected messages
-                $('.mail-checkbox:not(.mail-group-checkbox)').change(function () {
-                    $(this).parents('tr').toggleClass('active');
-                });
-
-                // do this after .inbox-view is visible
-                var ifDoc, ifRef = cf.inboxFrame;
-
-                // set ifDoc to 'document' from frame
-                try {
-                    ifDoc = ifRef.contentWindow.document.documentElement;
-                } catch (e1) {
-                    try {
-                        ifDoc = ifRef.contentDocument.documentElement;
-                    } catch (e2) {
-                    }
-                }
-
-                // calculate and set max height for frame
-                if (ifDoc) {
-                    var subtractHeights = [
-                        $(cf.inboxFrame).offset().top,
-                        $('.footer').outerHeight()
-                    ];
-
-                    var maxHeight = $('body').outerHeight();
-                    for (var height in subtractHeights) {
-                        maxHeight = maxHeight - height;
-                    }
-
-                    if (ifDoc.scrollHeight > maxHeight) {
-                        ifRef.height = maxHeight;
-                    } else {
-                        ifRef.height = ifDoc.scrollHeight;
-                    }
-                }
-            }, 300);
-        },
-
         customParser: function () {
             function parse(elementOrHtml, rules, context, cleanUp) {
                 return elementOrHtml;
@@ -191,10 +140,13 @@
                 handleTables: false
             });
 
+            // extra div is needed so the editor auto resizes
+            editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
+
             editor.observe('load', function () {
                 this.focus();
 
-                $(this.composer.element).on('keypress keyup keydown paste change focus blur', function () {
+                $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });
 
@@ -286,6 +238,7 @@
 
             // Make sure replies on this email don't break the application
             editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
+            editor.setValue(editor.getValue().replace(' id="body-html-content"', ''));
 
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
@@ -392,7 +345,7 @@
             }
 
             if (newEditorValue.length) {
-                editor.setValue(newEditorValue + '<br>');
+                editor.setValue(newEditorValue);
                 self.resizeEditor();
                 self.processAttachments(data['attachments']);
             }

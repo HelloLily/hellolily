@@ -75,6 +75,7 @@
                 {% endif %}
 {#                <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>#}
                 <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
+                <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
             </div>
         </form>
     </div>

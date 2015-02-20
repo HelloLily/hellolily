@@ -137,6 +137,7 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
         model = Deal
         fields = (
             'name',
+            'new_business',
             'description',
             'account',
             'currency',
@@ -156,5 +157,9 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
             }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
+            }),
+            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
             }),
         }

@@ -80,7 +80,8 @@
                 <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
             </td>
             <td class="view-message hidden-xs" ng-if="label.name == 'Sent'" ui-sref="email.detail({id: message.id})">
-                {{ message.received_by_name.join(', ') }}
+                <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
+                <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
             </td>
             <td class="view-message hidden-xs" ng-if="label.name == 'Draft'" ng-click="goToDraft(message.id)">
                {{ message.received_by_email.join(',') }}

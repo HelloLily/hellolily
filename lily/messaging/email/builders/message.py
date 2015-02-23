@@ -10,7 +10,7 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.core.files import File
 from django.core.urlresolvers import reverse
-from django.db import transaction
+from django.db import transaction, IntegrityError
 import pytz
 
 from python_imap.utils import get_extensions_for_type
@@ -82,7 +82,7 @@ class MessageBuilder(object):
                 created = True
 
         if 'threadId' in message_dict:
-            self.message.thread_id = message_dict['threadId'],
+            self.message.thread_id = message_dict['threadId']
 
         return self.message, created
 
@@ -94,17 +94,15 @@ class MessageBuilder(object):
             message_info (dict): with message info
             message_id (string): message_id of email
         """
-        self.get_or_create_message({'id': message_id})
-        self.message.snippet = message_info['snippet']
-        self.message.thread_id = message_info['threadId']
-
         # Save labels
-        self.store_labels_for_message(message_info.get('labelIds', []), message_id)
+        self.store_labels_for_message(message_info, message_id)
+
+        self.message.snippet = message_info['snippet']
 
         # Save the payload
         self._save_message_payload(message_info['payload'])
 
-    def store_labels_for_message(self, labels, message_id):
+    def store_labels_for_message(self, message_info, message_id):
         """
         Handle the labels for current Message
 
@@ -113,16 +111,21 @@ class MessageBuilder(object):
             message_id (string): message_id of email
         """
         self.get_or_create_message({'id': message_id})
+        self.message.thread_id = message_info['threadId']
+
+        # Temporary sync snippet
+        # TODO: remove snippet sync in label update
+        self.message.snippet = message_info['snippet']
 
         # clear current labels
         if self.message.pk and self.message.labels:
             self.message.labels.clear()
 
         # UNREAD identifier check to see if message is read
-        self.message.read = settings.GMAIL_UNREAD_LABEL not in labels
+        self.message.read = settings.GMAIL_UNREAD_LABEL not in message_info.get('labelIds', [])
 
         # Store all labels
-        for label in labels:
+        for label in message_info.get('labelIds', []):
             # Do not save UNREAD_LABEL
             if label == settings.GMAIL_UNREAD_LABEL:
                 continue
@@ -437,7 +440,15 @@ class MessageBuilder(object):
                 self.message.has_attachment = True
 
             # Save before we can add many to many and foreign keys
-            self.message.save()
+            try:
+                self.message.save()
+            except IntegrityError:
+                existing_message = EmailMessage.objects.get(
+                    account_id=self.message.account_id,
+                    message_id=self.message.message_id,
+                )
+                self.message.id = existing_message.id
+                self.message.save()
 
             # Save recipients
             self.message.received_by.add(*self.received_by)

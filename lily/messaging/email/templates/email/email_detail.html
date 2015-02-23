@@ -20,15 +20,15 @@
 		</div>
 		<div class="col-md-5 inbox-info-btn">
 			<div class="btn-group">
-				<button data-messageid="23" class="btn blue reply-btn">
+				<a href="/messaging/email/reply/{{ message.id }}/" class="btn blue reply-btn">
 				    <i class="fa fa-reply"></i> Reply
-                </button>
+                </a>
 				<button class="btn blue dropdown-toggle" data-toggle="dropdown">
 				    <i class="fa fa-angle-down"></i>
 				</button>
 				<ul class="dropdown-menu pull-right">
 					<li>
-						<a href="#" class="reply-btn">
+						<a href="/messaging/email/reply/{{ message.id }}/" class="reply-btn">
 						<i class="fa fa-reply"></i> Reply </a>
 					</li>
 					<li>
@@ -64,9 +64,7 @@
 <div class="inbox-view" ng-show="message.body_html" id="ifrm_container">
     <iframe resize-iframe ng-src="{{ message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden"></iframe>
 </div>
-<div class="inbox-view" ng-hide="message.body_html">
-    {{ message.body_text | nl2br }}
-</div>
+<div class="inbox-view" ng-hide="message.body_html" ng-bind-html="message.body_text | nl2br"></div>
 <hr>
 <div class="inbox-attached" ng-show="message.attachments.length">
     <div class="margin-bottom-15">

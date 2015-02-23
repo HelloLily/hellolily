@@ -197,7 +197,7 @@ class GmailManager(object):
                     message_id,
                     self.email_account.email_address
                 ))
-                self.message_builder.store_labels_for_message(labels_info.get(message_id, []), message_id)
+                self.message_builder.store_labels_for_message(labels_info.get(message_id, {}), message_id)
                 self.message_builder.save()
             else:
                 # Message was deleted, we need to remove it
@@ -336,15 +336,16 @@ class GmailManager(object):
         """
         self.connector.delete_email_message(email_message.message_id)
 
-    def send_email_message(self, email_message):
+    def send_email_message(self, email_message, thread_id=None):
         """
         Send email.
 
         Args:
             email_message (instance): Email instance
+            thread_id (string): Thread Id of original message that is replied or forwarded on
         """
         # Send message
-        message_dict = self.connector.send_email_message(email_message.as_string())
+        message_dict = self.connector.send_email_message(email_message.as_string(), thread_id)
         full_message_dict = self.connector.get_message_info(message_dict['id'])
 
         # Store updated message

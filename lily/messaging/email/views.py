@@ -12,6 +12,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
@@ -342,7 +343,7 @@ class EmailMessageComposeView(FormView):
         """
         This function is not implemented. For custom headers overwrite this function.
         """
-        pass
+        return {}
 
     def remove_draft(self):
         """
@@ -513,7 +514,7 @@ class EmailMessageDraftView(EmailMessageComposeView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = 'draft'
 
-        # Provide initial data if we're editing a draft or replying
+        # Provide initial data if we're editing a draft
         if self.object is not None:
             kwargs.update({
                 'draft_id': self.object.pk,
@@ -526,6 +527,94 @@ class EmailMessageDraftView(EmailMessageComposeView):
                 },
             })
         return kwargs
+
+
+class EmailMessageReplyView(EmailMessageComposeView):
+    remove_old_message = False
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = 'reply'
+
+        # Provide initial data
+        if self.object is not None:
+            kwargs.update({
+                'initial': {
+                    'subject': self.get_subject(),
+                    'send_to_normal': self.object.sender.email_address,
+                    'body_html': mark_safe(self.object.reply_body),
+                },
+            })
+        return kwargs
+
+    def get_subject(self, prefix='Re: '):
+        subject = self.object.subject
+        while True:
+            if subject.lower().startswith('re:') or subject.lower().startswith('fw:'):
+                subject = subject[3:].lstrip()
+            else:
+                break
+        return u'%s%s' % (prefix, subject)
+
+    def form_valid(self, form):
+        email_outbox_message = super(EmailMessageReplyView, self).form_valid(form)
+
+        task = self.reply_message(email_outbox_message)
+
+        if is_ajax(self.request):
+            return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+    def reply_message(self, email_outbox_message):
+        """
+        Creates a task for async replyen on a message with an EmailOutboxMessage and sets messages for feedback.
+
+        Args:
+            email_outbox_message (instance): EmailOutboxMessage instance
+
+        Returns:
+            Task instance
+        """
+        status = create_task_status('send_message')
+
+        task = send_message.apply_async(
+            args=(email_outbox_message.id, self.object.id),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
+
+        status.task_id = task.id
+        status.save()
+
+        if task:
+            messages.info(
+                self.request,
+                _('Sending email as fast as I can')
+            )
+            self.request.session['tasks'].update({'send_message': task.id})
+            self.request.session.modified = True
+        else:
+            messages.error(
+                self.request,
+                _('Sorry, I couldn\'t send your e-mail')
+            )
+            logging.error(_('Failed to create reply_on_email_message task for email account %d. Outbox message id was %d.') % (
+                email_outbox_message.send_from, email_outbox_message.id
+            ))
+
+        return task
+
+    def get_email_headers(self):
+        headers = super(EmailMessageReplyView, self).get_email_headers()
+        message_id = self.object.get_message_id()
+        headers.update({
+            'References': message_id,
+            'In-Reply-To': message_id,
+        })
+
+        return headers
 
 
 #

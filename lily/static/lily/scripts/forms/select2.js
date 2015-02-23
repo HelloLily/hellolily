@@ -171,7 +171,9 @@
                                 text: term
                             };
                         }
-                    }
+                    };
+                    // Prevent select2 dropdown from opening when pressing enter
+                    options.openOnEnter = false;
                 }
 
                 $this.select2(options);

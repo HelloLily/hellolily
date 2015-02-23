@@ -27,6 +27,10 @@ angular.module('lilyFilters', [])
             // If date is a string, format to date object
             if (!(date instanceof Date)) {
                 date = new Date(date);
+                // If the closing date or w/e is the current date we want to compare with midnight
+                date.setHours(23);
+                date.setMinutes(59);
+                date.setSeconds(59);
             }
 
             delta = null;
@@ -45,7 +49,8 @@ angular.module('lilyFilters', [])
             calculateDelta();
 
             if (delta > day && delta < week) {
-                date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+                // If the closing date or w/e is the current date we want to compare with midnight
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
                 calculateDelta();
             }
 

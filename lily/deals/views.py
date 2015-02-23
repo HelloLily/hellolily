@@ -1,4 +1,5 @@
 import datetime
+from datetime import date, timedelta
 from urlparse import urlparse
 
 import anyjson
@@ -127,6 +128,11 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
                 pass
             else:
                 initial.update({'account': account})
+
+                # If the account is newer than 7 days we mark it as a new business
+                if account.created.date() > date.today() - timedelta(days=7):
+                    initial.update({'new_business': True})
+
         return initial
 
     def form_valid(self, form):

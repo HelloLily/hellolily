@@ -3,27 +3,30 @@
     margin-bottom: 15px;
 }
 
-td .label-sm {
-    display: block;
+.label-sm {
     padding: 4px 6px !important;
 }
 
-td .label-danger {
+td .label-sm {
+    display: block;
+}
+
+.label-danger {
     /* Critical priority */
     background-color: #00008b;
 }
 
-td .label-warning {
+.label-warning {
     /* High priority */
     background-color: #0000ff;
 }
 
-td .label-info {
+.label-info {
     /* Medium priority */
     background-color: #32bbed;
 }
 
-td .label-success {
+.label-success {
     /* Low priority */
     background-color: #afe4F5;
 }

@@ -135,27 +135,6 @@ class CreateUpdateContactMixin(LoginRequiredMixin):
     template_name = 'contacts/contact_form.html'
     form_class = CreateUpdateContactForm
 
-    def form_valid(self, form):
-        success_url = super(CreateUpdateContactMixin, self).form_valid(form)
-
-        if not is_ajax(self.request):
-            form_kwargs = self.get_form_kwargs()
-
-            # Save selected account
-            if form_kwargs['data'].get('account'):
-                pk = form_kwargs['data'].get('account')
-                account = Account.objects.get(pk=pk)
-                Function.objects.get_or_create(account=account, contact=self.object)
-
-                functions = Function.objects.filter(~Q(account_id=pk), Q(contact=self.object))
-                functions.delete()
-            else:
-                # No account selected
-                functions = Function.objects.filter(contact=self.object)
-                functions.delete()
-
-        return success_url
-
     def get_context_data(self, **kwargs):
         """
         Provide a url to go back to.

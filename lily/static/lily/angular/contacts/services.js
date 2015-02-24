@@ -41,7 +41,7 @@ angular.module('contactServices', ['ngResource'])
                     isArray: true,
                     transformResponse: function(data) {
                         data = angular.fromJson(data);
-                        var contacts = []
+                        var contacts = [];
                         if (data && data.hits && data.hits.length > 0) {
                             data.hits.forEach(function(contact) {
                                 contact.phones = getPhones(contact);

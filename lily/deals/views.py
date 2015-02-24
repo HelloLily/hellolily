@@ -129,8 +129,10 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
             else:
                 initial.update({'account': account})
 
-                # If the account is newer than 7 days we mark it as a new business
-                if account.created.date() > date.today() - timedelta(days=7):
+                deal_count = Deal.objects.filter(account=account).count()
+
+                # If the account is newer than 7 days and it doesn't have any deals associated we mark it as a new business
+                if deal_count == 0 and account.created.date() > date.today() - timedelta(days=7):
                     initial.update({'new_business': True})
 
         return initial

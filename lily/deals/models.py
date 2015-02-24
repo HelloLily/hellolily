@@ -50,7 +50,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     stage = models.IntegerField(choices=STAGE_CHOICES, default=OPEN_STAGE, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
     notes = GenericRelation('notes.Note', content_type_field='content_type',
-                                    object_id_field='object_id', verbose_name='list of notes')
+                            object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=NO_YES_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('new business'), choices=NO_YES_CHOICES)
 

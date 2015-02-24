@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from ...manager import GmailManager
-from ...models import EmailAccount
+from ...models.models import EmailAccount
 
 
 class Command(BaseCommand):
@@ -26,7 +26,7 @@ class Command(BaseCommand):
         manager = GmailManager(email_account)
         message, created = manager.message_builder.get_or_create_message({'id': message_id, 'threadId': message_id})
         message_info = manager.connector.get_message_info(message_id)
-        manager.message_builder.store_message_info(message_info)
+        manager.message_builder.store_message_info(message_info, message_id)
         builder = manager.message_builder
 
         import pdb

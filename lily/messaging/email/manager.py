@@ -342,7 +342,7 @@ class GmailManager(object):
 
         Args:
             email_message (instance): Email instance
-            thread_id (string): Thread Id of original message that is replied or forwarded on
+            thread_id (string): Thread ID of original message that is replied or forwarded on
         """
         # Send message
         message_dict = self.connector.send_email_message(email_message.as_string(), thread_id)

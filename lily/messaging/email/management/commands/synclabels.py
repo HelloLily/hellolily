@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = """
-    Synclabels syncs for all email accounts the labels & threadId.
+    Synclabels syncs the labels, threadId and snippets for all email accounts.
     """
 
     def handle(self, **options):

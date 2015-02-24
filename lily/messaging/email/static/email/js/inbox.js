@@ -288,8 +288,7 @@
             editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
 
             var buttonName = $(inboxCompose).attr('name'),
-                $form = $($(inboxCompose).closest('form')),
-                draftPk = $('#id_draft_pk').val();
+                $form = $($(inboxCompose).closest('form'));
 
             if (buttonName == 'submit-send') {
                 // Validation of fields.
@@ -298,13 +297,8 @@
                     event.preventDefault();
                     return;
                 }
-
-                // Adjust post action if we're sending a draft
-                if(draftPk) {
-                    $form.attr('action', '/messaging/email/compose/' + draftPk +'/');
-                }
-
             } else if (buttonName == 'submit-save') {
+                var draftPk = $('#id_draft_pk').val();
                 // If we are saving a (existing) draft, change url
                 if(draftPk) {
                     $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
@@ -326,7 +320,6 @@
 
             App.blockUI($('.inbox-content'), false, '');
 
-            // Unexplained bug caused form to freeze when submitting, so make sure form always gets submitted
             $form.submit();
         },
 

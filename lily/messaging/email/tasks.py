@@ -221,7 +221,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
 
     Args:
         email_outbox_message_id (int): id of the EmailOutboxMessage
-        original_message_id (int, optional): id of the original EmailMessage
+        original_message_id (int, optional): ID of the original EmailMessage
     """
     sent_success = False
     try:

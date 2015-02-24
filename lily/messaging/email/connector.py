@@ -276,7 +276,7 @@ class GmailConnector(object):
 
     def get_labels_from_message(self, message_id):
         label_info = self.get_label_list_info([message_id])
-        return label_info[message_id]
+        return label_info[message_id].get('labelIds', [])
 
     def get_attachment(self, message_id, attachment_id):
         """

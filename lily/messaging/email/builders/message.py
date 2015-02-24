@@ -455,15 +455,18 @@ class MessageBuilder(object):
             self.message.received_by_cc.add(*self.received_by_cc)
 
             # Save labels
+            self.message.labels.all().delete()
             for label in self.labels:
                 label.save()
                 self.message.labels.add(label)
 
             # Save headers
+            self.message.headers.all().delete()
             for header in self.headers:
                 self.message.headers.add(header)
 
             # Save attachments
+            self.message.attachments.all().delete()
             for attachment in self.attachments:
                 self.message.attachments.add(attachment)
 

@@ -1,8 +1,8 @@
 from celery import states
 from django.db import models
 
-
-STATES_CHOICES = zip(states.ALL_STATES, states.ALL_STATES)
+ALL_STATES = sorted(states.ALL_STATES)
+STATES_CHOICES = zip(ALL_STATES, ALL_STATES)
 
 
 class TaskStatus(models.Model):

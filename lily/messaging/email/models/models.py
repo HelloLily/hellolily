@@ -174,11 +174,18 @@ class EmailMessage(models.Model):
             return soup.decode()
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
-            reply_body = textwrap.wrap(self.body_text, 80)
+            reply_body = []
+            for line in self.body_text.splitlines():
+                reply_body.extend(textwrap.wrap(line, 120))
             reply_body = ['> %s' % line for line in reply_body]
             return '<br /><br />' + '<br />'.join(reply_body)
         else:
             return ''
+
+    def get_message_id(self):
+        header = self.headers.filter(name__icontains='message-id').first()
+        if header:
+            return header.value
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

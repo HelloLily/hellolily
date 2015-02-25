@@ -20,8 +20,8 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
-from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment,
-                             EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
+from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment, EmailOutboxAttachment, DefaultEmailTemplate,
+                             EmailTemplateAttachment)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -130,22 +130,22 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
     attachments = FormSetField(
         queryset=EmailOutboxAttachment.objects,
-        formset_class=modelformset_factory(EmailOutboxAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
         template='email/formset_attachment.html',
     )
 
-    subject = forms.CharField()
+    subject = forms.CharField(required=False)
     body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
 
     def __init__(self, *args, **kwargs):
-        draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
-        if draft_id:
-            self.fields['draft_pk'].initial = draft_id
 
-        if self.message_type is not 'reply':
-            self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=draft_id)
+        if 'initial' in kwargs and 'draft_pk' in kwargs['initial']:
+            if self.message_type is not 'reply':
+                self.initial['attachments'] = EmailAttachment.objects.filter(
+                    message_id=kwargs['initial']['draft_pk'],
+                )
 
         user = get_current_user()
         self.email_accounts = EmailAccount.objects.filter(
@@ -243,7 +243,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
     class Meta:
         fields = (
-            'object_pk',
+            'draft_pk',
             'send_from',
             'send_to_normal',
             'send_to_cc',

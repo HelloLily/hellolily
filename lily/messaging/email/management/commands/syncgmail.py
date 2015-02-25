@@ -3,7 +3,7 @@ from optparse import make_option
 from django.core.management import BaseCommand
 
 from ...manager import GmailManager, SyncLimitReached
-from ...models import EmailAccount
+from ...models.models import EmailAccount
 
 
 logger = logging.getLogger(__name__)

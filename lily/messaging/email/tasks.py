@@ -215,18 +215,27 @@ def delete_email_message(email_id):
 
 @task(name='send_message', bind=True)
 @monitor_task(logger=logger)
-def send_message(email_outbox_message_id):
+def send_message(email_outbox_message_id, original_message_id=None):
     """
     Send EmailOutboxMessage.
 
     Args:
         email_outbox_message_id (int): id of the EmailOutboxMessage
+        original_message_id (int, optional): ID of the original EmailMessage
     """
     sent_success = False
     try:
         email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
     except EmailOutboxMessage.DoesNotExist:
         raise
+
+    # If we reply or forward, we want to add the thread_id
+    original_message_thread_id = None
+    if original_message_id:
+        try:
+            original_message_thread_id = EmailMessage.objects.get(pk=original_message_id).thread_id
+        except EmailMessage.DoesNotExist:
+            raise
 
     email_account = email_outbox_message.send_from
 
@@ -235,7 +244,7 @@ def send_message(email_outbox_message_id):
     else:
         manager = GmailManager(email_account)
         try:
-            manager.send_email_message(email_outbox_message.message())
+            manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
             logger.debug('Message sent from: %s', email_account)
             # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
             email_outbox_message.delete()
@@ -250,6 +259,7 @@ def send_message(email_outbox_message_id):
             manager.cleanup()
 
     return sent_success
+
 
 @task(name='create_draft_email_message', bind=True)
 @monitor_task(logger=logger)

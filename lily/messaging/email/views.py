@@ -12,6 +12,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
@@ -274,10 +275,18 @@ class EmailMessageComposeView(FormView):
             if not attachment_form.cleaned_data['DELETE']:
                 uploaded_attachment = attachment_form.cleaned_data['attachment']
                 attachment = attachment_form.save(commit=False)
-                attachment.content_type = uploaded_attachment.content_type
-                attachment.size = uploaded_attachment.size
-                attachment.email_outbox_message = email_outbox_message
-                attachment.save()
+                if isinstance(attachment, EmailAttachment):
+                    # Save as EmailOutboxAttachment
+                    attachment = EmailOutboxAttachment()
+                    attachment.size = uploaded_attachment.size
+                    attachment.email_outbox_message = email_outbox_message
+                    attachment.attachment = uploaded_attachment.file
+                    attachment.save()
+                else:
+                    attachment.content_type = uploaded_attachment.content_type
+                    attachment.size = uploaded_attachment.size
+                    attachment.email_outbox_message = email_outbox_message
+                    attachment.save()
 
         template_attachment_ids = self.request.POST.get('template_attachment_ids').split(',')
         for template_attachment_id in template_attachment_ids:
@@ -342,7 +351,7 @@ class EmailMessageComposeView(FormView):
         """
         This function is not implemented. For custom headers overwrite this function.
         """
-        pass
+        return {}
 
     def remove_draft(self):
         """
@@ -423,38 +432,38 @@ class EmailMessageSendView(EmailMessageSendOrArchiveView):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
             return HttpResponseRedirect(self.get_success_url())
-
-
-class EmailMessageSendAndArchiveView(EmailMessageSendOrArchiveView):
-    def form_valid(self, form):
-        email_outbox_message, task = super(EmailMessageSendAndArchiveView, self).form_valid(form)
-
-        status = create_task_status('archive_message')
-
-        task = archive_email_message.apply_async(
-            args=(self.object.id,),
-            max_retries=1,
-            default_retry_delay=100,
-            kwargs={'status_id': status.pk},
-        )
-
-        status.task_id = task.id
-        status.save()
-
-        if not task:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t archive your e-mail. You should try to archive it again later')
-            )
-            logging.error(_('Failed to create archive_message task for email account %d. Message id was %d') % (
-                email_outbox_message.send_from.id,
-                self.object.id
-            ))
-
-        if is_ajax(self.request):
-            return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
-        else:
-            return HttpResponseRedirect(self.get_success_url())
+#
+#
+# class EmailMessageSendAndArchiveView(EmailMessageSendOrArchiveView):
+#     def form_valid(self, form):
+#         email_outbox_message, task = super(EmailMessageSendAndArchiveView, self).form_valid(form)
+#
+#         status = create_task_status('archive_message')
+#
+#         task = archive_email_message.apply_async(
+#             args=(self.object.id,),
+#             max_retries=1,
+#             default_retry_delay=100,
+#             kwargs={'status_id': status.pk},
+#         )
+#
+#         status.task_id = task.id
+#         status.save()
+#
+#         if not task:
+#             messages.error(
+#                 self.request,
+#                 _('Sorry, I couldn\'t archive your e-mail. You should try to archive it again later')
+#             )
+#             logging.error(_('Failed to create archive_message task for email account %d. Message id was %d') % (
+#                 email_outbox_message.send_from.id,
+#                 self.object.id
+#             ))
+#
+#         if is_ajax(self.request):
+#             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
+#         else:
+#             return HttpResponseRedirect(self.get_success_url())
 
 
 class EmailMessageDraftView(EmailMessageComposeView):
@@ -494,14 +503,14 @@ class EmailMessageDraftView(EmailMessageComposeView):
         if task:
             messages.info(
                 self.request,
-                _('Saving email as fast as I can')
+                _('Creating a draft as fast as I can')
             )
             self.request.session['tasks'].update({'create_draft_email_message': task.id})
             self.request.session.modified = True
         else:
             messages.error(
                 self.request,
-                _('Sorry, I couldn\'t save your e-mail')
+                _('Sorry, I couldn\'t save you e-mail as a draft')
             )
             logging.error(_('Failed to create create_draft_email_message task for email account %d. Outbox message id was %d.') % (
                 email_outbox_message.send_from, email_outbox_message.id
@@ -513,11 +522,11 @@ class EmailMessageDraftView(EmailMessageComposeView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = 'draft'
 
-        # Provide initial data if we're editing a draft or replying
+        # Provide initial data if we're editing a draft
         if self.object is not None:
             kwargs.update({
-                'draft_id': self.object.pk,
                 'initial': {
+                    'draft_pk': self.object.pk,
                     'send_from': self.object.sender,
                     'subject': self.object.subject,
                     'send_to_normal': ','.join(self.object.received_by.all().values_list('email_address', flat=True)),
@@ -525,6 +534,133 @@ class EmailMessageDraftView(EmailMessageComposeView):
                     'body_html': self.object.body_html,
                 },
             })
+        return kwargs
+
+
+class EmailMessageReplyOrForwardView(EmailMessageComposeView):
+    remove_old_message = False
+    action = None
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = self.action
+        return kwargs
+
+    def get_subject(self, prefix='Re: '):
+        subject = self.object.subject
+        while True:
+            if subject.lower().startswith('re:') or subject.lower().startswith('fw:'):
+                subject = subject[3:].lstrip()
+            elif subject.lower().startswith('fwd:'):
+                subject = subject[4:].lstrip()
+            else:
+                break
+        return u'%s%s' % (prefix, subject)
+
+    def form_valid(self, form):
+        email_outbox_message = super(EmailMessageReplyOrForwardView, self).form_valid(form)
+
+        task = self.send_message(email_outbox_message)
+
+        if is_ajax(self.request):
+            return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+    def send_message(self, email_outbox_message):
+        """
+        Creates a task to asynchronously reply on an email message.
+
+        Args:
+            email_outbox_message (instance): EmailOutboxMessage instance
+
+        Returns:
+            Task instance
+        """
+        status = create_task_status('send_message')
+
+        task = send_message.apply_async(
+            args=(email_outbox_message.id, self.object.id),
+            max_retries=1,
+            default_retry_delay=100,
+            kwargs={'status_id': status.pk},
+        )
+
+        status.task_id = task.id
+        status.save()
+
+        if task:
+            messages.info(
+                self.request,
+                _('Sending email as fast as I can')
+            )
+            self.request.session['tasks'].update({'send_message': task.id})
+            self.request.session.modified = True
+        else:
+            messages.error(
+                self.request,
+                _('Sorry, I couldn\'t send your e-mail')
+            )
+            logging.error(_('Failed to create %s task for email account %d. Outbox message id was %d.') % (
+                self.action,
+                email_outbox_message.send_from,
+                email_outbox_message.id,
+            ))
+
+        return task
+
+    def get_email_headers(self):
+        headers = super(EmailMessageReplyOrForwardView, self).get_email_headers()
+        message_id = self.object.get_message_id()
+        headers.update({
+            'References': message_id,
+        })
+
+        return headers
+
+
+class EmailMessageReplyView(EmailMessageReplyOrForwardView):
+    action = 'reply'
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = self.action
+
+        # Provide initial data
+        kwargs.update({
+            'initial': {
+                'subject': self.get_subject(prefix='Re: '),
+                'send_to_normal': self.object.sender.email_address,
+                'body_html': mark_safe(self.object.reply_body),
+            },
+        })
+        return kwargs
+
+    def get_email_headers(self):
+        headers = super(EmailMessageReplyView, self).get_email_headers()
+        message_id = self.object.get_message_id()
+        headers.update({
+            'In-Reply-To': message_id,
+        })
+
+        return headers
+
+
+class EmailMessageForwardView(EmailMessageReplyOrForwardView):
+    action = 'forward'
+
+    def get_form_kwargs(self):
+        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs['message_type'] = self.action
+
+        # Provide initial data
+        kwargs.update({
+            'initial': {
+                'draft_pk': self.object.pk,
+                'subject': self.get_subject(prefix='Fwd: '),
+                'body_html': mark_safe(self.object.reply_body),
+            },
+        })
         return kwargs
 
 

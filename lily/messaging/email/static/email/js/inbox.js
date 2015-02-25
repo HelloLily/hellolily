@@ -81,6 +81,13 @@
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
 
+                $('.inbox-compose input').on('keydown keyup keypress', function(event) {
+                    // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
+                    if (event.which == 13) {
+                        event.preventDefault();
+                    }
+                });
+
             // initialize uniform checkboxes
             App.initUniform('.mail-group-checkbox');
 

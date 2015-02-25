@@ -1,8 +1,8 @@
 import logging
+import gc
 
 import anyjson
 from django.conf import settings
-import gc
 from googleapiclient.errors import HttpError
 
 from .builders.label import LabelBuilder
@@ -247,23 +247,27 @@ class GmailManager(object):
         """
         return self.connector.get_attachment(message_id, attachment_id)
 
-    def toggle_read_email_message(self, email_message, read=True):
+    def add_and_remove_labels_for_message(self, email_message, add_labels=[], remove_labels=[]):
         """
-        Mark message as read or unread.
+        Add and/or removes labels for the EmailMessage.
 
         Args:
-            email_message(instance): EmailMessage instance
-            read (bool, optional): If True, mark message as read
+            email_message (instance): EmailMessage instance
+            add_labels (list, optional): list of label_ids to add
+            remove_labels (list, optional): list of label_ids to remove
         """
         # We should do some tries to update
         for n in range(0, 6):
             existing_labels = self.connector.get_labels_from_message(email_message.message_id)
 
             labels = {}
-            if settings.GMAIL_UNREAD_LABEL in existing_labels and read:
-                labels['removeLabelIds'] = [settings.GMAIL_UNREAD_LABEL]
-            elif settings.GMAIL_UNREAD_LABEL not in existing_labels and not read:
-                labels['addLabelIds'] = [settings.GMAIL_UNREAD_LABEL]
+            for label in remove_labels:
+                if label in existing_labels:
+                    labels.setdefault('removeLabelIds', []).append(label)
+
+            for label in add_labels:
+                if label not in existing_labels and email_message.account.labels.filter(label_id=label).exists():
+                    labels.setdefault('addLabelIds', []).append(label)
 
             if labels:
                 try:
@@ -280,6 +284,19 @@ class GmailManager(object):
                     self.message_builder.store_message_info(full_message_dict, message_dict['id'])
                     break
 
+    def toggle_read_email_message(self, email_message, read=True):
+        """
+        Mark message as read or unread.
+
+        Args:
+            email_message(instance): EmailMessage instance
+            read (bool, optional): If True, mark message as read
+        """
+        if read:
+            self.add_and_remove_labels_for_message(email_message, remove_labels=[settings.GMAIL_UNREAD_LABEL])
+        else:
+            self.add_and_remove_labels_for_message(email_message, add_labels=[settings.GMAIL_UNREAD_LABEL])
+
     def archive_email_message(self, email_message):
         """
         Archive message by removing all labels except for possible UNREAD label
@@ -287,32 +304,9 @@ class GmailManager(object):
         Args:
             email_message(instance): EmailMessage instance
         """
-        # We should do some tries to update
-        for n in range(0, 6):
-            # Get current labels
-            existing_labels = self.connector.get_labels_from_message(email_message.message_id)
+        existing_labels = self.connector.get_labels_from_message(email_message.message_id)
 
-            # Remove unread label if message is read
-            if not email_message.read:
-                existing_labels.remove(settings.GMAIL_UNREAD_LABEL)
-
-            labels = {
-                'removeLabelIds': existing_labels,
-            }
-            try:
-                message_dict = self.connector.update_labels(email_message.message_id, labels)
-            except HttpError, e:
-                error = anyjson.loads(e.content)
-                error = error.get('error', error)
-                if error.get('code') != 400:
-                    # No label error, raise
-                    raise
-            else:
-                # Successful remove of labels
-                # Store updated message
-                full_message_dict = self.connector.get_message_info(message_dict['id'])
-                self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-                break
+        self.add_and_remove_labels_for_message(email_message, remove_labels=existing_labels)
 
     def trash_email_message(self, email_message):
         """

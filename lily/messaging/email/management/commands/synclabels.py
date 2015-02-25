@@ -19,7 +19,11 @@ class Command(BaseCommand):
 
         number_of_accounts = email_accounts.count()
         for index, email_account in enumerate(email_accounts):
-            logger.info('syncing labels for %s' % email_account)
+            logger.info('syncing labels for %s (%s/%s)' % (
+                email_account,
+                index + 1,
+                number_of_accounts,
+            ))
             try:
                 manager = GmailManager(email_account)
                 manager.synchronize(full_sync=True)

@@ -35,7 +35,7 @@
                                 <a href="javascript:void(0)" class="btn" ng-click="moveMessages('SPAM')">Spam</a>
                             </li>
                             <li ng-repeat="account_label in account.labels" class="inbox" ng-if="account_label.label_type != 0 && account_label.label_id != label.label_id">
-                                <a href="javascript:void(0)" class="btn" ng-click="moveMessages(account_label.id)">{{ account_label.name }}</a>
+                                <a href="javascript:void(0)" class="btn" ng-click="moveMessages(account_label.label_id)">{{ account_label.name }}</a>
                             </li>
                         </ul>
                     </span>

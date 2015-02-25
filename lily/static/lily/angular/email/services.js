@@ -42,7 +42,7 @@ angular.module('emailServices', [
     .factory('EmailMessage', ['$resource', 'Cookie', function($resource, Cookie) {
         return {
             API: $resource(
-                '/api/messaging/email/email/:id/:actions',
+                '/api/messaging/email/email/:id/:actions/',
                 {},
                 {
                     'update': {

@@ -151,21 +151,17 @@ angular.module('emailControllers', [
             };
 
             $scope.moveMessages = function(labelId) {
+                var removedLabels = [$scope.label.label_id],
+                    addedLabels = [labelId];
+                    // Gmail API needs to know the new labels as well as the old ones, so send them too
+                var data = {
+                    remove_labels: removedLabels,
+                    add_labels: addedLabels
+                };
                 for (var id in $scope.checkboxes) {
-                    EmailMessage.API.get({id: id}, function(result) {
-                        var removedLabels = [$stateParams.labelId];
-                        var addedLabels = [labelId];
-
-                        // GMail API needs to know the new labels as well as the old ones, so send them too
-                        var data = {
-                            id: parseInt(id),
-                            currentLabels: removedLabels,
-                            newLabels: addedLabels
-                        };
-
-                        EmailMessage.API.move({data: data});
-                    });
+                    EmailMessage.API.move({id: id, data: data});
                 }
+                deleteCheckedMessagesFromList();
             };
 
             // Check for search input and pagination

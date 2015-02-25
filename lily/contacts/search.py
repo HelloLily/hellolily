@@ -139,7 +139,7 @@ class ContactMapping(BaseMapping):
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
             'description': obj.description,
-            'social': [{'social_name': soc.get_name(),
+            'social': [{'social_name': soc.get_name_display(),
                         'social_profile': soc.username,
                         'social_url': soc.profile_url} for soc in obj.social_media.all()],
             'title': obj.title,

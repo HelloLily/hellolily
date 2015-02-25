@@ -27,12 +27,6 @@ class SocialMedia(TenantMixin):
     def __unicode__(self):
         return self.name
 
-    def get_name(self):
-        """Get the pretty name from 'name' or 'other'."""
-        if self.name and self.name is not 'other':
-            return dict(self.SOCIAL_NAME_CHOICES).get(self.name)
-        return self.other
-
     class Meta:
         verbose_name = _('social media')
         verbose_name_plural = _('social media')

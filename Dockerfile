@@ -29,7 +29,19 @@ ADD requirements-dev.txt $HOME/requirements-dev.txt
 RUN pip install -r $HOME/requirements-dev.txt
 RUN rm $HOME/requirements.txt $HOME/requirements-dev.txt
 
+# Switch to docker user.
+RUN chown -R docker:docker $HOME/
 USER docker
+
+# Workaround for IncompleteRead error while installing PuDB.
+# See: https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1306991
+RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/requests* && sudo easy_install requests==2.3.0
+
+# Install PuDB.
+# PuDB does some weird folder creating stuff, leaving it unable to read with no apparent reason.
+RUN mkdir -p $HOME/.config/pudb
+RUN sudo pip install pudb
+RUN sudo chown -R docker:docker $HOME/
 
 ENV DEBUG 1
 ENV SECRET_KEY abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn

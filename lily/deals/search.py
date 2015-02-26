@@ -103,7 +103,7 @@ class DealMapping(BaseMapping):
             'account': obj.account_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'assigned_to_id': obj.assigned_to.id,
+            'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'stage': obj.stage,
             'stage_name': obj.get_stage_display(),
             'amount_once': obj.amount_once,

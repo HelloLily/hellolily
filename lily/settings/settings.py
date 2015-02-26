@@ -449,10 +449,15 @@ if USE_LOGGING:
                 'level': 'DEBUG',
                 'propagate': True,
             },
+            'requests.packages.urllib3': {
+                'handlers': ['console_debug'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
             'urllib3': {
                 'handlers': ['console_debug'],
                 'level': 'ERROR',
-                'propagate': True,
+                'propagate': False,
             },
         }
     }
@@ -540,7 +545,7 @@ ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:
 ES_INDEXES = {'default': 'main_index'}
 
 # Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
-ES_TIMEOUT = 10  # Default is 5
+ES_TIMEOUT = 20  # Default is 5
 
 #######################################################################################################################
 ## Gmail api settings                                                                                                ##

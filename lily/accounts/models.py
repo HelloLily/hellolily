@@ -64,6 +64,8 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True, blank=True)
 
+    import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
+
     def primary_email(self):
         for email in self.email_addresses.all():
             if email.is_primary:

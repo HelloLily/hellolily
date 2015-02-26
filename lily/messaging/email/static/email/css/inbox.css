@@ -65,6 +65,10 @@
     margin-right: 0;
 }
 
+.dropdown-menu.labels a {
+  text-align: left !important;
+}
+
 .email-template-body {
   border: solid 1px #eee;
 }

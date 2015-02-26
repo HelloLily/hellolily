@@ -23,17 +23,35 @@
             <th colspan="2">
                 <checkbox model="checkboxes.all" ng-click="toggleCheckboxes()"></checkbox>
                 <div class="btn-group">
+                    <span class="pull-left" ng-if="::account">
+                        <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
+                            <i class="fa fa-folder"></i> Move to <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu labels">
+                            <li class="inbox" ng-hide="label.label_id == 'INBOX'">
+                                <a href="javascript:void(0)" class="btn" ng-click="moveMessages('INBOX')">Inbox</a>
+                            </li>
+                            <li class="spam" ng-hide="label.label_id == 'SPAM'">
+                                <a href="javascript:void(0)" class="btn" ng-click="moveMessages('SPAM')">Spam</a>
+                            </li>
+                            <li ng-repeat="account_label in account.labels" class="inbox" ng-if="account_label.label_type != 0 && account_label.label_id != label.label_id">
+                                <a href="javascript:void(0)" class="btn" ng-click="moveMessages(account_label.label_id)">{{ account_label.name }}</a>
+                            </li>
+                        </ul>
+                    </span>
+                </div>
+                <div class="btn-group">
                     <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
                         More <i class="fa fa-angle-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
                             <a href="javascript:void(0)" ng-click="markAsRead()">
-                                <i class="fa fa-pencil"></i> Mark as Read </a>
+                                <i class="fa fa-pencil"></i> Mark as read </a>
                         </li>
                         <li>
                             <a href="javascript:void(0)" ng-click="markAsUnread()">
-                                <i class="fa fa-pencil"></i> Mark as Unread </a>
+                                <i class="fa fa-pencil"></i> Mark as unread </a>
                         </li>
                         <li>
                             <a href="javascript:void(0)" ng-click="trashMessages()" ng-hide="label.id == 'Trash'">

@@ -187,6 +187,32 @@ def trash_email_message(email_id):
             manager.cleanup()
 
 
+@task(name='add_and_remove_labels_for_message', bind=True)
+@task(logger=logger)
+def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=None):
+    """
+    Add and/or removes labels for the EmailMessage.
+
+    Args:
+        email_message (instance): EmailMessage instance
+        add_labels (list, optional): list of label_ids to add
+        remove_labels (list, optional): list of label_ids to remove
+    """
+    try:
+        email_message = EmailMessage.objects.get(pk=email_id)
+    except EmailMessage.DoesNotExist:
+        logger.warning('EmailMessage no longer exists: %s', email_id)
+    else:
+        manager = GmailManager(email_message.account)
+        try:
+            logger.debug('Changing labels for: %s', email_message)
+            manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
+        except Exception, e:
+            logger.exception('Failed changing labels for %s' % email_message)
+        finally:
+            manager.cleanup()
+
+
 @task(name='delete_email_message', bind=True)
 @task(logger=logger)
 def delete_email_message(email_id):

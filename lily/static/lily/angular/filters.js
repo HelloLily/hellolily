@@ -11,6 +11,7 @@ angular.module('lilyFilters', [])
      *
      * @param: date {date|string} : date object or date string to transform
      * @param: fallbackDateFormat string (optional): fallback $filter argument
+     * @param: compareWithMidnight boolean (optional): should the date comparison be with midnight or not
      *
      * @returns: string : a relative date string
      *
@@ -19,7 +20,7 @@ angular.module('lilyFilters', [])
      * {{ '2014-11-19T12:44:15.795312+00:00' | relativeDate }}
      */
     .filter('relativeDate', ['$filter', function($filter) {
-        return function(date, fallbackDateFormat) {
+        return function(date, fallbackDateFormat, compareWithMidnight) {
             // Get current date
             var now = new Date(),
                 calculateDelta, day, delta, hour, minute, week, month, year;
@@ -27,10 +28,12 @@ angular.module('lilyFilters', [])
             // If date is a string, format to date object
             if (!(date instanceof Date)) {
                 date = new Date(date);
-                // If the closing date or w/e is the current date we want to compare with midnight
-                date.setHours(23);
-                date.setMinutes(59);
-                date.setSeconds(59);
+                if (compareWithMidnight) {
+                    // In certain cases we want to compare with midnight
+                    date.setHours(23);
+                    date.setMinutes(59);
+                    date.setSeconds(59);
+                }
             }
 
             delta = null;
@@ -49,8 +52,13 @@ angular.module('lilyFilters', [])
             calculateDelta();
 
             if (delta > day && delta < week) {
-                // If the closing date or w/e is the current date we want to compare with midnight
-                date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                if (compareWithMidnight) {
+                    // In certain cases we want to compare with midnight
+                    date.setHours(23);
+                    date.setMinutes(59);
+                    date.setSeconds(59);
+                }
                 calculateDelta();
             }
 

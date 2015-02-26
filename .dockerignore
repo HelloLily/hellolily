@@ -1,7 +1,7 @@
 .git
 bin
 dist-packages
-dockers
+Dockers
 lily
 locale
 python_imap

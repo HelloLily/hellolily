@@ -280,7 +280,7 @@ class EmailMessageComposeView(FormView):
                     attachment = EmailOutboxAttachment()
                     attachment.size = uploaded_attachment.size
                     attachment.email_outbox_message = email_outbox_message
-                    attachment.attachment = uploaded_attachment.file
+                    attachment.attachment = uploaded_attachment
                     attachment.save()
                 else:
                     attachment.content_type = uploaded_attachment.content_type

@@ -400,7 +400,6 @@ class MessageBuilder(object):
             header_value (string): with value of header
         """
         header_name = header_name.lower()
-        header_value = header_value.lower()
 
         # Get or create recipient
         email_address = email.utils.parseaddr(header_value)
@@ -455,18 +454,19 @@ class MessageBuilder(object):
             self.message.received_by_cc.add(*self.received_by_cc)
 
             # Save labels
-            self.message.labels.all().delete()
             for label in self.labels:
                 label.save()
                 self.message.labels.add(label)
 
             # Save headers
-            self.message.headers.all().delete()
+            if len(self.headers):
+                self.message.headers.all().delete()
             for header in self.headers:
                 self.message.headers.add(header)
 
             # Save attachments
-            self.message.attachments.all().delete()
+            if len(self.attachments):
+                self.message.attachments.all().delete()
             for attachment in self.attachments:
                 self.message.attachments.add(attachment)
 

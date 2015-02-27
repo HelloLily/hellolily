@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from .forms import CustomPasswordResetForm
 from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView,
                     CustomSetPasswordView, LoginView, DashboardView, UserProfileView, UserAccountView,
-                    SendInvitationView)
+                    SendInvitationView, APIAccessView)
 
 
 urlpatterns = patterns('',
@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     # User profile settings
     url(r'^user/profile/$', UserProfileView.as_view(), name='user_profile_view'),
     url(r'^user/account/$', UserAccountView.as_view(), name='user_account_view'),
+    url(r'^user/api/$', APIAccessView.as_view(), name='api_access_view'),
 
     # Dashboard and other user specific views, which require a logged in user
     url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags and paging for microblog

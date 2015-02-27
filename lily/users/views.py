@@ -21,6 +21,7 @@ from django.utils.http import base36_to_int, int_to_base36, urlunquote
 from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
+from rest_framework.authtoken.models import Token
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
@@ -32,7 +33,7 @@ from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
                     InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, UserProfileForm,
-                    UserAccountForm)
+                    UserAccountForm, APIAccessForm)
 from .models import LilyUser
 
 
@@ -634,3 +635,27 @@ class UserAccountView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixi
 
     def get_success_url(self):
         return reverse('user_account_view')
+
+
+class APIAccessView(LoginRequiredMixin, FormView):
+    form_class = APIAccessForm
+    template_name = 'users/api_access_form.html'
+    static_context = {'form_prevent_autofill': True}
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+
+        try:
+            token = Token.objects.get(user=user)
+        except Token.DoesNotExist:
+            pass
+        else:
+            # Simply updating the key doesn't work, so delete the token and create a new one
+            token.delete()
+
+        Token.objects.create(user=user)
+
+        return super(APIAccessView, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('api_access_view')

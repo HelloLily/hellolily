@@ -278,6 +278,7 @@ INSTALLED_APPS = (
     'django_nose',
     'django_password_strength',
     'rest_framework',
+    'rest_framework.authtoken',
 
     # Django
     'django.contrib.admin',
@@ -568,6 +569,13 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'lily.utils.authentication.TokenGETAuthentication',
+    )
 }
 
 #######################################################################################################################

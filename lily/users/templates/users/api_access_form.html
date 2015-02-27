@@ -1,0 +1,14 @@
+{% extends 'profile.html' %}
+
+{% load i18n static compressed %}
+
+{% block scripts %}
+    {{ block.super }}
+{#    {% compressed_js 'password_strength' %}#}
+{% endblock %}
+
+{% block form-buttons %}
+    <button type="submit" class="btn btn-primary" name="submit" data-loading-text="Generating...">
+        <i class="icon-ok"></i> {% trans 'Generate API key' %}
+    </button>
+{% endblock %}

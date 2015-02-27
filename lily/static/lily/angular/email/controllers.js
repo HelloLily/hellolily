@@ -151,9 +151,12 @@ angular.module('emailControllers', [
             };
 
             $scope.moveMessages = function(labelId) {
-                var removedLabels = [$scope.label.label_id],
-                    addedLabels = [labelId];
-                    // Gmail API needs to know the new labels as well as the old ones, so send them too
+                var removedLabels = [];
+                if ($scope.label.label_id) {
+                    removedLabels = [$scope.label.label_id];
+                }
+                var addedLabels = [labelId];
+                // Gmail API needs to know the new labels as well as the old ones, so send them too
                 var data = {
                     remove_labels: removedLabels,
                     add_labels: addedLabels

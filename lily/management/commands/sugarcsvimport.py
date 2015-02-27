@@ -274,6 +274,8 @@ E.g.:
                     )
                 except Contact.DoesNotExist:
                     contact = Contact(tenant_id=self.tenant_pk)
+                except Contact.MultipleObjectsReturned:
+                    logger.warning(u'Multiple contacts returned for %s' % contact_kwargs)
             else:
                 contact = Contact(tenant_id=self.tenant_pk)
 

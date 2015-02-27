@@ -38,9 +38,9 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         (INFORMAL, _('Informal')),
     )
 
-    first_name = models.CharField(max_length=255, verbose_name=_('first name'), blank=True)
-    preposition = models.CharField(max_length=100, verbose_name=_('preposition'), blank=True)
-    last_name = models.CharField(max_length=255, verbose_name=_('last name'), blank=True)
+    first_name = models.CharField(max_length=255, verbose_name=_('first name'), default='', blank=True)
+    preposition = models.CharField(max_length=100, verbose_name=_('preposition'), default='', blank=True)
+    last_name = models.CharField(max_length=255, verbose_name=_('last name'), default='', blank=True)
     gender = models.IntegerField(choices=CONTACT_GENDER_CHOICES, default=UNKNOWN_GENDER,
                                  verbose_name=_('gender'))
     title = models.CharField(max_length=20, verbose_name=_('title'), blank=True)
@@ -49,6 +49,8 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     picture = models.ImageField(upload_to=settings.CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
+
+    import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
 
     def primary_email(self):
         if not hasattr(self, '_primary_email'):

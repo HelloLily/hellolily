@@ -1,18 +1,17 @@
 import csv
 import logging
 import os
-from tempfile import TemporaryFile
-from django.core.files.storage import default_storage
 
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db import DataError
 
 from lily.accounts.models import Account, Website
-from lily.contacts.models import Contact, Function
+from lily.contacts.models import Contact
+from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
 from lily.utils.functions import parse_address, _isint
 from lily.utils.models.models import Address, PhoneNumber, EmailAddress, COUNTRIES
-from lily.socialmedia.models import SocialMedia
 
 
 logger = logging.getLogger(__name__)
@@ -64,10 +63,17 @@ E.g.:
 
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
+    already_logged = set()
 
     def handle(self, model, csvfile, tenant_pk, sugar='1', **kwargs):
         self.tenant_pk = tenant_pk
         self.sugar_import = sugar == '1'
+
+        # Get user mapping from env vars
+        user_string = os.environ.get('USERMAPPING')
+        for user in user_string.split(';'):
+            sugar, lily = user.split(':')
+            self.user_mapping[sugar] = lily
 
         if model in ['account', 'accounts']:
             logger.info('importing accounts started')
@@ -79,33 +85,22 @@ E.g.:
         elif model in ['contact', 'contacts']:
             logger.info('importing contacts started')
 
-            # Get user mapping from env vars
-            user_string = os.environ.get('USERMAPPING')
-            for user in user_string.split(';'):
-                sugar, lily = user.split(':')
-                self.user_mapping[sugar] = lily
-
             for row in self.read_csvfile(csvfile):
                 self._create_contact_data(row)
             logger.info('importing contacts finished')
+
+        else:
+            raise Exception('unknown model: %s' % model)
 
     def read_csvfile(self, file_name):
         """
         Read from path assuming it's a file with ',' separated values.
         """
         # Newlines are breaking correct csv parsing. Write correct temporary file to parse.
-        with TemporaryFile() as clear_file:
-            csv_file = default_storage.open(file_name, 'rU')
-            for line in csv_file.readlines():
-                clear_file.write(line.strip().replace('\r', ''))
-            csv_file.close()
-            default_storage.delete(file_name)
-
-            clear_file.seek(0)
-
-            reader = csv.DictReader(clear_file, delimiter=',', quoting=csv.QUOTE_ALL)
-            for row in reader:
-                yield row
+        csv_file = default_storage.open(file_name, 'rU')
+        reader = csv.DictReader(csv_file, delimiter=',', quoting=csv.QUOTE_ALL)
+        for row in reader:
+            yield row
 
     def _create_account_data(self, values):
         """
@@ -115,7 +110,7 @@ E.g.:
             values (dict): information with account information
         """
         column_attribute_mapping = {
-            '': 'customer_id',
+            'VoIPGRID ID': 'customer_id',
             'Name': 'name',
             '': 'flatname',
             '': 'status',
@@ -128,6 +123,7 @@ E.g.:
             'KvK': 'cocnumber',
             '': 'iban',
             '': 'bic',
+            'ID': 'import_id',
         }
 
         # Create account
@@ -137,76 +133,80 @@ E.g.:
                 attribute = column_attribute_mapping.get(column)
                 account_kwargs[attribute] = value
 
-        if len(account_kwargs):
-            created = False
-            if 'name' in account_kwargs and account_kwargs['name']:
-                accounts = Account.objects.filter(tenant_id=self.tenant_pk, name=account_kwargs['name'])
-                if not accounts.exists():
-                    account = Account(tenant_id=self.tenant_pk, name=account_kwargs['name'])
-                    created = True
-                    account.save()
-                else:
-                    account = accounts.first()
-                    try:
-                        Account.objects.filter(id=account.id).update(**account_kwargs)
-                    except DataError:
-                        logger.warning('could not update account: %s' % account_kwargs)
-                        return
-                    else:
-                        created = False
-
-                account = Account.objects.get(id=account.id)
-
-            # Create addresses
-            self._create_address(
-                account,
-                'visiting',
-                values.get('Billing Street'),
-                values.get('Billing Postal Code'),
-                values.get('Billing City'),
-                values.get('Billing Country')
+        if not len(account_kwargs):
+            return
+        if 'name' not in account_kwargs or not account_kwargs['name']:
+            return
+        try:
+            account = Account.objects.get(
+                tenant_id=self.tenant_pk,
+                import_id=account_kwargs['import_id']
             )
-            self._create_address(
-                account,
-                'shipping',
-                values.get('Shipping Street'),
-                values.get('Shipping Postal Code'),
-                values.get('Shipping City'),
-                values.get('Shipping Country')
-            )
+        except Account.DoesNotExist:
+            account = Account.objects.filter(tenant_id=self.tenant_pk, name=account_kwargs['name']).first()
+            if not account:
+                account = Account(tenant_id=self.tenant_pk)
 
-            # Create email addresses
-            self._create_email_addresses(account, values)
+        for k, v in account_kwargs.items():
+            setattr(account, k, v)
 
-            # Create phone numbers
-            self._create_phone(account, 'work', values.get('Office Phone'))
-            self._create_phone(account, 'work', values.get('Alternate Phone'))
-            self._create_phone(account, 'other', values.get('Fax'), other_type='fax')
+        # Satisfy m2m contraints.
+        try:
+            account.save()
+        except DataError:
+            logger.error(u'DataError for %s' % account_kwargs)
+            return
 
-            # Create website
-            self._create_website(account, values.get('Website'))
+        # Create addresses
+        self._create_address(
+            account,
+            'visiting',
+            values.get('Billing Street'),
+            values.get('Billing Postal Code'),
+            values.get('Billing City'),
+            values.get('Billing Country')
+        )
+        self._create_address(
+            account,
+            'shipping',
+            values.get('Shipping Street'),
+            values.get('Shipping Postal Code'),
+            values.get('Shipping City'),
+            values.get('Shipping Country')
+        )
 
-            # Create social media
-            self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
-            self._create_social_media(account, 'twitter', values.get('Twitter'))
+        # Create email addresses
+        self._create_email_addresses(account, values)
 
-            user_name = values.get('Assigned User Name')
-            if user_name and user_name in self.user_mapping:
-                try:
-                    account.assigned_to = LilyUser.objects.get(
-                        email=self.user_mapping[user_name],
-                        tenant_id=self.tenant_pk
-                    )
-                except LilyUser.DoesNotExist:
-                    logger.exception(u'Assignee does not exists as an LilyUser. %s' % user_name)
-            else:
+        # Create phone numbers
+        self._create_phone(account, 'work', values.get('Office Phone'))
+        self._create_phone(account, 'work', values.get('Alternate Phone'))
+        self._create_phone(account, 'other', values.get('Fax'), other_type='fax')
+
+        # Create website
+        self._create_website(account, values.get('Website'))
+
+        # Create social media
+        self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
+        self._create_social_media(account, 'twitter', values.get('Twitter'))
+        user_name = values.get('Assigned User Name')
+        if user_name and user_name in self.user_mapping:
+            try:
+                account.assigned_to = LilyUser.objects.get(
+                    email=self.user_mapping[user_name],
+                    tenant_id=self.tenant_pk
+                )
+            except LilyUser.DoesNotExist:
+                if user_name not in self.already_logged:
+                    self.already_logged.add(user_name)
+                    logger.warning(u'Assignee does not exists as an LilyUser. %s' % user_name)
+        else:
+            # Only log when user_name not empty.
+            if user_name and user_name not in self.already_logged:
+                self.already_logged.add(user_name)
                 logger.warning(u'Assignee does not have an usermapping. %s' % user_name)
 
-            account.save()
-            if created:
-                logger.debug('account created')
-            else:
-                logger.debug('account exists')
+        account.save()
 
     def _create_contact_data(self, values):
         """
@@ -221,6 +221,7 @@ E.g.:
                 return
 
         column_attribute_mapping = {
+            'ID': 'import_id',
             'First Name': 'first_name',
             '': 'preposition',
             'Last Name': 'last_name',
@@ -228,15 +229,9 @@ E.g.:
             '': 'title',
             '': 'status',
             '': 'picture',
-            '': 'description',
+            'Description': 'description',
             '': 'salutation',
         }
-
-        gender = 0
-        if values.get('Salutation') in ['Mr.', 'Dhr.', 'mr.']:
-            gender = 1
-        elif values.get('Salutation') in ['Ms.', 'Mrs.']:
-            gender = 2
 
         # Create contact
         contact_kwargs = dict()
@@ -245,58 +240,80 @@ E.g.:
                 attribute = column_attribute_mapping.get(column)
                 contact_kwargs[attribute] = value
 
-        if 'first_name' in contact_kwargs and len(contact_kwargs['first_name']) < 255:
-            if 'last_name' in contact_kwargs and len(contact_kwargs['last_name']) < 255:
-                contact_kwargs['gender'] = gender
-                contact_kwargs['tenant_id'] = self.tenant_pk
-                created = False
+        first, last = None, None
+        if 'first_name' in contact_kwargs and contact_kwargs['first_name']:
+            first = True
+            contact_kwargs['first_name'] = contact_kwargs['first_name'][:254]
+        if 'last_name' in contact_kwargs and contact_kwargs['last_name']:
+            last = True
+            contact_kwargs['last_name'] = contact_kwargs['last_name'][:254]
+
+        if not (first or last):
+            logger.warning(u'No first or last name for contact. %s' % contact_kwargs)
+            return
+
+        gender = 0
+        if values.get('Salutation') in ['Mr.', 'Dhr.', 'mr.']:
+            gender = 1
+        elif values.get('Salutation') in ['Ms.', 'Mrs.']:
+            gender = 2
+        contact_kwargs['gender'] = gender
+
+        contact_kwargs['tenant_id'] = self.tenant_pk
+        try:
+            contact = Contact.objects.get(tenant_id=self.tenant_pk, import_id=contact_kwargs['import_id'])
+        except Contact.DoesNotExist:
+            # Only check on name, if both first and last name exist:
+            # Those were added before the import_id field was introduced.
+            if first and last:
                 try:
-                    contact, created = Contact.objects.get_or_create(**contact_kwargs)
-                except Exception:
-                    pass
+                    contact = Contact.objects.get(
+                        tenant_id=self.tenant_pk,
+                        first_name=contact_kwargs['first_name'],
+                        last_name=contact_kwargs['last_name']
+                    )
+                except Contact.DoesNotExist:
+                    contact = Contact(tenant_id=self.tenant_pk)
+            else:
+                contact = Contact(tenant_id=self.tenant_pk)
 
-                # Create addresses
-                self._create_address(
-                    contact,
-                    'visiting',
-                    values.get('Primary Street'),
-                    values.get('Primary Postal Code'),
-                    values.get('Primary City'),
-                    values.get('Primary Country')
-                )
-                self._create_address(
-                    contact,
-                    'shipping',
-                    values.get('Alternate Street'),
-                    values.get('Alternate Postal Code'),
-                    values.get('Alternate City'),
-                    values.get('Alternate Country')
-                )
+        for k, v in contact_kwargs.items():
+            setattr(contact, k, v)
 
-                # Create email addresses
-                self._create_email_addresses(contact, values)
+        contact.save()
 
-                # Create phone numbers
-                self._create_phone(contact, 'work', values.get('Office Phone'))
-                self._create_phone(contact, 'work', values.get('Other Phone'))
-                self._create_phone(contact, 'mobile', values.get('Mobile Phone'))
-                self._create_phone(contact, 'other', values.get('Fax'), other_type='fax')
-                self._create_phone(contact, 'other', values.get('Home Phone'), other_type='home')
+        # Create addresses
+        self._create_address(
+            contact,
+            'visiting',
+            values.get('Primary Street'),
+            values.get('Primary Postal Code'),
+            values.get('Primary City'),
+            values.get('Primary Country')
+        )
+        self._create_address(
+            contact,
+            'shipping',
+            values.get('Alternate Street'),
+            values.get('Alternate Postal Code'),
+            values.get('Alternate City'),
+            values.get('Alternate Country')
+        )
 
-                # Create social media
-                self._create_social_media(contact, 'twitter', values.get('Twitter'))
+        # Create email addresses
+        self._create_email_addresses(contact, values)
 
-                accounts = Account.objects.filter(name=values.get('Account Name'), tenant_id=self.tenant_pk)
-                if accounts.exists():
-                    for account in accounts:
-                        # Create function (link with account)
-                        Function.objects.get_or_create(account=account, contact=contact)
-                contact.save()
+        # Create phone numbers
+        self._create_phone(contact, 'work', values.get('Office Phone'))
+        self._create_phone(contact, 'work', values.get('Other Phone'))
+        self._create_phone(contact, 'mobile', values.get('Mobile Phone'))
+        self._create_phone(contact, 'other', values.get('Fax'), other_type='fax')
+        self._create_phone(contact, 'other', values.get('Home Phone'), other_type='home')
 
-                if created:
-                    logger.debug('contact created')
-                else:
-                    logger.debug('contact exists')
+        # Create social media
+        self._create_social_media(contact, 'twitter', values.get('Twitter'))
+
+        contact.save()
 
     def _create_address(self, instance, type, address, postal_code, city, country, primary=False):
         """
@@ -413,8 +430,16 @@ E.g.:
             username (str): profile name on the network
         """
         if username and len(username) < 100:
+            if username.startswith('/'):
+                username = username[1:]
+            if not username:
+                return
             if not instance.social_media.filter(name=name, username=username).exists():
-                sm = SocialMedia.objects.create(tenant_id=self.tenant_pk, name=name, username=username)
+                sm = SocialMedia.objects.create(tenant_id=self.tenant_pk,
+                                                name=name,
+                                                username=username)
+                sm.profile_url = sm._get_profile_url(username)
+                sm.save()
                 instance.social_media.add(sm)
 
     def _create_website(self, account, url):
@@ -425,7 +450,7 @@ E.g.:
             account (instance): Account to add Website to.
             url (str): url of website
         """
-        if url and len(url) > 2:
+        if url and len(url) > 2 and url != 'http://':
             website_kwargs = dict()
             website_kwargs['tenant_id'] = self.tenant_pk
             website_kwargs['website'] = url

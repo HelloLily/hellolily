@@ -441,8 +441,6 @@ E.g.:
                 sm = SocialMedia.objects.create(tenant_id=self.tenant_pk,
                                                 name=name,
                                                 username=username)
-                sm.profile_url = sm._get_profile_url(username)
-                sm.save()
                 instance.social_media.add(sm)
 
     def _create_website(self, account, url):

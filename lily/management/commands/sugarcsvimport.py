@@ -276,6 +276,7 @@ E.g.:
                     contact = Contact(tenant_id=self.tenant_pk)
                 except Contact.MultipleObjectsReturned:
                     logger.warning(u'Multiple contacts returned for %s' % contact_kwargs)
+                    return
             else:
                 contact = Contact(tenant_id=self.tenant_pk)
 

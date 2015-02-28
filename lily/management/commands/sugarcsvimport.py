@@ -1,4 +1,5 @@
 import csv
+import gc
 import logging
 import os
 
@@ -80,6 +81,7 @@ E.g.:
 
             for row in self.read_csvfile(csvfile):
                 self._create_account_data(row)
+                gc.collect()
             logger.info('importing accounts finished')
 
         elif model in ['contact', 'contacts']:
@@ -87,6 +89,7 @@ E.g.:
 
             for row in self.read_csvfile(csvfile):
                 self._create_contact_data(row)
+                gc.collect()
             logger.info('importing contacts finished')
 
         else:

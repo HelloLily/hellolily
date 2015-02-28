@@ -9,6 +9,7 @@ from lily.utils.models.factories import EmailAddressFactory
 
 from .models import Contact, Function
 
+
 faker = Factory.create()
 
 
@@ -49,5 +50,4 @@ def function_factory(tenant):
 
 
 class ContactWithAccountFactory(ContactWithEmailFactory):
-    function = RelatedFactory(function_factory(SelfAttribute('..contact.tenant')),
-                              'contact')
+    function = RelatedFactory(function_factory(SelfAttribute('..contact.tenant')), 'contact')

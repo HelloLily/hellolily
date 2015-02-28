@@ -1,13 +1,14 @@
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
 from lily.tenant.models import TenantMixin
-from lily.utils.models import PhoneNumber, Address, EmailAddress
-from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField, EmailAddressFormSetField
 from lily.socialmedia.models import SocialMedia
+
+from .models import PhoneNumber, Address, EmailAddress
+from .fields import PhoneNumberFormSetField, AddressFormSetField, EmailAddressFormSetField
 
 
 class DeletedMixin(TimeStampedModel):
@@ -43,7 +44,7 @@ class Common(DeletedMixin, TenantMixin):
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
     addresses = AddressFormSetField(Address, blank=True, verbose_name=_('list of addresses'))
     email_addresses = EmailAddressFormSetField(EmailAddress, blank=True, verbose_name=_('list of e-mail addresses'))
-    notes = generic.GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id', verbose_name='list of notes')
+    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id', verbose_name='list of notes')
 
     @property
     def twitter(self):

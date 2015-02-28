@@ -5,12 +5,13 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.edit import CreateView, DeleteView
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.updates.forms import CreateBlogEntryForm
-from lily.updates.models import BlogEntry
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax
+
+from .forms import CreateBlogEntryForm
+from .models import BlogEntry
 
 
 class AddBlogEntryView(CreateView):

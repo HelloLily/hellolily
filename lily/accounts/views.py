@@ -9,7 +9,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 
@@ -17,7 +17,7 @@ from lily.contacts.models import Function, Contact
 from lily.notes.models import Note
 from lily.search.utils import LilySearch
 from lily.utils.functions import flatten, is_ajax
-from lily.utils.models import PhoneNumber
+from lily.utils.models.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView
 from lily.utils.views.mixins import ExportListViewMixin, LoginRequiredMixin
 

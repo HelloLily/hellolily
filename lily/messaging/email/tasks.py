@@ -3,12 +3,11 @@ import traceback
 
 from celery.task import task
 from django.conf import settings
-
 from taskmonitor.decorators import monitor_task
 from taskmonitor.utils import lock_task
 
 from .manager import GmailManager, ManagerError, SyncLimitReached
-from .models import EmailAccount, EmailMessage, EmailOutboxMessage
+from .models.models import EmailAccount, EmailMessage, EmailOutboxMessage
 
 
 logger = logging.getLogger(__name__)
@@ -188,6 +187,32 @@ def trash_email_message(email_id):
             manager.cleanup()
 
 
+@task(name='add_and_remove_labels_for_message', bind=True)
+@task(logger=logger)
+def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=None):
+    """
+    Add and/or removes labels for the EmailMessage.
+
+    Args:
+        email_message (instance): EmailMessage instance
+        add_labels (list, optional): list of label_ids to add
+        remove_labels (list, optional): list of label_ids to remove
+    """
+    try:
+        email_message = EmailMessage.objects.get(pk=email_id)
+    except EmailMessage.DoesNotExist:
+        logger.warning('EmailMessage no longer exists: %s', email_id)
+    else:
+        manager = GmailManager(email_message.account)
+        try:
+            logger.debug('Changing labels for: %s', email_message)
+            manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
+        except Exception, e:
+            logger.exception('Failed changing labels for %s' % email_message)
+        finally:
+            manager.cleanup()
+
+
 @task(name='delete_email_message', bind=True)
 @task(logger=logger)
 def delete_email_message(email_id):
@@ -216,18 +241,27 @@ def delete_email_message(email_id):
 
 @task(name='send_message', bind=True)
 @monitor_task(logger=logger)
-def send_message(email_outbox_message_id):
+def send_message(email_outbox_message_id, original_message_id=None):
     """
     Send EmailOutboxMessage.
 
     Args:
         email_outbox_message_id (int): id of the EmailOutboxMessage
+        original_message_id (int, optional): ID of the original EmailMessage
     """
     sent_success = False
     try:
         email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
     except EmailOutboxMessage.DoesNotExist:
         raise
+
+    # If we reply or forward, we want to add the thread_id
+    original_message_thread_id = None
+    if original_message_id:
+        try:
+            original_message_thread_id = EmailMessage.objects.get(pk=original_message_id).thread_id
+        except EmailMessage.DoesNotExist:
+            raise
 
     email_account = email_outbox_message.send_from
 
@@ -236,7 +270,7 @@ def send_message(email_outbox_message_id):
     else:
         manager = GmailManager(email_account)
         try:
-            manager.send_email_message(email_outbox_message.message())
+            manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
             logger.debug('Message sent from: %s', email_account)
             # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
             email_outbox_message.delete()
@@ -251,3 +285,42 @@ def send_message(email_outbox_message_id):
             manager.cleanup()
 
     return sent_success
+
+
+@task(name='create_draft_email_message', bind=True)
+@monitor_task(logger=logger)
+def create_draft_email_message(email_outbox_message_id):
+    """
+    Send EmailOutboxMessage.
+
+    Args:
+        email_outbox_message_id (int): id of the EmailOutboxMessage
+    """
+    draft_success = False
+    try:
+        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
+    except EmailOutboxMessage.DoesNotExist:
+        raise
+
+    email_account = email_outbox_message.send_from
+
+    if not email_account.is_authorized:
+        logger.error('EmailAccount not authorized: %s', email_account)
+    else:
+        manager = GmailManager(email_account)
+        try:
+            manager.create_draft_email_message(email_outbox_message.message())
+            logger.debug('Message saved as draft for: %s', email_account)
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            email_outbox_message.delete()
+            draft_success = True
+        except ManagerError, e:
+            logger.error(traceback.format_exc(e))
+            raise
+        except Exception, e:
+            logger.error(traceback.format_exc(e))
+            raise
+        finally:
+            manager.cleanup()
+
+    return draft_success

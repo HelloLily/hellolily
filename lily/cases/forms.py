@@ -3,12 +3,10 @@ from datetime import datetime
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.accounts.search import AccountMapping
-from lily.cases.models import Case, CaseType, CaseStatus
-from lily.cases.widgets import PrioritySelect
 from lily.contacts.models import Contact
 from lily.contacts.search import ContactMapping
 from lily.parcels.models import Parcel
@@ -16,6 +14,9 @@ from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
+
+from .models import Case, CaseType, CaseStatus
+from .widgets import PrioritySelect
 
 
 class CreateUpdateCaseForm(TagsFormMixin):

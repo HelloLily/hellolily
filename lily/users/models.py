@@ -7,13 +7,11 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
 from lily.socialmedia.models import SocialMedia
 
 from lily.tenant.models import TenantMixin, Tenant
-from lily.utils.models import PhoneNumber, Address
-from lily.utils.models.fields import PhoneNumberFormSetField, AddressFormSetField
 from lily.utils.models.mixins import Common
 
 try:

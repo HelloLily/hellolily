@@ -1,6 +1,6 @@
 from factory.django import DjangoModelFactory
 
-from lily.tenant.models import Tenant
+from .models import Tenant
 
 
 class TenantFactory(DjangoModelFactory):

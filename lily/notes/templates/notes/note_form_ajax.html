@@ -6,7 +6,7 @@
         <div class="form-body">
             {% block form-fields %}
                 {% for field in form.visible_fields %}
-                    {% bootstrap_field field show_label=False %}
+                    {% bootstrap_field field label_class="hidden" %}
                 {% endfor %}
             {% endblock %}
         </div>

@@ -13,8 +13,8 @@
                     {% endfor %}
                     <div class="form-group">
                         {% bootstrap_field form.street layout="horizontal" form_group_class="form-group-inline" %}
-                        {% bootstrap_field form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
-                        {% bootstrap_field form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-1" show_label=False %}
+                        {% bootstrap_field form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" label_class="hidden" %}
+                        {% bootstrap_field form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-1" label_class="hidden" %}
 
                         {% if formset.can_delete %}
                             <div class="col-md-1">
@@ -29,12 +29,12 @@
                         {% endif %}
                     </div>
                     <div class="form-group">
-                        {% bootstrap_field form.postal_code layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                        {% bootstrap_field form.city layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" show_label=False %}
+                        {% bootstrap_field form.postal_code layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
+                        {% bootstrap_field form.city layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                     </div>
                     <div class="form-group">
-                        {% bootstrap_field form.country layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                        {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" show_label=False %}
+                        {% bootstrap_field form.country layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
+                        {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                     </div>
                 </div>
             {% endfor %}
@@ -52,8 +52,8 @@
             <div data-formset-form>
                 <div class="form-group">
                     {% bootstrap_field formset.empty_form.street layout="horizontal" form_group_class="form-group-inline" %}
-                    {% bootstrap_field formset.empty_form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
-                    {% bootstrap_field formset.empty_form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" show_label=False %}
+                    {% bootstrap_field formset.empty_form.street_number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" label_class="hidden" %}
+                    {% bootstrap_field formset.empty_form.complement layout="horizontal" form_group_class="form-group-inline" field_class="col-md-2" label_class="hidden" %}
 
                     <div class="col-md-1">
                         <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
@@ -66,12 +66,12 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    {% bootstrap_field formset.empty_form.postal_code layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                    {% bootstrap_field formset.empty_form.city layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                    {% bootstrap_field formset.empty_form.postal_code layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
+                    {% bootstrap_field formset.empty_form.city layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
                 </div>
                 <div class="form-group">
-                    {% bootstrap_field formset.empty_form.country layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
-                    {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" show_label=False %}
+                    {% bootstrap_field formset.empty_form.country layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
+                    {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" label_class="hidden" %}
                 </div>
             </div>
         </script>

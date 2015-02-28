@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.template import Library, Node, NodeList
 from django.utils.encoding import force_unicode
 from django.utils.http import int_to_base36, urlquote_plus
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 register = Library()
 
 

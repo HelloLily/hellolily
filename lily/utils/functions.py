@@ -154,7 +154,7 @@ def get_emails_for_email_addresses(email_addresses_list, tenant_id, list_size, f
         QuerySet of EmailMessages.
     """
     # Prevent circular import.
-    from lily.messaging.email.models import EmailAddressHeader, EmailMessage, EmailAddress
+    from lily.messaging.email.models.models import EmailAddressHeader, EmailMessage, EmailAddress
 
     # Get the email address id's first.
     filter_list = [Q(email_address=email.email_address) for email in email_addresses_list]

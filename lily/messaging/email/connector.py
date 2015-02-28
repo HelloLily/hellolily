@@ -253,7 +253,7 @@ class GmailConnector(object):
         # Callback function for every service request
         def get_label_info(request_id, response, exception):
             if response:
-                label_info_dict[response['id']] = response.get('labelIds', [])
+                label_info_dict[response['id']] = response
             if exception:
                 # If 404, message no longer exists, otherwise raise error
                 if exception.resp.status != 404:
@@ -262,7 +262,13 @@ class GmailConnector(object):
         batch = BatchHttpRequest(callback=get_label_info)
 
         for message_id in messages_ids:
-            batch.add(self.service.users().messages().get(userId='me', id=message_id, fields='labelIds,id'))
+            # Temporary add snippet
+            # TODO: remove snippet
+            batch.add(self.service.users().messages().get(
+                userId='me',
+                id=message_id,
+                fields='labelIds,id,threadId,snippet'
+            ))
 
         self.execute_service_call(batch)
 
@@ -270,7 +276,7 @@ class GmailConnector(object):
 
     def get_labels_from_message(self, message_id):
         label_info = self.get_label_list_info([message_id])
-        return label_info[message_id]
+        return label_info[message_id].get('labelIds', [])
 
     def get_attachment(self, message_id, attachment_id):
         """
@@ -302,10 +308,23 @@ class GmailConnector(object):
             self.service.users().messages().delete(userId='me', id=message_id)
         )
 
-    def send_email_message(self, message_string):
+    def send_email_message(self, message_string, thread_id=None):
         message_dict = {'raw': base64.urlsafe_b64encode(message_string)}
+        if thread_id:
+            message_dict.update({'threadId': thread_id})
         return self.execute_service_call(
             self.service.users().messages().send(userId='me', body=message_dict)
+        )
+
+    def create_draft_email_message(self, message_string):
+        message_dict = {'message': {'raw': base64.urlsafe_b64encode(message_string)}}
+        return self.execute_service_call(
+            self.service.users().drafts().create(userId='me', body=message_dict)
+        )
+
+    def remove_draft_email_message(self, message_id):
+        return self.execute_service_call(
+            self.service.users().drafts().delete(userId='me', id=message_id)
         )
 
     def cleanup(self):

@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block form-buttons %}
-    <button type="submit" class="btn btn-primary" name="submit">
+    <button type="submit" class="btn btn-primary" name="submit" data-loading-text="Saving...">
         <i class="icon-ok"></i> {% trans 'Save' %}
     </button>
     <button id="archive-button" type="button" class="btn btn-primary" name="archive" data-loading-text="Saving...">
@@ -37,7 +37,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'cases' %}
+    {% compressed_js 'cases'  %}
     <script>
         HLCases.init({
             caseUpdateUrl: "{% url 'case_update_status_short' %}"

@@ -1,9 +1,9 @@
 db:
-  build: dockers/db
+  build: Dockers/db
   ports:
     - 5431:5432
 es:
-  build: dockers/es
+  build: Dockers/es
   ports:
     - 9201:9200
 redis:
@@ -23,7 +23,7 @@ web:
     - rabbit
     - redis
 rabbit:
-  build: dockers/rabbit
+  build: Dockers/rabbit
 beat:
   build: .
   command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1

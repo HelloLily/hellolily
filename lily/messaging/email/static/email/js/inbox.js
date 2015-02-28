@@ -11,7 +11,6 @@
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             wysiHtmlToolbar: '#wysihtml5-toolbar',
             replyButton: '.reply-btn',
-            inboxFrame: null,
             tagsAjaxSelector: '.tags-ajax',
             emailAccountInput: '#id_send_from',
             sendToNormalField: '#id_send_to_normal',
@@ -61,9 +60,6 @@
                 .on('change', cf.sendToNormalField, function () {
                     self.changeTemplateField.call(self, cf.templateField, false);
                 })
-                .on('click', cf.singleMessageSelector, function () {
-                    self.openMessage.call(self, this);
-                })
                 .on('click', cf.replyButton, function () {
                     // Open links when clicking the reply button
                     $('.inbox-view').hide();
@@ -85,8 +81,12 @@
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
 
-            // autogrow on frame load
-            $(cf.inboxFrame).load(self.emailFrameAutogrow());
+                $('.inbox-compose input').on('keydown keyup keypress', function(event) {
+                    // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
+                    if (event.which == 13) {
+                        event.preventDefault();
+                    }
+                });
 
             // initialize uniform checkboxes
             App.initUniform('.mail-group-checkbox');
@@ -119,53 +119,6 @@
             $('.bulk-ids').val(selectedIds.join(','));
         },
 
-        emailFrameAutogrow: function () {
-            var cf = this.config;
-
-            setTimeout(function () {
-                $('.inbox-loading').hide();
-                $('.inbox-view').show();
-                App.fixContentHeight();
-
-                // highlight selected messages
-                $('.mail-checkbox:not(.mail-group-checkbox)').change(function () {
-                    $(this).parents('tr').toggleClass('active');
-                });
-
-                // do this after .inbox-view is visible
-                var ifDoc, ifRef = cf.inboxFrame;
-
-                // set ifDoc to 'document' from frame
-                try {
-                    ifDoc = ifRef.contentWindow.document.documentElement;
-                } catch (e1) {
-                    try {
-                        ifDoc = ifRef.contentDocument.documentElement;
-                    } catch (e2) {
-                    }
-                }
-
-                // calculate and set max height for frame
-                if (ifDoc) {
-                    var subtractHeights = [
-                        $(cf.inboxFrame).offset().top,
-                        $('.footer').outerHeight()
-                    ];
-
-                    var maxHeight = $('body').outerHeight();
-                    for (var height in subtractHeights) {
-                        maxHeight = maxHeight - height;
-                    }
-
-                    if (ifDoc.scrollHeight > maxHeight) {
-                        ifRef.height = maxHeight;
-                    } else {
-                        ifRef.height = ifDoc.scrollHeight;
-                    }
-                }
-            }, 300);
-        },
-
         customParser: function () {
             function parse(elementOrHtml, rules, context, cleanUp) {
                 return elementOrHtml;
@@ -194,10 +147,13 @@
                 handleTables: false
             });
 
+            // extra div is needed so the editor auto resizes
+            editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
+
             editor.observe('load', function () {
                 this.focus();
 
-                $(this.composer.element).on('keypress keyup keydown paste change focus blur', function () {
+                $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });
 
@@ -284,52 +240,15 @@
             }
         },
 
-        openMessage: function (singleMessageSelector) {
-            // Open single email message
-            if ($(singleMessageSelector).closest('[data-readable]').data('readable') == 'false') {
-                alert(this.config.accountDeactivatedMessage);
-            } else {
-                $('.inbox-content').hide();
-                $('.inbox-loading').show();
-                HLApp.redirectTo($(singleMessageSelector).closest('[data-href]').data('href'));
-            }
-        },
-
-        toggleGroupCheckbox: function (mailGroupCheckbox) {
-            var $checkbox = $(mailGroupCheckbox);
-            // Handle group checkbox toggle
-            var checkboxes = $checkbox.attr('data-set');
-            var checked = $checkbox.is(':checked');
-            $(checkboxes).each(function () {
-                if (checked) {
-                    $(this).attr('checked', true);
-                    $(this).parents('tr').addClass('active');
-                } else {
-                    $(this).attr('checked', false);
-                    $(this).parents('tr').removeClass('active');
-                }
-            });
-
-            $.uniform.update(checkboxes);
-
-            this.toggleActionsButton();
-            this.updateBulkIds();
-        },
-
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
 
             // Make sure replies on this email don't break the application
             editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
+            editor.setValue(editor.getValue().replace(' id="body-html-content"', ''));
 
-            var buttonName = $(inboxCompose).attr('name');
-            var form = $(inboxCompose).closest('form');
-
-            // Add button name which is used for certain checks
-            $('<input>').attr('type', 'hidden')
-                .attr('name', buttonName)
-                .attr('value', '')
-                .appendTo(form);
+            var buttonName = $(inboxCompose).attr('name'),
+                $form = $($(inboxCompose).closest('form'));
 
             if (buttonName == 'submit-send') {
                 // Validation of fields.
@@ -337,6 +256,14 @@
                     $('#modal_no_email_address').modal();
                     event.preventDefault();
                     return;
+                }
+            } else if (buttonName == 'submit-save') {
+                var draftPk = $('#id_draft_pk').val();
+                // If we are saving a (existing) draft, change url
+                if(draftPk) {
+                    $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
+                } else {
+                    $form.attr('action', '/messaging/email/draft/');
                 }
             } else if (buttonName == 'submit-discard') {
                 // Discarding email, remove all attachments to prevent unneeded uploading.
@@ -353,8 +280,7 @@
 
             App.blockUI($('.inbox-content'), false, '');
 
-            // Unexplained bug caused form to freeze when submitting, so make sure form always gets submitted
-            $(form).submit();
+            $form.submit();
         },
 
         handleTagsAjaxChange: function (tagsAjax) {
@@ -426,7 +352,7 @@
             }
 
             if (newEditorValue.length) {
-                editor.setValue(newEditorValue + '<br>');
+                editor.setValue(newEditorValue);
                 self.resizeEditor();
                 self.processAttachments(data['attachments']);
             }

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.deals.views import ArchiveDealsView, CreateDealView, DetailDealView, DeleteDealView, \
+from .views import ArchiveDealsView, CreateDealView, DetailDealView, DeleteDealView, \
     UpdateDealView, ListDealView, UpdateStageAjaxView, UnarchiveDealsView, UpdateAndUnarchiveDealView
 
 urlpatterns = patterns(

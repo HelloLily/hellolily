@@ -4,16 +4,17 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse_lazy
 from django.utils.timezone import utc
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.accounts.search import AccountMapping
-from lily.deals.models import Deal
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget, BootstrapRadioFieldRenderer
+
+from .models import Deal
 
 
 class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
@@ -136,6 +137,7 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
         model = Deal
         fields = (
             'name',
+            'new_business',
             'description',
             'account',
             'currency',
@@ -155,5 +157,9 @@ class CreateDealQuickbuttonForm(CreateUpdateDealForm):
             }),
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
+            }),
+            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
             }),
         }

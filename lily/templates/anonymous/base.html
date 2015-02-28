@@ -7,11 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="MobileOptimized" content="320">
-    {% compressed_css 'font-awesome' %}
+    {% compressed_css 'base' %}
     {% compressed_js 'jquery' %}
-    {% compressed_css 'metronic-core' %}
     {% compressed_css 'notifications' %}
-    {% compressed_css 'metronic-theme' %}
     {% block css %}{% endblock %}
     <link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />
     <title>{% block head-title %}HelloLily{% endblock %}</title>

@@ -15,7 +15,7 @@
                         {% if forloop.first %}
                             {% bootstrap_field form.website layout="horizontal" form_group_class="form-group-inline" %}
                         {% else %}
-                            {% bootstrap_field form.website layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" show_label=False %}
+                            {% bootstrap_field form.website layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
                         {% endif %}
                         {% if formset.can_delete %}
                             <div class="col-md-1">

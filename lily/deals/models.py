@@ -1,6 +1,6 @@
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.tags.models import TaggedObjectMixin
@@ -49,8 +49,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, default=OPEN_STAGE, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'))
-    notes = generic.GenericRelation('notes.Note', content_type_field='content_type',
-                                    object_id_field='object_id', verbose_name='list of notes')
+    notes = GenericRelation('notes.Note', content_type_field='content_type',
+                            object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=NO_YES_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('new business'), choices=NO_YES_CHOICES)
 

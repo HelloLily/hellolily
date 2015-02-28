@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.notes.views import (create_note_view, delete_note_view,
-                              edit_note_view, edit_date_note_view)
+from .views import create_note_view, delete_note_view, edit_note_view, edit_date_note_view
 
 
 urlpatterns = patterns(

@@ -1,10 +1,10 @@
 import itertools
 
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from form_utils.forms import BetterForm, BetterModelForm, FieldsetCollection
 
-from lily.utils.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
+from ..models.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
 
 
 class HellolilyFieldsetCollection(FieldsetCollection):
@@ -125,5 +125,7 @@ class SugarCsvImportForm(HelloLilyForm):
     accounts or contacts can be imported for the logged in tenant.
     """
     csvfile = forms.FileField(label=_('CSV'))
-    model = forms.ChoiceField(label=_('Import rows as'), choices=(('contact', _('Contacts')), ('account', _('Accounts'))))
+    model = forms.ChoiceField(label=_('Import rows as'), choices=(('contact', _('Contacts')),
+                                                                  ('account', _('Accounts')),
+                                                                  ('function', _('Functions'))))
     sugar_import = forms.ChoiceField(label=_('From source:'), choices=((1, _('Sugar')), (0, _('Other'))))

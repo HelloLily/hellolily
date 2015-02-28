@@ -174,19 +174,26 @@ class EmailMessage(models.Model):
             return soup.decode()
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
-            reply_body = textwrap.wrap(self.body_text, 80)
+            reply_body = []
+            for line in self.body_text.splitlines():
+                reply_body.extend(textwrap.wrap(line, 120))
             reply_body = ['> %s' % line for line in reply_body]
             return '<br /><br />' + '<br />'.join(reply_body)
         else:
             return ''
 
+    def get_message_id(self):
+        header = self.headers.filter(name__icontains='message-id').first()
+        if header:
+            return header.value
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.sender, self.snippet)
+
     class Meta:
         app_label = 'email'
         unique_together = ('account', 'message_id')
         ordering = ['-sent_date']
-
-    def __unicode__(self):
-        return u'%s: %s' % (self.sender, self.snippet)
 
 
 class EmailHeader(models.Model):
@@ -480,9 +487,17 @@ class EmailOutboxMessage(TenantMixin, models.Model):
         verbose_name_plural = _('e-mail outbox messages')
 
 
+def get_outbox_attachment_upload_path(instance, filename):
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': instance.email_outbox_message_id,
+        'filename': filename
+    }
+
+
 class EmailOutboxAttachment(TenantMixin):
     inline = models.BooleanField(default=False)
-    attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
+    attachment = models.FileField(upload_to=get_outbox_attachment_upload_path, max_length=255)
     size = models.PositiveIntegerField(default=0)
     content_type = models.CharField(max_length=255, verbose_name=_('content type'))
     email_outbox_message = models.ForeignKey(EmailOutboxMessage, related_name='attachments')

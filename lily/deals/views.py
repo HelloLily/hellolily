@@ -1,4 +1,5 @@
 import datetime
+from datetime import date, timedelta
 from urlparse import urlparse
 
 import anyjson
@@ -7,7 +8,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.utils.timezone import utc
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
@@ -35,7 +36,7 @@ class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
     success_url = reverse_lazy('deal_list')
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Deal has been archived.'),
             _('%d deals have been archived.') % count,
             count
@@ -51,7 +52,7 @@ class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
     success_url = reverse_lazy('deal_archived_list')
 
     def get_success_message(self, count):
-        message = ungettext(
+        message = ungettext_lazy(
             _('Deal has been unarchived.'),
             _('%d deals have been unarchived.') % count,
             count
@@ -127,6 +128,13 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
                 pass
             else:
                 initial.update({'account': account})
+
+                deal_count = Deal.objects.filter(account=account).count()
+
+                # If the account is newer than 7 days and it doesn't have any deals associated we mark it as a new business
+                if deal_count == 0 and account.created.date() > date.today() - timedelta(days=7):
+                    initial.update({'new_business': True})
+
         return initial
 
     def form_valid(self, form):

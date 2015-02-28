@@ -1,7 +1,7 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.utils.functions import parse_phone_number
+from ..functions import parse_phone_number
 from lily.tenant.models import TenantMixin, PolymorphicTenantMixin, PolymorphicTenantManager
 
 

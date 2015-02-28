@@ -18,7 +18,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View, TemplateView, FormView, UpdateView
 from django.utils.http import base36_to_int, int_to_base36, urlunquote
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 
@@ -26,13 +26,14 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.updates.forms import CreateBlogEntryForm
 from lily.updates.models import BlogEntry
-from lily.users.forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
-                              InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, UserProfileForm,
-                              UserAccountForm)
-from lily.users.models import LilyUser
 from lily.utils.functions import is_ajax
 from lily.utils.views import MultipleModelListView
 from lily.utils.views.mixins import LoginRequiredMixin
+
+from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
+                    InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, UserProfileForm,
+                    UserAccountForm)
+from .models import LilyUser
 
 
 class RegistrationView(FormView):

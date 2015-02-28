@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment
+from ..models.models import EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment
 
 
 class EmailLabelSerializer(serializers.ModelSerializer):

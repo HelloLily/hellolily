@@ -25,7 +25,7 @@
             {% endif %}
             {% block form-fields %}
                 {% for field in form.visible_fields %}
-                    {% bootstrap_field field layout="horizontal" field_class="col-md-8" show_label=False %}
+                    {% bootstrap_field field layout="horizontal" field_class="col-md-8" label_class="hidden" %}
                 {% endfor %}
             {% endblock %}
         </div>

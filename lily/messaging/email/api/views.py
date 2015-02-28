@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .serializers import EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer
-from ..models import EmailLabel, EmailAccount, EmailMessage
-from ..tasks import trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message
+from ..models.models import EmailLabel, EmailAccount, EmailMessage
+from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
+                     add_and_remove_labels_for_message)
 
 
 class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -81,4 +82,20 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
         trash_email_message.apply_async(args=(email.id,))
+        return Response(serializer.data)
+
+    @detail_route(methods=['put'])
+    def move(self, request, pk=None):
+        """
+        Any modifications are passed trough the manager and not directly on de db.
+
+        Move will happen async
+        """
+        email = self.get_object()
+        serializer = self.get_serializer(email, partial=True)
+        add_and_remove_labels_for_message.delay(
+            email.id,
+            remove_labels=request.data['data'].get('remove_labels', []),
+            add_labels=request.data['data'].get('add_labels', []),
+        )
         return Response(serializer.data)

@@ -1,10 +1,10 @@
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lily.users.models import LilyUser
 from lily.tenant.middleware import get_current_user
 from lily.tenant.models import PolymorphicTenantMixin, PolymorphicTenantManager
-from lily.utils.models import HistoryListItem
+from lily.utils.models.models import HistoryListItem
 from lily.utils.models.mixins import DeletedMixin
 
 

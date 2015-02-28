@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from lily.accounts.views import JsonAccountListView, AddAccountView, EditAccountView, DetailAccountView, \
+from .views import JsonAccountListView, AddAccountView, EditAccountView, DetailAccountView, \
     DeleteAccountView, ListAccountView, ExistsAccountView, ExportAccountView
 
 

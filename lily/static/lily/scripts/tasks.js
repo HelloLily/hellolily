@@ -5,7 +5,9 @@
             sendMessageSuccess: {message: 'I successfully delivered your e-mail!', title: 'Yay!'},
             sendMessageError: {message: 'Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later.', title: 'Oops!'},
             saveMessageSuccess: {message: 'I successfully saved your message as a draft!', title: 'Yay!'},
-            saveMessageError: {message: 'I couldn\'t save your message as a draft, please try again!', title: 'Oops!'}
+            saveMessageError: {message: 'I couldn\'t save your message as a draft, please try again!', title: 'Oops!'},
+            draftMessageSuccess: {message: 'I successfully saved your message as a draft!', title: 'Yay!'},
+            draftMessageError: {message: 'I couldn\'t save your message as a draft, please try again!', title: 'Oops!'}
         },
 
         init: function (config) {
@@ -27,6 +29,14 @@
                     }
                     else {
                         toastr.error(cf.sendMessageError.message, cf.sendMessageError.title);
+                    }
+                })
+                .on('taskmonitor_create_draft_email_message', function (event) {
+                    if (event.task_result) {
+                        toastr.success(cf.draftMessageSuccess.message, cf.draftMessageSuccess.title);
+                    }
+                    else {
+                        toastr.error(cf.draftMessageError.message, cf.draftMessageSuccess.title);
                     }
                 })
                 .on('taskmonitor_save_message', function (event) {

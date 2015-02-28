@@ -125,7 +125,7 @@
                             {{ ::case.status }}
                         </td>
                         <td ng-show="table.visibility.expires">
-                            {{ ::case.expires | relativeDate }}
+                            {{ ::case.expires | relativeDate:'':true }}
                         </td>
                         <td ng-show="table.visibility.assignedTo">
                             {{ ::case.assigned_to_name }}

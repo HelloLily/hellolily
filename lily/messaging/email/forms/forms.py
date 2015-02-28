@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django import forms
@@ -8,7 +9,8 @@ from django.db.models import Q
 from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
+
 from lily.contacts.models import Contact
 
 from lily.tenant.middleware import get_current_user
@@ -18,10 +20,13 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
 
+from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment, EmailOutboxAttachment, DefaultEmailTemplate,
+                             EmailTemplateAttachment)
 from .widgets import EmailAttachmentWidget
-from ..models import (EmailAccount, EmailTemplate, EmailDraft, EmailAttachment,
-                      EmailOutboxAttachment, DefaultEmailTemplate, EmailTemplateAttachment)
-from ..utils import get_email_parameter_choices, TemplateParser, get_messages_accounts
+from ..utils import get_email_parameter_choices, TemplateParser
+
+
+logger = logging.getLogger(__name__)
 
 
 class EmailAccountCreateUpdateForm(HelloLilyModelForm):
@@ -49,7 +54,6 @@ class EmailAccountShareForm(HelloLilyModelForm):
         super(EmailAccountShareForm, self).__init__(*args, **kwargs)
         user = get_current_user()
 
-
         self.fields['shared_with_users'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
 
     class Meta:
@@ -73,16 +77,20 @@ class AttachmentBaseForm(HelloLilyModelForm):
         }
 
 
-class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
+class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
+    draft_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
     template = forms.ModelChoiceField(
         label=_('Template'),
         queryset=EmailTemplate.objects,
         empty_label=_('Choose a template'),
         required=False
     )
+
+    send_from = forms.ChoiceField()
 
     send_to_normal = TagsField(
         label=_('To'),
@@ -122,17 +130,22 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
 
     attachments = FormSetField(
         queryset=EmailOutboxAttachment.objects,
-        formset_class=modelformset_factory(EmailOutboxAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
         template='email/formset_attachment.html',
     )
 
+    subject = forms.CharField(required=False)
+    body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
+
     def __init__(self, *args, **kwargs):
-        self.draft_id = kwargs.pop('draft_id', None)
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
 
-        if self.message_type is not 'reply':
-            self.fields['attachments'].initial = EmailAttachment.objects.filter(message_id=self.draft_id)
+        if 'initial' in kwargs and 'draft_pk' in kwargs['initial']:
+            if self.message_type is not 'reply':
+                self.initial['attachments'] = EmailAttachment.objects.filter(
+                    message_id=kwargs['initial']['draft_pk'],
+                )
 
         user = get_current_user()
         self.email_accounts = EmailAccount.objects.filter(
@@ -213,21 +226,33 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyModelForm):
         cleaned_data = self.cleaned_data
         send_from = cleaned_data.get('send_from')
 
-        if send_from.pk not in [account.pk for account in self.email_accounts]:
-            raise ValidationError(
-                _('Invalid email account selected to use as sender.'),
-                code='invalid',
-            )
+        try:
+            send_from = int(send_from)
+        except ValueError:
+            pass
         else:
-            return send_from
+            try:
+                send_from = self.email_accounts.get(pk=send_from)
+            except EmailAccount.DoesNotExist:
+                raise ValidationError(
+                    _('Invalid email account selected to use as sender.'),
+                    code='invalid',
+                )
+            else:
+                return send_from
 
     class Meta:
-        model = EmailDraft
-        fields = ('send_from', 'send_to_normal', 'send_to_cc', 'send_to_bcc', 'subject', 'template', 'body_html',
-                  'attachments')
-        widgets = {
-            'body_html': Wysihtml5Input(),
-        }
+        fields = (
+            'draft_pk',
+            'send_from',
+            'send_to_normal',
+            'send_to_cc',
+            'send_to_bcc',
+            'subject',
+            'template',
+            'body_html',
+            'attachments',
+        )
 
 
 class CreateUpdateEmailTemplateForm(HelloLilyModelForm):

@@ -21,23 +21,26 @@
     <div class="row">
         <div class="col-md-6 col-xs-6">
             <ul class="list-unstyled summary-list">
-                <li>
-                    {% if object.account %}
+                {% if object.account %}
+                    <li>
                         <span class="summary-label">{% trans 'Account' %}</span>
                         <span class="summary-data">
                             <a href="{% url 'account_details' pk=object.account.pk %}">
                                 {{ object.account.name }}
                             </a>
                         </span>
-                    {% elif object.contact %}
+                    </li>
+                {% endif %}
+                {% if object.contact %}
+                    <li>
                         <span class="summary-label">{% trans 'Contact' %}</span>
                         <span class="summary-data">
                             <a href="{% url 'contact_details' pk=object.contact.pk %}">
                                 {{ object.contact.full_name }}
                             </a>
                         </span>
-                    {% endif %}
-                </li>
+                    </li>
+                {% endif %}
                 <li>
                     <span class="summary-label">{% trans 'Case name' %}</span>
                     <span class="summary-data">{{ object }}</span>
@@ -84,9 +87,14 @@
                 </li>
                 <li>
                     <span class="summary-label">{% trans 'Assigned to' %}</span>
-                    {% if object.assigned_to.id == user.id %}
-                        <span class="summary-data assigned-to">{{ object.assigned_to }}</span>
-                        <button class="btn btn-link assign-me-btn no-padding">{% trans 'Unassign' %}</button>
+                    {% if object.assigned_to %}
+                        {% if object.assigned_to.id == user.id %}
+                            <span class="summary-data assigned-to">{{ object.assigned_to }}</span>
+                            <button class="btn btn-link assign-me-btn no-padding">{% trans 'Unassign' %}</button>
+                        {% else %}
+                            <span class="summary-data assigned-to">{{ object.assigned_to }}</span>
+                            <button class="btn btn-link assign-me-btn no-padding">{% trans 'Assign to me' %}</button>
+                        {% endif %}
                     {% else %}
                         <span class="summary-data assigned-to">{% trans 'Unassigned' %}</span>
                         <button class="btn btn-link assign-me-btn no-padding">{% trans 'Assign to me' %}</button>

@@ -1,5 +1,6 @@
 ### Django runs on this
-web: python manage.py runserver 0:8000
+# web: gunicorn --config=lily/settings/gunicorn.py lily.wsgi:application  # Run it like on live (no auto reload)
+web: python manage.py runserver  # Run the django dev server
 
 ### Celery workers
 

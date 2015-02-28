@@ -1,4 +1,4 @@
-from lily.messaging.email.utils import email_auth_update, unread_emails
+from .utils import email_auth_update, unread_emails
 from lily.utils.functions import is_ajax
 
 

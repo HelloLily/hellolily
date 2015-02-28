@@ -4,9 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.forms.models import modelformset_factory
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.accounts.models import Account, Website
 from lily.socialmedia.connectors import Twitter
 from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
@@ -17,7 +16,9 @@ from lily.utils.forms.fields import FormSetField, TagsField
 from lily.utils.forms.formsets import BaseFKFormSet
 from lily.utils.forms.widgets import ShowHideWidget, AddonTextInput
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.models import EmailAddress, Address
+from lily.utils.models.models import EmailAddress, Address
+
+from .models import Account, Website
 
 
 class AddAccountQuickbuttonForm(HelloLilyModelForm):

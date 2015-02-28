@@ -86,7 +86,7 @@
                         {% csrf_token %}
 
                         <div class="form-group">
-                            {% bootstrap_field form.content layout="horizontal" form_group_class="form-group-inline" field_class="col-md-10 clearfix" show_label=False %}
+                            {% bootstrap_field form.content layout="horizontal" form_group_class="form-group-inline" field_class="col-md-10 clearfix" label_class="hidden" %}
                             <button type="submit" class="btn btn-primary">{% trans 'Post' %}</button>
                             <div class="clearfix"></div>
                         </div>

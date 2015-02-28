@@ -1,7 +1,8 @@
 from lily.accounts.models import Account
-from lily.deals.models import Deal
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
+
+from .models import Deal
 
 
 class DealMapping(BaseMapping):

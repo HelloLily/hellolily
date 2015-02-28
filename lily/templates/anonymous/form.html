@@ -9,12 +9,12 @@
     {% if form.non_field_errors %}
     <div class="error">
        {% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br/>{% endif %}{% endfor %}
-    </div>            
+    </div>
     {% endif %}
     {% csrf_token %}
     {% block form-fields %}
     {% for field in form.visible_fields %}
-        {% bootstrap_field field form_group_class="form-group" show_label=False %}
+        {% bootstrap_field field form_group_class="form-group" label_class="hidden" %}
     {% endfor %}
     {% endblock %}
     {% block form-actions %}

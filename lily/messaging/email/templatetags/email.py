@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from collections import OrderedDict
 import urllib
 from datetime import datetime
 
@@ -7,9 +8,9 @@ from dateutil.parser import parse
 from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.datastructures import SortedDict
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
+
 
 register = template.Library()
 
@@ -95,13 +96,13 @@ def pretty_datetime_relative(time, format=None):
 @register.filter(name='other_mailbox_folders')
 def other_mailbox_folders(email_account, active_url):
     def filter_other_folders(folder_tree):
-        other_folders = SortedDict()
+        other_folders = OrderedDict()
         for folder_name, folder in folder_tree.items():
             if not len(set([INBOX, SENT, DRAFTS, TRASH, SPAM]).intersection(set(folder.get('flags', [])))):
                 other_folders[folder_name] = folder
 
         # Sort other mailbox folders
-        other_folders_sorted = SortedDict()
+        other_folders_sorted = OrderedDict()
         for folder_name in sorted(other_folders, key=unicode.lower):
             other_folders_sorted[folder_name] = other_folders.get(folder_name)
 

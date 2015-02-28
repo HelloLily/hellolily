@@ -3,10 +3,13 @@ from django.dispatch.dispatcher import receiver
 
 from .indexing import update_in_index, remove_from_index
 from .scan_search import ModelMappings
+from django.conf import settings
 
 
 @receiver(post_save)
 def post_save_generic(sender, instance, **kwargs):
+    if settings.ES_DISABLED:
+        return
     mapping = ModelMappings.get_model_mappings().get(sender)
     if mapping:
         update_in_index(instance, mapping)
@@ -15,6 +18,8 @@ def post_save_generic(sender, instance, **kwargs):
 
 @receiver(m2m_changed)
 def m2m_changed_generic(sender, instance, action, **kwargs):
+    if settings.ES_DISABLED:
+        return
     if action.startswith('post_'):
         mapping = ModelMappings.get_model_mappings().get(type(instance))
         if mapping:
@@ -24,6 +29,8 @@ def m2m_changed_generic(sender, instance, action, **kwargs):
 
 @receiver(post_delete)
 def post_delete_generic(sender, instance, **kwargs):
+    if settings.ES_DISABLED:
+        return
     mapping = ModelMappings.get_model_mappings().get(sender)
     if mapping:
         remove_from_index(instance, mapping)

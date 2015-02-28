@@ -65,6 +65,10 @@
     margin-right: 0;
 }
 
+.dropdown-menu.labels a {
+  text-align: left !important;
+}
+
 .email-template-body {
   border: solid 1px #eee;
 }
@@ -130,5 +134,9 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 
 .template-attachment-name.mark-deleted{
   background-color: #F9F9F9 !important
+}
+
+.inbox-compose-btn .btn {
+    padding: 4px 10px;
 }
 

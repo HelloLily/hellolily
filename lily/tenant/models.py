@@ -3,22 +3,22 @@ from django.db import models
 from django.db.models import Q
 from polymorphic import PolymorphicManager, PolymorphicModel
 
-from lily.tenant.middleware import get_current_user
+from .middleware import get_current_user
 
 
 class TenantManager(models.Manager):
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         """
         Manipulate the returned queryset by adding a filter for tenant using the tenant linked
         to the current logged in user (received via custom middleware).
         """
         user = get_current_user()
         if user and user.is_authenticated():
-            return super(TenantManager, self).get_query_set().filter(tenant=user.tenant)
+            return super(TenantManager, self).get_queryset().filter(tenant=user.tenant)
         else:
-            return super(TenantManager, self).get_query_set()
+            return super(TenantManager, self).get_queryset()
 
 
 class PolymorphicTenantManager(TenantManager, PolymorphicManager):
@@ -36,12 +36,12 @@ class NullableTenantManager(models.Manager):
     """
     Allows the tenant of a model to be null.
     """
-    def get_query_set(self):
+    def get_queryset(self):
         user = get_current_user()
         if user and user.is_authenticated():
-            return super(NullableTenantManager, self).get_query_set().filter(Q(tenant=user.tenant) | Q(tenant__isnull=True))
+            return super(NullableTenantManager, self).get_queryset().filter(Q(tenant=user.tenant) | Q(tenant__isnull=True))
         else:
-            return super(NullableTenantManager, self).get_query_set().filter(Q(tenant__isnull=True))
+            return super(NullableTenantManager, self).get_queryset()
 
 
 class MultiTenantMixin(models.Model):

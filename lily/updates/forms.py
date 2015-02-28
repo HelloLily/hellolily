@@ -1,8 +1,9 @@
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from lily.updates.models import BlogEntry
 from lily.utils.forms import HelloLilyModelForm
+
+from .models import BlogEntry
 
 
 class CreateBlogEntryForm(HelloLilyModelForm):

@@ -17,7 +17,7 @@ faker = Factory.create()
 
 class LilyUserFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
-    password = make_password('lilyuser')
+    password = make_password('admin')
 
     first_name = LazyAttribute(lambda o: faker.first_name())
     preposition = LazyAttribute(lambda o: choice(['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']) if bool(randint(0, 1)) else '')
@@ -35,7 +35,7 @@ class LilyUserFactory(DjangoModelFactory):
 
 
 class LilySuperUserFactory(LilyUserFactory):
-    password = make_password('lilysuperuser')
+    password = make_password('admin')
 
     is_superuser = True
     is_staff = True

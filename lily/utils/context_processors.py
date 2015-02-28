@@ -4,7 +4,8 @@ from lily.accounts.forms import AddAccountQuickbuttonForm
 from lily.cases.forms import CreateCaseQuickbuttonForm
 from lily.contacts.forms import AddContactQuickbuttonForm
 from lily.deals.forms import CreateDealQuickbuttonForm
-from lily.utils.functions import is_ajax
+
+from .functions import is_ajax
 
 
 def quickbutton_forms(request):

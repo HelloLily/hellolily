@@ -1,7 +1,7 @@
 from django.forms.models import BaseModelFormSet, modelformset_factory
 
-from lily.utils.models import PhoneNumber, Address, EmailAddress
-from lily.utils.forms import PhoneNumberBaseForm, AddressBaseForm, EmailAddressBaseForm
+from ..models.models import PhoneNumber, Address, EmailAddress
+from .forms import PhoneNumberBaseForm, AddressBaseForm, EmailAddressBaseForm
 
 
 class BaseM2MFormSet(BaseModelFormSet):

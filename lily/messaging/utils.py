@@ -1,8 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
-from lily.messaging.models import MessagesAccount, PRIVATE, PUBLIC, SHARED
-from lily.utils.functions import uniquify
+from .models import MessagesAccount, PRIVATE, PUBLIC, SHARED
 
 
 def get_messages_accounts(user, model_cls=None, pk_list=None):

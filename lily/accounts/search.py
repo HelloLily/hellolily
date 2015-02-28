@@ -148,7 +148,7 @@ class AccountMapping(BaseMapping):
                 'address_country': address.get_country_display()
             } for address in obj.addresses.all()],
             'social': [{
-                'social_name': soc.get_name(),
+                'social_name': soc.get_name_display(),
                 'social_profile': soc.username,
                 'social_url': soc.profile_url
             } for soc in obj.social_media.all()],

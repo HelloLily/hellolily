@@ -7,7 +7,8 @@ angular.module('emailControllers', [
     'ui.router',
 
     // Lily dependencies
-    'emailServices'
+    'emailServices',
+    'lilyServices'
 ])
     .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider){
         $stateProvider
@@ -79,7 +80,9 @@ angular.module('emailControllers', [
         'EmailMessage',
         'EmailLabel',
         'EmailAccount',
-        function($scope, $stateParams, EmailMessage, EmailLabel, EmailAccount) {
+
+        'HLText',
+        function($scope, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
 
             $scope.table.page = 0;
             $scope.table.filter = '';
@@ -135,14 +138,31 @@ angular.module('emailControllers', [
 
             $scope.trashMessages = function() {
                 for (var id in $scope.checkboxes) {
-                    EmailMessage.API.trash({id:id});
+                    EmailMessage.API.trash({id: id});
                 }
                 deleteCheckedMessagesFromList();
             };
 
             $scope.deleteMessages = function() {
                 for (var id in $scope.checkboxes) {
-                    EmailMessage.API.delete({id:id});
+                    EmailMessage.API.delete({id: id});
+                }
+                deleteCheckedMessagesFromList();
+            };
+
+            $scope.moveMessages = function(labelId) {
+                var removedLabels = [];
+                if ($scope.label.label_id) {
+                    removedLabels = [$scope.label.label_id];
+                }
+                var addedLabels = [labelId];
+                // Gmail API needs to know the new labels as well as the old ones, so send them too
+                var data = {
+                    remove_labels: removedLabels,
+                    add_labels: addedLabels
+                };
+                for (var id in $scope.checkboxes) {
+                    EmailMessage.API.move({id: id, data: data});
                 }
                 deleteCheckedMessagesFromList();
             };
@@ -165,6 +185,10 @@ angular.module('emailControllers', [
                 reloadMessages();
             };
 
+            $scope.goToDraft = function(messageId) {
+                window.open('/messaging/email/draft/' + messageId + '/', '_self');
+            };
+
             function reloadMessages() {
                 var filterquery = [];
 
@@ -183,19 +207,20 @@ angular.module('emailControllers', [
                         // Get the label for the given accountId
                         EmailLabel.query({
                             label_id: $stateParams.labelId,
-                            account_id:  $stateParams.accountId
+                            account__id: $stateParams.accountId
                         }, function (results) {
                             if (results.length) {
                                 $scope.label = results[0];
+                                $scope.label.name = $scope.label.name.hlCapitalize();
                             } else {
-                                $scope.label = {name: $stateParams.labelId};
+                                $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
                             }
                         });
                     }
                     // Get the account for the given accountId
                     $scope.account = EmailAccount.get({id: $stateParams.accountId});
                 } else {
-                    $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId}
+                    $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
                 }
 
                 if (filterquery) {
@@ -309,5 +334,4 @@ angular.module('emailControllers', [
             $scope.unreadCountForLabel = function(account, labelId) {
                 return unreadCountForLabel(account, labelId);
             }
-
     }]);

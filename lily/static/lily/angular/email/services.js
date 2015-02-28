@@ -83,8 +83,15 @@ angular.module('emailServices', [
                             id: '@id',
                             actions: ''
                         }
+                    },
+                    'move': {
+                        method: 'PUT',
+                        headers: {'X-CSRFToken': Cookie.getCsrftoken()},
+                        params: {
+                            id: '@id',
+                            actions: 'move'
+                        }
                     }
-
                 }
             ),
             SEARCH: $resource('/search/search/?user_email_related=1&type=email_emailmessage&sort=-sent_date&size=20'),

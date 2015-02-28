@@ -11,6 +11,7 @@ from lily.tenant.factories import TenantFactory
 
 from .models import Deal
 
+
 faker = Factory.create()
 
 

@@ -1,9 +1,11 @@
 from datetime import date
 import logging
+import random
+import time
 import traceback
 
 from django.conf import settings
-from elasticsearch.exceptions import NotFoundError
+from elasticsearch.exceptions import NotFoundError, ConnectionTimeout
 from elasticutils.contrib.django import tasks
 
 from lily.utils import logutil
@@ -53,10 +55,27 @@ def index_objects(mapping, queryset, index, print_progress=False):
         documents.append(mapping.extract_document(instance.id, instance))
 
         if len(documents) >= 100:
+            for n in range(0, 6):
+                try:
+                    mapping.bulk_index(documents, id_field='id', index=index)
+                    documents = []
+                    break
+                except ConnectionTimeout:
+                    # After 6 tries, we should raise
+                    if n == 5:
+                        raise
+                    sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
+                    logger.error('ConnectionTimeOut, sleeping for %s seconds' % sleep_time)
+                    time.sleep(sleep_time)
+                    pass
+
+    for n in range(0, 6):
+        try:
             mapping.bulk_index(documents, id_field='id', index=index)
             documents = []
-
-    mapping.bulk_index(documents, id_field='id', index=index)
+            break
+        except ConnectionTimeout:
+            pass
 
 
 def unindex_objects(mapping, queryset, index, print_progress=False):

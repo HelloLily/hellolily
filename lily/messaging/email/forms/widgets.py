@@ -1,19 +1,13 @@
-import anyjson
-
-from django.core.urlresolvers import reverse
-from django.forms import model_to_dict
-from django.forms.widgets import ClearableFileInput, CheckboxInput, Select
+from django.forms.widgets import ClearableFileInput, CheckboxInput
 from django.utils.encoding import force_unicode
-from django.utils.html import escape, conditional_escape
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-from lily.messaging.email.utils import get_attachment_filename_from_url
+from ..utils import get_attachment_filename_from_url
 
 
 class EmailAttachmentWidget(ClearableFileInput):
     template_with_initial = u'%(initial)s'
-
-    # template_with_clear = u'%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>'
 
     def render(self, name, value, attrs=None):
         substitutions = {
@@ -39,26 +33,3 @@ class EmailAttachmentWidget(ClearableFileInput):
                 substitutions['clear_template'] = self.template_with_clear % substitutions
 
         return mark_safe(template % substitutions)
-
-
-# class EmailProviderSelect(Select):
-#     """
-#     Subclassing to enable filling out the form with attributes of an EmailProvider instance.
-#     These attributes will be JSON serialized as a html5 data attribute on the option elements.
-#     """
-#     def render_option(self, selected_choices, option_value, option_label):
-#         json_html = u''
-#         if isinstance(option_value, EmailProvider):
-#             json_html = u' data-serialized="%s"' % escape(anyjson.dumps(model_to_dict(option_value, exclude=['id', 'tenant', 'name'])))
-#             option_value = option_value.pk
-#         option_value = force_unicode(option_value)
-#         if option_value in selected_choices:
-#             selected_html = u' selected="selected"'
-#             if not self.allow_multiple_selected:
-#                 # Only allow for a single selection.
-#                 selected_choices.remove(option_value)
-#         else:
-#             selected_html = ''
-#         return u'<option value="%s"%s%s>%s</option>' % (
-#             escape(option_value), selected_html, json_html,
-#             conditional_escape(force_unicode(option_label)))

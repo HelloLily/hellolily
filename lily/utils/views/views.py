@@ -13,14 +13,14 @@ from django.template import Context
 from django.template.loader import get_template
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from django.views.generic.base import View, TemplateView
 
-from lily.utils.forms import SugarCsvImportForm
-from lily.utils.functions import is_ajax
-from lily.utils.tasks import import_sugar_csv
-from lily.utils.views.mixins import FilterQuerysetMixin, LoginRequiredMixin
+from ..forms import SugarCsvImportForm
+from ..functions import is_ajax
+from ..tasks import import_sugar_csv
+from .mixins import FilterQuerysetMixin, LoginRequiredMixin
 
 
 logger = logging.getLogger(__name__)

@@ -9,11 +9,12 @@ from django.core.files.storage import default_storage
 from django.utils.html import escape
 from imapclient import SEEN
 
-from lily.messaging.email.models import EmailHeader, EmailAddressHeader, EmailAttachment, EmailMessage, \
-    get_attachment_upload_path, EmailAddress
-from lily.messaging.email.utils import replace_anchors_in_html, replace_cid_in_html
 from python_imap.folder import DRAFTS
 from python_imap.utils import convert_html_to_text
+
+from .models.models import EmailHeader, EmailAddressHeader, EmailAttachment, EmailMessage, \
+    get_attachment_upload_path, EmailAddress
+from .utils import replace_anchors_in_html, replace_cid_in_html
 
 task_logger = logging.getLogger('celery_task')
 

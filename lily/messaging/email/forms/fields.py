@@ -1,6 +1,6 @@
 from django.forms import ModelChoiceField
 
-from lily.messaging.email.forms.widgets import EmailProviderSelect
+from .widgets import EmailProviderSelect
 
 
 class EmailProviderChoiceField(ModelChoiceField):

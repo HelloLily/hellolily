@@ -1,9 +1,15 @@
+import logging
+
 from django.conf import settings
 from django.db.models.query_utils import Q
-
+from elasticsearch.exceptions import RequestError
 from elasticutils import S
+
 from lily.accounts.models import Account
 from lily.messaging.email.models.models import EmailAccount
+
+
+logger = logging.getLogger(__name__)
 
 
 class LilySearch(object):
@@ -63,25 +69,34 @@ class LilySearch(object):
             self.search = self.search.doctypes(self.model_type)
 
         # Fire off search.
-        hits = []
-        execute = self.search.execute()
-        for result in execute:
-            hit = {
-                'id': result.id,
-            }
-            if not self.model_type:
-                # We will add type if not specifically searched on it.
-                hit['type'] = result.es_meta.type
-            for field in result:
-                # Add specified fields, or all fields when not specified.
-                if return_fields:
-                    if field in return_fields:
+        try:
+            hits = []
+            execute = self.search.execute()
+            for result in execute:
+                hit = {
+                    'id': result.id,
+                }
+                if not self.model_type:
+                    # We will add type if not specifically searched on it.
+                    hit['type'] = result.es_meta.type
+                for field in result:
+                    # Add specified fields, or all fields when not specified.
+                    if return_fields:
+                        if field in return_fields:
+                            hit[field] = result[field]
+                    else:
                         hit[field] = result[field]
-                else:
-                    hit[field] = result[field]
-            hits.append(hit)
-
-        return hits, execute.count, execute.took
+                hits.append(hit)
+            return hits, execute.count, execute.took
+        except RequestError as e:
+            # This can happen when the query is malformed. For example:
+            # A user entering special characters. This should normally be taken
+            # care of where the request is built (usually in Javascript),
+            # by escaping or omitting special characters.
+            # This may be hard to get fool proof, therefore we also
+            # catch the exception here to prevent server errors.
+            logger.error('request error %s' % e)
+            return [], 0, 0
 
     def query_common_fields(self, query):
         """

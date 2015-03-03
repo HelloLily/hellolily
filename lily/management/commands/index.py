@@ -51,6 +51,12 @@ You can do this by comparing the list of PKs before and after."""
                     default='',
                     help='Choose specific model targets, comma separated.'
                     ),
+        make_option('-i', '--id',
+                    action='store',
+                    dest='id',
+                    default='',
+                    help='Choose specific IDs, comma separated. Has no effect without "target" option.'
+                    ),
         make_option('-q', '--queries',
                     action='store_true',
                     dest='queries',
@@ -69,7 +75,12 @@ You can do this by comparing the list of PKs before and after."""
         target = options['target']
         if target:
             targets = target.split(',')
-            self.index(settings.ES_INDEXES['default'], specific_targets=targets, with_unindex=True)
+            # Check specific IDs.
+            if options['id']:
+                ids = options['id'].split(',')
+                self.index(settings.ES_INDEXES['default'], specific_targets=targets, ids=ids, with_unindex=True)
+            else:
+                self.index(settings.ES_INDEXES['default'], specific_targets=targets, with_unindex=True)
 
         else:
             # We define some custom analyzers that our mappings can use.
@@ -123,7 +134,7 @@ You can do this by comparing the list of PKs before and after."""
             for query in connection.queries:
                 print query
 
-    def index(self, index_name, specific_targets=None, with_unindex=False):
+    def index(self, index_name, specific_targets=None, ids=None, with_unindex=False):
         """
         Index objects from our index-enabled models.
         """
@@ -140,11 +151,17 @@ You can do this by comparing the list of PKs before and after."""
                 model_objs = model.objects.filter(is_deleted=False)
             else:
                 model_objs = model.objects.all()
+
+            if ids:
+                model_objs = model_objs.filter(id__in=ids)
+
             index_objects(mapping_class, model_objs, index_name, print_progress=True)
 
             if with_unindex:
                 if mapping_class.has_deleted():
                     model_objs = model.objects.filter(is_deleted=True)
+                    if ids:
+                        model_objs = model_objs.filter(id__in=ids)
                     unindex_objects(mapping_class, model_objs, index_name, print_progress=True)
                 else:
                     # TODO: implement unindex for deleted items

@@ -20,13 +20,10 @@ def update_in_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
     if hasattr(instance, 'is_deleted') and instance.is_deleted:
-        try:
-            tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
-        except:
-            pass
+        remove_from_index(instance, mapping)
     else:
+        logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
         try:
             tasks.index_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
         except Exception, e:
@@ -42,6 +39,8 @@ def remove_from_index(instance, mapping):
     logger.info(u'Removing instance %s: %s' % (instance.__class__.__name__, instance.pk))
     try:
         tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
+    except NotFoundError, e:
+        logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
     except Exception, e:
         logger.error(traceback.format_exc(e))
 

@@ -151,8 +151,6 @@
             editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
 
             editor.observe('load', function () {
-                this.focus();
-
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });

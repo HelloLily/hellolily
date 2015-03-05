@@ -7,15 +7,15 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.forms import TextInput
 from django.forms.formsets import BaseFormSet
 from django.template import loader
 from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
+from rest_framework.authtoken.models import Token
+
 from lily.socialmedia.connectors import LinkedIn, Twitter
 from lily.socialmedia.models import SocialMedia
-
 from lily.tenant.middleware import get_current_user
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.widgets import JqueryPasswordInput, AddonTextInput
@@ -543,4 +543,30 @@ class UserAccountForm(HelloLilyModelForm):
             }), (_('Confirm your password'), {
                 'fields': ['old_password', ],
             })
+        ]
+
+
+class APIAccessForm(HelloLilyModelForm):
+    key = forms.CharField(label=_('Current API key'), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(APIAccessForm, self).__init__(*args, **kwargs)
+
+        self.fields['key'].widget.attrs['readonly'] = True
+
+        user = get_current_user()
+
+        try:
+            token = Token.objects.get(user=user)
+        except Token.DoesNotExist:
+            pass
+        else:
+            self.fields['key'].initial = token.key
+
+    class Meta:
+        model = Token
+        fieldsets = [
+            (_('API Key'), {
+                'fields': ['key', ],
+            }),
         ]

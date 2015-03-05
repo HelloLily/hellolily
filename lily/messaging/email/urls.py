@@ -22,7 +22,7 @@ urlpatterns = patterns(
 
     url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
 
-    # email templates
+    # Email templates
     url(r'^templates/$', EmailTemplateListView.as_view(), name='messaging_email_template_list'),
     url(r'^templates/create/$', CreateEmailTemplateView.as_view(), name='messaging_email_template_create'),
     url(r'^templates/update/(?P<pk>[\d-]+)/$', UpdateEmailTemplateView.as_view(), name='messaging_email_template_update'),
@@ -34,9 +34,10 @@ urlpatterns = patterns(
     url(r'^templates/detail/(?P<template_id>[\d-]+)/$', DetailEmailTemplateView.as_view(), name='messaging_email_get_template'),
     url(r'^templates/detail/$', DetailEmailTemplateView.as_view(), name='messaging_email_get_template'),
 
-    # compose views (create draft, reply, forward, preview)
+    # Compose views (create draft, reply, forward, preview)
     url(r'^compose/$', EmailMessageSendView.as_view(), name='messaging_email_compose'),
-    url(r'^compose/(?P<pk>[\d-]+)/$', EmailMessageSendView.as_view(), name='messaging_email_compose'),
+    url(r'^compose/(?P<email_address>[^/]+)/$', EmailMessageSendView.as_view(), name='messaging_email_compose'),
+    url(r'^compose/(?P<email_address>[^/]+)/(?P<template>[\d-]+)/$', EmailMessageSendView.as_view(), name='messaging_email_compose'),
     url(r'^draft/$', EmailMessageDraftView.as_view(), name='messaging_email_draft'),
     url(r'^draft/(?P<pk>[\d-]+)/$', EmailMessageDraftView.as_view(), name='messaging_email_draft'),
     url(r'^reply/(?P<pk>[\d-]+)/$', EmailMessageReplyView.as_view(), name='messaging_email_reply'),

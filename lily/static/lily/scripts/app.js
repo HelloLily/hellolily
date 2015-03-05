@@ -281,7 +281,11 @@ if (typeof String.prototype.endsWith != 'function') {
                         // loads notifications if any
                         load_notifications();
                     } else if(response.redirect_url) {
-                        location.reload(true);
+                        if (location.pathname === response.redirect_url) {
+                            location.reload();
+                        } else {
+                            location.href = response.redirect_url;
+                        }
                     } else {
                         if(response.html) {
                             self.updateModal($form, response.html);

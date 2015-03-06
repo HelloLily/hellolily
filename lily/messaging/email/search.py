@@ -108,8 +108,8 @@ class EmailMessageMapping(BaseMapping):
             'received_by',
             'received_by_cc',
             'labels',
-        ).select_related(
             'account',
+        ).select_related(
             'sender',
         )
 

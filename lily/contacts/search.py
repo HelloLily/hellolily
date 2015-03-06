@@ -145,7 +145,6 @@ class ContactMapping(BaseMapping):
             'title': obj.title,
             'salutation': obj.get_salutation_display(),
             'gender': obj.get_gender_display(),
-            'function': obj.get_primary_function().title if obj.get_primary_function() else None,
             'address': [address.full() for address in obj.addresses.all()],
         }
 
@@ -153,6 +152,7 @@ class ContactMapping(BaseMapping):
         if functions:
             doc['account'] = [function.account_id for function in functions]
             doc['account_name'] = [function.account.name for function in functions if function.account.name]
+            doc['function'] = sorted(functions, key=lambda o: o.created, reverse=True)[0].title
 
         phones = obj.phone_numbers.all()
         dedup_phones = set()

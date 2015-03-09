@@ -78,7 +78,7 @@
                         </td>
                         <td ng-show="table.visibility.contactInformation">
                             <div ng-repeat="email in account.email">
-                                <a href="mailto:{{ ::email }}" title="{{ ::email }}">
+                                <a href="/messaging/email/compose/{{ ::email }}" title="{{ ::email }}">
                                     <i class="icon-envelope-alt"></i>
                                     {{ email }}
                                 </a>

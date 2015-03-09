@@ -319,7 +319,7 @@ class EmailMessageComposeView(FormView):
         """
         context = super(EmailMessageComposeView, self).get_context_data(**kwargs)
 
-        # find e-mail templates and add to context in json
+        # Find e-mail templates and add to context in json
         templates = EmailTemplate.objects.all()
         template_list = {}
         for template in templates:
@@ -330,7 +330,7 @@ class EmailMessageComposeView(FormView):
                 }
             })
 
-        # only add template_list to context if there are any templates
+        # Only add template_list to context if there are any templates
         if template_list:
             context.update({
                 'template_list': anyjson.serialize(template_list),
@@ -341,6 +341,30 @@ class EmailMessageComposeView(FormView):
     def get_form_kwargs(self):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = 'new'
+
+        email_address = self.kwargs.get('email_address', None)
+        template = self.kwargs.get('template', None)
+
+        if template:
+            try:
+                EmailTemplate.objects.get(pk=template)
+            except EmailTemplate.DoesNotExist:
+                try:
+                    DefaultEmailTemplate.objects.get(user=get_current_user())
+                except DefaultEmailTemplate.DoesNotExist:
+                    message = _('Sorry, I couldn\'t load the given template. Please try a different one')
+                else:
+                    message = _('Sorry, I couldn\'t load the given template. I\'ll load your default email template instead')
+
+                messages.warning(self.request, message)
+                template = None
+
+        kwargs.update({
+            'initial': {
+                'send_to_normal': email_address,
+                'template': template,
+            },
+        })
 
         return kwargs
 

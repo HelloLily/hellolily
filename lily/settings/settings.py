@@ -543,7 +543,7 @@ def es_url_to_dict(url):
 ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:9200'))]
 
 # The indexes Elasticsearch uses.
-ES_INDEXES = {'default': 'main_index'}
+ES_INDEXES = {'default': 'main_index', 'new_index': 'new_index'}
 
 # Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
 ES_TIMEOUT = 20  # Default is 5

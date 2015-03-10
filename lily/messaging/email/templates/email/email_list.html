@@ -21,7 +21,7 @@
     <thead>
         <tr>
             <th colspan="2">
-                <checkbox model="checkboxes.all" ng-click="toggleCheckboxes()"></checkbox>
+                <checkbox model="opts.checkboxesAll" ng-click="toggleCheckboxes()"></checkbox>
                 <div class="btn-group">
                     <span class="pull-left" ng-if="::account">
                         <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
@@ -91,7 +91,7 @@
     <tbody>
         <tr ng-repeat="message in emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
             <td class="inbox-small-cells">
-                <checkbox model="checkboxes[message.id]"></checkbox>
+                <checkbox model="message.checked"></checkbox>
             </td>
             <td class="view-message hidden-xs" ng-if="label.name != 'Sent' && label.name != 'Draft'" ui-sref="email.detail({id: message.id})">
                 <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>

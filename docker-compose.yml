@@ -1,22 +1,22 @@
 db:
   build: Dockers/db
   ports:
-    - 5431:5432
+    - 5433:5432
 es:
   build: Dockers/es
   ports:
-    - 9201:9200
+    - 9203:9200
 redis:
   image: redis:2.8
   ports:
-    - 6371:6379
+    - 6373:6379
 web:
   build: .
   command: python manage.py runserver 0.0.0.0:8000
   volumes:
     - .:/home/docker/hellolily
   ports:
-    - 8001:8000
+    - 8003:8000
   links:
     - db
     - es

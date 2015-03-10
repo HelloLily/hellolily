@@ -100,16 +100,15 @@ angular.module('emailControllers', [
             function toggleReadMessages(read) {
                 for (var id in $scope.checkboxes) {
                     EmailMessage.markAsRead(id, read);
-                }
-
-                for (var i in $scope.emailMessages) {
-                    for (var id in $scope.checkboxes) {
+                    for (var i in $scope.emailMessages) {
                         if ($scope.emailMessages[i].id == id) {
                             $scope.emailMessages[i].read = read;
+                            break;
                         }
                     }
                 }
             }
+
 
             $scope.markAsRead = function() {
                 toggleReadMessages(true);
@@ -119,11 +118,12 @@ angular.module('emailControllers', [
                 toggleReadMessages(false);
             };
 
-            function deleteCheckedMessagesFromList() {
-                for (var i in $scope.emailMessages) {
-                    for (var id in $scope.checkboxes) {
+            function removeCheckedMessagesFromList() {
+                for (var id in $scope.checkboxes) {
+                    for (var i in $scope.emailMessages) {
                         if ($scope.emailMessages[i].id == id) {
                             $scope.emailMessages.splice(i, 1);
+                            break;
                         }
                     }
                 }
@@ -133,21 +133,21 @@ angular.module('emailControllers', [
                 for (var id in $scope.checkboxes) {
                     EmailMessage.API.archive({id: id});
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.trashMessages = function() {
                 for (var id in $scope.checkboxes) {
                     EmailMessage.API.trash({id: id});
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.deleteMessages = function() {
                 for (var id in $scope.checkboxes) {
                     EmailMessage.API.delete({id: id});
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.moveMessages = function(labelId) {
@@ -164,7 +164,7 @@ angular.module('emailControllers', [
                 for (var id in $scope.checkboxes) {
                     EmailMessage.API.move({id: id, data: data});
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             // Check for search input and pagination

@@ -254,27 +254,27 @@ class ShowHideWidget(Widget):
             show_text = _('Edit')
             hide_text = _('Remove')
 
-        before_html = mark_safe(
-            '<div class="show-and-hide-input">'
-            '<div class="form-control-static %(add_class)s">'
-            '<a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="icon-angle-down"></i></a>'
-            '</div>'
-            '<div class="original-form-widget %(input_class)s">' % {
-                'add_class': 'hide' if has_value else '',
-                'add_text': show_text,
-                'input_class': '' if has_value else 'hide',
-            }
-        )
-        after_html = mark_safe(
-            '</div>'
-            '<div class="form-control-static %(cancel_class)s">'
-            '<a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="icon-angle-up"></i></a>'
-            '</div>'
-            '</div>' % {
-                'cancel_text': hide_text,
-                'cancel_class': '' if has_value else 'hide',
-            }
-        )
+        before_html = mark_safe(u'''
+            <div class="show-and-hide-input">
+            <div class="form-control-static %(add_class)s">
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="icon-angle-down"></i></a>
+            </div>
+            <div class="original-form-widget %(input_class)s">
+        ''' % {
+            'add_class': 'hide' if has_value else '',
+            'add_text': show_text,
+            'input_class': '' if has_value else 'hide',
+        })
+        after_html = mark_safe(u'''
+            </div>
+            <div class="form-control-static %(cancel_class)s">
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="icon-angle-up"></i></a>
+            </div>
+            </div>
+        ''' % {
+            'cancel_text': hide_text,
+            'cancel_class': '' if has_value else 'hide',
+        })
 
         return format_html(u'{0}\r\n{1}\r\n{2}', before_html, rendered_widget_html, after_html)
 

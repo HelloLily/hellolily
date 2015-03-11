@@ -200,7 +200,7 @@ class LilySearch(object):
             Q(owner=user) |
             Q(public=True) |
             Q(shared_with_users__id=user.pk)
-        ).filter(tenant=user.tenant).distinct('id')
+        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         if not email_accounts:
             # Disable results if no email at all for account.
@@ -210,7 +210,7 @@ class LilySearch(object):
                 }
             })
             return
-        email_accounts = ['"%s"' % email.email_address for email in email_accounts]
+        email_accounts = set(['%s' % email.email_address for email in email_accounts])
         join = ' OR '.join(email_accounts)
         filterquery = 'account_email:(%s)' % join
         self.filter_query(filterquery)

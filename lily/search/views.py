@@ -68,3 +68,88 @@ class SearchView(LoginRequiredMixin, View):
 
         results = {'hits': hits, 'total': total, 'took': took}
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
+
+
+class EmailAddressSearchView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        email_address = kwargs.get('email_address', None)
+
+        # 1: Search for Contact with given email address
+        results = self._search_contact(email_address)
+
+        # 2: Search for Account with given email address
+        if not results:
+            results = self._search_account(email_address)
+
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
+
+    def _search_contact(self, email_address):
+        """
+        Search for contact with given email address.
+
+        Args:
+            email_address (string): string representation of an email address
+
+        Returns:
+            dict with search results empty dict
+        """
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='contacts_contact',
+            size=1,
+        )
+        search.filter_query('email:%s' % email_address)
+
+        hits, total, took = search.do_search()
+        if hits:
+            return {
+                'type': 'contact',
+                'data': hits[0],
+            }
+        return {}
+
+    def _search_account(self, email_address):
+        """
+        Search for account with given email address.
+
+        Args:
+            email_address (string): string representation of an email address
+
+        Returns:
+            dict with search results empty dict
+        """
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='accounts_account',
+            size=1,
+        )
+        search.filter_query('email:%s' % email_address)
+
+        hits, total, took = search.do_search()
+        if hits:
+            return {
+                'type': 'account',
+                'data': hits[0],
+                'complete': True,
+            }
+        else:
+            search = LilySearch(
+                tenant_id=self.request.user.tenant_id,
+                model_type='accounts_account',
+                size=1,
+            )
+            search.filter_query('email:%s' % email_address.split('@')[1])
+
+            hits, total, took = search.do_search()
+            if total > 1:
+                return {}
+            if hits:
+                return {
+                    'type': 'account',
+                    'data': hits[0],
+                    'complete': False,
+                }
+
+        return {}

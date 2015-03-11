@@ -1,4 +1,5 @@
 from datetime import date
+import itertools
 import logging
 import random
 import time
@@ -6,12 +7,15 @@ import traceback
 
 from django.conf import settings
 from elasticsearch.exceptions import NotFoundError, ConnectionTimeout
-from elasticutils.contrib.django import tasks
+from elasticutils.contrib.django import tasks, get_es
 
 from lily.utils import logutil
 
 
 logger = logging.getLogger('search')
+NEW_INDEX = settings.ES_INDEXES['new_index']
+DEFAULT_INDEX = settings.ES_INDEXES['default']
+es = get_es()
 
 
 def update_in_index(instance, mapping):
@@ -20,17 +24,20 @@ def update_in_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
+    if settings.ES_DISABLED:
+        return
     if hasattr(instance, 'is_deleted') and instance.is_deleted:
-        try:
-            tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
-        except:
-            pass
+        remove_from_index(instance, mapping)
     else:
-        try:
-            tasks.index_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
-        except Exception, e:
-            logger.error(traceback.format_exc(e))
+        logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
+        # Extract all aliases available.
+        aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues()]))
+        for index in [DEFAULT_INDEX, NEW_INDEX]:
+            try:
+                if index in aliases:
+                    tasks.index_objects(mapping, [instance.id], index=index)
+            except Exception, e:
+                logger.error(traceback.format_exc(e))
 
 
 def remove_from_index(instance, mapping):
@@ -39,11 +46,19 @@ def remove_from_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
+    if settings.ES_DISABLED:
+        return
     logger.info(u'Removing instance %s: %s' % (instance.__class__.__name__, instance.pk))
-    try:
-        tasks.unindex_objects(mapping, [instance.id], index=settings.ES_INDEXES['default'])
-    except Exception, e:
-        logger.error(traceback.format_exc(e))
+    # Extract all aliases available.
+    aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues()]))
+    for index in [DEFAULT_INDEX, NEW_INDEX]:
+        try:
+            if index in aliases:
+                tasks.unindex_objects(mapping, [instance.id], index=index)
+        except NotFoundError, e:
+            logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
+        except Exception, e:
+            logger.error(traceback.format_exc(e))
 
 
 def index_objects(mapping, queryset, index, print_progress=False):

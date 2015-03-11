@@ -489,6 +489,10 @@ label.required::after {
     width: 22%;
 }
 
+.table-fixed-layout th.list-actions {
+    width: 70px;
+}
+
 .pre-wrap {
     white-space: pre-wrap;
 }

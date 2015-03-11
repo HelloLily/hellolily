@@ -278,6 +278,7 @@ INSTALLED_APPS = (
     'django_nose',
     'django_password_strength',
     'rest_framework',
+    'rest_framework.authtoken',
 
     # Django
     'django.contrib.admin',
@@ -542,7 +543,7 @@ def es_url_to_dict(url):
 ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:9200'))]
 
 # The indexes Elasticsearch uses.
-ES_INDEXES = {'default': 'main_index'}
+ES_INDEXES = {'default': 'main_index', 'new_index': 'new_index'}
 
 # Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
 ES_TIMEOUT = 20  # Default is 5
@@ -568,6 +569,13 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'lily.utils.authentication.TokenGETAuthentication',
+    )
 }
 
 #######################################################################################################################

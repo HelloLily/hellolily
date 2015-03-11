@@ -119,6 +119,7 @@ class AccountMapping(BaseMapping):
             'email_addresses',
             'phone_numbers',
             'social_media',
+            'websites',
             'addresses',
             'functions__contact',
             'assigned_to',

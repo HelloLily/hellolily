@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 from rest_framework import routers
 
+from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList
 from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
 
 
@@ -38,6 +39,9 @@ urlpatterns = patterns('',
 
     # Django rest
     url(r'^api/', include(router.urls)),
+    url(r'^api/deals/stats/communication', DealCommunicationList.as_view()),
+    url(r'^api/deals/stats/wonwritten', DealWonWrittenList.as_view()),
+    url(r'^api/deals', DealList.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),

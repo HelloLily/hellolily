@@ -3,6 +3,7 @@ import time
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from elasticsearch.exceptions import NotFoundError
 from elasticutils.contrib.django import get_es
 
 from lily.search.analyzers import get_analyzers
@@ -31,12 +32,7 @@ or with fully qualified name:
 
     index -t lily.contacts.models.Contact
 
-It is possible to specify multiple models, using comma separation.
-
-Note: Mappings are only suported for models with 'is_deleted' properties.
-If you add a mapping for a regular model, then some extra steps are needed
-to make sure deletions are picked up (during this management command).
-You can do this by comparing the list of PKs before and after."""
+It is possible to specify multiple models, using comma separation."""
 
     option_list = BaseCommand.option_list + (
         make_option('-u', '--url',
@@ -51,10 +47,21 @@ You can do this by comparing the list of PKs before and after."""
                     default='',
                     help='Choose specific model targets, comma separated.'
                     ),
+        make_option('-i', '--id',
+                    action='store',
+                    dest='id',
+                    default='',
+                    help='Choose specific IDs, comma separated. Has no effect without "target" option.'
+                    ),
         make_option('-q', '--queries',
                     action='store_true',
                     dest='queries',
                     help='Show the queries that were executed during the command.'
+                    ),
+        make_option('-f', '--force',
+                    action='store_true',
+                    dest='force',
+                    help='Force the creation of the new_index alias, removing the old one.'
                     ),
     )
 
@@ -69,19 +76,36 @@ You can do this by comparing the list of PKs before and after."""
         target = options['target']
         if target:
             targets = target.split(',')
-            self.index(settings.ES_INDEXES['default'], specific_targets=targets, with_unindex=True)
+            # Check specific IDs.
+            if options['id']:
+                ids = options['id'].split(',')
+                self.index(settings.ES_INDEXES['default'], specific_targets=targets, ids=ids)
+            else:
+                self.index(settings.ES_INDEXES['default'], specific_targets=targets)
 
         else:
-            # We define some custom analyzers that our mappings can use.
-            index_settings = {'mappings': {}, 'settings': get_analyzers()}
+            if es.indices.exists(settings.ES_INDEXES['new_index']):
+                if options['force']:
+                    es.indices.delete(settings.ES_INDEXES['new_index'])
+                else:
+                    raise Exception('%s already exists, run with -f to remove old' % settings.ES_INDEXES['new_index'])
+
+            # Define analyzers and set alias for new index.
+            index_settings = {
+                'mappings': {},
+                'settings': get_analyzers(),
+                'aliases': {
+                    settings.ES_INDEXES['new_index']: {},
+                },
+            }
 
             # Retrieve the mappings for the index-enabled models.
             for mapping_class in ModelMappings.get_model_mappings().values():
                 model_name = mapping_class.get_mapping_type_name()
                 index_settings['mappings'].update({model_name: mapping_class.get_mapping()})
 
-            # Create a new index.
             new_index = 'index_%s' % (int(time.time()))
+            self.stdout.write('Creating new index "%s"' % new_index)
             es.indices.create(new_index, body=index_settings)
             self.index(new_index)
 
@@ -100,9 +124,12 @@ You can do this by comparing the list of PKs before and after."""
             self.stdout.write('Changing alias "%s" from old index "%s" to new index "%s"' %
                               (index_name, old_index, new_index))
             if old_index:
-                es.indices.update_aliases({'actions':
-                                           [{'remove': {'index': old_index, 'alias': index_name}},
-                                            {'add': {'index': new_index, 'alias': index_name}}]})
+                es.indices.update_aliases({
+                    'actions': [
+                        {'remove': {'index': old_index, 'alias': index_name}},
+                        {'add': {'index': new_index, 'alias': index_name}},
+                    ]
+                })
                 es.indices.delete(old_index)
             else:
                 if es.indices.exists(index_name):
@@ -110,20 +137,32 @@ You can do this by comparing the list of PKs before and after."""
                     # an index index_name nevertheless exists, this only happens when the index
                     # was already created (because of ES auto creation features).
                     es.indices.delete(index_name)
-                es.indices.update_aliases({'actions':
-                                           [{'add': {'index': new_index, 'alias': index_name}}]})
-
-            # Finally re-index one more time, to pick up updates that were written during our command.
-            # Note that this models that do not use the DeletedMixin will not work this way.
-            # (In the sense that deletions are not picked up).
-            self.index(index_name, with_unindex=True)
+                es.indices.update_aliases({
+                    'actions': [
+                        {'add': {'index': new_index, 'alias': index_name}}
+                    ]
+                })
+            es.indices.update_aliases({
+                'actions': [
+                    {'remove': {'index': new_index, 'alias': settings.ES_INDEXES['new_index']}},
+                ]
+            })
+            # Compensate for the small race condition in the signal handlers:
+            # They check if the index exists then updates documents, however when we
+            # delete the alias in between these two commands, we can end up with
+            # an auto created index named new_index, so we simply delete it again.
+            time.sleep(5)
+            try:
+                es.indices.delete(settings.ES_INDEXES['new_index'])
+            except NotFoundError:
+                pass
 
         if options['queries']:
             from django.db import connection
             for query in connection.queries:
                 print query
 
-    def index(self, index_name, specific_targets=None, with_unindex=False):
+    def index(self, index_name, specific_targets=None, ids=None):
         """
         Index objects from our index-enabled models.
         """
@@ -133,22 +172,32 @@ You can do this by comparing the list of PKs before and after."""
             if not self.model_targetted(model, specific_targets):
                 continue
             model = mapping_class.get_model()
-            self.stdout.write('%s: Indexing %s' % (index_name,
-                                                   self.full_name(model)))
+
+            if ids:
+                for arg_id in ids:
+                    try:
+                        obj = model.objects.get(id=arg_id)
+                    except model.DoesNotExist:
+                        self.stdout.write('ID does not exist, deleting %s for %s' % (arg_id, self.full_name(model)))
+                        mapping_class.unindex(arg_id, index=index_name)
+                    else:
+                        if mapping_class.has_deleted() and obj.is_deleted:
+                            self.stdout.write('ID is_deleted, deleting %s for %s' % (arg_id, self.full_name(model)))
+                            mapping_class.unindex(arg_id, index=index_name)
+                        else:
+                            self.stdout.write('ID updating %s for %s' % (arg_id, self.full_name(model)))
+                            document = mapping_class.extract_document(arg_id, obj)
+                            mapping_class.bulk_index([document], id_field='id', index=index_name)
+                return
+
+            self.stdout.write('Indexing %s' % self.full_name(model))
 
             if mapping_class.has_deleted():
                 model_objs = model.objects.filter(is_deleted=False)
             else:
                 model_objs = model.objects.all()
-            index_objects(mapping_class, model_objs, index_name, print_progress=True)
 
-            if with_unindex:
-                if mapping_class.has_deleted():
-                    model_objs = model.objects.filter(is_deleted=True)
-                    unindex_objects(mapping_class, model_objs, index_name, print_progress=True)
-                else:
-                    # TODO: implement unindex for deleted items
-                    pass
+            index_objects(mapping_class, model_objs, index_name, print_progress=True)
 
     def model_targetted(self, model, specific_targets):
         """

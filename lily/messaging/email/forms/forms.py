@@ -259,6 +259,7 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
     """
     Form used for creating and updating email templates.
     """
+    id = forms.IntegerField(label=_('Template ID'))
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
 
@@ -282,6 +283,9 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
                 self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+
+        if self.instance and self.instance.pk:
+            self.fields['id'].widget.attrs['readonly'] = True
 
         self.fields['attachments'].initial = EmailTemplateAttachment.objects.filter(template_id=self.instance.id)
 
@@ -347,12 +351,14 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
 
     class Meta:
         model = EmailTemplate
-        fields = ('name', 'subject', 'variables', 'values', 'body_html', 'attachments')
+        fields = ('id', 'name', 'subject', 'variables', 'values', 'body_html', 'attachments')
         widgets = {
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'body_html': Wysihtml5Input(attrs={'container_class': 'email-template-body'}),
+            'body_html': Wysihtml5Input(attrs={
+                'container_class': 'email-template-body'
+            }),
         }
 
 

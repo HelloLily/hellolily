@@ -86,30 +86,23 @@ angular.module('emailControllers', [
 
             $scope.table.page = 0;
             $scope.table.filter = '';
+            $scope.opts = { checkboxesAll: false};
 
-            $scope.toggleCheckboxes = function(reset) {
-                if (reset) {
-                    $scope.checkboxes = {};
-                } else {
-                    for (var i in $scope.emailMessages) {
-                        $scope.checkboxes[$scope.emailMessages[i].id] = $scope.checkboxes['all'];
-                    }
+            $scope.toggleCheckboxes = function() {
+                for (var i in $scope.emailMessages) {
+                    $scope.emailMessages[i].checked = $scope.opts.checkboxesAll;
                 }
             };
 
             function toggleReadMessages(read) {
-                for (var id in $scope.checkboxes) {
-                    EmailMessage.markAsRead(id, read);
-                }
-
                 for (var i in $scope.emailMessages) {
-                    for (var id in $scope.checkboxes) {
-                        if ($scope.emailMessages[i].id == id) {
-                            $scope.emailMessages[i].read = read;
-                        }
+                    if ($scope.emailMessages[i].checked) {
+                        EmailMessage.markAsRead($scope.emailMessages[i].id, read);
+                        $scope.emailMessages[i].read = read;
                     }
                 }
             }
+
 
             $scope.markAsRead = function() {
                 toggleReadMessages(true);
@@ -119,35 +112,40 @@ angular.module('emailControllers', [
                 toggleReadMessages(false);
             };
 
-            function deleteCheckedMessagesFromList() {
-                for (var i in $scope.emailMessages) {
-                    for (var id in $scope.checkboxes) {
-                        if ($scope.emailMessages[i].id == id) {
-                            $scope.emailMessages.splice(i, 1);
-                        }
+            function removeCheckedMessagesFromList() {
+                var i = $scope.emailMessages.length;
+                while (i--) {
+                    if ($scope.emailMessages[i].checked) {
+                        $scope.emailMessages.splice(i, 1);
                     }
                 }
             }
 
             $scope.archiveMessages = function() {
-                for (var id in $scope.checkboxes) {
-                    EmailMessage.API.archive({id: id});
+                for (var i in $scope.emailMessages) {
+                    if ($scope.emailMessages[i].checked) {
+                        EmailMessage.API.archive({id: $scope.emailMessages[i].id});
+                    }
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.trashMessages = function() {
-                for (var id in $scope.checkboxes) {
-                    EmailMessage.API.trash({id: id});
+                for (var i in $scope.emailMessages) {
+                    if ($scope.emailMessages[i].checked) {
+                        EmailMessage.API.trash({id: $scope.emailMessages[i].id});
+                    }
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.deleteMessages = function() {
-                for (var id in $scope.checkboxes) {
-                    EmailMessage.API.delete({id: id});
+                for (var i in $scope.emailMessages) {
+                    if ($scope.emailMessages[i].checked) {
+                        EmailMessage.API.delete({id: $scope.emailMessages[i].id});
+                    }
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             $scope.moveMessages = function(labelId) {
@@ -161,10 +159,12 @@ angular.module('emailControllers', [
                     remove_labels: removedLabels,
                     add_labels: addedLabels
                 };
-                for (var id in $scope.checkboxes) {
-                    EmailMessage.API.move({id: id, data: data});
+                for (var i in $scope.emailMessages) {
+                    if ($scope.emailMessages[i].checked) {
+                        EmailMessage.API.move({id: $scope.emailMessages[i].id, data: data});
+                    }
                 }
-                deleteCheckedMessagesFromList();
+                removeCheckedMessagesFromList();
             };
 
             // Check for search input and pagination
@@ -172,7 +172,6 @@ angular.module('emailControllers', [
                 'table.filter',
                 'table.page'
             ], function(newValues, oldValues) {
-                $scope.toggleCheckboxes(true);
                 // Reset page if we start searching
                 if (oldValues[0] == "" && newValues[0] != "") {
                     $scope.setPage(0);

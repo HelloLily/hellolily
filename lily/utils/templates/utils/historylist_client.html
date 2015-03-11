@@ -14,6 +14,7 @@
                 <i class="icon-comment"></i>
             </div>
             <div class="timeline-body body-right">
+            {{ ::item.date | date:'dd MMMM yy HH:mm' }}
                 <h2>Note</h2>
                 <div class="timeline-content">
                     <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
@@ -40,7 +41,7 @@
                 <i class="icon-envelope"></i>
             </div>
             <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
-            {{::item.date}}
+            {{ ::item.date | date:'dd MMMM yy HH:mm' }}
                 <h2>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></h2>
                 <div class="timeline-content">{{ left }}
                     <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>

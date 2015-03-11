@@ -281,7 +281,7 @@ if (typeof String.prototype.endsWith != 'function') {
                         // loads notifications if any
                         load_notifications();
                     } else if(response.redirect_url) {
-                        location.reload(true);
+                        self.redirectTo(response.redirect_url);
                     } else {
                         if(response.html) {
                             self.updateModal($form, response.html);
@@ -309,15 +309,10 @@ if (typeof String.prototype.endsWith != 'function') {
         },
 
         redirectTo: function(redirectUrl) {
-            // go to redirectUrl, reload if redirectUrl is current
-            // and/or if it contains an anchor reference
-            var current = window.location.href;
-            var index = current.indexOf(redirectUrl);
-
-            window.location = redirectUrl;
-            if(index == current.length - redirectUrl.length ||
-                redirectUrl.indexOf('#') != -1) {
+            if (window.location.pathname === redirectUrl) {
                 window.location.reload(true);
+            } else {
+                window.location.href = redirectUrl;
             }
         },
 

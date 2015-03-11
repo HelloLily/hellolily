@@ -131,11 +131,19 @@
             var self = this;
 
             if (typeof (emailComposeConfig === 'object')) {
-                $.extend(this.config, emailComposeConfig);
+                $.extend(self.config, emailComposeConfig);
             }
 
             self.initWysihtml5();
-            self.loadDefaultEmailTemplate();
+
+            if (self.config.loadDefaultTemplate) {
+                // If no template was given in the url, load the default template
+                self.loadDefaultEmailTemplate();
+            }
+            else {
+                // Otherwise trigger change event so the given template gets loaded
+                $(self.config.templateField).change();
+            }
         },
 
         initWysihtml5: function () {
@@ -151,8 +159,6 @@
             editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
 
             editor.observe('load', function () {
-                this.focus();
-
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });

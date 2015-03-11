@@ -55,7 +55,7 @@
             <div class="row no-margin">
                 <table class="table table-striped table-bordered table-hover table-fixed-layout">
                     <thead>
-                        <th class="table-checkbox width-4"></th>
+                        <th class="list-actions"></th>
                         <th ng-show="table.visibility.name" sort-column="last_name" table="table" class="width-22">Name</th>
                         <th ng-show="table.visibility.contactInformation" class="width-22">Contact information</th>
                         <th ng-show="table.visibility.worksAt" sort-column="account" table="table" class="width-22">Works at</th>
@@ -78,7 +78,7 @@
                             </td>
                             <td ng-show="table.visibility.contactInformation">
                                 <div ng-repeat="email in contact.email">
-                                    <a href="mailto:{{ ::email }}" title="{{ ::email }}">
+                                    <a href="/messaging/email/compose/{{ ::email }}" title="{{ ::email }}">
                                         <i class="icon-envelope-alt"></i>
                                         {{ email }}
                                     </a>

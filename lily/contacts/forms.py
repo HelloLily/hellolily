@@ -108,16 +108,14 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     """
     Form to add a contact which all fields available.
     """
-    account = forms.ModelChoiceField(
+    account = forms.ModelMultipleChoiceField(
         label=_('Works at'),
         required=False,
         queryset=Account.objects,
-        empty_label=_('Select an account'),
-        widget=AjaxSelect2Widget(
-            url=reverse_lazy('search_view'),
-            filter_on=AccountMapping.get_mapping_type_name(),
-            model=Account,
-        ),
+        help_text='',
+        widget=forms.SelectMultiple(attrs={
+            'placeholder': _('Select one or more account(s)'),
+        })
     )
 
     twitter = forms.CharField(
@@ -147,14 +145,14 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
 
-        # Try providing initial account info
-        is_working_at = Function.objects.filter(contact=self.instance).values_list('account_id', flat=True)
-        if len(is_working_at) == 1:
-            self.fields['account'].initial = is_working_at[0]
+        self.fields['account'].help_text = ''  # Fixed in django 1.8: now the help text is appended instead of overwritten
 
         if self.instance.pk:
+            self.fields['account'].initial = [function.account for function in self.instance.functions.all()]
+
             twitter = self.instance.social_media.filter(name='twitter').first()
             self.fields['twitter'].initial = twitter.username if twitter else ''
+
             linkedin = self.instance.social_media.filter(name='linkedin').first()
             self.fields['linkedin'].initial = linkedin.username if linkedin else ''
 
@@ -229,8 +227,14 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         instance = super(CreateUpdateContactForm, self).save(commit)
 
         if commit:
+            account_input = self.cleaned_data.get('account')
             twitter_input = self.cleaned_data.get('twitter')
             linkedin_input = self.cleaned_data.get('linkedin')
+
+            self.instance.functions.exclude(account__in=account_input).delete()
+            function_list = [Function.objects.get_or_create(contact=self.instance, account=account)[0] for account in account_input]
+            for function in function_list:
+                self.instance.functions.add(function)
 
             if twitter_input and instance.social_media.filter(name='twitter').exists():
                 # There is input and there are one or more twitters connected, so we get the first of those.

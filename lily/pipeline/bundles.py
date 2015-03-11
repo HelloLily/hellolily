@@ -239,8 +239,8 @@ PIPELINE_JS = {
     },
     'wysihtml5': {
         'source_filenames': (
-            'lily/plugins/wysihtml5x/wysihtml5x.js',
-            'lily/plugins/wysihtml5x/wysihtml5x-toolbar.js',
+            'lily/plugins/wysihtml/wysihtml.js',
+            'lily/plugins/wysihtml/wysihtml-toolbar.js',
         ),
         'output_filename': 'compiled/js/wysihtml5.js',
     },

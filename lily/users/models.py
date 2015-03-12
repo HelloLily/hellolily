@@ -9,10 +9,10 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
-from lily.socialmedia.models import SocialMedia
 
+from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant
-from lily.utils.models.mixins import Common
+
 
 try:
     from lily.tenant.functions import add_tenant
@@ -56,6 +56,13 @@ class LilyUserManager(UserManager):
         return user
 
 
+class LilyGroup(TenantMixin):
+    """
+    A group with a Tenant.
+    """
+    name = models.CharField(_('name'), max_length=80, unique=True)
+
+
 class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     """
     A custom user class implementing a fully featured User model with
@@ -70,6 +77,13 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     is_staff = models.BooleanField(_('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.'))
     is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    lily_groups = models.ManyToManyField(
+        LilyGroup,
+        verbose_name=_('Lily groups'),
+        blank=True,
+        related_name='user_set',
+        related_query_name='user',
+    )
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))

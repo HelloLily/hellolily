@@ -11,6 +11,7 @@
         <i class="icon-comment"></i>
     </div>
     <div class="timeline-body body-right">
+        {{ object.sort_by_date|date:"d M Y G:i" }}
         <h2>{% trans 'Note' %}</h2>
         <div class="timeline-content">
             {{ object.content|linebreaksbr }}

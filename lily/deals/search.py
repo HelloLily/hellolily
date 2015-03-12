@@ -19,22 +19,22 @@ class DealMapping(BaseMapping):
         mapping['properties'].update({
             'name': {
                 'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
+                'analyzer': 'normal_ngram_analyzer',
             },
             'body': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'account': {
                 'type': 'integer',
             },
             'account_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'assigned_to_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'assigned_to_id': {
                 'type': 'integer',
@@ -44,11 +44,11 @@ class DealMapping(BaseMapping):
             },
             'stage_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'tag': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'amount_once': {
                 'type': 'float',

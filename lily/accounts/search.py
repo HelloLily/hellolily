@@ -25,7 +25,7 @@ class AccountMapping(BaseMapping):
                     'match': 'phone_*',
                     'mapping': {
                         'type': 'string',
-                        'index_analyzer': 'normal_ngram_analyzer'
+                        'analyzer': 'normal_ngram_analyzer'
                     },
                 },
             }],
@@ -33,22 +33,22 @@ class AccountMapping(BaseMapping):
         mapping['properties'].update({
             'name': {
                 'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
+                'analyzer': 'normal_ngram_analyzer',
             },
             'contact': {
                 'type': 'integer'
             },
             'email': {
                 'type': 'string',
-                'index_analyzer': 'email_analyzer',
+                'analyzer': 'email_analyzer',
             },
             'tag': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'assigned_to': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'created': {
                 'type': 'date',
@@ -58,7 +58,7 @@ class AccountMapping(BaseMapping):
             },
             'description': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'website': {
                 'type': 'string',

@@ -23,7 +23,7 @@ class EmailMessageMapping(BaseMapping):
             },
             'account_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'account_email': {
                 'type': 'string',
@@ -31,7 +31,7 @@ class EmailMessageMapping(BaseMapping):
             },
             'label_id': {
                 'type': 'string',
-                'index_analyzer': 'normal_analyzer',
+                'analyzer': 'normal_analyzer',
             },
             'sender_email': {
                 'type': 'string',
@@ -39,7 +39,7 @@ class EmailMessageMapping(BaseMapping):
             },
             'sender_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'received_by_email': {
                 'type': 'string',
@@ -47,7 +47,7 @@ class EmailMessageMapping(BaseMapping):
             },
             'received_by_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'received_by_cc_email': {
                 'type': 'string',
@@ -55,11 +55,11 @@ class EmailMessageMapping(BaseMapping):
             },
             'received_by_cc_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'subject': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'sent_date': {
                 'type': 'date',
@@ -69,22 +69,22 @@ class EmailMessageMapping(BaseMapping):
             },
             'snippet': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'has_attachment': {
                 'type': 'boolean',
             },
             'message_id': {
                 'type': 'string',
-                'index_analyzer': 'keyword',
+                'analyzer': 'keyword',
             },
             'thread_id': {
                 'type': 'string',
-                'index_analyzer': 'keyword',
+                'analyzer': 'keyword',
             },
             'body': {
                 'type': 'string',
-                'index_analyzer': 'normal_analyzer',
+                'analyzer': 'normal_analyzer',
             },
         })
         return mapping

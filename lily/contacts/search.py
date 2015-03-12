@@ -26,7 +26,7 @@ class ContactMapping(BaseMapping):
                     'mapping': {
                         'type': 'string',
                         'index': 'analyzed',
-                        'index_analyzer': 'normal_ngram_analyzer'
+                        'analyzer': 'normal_ngram_analyzer'
                     },
                 },
             }],
@@ -34,11 +34,11 @@ class ContactMapping(BaseMapping):
         mapping['properties'].update({
             'name': {
                 'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
+                'analyzer': 'normal_ngram_analyzer',
             },
             'description': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'social': {
                 'type': 'object',
@@ -71,19 +71,19 @@ class ContactMapping(BaseMapping):
             },
             'last_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'email': {
                 'type': 'string',
-                'index_analyzer': 'email_analyzer',
+                'analyzer': 'email_analyzer',
             },
             'tag': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'account_name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'analyzer': 'normal_edge_analyzer',
             },
             'account': {
                 'type': 'integer',

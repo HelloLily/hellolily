@@ -4,16 +4,16 @@
 <ul class="timeline" id="history-list">
     <li ng-repeat="item in history" ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email}" class="history-list-item">
         <div ng-if="::item.note">
-            <div class="timeline-time time-right">
+            <div class="timeline-time">
                 <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
                     <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                     <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
                 </a>
             </div>
-            <div class="timeline-icon icon-right">
+            <div class="timeline-icon">
                 <i class="icon-comment"></i>
             </div>
-            <div class="timeline-body body-right">
+            <div class="timeline-body">
             {{ ::item.date | date:'dd MMMM yy HH:mm' }}
                 <h2>Note</h2>
                 <div class="timeline-content">
@@ -23,7 +23,7 @@
                     <a ng-href="/notes/update/{{ ::item.id }}/" class="nav-link pull-right" data-target="#object-update" data-source="/notes/update/{{ ::item.id }}/">
                         Edit<i class="icon-edit"></i>
                     </a>
-                    <a href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
+                    <a ng-href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
                     <br/><br/>
@@ -33,11 +33,11 @@
             </div>
         </div>
         <div ng-if="::item.email">
-            <div class="timeline-time" ng-class="{'time-right': item.right}">
+            <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
             </div>
-            <div class="timeline-icon" ng-class="{'icon-right': item.right}">
+            <div class="timeline-icon">
                 <i class="icon-envelope"></i>
             </div>
             <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">

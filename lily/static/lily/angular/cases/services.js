@@ -21,6 +21,20 @@ angular.module('caseServices', ['ngResource'])
                         return null;
                     }
                 },
+                query: {
+                    url: '/search/search/?type=cases_case&filterquery=:filterquery',
+                    isArray: true,
+                    transformResponse: function(data) {
+                        data = angular.fromJson(data);
+                        var objects = []
+                        if (data && data.hits && data.hits.length > 0) {
+                            data.hits.forEach(function(obj) {
+                                objects.push(obj)
+                            });
+                        }
+                        return objects;
+                    }
+                },
                 totalize: {
                     url: '/search/search/?type=cases_case&size=0&filterquery=:filterquery',
                     transformResponse: function(data) {

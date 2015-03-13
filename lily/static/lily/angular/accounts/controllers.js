@@ -44,22 +44,41 @@ angular.module('accountControllers', [
                 currentSize = 0;
             $scope.history = [];
             function loadHistory(account, tenantEmails) {
-            	var history = [];
+                var history = [];
                 var notesPromise = Note.query({
                     filterquery: 'content_type:account AND object_id:' + id,
+                    size: size
+                }).$promise;
+                var casesPromise = Case.query({
+                    filterquery: 'account:' + id,
+                    size: size
+                }).$promise;
+                var dealsPromise = Deal.query({
+                    filterquery: 'account:' + id,
                     size: size
                 }).$promise;
                 var emailPromise = Email.query  ({
                     account_related: account.id,
                     size: size
                 }).$promise;
-                $q.all([notesPromise, emailPromise]).then(function(results) {
+                $q.all([notesPromise, emailPromise, casesPromise, dealsPromise]).then(function(results) {
                     var notes = results[0];
                     notes.forEach(function(note) {
                         note.note = true;
                         history.push(note);
                     });
-
+                    var cases = results[2];
+                    cases.forEach(function(caseItem) {
+                        caseItem.caseItem = true;
+                        caseItem.date = caseItem.expires;
+                        history.push(caseItem);
+                    });
+                    var deals = results[3];
+                    deals.forEach(function(deal) {
+                        deal.deal = true;
+                        deal.date = deal.closing_date;
+                        history.push(deal);
+                    });
                     var emails = results[1];
                     emails.forEach(function(email) {
                         email.email = true;
@@ -75,14 +94,14 @@ angular.module('accountControllers', [
                     });
                     $scope.history.splice(0, $scope.history.length);
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
-                    	$scope.history.push(item);
+                        $scope.history.push(item);
                     });
-                    $scope.history.splice(size, size * 2);
+                    $scope.history.splice(size, size * 3);
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';
                     }
-                    else if ($scope.history.length <= currentSize || $scope.history.length < size / 2) {
+                    else if ($scope.history.length <= currentSize || $scope.history.length < size / 4) {
                         $scope.showMoreText = 'End reached (refresh)';
                     }
                     currentSize = $scope.history.length;

@@ -309,10 +309,15 @@ if (typeof String.prototype.endsWith != 'function') {
         },
 
         redirectTo: function(redirectUrl) {
-            if (window.location.pathname === redirectUrl) {
+            // go to redirectUrl, reload if redirectUrl is current
+            // and/or if it contains an anchor reference
+            var current = window.location.href;
+            var index = current.indexOf(redirectUrl);
+
+            window.location = redirectUrl;
+            if(index == current.length - redirectUrl.length ||
+                redirectUrl.indexOf('#') != -1) {
                 window.location.reload(true);
-            } else {
-                window.location.href = redirectUrl;
             }
         },
 

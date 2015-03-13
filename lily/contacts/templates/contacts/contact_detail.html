@@ -51,7 +51,7 @@
                 </li>
                 <li>
                     <span class="summary-label">E-mail address</span>
-                     <span class="summary-data">{{ ::contact.email[0] }}</span>
+                     <span class="summary-data"><a href="/messaging/email/compose/{{ ::contact.email[0] }}">{{ ::contact.email[0] }}</a></span>
                 </li>
                 <li ng-repeat="social in ::contact.social">
                     <span class="summary-label">{{ ::social.social_name }}</span>
@@ -122,7 +122,7 @@
                         <tbody>
 	                        <tr ng-repeat="worker in ::work.colleagues">
 	                            <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
-	                            <td>{{ ::worker.email[0] }}</td>
+	                            <td><a href="/messaging/email/compose/{{ ::worker.email[0] }}">{{ ::worker.email[0] }}</a></td>
 	                            <td>{{ ::worker.phone }}</td>
 	                        </tr>
 	                        <tr ng-if="work.colleagues.length == 0">
@@ -172,7 +172,7 @@
             <div class="col-md-6 col-xs-6">
                 <h4>E-mail addresses</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="email in ::contact.email"><a href="#" class="btn btn-sm default">{{ ::email }}</a></li>
+                    <li class="no-padding" ng-repeat="email in ::contact.email"><a href="/messaging/email/compose/{{ ::email }}" class="btn btn-sm default">{{ ::email }}</a></li>
                     <li class="no-padding" ng-if="!contact.email"><a ng-href="/contacts/edit/{{ ::contact.id }}#email_addresses" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>

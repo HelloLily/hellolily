@@ -75,21 +75,6 @@ angular.module('caseServices', ['ngResource'])
          *      }
          */
         var getCases = function(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
-            // Check if there's a filter set
-            if (filterQuery !== '') {
-                // Check if we're looking for archived cases or not
-                if (archived) {
-                    filterQuery += ' AND archived:true';
-                }
-                else {
-                    filterQuery += ' AND archived:false';
-                }
-            }
-            else {
-                // Otherwise only check if we're displaying archived cases or not
-                filterQuery = archived ? 'archived:true' : 'archived:false';
-            }
-
             var sort = '';
             if (orderedAsc) sort += '-';
             sort += orderColumn;

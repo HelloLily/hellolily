@@ -15,20 +15,8 @@
         <div class="portlet-title">
             <div class="caption">
                 <div class="btn-group">
-                    <a class="btn-link btn-default" data-toggle="dropdown">
-                        <i class="icon-reorder"></i>
-                        <span ng-if="!table.archived">Cases</span>
-                        <span ng-if="table.archived">Archived Cases</span>
-                        <i class="icon-angle-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="javascript:void(0)" ng-click="toggleArchived()">
-                                <span ng-if="table.archived">Cases</span>
-                                <span ng-if="!table.archived">Archived Cases</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <i class="icon-reorder"></i>
+                    <span>Cases</span>
                 </div>
             </div>
             <div class="actions">
@@ -61,6 +49,7 @@
                                 Filter on
                                 <i class="icon-angle-down"></i>
                             </a>
+                            <button class="btn btn-danger" ng-click="clearFilters()" ng-show="displayFilterClear"><i class="icon-remove"></i></button>
                             <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
                                 <div ng-repeat="filter in filterList">
                                     <checkbox model="filter.selected" ng-click="updateFilterQuery()">{{filter.name}}</checkbox>
@@ -112,7 +101,7 @@
                             <a href="/accounts/details/{{ ::case.account }}/">{{ ::case.account_name }}</a>
                         </td>
                         <td ng-show="table.visibility.subject">
-                            <a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
+                            <strong ng-if="::case.archived">(a)</strong> <a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
                         </td>
                         <td ng-show="table.visibility.priority">
                             <span title="{{ ::case.priority }}"></span>

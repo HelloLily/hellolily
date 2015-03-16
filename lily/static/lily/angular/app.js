@@ -5,6 +5,7 @@ angular.module('lilyApp', [
     'accountControllers',
     'caseControllers',
     'contactControllers',
+    'dashboardControllers',
     'dealControllers',
     'emailControllers',
 

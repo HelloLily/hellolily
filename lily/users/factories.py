@@ -9,7 +9,7 @@ from faker.factory import Factory
 
 from lily.tenant.factories import TenantFactory
 
-from .models import LilyUser
+from .models import LilyGroup, LilyUser
 
 
 faker = Factory.create()
@@ -44,3 +44,12 @@ class LilySuperUserFactory(LilyUserFactory):
     def groups(self, create, extracted, **kwargs):
         group = Group.objects.get_or_create(name='account_admin')[0]
         self.groups.add(group)
+
+
+class LilyGroupFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+
+    name = LazyAttribute(lambda o: faker.word())
+
+    class Meta:
+        model = LilyGroup

@@ -85,12 +85,6 @@ angular.module('contactControllers', [
                         note.note = true;
                         history.push(note);
                     });
-                    var cases = results[2];
-                    cases.forEach(function(caseItem) {
-                        caseItem.caze = true;
-                        caseItem.date = caseItem.expires;
-                        history.push(caseItem);
-                    });
                     var emails = results[1];
                     emails.forEach(function(email) {
                         email.email = true;
@@ -104,11 +98,18 @@ angular.module('contactControllers', [
                         });
                         history.push(email);
                     });
+                    var cases = results[2];
+                    cases.forEach(function(caseItem) {
+                        caseItem.caze = true;
+                        caseItem.date = caseItem.expires;
+                        history.push(caseItem);
+                    });
+
                     $scope.history.splice(0, $scope.history.length);
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
                         $scope.history.push(item);
                     });
-                    $scope.history.splice(size, size * 2);
+                    $scope.history.splice(size, $scope.history.length);
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';

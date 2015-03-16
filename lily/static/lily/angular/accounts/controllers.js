@@ -67,18 +67,6 @@ angular.module('accountControllers', [
                         note.note = true;
                         history.push(note);
                     });
-                    var cases = results[2];
-                    cases.forEach(function(caseItem) {
-                        caseItem.caseItem = true;
-                        caseItem.date = caseItem.expires;
-                        history.push(caseItem);
-                    });
-                    var deals = results[3];
-                    deals.forEach(function(deal) {
-                        deal.deal = true;
-                        deal.date = deal.closing_date;
-                        history.push(deal);
-                    });
                     var emails = results[1];
                     emails.forEach(function(email) {
                         email.email = true;
@@ -92,11 +80,24 @@ angular.module('accountControllers', [
                         });
                         history.push(email);
                     });
+                    var cases = results[2];
+                    cases.forEach(function(caseItem) {
+                        caseItem.caseItem = true;
+                        caseItem.date = caseItem.expires;
+                        history.push(caseItem);
+                    });
+                    var deals = results[3];
+                    deals.forEach(function(deal) {
+                        deal.deal = true;
+                        deal.date = deal.closing_date;
+                        history.push(deal);
+                    });
+
                     $scope.history.splice(0, $scope.history.length);
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
                         $scope.history.push(item);
                     });
-                    $scope.history.splice(size, size * 3);
+                    $scope.history.splice(size, $scope.history.length);
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';

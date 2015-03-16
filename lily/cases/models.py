@@ -9,13 +9,14 @@ from lily.contacts.models import Contact
 from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
-from lily.users.models import LilyUser
+from lily.users.models import LilyGroup, LilyUser
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
 class CaseType(TenantMixin, ArchivedMixin):
     type = models.CharField(max_length=255, db_index=True)
-    use_as_filter = models.BooleanField(default=True)  # whether it shows in the filter list or not
+    # Whether it shows in the filter list or not
+    use_as_filter = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.type
@@ -48,16 +49,27 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     description = models.TextField(verbose_name=_('description'), blank=True)
     status = models.ForeignKey(CaseStatus, verbose_name=_('status'), related_name='cases')
 
-    type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True, blank=True, related_name='cases')
+    type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True,
+                             blank=True, related_name='cases')
 
-    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), related_name='assigned_to', null=True, blank=True)
-    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'), related_name='created_by', null=True, blank=True)
+    assigned_to_groups = models.ManyToManyField(
+        LilyGroup,
+        verbose_name=_('assigned to teams'),
+        related_name='assigned_to_groups',
+        null=True,
+        blank=True,
+    )
+    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'),
+                                    related_name='assigned_to', null=True, blank=True)
+    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
+                                   related_name='created_by', null=True, blank=True)
 
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=True)
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
 
     notes = GenericRelation('notes.Note', content_type_field='content_type',
-                                    object_id_field='object_id', verbose_name=_('list of notes'))
+                            object_id_field='object_id',
+                            verbose_name=_('list of notes'))
 
     expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
 

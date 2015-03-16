@@ -12,7 +12,7 @@ from lily.contacts.search import ContactMapping
 from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
-from lily.users.models import LilyUser
+from lily.users.models import LilyGroup, LilyUser
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 from .models import Case, CaseType, CaseStatus
@@ -58,6 +58,16 @@ class CreateUpdateCaseForm(TagsFormMixin):
             model=Contact,
             filter_on='%s,id_account' % ContactMapping.get_mapping_type_name()
         ),
+    )
+
+    assigned_to_groups = forms.ModelMultipleChoiceField(
+        label=_('Assigned to teams'),
+        required=False,
+        queryset=LilyGroup.objects,
+        help_text='',
+        widget=forms.SelectMultiple(attrs={
+            'placeholder': _('Select one or more team(s)'),
+        })
     )
 
     assigned_to = forms.ModelChoiceField(
@@ -181,7 +191,7 @@ class CreateUpdateCaseForm(TagsFormMixin):
                 'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'assigned_to',),
+                'fields': ('subject', 'description', 'assigned_to_groups', 'assigned_to',),
             }),
             (_('When to do it?'), {
                 'fields': ('status', 'priority', 'expires', 'type', 'is_archived',),

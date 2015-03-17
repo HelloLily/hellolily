@@ -1,10 +1,10 @@
 {% extends 'list.html' %}
 
-{% load i18n utils compressed %}
+{% load i18n utils pipeline %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'inbox' %}
+    {% stylesheet 'inbox' %}
 {% endblock %}
 
 {% block head-title %}{% trans 'Email' %}{% endblock %}
@@ -22,5 +22,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'angularapp' %}
+    {% javascript 'angularapp' %}
 {% endblock %}

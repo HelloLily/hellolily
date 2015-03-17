@@ -1,6 +1,6 @@
 {% extends 'form.html' %}
 
-{% load compressed bootstrap3 i18n %}
+{% load pipeline bootstrap3 i18n %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -12,8 +12,8 @@
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'inbox' %}
-    {% compressed_css 'wysihtml5' %}
+    {% stylesheet 'inbox' %}
+    {% stylesheet 'wysihtml5' %}
 {% endblock %}
 
 {% block page-container %}
@@ -54,8 +54,8 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'emailtemplate' %}
-    {% compressed_js 'wysihtml5' %}
+    {% javascript 'emailtemplate' %}
+    {% javascript 'wysihtml5' %}
 <script>
 var parameterChoices = {{ parameter_choices|safe }};
 $(function($) {

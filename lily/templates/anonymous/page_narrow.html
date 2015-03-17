@@ -1,8 +1,8 @@
 {% extends 'anonymous/base.html' %}
 
-{% load compressed static %}
+{% load pipeline static %}
 
-{% block css %}{% compressed_css 'login' %}{% endblock %}
+{% block css %}{% stylesheet 'login' %}{% endblock %}
 {% block body-content %}
 <div class="logo">
     <img src="{% static 'lily/images/core/logo-hellolily-textonly.png' %}" alt="logo" class="visible-md visible-lg" />

@@ -1,6 +1,6 @@
 {% extends 'form.html' %}
 
-{% load i18n static compressed activelink %}
+{% load i18n static pipeline activelink %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -20,7 +20,7 @@
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'profile' %}
+    {% stylesheet 'profile' %}
 {% endblock %}
 
 {% block page-container %}

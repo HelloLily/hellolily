@@ -1,6 +1,24 @@
 
-
 PIPELINE_CSS = {
+    'global': {
+        'source_filenames': (
+            # Global static
+            'metronic_new/assets/global/plugins/font-awesome/css/font-awesome.css',
+            'metronic_new/assets/global/plugins/simple-line-icons/simple-line-icons.css',
+            'metronic_new/assets/global/plugins/bootstrap/css/bootstrap.css',
+            'metronic_new/assets/global/plugins/uniform/css/uniform.default.css',
+            'metronic_new/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.css',
+
+            # Metronic static
+            'metronic_new/assets/admin/layout4/css/layout.css',
+            'metronic_new/assets/admin/layout4/css/themes/light.css',
+            'metronic_new/assets/global/css/components-rounded.css',
+            'metronic_new/assets/global/css/plugins.css',
+
+            # Custom static
+        ),
+        'output_filename': 'metronic_new/css/global.css',
+    },
     'base': {
         'source_filenames': (
             'metronic/css/style-metronic.css',
@@ -15,7 +33,6 @@ PIPELINE_CSS = {
             'metronic/plugins/font-awesome/css/font-awesome.css',
             'metronic_new/plugins/font-awesome/css/font-awesome.css',
             'lily/css/custom.css',
-            'metronic_new/css/custom.css',  # Should me merged with above after complete theme update
         ),
         'output_filename': 'compiled/css/base.css',
     },
@@ -147,6 +164,32 @@ PIPELINE_CSS = {
 }
 
 PIPELINE_JS = {
+    'global-ie': {
+        'source_filenames': (
+            'metronic_new/assets/global/plugins/respond.js',
+            'metronic_new/assets/global/plugins/excanvas.js',
+        ),
+        'output_filename': 'compiled/js/global.js',
+    },
+    'global': {
+        'source_filenames': (
+            'metronic_new/assets/global/plugins/jquery.min.js',
+            'metronic_new/assets/global/plugins/jquery-migrate.min.js',
+            # Load jquery-ui.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip
+            'metronic_new/assets/global/plugins/jquery-ui/jquery-ui.min.js',
+            'metronic_new/assets/global/plugins/bootstrap/js/bootstrap.min.js',
+            'metronic_new/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
+            'metronic_new/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
+            'metronic_new/assets/global/plugins/jquery.blockui.min.js',
+            'metronic_new/assets/global/plugins/jquery.cokie.min.js',
+            'metronic_new/assets/global/plugins/uniform/jquery.uniform.min.js',
+            'metronic_new/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
+            'metronic_new/assets/global/scripts/metronic.js/',
+            'metronic_new/assets/admin/layout4/scripts/layout.js',
+            'metronic_new/assets/admin/layout4/scripts/demo.js',
+        ),
+        'output_filename': 'compiled/js/global.js',
+    },
     'jquery': {
         'source_filenames': (
             'metronic/plugins/jquery-1.10.2.min.js',

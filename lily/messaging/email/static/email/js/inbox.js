@@ -147,6 +147,10 @@
                     $(self.config.templateField).change();
                 }
             }
+
+            if (self.config.urlRecipient) {
+                $(self.config.sendToNormalField).select2('data', self.config.urlRecipient);
+            }
         },
 
         initWysihtml5: function () {

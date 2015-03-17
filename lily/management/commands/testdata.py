@@ -9,7 +9,7 @@ from lily.deals.factories import DealFactory
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
 from lily.tenant.models import Tenant
-from lily.users.factories import LilySuperUserFactory, LilyUserFactory
+from lily.users.factories import LilyGroupFactory, LilySuperUserFactory, LilyUserFactory
 
 
 class Command(BaseCommand):
@@ -17,7 +17,8 @@ class Command(BaseCommand):
 or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
-    target_choices = ['all', 'contacts_and_accounts', 'cases', 'deals', 'notes', 'users', 'superusers', ]
+    target_choices = ['all', 'contacts_and_accounts', 'cases', 'deals', 'notes', 'users',
+                      'superusers', 'lilygroups', ]
 
     option_list = BaseCommand.option_list + (
         make_option('-t', '--target',
@@ -65,6 +66,7 @@ or use an existent tenant if passed as an argument."""
         self.notes(size, tenant)
         self.users(size, tenant)
         self.superusers(size, tenant)
+        self.lilygroups(size, tenant)
 
     def contacts_and_accounts(self, size, tenant):
         # create various contacts
@@ -116,3 +118,5 @@ or use an existent tenant if passed as an argument."""
             'password': 'admin'
         })
 
+    def lilygroups(self, size, tenant):
+        LilyGroupFactory.create_batch(5, tenant=tenant)

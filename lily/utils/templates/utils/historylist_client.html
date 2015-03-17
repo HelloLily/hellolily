@@ -2,18 +2,83 @@
 
 {% verbatim %}
 <ul class="timeline" id="history-list">
-    <li ng-repeat="item in history" ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email}" class="history-list-item">
+    <li ng-repeat="item in history" class="history-list-item"
+    ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email, 'timeline-grey': item.caseItem, 'timeline-blue': item.deal}">
+        <div ng-if="::item.caseItem">
+            <div class="timeline-time">
+                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+            </div>
+            <div class="timeline-icon">
+                <i class="icon-briefcase"></i>
+            </div>
+            <div class="timeline-body">
+            Expires: {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                <h2>{{ ::item.subject }}</h2>
+                <div class="timeline-content">
+                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+                </div>
+                <div class="timeline-footer">
+                    <br/>
+                    Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
+                    Priority: {{ ::item.priority_name }}<br/>
+                    Type: {{ ::item.casetype_name}}<br/>
+                    <a ng-href="/cases/update/{{ ::item.id }}/" class="nav-link pull-right">
+                        Edit<i class="icon-edit"></i>
+                    </a>
+                    <a ng-href="/cases/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
+                        Delete<i class="icon-trash"></i>
+                    </a>
+                    <br/>
+                    <i class="icon-user"></i>{{ ::item.created_by }}
+                    <span ng-if="::item.assigned_to_name"><small>assigned to</small> {{ ::item.assigned_to_name }}</span>
+                </div>
+            </div>
+        </div>
+        <div ng-if="::item.deal">
+            <div class="timeline-time">
+                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+            </div>
+            <div class="timeline-icon">
+                <i class="icon-money"></i>
+            </div>
+            <div class="timeline-body">
+            Closing: {{ ::item.date | date:'dd MMMM yy HH:mm' }}<br/>
+            Created: {{ ::item.created | date:'dd MMMM yy HH:mm' }}
+                <h2>{{ ::item.name }}</h2>
+                <div class="timeline-content">
+                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+                </div>
+                <div class="timeline-footer">
+                    <br/>
+                    {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
+                    {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
+                    Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
+                    Amount once: {{ ::item.amount_once }}<br/>
+                    Amount recurring: {{ ::item.amount_recurring}}<br/>
+                    <a ng-href="/deals/update/{{ ::item.id }}/" class="nav-link pull-right">
+                        Edit<i class="icon-edit"></i>
+                    </a>
+                    <a ng-href="/deals/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/deals/delete/{{ ::item.id }}/">
+                        Delete<i class="icon-trash"></i>
+                    </a>
+                    <br/>
+                    <i class="icon-user"></i>{{ ::item.assigned_to_name }}
+                </div>
+            </div>
+        </div>
         <div ng-if="::item.note">
-            <div class="timeline-time time-right">
+            <div class="timeline-time">
                 <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
                     <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                     <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
                 </a>
             </div>
-            <div class="timeline-icon icon-right">
+            <div class="timeline-icon">
                 <i class="icon-comment"></i>
             </div>
-            <div class="timeline-body body-right">
+            <div class="timeline-body">
             {{ ::item.date | date:'dd MMMM yy HH:mm' }}
                 <h2>Note</h2>
                 <div class="timeline-content">
@@ -23,21 +88,21 @@
                     <a ng-href="/notes/update/{{ ::item.id }}/" class="nav-link pull-right" data-target="#object-update" data-source="/notes/update/{{ ::item.id }}/">
                         Edit<i class="icon-edit"></i>
                     </a>
-                    <a href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
+                    <a ng-href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
-                    <br/><br/>
+                    <br/>
                     <i class="icon-user"></i>
                     {{ ::item.author }}
                 </div>
             </div>
         </div>
         <div ng-if="::item.email">
-            <div class="timeline-time" ng-class="{'time-right': item.right}">
+            <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
             </div>
-            <div class="timeline-icon" ng-class="{'icon-right': item.right}">
+            <div class="timeline-icon">
                 <i class="icon-envelope"></i>
             </div>
             <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">

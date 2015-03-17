@@ -43,7 +43,7 @@
                 </li>
                 <li>
                     <span class="summary-label">E-mail address</span>
-                     <span class="summary-data">{{ ::account.email[0] }}</span>
+                     <span class="summary-data"><a href="/messaging/email/compose/{{ ::account.email[0] }}">{{ ::account.email[0] }}</a></span>
                 </li>
                 <li ng-repeat="social in ::account.social">
                     <span class="summary-label">{{ ::social.social_name }}</span>
@@ -59,7 +59,7 @@
 	                    {{ ::account.address[0].address_country }}
 	                </span>
 	            </li>
-	            <li class="margin-top-20">
+	            <li>
                     <span class="summary-label">Assigned to</span>
                     <span class="summary-data" ng-show="::account.assigned_to">
                         {{ ::account.assigned_to }}
@@ -138,7 +138,7 @@
                         <tbody>
                             <tr ng-repeat="worker in ::workers">
                                 <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
-                                <td>{{ ::worker.email[0] }}</td>
+                                <td><a href="/messaging/email/compose/{{ ::worker.email[0] }}">{{ ::worker.email[0] }}</a></td>
                                 <td>{{ ::worker.phone }}</td>
                             </tr>
                             <tr ng-if="workers.length == 0">
@@ -168,7 +168,7 @@
             <div class="col-md-6 col-xs-6">
                 <h4>E-mail addresses</h4>
                 <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="email in ::account.email"><a href="#" class="btn btn-sm default">{{ ::email }}</a></li>
+                    <li class="no-padding" ng-repeat="email in ::account.email"><a href="/messaging/email/compose/{{ ::email }}" class="btn btn-sm default">{{ ::email }}</a></li>
                     <li class="no-padding" ng-if="!account.email"><a ng-href="/accounts/edit/{{ ::account.id }}#email_addresses" class="btn btn-sm default">Click to add one</a></li>
                 </ul>
             </div>

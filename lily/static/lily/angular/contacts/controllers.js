@@ -54,6 +54,11 @@ angular.module('contactControllers', [
                     size: size
                 }).$promise;
 
+                var casesPromise = Case.query({
+                    filterquery: 'contact:' + id,
+                    size: size
+                }).$promise;
+
                 var emailAddresses = [];
                 if (contact.email) {
                     contact.email.forEach(function(emailAddress) {
@@ -73,14 +78,13 @@ angular.module('contactControllers', [
                         size: size,
                     }).$promise;
                 }
-                $q.all([notesPromise, emailPromise]).then(function(results) {
+                $q.all([notesPromise, emailPromise, casesPromise]).then(function(results) {
                     var history = [];
                     var notes = results[0];
                     notes.forEach(function(note) {
                         note.note = true;
                         history.push(note);
                     });
-
                     var emails = results[1];
                     emails.forEach(function(email) {
                         email.email = true;
@@ -94,16 +98,23 @@ angular.module('contactControllers', [
                         });
                         history.push(email);
                     });
+                    var cases = results[2];
+                    cases.forEach(function(caseItem) {
+                        caseItem.caze = true;
+                        caseItem.date = caseItem.expires;
+                        history.push(caseItem);
+                    });
+
                     $scope.history.splice(0, $scope.history.length);
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
                         $scope.history.push(item);
                     });
-                    $scope.history.splice(size, size * 2);
+                    $scope.history.splice(size, $scope.history.length);
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';
                     }
-                    else if ($scope.history.length <= currentSize || $scope.history.length < size / 2) {
+                    else if ($scope.history.length <= currentSize || $scope.history.length < size / 3) {
                         $scope.showMoreText = 'End reached (refresh)';
                     }
                     currentSize = $scope.history.length;

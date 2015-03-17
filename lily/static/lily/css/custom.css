@@ -327,17 +327,17 @@ label.required::after {
 
 /* Make timeline whatsapp style */
 /* The line */
-.timeline:after {
-	content: '';
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	width: 10px;
-	background: #ccc;
-	left: auto;
-    right: 125px;
-    z-index: 1;
-}
+/* .timeline:after { */
+/* 	content: ''; */
+/* 	position: absolute; */
+/* 	top: 0; */
+/* 	bottom: 0; */
+/* 	width: 10px; */
+/* 	background: #ccc; */
+/* 	left: auto; */
+/*     right: 125px; */
+/*     z-index: 1; */
+/* } */
 
 /* The icon */
 .timeline >li .timeline-icon.icon-right {

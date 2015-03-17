@@ -31,7 +31,8 @@ def update_in_index(instance, mapping):
     else:
         logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
         # Extract all aliases available.
-        aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues()]))
+        aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues() if 'aliases' in v]))
+
         for index in [DEFAULT_INDEX, NEW_INDEX]:
             try:
                 if index in aliases:

@@ -1,4 +1,4 @@
-{% load pipeline statici18n i18n static %}
+{% load compressed statici18n i18n static %}
 
 {% verbatim %}
 <!DOCTYPE html>
@@ -19,7 +19,7 @@
         <meta content="" name="author"/>
         <!-- BEGIN GLOBAL MANDATORY STYLES -->
         <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css">
-        {% endverbatim %}{% stylesheet 'global' %}{% verbatim %}
+        {% endverbatim %}{% compressed_css 'global' %}{% verbatim %}
         <!-- END GLOBAL STYLES -->
         {% endverbatim %}<link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />{% verbatim %}
     </head>
@@ -103,9 +103,9 @@
 
         <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
         <!--[if lt IE 9]>
-        {% endverbatim %}{% javascript 'global-ie' %}{% verbatim %}
+        {% endverbatim %}{% compressed_js 'global-ie' %}{% verbatim %}
         <![endif]-->
-        {% endverbatim %}{% javascript 'global' %}{% verbatim %}
+        {% endverbatim %}{% compressed_js 'global' %}{% verbatim %}
         <script>
             jQuery(document).ready(function() {
                 Metronic.init(); // init metronic core components

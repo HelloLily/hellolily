@@ -16,7 +16,7 @@ PIPELINE_CSS = {
             'metronic/assets/global/css/plugins.css',
 
             # App
-            'lily/sass/global.sass',
+            # 'lily/sass/global.sass',
         ),
         'output_filename': 'metronic/css/global.css',
     },

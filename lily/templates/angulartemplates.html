@@ -40,8 +40,57 @@
                                     <div><i class="fa fa-sitemap"></i> create</div>
                                 </td>
                             </tr>
-                            <tr ng-show="!emailMessages.length">
+                            <tr ng-hide="emailMessages.length">
                                 <td colspan="5">No unread emailmessages</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script id="dashboard/mycases.html" type="text/ng-template">
+    <div class="col-md-6">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-briefcase"></i>
+                    <span class="caption-subject bold uppercase"> My Cases</span>
+                    <span class="caption-helper">({{ mycases.length }})</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Case nr. <i class="fa fa-sort"></i></th>
+                                <th>Client</th>
+                                <th>Subject</th>
+                                <th>Prio <i class="fa fa-sort"></i></th>
+                                <th>Status</th>
+                                <th>Exp date <i class="fa fa-sort-up"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="mycase in mycases">
+                                <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.id }}</a></td>
+                                <td><a ng-href="accounts/details/{{ mycase.account.id }}/">{{ mycase.account.name }}</a></td>
+                                <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.subject }}</a></td>
+                                <td>
+                                <span title="3"></span>
+                                <span class="label label-sm ng-binding label-info" ng-class="{'label-success': !mycase.priority, 'label-info': mycase.priority[0] === 1, 'label-warning': mycase.priority[0] === 2, 'label-danger': mycase.priority[0] === 3 } ">{{ mycase.priority[1] }}</span>
+                                </td>
+                                <td>{{ mycase.status }}</td>
+                                <td>{{ mycase.expires | relativeDate }}</td>
+                            </tr>
+                            <tr ng-hide="mycases.length">
+                                <td colspan="5">No cases</td>
                             </tr>
                         </tbody>
                     </table>

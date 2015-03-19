@@ -1,16 +1,16 @@
 /**
  * contactControllers is a container for all contact related Controllers
  */
-angular.module('dashboardControllers', [
+var dashboard = angular.module('dashboardControllers', [
     'dashboardDirectives',
     'ui.slimscroll'
-])
+]);
 
-.controller('DashboardController', ['$scope', function($scope) {
+dashboard.controller('DashboardController', ['$scope', function($scope) {
 
-    }])
+    }]);
 
-.controller('UnreadEmailController', [
+dashboard.controller('UnreadEmailController', [
         '$scope',
 
         'EmailAccount',
@@ -25,3 +25,9 @@ angular.module('dashboardControllers', [
                 //$scope.table.totalItems = data.total;
             });
     }]);
+
+dashboard.controller('MyCasesController', ['$scope', 'Case', function($scope, Case){
+        Case.getMyCasesWidget().then(function (data) {
+            $scope.mycases = data;
+        });
+}]);

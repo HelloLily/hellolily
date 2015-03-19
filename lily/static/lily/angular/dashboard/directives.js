@@ -1,11 +1,18 @@
 /**
  * dashboardDirectives is a container for all dashboard related Angular directives
  */
-angular.module('dashboardDirectives', [])
+var dashboard = angular.module('dashboardDirectives', []);
 
-.directive('unreadEmail', function(){
+dashboard.directive('unreadEmail', function(){
         return {
             templateUrl: 'dashboard/unreademail.html',
             controller: 'UnreadEmailController'
+        }
+    });
+
+dashboard.directive('myCases', function(){
+        return {
+            templateUrl: 'dashboard/mycases.html',
+            controller: 'MyCasesController'
         }
     });

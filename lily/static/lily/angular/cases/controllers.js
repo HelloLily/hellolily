@@ -24,7 +24,8 @@ angular.module('caseControllers', [
         'Case',
         'Cookie',
         'HLDate',
-        function($scope, $cookieStore, $window, $location, Case, Cookie, HLDate) {
+        'HLFilters',
+        function($scope, $cookieStore, $window, $location, Case, Cookie, HLDate, HLFilters) {
             Cookie.prefix ='caseList';
 
             // Setup search query
@@ -65,6 +66,8 @@ angular.module('caseControllers', [
                     tags: true
                 })};
 
+            $scope.displayFilterClear = false;
+
             getFilterList();
 
             /**
@@ -76,26 +79,34 @@ angular.module('caseControllers', [
                 var filterListCookie = Cookie.getCookieValue('filterList', null);
 
                 if (!filterListCookie) {
-                    var filterList = [{
-                        name: 'Assigned to me',
-                        value: 'assigned_to_id:' + currentUser.id,
-                        selected: false
-                    },
-                    {
-                        name: 'Assigned to nobody',
-                        value: 'NOT(assigned_to_id:*)',
-                        selected: false
-                    },
-                    {
-                        name: 'Expired 7 days or more ago',
-                        value: 'expires:[* TO ' + HLDate.getSubtractedDate(7) + ']',
-                        selected: false
-                    },
-                    {
-                        name: 'Expired 30 days or more ago',
-                        value: 'expires:[* TO ' + HLDate.getSubtractedDate(30) + ']',
-                        selected: false
-                    }];
+                    var filterList = [
+                        {
+                            name: 'Assigned to me',
+                            value: 'assigned_to_id:' + currentUser.id,
+                            selected: false
+                        },
+                        {
+                            name: 'Assigned to nobody',
+                            value: 'NOT(assigned_to_id:*)',
+                            selected: false
+                        },
+                        {
+                            name: 'Expired 7 days or more ago',
+                            value: 'expires:[* TO ' + HLDate.getSubtractedDate(7) + ']',
+                            selected: false
+                        },
+                        {
+                            name: 'Expired 30 days or more ago',
+                            value: 'expires:[* TO ' + HLDate.getSubtractedDate(30) + ']',
+                            selected: false
+                        },
+                        {
+                            name: 'Archived',
+                            value: '',
+                            selected: false,
+                            id: 'archived'
+                        }
+                    ];
 
                     // Update filterList for now
                     $scope.filterList = filterList;
@@ -195,18 +206,12 @@ angular.module('caseControllers', [
             };
 
             $scope.updateFilterQuery = function() {
-                $scope.table.filterQuery = '';
-                var filterStrings = [];
+                HLFilters.updateFilterQuery($scope);
+            };
 
-                for (var i = 0; i < $scope.filterList.length; i++) {
-                    var filter = $scope.filterList[i];
-                    if (filter.selected) {
-                        filterStrings.push(filter.value);
-                    }
-                }
-
-                $scope.table.filterQuery = filterStrings.join(' AND ');
-            }
+            $scope.clearFilters = function() {
+                HLFilters.clearFilters($scope);
+            };
         }
     ]
 );

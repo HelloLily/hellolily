@@ -24,7 +24,8 @@ angular.module('dealControllers', [
         'Deal',
         'Cookie',
         'HLDate',
-        function($scope, $cookieStore, $window, $location, Deal, Cookie, HLDate) {
+        'HLFilters',
+        function($scope, $cookieStore, $window, $location, Deal, Cookie, HLDate, HLFilters) {
 
             Cookie.prefix ='dealList';
 
@@ -106,6 +107,12 @@ angular.module('dealControllers', [
                     name: 'Age between 30 and 120 days',
                     value: 'created:[' + HLDate.getSubtractedDate(120) + ' TO ' + HLDate.getSubtractedDate(30) + ']',
                     selected: false
+                },
+                {
+                    name: 'Archived',
+                    value: '',
+                    selected: false,
+                    id: 'archived'
                 }
             ]);
 
@@ -181,18 +188,12 @@ angular.module('dealControllers', [
             };
 
             $scope.updateFilterQuery = function() {
-                $scope.table.filterQuery = '';
-                var filterStrings = [];
+                HLFilters.updateFilterQuery($scope);
+            };
 
-                for (var i = 0; i < $scope.filterList.length; i++) {
-                    var filter = $scope.filterList[i];
-                    if (filter.selected) {
-                        filterStrings.push(filter.value);
-                    }
-                }
-
-                $scope.table.filterQuery = filterStrings.join(' AND ');
-            }
+            $scope.clearFilters = function() {
+                HLFilters.clearFilters($scope);
+            };
         }
     ]
 );

@@ -32,11 +32,11 @@ angular.module('emailServices', [
     }])
 
     .factory('EmailAccount', ['$resource', function($resource) {
-        return $resource ('/api/messaging/email/account/:id/');
+        return $resource('/api/messaging/email/account/:id/');
     }])
 
     .factory('EmailLabel', ['$resource', function($resource) {
-        return $resource ('/api/messaging/email/label/:id/');
+        return $resource('/api/messaging/email/label/:id/');
     }])
 
     .factory('EmailMessage', ['$resource', 'Cookie', function($resource, Cookie) {

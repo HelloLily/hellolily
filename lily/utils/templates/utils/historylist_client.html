@@ -1,10 +1,14 @@
 {% load i18n utils %}
 
 {% verbatim %}
+<div class="text-center">
+    <button ng-repeat="type in ::history_types"
+    ng-class="{'active': opts.history_type==type.type}"
+    class="btn btn-primary" ng-click="opts.history_type=type.type">{{type.name}}</button>
+</div><br/>
 <ul class="timeline" id="history-list">
-    <li ng-repeat="item in history" class="history-list-item"
-    ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email, 'timeline-grey': item.caseItem, 'timeline-blue': item.deal}">
-        <div ng-if="::item.caseItem">
+    <li ng-repeat="item in history | filter:{history_type:opts.history_type}" class="history-list-item" ng-class="'timeline-' + item.color">
+        <div ng-if="::item.history_type=='case'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
@@ -35,7 +39,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="::item.deal">
+        <div ng-if="::item.history_type=='deal'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
@@ -68,7 +72,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="::item.note">
+        <div ng-if="::item.history_type=='note'">
             <div class="timeline-time">
                 <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
                     <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
@@ -97,7 +101,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="::item.email">
+        <div ng-if="::item.history_type=='email'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>

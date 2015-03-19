@@ -23,3 +23,10 @@ dashboard.directive('callbackRequests', function () {
         controller: 'CallbackRequestsController'
     }
 });
+
+dashboard.directive('unassignedCases', function() {
+    return {
+        templateUrl: 'dashboard/unassignedcases.html',
+        controller: 'UnassignedCasesController'
+    }
+});

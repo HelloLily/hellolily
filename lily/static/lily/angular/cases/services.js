@@ -152,5 +152,15 @@ caseservices.factory('Case', ['$http', function($http) {
             });
     };
 
+
     return Case;
 }]);
+
+
+/**
+ * UnassignedTeamCases endpoint gets all unassigned cases from all teams.
+ */
+caseservices.factory('UnassignedTeamCases', ['$resource', function($resource) {
+    return $resource('/api/cases/teams/:teamId/?is_assigned=False')
+}]);
+

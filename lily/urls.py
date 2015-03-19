@@ -6,10 +6,10 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 from rest_framework import routers
 
-from lily.cases.api.views import CaseList, UserCaseList, TeamCaseList
+from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList
 from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
-
+from lily.users.api.views import TeamList
 
 admin.autodiscover()
 
@@ -20,7 +20,8 @@ router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^accounts/', include('lily.accounts.urls', app_name='accounts')),
     url(r'^contacts/', include('lily.contacts.urls', app_name='contacts')),
     url(r'^cases/', include('lily.cases.urls', app_name='cases')),
@@ -41,12 +42,14 @@ urlpatterns = patterns('',
     # Django rest
     url(r'^api/', include(router.urls)),
     url(r'^api/cases/$', CaseList.as_view()),
-    url(r'^api/cases/team/$', TeamCaseList.as_view()),
+    url(r'^api/cases/teams/$', TeamsCaseList.as_view()),
+    url(r'^api/cases/teams/(?P<pk>[0-9]+)/$', TeamsCaseList.as_view()),
     url(r'^api/cases/user/$', UserCaseList.as_view()),
     url(r'^api/cases/user/(?P<pk>[0-9]+)/$', UserCaseList.as_view()),
     url(r'^api/deals/stats/communication', DealCommunicationList.as_view()),
     url(r'^api/deals/stats/wonwritten', DealWonWrittenList.as_view()),
     url(r'^api/deals', DealList.as_view()),
+    url(r'^api/users/teams/$', TeamList.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
@@ -60,6 +63,7 @@ if settings.DEBUG:
 
 # Works only in debug mode
 if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:
-    urlpatterns += patterns('',
+    urlpatterns += patterns(
+        '',
         (r'^static/(.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     )

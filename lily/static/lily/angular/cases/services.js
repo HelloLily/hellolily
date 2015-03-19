@@ -55,6 +55,7 @@ caseservices.factory('CaseDetail', ['$resource', function($resource) {
  * @returns: Case object: object with functions related to Cases
  */
 caseservices.factory('Case', ['$http', function($http) {
+        // TODO: LILY-660: Refactor this to other structure
     var Case = {};
 
     /**
@@ -118,7 +119,7 @@ caseservices.factory('Case', ['$http', function($http) {
         }).then(function (response) {
             return response.data;
         });
-    }
+    };
 
     /**
      * query() makes it possible to query on cases on backend search
@@ -133,6 +134,22 @@ caseservices.factory('Case', ['$http', function($http) {
      */
     Case.query = function(table) {
         return getCases(table.searchQuery, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived, table.filterQuery);
+        };
+
+        /**
+         * Gets all cases with the 'callback' case type
+         *
+         * @returns cases with the callback case type
+         */
+        Case.getCallbackRequests = function () {
+            return $http({
+                url: '/api/cases/user?type=Callback&archived=false',
+                method: 'GET'
+            }).then(function (response) {
+                return {
+                    callbackRequests: response.data
+                };
+            });
     };
 
     return Case;

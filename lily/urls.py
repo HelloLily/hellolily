@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from rest_framework import routers
 
 from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList
@@ -51,6 +51,8 @@ urlpatterns = patterns(
     url(r'^api/deals', DealList.as_view()),
     url(r'^api/users/teams/$', TeamList.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    (r'^', TemplateView.as_view(template_name="angular/base.html")),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 

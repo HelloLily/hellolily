@@ -1,0 +1,138 @@
+{% verbatim %}
+<script id="contacts/contact-list.html" type="text/ng-template">
+    <div class="row">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <div class="btn-group">
+                        <button class="btn dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-angle-down"></i>
+                            Columns
+                            <i class="fa fa-columns"></i>
+                        </button>
+                        <div class="dropdown-menu hold-on-click dropdown-checkboxes">
+                            <checkbox model="table.visibility.name">Name</checkbox>
+                            <checkbox model="table.visibility.contactInformation">Contact information</checkbox>
+                            <checkbox model="table.visibility.worksAt">Works at</checkbox>
+                            <checkbox model="table.visibility.created">Created</checkbox>
+                            <checkbox model="table.visibility.modified">Modified</checkbox>
+                            <checkbox model="table.visibility.tags">Tags</checkbox>
+                        </div>
+                    </div>
+                </div>
+                <div class="tools col-xs-12 col-md-6">
+                    <form class="form-inline pull-right" action="index.html">
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="table.filter">
+                            <span class="input-group-btn">
+                                <button class="btn red-pink" ng-click="setFilter('')" ng-disabled="!table.filter">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="portlet-body flip-scroll">
+                <table class="table table-bordered table-striped flip-content">
+                    <thead class="flip-content">
+                        <tr>
+                            <th class="list-actions" width="75px">
+                                <span class="text-nowrap">
+                                    Options
+                                </span>
+                            </th>
+                            <th ng-show="table.visibility.name" sort-column="last_name" table="table" class="width-22">
+                                <span class="text-nowrap">
+                                    Name
+                                    </span>
+                            </th>
+                            <th ng-show="table.visibility.contactInformation" class="width-22">
+                                <span class="text-nowrap">
+                                    Contact information
+                                </span>
+                            </th>
+                            <th ng-show="table.visibility.worksAt" sort-column="account" table="table" class="width-22">
+                                <span class="text-nowrap">
+                                    Works at
+                                </span>
+                            </th>
+                            <th ng-show="table.visibility.created" sort-column="created" table="table" class="width-10">
+                                <span class="text-nowrap">
+                                    Created
+                                </span>
+                            </th>
+                            <th ng-show="table.visibility.modified" sort-column="modified" table="table" class="width-10">
+                                <span class="text-nowrap">
+                                    Modified
+                                </span>
+                            </th>
+                            <th ng-show="table.visibility.tags">
+                                <span class="text-nowrap">
+                                    Tags
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="contact in table.items">
+                            <td>
+                                <a href="/contacts/edit/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
+                                    <i class="icon-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
+                                    <i class="icon-trash"></i>
+                                </button>
+                            </td>
+                            <td ng-show="table.visibility.name">
+                                <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ ::contact.name }}</a>
+                            </td>
+                            <td ng-show="table.visibility.contactInformation">
+                                <div ng-repeat="email in contact.email">
+                                    <a href="/messaging/email/compose/{{ ::email }}" title="{{ ::email }}">
+                                        <i class="icon-envelope-alt"></i>
+                                        {{ email }}
+                                    </a>
+                                </div>
+                                <div ng-repeat="phone in contact.phone_work track by $index">
+                                    <a href="tel:{{ ::phone }}">
+                                        <i class="icon-phone"></i>
+                                        {{ phone }}
+                                    </a>
+                                </div>
+                                <div ng-repeat="phone in contact.phone_mobile track by $index">
+                                    <a href="tel:{{ ::phone }}">
+                                        <i class="icon-mobile-phone"></i>
+                                        {{ phone }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td ng-show="table.visibility.worksAt">
+                                <div ng-repeat="account in contact.account">
+                                    <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
+                                </div>
+                            </td>
+                            <td ng-show="table.visibility.created">{{ ::contact.created | relativeDate }}</td>
+                            <td ng-show="table.visibility.modified">{{ ::contact.modified | relativeDate }}</td>
+                            <td ng-show="table.visibility.tags">
+                                    <span ng-repeat="tag in contact.tag">
+                                        <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
+                                        <br>
+                                    </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-7">
+                    Showing {{ (table.page - 1) * table.pageSize }} to {{ table.page * table.pageSize }} of {{ table.totalItems | number }} records
+                </div>
+                <div class="col-md-5">
+                    <pagination total-items="table.totalItems" ng-model="table.page" items-per-page="table.pageSize" max-size="5"></pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

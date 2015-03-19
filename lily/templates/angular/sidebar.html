@@ -1,0 +1,54 @@
+{% verbatim %}
+<script id="sidebar.html" type="text/ng-template">
+    <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+    <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+    <div class="page-sidebar navbar-collapse collapse">
+        <!-- BEGIN SIDEBAR MENU -->
+        <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+        <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+        <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+        <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+        <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+        <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+        <ul class="page-sidebar-menu " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <li class="start" ui-sref-active="active">
+                <a ui-sref="base.dashboard" href="dashboard">
+                    <i class="fa fa-home"></i>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="base.contacts" href="contacts">
+                    <i class="fa fa-user"></i>
+                    <span class="title">Contacts</span>
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="base.accounts" href="accounts">
+                    <i class="fa fa-building"></i>
+                    <span class="title">Accounts</span>
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="base.email" href="email">
+                    <i class="fa fa-inbox"></i>
+                    <span class="title">Email</span>
+                </a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="base.deals" href="deals">
+                    <i class="fa fa-money"></i>
+                    <span class="title">Deals</span>
+                </a>
+            </li>
+            <li class="last" ui-sref-active="active">
+                <a ui-sref="base.cases" href="cases">
+                    <i class="fa fa-briefcase"></i>
+                    <span class="title">Cases</span>
+                </a>
+            </li>
+        </ul>
+        <!-- END SIDEBAR MENU -->
+    </div>
+</script>
+{% endverbatim %}

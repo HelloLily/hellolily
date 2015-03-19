@@ -99,4 +99,48 @@
         </div>
     </div>
 </script>
+<script id="dashboard/callbackrequests.html" type="text/ng-template">
+    <div class="col-md-6">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-phone"></i>
+                    <span class="caption-subject bold uppercase"> Callback requests</span>
+                    <span class="caption-helper">({{ callbackRequests.length }})</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Contact</th>
+                                <th>Phonenumber</th>
+                                <th>Subject</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="case in callbackRequests">
+                                <td><a ng-href="/accounts/details/{{ case.account.id }}/">{{ case.account.name }}</a></td>
+                                <td><a ng-href="/contacts/details/{{ case.contact.id }}/">{{ case.contact.full_name }}</a></td>
+                                <td>
+                                    <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
+                                    <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
+                                </td>
+                                <td>{{ case.subject }}</td>
+                                <td>{{ case.created | relativeDate }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
 {% endverbatim %}

@@ -6,28 +6,39 @@ var dashboard = angular.module('dashboardControllers', [
     'ui.slimscroll'
 ]);
 
-dashboard.controller('DashboardController', ['$scope', function($scope) {
+dashboard.controller('DashboardController', ['$scope', function ($scope) {
 
-    }]);
+}]);
 
 dashboard.controller('UnreadEmailController', [
-        '$scope',
+    '$scope',
 
-        'EmailAccount',
-        'EmailMessage',
-        function($scope, EmailAccount, EmailMessage) {
-            var filterquery = ['read:false'];
+    'EmailAccount',
+    'EmailMessage',
+    function ($scope, EmailAccount, EmailMessage) {
+        var filterquery = ['read:false'];
 
-            EmailMessage.SEARCH.get({
-                filterquery: filterquery
-            }, function(data) {
-                $scope.emailMessages = data.hits;
-                //$scope.table.totalItems = data.total;
-            });
+        EmailMessage.SEARCH.get({
+            filterquery: filterquery
+        }, function (data) {
+            $scope.emailMessages = data.hits;
+            //$scope.table.totalItems = data.total;
+        });
     }]);
 
-dashboard.controller('MyCasesController', ['$scope', 'Case', function($scope, Case){
-        Case.getMyCasesWidget().then(function (data) {
-            $scope.mycases = data;
-        });
+dashboard.controller('MyCasesController', ['$scope', 'Case', function ($scope, Case) {
+    Case.getMyCasesWidget().then(function (data) {
+        $scope.mycases = data;
+    });
 }]);
+
+dashboard.controller('CallbackRequestsController', [
+    '$scope',
+
+    'Case',
+    function ($scope, Case) {
+        Case.getCallbackRequests().then(function (data) {
+            $scope.callbackRequests = data.callbackRequests;
+        });
+    }
+]);

@@ -32,6 +32,14 @@ angular.module('accountControllers', [
         '$q',
         '$filter',
         function(Account, Case, Deal, Contact, Note, Email, EmailAccount, $scope, $q, $filter) {
+            $scope.opts = {history_type: ''};
+            $scope.history_types = [
+                {type: '', name: 'All'},
+                {type: 'deal', name: 'Deals'},
+                {type: 'case', name: 'Cases'},
+                {type: 'email', name: 'Emails'},
+                {type: 'note', name: 'Notes'}
+            ]
             $scope.showMoreText = 'Show more';
             var id = window.location.pathname;
             if (id.substr(-1) == '/') {
@@ -64,12 +72,14 @@ angular.module('accountControllers', [
                 $q.all([notesPromise, emailPromise, casesPromise, dealsPromise]).then(function(results) {
                     var notes = results[0];
                     notes.forEach(function(note) {
-                        note.note = true;
+                        note.history_type = 'note';
+                        note.color = 'yellow'
                         history.push(note);
                     });
                     var emails = results[1];
                     emails.forEach(function(email) {
-                        email.email = true;
+                        email.history_type = 'email';
+                        email.color = 'green'
                         email.date = email.sent_date;
                         email.right = false;
                         // Check if the sender is from tenant.
@@ -82,13 +92,15 @@ angular.module('accountControllers', [
                     });
                     var cases = results[2];
                     cases.forEach(function(caseItem) {
-                        caseItem.caseItem = true;
+                        caseItem.history_type = 'case';
+                        caseItem.color = 'grey'
                         caseItem.date = caseItem.expires;
                         history.push(caseItem);
                     });
                     var deals = results[3];
                     deals.forEach(function(deal) {
-                        deal.deal = true;
+                        deal.history_type = 'deal';
+                        deal.color = 'blue'
                         deal.date = deal.closing_date;
                         history.push(deal);
                     });

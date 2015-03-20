@@ -336,6 +336,21 @@ class EmailMessageComposeView(FormView):
                 'template_list': anyjson.serialize(template_list),
             })
 
+        email_address = self.kwargs.get('email_address', None)
+        recipient = None
+
+        if email_address:
+            recipient = Contact.objects.filter(email_addresses__email_address=email_address).order_by('created').first()
+
+            if not recipient:
+                recipient = Account.objects.filter(email_addresses__email_address=email_address).order_by('created').first()
+
+        if recipient:
+            context.update({
+                'recipient': recipient,
+                'email_address': email_address
+            })
+
         return context
 
     def get_form_kwargs(self):

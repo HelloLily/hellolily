@@ -27,12 +27,21 @@
                     Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
                     Priority: {{ ::item.priority_name }}<br/>
                     Type: {{ ::item.casetype_name}}<br/>
+                    <br/>
+                    <div ng-repeat="note in ::item.notes">
+                        <div class="bg-yellow">
+                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
+                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                        </div><br/>
+                    </div>
                     <a ng-href="/cases/update/{{ ::item.id }}/" class="nav-link pull-right">
                         Edit<i class="icon-edit"></i>
                     </a>
                     <a ng-href="/cases/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
+                    <a ng-href="/cases/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
                     <br/>
                     <i class="icon-user"></i>{{ ::item.created_by }}
                     <span ng-if="::item.assigned_to_name"><small>assigned to</small> {{ ::item.assigned_to_name }}</span>
@@ -60,13 +69,21 @@
                     {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
                     Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
                     Amount once: {{ ::item.amount_once }}<br/>
-                    Amount recurring: {{ ::item.amount_recurring}}<br/>
+                    Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
+                    <div ng-repeat="note in ::item.notes">
+                        <div class="bg-yellow">
+                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
+                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                        </div><br/>
+                    </div>
                     <a ng-href="/deals/update/{{ ::item.id }}/" class="nav-link pull-right">
                         Edit<i class="icon-edit"></i>
                     </a>
                     <a ng-href="/deals/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/deals/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
+                    <a ng-href="/deals/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
                     <br/>
                     <i class="icon-user"></i>{{ ::item.assigned_to_name }}
                 </div>

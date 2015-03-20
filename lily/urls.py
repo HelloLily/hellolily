@@ -10,6 +10,7 @@ from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList
 from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
 from lily.users.api.views import TeamList
+from lily.utils.api.views import Queues
 
 admin.autodiscover()
 
@@ -50,6 +51,7 @@ urlpatterns = patterns(
     url(r'^api/deals/stats/wonwritten', DealWonWrittenList.as_view()),
     url(r'^api/deals', DealList.as_view()),
     url(r'^api/users/teams/$', TeamList.as_view()),
+    url(r'^api/utils/queues/(?P<queue>[\w]+)/$', Queues.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     (r'^$', TemplateView.as_view(template_name="angular/base.html")),

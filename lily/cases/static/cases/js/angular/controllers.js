@@ -13,7 +13,7 @@ var caseControllers = angular.module('CaseControllers', [
     'CaseServices',
     'contactServices',
     'noteServices',
-    'emailServices'
+    'EmailServices'
 ]);
 
 caseControllers.config(['$stateProvider', function($stateProvider) {

@@ -12,6 +12,7 @@ PIPELINE_CSS = {
 
             # Metronic layout
             'metronic/assets/admin/pages/css/inbox.css',
+            'metronic/assets/admin/pages/css/timeline-old.css',
             'metronic/assets/admin/layout4/css/layout.css',
             'metronic/assets/admin/layout4/css/themes/light.css',
             'metronic/assets/global/css/components-rounded.css',
@@ -23,8 +24,8 @@ PIPELINE_CSS = {
             # App
             # 'lily/sass/global.sass',
             'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
+            'plugins/angular/angular-chart/angular-chart.css',
             'lily/css/profile.css',
-            'metronic/assets/admin/pages/css/timeline-old.css',
             'email/css/inbox.css',
         ),
         'output_filename': 'metronic/css/global.css',
@@ -207,8 +208,12 @@ PIPELINE_JS = {
             'plugins/angular/angular.js',
             'plugins/angular/angular-cookies.js',
             'plugins/angular/angular-resource.js',
+
+            # Angular Plugins
             'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
             'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
+            'plugins/chart.js',
+            'plugins/angular/angular-chart/angular-chart.js',
             'plugins/angular/angular-sanitize/angular-sanitize.js',
             'plugins/angular/angular-slimscroll/angular-slimscroll.js',
             'plugins/angular/angular-ui-router/angular-ui-router.js',

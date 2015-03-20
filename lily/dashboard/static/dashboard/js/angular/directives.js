@@ -30,3 +30,10 @@ dashboard.directive('unassignedCases', function() {
         controller: 'UnassignedCasesController'
     }
 });
+
+dashboard.directive('queueSize', function(){
+    return {
+        templateUrl: 'dashboard/queue-size.html',
+        controller: 'QueueSizeController'
+    }
+});

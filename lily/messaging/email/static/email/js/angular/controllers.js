@@ -8,7 +8,7 @@ var EmailControllers = angular.module('EmailControllers', [
 
     // Lily dependencies
     'EmailServices',
-    'lilyServices'
+    'LilyServices'
 ]);
 
 EmailControllers.config([

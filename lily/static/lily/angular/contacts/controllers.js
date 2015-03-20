@@ -90,13 +90,13 @@ angular.module('contactControllers', [
                     var notes = results[0];
                     notes.forEach(function(note) {
                         note.history_type = 'note';
-                        note.color = 'yellow'
+                        note.color = 'yellow';
                         history.push(note);
                     });
                     var emails = results[1];
                     emails.forEach(function(email) {
                         email.history_type = 'email';
-                        email.color = 'green'
+                        email.color = 'green';
                         email.date = email.sent_date;
                         email.right = false;
                         // Check if the sender is from tenant.
@@ -110,9 +110,15 @@ angular.module('contactControllers', [
                     var cases = results[2];
                     cases.forEach(function(caseItem) {
                         caseItem.history_type = 'case';
-                        caseItem.color = 'grey'
+                        caseItem.color = 'grey';
                         caseItem.date = caseItem.expires;
                         history.push(caseItem);
+                        Note.query({
+                            filterquery: 'content_type:case AND object_id:' + caseItem.id,
+                            size: 5,
+                        }).$promise.then(function(notes) {
+                            caseItem.notes = notes;
+                        })
                     });
 
                     $scope.history.splice(0, $scope.history.length);

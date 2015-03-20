@@ -27,8 +27,8 @@ lilyApp.config([
         $resourceProvider,
         $breadcrumbProvider
     ){
-        // Don't strip trailing slashes from calculated URLs
-        $resourceProvider.defaults.stripTrailingSlashes = true;
+        // Don't strip trailing slashes from calculated URLs, because django needs them
+        $resourceProvider.defaults.stripTrailingSlashes = false;
         $urlRouterProvider.otherwise('/dashboard');
         $breadcrumbProvider.setOptions({
             templateUrl: 'breadcrumbs.html'

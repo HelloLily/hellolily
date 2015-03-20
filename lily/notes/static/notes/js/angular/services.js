@@ -26,7 +26,7 @@ angular.module('noteServices', ['ngResource'])
                     isArray: true,
                     transformResponse: function(data) {
                         data = angular.fromJson(data);
-                        var objects = []
+                        var objects = [];
                         if (data && data.hits && data.hits.length > 0) {
                             data.hits.forEach(function(obj) {
                                 objects.push(obj)

@@ -1,5 +1,47 @@
 {% verbatim %}
 <script id="contacts/contact-detail.html" type="text/ng-template">
+    <a ng-href="/contacts/edit/{{ ::contact.id }}/" class="btn blue"><i class="icon-edit"></i>Edit</a>
+    <!--  Note remove xhr when merging! -->
+    <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="icon-trash"></i>Delete</a>
+    <div ng-cloak ng-if="::contact.description">
+        <div class="row">
+            <div class="col-md-6">
+                <em class="pre-wrap">{{ ::contact.description }}</em>
+            </div>
+        </div>
+    </div>
+    <div ng-cloak class="row">
+        <div class="col-md-6">
+            <ul class="list-unstyled summary-list">
+                <li>
+                    <span class="summary-label">Phone number</span>
+                    <span class="summary-data">{{ ::contact.phone_work[0] }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">Mobile number</span>
+                    <span class="summary-data">{{ ::contact.phone_mobile[0] }}</span>
+                </li>
+                <li>
+                    <span class="summary-label">E-mail address</span>
+                    <span class="summary-data">{{ ::contact.email[0] }}</span>
+                </li>
+                <li ng-repeat="social in ::contact.social">
+                    <span class="summary-label">{{ ::social.social_name }}</span>
+                    <span class="summary-data">
+                    <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6 text-right">
+            <div class="clearfix">
+                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" ng-href="/cases/#/?search={{ ::contact.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
+                    Cases<span class="badge badge-success pull-right">{{ ::numCases }}</span>
+                </a>
+                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
+            </div>
+        </div>
+    </div>
     <div ng-cloak class="tab-pane active" id="tab-history">
         <div class="row">
             <div class="form-group">

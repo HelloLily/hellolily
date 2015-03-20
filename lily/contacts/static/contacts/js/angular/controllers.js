@@ -35,10 +35,34 @@ contacts.config(['$stateProvider', function($stateProvider) {
             '@': {
                 templateUrl: 'contacts/contact-detail.html',
                 controller: 'ContactDetailController'
-            },
+            }
         },
         ncyBreadcrumb: {
             label: '{{ contact.name }}'
+        }
+    });
+    $stateProvider.state('base.contacts.create', {
+        url: '/create',
+        views: {
+            '@': {
+                templateUrl: 'contacts/contact-create.html',
+                controller: 'ContactListController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Create'
+        }
+    });
+    $stateProvider.state('base.contacts.edit', {
+        url: '/edit/{id:[0-9]{1,4}}',
+        views: {
+            '@': {
+                templateUrl: '/contacts/edit/18/.html',
+                controller: 'ContactListController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Edit'
         }
     });
 }]);
@@ -56,7 +80,7 @@ contacts.controller('ContactDetailController', [
     '$q',
     '$filter',
     '$stateParams',
-    function(Contact, Case, Note, Email, EmailAccount, $scope, $q, $filter, $stateParams) {
+    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, $scope, $q, $filter, $stateParams) {
         console.log('contact detail');
         $scope.showMoreText = 'Show more';
         var id = $stateParams.id;
@@ -74,12 +98,12 @@ contacts.controller('ContactDetailController', [
         var currentSize = 0;
         $scope.history = [];
         function loadHistory(contact, tenantEmails) {
-            var notesPromise = Note.query({
+            var notesPromise = NoteDetail.query({
                 filterquery: 'content_type:contact AND object_id:' + id,
                 size: size
             }).$promise;
 
-            var casesPromise = Case.query({
+            var casesPromise = CaseDetail.query({
                 filterquery: 'contact:' + id,
                 size: size
             }).$promise;
@@ -98,7 +122,7 @@ contacts.controller('ContactDetailController', [
                 }).join(' OR ');
                 // Search for correspondence with the user, by checking the email addresses
                 // with sent / received headers.
-                emailPromise = Email.query({
+                emailPromise = EmailDetail.query({
                     filterquery: 'sender_email:(' + join + ') OR received_by_email:(' + join + ') OR received_by_cc_email:(' + join + ')',
                     size: size,
                 }).$promise;
@@ -146,7 +170,7 @@ contacts.controller('ContactDetailController', [
             });
         }
 
-        var contactPromise = Contact.get({id: id}).$promise;
+        var contactPromise = ContactDetail.get({id: id}).$promise;
         contactPromise.then(function(contact) {
             $scope.contact = contact;
             $scope.pageTitle = pageTitle(contact);
@@ -154,7 +178,7 @@ contacts.controller('ContactDetailController', [
             if (contact.account) {
                 contact.account.forEach(function(account_id, index) {
                     var query = {filterquery: 'NOT(id:' + id + ') AND account:' + account_id};
-                    var work = Contact.query(query).$promise.then(function(contacts) {
+                    var work = ContactDetail.query(query).$promise.then(function(contacts) {
                         return {name:contact.account_name[index], colleagues:contacts};
                     });
                     works.push(work);
@@ -172,7 +196,7 @@ contacts.controller('ContactDetailController', [
         };
         $scope.loadHistoryFromButton();
 
-        Case.totalize({filterquery: 'archived:false AND contact:' + id}).$promise.then(function(total) {
+        CaseDetail.totalize({filterquery: 'archived:false AND contact:' + id}).$promise.then(function(total) {
             $scope.numCases = total.total;
         });
     }
@@ -192,6 +216,9 @@ contacts.controller('ContactListController', [
     function($scope, $cookieStore, $window, Contact, Cookie) {
         console.log('contact list');
         Cookie.prefix ='contactList';
+
+        $scope.conf.pageTitleBig = 'Contact list';
+        $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 
         /**
          * table object: stores all the information to correctly display the table

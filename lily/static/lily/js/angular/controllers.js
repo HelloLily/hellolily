@@ -7,10 +7,15 @@ angular.module('lilyControllers', [])
      * CaseListController controller to show list of cases
      *
      */
-    .controller('lilyController', [
+    .controller('baseController', [
         '$scope',
 
         function($scope) {
+            $scope.conf = {
+                pageTitleBig: 'test',
+                pageTitleSmall: ''
+            };
+
             console.log('base');
         }
     ])
@@ -60,6 +65,7 @@ angular.module('lilyControllers', [])
         $stateProvider
             .state('base', {
                 abstract: true,
+                controller: 'baseController',
                 views: {
                     'topNavActions@': {
                         templateUrl: 'top-nav/actions.html',

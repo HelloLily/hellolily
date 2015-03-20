@@ -1,9 +1,11 @@
 /**
  * lilyApp Module is the entry point for Lily related Angular code
  */
-angular.module('lilyApp', [
+var lilyApp = angular.module('lilyApp', [
     'ui.router',
     'ngResource',
+    'ngSanitize',
+    'ncy-angular-breadcrumb',
 
     // Controllers
     'lilyControllers',
@@ -13,16 +15,23 @@ angular.module('lilyApp', [
     'lilyDirectives',
     'lilyFilters',
     'lilyServices'
-]).config([
+]);
+
+lilyApp.config([
     '$urlRouterProvider',
     '$resourceProvider',
+    '$breadcrumbProvider',
 
     function(
         $urlRouterProvider,
-        $resourceProvider)
-    {
+        $resourceProvider,
+        $breadcrumbProvider
+    ){
         // Don't strip trailing slashes from calculated URLs
-        $resourceProvider.defaults.stripTrailingSlashes = false;
-        $urlRouterProvider.otherwise('/dashboard/');
+        $resourceProvider.defaults.stripTrailingSlashes = true;
+        $urlRouterProvider.otherwise('/dashboard');
+        $breadcrumbProvider.setOptions({
+            templateUrl: 'breadcrumbs.html'
+        });
     }
 ]);

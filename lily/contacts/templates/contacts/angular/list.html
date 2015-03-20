@@ -23,7 +23,7 @@
                 <div class="tools col-xs-12 col-md-6">
                     <form class="form-inline pull-right" action="index.html">
                         <div class="input-group">
-                            <input type="text" class="form-control" ng-model="table.filter">
+                            <input type="text" class="form-control" ng-model="table.filter" placeholder="Search..">
                             <span class="input-group-btn">
                                 <button class="btn red-pink" ng-click="setFilter('')" ng-disabled="!table.filter">
                                     <i class="fa fa-times"></i>
@@ -78,14 +78,16 @@
                         <tr ng-repeat="contact in table.items">
                             <td>
                                 <a href="/contacts/edit/{{ ::contact.id }}/" class="btn btn-xs default" title="Edit">
-                                    <i class="icon-edit"></i>
+                                    <i class="fa fa-edit"></i>
                                 </a>
                                 <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
-                                    <i class="icon-trash"></i>
+                                    <i class="fa fa-trash"></i>
                                 </button>
                             </td>
                             <td ng-show="table.visibility.name">
-                                <a href="/contacts/details/{{ ::contact.id }}/" title="{{ ::contact.name }}">{{ ::contact.name }}</a>
+                                <a ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.name }}">
+                                    {{ ::contact.name }}
+                                </a>
                             </td>
                             <td ng-show="table.visibility.contactInformation">
                                 <div ng-repeat="email in contact.email">
@@ -112,13 +114,17 @@
                                     <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
                                 </div>
                             </td>
-                            <td ng-show="table.visibility.created">{{ ::contact.created | relativeDate }}</td>
-                            <td ng-show="table.visibility.modified">{{ ::contact.modified | relativeDate }}</td>
+                            <td ng-show="table.visibility.created">
+                                {{ ::contact.created | relativeDate }}
+                            </td>
+                            <td ng-show="table.visibility.modified">
+                                {{ ::contact.modified | relativeDate }}
+                            </td>
                             <td ng-show="table.visibility.tags">
-                                    <span ng-repeat="tag in contact.tag">
-                                        <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
-                                        <br>
-                                    </span>
+                                <span ng-repeat="tag in contact.tag">
+                                    <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
+                                    <br>
+                                </span>
                             </td>
                         </tr>
                     </tbody>

@@ -84,8 +84,11 @@ angular.module('lilyControllers', [])
                 }
             })
             .state('base.dashboard', {
-                url: '/dashboard/',
+                url: '/dashboard',
                 template: 'dashboard.html',
-                controller: 'DashboardController'
+                controller: 'DashboardController',
+                ncyBreadcrumb: {
+                    label: 'Dashboard'
+                }
             });
     }]);

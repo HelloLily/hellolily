@@ -17,6 +17,9 @@ PIPELINE_CSS = {
 
             # App
             # 'lily/sass/global.sass',
+            'metronic/assets/admin/pages/css/profile-old.css',
+            'lily/css/profile.css',
+            'metronic/assets/admin/pages/css/timeline-old.css',
         ),
         'output_filename': 'metronic/css/global.css',
     },
@@ -189,21 +192,32 @@ PIPELINE_JS = {
             'metronic/assets/admin/layout4/scripts/layout.js',
             'metronic/assets/admin/layout4/scripts/demo.js',
 
-            # Angular
+            # Angular base
             'plugins/angular/angular.js',
             'plugins/angular/angular-cookies.js',
             'plugins/angular/angular-resource.js',
             'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
             'plugins/angular/angular-ui-router/angular-ui-router.js',
+            'plugins/angular/angular-sanitize/angular-sanitize.js',
+            'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
 
-            # App
+            # Angular lily app
             'lily/js/angular/app.js',
             'lily/js/angular/controllers.js',
             'lily/js/angular/directives.js',
             'lily/js/angular/filters.js',
             'lily/js/angular/services.js',
+
+            'accounts/js/angular/services.js',
+
+            'cases/js/angular/services.js',
+
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
+
+            'email/js/angular/services.js',
+
+            'notes/js/angular/services.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

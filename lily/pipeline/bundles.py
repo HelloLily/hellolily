@@ -321,6 +321,7 @@ PIPELINE_JS = {
             'lily/angular/email/controllers.js',
             'lily/angular/email/services.js',
             'lily/angular/notes/services.js',
+            'lily/angular/users/services.js',
         ),
         'output_filename': 'compiled/js/angularapp.js',
     },

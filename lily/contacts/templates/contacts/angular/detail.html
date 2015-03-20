@@ -1,6 +1,6 @@
 {% verbatim %}
 <script id="contacts/contact-detail.html" type="text/ng-template">
-    <a ng-href="/contacts/edit/{{ ::contact.id }}/" class="btn blue"><i class="icon-edit"></i>Edit</a>
+    <a ui-sref="base.contacts.edit({ id: contact.id })" class="btn blue"><i class="icon-edit"></i>Edit</a>
     <!--  Note remove xhr when merging! -->
     <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="icon-trash"></i>Delete</a>
     <div ng-cloak ng-if="::contact.description">

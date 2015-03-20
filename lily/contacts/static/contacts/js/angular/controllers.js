@@ -57,7 +57,9 @@ contacts.config(['$stateProvider', function($stateProvider) {
         url: '/edit/{id:[0-9]{1,4}}',
         views: {
             '@': {
-                templateUrl: '/contacts/edit/18/.html',
+                templateUrl: function(elem, attr) {
+                    return '/contacts/edit/' + elem.id +'/';
+                },
                 controller: 'ContactListController'
             }
         },

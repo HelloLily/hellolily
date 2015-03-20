@@ -125,7 +125,7 @@ angular.module('contactControllers', [
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
                         $scope.history.push(item);
                     });
-                    $scope.history.splice(size, $scope.history.length);
+                    $scope.limitSize = size;
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';

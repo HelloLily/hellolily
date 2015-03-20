@@ -7,7 +7,7 @@
     class="btn btn-primary" ng-click="opts.history_type=type.type">{{type.name}}</button>
 </div><br/>
 <ul class="timeline" id="history-list">
-    <li ng-repeat="item in history | filter:{history_type:opts.history_type}" class="history-list-item" ng-class="'timeline-' + item.color">
+    <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{history_type:opts.history_type}" class="history-list-item" ng-class="'timeline-' + item.color">
         <div ng-if="::item.history_type=='case'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>

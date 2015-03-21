@@ -59,13 +59,14 @@ class AddContactQuickbuttonForm(HelloLilyModelForm):
         """
         for email in self.cleaned_data['emails']:
             # Check if input is a real email address
-            validate_email(email)
-            # Check if email address already exists under different account
-            if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
-                raise ValidationError(
-                    _('E-mail address already in use.'),
-                    code='invalid',
-                )
+            if email:
+                validate_email(email)
+                # Check if email address already exists under different account
+                if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
+                    raise ValidationError(
+                        _('E-mail address already in use.'),
+                        code='invalid',
+                    )
         return self.cleaned_data['emails']
 
     def clean(self):

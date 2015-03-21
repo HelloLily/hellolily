@@ -1,10 +1,14 @@
 {% load i18n utils %}
 
 {% verbatim %}
+<div class="text-center">
+    <button ng-repeat="type in ::history_types"
+    ng-class="{'active': opts.history_type==type.type}"
+    class="btn btn-primary" ng-click="opts.history_type=type.type">{{type.name}}</button>
+</div><br/>
 <ul class="timeline" id="history-list">
-    <li ng-repeat="item in history" class="history-list-item"
-    ng-class="{'timeline-yellow': item.note, 'timeline-green': item.email, 'timeline-grey': item.caseItem, 'timeline-blue': item.deal}">
-        <div ng-if="::item.caseItem">
+    <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{history_type:opts.history_type}" class="history-list-item" ng-class="'timeline-' + item.color">
+        <div ng-if="::item.history_type=='case'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
@@ -23,19 +27,28 @@
                     Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
                     Priority: {{ ::item.priority_name }}<br/>
                     Type: {{ ::item.casetype_name}}<br/>
+                    <br/>
+                    <div ng-repeat="note in ::item.notes">
+                        <div class="bg-yellow">
+                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
+                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                        </div><br/>
+                    </div>
                     <a ng-href="/cases/update/{{ ::item.id }}/" class="nav-link pull-right">
                         Edit<i class="icon-edit"></i>
                     </a>
                     <a ng-href="/cases/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
+                    <a ng-href="/cases/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
                     <br/>
                     <i class="icon-user"></i>{{ ::item.created_by }}
                     <span ng-if="::item.assigned_to_name"><small>assigned to</small> {{ ::item.assigned_to_name }}</span>
                 </div>
             </div>
         </div>
-        <div ng-if="::item.deal">
+        <div ng-if="::item.history_type=='deal'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
@@ -56,19 +69,27 @@
                     {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
                     Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
                     Amount once: {{ ::item.amount_once }}<br/>
-                    Amount recurring: {{ ::item.amount_recurring}}<br/>
+                    Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
+                    <div ng-repeat="note in ::item.notes">
+                        <div class="bg-yellow">
+                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
+                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                        </div><br/>
+                    </div>
                     <a ng-href="/deals/update/{{ ::item.id }}/" class="nav-link pull-right">
                         Edit<i class="icon-edit"></i>
                     </a>
                     <a ng-href="/deals/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/deals/delete/{{ ::item.id }}/">
                         Delete<i class="icon-trash"></i>
                     </a>
+                    <a ng-href="/deals/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
                     <br/>
                     <i class="icon-user"></i>{{ ::item.assigned_to_name }}
                 </div>
             </div>
         </div>
-        <div ng-if="::item.note">
+        <div ng-if="::item.history_type=='note'">
             <div class="timeline-time">
                 <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
                     <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
@@ -97,7 +118,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="::item.email">
+        <div ng-if="::item.history_type=='email'">
             <div class="timeline-time">
                 <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>

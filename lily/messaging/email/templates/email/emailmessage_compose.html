@@ -13,7 +13,7 @@
         <h1 class="pull-left">{% trans 'Compose' %}</h1>
     </div>
     <div class="inbox-content">
-        {{ form.non_field_errors }}
+        <span class="text-danger">{{ form.non_field_errors }}</span>
 
         <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
@@ -106,14 +106,35 @@
             var templateList = {{ template_list|safe }};
         {% endif %}
         $(function($) {
-            var loadDefaultTemplate = '{{ form.template.value|default:'' }}' === '';
+            var loadDefaultTemplate = null;
+
+            // Only do template stuff if there are no errors (to prevent templates loading twice)
+            if (!'{{ form.non_field_errors }}') {
+                loadDefaultTemplate = '{{ form.template.value|default:'' }}' === '';
+            }
+
+            var urlRecipient = null;
+
+            if ('{{ recipient|default:'' }}' != '') {
+                // The text which is actually used in the application
+                var used_text = '"' + '{{ recipient.full_name }}' + '" <' + '{{ email_address }}' + '>';
+                // The displayed text
+                var displayed_text = '{{ recipient.full_name }} <' + '{{ email_address }}' + '>';
+
+                urlRecipient = {
+                    id: used_text,
+                    text: displayed_text,
+                    object_id: '{{ recipient.id }}'
+                };
+            }
 
             HLInbox.initEmailCompose({
                 defaultEmailTemplateUrl: '{% url 'messaging_email_template_get_default' %}',
                 getTemplateUrl: '{% url 'messaging_email_get_template' %}',
                 messageType: '{{ form.message_type }}',
                 fromContact: '{{ form.from_contact.id }}',
-                loadDefaultTemplate: loadDefaultTemplate
+                loadDefaultTemplate: loadDefaultTemplate,
+                urlRecipient: urlRecipient
             });
         });
     </script>

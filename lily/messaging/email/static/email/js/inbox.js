@@ -136,13 +136,20 @@
 
             self.initWysihtml5();
 
-            if (self.config.loadDefaultTemplate) {
-                // If no template was given in the url, load the default template
-                self.loadDefaultEmailTemplate();
+            // If loadDefaultTemplate isn't set there was an error, so don't do any template loading
+            if (self.config.loadDefaultTemplate !== null) {
+                if (self.config.loadDefaultTemplate) {
+                    // If no template was given in the url, load the default template
+                    self.loadDefaultEmailTemplate();
+                }
+                else {
+                    // Otherwise trigger change event so the given template gets loaded
+                    $(self.config.templateField).change();
+                }
             }
-            else {
-                // Otherwise trigger change event so the given template gets loaded
-                $(self.config.templateField).change();
+
+            if (self.config.urlRecipient) {
+                $(self.config.sendToNormalField).select2('data', self.config.urlRecipient);
             }
         },
 

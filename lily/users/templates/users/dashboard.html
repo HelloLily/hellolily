@@ -1,6 +1,6 @@
 {% extends 'page.html' %}
 
-{% load bootstrap3 humanize i18n utils compressed %}
+{% load i18n compressed %}
 
 {% block css %}
     {{ block.super }}
@@ -10,179 +10,26 @@
 {% block head-title %}{% trans 'HelloLily' %}{% endblock %}
 {% block page-title %}{% trans 'Dashboard' %}{% endblock %}
 
-{% block page-container %}
-<div class="row">
-    <div class="col-md-12">
-        <h4>{% trans 'Welcome to the HelloLily beta!' %}</h4>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="alert alert-info">
-            {% trans "I'd like you to help me the best personal assistant on the web. Please report you bugs, questions and ideas via the <strong>support</strong> link in the menu." %}
-        </div>
-    </div>
-</div>
-
-<hr />
-
-<div class="row">
-    <div class="col-md-6">
-        <h3><i class="icon-user"></i> {% trans 'Latest contacts' %}</h3>
-        <table class="table">
-            {% for item in contact_list %}
-            <tr>
-                <td>
-                    <a href="{% url 'contact_details' pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
-                </td>
-                <td>
-                    {{ item.created|naturaltime }}
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>
-                </td>
-                <td>
-                    <a href="{% url 'contact_list' %}">{% trans 'All contacts' %}</a>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div class="col-md-6">
-        <h3><i class="icon-building"></i> {% trans 'Latest accounts' %}</h3>
-        <table class="table">
-            {% for item in account_list %}
-            <tr>
-                <td>
-                    <a href="{% url 'account_details' pk=item.pk %}" title="{% trans 'View details for ' %} {{ item }}">{{ item }}</a>
-                </td>
-                <td>
-                    {{ item.created|naturaltime }}
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td>
-                </td>
-                <td>
-                    <a href="{% url 'account_list' %}">{% trans 'All accounts' %}</a>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-
-<hr />
-
-<div class="row">
-    <div class="col-md-6 news-page blog-page">
-        <div class="blog-tag-data">
-            <h3><i class="icon-comments"></i> {% trans 'Microblog' %}</h3>
-
-            <div id="microblog-form">
-                <div class="form-group">
-                    <form method="post" action="{% url 'blogentry_add' %}">
-                        {% csrf_token %}
-
-                        <div class="form-group">
-                            {% bootstrap_field form.content layout="horizontal" form_group_class="form-group-inline" field_class="col-md-10 clearfix" label_class="hidden" %}
-                            <button type="submit" class="btn btn-primary">{% trans 'Post' %}</button>
-                            <div class="clearfix"></div>
-                        </div>
-                    </form>
+{% block page-content %}
+    {% verbatim %}
+    <div class="row">
+        <div class="col-md-12" ng-controller="DashboardController">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet title">
+                        <h4>Dashboard</h4>
+                    </div>
                 </div>
             </div>
-
-            {% comment %}
-                {# New paginator style conflicts with blog post page style #}
-                <ul class="pager">
-                    <li class="previous disabled">
-                        <a href="#">
-                            <i class="icon-long-arrow-left"></i>
-                            Older
-                        </a>
-                    </li>
-                    <li>
-                        <form action="/" method="post" autocomplete="off">
-                            <input type="hidden" name="csrfmiddlewaretoken" value="6wr2jfAShzi0u0bPSwIbnn4v3LqIDZLj">
-                            Page <input type="text" name="page" class="page-number mws-textinput" value="1"> of 1
-                            <input type="submit" class="hidden submit" value="">
-                        </form>
-                    </li>
-                    <li class="next">
-                        <a href="#">
-                            Newer
-                            <i class="icon-long-arrow-right"></i>
-                        </a>
-                    </li>
-                </ul>
-
-
-                {# Old paginator #}
-                <ul id="microblog-paginator">
-                    <li class="paginator previous {% if not page.has_previous %}disabled{% endif %}">
-                        {% if page.has_previous %}
-                            {% if has_tag_filter %}
-                                <a href="{% url 'dashboard_tag' page=page.previous_page_number tag=tag %}">
-                            {% else %}
-                                <a href="{% url 'dashboard' page=page.previous_page_number %}">
-                            {% endif %}
-                        {% endif %}
-                            &laquo; Previous
-                        {% if page.has_previous %}</a>{% endif %}
-                    </li>
-                    <li class="paginator page current mws-form">
-                        <form action="{% url 'dashboard' %}" method="post" autocomplete="off">
-                            {% csrf_token %}
-
-                            {% if has_tag_filter %}
-                                <input type="hidden" name="tag" value="{{ tag }}"/>
-                            {% endif %}
-
-                            {% trans 'Page' %} <input type="text" name="page" class="page-number mws-textinput" value="{{ page.number }}" /> {% trans 'of' %} {{ paginator.num_pages }}
-                            <input type="submit" class="hidden submit" value=""/>
-                        </form>
-                    </li>
-                    <li class="paginator next {% if not page.has_next %}disabled{% endif %}">
-                        {% if page.has_next %}
-                            {% if has_tag_filter %}
-                                <a href="{% url 'dashboard_tag' page=page.next_page_number tag=tag %}">
-                            {% else %}
-                                <a href="{% url 'dashboard' page=page.next_page_number %}">
-                            {% endif %}
-                        {% endif %}
-                            Next &raquo;
-                        {% if page.has_next %}</a>{% endif %}
-                    </li>
-                </ul>
-            {% endcomment %}
-
-            <p>
-                {% if blogentry_list and has_tag_filter %}
-                    {% trans 'Filtered by' %} '#{{ tag }}',
-                    <a href="{% url 'dashboard' %}">{% trans 'remove filter' %}</a>
-                    {% include 'microblog_list.html' with blogentry_list=blogentry_list %}
-                {% elif blogentry_list %}
-                    {% include 'microblog_list.html' with blogentry_list=blogentry_list %}
-                {% elif has_tag_filter %}
-                    {% blocktrans with tag=tag %}No entries found for #{{ tag }}.{% endblocktrans %} <a href="{% url 'dashboard' %}">{% trans 'Show everything' %}</a>.
-                {% else %}
-                    {% trans 'There are no entries in the microblog yet.' %}
-                {% endif %}
-            </p>
+            <div class="row">
+                <callback-requests></callback-requests>
+                <my-cases></my-cases>
+                <unread-email></unread-email>
+                <unassigned-cases></unassigned-cases>
+            </div>
         </div>
     </div>
-</div>
-{% if user.is_staff or user|in_group:'account_admin' %}
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <h3>Other things you can do</h3>
-        <a href="{% url 'invitation_invite' %}">click</a> <span class="things-you-can-do">Send invitations to new users</span>
-    </div>
-</div>
-{% endif %}
+    {% endverbatim %}
 {% endblock %}
 
 {% block modals %}
@@ -191,4 +38,10 @@
         <div id="blogentry-reply" class="modal fade" tabindex="-1" role="dialog"></div>
         <div id="confirm-delete" class="modal fade" tabindex="-1" role="dialog"></div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% compressed_js 'angularapp' %}
+    {% include 'angulartemplates.html' %}
 {% endblock %}

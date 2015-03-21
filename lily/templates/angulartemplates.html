@@ -1,0 +1,195 @@
+{% verbatim %}
+<script id="dashboard/unreademail.html" type="text/ng-template">
+<div class="col-md-6">
+    <div class="portlet light">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fa fa-envelope-o"></i>
+                <span class="caption-subject bold uppercase"> UNREAD E-MAIL</span>
+                <span class="caption-helper">({{ emailMessages.length }})</span>
+            </div>
+            <div class="tools">
+                <a href="" class="collapse" data-original-title="" title=""></a>
+                <a href="" class="remove" data-original-title="" title=""></a>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="scroll-body" slimscroll>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Mailbox <i class="fa fa-sort-up"></i></th>
+                            <th>From</th>
+                            <th>Subject</th>
+                            <th>Created <i class="fa fa-sort"></i></th>
+                            <th width="105px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="message in emailMessages">
+                            <td>{{ message.account_name }}</td>
+                            <td>{{ message.sender_name || message.sender_email }}</td>
+                            <td>
+                                <div>{{ message.subject }}</div><br>
+                                <div><em>{{ message.snippet }}</em></div>
+                            </td>
+                            <td>{{ message.sent_date | relativeDate }}</td>
+                            <td>
+                                <div><a ng-href="/messaging/email/reply/{{ message.id }}/"><i class="fa fa-reply"></i> reply</a></div>
+                                <div><a ng-href="/messaging/email/#/detail/{{ message.id }}"><i class="fa fa-eye"></i> view</a></div>
+                                <div><i class="fa fa-sitemap"></i> create</div>
+                            </td>
+                        </tr>
+                            <tr ng-hide="emailMessages.length">
+                            <td colspan="5">No unread emailmessages</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script id="dashboard/unassignedcases.html" type="text/ng-template">
+    <div class="col-md-6" ng-repeat="team in teams">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-suitcase"></i>
+                    <span class="caption-subject bold uppercase"> {{team.name | uppercase}} CASES</span>
+                    <span class="caption-helper">({{ team.cases.length }})</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Casenr. <i class="fa fa-sort-up"></i></th>
+                                <th>Client</th>
+                                <th>Subject</th>
+                                <th>Prio <i class="fa fa-sort"></i></th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-hide="team.cases.length">
+                                <td colspan="5">There are no unassigned cases for this team...</td>
+                            </tr>
+                            <tr ng-repeat="case in team.cases">
+                                <td><a href="/cases/details/{{ ::case.id }}/">{{ case.id }}</a></td>
+                                <td><a href="/contacts/details/{{ ::case.account.id }}/" ng-if="::case.account">{{ ::case.account.name }}</a></td>
+                                <td><a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ case.subject }}</a></td>
+                                <td>
+                                    <span class="label label-sm" ng-class="{'label-success': !case.priority[0], 'label-info': case.priority[0] === 1, 'label-warning': case.priority[0] === 2, 'label-danger': case.priority[0] === 3 } ">
+                                        {{ case.priority[1] }}
+                                    </span>
+                                </td>
+                                <td>{{ case.created  | relativeDate }}</td>
+                                <td><a data-toggle="modal" href="/cases/update/{{ case.id }}/" class='assign-me-btn'><i class="fa fa-anchor"></i> Edit</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script id="dashboard/mycases.html" type="text/ng-template">
+    <div class="col-md-6">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-briefcase"></i>
+                    <span class="caption-subject bold uppercase"> MY CASES</span>
+                    <span class="caption-helper">({{ mycases.length }})</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Case nr. <i class="fa fa-sort"></i></th>
+                                <th>Client</th>
+                                <th>Subject</th>
+                                <th>Prio <i class="fa fa-sort"></i></th>
+                                <th>Status</th>
+                                <th>Exp date <i class="fa fa-sort-up"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="mycase in mycases">
+                                <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.id }}</a></td>
+                                <td><a ng-href="accounts/details/{{ mycase.account.id }}/">{{ mycase.account.name }}</a></td>
+                                <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.subject }}</a></td>
+                                <td>
+                                <span title="3"></span>
+                                <span class="label label-sm ng-binding label-info" ng-class="{'label-success': !mycase.priority, 'label-info': mycase.priority[0] === 1, 'label-warning': mycase.priority[0] === 2, 'label-danger': mycase.priority[0] === 3 } ">{{ mycase.priority[1] }}</span>
+                                </td>
+                                <td>{{ mycase.status }}</td>
+                                <td>{{ mycase.expires | relativeDate }}</td>
+                            </tr>
+                            <tr ng-hide="mycases.length">
+                                <td colspan="6">No cases</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script id="dashboard/callbackrequests.html" type="text/ng-template">
+    <div class="col-md-6">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-phone"></i>
+                    <span class="caption-subject bold uppercase"> CALLBACK REQUESTS</span>
+                    <span class="caption-helper">({{ callbackRequests.length }})</span>
+                </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Contact</th>
+                                <th>Phonenumber</th>
+                                <th>Subject</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="case in callbackRequests">
+                                <td><a ng-href="/accounts/details/{{ case.account.id }}/">{{ case.account.name }}</a></td>
+                                <td><a ng-href="/contacts/details/{{ case.contact.id }}/">{{ case.contact.full_name }}</a></td>
+                                <td>
+                                    <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
+                                    <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
+                                </td>
+                                <td>{{ case.subject }}</td>
+                                <td>{{ case.created | relativeDate }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

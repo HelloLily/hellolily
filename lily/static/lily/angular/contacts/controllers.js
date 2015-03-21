@@ -29,6 +29,13 @@ angular.module('contactControllers', [
         '$q',
         '$filter',
         function(Contact, Case, Note, Email, EmailAccount, $scope, $q, $filter) {
+            $scope.opts = {history_type: ''};
+            $scope.history_types = [
+                {type: '', name: 'All'},
+                {type: 'case', name: 'Cases'},
+                {type: 'email', name: 'Emails'},
+                {type: 'note', name: 'Notes'}
+            ]
             $scope.showMoreText = 'Show more';
             var id = window.location.pathname;
             if (id.substr(-1) == '/') {
@@ -82,12 +89,14 @@ angular.module('contactControllers', [
                     var history = [];
                     var notes = results[0];
                     notes.forEach(function(note) {
-                        note.note = true;
+                        note.history_type = 'note';
+                        note.color = 'yellow';
                         history.push(note);
                     });
                     var emails = results[1];
                     emails.forEach(function(email) {
-                        email.email = true;
+                        email.history_type = 'email';
+                        email.color = 'green';
                         email.date = email.sent_date;
                         email.right = false;
                         // Check if the sender is from tenant.
@@ -100,16 +109,23 @@ angular.module('contactControllers', [
                     });
                     var cases = results[2];
                     cases.forEach(function(caseItem) {
-                        caseItem.caze = true;
+                        caseItem.history_type = 'case';
+                        caseItem.color = 'grey';
                         caseItem.date = caseItem.expires;
                         history.push(caseItem);
+                        Note.query({
+                            filterquery: 'content_type:case AND object_id:' + caseItem.id,
+                            size: 5,
+                        }).$promise.then(function(notes) {
+                            caseItem.notes = notes;
+                        })
                     });
 
                     $scope.history.splice(0, $scope.history.length);
                     $filter('orderBy')(history, 'date', true).forEach(function(item) {
                         $scope.history.push(item);
                     });
-                    $scope.history.splice(size, $scope.history.length);
+                    $scope.limitSize = size;
                     size += add;
                     if ($scope.history.length == 0) {
                         $scope.showMoreText = 'No history (refresh)';

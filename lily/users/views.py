@@ -28,7 +28,7 @@ from lily.contacts.models import Contact
 from lily.updates.forms import CreateBlogEntryForm
 from lily.updates.models import BlogEntry
 from lily.utils.functions import is_ajax
-from lily.utils.views import MultipleModelListView
+from lily.utils.views import AngularView
 from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
@@ -459,82 +459,11 @@ class AcceptInvitationView(FormView):
         return redirect(reverse_lazy('login'))
 
 
-class DashboardView(LoginRequiredMixin, MultipleModelListView, TemplateView):
+class DashboardView(LoginRequiredMixin, AngularView):
     """
     This view shows the dashboard of the logged in user.
     """
     template_name = 'users/dashboard.html'
-    models = [Account, Contact, BlogEntry]
-    page_size = 100000000  # TODO: temporarily remove pagination
-
-    def post(self, request, *args, **kwargs):
-        """
-        Redirect to display a certain page when jumping towards one.
-        """
-        if 'page' in self.request.POST:
-            try:
-                location = 'dashboard'
-                kwargs = {
-                    'page': int(self.request.POST.get('page'))
-                }
-                if 'tag' in self.request.POST:
-                    kwargs.update({'tag': self.request.POST.get('tag')})
-                    location += '_tag'
-
-                return redirect(reverse(location, kwargs=kwargs))
-            except:
-                return redirect(self.request.META['HTTP_REFERER'])
-
-        return super(DashboardView, self).post(request, *args, **kwargs)
-
-    def get_model_queryset(self, list_name, model):
-        """
-        Return the five newest objects for Accounts and Contacts. Paginate objects for BlogEntry later.
-        """
-        if model is BlogEntry:
-            return model._default_manager.order_by('-created').all().filter(reply_to=None)
-
-        return model._default_manager.order_by('-created').all()[:5]
-
-    def get_context_data(self, **kwargs):
-        """
-        Paginate the BlogEntry queryset and search for a certain tag when provided.
-        """
-        context = super(DashboardView, self).get_context_data()
-        context.update(kwargs)
-
-        # Paginate BlogEntry
-        blogentry_list = context.pop('blogentry_list')
-
-        # Filter by tag?
-        if self.kwargs.get('tag', False):
-            blogentry_list = BlogEntry.objects.filter(
-                content__contains=urlunquote(self.kwargs.get('tag'))
-            ).order_by('-created')
-
-        paginator = Paginator(blogentry_list, self.page_size)
-
-        current_page = self.kwargs.get('page')
-        try:
-            page = paginator.page(current_page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            page = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            page = paginator.page(paginator.num_pages)
-
-        context.update({
-            'paginator': paginator,
-            'page': page,
-            'blogentry_list': page.object_list,
-            'blogentry_form': CreateBlogEntryForm,
-            'has_tag_filter': 'tag' in self.kwargs,
-            'tag': self.kwargs.get('tag', None),
-            'form': CreateBlogEntryForm(self.request.POST or None)
-        })
-
-        return context
 
 
 class CustomSetPasswordView(FormView):

@@ -540,7 +540,8 @@ def es_url_to_dict(url):
             'http_auth': '%s:%s' % (parse.username, parse.password)}
     return tuple(sorted(host.items()))
 
-ES_URLS = [es_url_to_dict(os.environ.get('SEARCHBOX_SSL_URL', 'http://localhost:9200'))]
+ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'SEARCHBOX_SSL_URL')
+ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://localhost:9200'))]
 
 # The indexes Elasticsearch uses.
 ES_INDEXES = {'default': 'main_index', 'new_index': 'new_index'}

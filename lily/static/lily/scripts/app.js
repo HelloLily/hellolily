@@ -277,6 +277,8 @@ if (typeof String.prototype.endsWith != 'function') {
                     if(response.error) {
                         if(response.html) {
                             self.updateModal($form, response.html);
+                            // all forms get blocked on submit, so unblock if there's an error
+                            App.unblockUI($form, false, '');
                         }
                         // loads notifications if any
                         load_notifications();
@@ -288,7 +290,6 @@ if (typeof String.prototype.endsWith != 'function') {
                         } else {
                             // fool the "confirm prevent accidental close" popup from triggering
                             $form.data('serialized_form', $form.serialize());
-
                             $form.closest('.modal').modal('hide');
                         }
                         // loads notifications if any

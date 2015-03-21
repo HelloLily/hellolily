@@ -1,10 +1,11 @@
 /**
  * lilyApp Module is the entry point for Lily related Angular code
  */
-angular.module('lilyApp', [
+var lilyApp = angular.module('lilyApp', [
     'accountControllers',
     'caseControllers',
     'contactControllers',
+    'dashboardControllers',
     'dealControllers',
     'emailControllers',
 
@@ -12,7 +13,9 @@ angular.module('lilyApp', [
     'lilyDirectives',
     'lilyFilters',
     'lilyServices'
-]).config(['$resourceProvider', function($resourceProvider) {
+]);
+
+lilyApp.config(['$resourceProvider', function($resourceProvider) {
   // Don't strip trailing slashes from calculated URLs
   $resourceProvider.defaults.stripTrailingSlashes = false;
 }]);

@@ -15,9 +15,9 @@ angular.module('contactServices', ['ngResource'])
         }
         function getPhones(contact) {
             var phones = [];
-            if (contact.phone_mobile) phones = phones.concat(contact.phone_mobile)
-            if (contact.phone_work) phones = phones.concat(contact.phone_work)
-            if (contact.phone_other) phones = phones.concat(contact.phone_other)
+            if (contact.phone_mobile) phones = phones.concat(contact.phone_mobile);
+            if (contact.phone_work) phones = phones.concat(contact.phone_work);
+            if (contact.phone_other) phones = phones.concat(contact.phone_other);
             return phones;
         }
         return $resource(

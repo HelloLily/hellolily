@@ -28,10 +28,12 @@
         },
 
         setupSelect2: function() {
+            // Setup select2 for non-ajaxified selects, ajaxified selects
+            // are using hidden inputs.
             $('select').select2({
                 // at least this many results are needed to enable the search field
                 // (9 is the amount at which the user must scroll to see all items)
-                minimumResultsForSearch: 9
+                minimumResultsForSearch: 9,
             });
             this.createTagInputs();
             this.createAjaxInputs();
@@ -54,16 +56,23 @@
 
         createAjaxInputs: function() {
             // Setup inputs that needs remote link
-            var self = this,
-                cf = self.config;
+            var self = this;
+            var cf = self.config;
+
             $(cf.ajaxInputs).each(function() {
                 var $this = $(this);
+                var _data = $this.data();
+                // _data.tags is a marker for AjaxSelect2Widget that indicates
+                // that it expects multiple values as input.
+
                 var options = {
                     ajax: {
                         cache: true,
-                        data: function (term, page) { // page is the one-based page number tracked by Select2
+                        data: function (term, page) {
+                            // page is the one-based page number tracked by Select2
                             var data = null;
-                            if ($this.hasClass(cf.tagsAjaxClass)) {
+
+                            if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
                                 if (term === '') {
                                     // elasticsearch breaks when the term is empty, so just look for non-empty results
                                     term = '*';
@@ -80,6 +89,7 @@
                                     sort: '-modified' //sort modified descending
                                 };
                             }
+
                             else {
                                 var term_stripped = term.trim();
                                 data = {
@@ -110,24 +120,23 @@
 
                             return data;
                         },
+
                         results: function (data, page) {
                             var more = (page * cf.ajaxPageLimit) < data.total; // whether or not there are more results available
 
-                            if ($this.hasClass(cf.tagsAjaxClass)) {
+                            if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
                                 var parsed_data = [];
 
                                 data.hits.forEach(function(hit) {
-                                    if ($this.hasClass(cf.tagsAjaxClass)) {
-                                        // Only display contacts with an e-mail address
-                                        for (var i = 0; i < hit.email.length; i++) {
-                                            // The text which is actually used in the application
-                                            var used_text = '"' + hit.name + '" <' + hit.email[i] + '>';
-                                            // The displayed text
-                                            var displayed_text = hit.name + ' <' + hit.email[i] + '>';
-                                            // Select2 sends 'id' as the value, but we want to use the email
-                                            // So store the actual id (hit.id) under a different name
-                                            parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
-                                        }
+                                    // Only display contacts with an e-mail address
+                                    for (var i = 0; i < hit.email.length; i++) {
+                                        // The text which is actually used in the application
+                                        var used_text = '"' + hit.name + '" <' + hit.email[i] + '>';
+                                        // The displayed text
+                                        var displayed_text = hit.name + ' <' + hit.email[i] + '>';
+                                        // Select2 sends 'id' as the value, but we want to use the email
+                                        // So store the actual id (hit.id) under a different name
+                                        parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
                                     }
                                 });
 
@@ -140,8 +149,8 @@
                                 });
                             }
 
-                            // Add clear option
-                            if (page == 1 && !$this.hasClass(cf.tagsAjaxClass)) {
+                            // Add clear option, but not for multiple select2.
+                            if ((page == 1 && !$this.hasClass(cf.tagsAjaxClass)) && !_data.tags) {
                                 data.hits.unshift({id: -1, text:cf.clearText});
                             }
                             return {
@@ -150,6 +159,7 @@
                             };
                         }
                     },
+
                     initSelection: function (item, callback) {
                         var id = item.val();
                         var text = item.data('selected-text');
@@ -176,7 +186,18 @@
                     options.openOnEnter = false;
                 }
 
+                // Set select2 to multiple.
+                if(_data.tags) {
+                    options.tags = true;
+                    options.multiple = true;
+                }
+
                 $this.select2(options);
+                // Set the initial form value from a JSON encoded data
+                // attribute called data-initial.
+                if(_data.tags) {
+                    $this.select2("data", _data.initial);
+                }
             });
         }
     };

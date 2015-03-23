@@ -1,3 +1,5 @@
+import json
+
 from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
@@ -111,7 +113,7 @@ class DatePicker(DateTimePicker):
         self.div_attrs = div_attrs and div_attrs.copy() or {}
         self.icon_attrs = icon_attrs and icon_attrs.copy() or {}
         self.picker_id = self.div_attrs.get('id') or None
-        if options == False:  # datetimepicker will not be initalized only when options is False
+        if options is False:  # datetimepicker will not be initalized only when options is False
             self.options = False
         else:
             self.options = options and options.copy() or {}
@@ -122,7 +124,8 @@ class DatePicker(DateTimePicker):
 
 class LilyDateTimePicker(DatePicker):
     """
-    Modified DatePicker to support times. Note: It uses bootstrap-datetimepicker plugin instead of bootstrap-datepicker.
+    Modified DatePicker to support times. Note: It uses bootstrap-datetimepicker
+    plugin instead of bootstrap-datepicker.
     """
     format_map = (
         ('dd', r'%d'),
@@ -148,7 +151,7 @@ class AddonTextInput(TextInput):
     Creates a text input with an addon (icon)
     """
     def __init__(self, attrs=None, div_attrs=None, button_attrs=None, icon_attrs=None):
-        if not 'is_button' in icon_attrs.keys() or icon_attrs.get('is_button'):
+        if 'is_button' not in icon_attrs.keys() or icon_attrs.get('is_button'):
             span = '''
                 <span class="input-group-btn">
                     <button%(button_attrs)s><i%(icon_attrs)s></i></button>
@@ -204,9 +207,9 @@ class AddonTextInput(TextInput):
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
             input_attrs['value'] = force_text(self._format_value(value))
-        input_attrs = dict([(key, conditional_escape(val)) for key, val in input_attrs.items()])  # python2.6 compatible
+        input_attrs = dict([(key, conditional_escape(val)) for key, val in input_attrs.items()])
 
-        div_attrs = dict([(key, conditional_escape(val)) for key, val in self.div_attrs.items()])  # python2.6 compatible
+        div_attrs = dict([(key, conditional_escape(val)) for key, val in self.div_attrs.items()])
         icon_attrs = dict([(key, conditional_escape(val)) for key, val in self.icon_attrs.items()])
         button_attrs = dict([(key, conditional_escape(val)) for key, val in self.button_attrs.items()])
 
@@ -341,18 +344,47 @@ class AjaxSelect2Widget(Widget):
         url (str): url for ajax call from Select2
         filter_on (str): id of field that Select2 adds as filter with ajax call
     """
-    def __init__(self, model, url, attrs=None, **kwargs):
+    def __init__(self, model, url, tags=None, attrs=None, **kwargs):
         super(AjaxSelect2Widget, self).__init__(attrs)
         self.model = model
         self.url = url
+        self.tags = tags
         self.filter_on = kwargs.get('filter_on', None)
 
     def render(self, name, value, attrs=None, *args):
         final_attrs = self.build_attrs(attrs, name=name)
 
+        if self.tags:
+            final_attrs['data-tags'] = True
+
+        if hasattr(self, 'data'):
+            # This is an ugly hack to pass the field's initial value
+            # to the select2, in case we got a multi-select version of select2.
+            initial = []
+            for data in self.data:
+                initial.append({'id': data.pk, 'text': data.name})
+
+            final_attrs['data-initial'] = json.dumps(initial)
+
+        else:
+            # Add initial value
+            if value:
+                final_attrs['value'] = value
+                if isinstance(value, basestring):
+                    selected_text = value
+                else:
+                    try:
+                        selected_text = str(self.model.objects.get(pk=value))
+                    except ObjectDoesNotExist:
+                        selected_text = ''
+
+                final_attrs['data-selected-text'] = selected_text
+
         final_attrs['data-ajax-url'] = self.url
 
-        if not isinstance(self.choices, list):
+        # Multi-select version doesn't have a choices field, but uses
+        # data-initial.
+        if hasattr(self, 'choices') and not isinstance(self.choices, list):
             final_attrs['placeholder'] = self.choices.field.empty_label
 
         if self.filter_on:
@@ -366,18 +398,7 @@ class AjaxSelect2Widget(Widget):
             class_attrs = 'select2ajax'
         final_attrs['class'] = class_attrs
 
-        # Add initial value
-        if value:
-            final_attrs['value'] = value
-            if isinstance(value, basestring):
-                selected_text = value
-            else:
-                try:
-                    selected_text = str(self.model.objects.get(pk=value))
-                except ObjectDoesNotExist:
-                    selected_text = ''
 
-            final_attrs['data-selected-text'] = selected_text
 
         return mark_safe('<input type="hidden"%s>' % flatatt(final_attrs))
 

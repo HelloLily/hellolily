@@ -44,4 +44,5 @@ class CaseSerializer(serializers.ModelSerializer):
             'status',
             'expires',
             'created',
+            'is_archived',
         )

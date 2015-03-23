@@ -191,14 +191,17 @@ class CreateUpdateCaseForm(TagsFormMixin):
                 'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'assigned_to_groups', 'assigned_to',),
+                'fields': ('subject', 'description', 'type',),
+            }),
+            (_('Who is going to do this?'), {
+                'fields': ('assigned_to_groups', 'assigned_to',),
             }),
             (_('When to do it?'), {
-                'fields': ('status', 'priority', 'expires', 'type', 'is_archived',),
+                'fields': ('status', 'priority', 'expires', 'is_archived',),
             }),
             (_('Parcel information'), {
                 'fields': ('parcel_provider', 'parcel_identifier',)
-            })
+            }),
         )
 
         widgets = {

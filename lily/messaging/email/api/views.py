@@ -28,7 +28,7 @@ class EmailAccountViewSet(viewsets.ReadOnlyModelViewSet):
             Q(owner=self.request.user) |
             Q(public=True) |
             Q(shared_with_users__id=self.request.user.pk)
-        )
+        ).distinct('id')
 
 
 class EmailMessageViewSet(mixins.RetrieveModelMixin,

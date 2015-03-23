@@ -13,8 +13,14 @@ def queryset_filter(request, queryset):
     is_assigned = request.GET.get('is_assigned', None)
     # Ugly filter hack due to not functioning django-filters booleanfilter.
     if is_assigned is not None:
-        is_assigned = is_assigned == "False"
+        is_assigned = is_assigned == 'False'
         queryset = queryset.filter(assigned_to__isnull=is_assigned)
+
+    is_archived = request.GET.get('is_archived', None)
+    # Ugly filter hack due to not functioning django-filters booleanfilter.
+    if is_archived is not None:
+        is_archived = is_archived == 'False'
+        queryset = queryset.filter(is_archived=is_archived)
 
     return queryset
 

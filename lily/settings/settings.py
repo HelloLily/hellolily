@@ -157,6 +157,12 @@ PIPELINE_CLOSURE_ARGUMENTS = '--language_in ECMASCRIPT5'
 
 PIPELINE_DISABLE_WRAPPER = True
 
+PIPELINE_COMPILERS = (
+    'pipeline.compilers.sass.SASSCompiler',
+)
+PIPELINE_SASS_BINARY = '/usr/bin/env sassc'
+PIPELINE_SASS_ARGUMENTS = '--output-style=expanded'
+
 COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
 
 try:
@@ -245,6 +251,7 @@ INSTALLED_APPS = (
     'lily',  # required for management commands
     'lily.accounts',
     'lily.cases',
+    'lily.dashboard',
     'lily.deals',
     'lily.contacts',
     'lily.messaging',

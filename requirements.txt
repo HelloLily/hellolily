@@ -71,7 +71,7 @@ django-pipeline==1.3.27  # Old version is: 1.3.25
 collectfast==0.2.1
 closure==20140110  # Older version for java compatibility on mac: 20121212
 yuicompressor==2.4.8
-# libsass  # for new theme version that has sass
+libsass==0.7.0  # for new theme version that has sass
 
 django-js-variable-injector==1.1.1
 django-statici18n==1.1.1  # Old version is: 1.1

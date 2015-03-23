@@ -1,10 +1,10 @@
 {% extends 'email/emailmessage_base.html' %}
 
-{% load compressed i18n email bootstrap3 %}
+{% load pipeline i18n email bootstrap3 %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'wysihtml5' %}
+    {% stylesheet 'wysihtml5' %}
 {% endblock %}
 
 {% block inbox %}
@@ -100,7 +100,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'wysihtml5' %}
+    {% javascript 'wysihtml5' %}
     <script>
         {% if template_list %}
             var templateList = {{ template_list|safe }};

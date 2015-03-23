@@ -1,11 +1,11 @@
 {% extends 'page.html' %}
 
-{% load compressed i18n email activelink js_injector static %}
+{% load pipeline i18n email activelink js_injector static %}
 
 {% block css %}
     {{ block.super }}
-    {% compressed_css 'inbox' %}
-    {% compressed_css 'tree' %}
+    {% stylesheet 'inbox' %}
+    {% stylesheet 'tree' %}
 {% endblock %}
 
 {% block hor-menu %}
@@ -50,7 +50,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% compressed_js 'inbox' %}
+    {% javascript 'inbox' %}
     <script>
     $(function($) {
         HLInbox.init({

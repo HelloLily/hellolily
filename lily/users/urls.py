@@ -33,7 +33,7 @@ urlpatterns = patterns('',
     url(r'^tag/(?P<tag>.+)/(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags and paging for microblog
     url(r'^tag/(?P<tag>.+)/$', DashboardView.as_view(), name='dashboard_tag'),  # including tags for microblog
     url(r'^(?P<page>[0-9]+)/$', DashboardView.as_view(), name='dashboard'),  # including paging for microblog
-    url(r'^$', DashboardView.as_view(), name='dashboard'),
+    # url(r'^$', DashboardView.as_view(), name='dashboard'),
 )
 
 # Views from django.contrib.auth.views

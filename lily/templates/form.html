@@ -1,36 +1,53 @@
 {% load bootstrap3 i18n %}
 
-<form class="form form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if form_prevent_autofill %}autocomplete="off"{% endif %} role="form">
-    {% block form %}
-        {% csrf_token %}
-
-        {% block form-fields %}
-            {% include 'form_fields.html' %}
-        {% endblock %}
-
-        {% block form-formsets %}
-            {% if formsets %}
-                <hr>
-                {% for context_name, formset in formsets.items %}
-                    {% include formset.template with formset=formset.instance label=formset.label %}
-                {% endfor %}
-            {% endif %}
-        {% endblock %}
-
-        {% block form-actions %}
-            <div class="clearfix"></div>
-            <div class="form-actions nobg fluid">
-                <div class="col-md-offset-2 col-md-10">
-                    {% block form-buttons %}
-                        <button type="submit" class="btn btn-primary" name="submit" data-loading-text="Saving...">
-                            <i class="icon-ok"></i> {% trans 'Save' %}
-                        </button>
-                        <a href="{{ back_url }}" class="btn btn-default">
-                            {% trans 'Back' %}
-                        </a>
-                    {% endblock %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <span class="caption-subject">
+                        test
+                    </span>
                 </div>
             </div>
-        {% endblock %}
-    {% endblock %}
-</form>
+            <div class="portlet-body form">
+                <form role="form" class="form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if form_prevent_autofill %}autocomplete="off"{% endif %} action="{{ request.path }}">
+                    {% csrf_token %}
+
+                    {% block form %}
+                        <div class="form-body">
+                            {% block form-fields %}
+                                {% include 'form_fields.html' %}
+                            {% endblock %}
+
+                            {% block form-formsets %}
+                                {% if formsets %}
+                                    <hr>
+                                    {% for context_name, formset in formsets.items %}
+                                        {% include formset.template with formset=formset.instance label=formset.label %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                        <div class="form-actions">
+                            {% block form-actions %}
+                                <div class="row">
+                                    <div class="col-md-offset-2 col-md-10">
+                                        {% block form-buttons %}
+                                            <a href="{{ back_url }}" class="btn default">
+                                                {% trans 'Back' %}
+                                            </a>
+                                            <button type="submit" class="btn blue" name="submit" data-loading-text="Saving...">
+                                                <i class="icon-ok"></i> {% trans 'Save' %}
+                                            </button>
+                                    {% endblock %}
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -295,7 +295,8 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
+        # return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
+        return '/#/contacts'
 
 
 class DeleteContactView(LoginRequiredMixin, DeleteView):

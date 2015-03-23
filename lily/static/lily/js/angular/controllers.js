@@ -19,13 +19,6 @@ angular.module('lilyControllers', [])
             console.log('base');
         }
     ])
-    .controller('DashboardController', [
-        '$scope',
-
-        function($scope) {
-            console.log('dashboard');
-        }
-    ])
     .controller('topNavActionsController', [
         '$scope',
 
@@ -87,14 +80,6 @@ angular.module('lilyControllers', [])
                         templateUrl: 'page-header.html',
                         controller: 'pageHeaderController'
                     }
-                }
-            })
-            .state('base.dashboard', {
-                url: '/dashboard',
-                template: 'dashboard.html',
-                controller: 'DashboardController',
-                ncyBreadcrumb: {
-                    label: 'Dashboard'
                 }
             });
     }]);

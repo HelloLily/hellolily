@@ -1,0 +1,51 @@
+{% verbatim %}
+    <script id="dashboard/unassignedcases.html" type="text/ng-template">
+        <div class="col-md-6" ng-repeat="team in teams">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-suitcase"></i>
+                        <span class="caption-subject bold uppercase"> {{team.name | uppercase}} CASES</span>
+                        <span class="caption-helper">({{ team.cases.length }})</span>
+                    </div>
+                    <div class="tools">
+                        <a href="" class="collapse" data-original-title="" title=""></a>
+                        <a href="" class="remove" data-original-title="" title=""></a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="scroll-body" slimscroll>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Casenr. <i class="fa fa-sort-up"></i></th>
+                                    <th>Client</th>
+                                    <th>Subject</th>
+                                    <th>Prio <i class="fa fa-sort"></i></th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-hide="team.cases.length">
+                                    <td colspan="5">There are no unassigned cases for this team...</td>
+                                </tr>
+                                <tr ng-repeat="case in team.cases">
+                                    <td><a href="/cases/details/{{ ::case.id }}/">{{ case.id }}</a></td>
+                                    <td><a href="/contacts/details/{{ ::case.account.id }}/" ng-if="::case.account">{{ ::case.account.name }}</a></td>
+                                    <td><a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ case.subject }}</a></td>
+                                    <td>
+                                        <span class="label label-sm" ng-class="{'label-success': !case.priority[0], 'label-info': case.priority[0] === 1, 'label-warning': case.priority[0] === 2, 'label-danger': case.priority[0] === 3 } ">
+                                            {{ case.priority[1] }}
+                                        </span>
+                                    </td>
+                                    <td>{{ case.created  | relativeDate }}</td>
+                                    <td><a data-toggle="modal" href="/cases/update/{{ case.id }}/" class='assign-me-btn'><i class="fa fa-anchor"></i> Edit</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+{% endverbatim %}

@@ -197,9 +197,10 @@ PIPELINE_JS = {
             'plugins/angular/angular-cookies.js',
             'plugins/angular/angular-resource.js',
             'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
-            'plugins/angular/angular-ui-router/angular-ui-router.js',
-            'plugins/angular/angular-sanitize/angular-sanitize.js',
             'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
+            'plugins/angular/angular-sanitize/angular-sanitize.js',
+            'plugins/angular/angular-slimscroll/angular-slimscroll.js',
+            'plugins/angular/angular-ui-router/angular-ui-router.js',
 
             # Angular lily app
             'lily/js/angular/app.js',
@@ -215,9 +216,14 @@ PIPELINE_JS = {
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
 
+            'dashboard/js/angular/controllers.js',
+            'dashboard/js/angular/directives.js',
+
             'email/js/angular/services.js',
 
             'notes/js/angular/services.js',
+
+            'users/js/angular/services.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

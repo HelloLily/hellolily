@@ -7,57 +7,57 @@
 </div>
 <div class="inbox-view-info">
 	<div class="row">
-		<div class="col-md-7">
-			<span class="bold">{{ message.sender.name }}</span>
-			<span> &#60;{{ message.sender.email_address }}&#62; </span>
-			to
-            <span ng-repeat="receiver in message.received_by">
-                <span class="bold"> {{ receiver.name }} </span>
-                <span> &#60;{{ receiver.email_address }}&#62; </span>
-                <span ng-if="!$last"> & </span>
-            </span>
-			on {{ message.sent_date | relativeDate }}
-		</div>
-		<div class="col-md-5 inbox-info-btn">
-			<div class="btn-group">
-				<a href="/messaging/email/reply/{{ message.id }}/" class="btn blue reply-btn">
-				    <i class="fa fa-reply"></i> Reply
-                </a>
-				<button class="btn blue dropdown-toggle" data-toggle="dropdown">
-				    <i class="fa fa-angle-down"></i>
-				</button>
-				<ul class="dropdown-menu pull-right">
-					<li>
-						<a href="/messaging/email/reply/{{ message.id }}/" class="reply-btn">
-						<i class="fa fa-reply"></i> Reply </a>
-					</li>
-					<li>
-						<a href="/messaging/email/forward/{{ message.id }}/">
-						<i class="fa fa-arrow-right reply-btn"></i> Forward </a>
-					</li>
-					<li>
-						<a href="#">
-						<i class="fa fa-print"></i> Print </a>
-					</li>
-					<li class="divider">
-					</li>
-					<li>
-						<a href="#">
-						<i class="fa fa-ban"></i> Spam </a>
-					</li>
-					<li>
-						<a href="javascript:void(0)" ng-click="trashMessage()">
-						<i class="fa fa-trash-o"></i> Trash </a>
-					</li>
-					<li>
-						<a href="javascript:void(0)" ng-click="deleteMessage()">
-						<i class="fa fa-trash-o"></i> Delete </a>
-					</li>
-                </ul>
-                <a class="btn blue" href="javascript:void(0)" ng-click="archiveMessage()">
-                    Archive <i class="fa fa-archive"></i>
-                </a>
+        <div class="email-info-top">
+            <span class="bold">{{ message.sender.name }}</span> <span>&lt;{{ message.sender.email_address }}&gt;</span>
+
+            <div class="pull-right">
+                <span class="bold"><abbr title="{{ message.sent_date | relativeDate }}">{{ message.sent_date | relativeDate }}</abbr></span>
+
+                <div class="inbox-info-btn">
+                    <div class="btn-group">
+                        <a href="/messaging/email/reply/{{ message.id }}/" class="btn blue reply-btn">
+                            <i class="fa fa-reply"></i> Reply
+                        </a>
+                        <button class="btn blue dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-angle-down"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right">
+                            <li>
+                                <a href="/messaging/email/reply/{{ message.id }}/" class="reply-btn"><i class="fa fa-reply"></i> Reply </a>
+                            </li>
+                            <li>
+                                <a href="/messaging/email/forward/{{ message.id }}/"><i class="fa fa-arrow-right reply-btn"></i> Forward </a>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-print"></i> Print </a>
+                            </li>
+                            <li class="divider">
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-ban"></i> Spam </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="trashMessage()"><i class="fa fa-trash-o"></i> Trash </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="deleteMessage()"><i class="fa fa-trash-o"></i> Delete </a>
+                            </li>
+                        </ul>
+                        <a class="btn blue" href="javascript:void(0)" ng-click="archiveMessage()">Archive <i class="fa fa-archive"></i></a>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="email-recipients-wrapper">
+            <div class="email-recipients" ng-class="{'overlay': !displayAllRecipients}" ng-show="message.received_by.length">
+				<span>to</span>
+                <span ng-repeat="receiver in message.all_recipients">
+                    <span title="{{ receiver.email_address }}">
+						<span ng-show="receiver.name">{{ receiver.name }}</span><span ng-show="!receiver.name">{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
+                    </span>
+                </span>
+            </div>
+            <button class="btn show-more-recipients" ng-click="toggleOverlay()"><i ng-class="{true: 'icon-collapse-top', false: 'icon-collapse'}[displayAllRecipients]"></i></button>
         </div>
     </div>
 </div>

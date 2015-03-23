@@ -13,7 +13,7 @@ var contacts = angular.module('ContactsControllers', [
     'caseServices',
     'contactServices',
     'noteServices',
-    'emailServices'
+    'EmailServices'
 ]);
 
 contacts.config(['$stateProvider', function($stateProvider) {

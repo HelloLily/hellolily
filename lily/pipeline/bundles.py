@@ -11,16 +11,21 @@ PIPELINE_CSS = {
             'metronic/assets/global/plugins/select2/select2.css',
 
             # Metronic layout
+            'metronic/assets/admin/pages/css/inbox.css',
             'metronic/assets/admin/layout4/css/layout.css',
             'metronic/assets/admin/layout4/css/themes/light.css',
             'metronic/assets/global/css/components-rounded.css',
             'metronic/assets/global/css/plugins.css',
+            'metronic/assets/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css',
+            'metronic/assets/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css',
+
 
             # App
             # 'lily/sass/global.sass',
             'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
             'lily/css/profile.css',
             'metronic/assets/admin/pages/css/timeline-old.css',
+            'email/css/inbox.css',
         ),
         'output_filename': 'metronic/css/global.css',
     },
@@ -195,6 +200,8 @@ PIPELINE_JS = {
             'metronic/assets/global/scripts/metronic.js',
             'metronic/assets/admin/layout4/scripts/layout.js',
             'metronic/assets/admin/layout4/scripts/demo.js',
+            'lily/plugins/wysihtml/wysihtml.js',
+            'lily/plugins/wysihtml/wysihtml-toolbar.js',
 
             # Angular base
             'plugins/angular/angular.js',
@@ -226,7 +233,9 @@ PIPELINE_JS = {
             'deals/js/angular/controllers.js',
             'deals/js/angular/services.js',
 
+            'email/js/angular/controllers.js',
             'email/js/angular/services.js',
+            'email/js/inbox.js',
 
             'notes/js/angular/services.js',
 

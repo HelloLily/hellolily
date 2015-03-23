@@ -34,8 +34,7 @@
             }
 
             self.initListeners();
-            App.fixContentHeight();
-            App.initUniform();
+            Metronic.initUniform();
         },
 
         initListeners: function() {
@@ -87,13 +86,6 @@
                         event.preventDefault();
                     }
                 });
-
-            // initialize uniform checkboxes
-            App.initUniform('.mail-group-checkbox');
-
-            // on load
-            self.toggleActionsButton();
-            self.updateBulkIds();
         },
 
         // enable/disable actions button when (no) items are selected

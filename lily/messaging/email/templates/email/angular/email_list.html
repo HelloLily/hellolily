@@ -1,0 +1,116 @@
+{% verbatim %}
+    <script id="email/email_list.html" type="text/ng-template">
+        <div class="inbox-header">
+            <h1 class="pull-left" ng-show="table.filter">Search: {{ table.filter }}</h1>
+            <h1 class="pull-left" ng-hide="table.filter">
+                <span ng-show="account">{{ account.email_address }}</span>
+                <span ng-hide="account">All mailboxes</span>
+                <span ng-show="label.name"> - {{ label.name }}</span>
+                <span ng-hide="label"> - All mail</span>
+            </h1>
+            <form class="form-inline pull-right">
+                <div class="input-group input-medium">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="table.filter">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn green"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="inbox-content">
+            <table class="table table-striped table-advance table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2">
+                        <checkbox model="opts.checkboxesAll" ng-click="toggleCheckboxes()"></checkbox>
+                        <div class="btn-group">
+                            <span class="pull-left" ng-if="::account">
+                                <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
+                                    <i class="fa fa-folder"></i> Move to <i class="fa fa-angle-down"></i>
+                                </a>
+                                <ul class="dropdown-menu labels">
+                                    <li class="inbox" ng-hide="label.label_id == 'INBOX'">
+                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages('INBOX')">Inbox</a>
+                                    </li>
+                                    <li class="spam" ng-hide="label.label_id == 'SPAM'">
+                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages('SPAM')">Spam</a>
+                                    </li>
+                                    <li ng-repeat="account_label in account.labels" class="inbox" ng-if="account_label.label_type != 0 && account_label.label_id != label.label_id">
+                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages(account_label.label_id)">{{ account_label.name }}</a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </div>
+                        <div class="btn-group">
+                            <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
+                                More <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="markAsRead()">
+                                        <i class="fa fa-pencil"></i> Mark as read </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="markAsUnread()">
+                                        <i class="fa fa-pencil"></i> Mark as unread </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-ban"></i> Spam </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a class="btn btn-sm red" href="javascript:void(0)" ng-click="deleteMessages()">
+                            <i class="fa fa-trash-o"></i> Delete
+                        </a>
+                        <a class="btn btn-sm blue" href="javascript:void(0)" ng-click="archiveMessages()" ng-show="label">
+                            <i class="fa fa-archive"></i> Archive
+                        </a>
+                        <a class="btn btn-sm blue" href="javascript:void(0)" ng-click="reloadMessages()">
+                            <i class="fa fa-refresh"></i> Refresh
+                        </a>
+                    </th>
+                    <th class="pagination-control" colspan="3">
+                        <span class="pagination-info">
+                            {{ table.page * table.pageSize + 1}}-{{ [(table.page + 1) * table.pageSize, table.totalItems] | minValue }} of {{ table.totalItems | number }}
+                        </span>
+                        <a class="btn btn-sm blue" ng-click="setPage(table.page - 1)">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
+                        <a class="btn btn-sm blue" ng-click="setPage(table.page + 1)">
+                            <i class="fa fa-angle-right"></i>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="message in emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
+                    <td class="inbox-small-cells">
+                        <checkbox model="message.checked"></checkbox>
+                    </td>
+                    <td class="view-message hidden-xs" ng-if="label.name != 'Sent' && label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
+                        <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
+                        <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
+                    </td>
+                    <td class="view-message hidden-xs" ng-if="label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
+                        <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
+                        <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
+                    </td>
+                    <td class="view-message hidden-xs" ng-if="label.name == 'Draft'" ng-click="goToDraft(message.id)">
+                       {{ message.received_by_email.join(',') }}
+                    </td>
+                    <td class="view-message" ui-sref="base.email.detail({id: message.id})">
+                        {{ message.subject }}
+                    </td>
+                    <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
+                        <i class="fa fa-paperclip" ng-if="message.has_attachment"></i>
+                    </td>
+                    <td class="view-message text-right" ui-sref="base.email.detail({id: message.id})">
+                        {{ message.sent_date | relativeDate }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </script>
+{% endverbatim %}

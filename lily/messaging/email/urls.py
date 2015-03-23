@@ -42,7 +42,4 @@ urlpatterns = patterns(
     url(r'^draft/(?P<pk>[\d-]+)/$', EmailMessageDraftView.as_view(), name='messaging_email_draft'),
     url(r'^reply/(?P<pk>[\d-]+)/$', EmailMessageReplyView.as_view(), name='messaging_email_reply'),
     url(r'^forward/(?P<pk>[\d-]+)/$', EmailMessageForwardView.as_view(), name='messaging_email_forward'),
-
-    url(r'^(?P<template_file>[\.\w-]+)/$', EmailBaseView.as_view(), name='messaging_email_inbox'),
-    url(r'^$', EmailBaseView.as_view(), name='messaging_email_inbox'),
 )

@@ -42,6 +42,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'sender',
             'attachments',
             'read',
+            'subject',
         )
 
 

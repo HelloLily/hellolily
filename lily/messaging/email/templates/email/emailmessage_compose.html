@@ -1,85 +1,83 @@
-{% extends 'email/emailmessage_base.html' %}
+{% load i18n email bootstrap3 %}
 
-{% load pipeline i18n email bootstrap3 %}
-
-{% block css %}
-    {{ block.super }}
-    {% stylesheet 'wysihtml5' %}
-{% endblock %}
-
-{% block inbox %}
-<div class="col-md-10 emailmessage-detail">
-    <div class="inbox-header">
-        <h1 class="pull-left">{% trans 'Compose' %}</h1>
-    </div>
-    <div class="inbox-content">
-        <span class="text-danger">{{ form.non_field_errors }}</span>
-
-        <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-            {% for hidden in form.hidden_fields %}
-                {{ hidden }}
-            {% endfor %}
-            <div class="inbox-form-group mail-from">
-                <label class="control-label">{% trans 'From' %}:</label>
-                <div class="controls controls-from">
-                    {% bootstrap_field form.send_from layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
-                </div>
-            </div>
-            <div class="mail-to">
-                <div class="inbox-form-group {% if form.errors.send_to_normal %}has-error{% endif %}">
-                    <label class="control-label">{% trans 'To' %}:</label>
-                    <div class="controls controls-to">
-                        {% bootstrap_field form.send_to_normal layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
-                        <span class="inbox-cc-bcc">
-                            <span class="inbox-cc">{% trans 'Cc' %}</span>
-                            <span class="inbox-bcc">{% trans 'Bcc' %}</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="inbox-form-group input-cc{% if not form.send_to_cc.value %} display-hide{% endif %}">
-                    <a href="javascript:void(0)" class="close"></a>
-                    <label class="control-label">{% trans 'Cc' %}:</label>
-                    <div class="controls controls-cc">
-                        {% bootstrap_field form.send_to_cc layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
-                    </div>
-                </div>
-                <div class="inbox-form-group input-bcc{% if not form.send_to_bcc.value %} display-hide{% endif %}">
-                    <a href="javascript:void(0)" class="close"></a>
-                    <label class="control-label">{% trans 'Bcc' %}:</label>
-                    <div class="controls controls-bcc">
-                        {% bootstrap_field form.send_to_bcc layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
-                    </div>
-                </div>
-            </div>
-            <div class="inbox-form-group">
-                <label class="control-label">{% trans 'Subject' %}:</label>
-                <div class="controls">
-                    {% bootstrap_field form.subject layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
-                </div>
-            </div>
-            {% if template_list %}
-                <div class="inbox-form-group">
-                    <label class="control-label">{% trans 'Template' %}:</label>
-                    <div class="controls">
-                        {% bootstrap_field form.template layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
-                    </div>
-                </div>
-            {% endif %}
-            {% bootstrap_field form.body_html layout="horizontal" field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" label_class="hidden" %}
-            {{ form.attachments }}
-            <div class="inbox-compose-btn">
-                <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send' %}</button>
-                {% if object.id and form.message_type == 'reply' %}
-                    <button type="submit" name="submit-send-archive" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send and archive' %}</button>
-                {% endif %}
-{#                <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>#}
-                <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
-                <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
-            </div>
-        </form>
-    </div>
+<div class="inbox-header">
+    <h1 class="pull-left">{% trans 'Compose' %}</h1>
 </div>
+<div class="inbox-content">
+    <span class="text-danger">{{ form.non_field_errors }}</span>
+
+    <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate action="{{ request.path }}">
+        {% csrf_token %}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+        <div class="inbox-compose-btn">
+            <button class="btn blue"><i class="fa fa-check"></i>Send</button>
+            <button class="btn">Draft</button>
+            <button class="btn inbox-discard-btn">Discard</button>
+        </div>
+        <div class="inbox-form-group mail-from">
+            <label class="control-label">{% trans 'From' %}:</label>
+            <div class="controls controls-from">
+                {% bootstrap_field form.send_from layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+            </div>
+        </div>
+        <div class="mail-to">
+            <div class="inbox-form-group {% if form.errors.send_to_normal %}has-error{% endif %}">
+                <label class="control-label">{% trans 'To' %}:</label>
+                <div class="controls controls-to">
+                    {% bootstrap_field form.send_to_normal layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    <span class="inbox-cc-bcc">
+                        <span class="inbox-cc">{% trans 'Cc' %}</span>
+                        <span class="inbox-bcc">{% trans 'Bcc' %}</span>
+                    </span>
+                </div>
+            </div>
+            <div class="inbox-form-group input-cc{% if not form.send_to_cc.value %} display-hide{% endif %}">
+                <a href="javascript:void(0)" class="close"></a>
+                <label class="control-label">{% trans 'Cc' %}:</label>
+                <div class="controls controls-cc">
+                    {% bootstrap_field form.send_to_cc layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
+                </div>
+            </div>
+            <div class="inbox-form-group input-bcc{% if not form.send_to_bcc.value %} display-hide{% endif %}">
+                <a href="javascript:void(0)" class="close"></a>
+                <label class="control-label">{% trans 'Bcc' %}:</label>
+                <div class="controls controls-bcc">
+                    {% bootstrap_field form.send_to_bcc layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                </div>
+            </div>
+        </div>
+        <div class="inbox-form-group">
+            <label class="control-label">{% trans 'Subject' %}:</label>
+            <div class="controls">
+                {% bootstrap_field form.subject layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
+            </div>
+        </div>
+        {% if template_list %}
+            <div class="inbox-form-group">
+                <label class="control-label">{% trans 'Template' %}:</label>
+                <div class="controls">
+                    {% bootstrap_field form.template layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                </div>
+            </div>
+        {% endif %}
+        {% bootstrap_field form.body_html layout="horizontal" field_class="email-compose" form_group_class="inbox-form-group margin-bottom-10" label_class="hidden" %}
+        {{ form.attachments }}
+
+        <div class="inbox-compose-btn">
+            <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send' %}</button>
+            {% if object.id and form.message_type == 'reply' %}
+                <button type="submit" name="submit-send-archive" class="btn green" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Sending..' %}"><i class="icon-ok"></i>{% trans 'Send and archive' %}</button>
+            {% endif %}
+                <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>
+            <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
+            <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
+        </div>
+    </form>
+</div>
+
+{% comment %}
 <div class="modal fade" id="modal_no_email_address" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -96,46 +94,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    {% javascript 'wysihtml5' %}
-    <script>
-        {% if template_list %}
-            var templateList = {{ template_list|safe }};
-        {% endif %}
-        $(function($) {
-            var loadDefaultTemplate = null;
-
-            // Only do template stuff if there are no errors (to prevent templates loading twice)
-            if (!'{{ form.non_field_errors }}') {
-                loadDefaultTemplate = '{{ form.template.value|default:'' }}' === '';
-            }
-
-            var urlRecipient = null;
-
-            if ('{{ recipient|default:'' }}' != '') {
-                // The text which is actually used in the application
-                var used_text = '"' + '{{ recipient.full_name }}' + '" <' + '{{ email_address }}' + '>';
-                // The displayed text
-                var displayed_text = '{{ recipient.full_name }} <' + '{{ email_address }}' + '>';
-
-                urlRecipient = {
-                    id: used_text,
-                    text: displayed_text,
-                    object_id: '{{ recipient.id }}'
-                };
-            }
-
-            HLInbox.initEmailCompose({
-                defaultEmailTemplateUrl: '{% url 'messaging_email_template_get_default' %}',
-                getTemplateUrl: '{% url 'messaging_email_get_template' %}',
-                messageType: '{{ form.message_type }}',
-                fromContact: '{{ form.from_contact.id }}',
-                loadDefaultTemplate: loadDefaultTemplate,
-                urlRecipient: urlRecipient
-            });
-        });
-    </script>
-{% endblock %}
+{% endcomment %}

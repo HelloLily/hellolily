@@ -12,6 +12,7 @@ var lilyApp = angular.module('lilyApp', [
     'ContactsControllers',
     'dashboardControllers',
     'DealControllers',
+    'EmailControllers',
 
     // global modules
     'lilyDirectives',

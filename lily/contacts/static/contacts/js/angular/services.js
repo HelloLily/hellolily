@@ -31,10 +31,8 @@ angular.module('contactServices', ['ngResource'])
                             var contact = data.hits[0];
                             contact.phones = getPhones(contact);
                             contact.phone = getPhone(contact);
-                            console.log(contact);
                             return contact;
                         }
-                        console.log('return null');
                         return null;
                     }
                 },
@@ -42,7 +40,6 @@ angular.module('contactServices', ['ngResource'])
                     url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery',
                     isArray: true,
                     transformResponse: function(data) {
-                        console.log('contact query');
                         data = angular.fromJson(data);
                         var contacts = [];
                         if (data && data.hits && data.hits.length > 0) {

@@ -1,85 +1,93 @@
 /**
  * caseControllers is a container for all case related Controllers
  */
-angular.module('lilyControllers', [])
+var LilyApp = angular.module('lilyControllers', []);
 
-    /**
+LilyApp.config(['$stateProvider', function($stateProvider) {
+    $stateProvider.state('base', {
+        abstract: true,
+        controller: 'baseController',
+        views: {
+            'topNavActions@': {
+                templateUrl: 'top-nav/actions.html',
+                controller: 'topNavActionsController'
+            },
+            'topNavSearch@': {
+                templateUrl: 'top-nav/search.html',
+                controller: 'topNavSearchController'
+            },
+            'topNavUser@': {
+                templateUrl: 'top-nav/user.html',
+                controller: 'topNavUserController'
+            },
+            'sidebar@': {
+                templateUrl: 'sidebar.html',
+                controller: 'sidebarController'
+            },
+            'pageHeader@': {
+                templateUrl: 'page-header.html',
+                controller: 'pageHeaderController'
+            }
+        }
+    });
+}]);
+
+/**
      * CaseListController controller to show list of cases
      *
      */
-    .controller('baseController', [
-        '$scope',
+LilyApp.controller('baseController', [
+    '$scope',
 
-        function($scope) {
-            $scope.conf = {
-                pageTitleBig: 'test',
-                pageTitleSmall: ''
-            };
+    function($scope, $state) {
+        $scope.conf = {
+            pageTitleBig: 'HelloLily',
+            pageTitleSmall: 'welcome to my humble abode!'
+        };
 
-            console.log('base');
-        }
-    ])
-    .controller('topNavActionsController', [
-        '$scope',
+        //$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+        //    console.log('Starting the state change');
+        //});
+        //
+        //$scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+        //    console.log('The state has been changed');
+        //});
 
-        function($scope) {
-            console.log('topnav actions');
-        }
-    ])
-    .controller('topNavSearchController', [
-        '$scope',
+        $scope.$on('$viewContentLoaded', function(event, test, test2) {
+            HLSelect2.init();
+            HLFormsets.init();
+            HLShowAndHide.init();
+        });
+    }
+]);
 
-        function($scope) {
-            console.log('topnav search');
-        }
-    ])
-    .controller('topNavUserController', [
-        '$scope',
+LilyApp.controller('topNavActionsController', [
+    '$scope',
 
-        function($scope) {
-            console.log('topnav user');
-        }
-    ])
-    .controller('sidebarController', [
-        '$scope',
+    function($scope) {}
+]);
 
-        function($scope) {
-            console.log('sidebar');
-        }
-    ])
-    .controller('pageHeaderController', [
-        '$scope',
+LilyApp.controller('topNavSearchController', [
+    '$scope',
 
-        function($scope) {
-            console.log('page header');
-        }
-    ])
-    .config(['$stateProvider', function($stateProvider) {
-        $stateProvider
-            .state('base', {
-                abstract: true,
-                controller: 'baseController',
-                views: {
-                    'topNavActions@': {
-                        templateUrl: 'top-nav/actions.html',
-                        controller: 'topNavActionsController'
-                    },
-                    'topNavSearch@': {
-                        templateUrl: 'top-nav/search.html',
-                        controller: 'topNavSearchController'
-                    },
-                    'topNavUser@': {
-                        templateUrl: 'top-nav/user.html',
-                        controller: 'topNavUserController'
-                    },
-                    'sidebar@': {
-                        templateUrl: 'sidebar.html',
-                        controller: 'sidebarController'
-                    },
-                    'pageHeader@': {
-                        templateUrl: 'page-header.html',
-                        controller: 'pageHeaderController'
-                    }
-                }
-            });
-    }]);
+    function($scope) {}
+]);
+
+LilyApp.controller('topNavUserController', [
+    '$scope',
+
+    function($scope) {}
+]);
+lilyapp.controller('sidebarController', [
+    '$scope',
+
+    function($scope) {}
+]);
+
+LilyApp.controller('pageHeaderController', [
+    '$scope',
+
+    function($scope) {}
+]);
+
+

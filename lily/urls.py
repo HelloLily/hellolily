@@ -52,7 +52,7 @@ urlpatterns = patterns(
     url(r'^api/users/teams/$', TeamList.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    (r'^', TemplateView.as_view(template_name="angular/base.html")),
+    (r'^$', TemplateView.as_view(template_name="angular/base.html")),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 

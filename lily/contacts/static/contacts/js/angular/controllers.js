@@ -46,21 +46,21 @@ contacts.config(['$stateProvider', function($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'contacts/contact-create.html',
-                controller: 'ContactListController'
+                controller: 'ContactCreateController'
             }
         },
         ncyBreadcrumb: {
             label: 'Create'
         }
     });
-    $stateProvider.state('base.contacts.edit', {
-        url: '/edit/{id:[0-9]{1,4}}',
+    $stateProvider.state('base.contacts.detail.edit', {
+        url: '/edit',
         views: {
             '@': {
                 templateUrl: function(elem, attr) {
                     return '/contacts/edit/' + elem.id +'/';
                 },
-                controller: 'ContactListController'
+                controller: 'ContactEditController'
             }
         },
         ncyBreadcrumb: {
@@ -83,8 +83,10 @@ contacts.controller('ContactDetailController', [
     '$filter',
     '$stateParams',
     function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, $scope, $q, $filter, $stateParams) {
-        console.log('contact detail');
         $scope.showMoreText = 'Show more';
+        $scope.conf.pageTitleBig = 'Contact Detail';
+        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+
         var id = $stateParams.id;
 
         function pageTitle(contact) {
@@ -216,10 +218,9 @@ contacts.controller('ContactListController', [
     'Contact',
     'Cookie',
     function($scope, $cookieStore, $window, Contact, Cookie) {
-        console.log('contact list');
         Cookie.prefix ='contactList';
 
-        $scope.conf.pageTitleBig = 'Contact list';
+        $scope.conf.pageTitleBig = 'Contact List';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 
         /**
@@ -325,5 +326,33 @@ contacts.controller('ContactListController', [
             // Open url
             $window.open(url);
         }
+    }
+]);
+
+contacts.controller('ContactCreateController', [
+    '$scope',
+
+    function($scope) {
+        $scope.conf.pageTitleBig = 'Contact Create';
+        $scope.conf.pageTitleSmall = 'who did you talk to?';
+    }
+]);
+
+contacts.controller('ContactEditController', [
+    '$scope',
+    '$stateParams',
+
+    'ContactDetail',
+
+    function($scope, $stateParams, ContactDetail) {
+        var id = $stateParams.id;
+        var contactPromise = ContactDetail.get({id: id}).$promise;
+
+        contactPromise.then(function(contact) {
+            $scope.contact = contact;
+            $scope.conf.pageTitleBig = contact.name;
+            $scope.conf.pageTitleSmall = 'change is natural';
+            HLSelect2.init();
+        });
     }
 ]);

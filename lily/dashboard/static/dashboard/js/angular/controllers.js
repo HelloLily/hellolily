@@ -9,7 +9,7 @@ var dashboard = angular.module('dashboardControllers', [
 
 dashboard.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base.dashboard', {
-        url: '/dashboard',
+        url: '/',
         views: {
             '@': {
                 templateUrl: 'dashboard/base.html',
@@ -24,9 +24,7 @@ dashboard.config(['$stateProvider', function($stateProvider) {
 
 dashboard.controller('DashboardController', [
     '$scope',
-    function ($scope) {
-        console.log('dashboardcont');
-    }
+    function ($scope) {}
 ]);
 
 dashboard.controller('UnreadEmailController', [

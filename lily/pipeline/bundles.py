@@ -8,6 +8,7 @@ PIPELINE_CSS = {
             'metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
             'metronic/assets/global/plugins/uniform/css/uniform.default.css',
             'metronic/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.css',
+            'metronic/assets/global/plugins/select2/select2.css',
 
             # Metronic layout
             'metronic/assets/admin/layout4/css/layout.css',
@@ -17,7 +18,7 @@ PIPELINE_CSS = {
 
             # App
             # 'lily/sass/global.sass',
-            'metronic/assets/admin/pages/css/profile-old.css',
+            'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
             'lily/css/profile.css',
             'metronic/assets/admin/pages/css/timeline-old.css',
         ),
@@ -188,6 +189,9 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/jquery.cokie.min.js',
             'metronic/assets/global/plugins/uniform/jquery.uniform.min.js',
             'metronic/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
+            'metronic/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
+            'metronic/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js',
+            'metronic/assets/global/plugins/select2/select2.js',
             'metronic/assets/global/scripts/metronic.js/',
             'metronic/assets/admin/layout4/scripts/layout.js',
             'metronic/assets/admin/layout4/scripts/demo.js',
@@ -224,6 +228,14 @@ PIPELINE_JS = {
             'notes/js/angular/services.js',
 
             'users/js/angular/services.js',
+
+            # Pip package static
+            'js/jquery.formset.js',
+
+            # Stuffz
+            'lily/js/forms/formsets.js',
+            'lily/js/forms/select2.js',
+            'lily/js/forms/show-and-hide.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

@@ -29,7 +29,7 @@
                         <tr ng-repeat="message in emailMessages">
                             <td>{{ message.account_name }}</td>
                             <td>{{ message.sender_name || message.sender_email }}</td>
-                            <td>
+                            <td class="pointer" ng-click="openEmail(message.id)">
                                 <div>{{ message.subject }}</div><br>
                                 <div><em>{{ message.snippet }}</em></div>
                             </td>
@@ -37,7 +37,6 @@
                             <td>
                                 <div><a ng-href="/messaging/email/reply/{{ message.id }}/"><i class="fa fa-reply"></i> reply</a></div>
                                 <div><a ng-href="/messaging/email/#/detail/{{ message.id }}"><i class="fa fa-eye"></i> view</a></div>
-                                <div><i class="fa fa-sitemap"></i> create</div>
                             </td>
                         </tr>
                             <tr ng-hide="emailMessages.length">
@@ -123,7 +122,7 @@
                                 <th>Subject</th>
                                 <th>Prio <i class="fa fa-sort"></i></th>
                                 <th>Status</th>
-                                <th>Exp date <i class="fa fa-sort-up"></th>
+                                <th>Exp date <i class="fa fa-sort-up"></i>/th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,7 +181,7 @@
                                     <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
                                     <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
                                 </td>
-                                <td>{{ case.subject }}</td>
+                                <td><a ng-href="/cases/details/{{ mycase.id }}/">{{ case.subject }}</a></td>
                                 <td>{{ case.created | relativeDate }}</td>
                             </tr>
                         </tbody>

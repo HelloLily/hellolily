@@ -248,11 +248,15 @@ angular.module('emailControllers', [
         '$stateParams',
         'EmailMessage',
         function($scope, $state, $stateParams, EmailMessage) {
+            $scope.displayAllRecipients = false;
+
             EmailMessage.API.get({id: $stateParams.id}, function(result) {
                 if (result.body_html) {
                     result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
                 }
                 $scope.message = result;
+                // It's easier to iterate through a single array, so make an array with all recipients
+                $scope.message.all_recipients = result.received_by.concat(result.received_by_cc);
 
                 if (!result.read) {
                     EmailMessage.markAsRead($stateParams.id, true);
@@ -272,7 +276,20 @@ angular.module('emailControllers', [
             $scope.deleteMessage = function() {
                 EmailMessage.API.delete({id: $scope.message.id});
                 $state.go('email.list', '');
-            }
+            };
+
+            $scope.toggleOverlay = function () {
+                $scope.displayAllRecipients = !$scope.displayAllRecipients;
+
+                var $emailRecipients = $('.email-recipients');
+
+                if ($scope.displayAllRecipients) {
+                    $emailRecipients.height($emailRecipients[0].scrollHeight);
+                }
+                else {
+                    $emailRecipients.height('1.25em');
+                }
+            };
         }
     ])
 
@@ -333,4 +350,5 @@ angular.module('emailControllers', [
             $scope.unreadCountForLabel = function(account, labelId) {
                 return unreadCountForLabel(account, labelId);
             }
-    }]);
+        }
+    ]);

@@ -181,7 +181,7 @@
                                     <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
                                     <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
                                 </td>
-                                <td><a ng-href="/cases/details/{{ mycase.id }}/">{{ case.subject }}</a></td>
+                                <td><a ng-href="/cases/details/{{ case.id }}/">{{ case.subject }}</a></td>
                                 <td>{{ case.created | relativeDate }}</td>
                             </tr>
                         </tbody>

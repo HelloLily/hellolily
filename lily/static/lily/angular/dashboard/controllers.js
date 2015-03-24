@@ -13,9 +13,10 @@ dashboard.controller('DashboardController', ['$scope', function ($scope) {
 
 dashboard.controller('UnreadEmailController', [
     '$scope',
+    '$location',
     'EmailAccount',
     'EmailMessage',
-    function($scope, EmailAccount, EmailMessage) {
+    function($scope, $location, EmailAccount, EmailMessage) {
 
         var filterquery = ['read:false AND label_id:INBOX'];
 
@@ -25,6 +26,10 @@ dashboard.controller('UnreadEmailController', [
             $scope.emailMessages = data.hits;
             //$scope.table.totalItems = data.total;
         });
+
+        $scope.openEmail = function (emailId) {
+            window.location = '/messaging/email/#/detail/' + emailId;
+        }
     }
 ]);
 

@@ -496,3 +496,7 @@ label.required::after {
 .pre-wrap {
     white-space: pre-wrap;
 }
+
+.pointer {
+    cursor: pointer;
+}

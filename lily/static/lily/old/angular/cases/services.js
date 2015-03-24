@@ -143,7 +143,7 @@ caseservices.factory('Case', ['$http', function($http) {
          */
         Case.getCallbackRequests = function () {
             return $http({
-                url: '/api/cases/user/?type=Callback&archived=false',
+                url: '/api/cases/user/?type=Callback&is_archived=false',
                 method: 'GET'
             }).then(function (response) {
                 return {

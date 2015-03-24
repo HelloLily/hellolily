@@ -37,7 +37,7 @@
             <label class="col-md-2 control-label{% if formset|length %} hide{% endif %}">
                 {{ formset.empty_form.email_address.label }}
             </label>
-            <div class="col-md-10 form-control-static{% if formset|length %} col-md-offset-2{% endif %}">
+            <div class="col-md-10 {% if formset|length %} col-md-offset-2{% else %} form-control-static{% endif %}">
                 <a href="javascript:void(0)" data-formset-add>{% trans 'Add an e-mail address' %}</a>
             </div>
         </div>

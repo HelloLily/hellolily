@@ -1,34 +1,12 @@
 /**
  * caseControllers is a container for all case related Controllers
  */
-var LilyApp = angular.module('lilyControllers', []);
+var lilyControllers = angular.module('lilyControllers', []);
 
-LilyApp.config(['$stateProvider', function($stateProvider) {
+lilyControllers.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base', {
         abstract: true,
-        controller: 'baseController',
-        views: {
-            'topNavActions@': {
-                templateUrl: 'top-nav/actions.html',
-                controller: 'topNavActionsController'
-            },
-            'topNavSearch@': {
-                templateUrl: 'top-nav/search.html',
-                controller: 'topNavSearchController'
-            },
-            'topNavUser@': {
-                templateUrl: 'top-nav/user.html',
-                controller: 'topNavUserController'
-            },
-            'sidebar@': {
-                templateUrl: 'sidebar.html',
-                controller: 'sidebarController'
-            },
-            'pageHeader@': {
-                templateUrl: 'page-header.html',
-                controller: 'pageHeaderController'
-            }
-        }
+        controller: 'baseController'
     });
 }]);
 
@@ -36,13 +14,17 @@ LilyApp.config(['$stateProvider', function($stateProvider) {
      * CaseListController controller to show list of cases
      *
      */
-LilyApp.controller('baseController', [
+lilyControllers.controller('baseController', [
     '$scope',
 
-    function($scope, $state) {
+    function($scope) {
         $scope.conf = {
             pageTitleBig: 'HelloLily',
-            pageTitleSmall: 'welcome to my humble abode!'
+            pageTitleSmall: 'welcome to my humble abode!',
+            layout: {
+                pageSidebarClosed: false, // sidebar state
+                pageAutoScrollOnLoad: 1000 // auto scroll to top on page load
+            }
         };
 
         //$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
@@ -53,7 +35,8 @@ LilyApp.controller('baseController', [
         //    console.log('The state has been changed');
         //});
 
-        $scope.$on('$viewContentLoaded', function(event, test, test2) {
+        $scope.$on('$viewContentLoaded', function() {
+            Metronic.initComponents(); // init core components
             HLSelect2.init();
             HLFormsets.init();
             HLShowAndHide.init();
@@ -61,33 +44,22 @@ LilyApp.controller('baseController', [
     }
 ]);
 
-LilyApp.controller('topNavActionsController', [
+lilyControllers.controller('headerController', [
     '$scope',
 
-    function($scope) {}
+    function($scope) {
+        $scope.$on('$includeContentLoaded', function() {
+            Layout.initHeader(); // init header
+        });
+    }
 ]);
 
-LilyApp.controller('topNavSearchController', [
+lilyControllers.controller('sidebarController', [
     '$scope',
 
-    function($scope) {}
+    function($scope) {
+        $scope.$on('$includeContentLoaded', function() {
+            Layout.initSidebar(); // init sidebar
+        });
+    }
 ]);
-
-LilyApp.controller('topNavUserController', [
-    '$scope',
-
-    function($scope) {}
-]);
-lilyapp.controller('sidebarController', [
-    '$scope',
-
-    function($scope) {}
-]);
-
-LilyApp.controller('pageHeaderController', [
-    '$scope',
-
-    function($scope) {}
-]);
-
-

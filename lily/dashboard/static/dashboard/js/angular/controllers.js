@@ -24,7 +24,10 @@ dashboard.config(['$stateProvider', function($stateProvider) {
 
 dashboard.controller('DashboardController', [
     '$scope',
-    function ($scope) {}
+    function ($scope) {
+        $scope.conf.pageTitleBig = 'Dashboard'
+        $scope.conf.pageTitleSmall = 'statistics and usage'
+    }
 ]);
 
 dashboard.controller('UnreadEmailController', [

@@ -207,7 +207,7 @@ class EmailAttachmentProxy(View):
 #
 # EmailMessage compose views (create/edit draft, reply, forward) incl. preview
 #
-class EmailMessageComposeView(FormView):
+class EmailMessageComposeView(LoginRequiredMixin, FormView):
     template_name = 'email/emailmessage_compose.html'
     form_class = ComposeEmailForm
     object = None

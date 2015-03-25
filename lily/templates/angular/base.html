@@ -82,7 +82,17 @@
         <!--[if lt IE 9]>
         {% endverbatim %}{% compressed_js 'global-ie' %}{% verbatim %}
         <![endif]-->
-        {% endverbatim %}{% compressed_js 'global' %}{% verbatim %}
+        {% endverbatim %}
+        {% compressed_js 'global' %}
+        <script>
+            var currentUser = {
+                id: '{{ user.id }}',
+                firstName: '{{ user.first_name }}',
+                lastName: '{{ user.last_name }}',
+                email: '{{ user.email }}'
+            };
+        </script>
+        {% verbatim %}
         {% endverbatim %}{% include 'angular/includes.html' %}{% verbatim %}
         <!-- END JAVASCRIPTS -->
     </body>

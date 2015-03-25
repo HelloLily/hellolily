@@ -45,7 +45,7 @@ contacts.config(['$stateProvider', function($stateProvider) {
         url: '/create',
         views: {
             '@': {
-                templateUrl: 'contacts/contact-create.html',
+                templateUrl: 'contacts/create/',
                 controller: 'ContactCreateController'
             }
         },

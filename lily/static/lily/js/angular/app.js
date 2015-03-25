@@ -9,6 +9,7 @@ var lilyApp = angular.module('lilyApp', [
 
     // Controllers
     'lilyControllers',
+    'CaseControllers',
     'ContactsControllers',
     'dashboardControllers',
     'DealControllers',
@@ -17,7 +18,7 @@ var lilyApp = angular.module('lilyApp', [
     // global modules
     'lilyDirectives',
     'lilyFilters',
-    'lilyServices'
+    'LilyServices'
 ]);
 
 /* Setup global settings */

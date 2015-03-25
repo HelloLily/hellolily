@@ -9,7 +9,7 @@ var dealControllers = angular.module('DealControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'dealServices',
+    'dealServices'
 ]);
 
 dealControllers.config(['$stateProvider', function($stateProvider) {
@@ -42,7 +42,7 @@ dealControllers.controller('DealListController', [
     function($scope, $cookieStore, $window, $location, Deal, Cookie, HLDate, HLFilters) {
         Cookie.prefix ='dealList';
 
-        $scope.conf.pageTitleBig = 'Deal List';
+        $scope.conf.pageTitleBig = 'Deals';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 
         // Setup search query

@@ -1,0 +1,13 @@
+{% verbatim %}
+<script id="cases/case-detail.html" type="text/ng-template">
+    <a ui-sref="base.cases.detail.edit({ id: case.id })" class="btn blue"><i class="icon-edit"></i>Edit</a>
+    <a ng-href="/cases/delete/{{ ::case.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/cases/delete/{{ ::case.id }}/"><i class="icon-trash"></i>Delete</a>
+    <div ng-cloak ng-if="::case.subject">
+        <div class="row">
+            <div class="col-md-6">
+                <em class="pre-wrap">{{ ::case.subject }}</em>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

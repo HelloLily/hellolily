@@ -11,20 +11,16 @@ lilyControllers.config(['$stateProvider', function($stateProvider) {
 }]);
 
 /**
-     * CaseListController controller to show list of cases
-     *
-     */
+ * BaseController is the controller where all the default things are loaded
+ *
+ */
 lilyControllers.controller('baseController', [
     '$scope',
 
     function($scope) {
         $scope.conf = {
             pageTitleBig: 'HelloLily',
-            pageTitleSmall: 'welcome to my humble abode!',
-            layout: {
-                pageSidebarClosed: false, // sidebar state
-                pageAutoScrollOnLoad: 1000 // auto scroll to top on page load
-            }
+            pageTitleSmall: 'welcome to my humble abode!'
         };
 
         //$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {

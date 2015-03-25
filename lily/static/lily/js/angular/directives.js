@@ -23,8 +23,6 @@ lilyDirectives.directive('ngSpinnerBar', ['$rootScope',
                     $('body').removeClass('page-on-load'); // remove page loading indicator
                     Layout.setSidebarMenuActiveLink('match'); // activate selected link in the sidebar menu
 
-                    console.log($rootScope);
-
                     // auto scroll to page top
                     setTimeout(function () {
                         Metronic.scrollTop(); // scroll to the top on content load

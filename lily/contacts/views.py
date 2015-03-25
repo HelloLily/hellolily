@@ -23,13 +23,6 @@ from .forms import CreateUpdateContactForm, AddContactQuickbuttonForm
 from .models import Contact, Function
 
 
-class ListContactView(LoginRequiredMixin, AngularView):
-    """
-    Display a list of all contacts
-    """
-    template_name = 'contacts/contact_list.html'
-
-
 class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
 
     http_method_names = ['get']
@@ -99,35 +92,6 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
         return search.do_search()[0]
 
 
-class JsonContactListView(LoginRequiredMixin, JsonListView):
-    """
-    JSON: Display account information for a contact
-    """
-    # ListView
-    model = Contact
-
-    # FilterQuerysetMixin
-    search_fields = [
-        'first_name__icontains',
-        'last_name__icontains',
-        'preposition__icontains',
-    ]
-
-    # JsonListView
-    filter_on_field = 'functions__account__id'
-
-    def get_queryset(self):
-        queryset = super(JsonContactListView, self).get_queryset()
-        return queryset.filter(is_deleted=False)
-
-
-class DetailContactView(LoginRequiredMixin, AngularView):
-    """
-    Display the details of a contact.
-    """
-    template_name = 'contacts/contact_detail.html'
-
-
 class CreateUpdateContactMixin(LoginRequiredMixin):
     """
     Base class for AddAContactView and EditContactView.
@@ -140,117 +104,44 @@ class CreateUpdateContactMixin(LoginRequiredMixin):
         Provide a url to go back to.
         """
         kwargs = super(CreateUpdateContactMixin, self).get_context_data(**kwargs)
-        if not is_ajax(self.request):
-            kwargs.update({
-                'back_url': self.get_success_url(),
-            })
+        kwargs.update({
+            'back_url': self.get_success_url(),
+        })
 
         return kwargs
 
-    def get_success_url(self):
+    def form_valid(self, form):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
         """
-        return '%s?order_by=6&sort_order=desc' % (reverse('contact_list'))
+        success_url = super(CreateUpdateContactMixin, self).form_valid(form)
+
+        # Show save message
+        messages.success(self.request, _('%s (Contact) has been %s.') % (self.object.full_name(), self.action))
+
+        return success_url
 
 
 class AddContactView(CreateUpdateContactMixin, CreateView):
     """
     View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
     """
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overloading super().dispatch to change the template to be rendered for ajax requests.
-        """
-        # Change form and template for ajax calls or create formset instances for the normal form
-        self.is_ajax = False
-        if is_ajax(request):
-            self.is_ajax = True
-            self.form_class = AddContactQuickbuttonForm
-            self.template_name = 'contacts/contact_form_ajax.html'
-
-        return super(AddContactView, self).dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        """
-        Handle form submission via AJAX or show custom save message.
-        """
-        self.object = form.save()  # copied from ModelFormMixin
-
-        message = _('%s (Contact) has been saved.') % self.object.full_name()
-        # Show save message
-        messages.success(self.request, message)
-
-        if self.is_ajax:
-            form_kwargs = self.get_form_kwargs()
-
-            # Save phone number
-            if form.cleaned_data.get('phone'):
-                phone = PhoneNumber.objects.create(raw_input=form.cleaned_data.get('phone'))
-                self.object.phone_numbers.add(phone)
-
-            # Save account
-            if form_kwargs['data'].get('account'):
-                pk = form_kwargs['data'].get('account')
-                account = Account.objects.get(pk=pk)
-                Function.objects.get_or_create(account=account, contact=self.object)
-
-            # Check if the user wants to 'add & edit'
-            submit_action = form_kwargs['data'].get('submit_button', None)
-            if submit_action == 'edit':
-                redirect_url = reverse('contact_edit', kwargs={
-                    'pk': self.object.pk,
-                })
-            else:  # redirect if in the list view or dashboard
-                redirect_url = None
-                parse_result = urlparse(self.request.META['HTTP_REFERER'])
-                if parse_result.path in (reverse('contact_list'), reverse('dashboard')):
-                    redirect_url = self.get_success_url()
-                # Redirect to Account if quick create modal from Account.
-                elif account and parse_result.path == reverse('account_details', args=(account.pk,)):
-                    redirect_url = reverse('account_details', args=(account.pk,))
-
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return super(AddContactView, self).form_valid(form)
-
-    def get_initial(self):
-        """
-        Set the initials for the form
-        """
-        initial = super(AddContactView, self).get_initial()
-
-        # If the Contact is created from an Account, initialize the form with data from that Account
-        account_pk = self.kwargs.get('account_pk', None)
-        if account_pk:
-            try:
-                account = Account.objects.get(pk=account_pk)
-            except Account.DoesNotExist:
-                pass
-            else:
-                initial.update({'account': account})
-
-        return initial
+    action = 'saved'
 
     def get_form_kwargs(self):
-        kwargs = super(CreateUpdateContactMixin, self).get_form_kwargs()
-        if not self.is_ajax:
-            kwargs.update({
-                'formset_form_attrs': {
-                    'addresses': {
-                        'exclude_address_types': ['visiting'],
-                        'extra_form_kwargs': {
-                            'initial': {
-                                'type': 'home',
-                            }
+        kwargs = super(AddContactView, self).get_form_kwargs()
+        kwargs.update({
+            'formset_form_attrs': {
+                'addresses': {
+                    'exclude_address_types': ['visiting'],
+                    'extra_form_kwargs': {
+                        'initial': {
+                            'type': 'home',
                         }
                     }
                 }
-            })
+            }
+        })
         return kwargs
 
     def form_invalid(self, form):
@@ -258,20 +149,10 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
         Overloading super().form_invalid to mark the primary checkbox for e-mail addresses as
         checked for postbacks.
         """
-        if self.is_ajax:
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(anyjson.serialize({
-                'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), content_type='application/json')
-
         return super(AddContactView, self).form_invalid(form)
 
     def get_success_url(self):
-        """
-        Get the url to redirect to after this form has successfully been submitted.
-        """
-        return reverse('contact_list')
+        return '/#/contacts'
 
 
 class EditContactView(CreateUpdateContactMixin, UpdateView):
@@ -279,24 +160,14 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
     View to edit a contact.
     """
     model = Contact
-
-    def form_valid(self, form):
-        """
-        Save m2m relations to edited contact (i.e. Phone numbers, E-mail addresses and Addresses).
-        """
-        success_url = super(EditContactView, self).form_valid(form)
-
-        # Show save message
-        messages.success(self.request, _('%s (Contact) has been edited.') % self.object.full_name())
-
-        return success_url
+    action = 'edited'
 
     def get_success_url(self):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
         # return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
-        return '/#/contacts'
+        return '/#/contacts/%s' % self.object.pk
 
 
 class DeleteContactView(LoginRequiredMixin, DeleteView):
@@ -304,6 +175,7 @@ class DeleteContactView(LoginRequiredMixin, DeleteView):
     Delete an instance and all instances of m2m relationships.
     """
     model = Contact
+    success_url = '/#/contacts'
 
     def delete(self, request, *args, **kwargs):
         """
@@ -332,6 +204,3 @@ class DeleteContactView(LoginRequiredMixin, DeleteView):
             return HttpResponse(response, content_type='application/json')
 
         return redirect(redirect_url)
-
-    def get_success_url(self):
-        return reverse('contact_list')

@@ -1,5 +1,5 @@
 /**
- * caseControllers is a container for all case related Controllers
+ * ContactsControllers is a container for all case related Controllers
  */
 var contacts = angular.module('ContactsControllers', [
     // Angular dependencies
@@ -10,7 +10,7 @@ var contacts = angular.module('ContactsControllers', [
 
     // Lily dependencies
     'accountServices',
-    'caseServices',
+    'CaseServices',
     'contactServices',
     'noteServices',
     'EmailServices'
@@ -84,7 +84,7 @@ contacts.controller('ContactDetailController', [
     '$stateParams',
     function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, $scope, $q, $filter, $stateParams) {
         $scope.showMoreText = 'Show more';
-        $scope.conf.pageTitleBig = 'Contact Detail';
+        $scope.conf.pageTitleBig = 'Contact detail';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
         var id = $stateParams.id;
@@ -128,7 +128,7 @@ contacts.controller('ContactDetailController', [
                 // with sent / received headers.
                 emailPromise = EmailDetail.query({
                     filterquery: 'sender_email:(' + join + ') OR received_by_email:(' + join + ') OR received_by_cc_email:(' + join + ')',
-                    size: size,
+                    size: size
                 }).$promise;
             }
             $q.all([notesPromise, emailPromise, casesPromise]).then(function(results) {
@@ -220,7 +220,7 @@ contacts.controller('ContactListController', [
     function($scope, $cookieStore, $window, Contact, Cookie) {
         Cookie.prefix ='contactList';
 
-        $scope.conf.pageTitleBig = 'Contact List';
+        $scope.conf.pageTitleBig = 'Contacts';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 
         /**
@@ -333,7 +333,7 @@ contacts.controller('ContactCreateController', [
     '$scope',
 
     function($scope) {
-        $scope.conf.pageTitleBig = 'Contact Create';
+        $scope.conf.pageTitleBig = 'Contact create';
         $scope.conf.pageTitleSmall = 'who did you talk to?';
     }
 ]);

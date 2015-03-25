@@ -1,12 +1,12 @@
 /**
- * caseServices is a container for all case related Angular services
+ * CaseServices is a container for all case related Angular services
  */
-var caseservices = angular.module('caseServices', ['ngResource']);
+var caseServices = angular.module('CaseServices', ['ngResource']);
 
 /**
  * $resource for Case model, now only used for detail page.
  */
-caseservices.factory('CaseDetail', ['$resource', function($resource) {
+caseServices.factory('CaseDetail', ['$resource', function($resource) {
     return $resource(
         '/search/search/?type=cases_case&filterquery=id\::id',
         {},
@@ -54,7 +54,7 @@ caseservices.factory('CaseDetail', ['$resource', function($resource) {
  *
  * @returns: Case object: object with functions related to Cases
  */
-caseservices.factory('Case', ['$http', function($http) {
+caseServices.factory('Case', ['$http', function($http) {
     // TODO: LILY-660: Refactor this to other structure
     var Case = {};
 
@@ -158,6 +158,6 @@ caseservices.factory('Case', ['$http', function($http) {
 /**
  * UnassignedTeamCases endpoint gets all unassigned cases from all teams.
  */
-caseservices.factory('UnassignedTeamCases', ['$resource', function($resource) {
+caseServices.factory('UnassignedTeamCases', ['$resource', function($resource) {
     return $resource('/api/cases/teams/:teamId/?is_assigned=False')
 }]);

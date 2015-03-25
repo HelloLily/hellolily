@@ -222,6 +222,7 @@ PIPELINE_JS = {
 
             'accounts/js/angular/services.js',
 
+            'cases/js/angular/controllers.js',
             'cases/js/angular/services.js',
 
             'contacts/js/angular/controllers.js',

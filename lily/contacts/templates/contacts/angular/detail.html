@@ -1,151 +1,115 @@
 {% verbatim %}
 <script id="contacts/contact-detail.html" type="text/ng-template">
-    <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn blue"><i class="icon-edit"></i>Edit</a>
-    <!--  Note remove xhr when merging! -->
-    <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="icon-trash"></i>Delete</a>
-    <div ng-cloak ng-if="::contact.description">
-        <div class="row">
-            <div class="col-md-6">
-                <em class="pre-wrap">{{ ::contact.description }}</em>
-            </div>
-        </div>
-    </div>
-    <div ng-cloak class="row">
-        <div class="col-md-6">
-            <ul class="list-unstyled summary-list">
-                <li>
-                    <span class="summary-label">Phone number</span>
-                    <span class="summary-data">{{ ::contact.phone_work[0] }}</span>
-                </li>
-                <li>
-                    <span class="summary-label">Mobile number</span>
-                    <span class="summary-data">{{ ::contact.phone_mobile[0] }}</span>
-                </li>
-                <li>
-                    <span class="summary-label">E-mail address</span>
-                    <span class="summary-data">{{ ::contact.email[0] }}</span>
-                </li>
-                <li ng-repeat="social in ::contact.social">
-                    <span class="summary-label">{{ ::social.social_name }}</span>
-                    <span class="summary-data">
-                    <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
-                    </span>
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-6 text-right">
-            <div class="clearfix">
-                <a style="border: 2px solid #FFF; height: 33px; border-right: 0;" ng-href="/cases/#/?search={{ ::contact.name }}" class="btn btn-sm blue pull-right col-md-2 col-sm-11">
-                    Cases<span class="badge badge-success pull-right">{{ ::numCases }}</span>
-                </a>
-                <a style="border: 2px solid #FFF; height: 33px;" href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn btn-sm blue pull-right col-sm-1"><i class="icon-plus"></i></a>
-            </div>
-        </div>
-    </div>
-    <div ng-cloak class="tab-pane active" id="tab-history">
-        <div class="row">
-            <div class="form-group">
-                <form method="POST" action="/notes/create/">
-                    {% endverbatim %}{% csrf_token %}{% verbatim %}
-                    <div class="form-group note-input-wrapper">
-                        <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
-                        <input type="hidden" name="content_type" value="contact">
-                        <input type="hidden" name="object_id" value="{{ ::contact.id }}">
-                        <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
-                        <div class="clearfix"></div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <span ng-show="'Formal' == contact.salutation">Formal</span>
+                        <span ng-show="'Informal' == contact.salutation">Informal</span> /
+                        <span ng-show="'Unknown/Other' == contact.gender">Other</span>
+                        <span ng-show="'Male' == contact.gender">Male</span>
+                        <span ng-show="'Female' == contact.gender">Female</span>
+                        <span class="caption-subject bold uppercase"> {{ ::contact.name }}</span>
                     </div>
-                </form>
-            </div>
-        </div>
-        {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
-    </div>
-    <div ng-cloak class="tab-pane" id="tab-colleagues">
-        <div ng-repeat="work in ::works">
-            <h4>{{ ::work.name }}</h4>
-            <div class="well well-sm">
-                <div class="row no-margin">
-                    <table class="table no-margin">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>E-mail address</th>
-                            <th>Phone number</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="worker in ::work.colleagues">
-                            <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
-                            <td>{{ ::worker.email[0] }}</td>
-                            <td>{{ ::worker.phone }}</td>
-                        </tr>
-                        <tr ng-if="work.colleagues.length == 0">
-                            <td colspan="3">This is the only known contact for this company</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                </div>
+                <div class="portlet-body">
+                    <em class="pre-wrap" ng-if="::contact.description">{{ ::contact.description }}</em><br/><br/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- not in frontend  {{ ::contact.title }} / {{ ::contact.function }}  -->
+                            <i class="fa fa-phone"></i> {{ ::contact.phone_work[0] }}<br/>
+                            <i class="fa fa-mobile"></i> {{ ::contact.phone_mobile[0] }}<br/>
+                            <i class="fa fa-envelope-o"></i> <a href="#">{{ ::contact.email[0] }}</a><br/>
+                            <span ng-repeat="social in ::contact.social">
+                                <span ng-show="'Twitter' == social.social_name"><i class="fa fa-twitter"></i></span>
+                                <span ng-show="'LinkedIn' == social.social_name"><i class="fa fa-linkedin-square"></i></span> <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a><br/>
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <span ng-repeat="phone in ::contact.phone"> {{ ::phone }}</span>
+                            <span ng-repeat="email in ::contact.email"><a href="#">{{ ::email }}</a><br/></span>
+                            <span ng-repeat="address in ::contact.address"><i class="fa fa-building" name="Visiting address"></i> {{ ::address }}<br/><br/></span>
+                            <span ng-repeat="tag in ::contact.tag" class="badge badge-roundless">{{ ::tag }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-md-5">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-users"></i>
+                        <span class="caption-subject bold uppercase"> Colleagues</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div ng-repeat="work in ::works">
+                        <h4><i class="fa fa-building"></i> {{ ::work.name }}</h4>
+                        <div class="row no-margin">
+                            <table class="table no-margin table-light">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>E-mail address</th>
+                                        <th>Phone number</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="worker in ::work.colleagues">
+                                    <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
+                                    <td><i class="fa fa-envelope-o"></i> {{ ::worker.email[0] }}</td>
+                                    <td><i class="fa fa-phone"></i> {{ ::worker.phone }}</td>
+                                </tr>
+                                <tr ng-if="work.colleagues.length == 0">
+                                    <td colspan="3">This is the only known contact for this company</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn btn-sm blue"> <i class="fa fa-edit"></i> Edit</a>
+            <!--  Note remove xhr when merging! -->
+            <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn btn-sm blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="fa fa-trash"></i> Delete</a>
+            <br/><br/>
+            <div class="btn-group">
+                <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn blue btn-sm">
+                    <i class="icon-plus"></i>
+                </a>
+                <a ng-href="/cases/#/?search={{ ::contact.name }}" class="btn blue btn-sm">
+                    Cases <span class="badge badge-success pull-right">{{ ::numCases }}</span>
+                </a>
+            </div>
+        </div>
     </div>
-    <div ng-cloak class="tab-pane" id="tab-other">
-        <div class="row">
-            <div class="col-md-6 col-xs-6">
-                <ul class="list-unstyled summary-list small-summary-list">
-                    <li>
-                        <span class="summary-label">Title</span>
-                        <span class="summary-data">{{ ::contact.title }}</span>
-                    </li>
-                    <li>
-                        <span class="summary-label">Salutation</span>
-                        <span class="summary-data">{{ ::contact.salutation }}</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <ul class="list-unstyled summary-list small-summary-list">
-                    <li>
-                        <span class="summary-label">Gender</span>
-                        <span class="summary-data">{{ ::contact.gender }}</span>
-                    </li>
-                    <li>
-                        <span class="summary-label">Function</span>
-                        <span class="summary-data">{{ ::contact.function }}</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-xs-6">
-                <h4>Tags</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="tag in ::contact.tag"><span class="label label-btn label-btn-sm label-btn-default">{{ ::tag }}</span></li>
-                    <li class="no-padding" ng-if="!contact.tag"><a ng-href="/contacts/edit/{{ ::contact.id }}#id_tags" class="btn btn-sm default">Click to add one</a></li>
-                </ul>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <h4>E-mail addresses</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="email in ::contact.email"><a href="#" class="btn btn-sm default">{{ ::email }}</a></li>
-                    <li class="no-padding" ng-if="!contact.email"><a ng-href="/contacts/edit/{{ ::contact.id }}#email_addresses" class="btn btn-sm default">Click to add one</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-xs-6">
-                <h4>Phone numbers</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="phone in ::contact.phones"><span class="label label-btn label-btn-sm label-btn-default">{{ ::phone }}</span></li>
-                    <li class="no-padding" ng-if="!contact.phone"><a ng-href="/contacts/edit/{{ ::contact.id }}#phone_numbers" class="btn btn-sm default">Click to add one</a></li>
-                </ul>
-            </div>
-            <div class="col-md-6 col-xs-6">
-                <h4>Addresses</h4>
-                <ul class="list-unstyled list-inline no-margin block-list">
-                    <li class="no-padding" ng-repeat="address in ::contact.address">
-                        <span class="label label-btn label-btn-sm label-btn-default text-left">{{ ::address }}</span>
-                    </li>
-                    <li class="no-padding" ng-if="!contact.address"><a ng-href="/contacts/edit/{{ ::contact.id }}#addresses" class="btn btn-sm default">Click to add one</a></li>
-                </ul>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        Historylist
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="form-group">
+                        <form method="POST" action="/notes/create/">
+                            {% endverbatim %}{% csrf_token %}{% verbatim %}
+                            <div class="form-group note-input-wrapper col-md-10">
+                                <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
+                                <input type="hidden" name="content_type" value="contact">
+                                <input type="hidden" name="object_id" value="{{ ::contact.id }}">
+                            </div>
+                            <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                    {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
+                </div>
             </div>
         </div>
     </div>

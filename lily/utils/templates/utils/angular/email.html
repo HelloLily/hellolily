@@ -1,0 +1,61 @@
+{% verbatim %}
+<script id="utils/email.html" type="text/ng-template">
+    <form class="form form-horizontal" method="post" role="form">
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Your email accounts</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        Jorg Vletter  (jorg.vletter@voys.nl)
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-xs default" title="Sharing is caring" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/share/8">
+                                <i class="fa fa-group"></i> 0
+                            </button>
+                            <button type="button" class="btn btn-xs default" title="Just manage it" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/update/8">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-xs default" title="Throw it away" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/delete/8">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </span>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/messaging/email/setup/">Add an email account</a>
+                        <br />
+                        <i>Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Email accounts shared with you</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item">Supportbox  (support@voys.nl)
+                        <span class="pull-right"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Company email accounts</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item">No company wide email accounts.</li>
+                    <li class="list-group-item">
+                        <a href="/messaging/email/setup/">Add an email account</a>
+                        <br />
+                        <i>Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</script>
+{% endverbatim %}

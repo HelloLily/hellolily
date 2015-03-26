@@ -247,6 +247,8 @@ PIPELINE_JS = {
 
             'users/js/angular/services.js',
 
+            'utils/js/angular/controllers.js',
+
             # Pip package static
             'js/jquery.formset.js',
 

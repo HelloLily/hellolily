@@ -1,7 +1,7 @@
 /**
  * dealServices is a container for all deal related Angular services
  */
-var dealServices = angular.module('dealServices', []);
+var dealServices = angular.module('DealServices', []);
 
 /**
  * $resource for Deal model, now only used for detail page.
@@ -47,6 +47,10 @@ dealServices.factory('DealDetail', ['$resource', function($resource) {
             }
         }
     );
+}]);
+
+dealServices.factory('DealStages', ['$resource', function($resource) {
+    return $resource('/api/deals/stages');
 }]);
 
 /**

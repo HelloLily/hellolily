@@ -174,7 +174,7 @@ except ImportError:
 # LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
 LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
@@ -634,5 +634,9 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
     # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython and debug_toolbar_line_profiler
 ]
+
+# IronMQ
+IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
+IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
 
 from .celeryconfig import *

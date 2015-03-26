@@ -37,13 +37,12 @@ dashboard.controller('UnreadEmailController', [
     'EmailMessage',
     function($scope, EmailAccount, EmailMessage) {
 
-        var filterquery = ['read:false'];
+        var filterquery = ['read:false AND label_id:INBOX'];
 
         EmailMessage.SEARCH.get({
             filterquery: filterquery
         }, function (data) {
             $scope.emailMessages = data.hits;
-            //$scope.table.totalItems = data.total;
         });
     }
 ]);

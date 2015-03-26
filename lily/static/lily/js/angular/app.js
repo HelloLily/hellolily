@@ -37,24 +37,27 @@ lilyApp.factory('settings', ['$rootScope', function($rootScope) {
 }]);
 
 lilyApp.config([
-    '$urlRouterProvider',
-    '$resourceProvider',
     '$breadcrumbProvider',
     '$controllerProvider',
-
+    '$httpProvider',
+    '$resourceProvider',
+    '$urlRouterProvider',
     function(
-        $urlRouterProvider,
-        $resourceProvider,
         $breadcrumbProvider,
-        $controllerProvider
+        $controllerProvider,
+        $httpProvider,
+        $resourceProvider,
+        $urlRouterProvider
     ){
         // Don't strip trailing slashes from calculated URLs, because django needs them
-        $resourceProvider.defaults.stripTrailingSlashes = false;
-        $urlRouterProvider.otherwise('/');
         $breadcrumbProvider.setOptions({
             templateUrl: 'breadcrumbs.html'
         });
         $controllerProvider.allowGlobals();
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+        $resourceProvider.defaults.stripTrailingSlashes = false;
+        $urlRouterProvider.otherwise('/');
     }
 ]);
 

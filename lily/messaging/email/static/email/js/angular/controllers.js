@@ -333,20 +333,19 @@ EmailControllers.controller('EmailDetailController', [
  * LabelListController controller to show list of labels for different accounts
  */
 EmailControllers.controller('LabelListController', [
+    '$interval',
     '$scope',
     'EmailAccount',
-    function($scope, EmailAccount) {
+    function($interval, $scope, EmailAccount) {
 
-        $scope.getAccountInfo = function() {
+        // Fetch the EmailAccounts & associated labels
+        var getAccountInfo = function() {
             EmailAccount.query(function(results) {
-
                 $scope.accountList = results;
                 var labelCount = {};
-
                 for (var i in $scope.accountList){
                     for (var j in $scope.accountList[i].labels) {
                         var label = $scope.accountList[i].labels[j];
-
                         if (label.label_type == 0) {
                             if (labelCount.hasOwnProperty(label.label_id)) {
                                 labelCount[label.label_id] += parseInt(label.unread);
@@ -357,14 +356,21 @@ EmailControllers.controller('LabelListController', [
                     }
                 }
                 $scope.labelCount = labelCount;
-
-                // Check every 60 seconds if there are new emails
-                setTimeout($scope.getAccountInfo, 6000);
             });
-
         };
-        // Initial load
-        $scope.getAccountInfo();
+
+        //Fetch again every 60 seconds
+        getAccountInfo();
+        var stopGetAccountInfo = $interval(getAccountInfo, 60000);
+
+        // Stop fetching when out of scope
+        $scope.$on('$destroy', function() {
+            // Make sure that the interval is destroyed too
+            if (angular.isDefined(stopGetAccountInfo)) {
+                $interval.cancel(stopGetAccountInfo);
+                stopGetAccountInfo = undefined;
+            }
+        });
 
         function unreadCountForLabel(account, labelId) {
             var count = 0;

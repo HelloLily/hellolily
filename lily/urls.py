@@ -8,7 +8,8 @@ from rest_framework import routers
 
 from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList, CaseStatusList
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList
-from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
+from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
+                                            EmailTemplateViewSet)
 from lily.users.api.views import TeamList
 from lily.utils.api.views import Queues
 
@@ -20,6 +21,7 @@ router = routers.DefaultRouter()
 router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
+router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
 
 urlpatterns = patterns(
     '',

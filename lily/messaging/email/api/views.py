@@ -4,8 +4,8 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .serializers import EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer
-from ..models.models import EmailLabel, EmailAccount, EmailMessage
+from .serializers import EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer, EmailTemplateSerializer
+from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplate
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message)
 
@@ -113,3 +113,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             add_labels=request.data['data'].get('add_labels', []),
         )
         return Response(serializer.data)
+
+
+class EmailTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = EmailTemplate.objects.all()
+    serializer_class = EmailTemplateSerializer

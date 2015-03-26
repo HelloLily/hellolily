@@ -19,10 +19,10 @@ UtilsControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.settings.emailaccounts', {
-        url: '/emailaccount',
+        url: '/emailaccounts',
         views: {
             '@base.settings': {
-                templateUrl: 'utils/emailaccount-list.html',
+                templateUrl: 'utils/emailaccounts-list.html',
                 controller: 'UtilsEmailAccountListController'
             }
         },
@@ -42,6 +42,18 @@ UtilsControllers.config(['$stateProvider', function($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit EmailAccount'
+        }
+    });
+    $stateProvider.state('base.settings.emailtemplates', {
+        url: '/emailtemplates',
+        views: {
+            '@base.settings': {
+                templateUrl: 'utils/emailtemplates-list.html',
+                controller: 'UtilsEmailTemplatesListController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'EmailAccount Settings'
         }
     });
 }]);
@@ -109,3 +121,23 @@ UtilsControllers.controller('UtilsEmailAccountEditController', [
     }
 ]);
 
+
+/**
+ * UtilsEmailTemplatesListController is a controller to show the base of the settings page.
+ */
+UtilsControllers.controller('UtilsEmailTemplatesListController', [
+    '$scope',
+    'EmailTemplate',
+    function($scope, EmailTemplate) {
+        $scope.conf.pageTitleBig = 'EmailTemplate Settings';
+        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+
+        EmailTemplate.query({}, function(data) {
+            $scope.emailTemplates = data;
+        });
+
+        $scope.makeDefault = function(templateId) {
+            console.log(templateId);
+        }
+    }
+]);

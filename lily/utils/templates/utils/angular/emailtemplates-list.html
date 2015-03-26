@@ -1,0 +1,33 @@
+{% verbatim %}
+<script id="utils/emailtemplates-list.html" type="text/ng-template">
+    <div class="portlet">
+        <div class="portlet-title">
+             <div class="caption">Your email templates</div>
+        </div>
+        <div class="portlet-body">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="template in emailTemplates">
+                    {{ template.name }}
+                    <span class="pull-right">
+                        <a class="btn btn-xs default" ng-click="makeDefault(template.id)">
+                            <span><i class="fa fa-star"></i> Default settings</span>
+                        </a>
+                        <a ui-sref="base.settings.emailtemplates.edit({id: template.id})" class="btn btn-xs default">
+                            <span><i class="fa fa-edit"></i> Edit</span>
+                        </a>
+                        <a class="btn btn-xs default" ng-click="deleteTemplate(template.id)">
+                            <span><i class="fa fa-trash"></i> Delete</span>
+                        </a>
+                    </span>
+                </li>
+                <li class="list-group-item" ng-hide="emailTemplates.length">
+                    No templates mate, create one!
+                </li>
+                <li class="list-group-item">
+                    <a ui-sref="base.settings.emailtemplates.create">Add an email template</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

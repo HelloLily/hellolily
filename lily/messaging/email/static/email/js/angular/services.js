@@ -35,6 +35,10 @@ EmailServices.factory('EmailAccount', ['$resource', function($resource) {
     return $resource('/api/messaging/email/account/:id/');
 }]);
 
+EmailServices.factory('EmailTemplate', ['$resource', function($resource) {
+    return $resource('/api/messaging/email/emailtemplate/:id/');
+}]);
+
 EmailServices.factory('EmailLabel', ['$resource', function($resource) {
     return $resource('/api/messaging/email/label/:id/');
 }]);
@@ -47,7 +51,6 @@ EmailServices.factory('EmailMessage', ['$resource', 'Cookie', function($resource
             {
                 'update': {
                     method: 'PUT',
-                    headers: {'X-CSRFToken': Cookie.getCsrftoken()},
                     params: {
                         id: '@id',
                         actions: ''
@@ -55,7 +58,6 @@ EmailServices.factory('EmailMessage', ['$resource', 'Cookie', function($resource
                 },
                 'delete': {
                     method: 'DELETE',
-                    headers: {'X-CSRFToken': Cookie.getCsrftoken()},
                     params: {
                         id: '@id',
                         actions: ''
@@ -63,7 +65,6 @@ EmailServices.factory('EmailMessage', ['$resource', 'Cookie', function($resource
                 },
                 'archive': {
                     method: 'PUT',
-                    headers: {'X-CSRFToken': Cookie.getCsrftoken()},
                     params: {
                         id: '@id',
                         actions: 'archive'
@@ -71,7 +72,6 @@ EmailServices.factory('EmailMessage', ['$resource', 'Cookie', function($resource
                 },
                 'trash': {
                     method: 'PUT',
-                    headers: {'X-CSRFToken': Cookie.getCsrftoken()},
                     params: {
                         id: '@id',
                         actions: 'trash'
@@ -86,7 +86,6 @@ EmailServices.factory('EmailMessage', ['$resource', 'Cookie', function($resource
                 },
                 'move': {
                     method: 'PUT',
-                    headers: {'X-CSRFToken': Cookie.getCsrftoken()},
                     params: {
                         id: '@id',
                         actions: 'move'

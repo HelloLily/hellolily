@@ -51,6 +51,13 @@ class EmailAccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailAccount
-        fields = ('id', 'email_address', 'labels', 'label')
+        fields = (
+            'id',
+            'email_address',
+            'labels',
+            'label',
+            'public',
+            'shared_with_users',
+        )
 
 

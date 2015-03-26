@@ -1,5 +1,5 @@
 {% verbatim %}
-<script id="utils/email.html" type="text/ng-template">
+<script id="utils/emailaccount-list.html" type="text/ng-template">
     <form class="form form-horizontal" method="post" role="form">
         <div class="portlet">
             <div class="portlet-title">
@@ -7,19 +7,23 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item">
-                        Jorg Vletter  (jorg.vletter@voys.nl)
+                    <li class="list-group-item" ng-repeat="account in ownedAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                        <span ng-show="account.public"><i>(Public Account)</i></span>
                         <span class="pull-right">
-                            <button type="button" class="btn btn-xs default" title="Sharing is caring" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/share/8">
-                                <i class="fa fa-group"></i> 0
+                            <button type="button" class="btn btn-xs default" title="Sharing is caring" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/share/8" ng-hide="account.public">
+                                <i class="fa fa-group"></i> {{ account.shared_with_users.length }}
                             </button>
-                            <button type="button" class="btn btn-xs default" title="Just manage it" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/update/8">
+                            <a class="btn btn-xs default" title="Just manage it" ui-sref="base.settings.emailaccounts.edit({id: account.id})">
                                 <i class="fa fa-edit"></i>
-                            </button>
-                            <button type="button" class="btn btn-xs default" title="Throw it away" data-target="#emailaccount-modal" data-source="/messaging/email/accounts/delete/8">
+                            </a>
+                            <a class="btn btn-xs default" title="Throw it away" ng-click="deleteAccount(account.id)">
                                 <i class="fa fa-trash"></i>
-                            </button>
+                            </a>
                         </span>
+                    </li>
+                    <li class="list-group-item"  ng-hide="ownedAccounts.length">
+                        No Email accounts setup jet.
                     </li>
                     <li class="list-group-item">
                         <a href="/messaging/email/setup/">Add an email account</a>
@@ -35,8 +39,11 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item">Supportbox  (support@voys.nl)
-                        <span class="pull-right"></span>
+                    <li class="list-group-item"  ng-repeat="account in sharedAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                    </li>
+                    <li class="list-group-item"  ng-hide="sharedAccounts.length">
+                        No Email accounts shared with you.
                     </li>
                 </ul>
             </div>
@@ -47,7 +54,12 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item">No company wide email accounts.</li>
+                    <li class="list-group-item" ng-repeat="account in publicAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                    </li>
+                    <li class="list-group-item" ng-hide="publicAccounts.length">
+                        No company wide email accounts.
+                    </li>
                     <li class="list-group-item">
                         <a href="/messaging/email/setup/">Add an email account</a>
                         <br />

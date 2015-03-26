@@ -38,16 +38,17 @@ lilyApp.factory('settings', ['$rootScope', function($rootScope) {
 }]);
 
 lilyApp.config([
-    '$urlRouterProvider',
-    '$resourceProvider',
     '$breadcrumbProvider',
     '$controllerProvider',
-
+    '$httpProvider',
+    '$resourceProvider',
+    '$urlRouterProvider',
     function(
-        $urlRouterProvider,
-        $resourceProvider,
         $breadcrumbProvider,
-        $controllerProvider
+        $controllerProvider,
+        $httpProvider,
+        $resourceProvider,
+        $urlRouterProvider
     ){
         // Don't strip trailing slashes from calculated URLs, because django needs them
         $resourceProvider.defaults.stripTrailingSlashes = false;
@@ -56,6 +57,25 @@ lilyApp.config([
             templateUrl: 'breadcrumbs.html'
         });
         $controllerProvider.allowGlobals();
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     }
 ]);
 

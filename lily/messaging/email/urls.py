@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, url
 
-from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailAccountListView, EmailAccountShareView,
-                    EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, EmailMessageHTMLView, EmailBaseView,
-                    EmailAccountUpdateView, EmailAccountDeleteView, EmailTemplateListView, CreateEmailTemplateView,
-                    UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView,
-                    DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView)
+from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailAccountShareView,
+                    EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, EmailMessageHTMLView,
+                    EmailAccountUpdateView, EmailTemplateListView, CreateEmailTemplateView, UpdateEmailTemplateView,
+                    ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView, DetailEmailTemplateView,
+                    EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView)
 
 
 urlpatterns = patterns(
@@ -15,10 +15,8 @@ urlpatterns = patterns(
     url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
 
     # Account config
-    url(r'^accounts/$', EmailAccountListView.as_view(), name='messaging_email_account_list'),
     url(r'^accounts/share/(?P<pk>[\d-]+)$', EmailAccountShareView.as_view(), name='messaging_email_account_share'),
     url(r'^accounts/update/(?P<pk>[\d-]+)$', EmailAccountUpdateView.as_view(), name='messaging_email_account_update'),
-    url(r'^accounts/delete/(?P<pk>[\d-]+)$', EmailAccountDeleteView.as_view(), name='messaging_email_account_delete'),
 
     url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
 

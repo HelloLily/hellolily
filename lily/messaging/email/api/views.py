@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -19,16 +19,30 @@ class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
         return EmailLabel.objects.filter(account__tenant_id=self.request.user.tenant_id)
 
 
-class EmailAccountViewSet(viewsets.ReadOnlyModelViewSet):
+class EmailAccountViewSet(mixins.DestroyModelMixin,
+                          viewsets.ReadOnlyModelViewSet):
+
     queryset = EmailLabel.objects.all()
     serializer_class = EmailAccountSerializer
+    filter_fields = (
+        'owner',
+        'shared_with_users__id',
+        'public',
+    )
 
     def get_queryset(self):
         return EmailAccount.objects.filter(
             Q(owner=self.request.user) |
             Q(public=True) |
             Q(shared_with_users__id=self.request.user.pk)
-        ).distinct('id')
+        ).filter(is_deleted=False).distinct('id')
+
+    def perform_destroy(self, instance):
+        if instance.owner_id is self.request.user.id:
+            instance.is_deleted = True
+            instance.save()
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 class EmailMessageViewSet(mixins.RetrieveModelMixin,

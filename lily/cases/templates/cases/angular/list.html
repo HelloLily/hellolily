@@ -49,10 +49,14 @@
                 </form>
             </div>
         </div>
-        <div class="row no-margin">
-            <table class="table table-striped table-bordered table-hover table-fixed-layout">
-                <thead>
-                    <th class="list-actions"></th>
+        <div class="portlet-body flip-scroll">
+            <table class="table table-bordered table-striped flip-content">
+                <thead class="flip-content">
+                    <th class="list-actions" width="75px">
+                        <span class="text-nowrap">
+                            Options
+                        </span>
+                    </th>
                     <th ng-show="table.visibility.caseId" sort-column="id" table="table" class="width-4">No.</th>
                     <th ng-show="table.visibility.client" class="width-20">Client</th>
                     <th ng-show="table.visibility.subject" class="width-20">Subject</th>
@@ -70,8 +74,8 @@
                         <a ui-sref="base.cases.detail.edit({ id: case.id })" class="btn btn-xs default" title="Edit">
                             <i class="fa fa-edit"></i>
                         </a>
-                        <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/cases/delete/{{ ::case.id }}/" >
-                            <i class="fa fa-trash"></i>
+                        <button type="button" class="btn btn-xs default" title="Delete" ng-click="delete(case.id, case.subject, case)">
+                                <i class="fa fa-trash"></i>
                         </button>
                     </td>
                     <td ng-show="table.visibility.caseId">

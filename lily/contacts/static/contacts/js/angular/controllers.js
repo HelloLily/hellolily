@@ -373,7 +373,7 @@ contacts.controller('ContactCreateController', [
     '$scope',
 
     function($scope) {
-        $scope.conf.pageTitleBig = 'Contact create';
+        $scope.conf.pageTitleBig = 'New contact';
         $scope.conf.pageTitleSmall = 'who did you talk to?';
     }
 ]);

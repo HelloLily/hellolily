@@ -71,6 +71,7 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
         model = EmailTemplate
 
         fields = (
+            'id',
             'name',
             'subject',
             'body_html',

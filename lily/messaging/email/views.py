@@ -337,7 +337,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse('messaging_email_inbox')
+        return '/#/email/all/INBOX'
+        # return reverse('messaging_email_inbox')
 
     def get_email_headers(self):
         """

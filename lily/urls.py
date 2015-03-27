@@ -10,7 +10,7 @@ from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList, CaseStat
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList, DealStagesList
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet)
-from lily.users.api.views import TeamList
+from lily.users.api.views import TeamList, LilyUserViewSet
 from lily.utils.api.views import Queues
 
 admin.autodiscover()
@@ -21,6 +21,7 @@ router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
 router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
+router.register(r'users/user', LilyUserViewSet)
 
 urlpatterns = patterns(
     '',

@@ -47,7 +47,11 @@ class EmailMessageSerializer(serializers.ModelSerializer):
 
 
 class EmailAccountSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+    email_address = serializers.ReadOnlyField()
     labels = EmailLabelSerializer(many=True, read_only=True)
+    label = serializers.ReadOnlyField()
+    public = serializers.BooleanField()
 
     class Meta:
         model = EmailAccount

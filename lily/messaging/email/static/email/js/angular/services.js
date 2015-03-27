@@ -32,7 +32,14 @@ EmailServices.factory('EmailDetail', ['$resource', function($resource) {
 }]);
 
 EmailServices.factory('EmailAccount', ['$resource', function($resource) {
-    return $resource('/api/messaging/email/account/:id/');
+    return $resource('/api/messaging/email/account/:id/', null,
+        {
+            'update': { method: 'PUT' },
+            'shareWith': {
+                method: 'POST',
+                url: '/api/messaging/email/account/:id/shared/'
+            }
+        });
 }]);
 
 EmailServices.factory('EmailTemplate', ['$resource', function($resource) {

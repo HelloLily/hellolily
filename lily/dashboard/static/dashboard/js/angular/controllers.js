@@ -5,7 +5,7 @@ var dashboard = angular.module('dashboardControllers', [
     'dashboardDirectives',
     'chart.js',
     'ui.slimscroll',
-    'userServices'
+    'UserServices'
 ]);
 
 dashboard.config(['$stateProvider', function($stateProvider) {

@@ -2,7 +2,12 @@
  * ContactsControllers is a container for all case related Controllers
  */
 var UtilsControllers = angular.module('UtilsControllers', [
-    'EmailServices'
+    'ui.bootstrap',
+    'ui.slimscroll',
+    'EmailServices',
+    'LilyServices',
+    'UserFilters',
+    'UserServices'
 ]);
 
 UtilsControllers.config(['$stateProvider', function($stateProvider) {
@@ -73,9 +78,10 @@ UtilsControllers.controller('UtilsBaseController', [
  * UtilsEmailAccountListController is a controller to show the base of the settings page.
  */
 UtilsControllers.controller('UtilsEmailAccountListController', [
+    '$modal',
     '$scope',
     'EmailAccount',
-    function($scope, EmailAccount) {
+    function($modal, $scope, EmailAccount) {
         $scope.conf.pageTitleBig = 'EmailAccount Settings';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -106,7 +112,26 @@ UtilsControllers.controller('UtilsEmailAccountListController', [
                     loadAccounts();
                 });
             }
-        }
+        };
+
+        $scope.openShareAccountModal = function (emailAccount) {
+            var modalInstance = $modal.open({
+                templateUrl: 'utils/emailaccount-share.html',
+                controller: 'EmailAccountShareModalController',
+                size: 'lg',
+                resolve: {
+                        currentAccount: function() {
+                            return emailAccount;
+                        }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                loadAccounts();
+            }, function() {
+                loadAccounts();
+            });
+        };
     }
 ]);
 
@@ -120,7 +145,6 @@ UtilsControllers.controller('UtilsEmailAccountEditController', [
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
     }
 ]);
-
 
 /**
  * UtilsEmailTemplatesListController is a controller to show the base of the settings page.
@@ -139,5 +163,57 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
         $scope.makeDefault = function(templateId) {
             console.log(templateId);
         }
+    }
+]);
+
+/**
+ * EmailAccountShareModalController is a controller to show the base of the settings page.
+ */
+UtilsControllers.controller('EmailAccountShareModalController', [
+    '$modalInstance',
+    '$scope',
+    'EmailAccount',
+    'User',
+    'currentAccount',
+    function($modalInstance, $scope, EmailAccount, User, currentAccount) {
+        $scope.currentAccount = currentAccount;
+
+        // Get all users to display in a list
+        User.query({}, function(data) {
+            $scope.users = [];
+            // Check if user has the emailaccount already shared
+            angular.forEach(data, function(user) {
+                if ($scope.currentAccount.shared_with_users.indexOf(user.id) !== -1) {
+                    user.sharedWith = true;
+                }
+                $scope.users.push(user);
+            });
+        });
+
+        $scope.ok = function () {
+            // Save updated account information
+            if ($scope.currentAccount.public) {
+                EmailAccount.update({id: $scope.currentAccount.id}, $scope.currentAccount, function() {
+                    $modalInstance.close();
+                });
+            } else {
+                // Get ids of the users to share with
+                var shared_with_users = [];
+                angular.forEach($scope.users, function(user) {
+                    if(user.sharedWith) {
+                        shared_with_users.push(user.id);
+                    }
+                });
+                // Push ids to api
+                EmailAccount.shareWith({id: $scope.currentAccount.id}, {shared_with_users: shared_with_users}, function() {
+                    $modalInstance.close();
+                });
+            }
+        };
+
+        // Lets not change anything
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     }
 ]);

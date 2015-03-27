@@ -246,6 +246,7 @@ PIPELINE_JS = {
             'notes/js/angular/services.js',
 
             'users/js/angular/services.js',
+            'users/js/angular/filters.js',
 
             'utils/js/angular/controllers.js',
 

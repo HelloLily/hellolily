@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models import LilyGroup
+from ..models import LilyGroup, LilyUser
 
 
 class LilyGroupSerializer(serializers.ModelSerializer):
@@ -13,4 +13,19 @@ class LilyGroupSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+        )
+
+
+class LilyUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the contact model.
+    """
+
+    class Meta:
+        model = LilyUser
+        fields = (
+            'id',
+            'first_name',
+            'preposition',
+            'last_name',
         )

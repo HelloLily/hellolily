@@ -593,6 +593,10 @@ class AngularView(TemplateView):
         })
         return context
 
+
+class LoginRequiredRootView(LoginRequiredMixin, TemplateView):
+    template_name = 'angular/base.html'
+
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
 notifications_view = NotificationsView.as_view()

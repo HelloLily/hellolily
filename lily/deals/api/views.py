@@ -76,6 +76,12 @@ class DealCommunicationList(APIView):
         return Response(statistics)
 
 
+class DealStagesList(APIView):
+
+    def get(self, request, format=None):
+        return Response(Deal.STAGE_CHOICES)
+
+
 class DealWonWrittenList(APIView):
     """
     List all snippets, or create a new snippet.

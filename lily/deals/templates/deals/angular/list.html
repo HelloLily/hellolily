@@ -50,10 +50,14 @@
                 </form>
             </div>
         </div>
-        <div class="row no-margin">
-            <table class="table table-striped table-bordered table-hover table-fixed-layout">
-                <thead>
-                    <th class="list-actions"></th>
+        <div class="portlet-body flip-scroll">
+            <table class="table table-bordered table-striped flip-content">
+                <thead class="flip-content">
+                    <th class="list-actions" width="75px">
+                        <span class="text-nowrap">
+                            Options
+                        </span>
+                    </th>
                     <th ng-show="table.visibility.account" class="width-10">Account</th>
                     <th ng-show="table.visibility.stage" sort-column="stage" table="table">Stage</th>
                     <th ng-show="table.visibility.created" sort-column="created" table="table" class="width-10">Created</th>
@@ -69,48 +73,48 @@
                 <tbody>
                     <tr ng-repeat="deal in table.items">
                         <td>
-                            <a href="/deals/update/{{ ::deal.id }}/" class="btn btn-xs default" title="Edit">
+                            <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="btn btn-xs default" title="Edit">
                                 <i class="fa fa-edit"></i>
                             </a>
-                            <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/deals/delete/{{ ::deal.id }}/" >
+                            <button type="button" class="btn btn-xs default" title="Delete" ng-click="delete(deal.id, deal.name, deal)">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </td>
                         <td ng-show="table.visibility.account">
-                            {{ ::deal.account_name }}
+                            {{ deal.account_name }}
                         </td>
                         <td ng-show="table.visibility.stage">
-                            {{ ::deal.stage_name }}
+                            {{ deal.stage_name }}
                         </td>
                         <td ng-show="table.visibility.created">
-                            {{ ::deal.created | relativeDate }}
+                            {{ deal.created | relativeDate }}
                         </td>
                         <td ng-show="table.visibility.name">
-                            <a href="/deals/details/{{ ::deal.id }}/" title="{{ ::deal.name }}">{{ ::deal.name }}</a>
+                            <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
                         </td>
                         <td ng-show="table.visibility.amountOnce">
-                            {{ ::deal.amount_once |currency:'&euro; ' }}
+                            {{ deal.amount_once |currency:'&euro; ' }}
                         </td>
                         <td ng-show="table.visibility.amountRecurring">
-                            {{ ::deal.amount_recurring |currency:'&euro; ' }}
+                            {{ deal.amount_recurring |currency:'&euro; ' }}
                         </td>
                         <td ng-show="table.visibility.assignedTo">
-                            {{ ::deal.assigned_to_name }}
+                            {{ deal.assigned_to_name }}
                         </td>
                         <td ng-show="table.visibility.closingDate">
-                            {{ ::deal.closing_date | relativeDate }}
+                            {{ deal.closing_date | relativeDate }}
                         </td>
                         <td ng-show="table.visibility.newBusiness">
-                            <span ng-if="deal.new_business"><i class="icon-ok text-success"></i></span>
-                            <span ng-if="!deal.new_business"><i class="icon-remove text-danger"></i></span>
+                            <span ng-if="deal.new_business"><i class="fa fa-check text-success"></i></span>
+                            <span ng-if="!deal.new_business"><i class="fa fa-remove text-danger"></i></span>
                         </td>
                         <td ng-show="table.visibility.feedbackFormSent">
-                            <span ng-if="deal.feedback_form_sent"><i class="icon-ok text-success"></i></span>
-                            <span ng-if="!deal.feedback_form_sent"><i class="icon-remove text-danger"></i></span>
+                            <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success"></i></span>
+                            <span ng-if="!deal.feedback_form_sent"><i class="fa fa-remove text-danger"></i></span>
                         </td>
                         <td ng-show="table.visibility.tags">
                             <span ng-repeat="tag in deal.tag">
-                                <a href="javascript:void(0)" ng-click="setSearchQuery(tag)">{{ ::tag }}</a>
+                                <a href="javascript:void(0)" ng-click="setSearchQuery(tag)">{{ tag }}</a>
                                 <br>
                             </span>
                         </td>

@@ -9,7 +9,7 @@ var dealControllers = angular.module('DealControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'dealServices'
+    'DealServices',
 ]);
 
 dealControllers.config(['$stateProvider', function($stateProvider) {
@@ -25,21 +25,61 @@ dealControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Deals'
         }
     });
+    $stateProvider.state('base.deals.detail', {
+        url: '/{id:[0-9]{1,4}}',
+        views: {
+            '@': {
+                templateUrl: 'deals/detail.html',
+                controller: 'DealDetailController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: '{{ deal.name }}'
+        }
+    });
+    $stateProvider.state('base.deals.detail.edit', {
+        url: '/edit/{id:[0-9]{1,4}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr) {
+                    return '/deals/update/' + elem.id +'/';
+                },
+                controller: 'DealEditController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Edit'
+        }
+    });
+    $stateProvider.state('base.deals.create', {
+        url: '/create',
+        views: {
+            '@': {
+                templateUrl: '/deals/create',
+                controller: 'DealCreateController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'New'
+        }
+    });
 }]);
 
- /**
-  * DealListController controller to show list of deals.
-  */
+/**
+ * DealListController controller to show list of deals
+ */
 dealControllers.controller('DealListController', [
-    '$scope',
     '$cookieStore',
-    '$window',
+    '$http',
     '$location',
-    'Deal',
+    '$scope',
+    '$window',
+
     'Cookie',
+    'Deal',
     'HLDate',
     'HLFilters',
-    function($scope, $cookieStore, $window, $location, Deal, Cookie, HLDate, HLFilters) {
+    function($cookieStore, $http, $location, $scope, $window, Cookie, Deal, HLDate, HLFilters) {
         Cookie.prefix ='dealList';
 
         $scope.conf.pageTitleBig = 'Deals';
@@ -210,5 +250,230 @@ dealControllers.controller('DealListController', [
         $scope.clearFilters = function() {
             HLFilters.clearFilters($scope);
         };
+
+        /**
+         * Deletes the deal in django and updates the angular view
+         */
+        $scope.delete = function(id, name, deal) {
+            var req = {
+                method: 'POST',
+                url: '/deals/delete/' + id + '/',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            if(confirm("Are you sure you want to delete deal " + name + "?")){
+                $http(req).
+                    success(function(data, status, headers, config) {
+                        var index = $scope.table.items.indexOf(deal);
+                        $scope.table.items.splice(index, 1);
+                    }).
+                    error(function(data, status, headers, config) {
+                        // Request failed propper error?
+                    });
+            }
+        };
+    }
+]);
+
+/**
+ * This controller holds all the functions needed on the detail
+ * page of a deal. It includes: Stage change, (un)archive, Delete
+ */
+dealControllers.controller('DealDetailController', [
+    '$filter',
+    '$http',
+    '$location',
+    '$scope',
+    '$stateParams',
+    '$q',
+
+    'DealDetail',
+    'DealStages',
+    'NoteDetail',
+
+    function($filter, $http, $location, $scope, $stateParams, $q, DealDetail, DealStages, NoteDetails){
+        $scope.conf.pageTitleBig = 'Deal Detail';
+        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+
+        var id = $stateParams.id;
+
+        $scope.deal = DealDetail.get({id: id});
+        $scope.dealStages = DealStages.query();
+
+        $scope.showMoreText = 'Show more';
+        $scope.opts = {history_type: 'note'};
+        $scope.history_types = [
+            {type: 'note', name: 'Notes'},
+        ]
+
+        var add = 10,
+            size = add,
+            currentSize = 0;
+
+        $scope.history = [];
+
+        /**
+         * Load history of notes for this deal for historylist
+         */
+        function loadHistory() {
+            var history = [];
+            var notesPromise = NoteDetails.query({
+                filterquery: 'content_type:deal AND object_id:' + id,
+                size: size
+            }).$promise;
+
+            $q.all([notesPromise,]).then(function(results) {
+                console.log(results);
+                var notes = results[0];
+                console.log(notes);
+                notes.forEach(function(note) {
+                    note.history_type = 'note';
+                    note.color = 'yellow';
+                    history.push(note);
+                });
+
+                $scope.history.splice(0, $scope.history.length);
+                $filter('orderBy')(history, 'date', true).forEach(function(item) {
+                    $scope.history.push(item);
+                });
+                $scope.limitSize = size;
+                size += add;
+                if ($scope.history.length == 0) {
+                    $scope.showMoreText = 'No history (refresh)';
+                }
+                else if ($scope.history.length <= currentSize || $scope.history.length < size / 4) {
+                    $scope.showMoreText = 'End reached (refresh)';
+                }
+                currentSize = $scope.history.length;
+            });
+        };
+
+        /**
+         * Allows the (re)load of the history
+         */
+        $scope.loadHistoryFromButton = function() {
+            loadHistory();
+        };
+        $scope.loadHistoryFromButton();
+
+        /**
+         * Change the state of a deal
+         */
+        $scope.changeState = function(stage) {
+            var newStage = stage;
+
+            var req = {
+                method: 'POST',
+                url: '/deals/update/stage/' + $scope.deal.id + '/',
+                data: 'stage=' + stage,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.deal.stage = newStage;
+                    $scope.deal.stage_name = data.stage;
+                    if(data.closed_date !== undefined){
+                        $scope.deal.closing_date = data.closed_date;
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
+
+        /**
+         * Archive a deal
+         */
+        $scope.archive = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/deals/archive/',
+                data: 'id=' + id,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.deal.archived = true;
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
+
+        /**
+         * Unarchive a deal
+         */
+        $scope.unarchive = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/deals/unarchive/',
+                data: 'id=' + id,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.deal.archived = false;
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
+
+        /**
+         * Delete a deal and redirect to dashboard
+         */
+        $scope.delete = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/deals/delete/' + id + '/',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            if(confirm("Are you sure you want to delete deal " + $scope.deal.name + "?")){
+                $http(req).
+                    success(function(data, status, headers, config) {
+                        $location.path('');
+                    }).
+                    error(function(data, status, headers, config) {
+                        // Request failed propper error?
+                    });
+            }
+        };
+    }
+]);
+
+/**
+ * Controller for editing a deal
+ */
+dealControllers.controller('DealEditController', [
+    '$scope',
+    '$stateParams',
+
+    'DealDetail',
+
+    function($scope, $stateParams, DealDetail) {
+        var id = $stateParams.id;
+        var dealPromise = DealDetail.get({id: id}).$promise;
+
+        dealPromise.then(function(deal) {
+            $scope.deal = deal;
+            $scope.conf.pageTitleBig = 'Edit ' + deal.name;
+            $scope.conf.pageTitleSmall = 'change is natural';
+        });
+    }
+]);
+
+/**
+ * Controller for creating a deal
+ */
+dealControllers.controller('DealCreateController', [
+    '$scope',
+
+    function($scope) {
+        $scope.conf.pageTitleBig = 'New deal'
+        $scope.conf.pageTitleSmall = 'making deals';
     }
 ]);

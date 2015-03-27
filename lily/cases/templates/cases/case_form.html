@@ -1,11 +1,6 @@
 {% extends 'form.html' %}
 
-{% load i18n pipeline %}
-
-{% block css %}
-    {{ block.super }}
-    {% stylesheet 'cases' %}
-{% endblock %}
+{% load i18n %}
 
 {% block head-title %}
 {% if object.pk %}
@@ -35,14 +30,6 @@
     </a>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    {% javascript 'cases'  %}
-    <script>
-        HLCases.init({
-            caseUpdateUrl: "{% url 'case_update_status_short' %}"
-        });
-
-        HLCases.addAssignToMeButton();
-    </script>
-{% endblock %}
+<script>
+    HLCases.addAssignToMeButton();
+</script>

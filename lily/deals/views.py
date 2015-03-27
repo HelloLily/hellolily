@@ -214,6 +214,13 @@ class UpdateDealView(CreateUpdateDealMixin, UpdateView):
 
         return response
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        # return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
+        return '/#/deals'
+
 
 class UpdateAndUnarchiveDealView(CreateUpdateDealMixin, UpdateView):
     """

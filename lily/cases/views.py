@@ -159,6 +159,12 @@ class CreateCaseView(CreateUpdateCaseMixin, CreateView):
 
         return response
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '/#/cases'
+
 
 class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
     model = Case
@@ -171,6 +177,13 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
         messages.success(self.request, _('%s (Case) has been updated.') % self.object.subject)
 
         return response
+
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        # return '/#/cases/%s' % self.object.pk
+        return '/#/cases'
 
 
 class ArchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
@@ -287,14 +300,12 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
         redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
 
-        return HttpResponseRedirect(redirect_url)
+        response = anyjson.serialize({
+            'error': False,
+            'redirect_url': redirect_url
+        })
+        return HttpResponse(response, content_type='application/json')
 
     def get_success_url(self):
         return reverse('case_list')

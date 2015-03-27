@@ -41,30 +41,30 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: '{{ case.subject }}'
         }
     });
-    $stateProvider.state('base.cases.create', {
-        url: '/create',
-        views: {
-            '@': {
-                templateUrl: 'cases/case-create.html',
-                controller: 'CaseCreateController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Create'
-        }
-    });
     $stateProvider.state('base.cases.detail.edit', {
         url: '/edit',
         views: {
             '@': {
                 templateUrl: function(elem, attr) {
-                    return '/case/edit/' + elem.id +'/';
+                    return '/cases/update/' + elem.id +'/';
                 },
                 controller: 'CaseEditController'
             }
         },
         ncyBreadcrumb: {
             label: 'Edit'
+        }
+    });
+    $stateProvider.state('base.cases.create', {
+        url: '/create',
+        views: {
+            '@': {
+                templateUrl: '/cases/create',
+                controller: 'CaseCreateController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Create'
         }
     });
 }]);
@@ -75,6 +75,7 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
 caseControllers.controller('CaseDetailController', [
     '$filter',
     '$http',
+    '$location',
     '$q',
     '$scope',
     '$stateParams',
@@ -82,7 +83,7 @@ caseControllers.controller('CaseDetailController', [
     'CaseDetail',
     'CaseStatuses',
     'NoteDetail',
-    function($filter, $http, $q, $scope, $stateParams, CaseDetail, CaseStatuses, NoteDetail) {
+    function($filter, $http, $location, $q, $scope, $stateParams, CaseDetail, CaseStatuses, NoteDetail) {
         $scope.conf.pageTitleBig = 'Case';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -260,6 +261,27 @@ caseControllers.controller('CaseDetailController', [
                     // Request failed propper error?
                 });
         };
+
+        /**
+         * Delete a case and redirect to dashboard
+         */
+        $scope.delete = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/cases/delete/' + id + '/',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            if(confirm("Are you sure you want to delete case " + $scope.case.subject + "?")){
+                $http(req).
+                    success(function(data, status, headers, config) {
+                        $location.path('');
+                    }).
+                    error(function(data, status, headers, config) {
+                        // Request failed proper error?
+                    });
+            }
+        };
     }
 ]);
 
@@ -268,15 +290,17 @@ caseControllers.controller('CaseDetailController', [
  *
  */
 caseControllers.controller('CaseListController', [
-    '$scope',
     '$cookieStore',
-    '$window',
+    '$http',
     '$location',
+    '$scope',
+    '$window',
+
     'Case',
     'Cookie',
     'HLDate',
     'HLFilters',
-    function ($scope, $cookieStore, $window, $location, Case, Cookie, HLDate, HLFilters) {
+    function ($cookieStore, $http, $location, $scope, $window, Case, Cookie, HLDate, HLFilters) {
         Cookie.prefix = 'caseList';
 
         $scope.conf.pageTitleBig = 'Cases';
@@ -466,18 +490,48 @@ caseControllers.controller('CaseListController', [
         $scope.clearFilters = function () {
             HLFilters.clearFilters($scope);
         };
+
+        /**
+         * Deletes the case in django and updates the angular view
+         */
+        $scope.delete = function(id, subject, cases) {
+            var req = {
+                method: 'POST',
+                url: '/cases/delete/' + id + '/',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            if(confirm("Are you sure you want to delete case " + subject + "?")){
+                $http(req).
+                    success(function(data, status, headers, config) {
+                        var index = $scope.table.items.indexOf(cases);
+                        $scope.table.items.splice(index, 1);
+                    }).
+                    error(function(data, status, headers, config) {
+                        // Request failed proper error?
+                    });
+            }
+        };
     }
 ]);
 
+/**
+ * Controller to create a case
+ */
 caseControllers.controller('CaseCreateController', [
     '$scope',
 
     function($scope) {
-        $scope.conf.pageTitleBig = 'Case create';
-        $scope.conf.pageTitleSmall = '';
+        $scope.conf.pageTitleBig = 'New case';
+        $scope.conf.pageTitleSmall = 'making cases';
+        HLCases.addAssignToMeButton();
+        HLSelect2.init();
     }
 ]);
 
+/**
+ * Controller to edit a case
+ */
 caseControllers.controller('CaseEditController', [
     '$scope',
     '$stateParams',
@@ -488,9 +542,9 @@ caseControllers.controller('CaseEditController', [
         var id = $stateParams.id;
         var casePromise = CaseDetail.get({id: id}).$promise;
 
-        casePromise.then(function(contact) {
-            $scope.case = contact;
-            $scope.conf.pageTitleBig = contact.name;
+        casePromise.then(function(caseObject) {
+            $scope.case = caseObject;
+            $scope.conf.pageTitleBig = caseObject.subject;
             $scope.conf.pageTitleSmall = 'change is natural';
             HLSelect2.init();
         });

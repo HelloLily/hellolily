@@ -38,7 +38,7 @@ dealControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.deals.detail.edit', {
-        url: '/edit/{id:[0-9]{1,4}}',
+        url: '/edit',
         views: {
             '@': {
                 templateUrl: function(elem, attr) {

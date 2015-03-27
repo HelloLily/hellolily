@@ -58,7 +58,33 @@ UtilsControllers.config(['$stateProvider', function($stateProvider) {
             }
         },
         ncyBreadcrumb: {
-            label: 'EmailAccount Settings'
+            label: 'Email templates'
+        }
+    });
+    $stateProvider.state('base.settings.emailtemplates.create', {
+        url: '/create',
+        views: {
+            '@base.settings': {
+                templateUrl: '/messaging/email/templates/create/',
+                controller: 'UtilsEmailTemplatesCreateController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Email template edit'
+        }
+    });
+    $stateProvider.state('base.settings.emailtemplates.edit', {
+        url: '/edit/{id:int}',
+        views: {
+            '@base.settings': {
+                templateUrl: function(elem, attr) {
+                    return '/messaging/email/templates/update/' + elem.id +'/';
+                },
+                controller: 'UtilsEmailTemplatesEditController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Email template create'
         }
     });
 }]);
@@ -147,7 +173,7 @@ UtilsControllers.controller('UtilsEmailAccountEditController', [
 ]);
 
 /**
- * UtilsEmailTemplatesListController is a controller to show the base of the settings page.
+ * UtilsEmailTemplatesListController is a controller to show the email template list.
  */
 UtilsControllers.controller('UtilsEmailTemplatesListController', [
     '$scope',
@@ -163,6 +189,38 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
         $scope.makeDefault = function(templateId) {
             console.log(templateId);
         }
+    }
+]);
+
+/**
+ * UtilsEmailTemplatesEditController is a controller to show edit an email template.
+ */
+UtilsControllers.controller('UtilsEmailTemplatesCreateController', [
+    // TODO: LILY-XXX: Try to change the openVariable and closeVariable to curly braces, so it's consistent with other templating engines
+    function () {
+        HLInbox.init();
+        HLInbox.initWysihtml5();
+        HLEmailTemplates.init({
+            parseEmailTemplateUrl: '',
+            openVariable: '[[',
+            closeVariable: ']]'
+        });
+    }
+]);
+
+/**
+ * UtilsEmailTemplatesEditController is a controller to show edit an email template.
+ */
+UtilsControllers.controller('UtilsEmailTemplatesEditController', [
+    // TODO: LILY-XXX: Try to change the openVariable and closeVariable to curly braces, so it's consistent with other templating engines
+    function () {
+        HLInbox.init();
+        HLInbox.initWysihtml5();
+        HLEmailTemplates.init({
+            parseEmailTemplateUrl: '',
+            openVariable: '[[',
+            closeVariable: ']]'
+        });
     }
 ]);
 

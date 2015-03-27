@@ -90,7 +90,7 @@
                         </td>
                         <td ng-show="table.visibility.contactInformation">
                             <div ng-repeat="email in contact.email">
-                                <a href="base.email.composeEmail({email:email })" title="{{ ::email }}">
+                                <a ui-sref="base.email.composeEmail({ email: email })" title="{{ ::email }}">
                                     <i class="icon-envelope-alt"></i>
                                     {{ email }}
                                 </a>

@@ -67,11 +67,44 @@ EmailControllers.config([
                 }
             }
         });
+        // TODO: LILY-XXX: Clean up compose states and make email/template optional params
         $stateProvider.state('base.email.compose', {
             url: '/compose',
             views: {
                 '@base.email': {
                     templateUrl: '/messaging/email/compose/',
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
+        $stateProvider.state('base.email.composeEmail', {
+            url: '/compose/{email}',
+            views: {
+                '@base.email': {
+                    templateUrl: '/messaging/email/compose/',
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
+        $stateProvider.state('base.email.composeEmailTemplate', {
+            url: '/compose/{email}/{template}',
+            views: {
+                '@base.email': {
+                    templateUrl: '/messaging/email/compose/',
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
+        $stateProvider.state('base.email.reply', {
+            url: '/reply/{id:int}',
+            params: {
+                messageType: 'reply'
+            },
+            views: {
+                '@base.email': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/reply/' + elem.id + '/';
+                    },
                     controller: 'EmailComposeController'
                 }
             }
@@ -323,7 +356,7 @@ EmailControllers.controller('EmailDetailController', [
                 $emailRecipients.height($emailRecipients[0].scrollHeight);
             }
             else {
-                $emailRecipients.height('1.25em');
+                $emailRecipients.height('1.30em');
             }
         };
     }
@@ -395,15 +428,87 @@ EmailControllers.controller('LabelListController', [
 ]);
 
 EmailControllers.controller('EmailComposeController', [
-    function() {
-        HLSelect2.init();
-        HLInbox.initEmailCompose({
-            defaultEmailTemplateUrl: '/messaging/email/templates/get-default/',
-            getTemplateUrl: '/messaging/email/templates/detail/'
-            //messageType: '{{ form.message_type }}',
-            //fromContact: '{{ form.from_contact.id }}',
-            //loadDefaultTemplate: loadDefaultTemplate,
-            //urlRecipient: urlRecipient
-        });
+    '$stateParams',
+    '$q',
+    'ContactDetail',
+    'EmailMessage',
+    'EmailTemplate',
+    function ($stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
+        if ($stateParams.messageType == 'reply') {
+            // If it's a reply, load the email message first
+            EmailMessage.API.get({id: $stateParams.id}).$promise.then(function (emailMessage) {
+                initEmailCompose(emailMessage);
+            });
+        }
+        else {
+            // Otherwise just initialize the email compose
+            initEmailCompose();
+        }
+
+        function initEmailCompose(emailMessage) {
+            var email = $stateParams.email;
+
+            var promises = [];
+
+            var recipient, contactPromise;
+
+            if (emailMessage) {
+                contactPromise = ContactDetail.query({filterquery: 'email:' + emailMessage.sender.email_address}).$promise;
+                promises.push(contactPromise);
+            }
+            else if (email) {
+                contactPromise = ContactDetail.query({filterquery: 'email:' + email}).$promise;
+                promises.push(contactPromise);
+            }
+
+            var emailTemplatePromise = EmailTemplate.query().$promise;
+            promises.push(emailTemplatePromise);
+
+            // TODO: LILY-XXX: Check if this can be cleaned up
+            // Once all promises are done, continue
+            $q.all(promises).then(function(results) {
+                var templates;
+                // This part should only be executed if we've loaded a contact
+                if(contactPromise) {
+                    var contact = results[0][0];
+                    templates = results[1];
+
+                    if (emailMessage) {
+                        email = emailMessage.sender.email_address;
+                    }
+
+                    // The text which is actually used in the application/select2
+                    var used_text = '"' + contact.name + '" <' + email + '>';
+                    // The text shown in the recipient input
+                    var displayed_text = contact.name + ' <' + email + '>';
+
+                    recipient = {
+                        id: used_text,
+                        text: displayed_text,
+                        object_id: contact.id
+                    };
+                } else {
+                    templates = results[0];
+                }
+
+                var template = $stateParams.template;
+                // Determine whether the default template should be loaded or not
+                var loadDefaultTemplate = template == undefined;
+
+                // Set message type to given message type if available, otherwise set to message type 'new'
+                var messageType = $stateParams.messageType ? $stateParams.messageType : 'new';
+
+                HLInbox.init();
+                HLInbox.initEmailCompose({
+                    templateList: templates,
+                    defaultEmailTemplateUrl: '/messaging/email/templates/get-default/',
+                    getTemplateUrl: '/messaging/email/templates/detail/',
+                    messageType: messageType,
+                    loadDefaultTemplate: loadDefaultTemplate,
+                    recipient: recipient,
+                    template: template
+                });
+            });
+        }
     }
 ]);

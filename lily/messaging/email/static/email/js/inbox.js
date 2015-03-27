@@ -113,12 +113,12 @@
                 }
                 else {
                     // Otherwise trigger change event so the given template gets loaded
-                    $(self.config.templateField).change();
+                    $(self.config.templateField).val(self.config.template).change();
                 }
             }
 
-            if (self.config.urlRecipient) {
-                $(self.config.sendToNormalField).select2('data', self.config.urlRecipient);
+            if (self.config.recipient) {
+                $(self.config.sendToNormalField).select2('data', self.config.recipient);
             }
         },
 
@@ -175,19 +175,21 @@
 
         changeTemplateField: function (templateField, templateChanged) {
             var self = this;
-            if (templateList) {
-                var value = parseInt($(templateField).val());
+            if (self.config.templateList) {
+                var selectedTemplate = parseInt($(templateField).val());
                 var subjectField = $('#id_subject');
                 var subject = '';
                 var recipientId = null;
                 var emailAccountId = $(self.config.emailAccountInput).val();
 
-                if (value) {
-                    subject = templateList[value].subject;
+                if (selectedTemplate) {
+                    angular.forEach(self.config.templateList, function (value, key) {
+                        if (value.id == selectedTemplate) {
+                            subject = value.subject;
+                        }
+                    });
 
-                    var messageType = this.config.messageType;
-
-                    if (messageType === 'new' && subject != '') {
+                    if (this.config.messageType === 'new' && subject != '') {
                         // Only overwrite the subject if a new email is being created
                         subjectField.val(subject);
                     }
@@ -198,14 +200,14 @@
                         // Check if a contact has been entered
                         recipientId = recipient.object_id;
                     }
-                    else if (self.config.fromContact !== '' && self.config.fromContact != null) {
+                    else if (self.config.sender !== '' && self.config.sender != null) {
                         // If it's a reply there might be contact set
-                        recipientId = self.config.fromContact;
-                        self.config.fromContact = null;
+                        recipientId = self.config.sender;
+                        self.config.sender = null;
                     }
 
                     // Always get a template
-                    var url = self.config.getTemplateUrl + value;
+                    var url = self.config.getTemplateUrl + selectedTemplate;
 
                     if (recipientId != null) {
                         // If a recipient has been set we can set extra url parameters

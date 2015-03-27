@@ -12,7 +12,7 @@
                 <div class="pull-right">
                     <div class="inbox-info-btn">
                         <div class="btn-group">
-                            <a href="/messaging/email/reply/{{ message.id }}/" class="btn blue reply-btn">
+                            <a ui-sref="base.email.reply({ id: message.id })" class="btn blue reply-btn">
                                 <i class="fa fa-reply"></i> Reply
                             </a>
                             <button class="btn blue dropdown-toggle" data-toggle="dropdown">

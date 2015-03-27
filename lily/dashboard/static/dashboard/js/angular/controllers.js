@@ -99,6 +99,7 @@ dashboard.controller('QueueSizeController', [
     '$scope',
     function($filter, $http, $interval, $scope) {
 
+        $scope.show = false;
         $scope.currentUser = currentUser;
         if (!currentUser.isSuperUser) return;
         $scope.labels = [];
@@ -118,6 +119,10 @@ dashboard.controller('QueueSizeController', [
                     $scope.labels.shift();
                 }
                 $scope.totalSize = data.data.total_messages;
+                $scope.show = true;
+            }, function() {
+                $interval.cancel(stop);
+                $scope.show = false;
             });
         };
         //Fetch again every 10 seconds

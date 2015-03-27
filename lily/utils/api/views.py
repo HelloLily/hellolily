@@ -14,6 +14,9 @@ class Queues(APIView):
         if not request.user.is_superuser:
             raise exceptions.AuthenticationFailed('No permission')
 
+        if not settings.IRONMQ_URL or not settings.IRONMQ_OAUTH:
+            raise exceptions.AuthenticationFailed('No permission')
+
         url = '%s/queues/%s?oauth=%s' % (settings.IRONMQ_URL, kwargs['queue'], settings.IRONMQ_OAUTH)
 
         resp = requests.get(url)

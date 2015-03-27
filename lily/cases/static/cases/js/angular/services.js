@@ -161,3 +161,7 @@ caseServices.factory('Case', ['$http', function($http) {
 caseServices.factory('UnassignedTeamCases', ['$resource', function($resource) {
     return $resource('/api/cases/teams/:teamId/?is_assigned=False')
 }]);
+
+caseServices.factory('CaseStatuses', ['$resource', function($resource) {
+    return $resource('/api/cases/statuses');
+}]);

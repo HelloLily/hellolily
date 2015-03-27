@@ -1,11 +1,118 @@
 {% verbatim %}
-<script id="cases/case-detail.html" type="text/ng-template">
+<script id="cases/detail.html" type="text/ng-template">
     <a ui-sref="base.cases.detail.edit({ id: case.id })" class="btn blue"><i class="icon-edit"></i>Edit</a>
     <a ng-href="/cases/delete/{{ ::case.id }}/" class="btn blue" data-target="#confirm-delete" data-source="/cases/delete/{{ ::case.id }}/"><i class="icon-trash"></i>Delete</a>
     <div ng-cloak ng-if="::case.subject">
         <div class="row">
             <div class="col-md-6">
                 <em class="pre-wrap">{{ ::case.subject }}</em>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <div class="portlet light">
+                <div class="portlet-body">
+                    <ul class="list-unstyled summary-list">
+                        <li ng-show="::case.account">
+                            <label>Account:</label> <a ui-sref="base.accounts.detail({ id: case.account })">{{ ::case.account_name }}</a>
+                        </li>
+                        <li ng-show="::case.contact">
+                            <label>Contact:</label> <a ui-sref="base.contacts.detail({ id: case.contact })">{{ ::case.contact_name }}</a>
+                        </li>
+                        <li>
+                            <label>Case name:</label> {{ ::case.subject }}
+                        </li>
+                        <li>
+                            <label>Created:</label> {{ ::case.created | date:"d MMM y H:ss" }}
+                        </li>
+                        <li ng-show="::case.expires">
+                            <label>Expires:</label> {{ case.expires | date:"d MMM y" }}
+                        </li>
+                        <li>
+                            <label>Status:</label> {{ case.status }}<span ng-show="case.archived"> - Archived</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            <div class="portlet light">
+                <div class="portlet-body">
+                    <ul class="list-unstyled summary-list">
+                        <li>
+                            <label>Case number:</label> {{ ::case.id }}
+                        </li>
+                        <li ng-show="::case.casetype_name">
+                            <label>Type:</label> {{ ::case.casetype_name }}
+                        </li>
+                        <li>
+                            <label>Priority:</label> <span class="label label-sm" ng-class="getPriorityDisplay()">{{ case.priority_name }}</span>
+                        </li>
+                        <li>
+                            <label>Assigned to:</label>
+                            <span ng-if="case.assigned_to_id" class="summary-data assigned-to">{{ case.assigned_to_name }}</span>
+                            <span ng-if="!case.assigned_to_id" class="summary-data assigned-to">Unassigned</span>
+
+                            <button ng-if="case.assigned_to_id == currentUser.id" ng-click="assignCase()" class="btn btn-link assign-me-btn no-padding">Unassign</button>
+                            <button ng-if="case.assigned_to_id != currentUser.id" ng-click="assignCase()" class="btn btn-link assign-me-btn no-padding">Assign to me</button>
+                        </li>
+                        <li>
+                            <label>Created by:</label> {{ case.created_by || 'Unknown' }}
+                        </li>
+                        <li ng-show="::case.parcel">
+                            <label>Parcel:</label> <a href="{{ ::case.parcel.link }}" target="_blank">{{ case.parcel.name }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12 summary-info text-center">
+            <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ ::case.id }}">
+                <label ng-repeat="status in caseStatuses" for="status-{{ status.id }}" ng-class="{'btn default': true, 'btn default active': case.status == status.status, 'btn default disabled': case.archived }" ng-click="changeCaseStatus(status.id)">
+                    <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="case.status == status.id">
+                    {{ status.status }}
+                </label>
+                <div class="btn-group">
+                    <a ng-class="{'btn default': true}" ng-click="unarchive(case.id)" ng-show="case.archived">Unarchive</a>
+                    <a ng-class="{'btn default': case.archived, 'btn default': !case.archived}" ng-click="archive(case.id)" ng-hide="case.archived">Archive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div ng-show="::case.description" class="row no-margin">
+        <div class="well well-md">
+            <h4>Description</h4>
+            <!--<p>{{ object.description|linebreaks }}</p>-->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        Historylist
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="form-group">
+                        <form method="POST" action="/notes/create/">
+                            {% endverbatim %}{% csrf_token %}{% verbatim %}
+                            <div class="form-group note-input-wrapper col-md-10">
+                                <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
+                                <input type="hidden" name="content_type" value="case">
+                                <input type="hidden" name="object_id" value="{{ ::case.id }}">
+                            </div>
+                            <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                    {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
+                </div>
             </div>
         </div>
     </div>

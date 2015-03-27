@@ -29,11 +29,11 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Cases'
         }
     });
-    $stateProvider.state('base.case.detail', {
+    $stateProvider.state('base.cases.detail', {
         url: '/{id:[0-9]{1,4}}',
         views: {
             '@': {
-                templateUrl: 'case/case-detail.html',
+                templateUrl: 'cases/detail.html',
                 controller: 'CaseDetailController'
             }
         },
@@ -41,11 +41,11 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: '{{ case.subject }}'
         }
     });
-    $stateProvider.state('base.case.create', {
+    $stateProvider.state('base.cases.create', {
         url: '/create',
         views: {
             '@': {
-                templateUrl: 'case/case-create.html',
+                templateUrl: 'cases/case-create.html',
                 controller: 'CaseCreateController'
             }
         },
@@ -53,7 +53,7 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Create'
         }
     });
-    $stateProvider.state('base.case.detail.edit', {
+    $stateProvider.state('base.cases.detail.edit', {
         url: '/edit',
         views: {
             '@': {
@@ -73,29 +73,193 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
  * CaseDetailController is a controller to show details of a case.
  */
 caseControllers.controller('CaseDetailController', [
-    'ContactDetail',
-    'CaseDetail',
-    'NoteDetail',
-    'EmailDetail',
-    'EmailAccount',
-    '$scope',
-    '$q',
     '$filter',
+    '$http',
+    '$q',
+    '$scope',
     '$stateParams',
-    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, $scope, $q, $filter, $stateParams) {
-        $scope.showMoreText = 'Show more';
-        $scope.conf.pageTitleBig = 'Contact detail';
+
+    'CaseDetail',
+    'CaseStatuses',
+    'NoteDetail',
+    function($filter, $http, $q, $scope, $stateParams, CaseDetail, CaseStatuses, NoteDetail) {
+        $scope.conf.pageTitleBig = 'Case';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
         var id = $stateParams.id;
 
-        function pageTitle(contact) {
-            var title = contact.name;
-            if (contact.account) {
-                title += ' - ' + contact.account_name[0];
+        $scope.case = CaseDetail.get({id: id});
+        $scope.caseStatuses = CaseStatuses.query();
+
+        console.log($scope.case);
+
+        /**
+         *
+         * @returns {string}: A string which states what label should be displayed
+         */
+        $scope.getPriorityDisplay = function () {
+            if ($scope.case.is_archived) {
+                return 'label-default';
+            } else {
+                switch ($scope.case.priority) {
+                    case 0:
+                        return 'label-success';
+                    case 1:
+                        return 'label-info';
+                    case 2:
+                        return 'label-warning';
+                    case 3:
+                        return 'label-danger';
+                    default :
+                        return 'label-info';
+                }
             }
-            return title;
+        };
+
+        $scope.changeCaseStatus = function (status) {
+            // TODO: LILY-XXX: Temporary call to change status of a case, will be replaced with an new API call later
+            var req = {
+                method: 'POST',
+                url: '/cases/update/status/' + $scope.case.id + '/',
+                data: 'status=' + status,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.case.status = data.status;
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed proper error?
+                });
+        };
+
+        $scope.assignCase = function () {
+            var assignee = '';
+
+            if ($scope.case.assigned_to_id != $scope.currentUser.id) {
+                assignee = $scope.currentUser.id;
+            }
+
+            var req = {
+                method: 'POST',
+                url: '/cases/update/assigned_to/' + $scope.case.id + '/',
+                data: 'assignee=' + assignee,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    if (data.assignee) {
+                        $scope.case.assigned_to_id = data.assignee.id;
+                        $scope.case.assigned_to_name = data.assignee.name;
+                    }
+                    else {
+                        $scope.case.assigned_to_id = null;
+                        $scope.case.assigned_to_name = null;
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
+
+        $scope.showMoreText = 'Show more';
+        $scope.opts = {history_type: 'note'};
+        $scope.history_types = [
+            {type: 'note', name: 'Notes'}
+        ];
+
+        var add = 10,
+            size = add,
+            currentSize = 0;
+
+        $scope.history = [];
+
+        /**
+         * Load history of notes for this deal for historylist.
+         */
+        function loadHistory() {
+            var history = [];
+            var notesPromise = NoteDetail.query({
+                filterquery: 'content_type:case AND object_id:' + id,
+                size: size
+            }).$promise;
+
+            $q.all([notesPromise]).then(function(results) {
+                var notes = results[0];
+                notes.forEach(function(note) {
+                    note.history_type = 'note';
+                    note.color = 'yellow';
+                    history.push(note);
+                });
+
+                $scope.history.splice(0, $scope.history.length);
+                $filter('orderBy')(history, 'date', true).forEach(function(item) {
+                    $scope.history.push(item);
+                });
+                $scope.limitSize = size;
+                size += add;
+                if ($scope.history.length == 0) {
+                    $scope.showMoreText = 'No history (refresh)';
+                }
+                else if ($scope.history.length <= currentSize || $scope.history.length < size / 4) {
+                    $scope.showMoreText = 'End reached (refresh)';
+                }
+                currentSize = $scope.history.length;
+            });
         }
+
+        /**
+         * Allows the (re)load of the history.
+         */
+        $scope.loadHistoryFromButton = function() {
+            loadHistory();
+        };
+
+        $scope.loadHistoryFromButton();
+
+        /**
+         * Archive a deal.
+         * TODO: LILY-XXX: Change to API based archiving
+         */
+        $scope.archive = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/cases/archive/',
+                data: 'id=' + id,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.case.archived = true;
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
+
+        /**
+         * Unarchive a deal.
+         * TODO: LILY-XXX: Change to API based unarchiving
+         */
+        $scope.unarchive = function(id) {
+            var req = {
+                method: 'POST',
+                url: '/cases/unarchive/',
+                data: 'id=' + id,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            };
+
+            $http(req).
+                success(function(data, status, headers, config) {
+                    $scope.case.archived = false;
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        };
     }
 ]);
 
@@ -173,7 +337,7 @@ caseControllers.controller('CaseListController', [
                 var filterList = [
                     {
                         name: 'Assigned to me',
-                        value: 'assigned_to_id:' + currentUser.id,
+                        value: 'assigned_to_id:' + $scope.currentUser.id,
                         selected: false
                     },
                     {

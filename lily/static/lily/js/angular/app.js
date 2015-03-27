@@ -65,4 +65,5 @@ lilyApp.config([
 /* Init global settings and run the app */
 lilyApp.run(["$rootScope", "settings", "$state", function($rootScope, settings, $state) {
     $rootScope.$state = $state; // state to be accessed from view
+    $rootScope.currentUser = currentUser;
 }]);

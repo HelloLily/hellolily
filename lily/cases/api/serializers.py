@@ -3,7 +3,7 @@ from rest_framework import serializers
 from lily.accounts.api.serializers import AccountSerializer
 from lily.contacts.api.serializers import ContactSerializer
 
-from ..models import Case
+from ..models import Case, CaseStatus
 
 
 class CasePriorityField(serializers.RelatedField):
@@ -45,4 +45,16 @@ class CaseSerializer(serializers.ModelSerializer):
             'expires',
             'created',
             'is_archived',
+        )
+
+
+class CaseStatusSerializer(serializers.ModelSerializer):
+    """
+    Serializer for case status model
+    """
+    class Meta:
+        model = CaseStatus
+        fields = (
+            'id',
+            'status',
         )

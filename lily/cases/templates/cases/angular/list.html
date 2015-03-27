@@ -67,7 +67,7 @@
                 <tbody>
                 <tr ng-repeat="case in table.items">
                     <td>
-                        <a href="/cases/update/{{ ::case.id }}/" class="btn btn-xs default" title="Edit">
+                        <a ui-sref="base.cases.detail.edit({ id: case.id })" class="btn btn-xs default" title="Edit">
                             <i class="fa fa-edit"></i>
                         </a>
                         <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/cases/delete/{{ ::case.id }}/" >
@@ -78,12 +78,12 @@
                         {{ ::case.id }}
                     </td>
                     <td ng-show="table.visibility.client">
-                        <a href="/contacts/details/{{ ::case.contact }}/" ng-if="::case.contact">{{ ::case.contact_name }}</a>
+                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" ng-if="::case.contact">{{ ::case.contact_name }}</a>
                         <span ng-if="case.contact && case.account"> at </span>
-                        <a href="/accounts/details/{{ ::case.account }}/">{{ ::case.account_name }}</a>
+                        <a ui-sref="base.accounts.detail({ id: account.id })">{{ ::case.account_name }}</a>
                     </td>
                     <td ng-show="table.visibility.subject">
-                        <strong ng-if="::case.archived">(a)</strong> <a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
+                        <strong ng-if="::case.archived">(a)</strong> <a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
                     </td>
                     <td ng-show="table.visibility.priority">
                         <span title="{{ ::case.priority }}"></span>

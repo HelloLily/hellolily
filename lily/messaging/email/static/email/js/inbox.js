@@ -88,29 +88,6 @@
                 });
         },
 
-        // enable/disable actions button when (no) items are selected
-        toggleActionsButton: function () {
-            var selected = $('' + $('.mail-group-checkbox').attr('data-set') + ':checked');
-            if (selected.length) {
-                $('.mail-actions').removeClass('disabled');
-                $('.email-list-extra-btn').removeClass('disabled');
-            } else {
-                $('.mail-actions').addClass('disabled');
-                $('.email-list-extra-btn').addClass('disabled');
-            }
-        },
-
-        // update forms that have actions for selected messages
-        updateBulkIds: function () {
-            var selected = $('' + $('.mail-group-checkbox').attr('data-set') + ':not(.mail-group-checkbox):checked');
-            var selectedIds = [];
-            for (var i = 0; i < selected.length; i++) {
-                selectedIds.push($(selected[i]).val());
-            }
-
-            $('.bulk-ids').val(selectedIds.join(','));
-        },
-
         customParser: function () {
             function parse(elementOrHtml, rules, context, cleanUp) {
                 return elementOrHtml;

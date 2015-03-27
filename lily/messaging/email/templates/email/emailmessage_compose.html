@@ -19,14 +19,14 @@
         <div class="inbox-form-group mail-from">
             <label class="control-label">{% trans 'From' %}:</label>
             <div class="controls controls-from">
-                {% bootstrap_field form.send_from layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                {% bootstrap_field form.send_from layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
             </div>
         </div>
         <div class="mail-to">
             <div class="inbox-form-group {% if form.errors.send_to_normal %}has-error{% endif %}">
                 <label class="control-label">{% trans 'To' %}:</label>
                 <div class="controls controls-to">
-                    {% bootstrap_field form.send_to_normal layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    {% bootstrap_field form.send_to_normal layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
                     <span class="inbox-cc-bcc">
                         <span class="inbox-cc">{% trans 'Cc' %}</span>
                         <span class="inbox-bcc">{% trans 'Bcc' %}</span>
@@ -37,28 +37,28 @@
                 <a href="javascript:void(0)" class="close"></a>
                 <label class="control-label">{% trans 'Cc' %}:</label>
                 <div class="controls controls-cc">
-                    {% bootstrap_field form.send_to_cc layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
+                    {% bootstrap_field form.send_to_cc layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
                 </div>
             </div>
             <div class="inbox-form-group input-bcc{% if not form.send_to_bcc.value %} display-hide{% endif %}">
                 <a href="javascript:void(0)" class="close"></a>
                 <label class="control-label">{% trans 'Bcc' %}:</label>
                 <div class="controls controls-bcc">
-                    {% bootstrap_field form.send_to_bcc layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    {% bootstrap_field form.send_to_bcc layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
                 </div>
             </div>
         </div>
         <div class="inbox-form-group">
             <label class="control-label">{% trans 'Subject' %}:</label>
             <div class="controls">
-                {% bootstrap_field form.subject layout="horizontal" label_class="hidden" field_class="col-md-12" form_group_class="" %}
+                {% bootstrap_field form.subject layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
             </div>
         </div>
         {% if template_list %}
             <div class="inbox-form-group">
                 <label class="control-label">{% trans 'Template' %}:</label>
                 <div class="controls">
-                    {% bootstrap_field form.template layout="horizontal" label_class="hidden" field_class="col-md-12 no-spacing-right" form_group_class="" %}
+                    {% bootstrap_field form.template layout="horizontal" label_class="hidden" field_class="no-spacing-right" form_group_class="" %}
                 </div>
             </div>
         {% endif %}
@@ -72,7 +72,7 @@
             {% endif %}
                 <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>
             <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='icon-spinner icon-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
-            <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
+{#            <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>#}
         </div>
     </form>
 </div>

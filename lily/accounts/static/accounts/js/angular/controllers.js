@@ -378,5 +378,7 @@ accountController.controller('AccountUpsertController', [
                 HLSelect2.init();
             });
         }
+        HLDataProvider.init();
+        HLFormsets.init();
     }
 ]);

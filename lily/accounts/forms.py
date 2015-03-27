@@ -31,7 +31,7 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
         initial='http://',
         required=False,
         widget=AddonTextInput(
-            icon_attrs={'class': 'icon-magic'},
+            icon_attrs={'class': 'fa fa-magic'},
             button_attrs={'class': 'btn default dataprovider'},
             div_attrs={'class': 'input-group dataprovider'}
         )
@@ -197,7 +197,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         initial='http://',
         required=False,
         widget=AddonTextInput(
-            icon_attrs={'class': 'icon-magic'},
+            icon_attrs={'class': 'fa fa-magic'},
             button_attrs={'class': 'btn default dataprovider'},
             div_attrs={'class': 'input-group dataprovider'}
         )
@@ -221,7 +221,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
         required=False,
         widget=AddonTextInput(
             icon_attrs={
-                'class': 'icon-twitter',
+                'class': 'fa fa-twitter',
                 'position': 'left',
                 'is_button': False
             }

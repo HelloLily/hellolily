@@ -124,7 +124,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         required=False,
         widget=AddonTextInput(
             icon_attrs={
-                'class': 'icon-twitter',
+                'class': 'fa fa-twitter',
                 'position': 'left',
                 'is_button': False
             }
@@ -136,7 +136,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         required=False,
         widget=AddonTextInput(
             icon_attrs={
-                'class': 'icon-linkedin',
+                'class': 'fa fa-linkedin',
                 'position': 'left',
                 'is_button': False
             }

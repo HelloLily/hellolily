@@ -8,6 +8,7 @@ PIPELINE_CSS = {
             'metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
             'metronic/assets/global/plugins/uniform/css/uniform.default.css',
             'metronic/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.css',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
             'metronic/assets/global/plugins/select2/select2.css',
 
             # Metronic layout
@@ -198,6 +199,7 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
             'metronic/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
             'metronic/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
             'metronic/assets/global/plugins/select2/select2.js',
             'metronic/assets/global/scripts/metronic.js',
             'metronic/assets/admin/layout4/scripts/layout.js',
@@ -260,6 +262,7 @@ PIPELINE_JS = {
             'lily/js/forms/formsets.js',
             'lily/js/forms/select2.js',
             'lily/js/forms/show-and-hide.js',
+            'provide/js/dataprovider.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

@@ -100,7 +100,7 @@ class DatePicker(DateTimePicker):
 
     def __init__(self, attrs=None, format=None, options=None, div_attrs=None, icon_attrs=None):
         if not icon_attrs:
-            icon_attrs = {'class': 'icon-calendar'}
+            icon_attrs = {'class': 'fa fa-calendar'}
         if not div_attrs:
             div_attrs = {'class': 'input-group date'}
         if format is None and options and options.get('format'):
@@ -257,7 +257,7 @@ class ShowHideWidget(Widget):
         before_html = mark_safe(u'''
             <div class="show-and-hide-input">
             <div class="form-control-static %(add_class)s">
-            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="icon-angle-down"></i></a>
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="fa fa-angle-down"></i></a>
             </div>
             <div class="original-form-widget %(input_class)s">
         ''' % {
@@ -268,7 +268,7 @@ class ShowHideWidget(Widget):
         after_html = mark_safe(u'''
             </div>
             <div class="form-control-static %(cancel_class)s">
-            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="icon-angle-up"></i></a>
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="fa fa-angle-up"></i></a>
             </div>
             </div>
         ''' % {

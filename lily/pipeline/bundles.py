@@ -247,6 +247,7 @@ PIPELINE_JS = {
             'email/js/angular/controllers.js',
             'email/js/angular/services.js',
             'email/js/inbox.js',
+            'email/js/emailtemplate.js',
 
             'notes/js/angular/services.js',
 

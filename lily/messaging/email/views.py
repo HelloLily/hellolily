@@ -18,6 +18,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from lily.utils.forms import HelloLilyModelForm
 from python_imap.utils import extract_tags_from_soup
 from oauth2client.client import OAuth2WebServerFlow
 
@@ -682,7 +683,7 @@ class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
         """
         Return to email template list after creating or updating an email template.
         """
-        return reverse('messaging_email_template_list')
+        return '/#/settings/emailtemplates'
 
 
 class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
@@ -832,7 +833,8 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             else:
                 lookup.get('user').current_email_address = emailaccount.email_address
 
-        parsed_template = Template(template.body_html).render(Context(lookup))
+        # Ugly hack to make parsing of new template brackets style work
+        parsed_template = Template(template.body_html.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
 
         attachments = []
 

@@ -1,5 +1,7 @@
-from django.conf import settings
 import requests
+
+from django.conf import settings
+from django.contrib.messages import get_messages
 from rest_framework import exceptions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -30,3 +32,20 @@ class Queues(APIView):
             })
         else:
             return exceptions.NotAcceptable
+
+class Notifications(APIView):
+    """
+    List all notifications posted in request.messages
+    """
+
+    def get(self, request, format=None, *args, **kwargs):
+        storage = get_messages(request)
+        notifications = []
+
+        for message in storage:
+            notifications.append({
+                'level': message.level_tag,
+                'message': message.message,
+            })
+
+        return Response(notifications)

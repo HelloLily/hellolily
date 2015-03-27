@@ -131,3 +131,7 @@ lilyServices.service('HLFilters', [function () {
         $scope.updateFilterQuery();
     };
 }]);
+
+lilyServices.factory('Notifications', ['$resource', function($resource) {
+    return $resource('/api/utils/notifications/');
+}]);

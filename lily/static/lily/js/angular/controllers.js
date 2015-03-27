@@ -17,7 +17,9 @@ lilyControllers.config(['$stateProvider', function($stateProvider) {
 lilyControllers.controller('baseController', [
     '$scope',
 
-    function($scope) {
+    'Notifications',
+
+    function($scope, Notifications) {
         $scope.conf = {
             pageTitleBig: 'HelloLily',
             pageTitleSmall: 'welcome to my humble abode!'
@@ -36,6 +38,16 @@ lilyControllers.controller('baseController', [
             HLSelect2.init();
             HLFormsets.init();
             HLShowAndHide.init();
+
+            // Get notifications
+            Notifications.query(function(notifications) {  // On success
+                angular.forEach(notifications, function(message) {
+                    toastr[message.level](message.message);
+                });
+            }, function(error) {  // On error
+                console.log('error!');
+                console.log(error);
+            })
         });
     }
 ]);

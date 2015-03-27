@@ -9,7 +9,7 @@ var caseControllers = angular.module('CaseControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'accountServices',
+    'AccountServices',
     'CaseServices',
     'contactServices',
     'noteServices',

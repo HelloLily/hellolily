@@ -5,8 +5,8 @@ from .views import JsonAccountListView, AddAccountView, EditAccountView, DetailA
 
 
 urlpatterns = patterns('',
-     url(r'^add/$', AddAccountView.as_view(), name='account_add'),
-     url(r'^edit/(?P<pk>[\w-]+)/$', EditAccountView.as_view(), name='account_edit'),
+     url(r'^create/$', AddAccountView.as_view(), name='account_add'),
+     url(r'^(?P<pk>[\w-]+)/edit/$', EditAccountView.as_view(), name='account_edit'),
      url(r'^details/(?P<pk>[\w-]+)/$', DetailAccountView.as_view(), name='account_details'),
      url(r'^delete/(?P<pk>[\w-]+)/$', DeleteAccountView.as_view(), name='account_delete'),
      url(r'^json_list/$', JsonAccountListView.as_view(), name='json_account_list'),

@@ -1,12 +1,14 @@
 /**
  * accountServices is a container for all account related Angular services
  */
-var accountServices = angular.module('accountServices', ['ngResource']);
+var AccountServices = angular.module('AccountServices', [
+    'ngResource'
+]);
 
 /**
  * $resource for Account model, now only used for detail page.
  */
-accountServices.factory('AccountDetail', ['$resource', function($resource) {
+AccountServices.factory('AccountDetail', ['$resource', function($resource) {
     function getPhone(account) {
         if (account.phone_mobile) return account.phone_mobile[0];
         if (account.phone_work) return account.phone_work[0];
@@ -15,9 +17,9 @@ accountServices.factory('AccountDetail', ['$resource', function($resource) {
     }
     function getPhones(account) {
         var phones = [];
-        if (account.phone_mobile) phones = phones.concat(account.phone_mobile)
-        if (account.phone_work) phones = phones.concat(account.phone_work)
-        if (account.phone_other) phones = phones.concat(account.phone_other)
+        if (account.phone_mobile) phones = phones.concat(account.phone_mobile);
+        if (account.phone_work) phones = phones.concat(account.phone_work);
+        if (account.phone_other) phones = phones.concat(account.phone_other);
         return phones;
     }
     return $resource(
@@ -35,6 +37,10 @@ accountServices.factory('AccountDetail', ['$resource', function($resource) {
                     }
                     return null;
                 }
+            },
+            delete: {
+                url: '/api/accounts/account/:id/',
+                method: 'DELETE'
             }
         }
     );
@@ -45,7 +51,7 @@ accountServices.factory('AccountDetail', ['$resource', function($resource) {
  *
  * @returns: Account object: object with functions related to Accounts
  */
-accountServices.factory('Account', ['$http', function($http) {
+AccountServices.factory('Account', ['$http', function($http) {
     var Account = {};
 
     /**

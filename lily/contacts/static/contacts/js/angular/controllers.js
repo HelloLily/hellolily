@@ -18,6 +18,10 @@ var contacts = angular.module('ContactsControllers', [
 
 contacts.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base.contacts', {
+        abstract: true,
+        controller: 'ContactBaseController'
+    });
+    $stateProvider.state('base.contacts.list', {
         url: '/contacts',
         views: {
             '@': {
@@ -69,6 +73,13 @@ contacts.config(['$stateProvider', function($stateProvider) {
     });
 }]);
 
+contacts.controller('ContactBaseController', [
+    '$scope',
+
+    function($scope) {
+    }
+]);
+
 /**
  * ContactDetailController is a controller to show details of a contact.
  */
@@ -78,16 +89,30 @@ contacts.controller('ContactDetailController', [
     'NoteDetail',
     'EmailDetail',
     'EmailAccount',
+    'ContactTest',
     '$scope',
     '$q',
     '$filter',
     '$stateParams',
-    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, $scope, $q, $filter, $stateParams) {
+    '$state',
+    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, ContactTest, $scope, $q, $filter, $stateParams, $state) {
         $scope.showMoreText = 'Show more';
         $scope.conf.pageTitleBig = 'Contact detail';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
         var id = $stateParams.id;
+
+        $scope.deleteContact = function(id) {
+            if (confirm('Are you sure?')) {
+                ContactTest.delete({
+                    id:id
+                }, function() {  // On success
+                    $state.go('base.contacts.list');
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                })
+            }
+        };
 
         function pageTitle(contact) {
             var title = contact.name;
@@ -212,12 +237,14 @@ contacts.controller('ContactDetailController', [
  */
 contacts.controller('ContactListController', [
     '$scope',
+    '$state',
     '$cookieStore',
     '$window',
 
     'Contact',
     'Cookie',
-    function($scope, $cookieStore, $window, Contact, Cookie) {
+    'ContactTest',
+    function($scope, $state, $cookieStore, $window, Contact, Cookie, ContactTest) {
         Cookie.prefix ='contactList';
 
         $scope.conf.pageTitleBig = 'Contacts';
@@ -243,6 +270,19 @@ contacts.controller('ContactListController', [
                 modified: true,
                 tags: true
             })};
+
+        $scope.deleteContact = function(contact) {
+            if (confirm('Are you sure?')) {
+                ContactTest.delete({
+                    id:contact.id
+                }, function() {  // On success
+                    var index = $scope.table.items.indexOf(contact);
+                    $scope.table.items.splice(index, 1);
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                })
+            }
+        };
 
         /**
          * updateTableSettings() sets scope variables to the cookie

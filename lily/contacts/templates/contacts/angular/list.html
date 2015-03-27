@@ -79,7 +79,7 @@
                             <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn btn-xs default" title="Edit">
                                 <i class="fa fa-edit"></i>
                             </a>
-                            <button type="button" class="btn btn-xs default" title="Delete" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}" >
+                            <button type="button" class="btn btn-xs default" title="Delete" ng-click="deleteContact(contact)" >
                                 <i class="fa fa-trash"></i>
                             </button>
                         </td>

@@ -75,7 +75,7 @@
         <div class="col-md-2">
             <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn btn-sm blue"> <i class="fa fa-edit"></i> Edit</a>
             <!--  Note remove xhr when merging! -->
-            <a ng-href="/contacts/delete/{{ ::contact.id }}/" class="btn btn-sm blue" data-target="#confirm-delete" data-source="/contacts/delete/{{ ::contact.id }}/"><i class="fa fa-trash"></i> Delete</a>
+            <a ng-click="deleteContact(contact.id)" class="btn btn-sm blue"><i class="fa fa-trash"></i> Delete</a>
             <br/><br/>
             <div class="btn-group">
                 <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn blue btn-sm">

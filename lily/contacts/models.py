@@ -51,6 +51,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
+    accounts = models.ManyToManyField(Account, through='Function', through_fields=('contact', 'account'))
 
     def primary_email(self):
         if not hasattr(self, '_primary_email'):

@@ -4,8 +4,8 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView, TemplateView
-from rest_framework import routers
 
+from lily.api.urls import router
 from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList, CaseStatusList
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList, DealStagesList
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
@@ -17,7 +17,6 @@ admin.autodiscover()
 
 
 # Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
 router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)

@@ -16,10 +16,14 @@ var lilyApp = angular.module('lilyApp', [
     'EmailControllers',
     'UtilsControllers',
 
-    // global modules
+    // Directives
     'lilyDirectives',
-    'lilyFilters',
-    'LilyServices'
+
+    // Services
+    'LilyServices',
+
+    // Filters
+    'lilyFilters'
 ]);
 
 /* Setup global settings */

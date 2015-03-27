@@ -182,7 +182,7 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/respond.js',
             'metronic/assets/global/plugins/excanvas.js',
         ),
-        'output_filename': 'compiled/js/global.js',
+        'output_filename': 'compiled/js/global-ie.js',
     },
     'global': {
         'source_filenames': (

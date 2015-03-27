@@ -25,7 +25,7 @@
             <!-- BEGIN LARGE ACTIONS -->
             <div class="btn-group hidden-sm hidden-xs">
                 <a class="btn blue btn-sm" ui-sref="base.contacts.create" role="button"><i class="fa fa-plus-square-o"></i> Contact</a>
-                <a class="btn blue btn-sm" ui-sref="base.accounts.create()" role="button"><i class="fa fa-plus-square-o"></i> Account</a>
+                <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button"><i class="fa fa-plus-square-o"></i> Account</a>
                 <a class="btn blue btn-sm" ui-sref="base.deals.create" role="button"><i class="fa fa-plus-square-o"></i> Deal</a>
                 <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button"><i class="fa fa-plus-square-o"></i> Case</a>
             </div>
@@ -33,21 +33,21 @@
             <!-- BEGIN SMALL ACTIONS -->
             <div class="btn-group hidden-md hidden-lg">
                 <button type="button" class="btn blue btn-sm dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
-                    {% trans 'Add' %}
+                    Add
                     <i class="fa fa-angle-down"></i>
                 </button>
                 <ul class="dropdown-menu" role="menu">
                     <li>
-                        <a href="{% url 'contact_add' %}"><i class="fa fa-plus-square-o"></i> {% trans 'Contact' %}</a>
+                        <a ui-sref="base.contacts.create"><i class="fa fa-plus-square-o"></i> Contact</a>
                     </li>
                     <li>
-                        <a href="{% url 'account_add' %}"><i class="fa fa-plus-square-o"></i> {% trans 'Account' %}</a>
+                        <a ui-sref="base.accounts.create"><i class="fa fa-plus-square-o"></i> Account</a>
                     </li>
                     <li>
-                        <a href="{% url 'deal_create' %}"><i class="fa fa-plus-square-o"></i> {% trans 'Deal' %}</a>
+                        <a ui-sref="base.deals.create"><i class="fa fa-plus-square-o"></i> Deal</a>
                     </li>
                     <li>
-                        <a href="{% url 'case_create' %}"><i class="fa fa-plus-square-o"></i> {% trans 'Case' %}</a>
+                        <a ui-sref="base.cases.create"><i class="fa fa-plus-square-o"></i> Case</a>
                     </li>
                 </ul>
             </div>
@@ -65,11 +65,8 @@
                     <li class="dropdown dropdown-user dropdown-dark">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                             <span class="username username-hide-on-mobile">
-                                Hello {{ user.name }}
+                                Hello {{ currentUser.fullName }}
                             </span>
-                            {% endverbatim %}
-                            <img alt="" class="img-circle" src="{% static 'metronic/assets/admin/layout4/img/avatar9.jpg' %}"/>
-                            {% verbatim %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-default">
                             <li>
@@ -84,6 +81,7 @@
                                     My Account
                                 </a>
                             </li>
+                            <!--
                             <li class="divider"></li>
                             <li>
                                 <a href="inbox.html">
@@ -103,6 +101,7 @@
                                     Company Workflow
                                 </a>
                             </li>
+                            -->
                             <li class="divider"></li>
                             <li>
                                 <a ui-sref="base.settings.emailaccounts">

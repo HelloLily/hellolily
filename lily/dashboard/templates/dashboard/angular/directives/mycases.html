@@ -23,7 +23,7 @@
                                     <th>Subject</th>
                                     <th>Prio <i class="fa fa-sort"></i></th>
                                     <th>Status</th>
-                                    <th>Exp date <i class="fa fa-sort-up"></th>
+                                    <th>Exp date <i class="fa fa-sort-up"></i></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -33,7 +33,7 @@
                                     <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.subject }}</a></td>
                                     <td>
                                     <span title="3"></span>
-                                    <span class="label label-sm ng-binding label-info" ng-class="{'label-success': !mycase.priority, 'label-info': mycase.priority[0] === 1, 'label-warning': mycase.priority[0] === 2, 'label-danger': mycase.priority[0] === 3 } ">{{ mycase.priority[1] }}</span>
+                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[mycase.priority[0]]">{{ mycase.priority[1] }}</span>
                                     </td>
                                     <td>{{ mycase.status }}</td>
                                     <td>{{ mycase.expires | relativeDate }}</td>

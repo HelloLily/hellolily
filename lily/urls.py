@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView, TemplateView
 from rest_framework import routers
 
-from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList
+from lily.cases.api.views import CaseList, UserCaseList, TeamsCaseList, CaseStatusList
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList
 from lily.messaging.email.api.views import EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet
 from lily.users.api.views import TeamList
@@ -47,6 +47,7 @@ urlpatterns = patterns(
     url(r'^api/cases/teams/(?P<pk>[0-9]+)/$', TeamsCaseList.as_view()),
     url(r'^api/cases/user/$', UserCaseList.as_view()),
     url(r'^api/cases/user/(?P<pk>[0-9]+)/$', UserCaseList.as_view()),
+    url(r'^api/cases/statuses/$', CaseStatusList.as_view()),
     url(r'^api/deals/stats/communication', DealCommunicationList.as_view()),
     url(r'^api/deals/stats/wonwritten', DealWonWrittenList.as_view()),
     url(r'^api/deals', DealList.as_view()),

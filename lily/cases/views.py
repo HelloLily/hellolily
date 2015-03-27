@@ -173,48 +173,68 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
         return response
 
 
-class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
+class ArchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
     """
-    Archives one or more cases.
+    Archives a case.
     """
-    model = Case
-    success_url = reverse_lazy('case_list')
+    http_method_names = ['post']
 
-    def archive(self, archive=True, **kwargs):
+    def post(self, request, *args, **kwargs):
         """
-        Set Case to archived and status to last position (probably closed status)
+        Set case to archived and status to last position (probably closed status)
 
         Arguments:
             archive (boolean): True if object should be archived, False to unarchive.
         """
-        kwargs.update({'status': CaseStatus.objects.last()})
+        try:
+            if 'id' in request.POST.keys():
+                new_status = CaseStatus.objects.last()
 
-        # Even if the status can't be set we can still archive the case
-        return super(ArchiveCasesView, self).archive(**kwargs)
+                instance = Case.objects.get(pk=int(request.POST['id']))
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Case has been archived.'),
-            _('%d cases have been archived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+                instance.is_archived = True
+                instance.status = new_status
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Case could not be archived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Case could not be archived'))
+            raise Http404()
+        else:
+            message = _('Case has been archived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'true'}), content_type='application/json')
 
 
-class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
+class UnarchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
     """
-    Unarchives one or more cases.
+    Unarchives a case.
     """
-    model = Case
-    success_url = reverse_lazy('case_archived_list')
+    http_method_names = ['post']
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Case has been unarchived.'),
-            _('%d cases have been unarchived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+    def post(self, request, *args, **kwargs):
+        try:
+            if 'id' in request.POST.keys():
+
+                instance = Case.objects.get(pk=int(request.POST['id']))
+
+                instance.is_archived = False
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Case could not be unarchived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Case could not be unarchived'))
+            raise Http404()
+        else:
+            message = _('Case has been unarchived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'false'}), content_type='application/json')
 
 
 class UpdateAndUnarchiveCaseView(CreateUpdateCaseMixin, UpdateView):

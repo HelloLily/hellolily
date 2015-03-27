@@ -1,0 +1,333 @@
+{% verbatim %}
+<script id="accounts/account-detail.html" type="text/ng-template"/>
+
+<div class="row">
+
+    <div class="col-md-4">
+        <div class='portlet light'>
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-institution"></i>  {{ ::account.name }}
+                </div>
+            </div>
+
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll="{height: 250}">
+                    <span ng-if="account.description"> {{ ::account.description }} <br/><br/></span>
+                    <div class='row'>
+                        <div class="col-md-6">
+                            <span ng-repeat="website in ::account.website"><i class="fa fa-envelope"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
+                            <i class="fa fa-phone"></i> {{ ::account.phone }} <br/>
+
+                            <i class='fa fa-envelope'></i> <a ui-sref="base.email.emailCompose({ email: account.email[0] })">{{ ::account.email[0] }}</a>
+                            <div ng-repeat="social in ::account.social">
+                                <span class="summary-label">{{ ::social.social_name }}</span>
+                                <span class="summary-data">
+                                    <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                                </span>
+                            </div>
+                            <div ng-if="::account.address">
+                                <i class='fa fa-building'></i>
+                                <span class="summary-data">
+                                    {{ ::account.address[0].address_street }} {{ ::account.address[0].address_street_number }}{{ ::account.address[0].address_complement }}<br/>
+                                    {{ ::account.address[0].address_postal_code }} {{ ::account.address[0].address_city }}<br/>
+                                    {{ ::account.address[0].address_country }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="summary-label">Assigned to</span>
+                            <span class="summary-data" ng-show="::account.assigned_to">
+                                {{ ::account.assigned_to }}
+                            </span>
+                            <span class="summary-data" ng-hide="::account.assigned_to">
+                                Not assigned yet
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class='portlet light'>
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-users"></i>
+                    <span class="caption-subject bold uppercase"> Contacts</span>
+                </div>
+            </div>
+
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll="{height: 250}">
+                    <table class="table table-hover table-light">
+                    <tbody>
+                        <tr ng-repeat="worker in workers">
+                            <td>
+                                <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
+                            </td>
+                            <td>
+                                <i class="fa fa-envelope-o"></i><a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
+                            </td>
+                            <td>
+                                <i class="fa fa-phone"><a href='/'>{{ ::worker.phone }}</a>
+                            </td>
+                        </tr>
+                        <tr ng-if="workers.length == 0">
+                            <td colspan="3">There are no known contact for this company</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-2">
+        <div class="dashboard-stat purple-wisteria">
+            <div class="visual">
+                <i class="fa fa-briefcase"></i>
+            </div>
+            <a href="#">
+                <div class="details">
+                    <div class="number">{{ ::numCases }}</div>
+                    <div class="desc">Closed</div>
+                </div>
+            </a>
+            <a class="more" ng-href="/cases/#/?search={{ ::account.name }}">
+                Add case <i class="m-icon-swapright m-icon-white"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="btn btn-sm blue"> <i class="fa fa-edit"></i> Edit</a>
+        <a ng-click="deleteAccount(account.id)" class="btn btn-sm blue"><i class="fa fa-trash"></i> Delete</a>
+    </div>
+
+    <div class="col-md-2">
+        <div class="dashboard-stat green-meadow">
+            <div class="visual">
+                <i class="fa fa-money"></i>
+            </div>
+            <a href="#">
+            <div class="details">
+                <div class="number">{{ ::numDeals }}</div>
+                <div class="desc">
+                     Won
+                </div>
+            </div>
+            </a>
+            <a class="more" ng-href="/deals/#/?search={{ ::account.name }}">
+                Add deal <i class="m-icon-swapright m-icon-white"></i>
+            </a>
+        </div>
+    </div>
+<!--
+    <div class="col-md-2">
+        <div class="dashboard-stat blue-madison">
+            <div class="visual">
+                <i class="fa fa-globe"></i>
+            </div>
+            <a href="#">
+                <div class="details">
+                    <div class="number">
+                         Klant :)
+                    </div>
+                    <div class="desc">
+                         naar Freedom
+                    </div>
+                </div>
+            </a>
+            <a class="more" href="#">
+            Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
+            </a>
+        </div>
+    </div>
+-->
+</div>
+
+
+<ul class="mix-filter">
+    <li ng-repeat="type in ::historyTypes" ng-class="{'active': opts.historyType==type.type}" ng-click="opts.historyType=type.type">
+        {{type.name}}
+    </li>
+</ul>
+
+
+<div class="portlet light mix-grid">
+
+    <ul class="timeline">
+        <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{historyType:opts.historyType}" class="mix mix_all" ng-class="item.historyType">
+
+
+            <div class="timeline-badge">
+                <i class="fa fa-suitcase" ng-show="::item.historyType=='case'"></i>
+                <i class="fa fa-money" ng-show="::item.historyType=='deal'"></i>
+                <i class="fa fa-note" ng-show="::item.historyType=='comment'"></i>
+                <i class="fa fa-envelope" ng-show="::item.historyType=='mail'"></i>
+            </div>
+
+
+            <div class="timeline-panel" ng-if="::item.historyType=='case'">
+
+                <div class='timeline-heading'>
+                    <h4 class='timeline-title'>
+                        {{ ::item.subject }}
+                        <div class="btn-group pull-right">
+                            <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a ng-href="/cases/details/{{ ::item.id }}/"><i class="fa fa-eye"></i>View</a></li>
+                                <li><a ng-href="/cases/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
+                                <li class='divider'></li>
+                                <li>
+                                    <a ng-href="/cases/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
+                                        <i class="fa fa-trash"></i>Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </h4>
+                </div>
+
+                <div class='timeline-body first'>
+                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+                    <div class="timeline-footer">
+                        <br/>
+                        Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
+                        Priority: {{ ::item.priority_name }}<br/>
+                        Type: {{ ::item.casetype_name}}<br/>
+                        <br/>
+                    </div>
+                    <p><small class="text-muted"><i class="fa fa-calendar"></i> expires: {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
+                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.created_by }}<span ng-if="::item.assigned_to_name">assigned to {{ ::item.assigned_to_name }}</span></small>
+                    </p>
+                </div>
+
+                <div class='timeline-body next' ng-repeat="note in ::item.notes">
+                    <p class='inline-header'><i class="fa fa-file-o"></i>Note</p>
+                    <div class="inline-body">
+                        {{ ::note.content }}
+                        <p><small class="text-muted"><i class="fa fa-calendar"></i> created on: {{ ::note.date | date:'dd MMMM yy HH:mm' }}</small></p>
+                        <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="timeline-panel" ng-if="::item.historyType=='deal'">
+
+                <div class='timeline-heading'>
+                    <h4 class='timeline-title'>{{ ::item.name }}</h4>
+                    <div class="btn-group pull-right">
+                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a ng-href="/deals/details/{{ ::item.id }}/"><i class="fa fa-eye"></i>View</a></li>
+                            <li><a ng-href="/deals/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
+                            <li class='divider'></li>
+                            <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-body first">
+                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+                    <div class="timeline-footer">
+                        Closing: {{ ::item.date | date:'dd MMMM yy HH:mm' }}<br/>
+                        Created: {{ ::item.created | date:'dd MMMM yy HH:mm' }}
+                        <br/>
+                        {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
+                        {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
+                        Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
+                        Amount once: {{ ::item.amount_once }}<br/>
+                        Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
+                    </div>
+                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMM yy' }}{{ ::item.date | date:'HH:mm' }}</small></p>
+                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.assigned_to_name }}</small></p>
+                </div>
+
+                <div class='timeline-body next' ng-repeat="note in ::item.notes">
+                    <p class='inline-header'><i class="fa fa-file-o"></i>Note</p>
+                    <div class="inline-body">
+                        {{ ::note.content }}
+                        <p><small class="text-muted"><i class="fa fa-calendar"></i> created on: {{ ::note.date | date:'dd MMMM yy HH:mm' }}</small></p>
+                        <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="timeline-panel" ng-if="::item.historyType=='note'">
+                <div class='timeline-heading'>
+                    <h4 class='timeline-title'>Note</h4>
+                    <div class="btn-group pull-right">
+                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a ng-href="/notes/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
+                            <li class='divider'></li>
+                            <li><a ng-href="/notes/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-time">
+                    <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
+                        <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                        <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+                    </a>
+                </div>
+
+                <div class="timeline-body">
+                    <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
+                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
+                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.author }}</small></p>
+                </div>
+            </div>
+
+            <div class="timeline-panel" ng-if="::item.historyType=='email'">
+                <div class='timeline-heading'>
+                    <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></h4>
+                    <div class="btn-group pull-right">
+                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li><a href="/messaging/email/#/detail/{{ ::item.id }}"><i class="fa fa-eye"></i>View</a></li>
+                            <li class='divider'></li>
+                            <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-reply"></i>Reply</a></li>
+                            <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-forward"></i>Forward</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-time">
+                    <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+                    <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+                </div>
+
+                <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
+                    {{ left }}
+                    <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
+                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
+                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.sender_name }}</small></p>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</div>
+
+<p class="text-center">
+    <button ng-click="loadHistoryFromButton()" class="btn btn-primary margin-top-20">{{ showMoreText }}</button>
+</p>
+
+</script>
+{% endverbatim %}

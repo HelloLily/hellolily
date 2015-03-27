@@ -90,7 +90,7 @@
                         </td>
                         <td ng-show="table.visibility.contactInformation">
                             <div ng-repeat="email in contact.email">
-                                <a href="/messaging/email/compose/{{ ::email }}" title="{{ ::email }}">
+                                <a href="base.email.composeEmail({email:email })" title="{{ ::email }}">
                                     <i class="icon-envelope-alt"></i>
                                     {{ email }}
                                 </a>
@@ -110,7 +110,7 @@
                         </td>
                         <td ng-show="table.visibility.worksAt">
                             <div ng-repeat="account in contact.account">
-                                <a href="/accounts/details/{{ ::account }}/">{{ ::contact.account_name[$index] }}</a>
+                                <a ui-sref="base.accounts.detail({id: account})">{{ ::contact.account_name[$index] }}</a>
                             </div>
                         </td>
                         <td ng-show="table.visibility.created">

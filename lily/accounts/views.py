@@ -169,7 +169,6 @@ class CreateUpdateAccountMixin(LoginRequiredMixin):
 
     def form_valid(self, form):
         success_url = super(CreateUpdateAccountMixin, self).form_valid(form)
-
         if not is_ajax(self.request):
             form_kwargs = self.get_form_kwargs()
             # Save primary website
@@ -203,6 +202,19 @@ class CreateUpdateAccountMixin(LoginRequiredMixin):
             })
 
         return kwargs
+
+    def form_invalid(self, form):
+        """
+        Return a clean html form with annotated form errors.
+        """
+        context = RequestContext(self.request, self.get_context_data(form=form))
+        return HttpResponse(render_to_string('accounts/account_form_ajax.html', context_instance=context))
+
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '/#/accounts'
 
 
 class AddAccountView(CreateUpdateAccountMixin, CreateView):
@@ -285,25 +297,6 @@ class AddAccountView(CreateUpdateAccountMixin, CreateView):
 
         return super(AddAccountView, self).form_valid(form)
 
-    def form_invalid(self, form):
-        """
-        Overloading super().form_invalid to return a different response to ajax requests.
-        """
-        if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(form=form))
-            return HttpResponse(anyjson.serialize({
-                'error': True,
-                'html': render_to_string(self.template_name, context_instance=context)
-            }), content_type='application/json')
-
-        return super(AddAccountView, self).form_invalid(form)
-
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted.
-        """
-        return '%s?order_by=3&sort_order=desc' % (reverse('account_list'))
-
 
 class EditAccountView(CreateUpdateAccountMixin, UpdateView):
     """
@@ -319,12 +312,6 @@ class EditAccountView(CreateUpdateAccountMixin, UpdateView):
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name)
 
         return success_url
-
-    def get_success_url(self):
-        """
-        Get the url to redirect to after this form has succesfully been submitted.
-        """
-        return '%s?order_by=4&sort_order=desc' % (reverse('account_list'))
 
 
 class DeleteAccountView(LoginRequiredMixin, DeleteView):

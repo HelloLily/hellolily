@@ -82,9 +82,9 @@
                         {{ ::case.id }}
                     </td>
                     <td ng-show="table.visibility.client">
-                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" ng-if="::case.contact">{{ ::case.contact_name }}</a>
+                        <a ui-sref="base.contacts.detail({ id: case.contact })" ng-if="::case.contact">{{ ::case.contact_name }}</a>
                         <span ng-if="case.contact && case.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: account.id })">{{ ::case.account_name }}</a>
+                        <a ui-sref="base.accounts.detail({ id: case.account })">{{ ::case.account_name }}</a>
                     </td>
                     <td ng-show="table.visibility.subject">
                         <strong ng-if="::case.archived">(a)</strong> <a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a>

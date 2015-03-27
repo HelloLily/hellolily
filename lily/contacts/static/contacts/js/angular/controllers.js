@@ -19,10 +19,11 @@ var contacts = angular.module('ContactsControllers', [
 contacts.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base.contacts', {
         abstract: true,
+        url: '/contacts',
         controller: 'ContactBaseController'
     });
     $stateProvider.state('base.contacts.list', {
-        url: '/contacts',
+        url: '',
         views: {
             '@': {
                 templateUrl: 'contacts/contact-list.html',

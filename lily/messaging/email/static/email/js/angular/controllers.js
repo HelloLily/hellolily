@@ -117,6 +117,9 @@ EmailControllers.controller('EmailController', [
     '$scope',
     function($location, $scope) {
 
+        $scope.conf.pageTitleBig = 'Email';
+        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+
         // Setup filter
         var filter = '';
 
@@ -152,6 +155,9 @@ EmailControllers.controller('EmailListController', [
     'EmailAccount',
     'HLText',
     function($scope, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
+
+        $scope.conf.pageTitleBig = 'Email labels';
+        $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         $scope.table.page = 0;
         $scope.table.filter = '';
@@ -317,6 +323,10 @@ EmailControllers.controller('EmailDetailController', [
     '$stateParams',
     'EmailMessage',
     function($scope, $state, $stateParams, EmailMessage) {
+
+        $scope.conf.pageTitleBig = 'Email Message';
+        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+
         $scope.displayAllRecipients = false;
 
         EmailMessage.API.get({id: $stateParams.id}, function(result) {
@@ -434,6 +444,10 @@ EmailControllers.controller('EmailComposeController', [
     'EmailMessage',
     'EmailTemplate',
     function ($stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
+
+        $scope.conf.pageTitleBig = 'Send Email';
+        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+
         if ($stateParams.messageType == 'reply') {
             // If it's a reply, load the email message first
             EmailMessage.API.get({id: $stateParams.id}).$promise.then(function (emailMessage) {

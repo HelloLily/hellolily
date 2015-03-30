@@ -30,16 +30,16 @@
                                     <td colspan="5">There are no unassigned cases for this team...</td>
                                 </tr>
                                 <tr ng-repeat="case in team.cases">
-                                    <td><a href="/cases/details/{{ ::case.id }}/">{{ case.id }}</a></td>
-                                    <td><a href="/contacts/details/{{ ::case.account.id }}/" ng-if="::case.account">{{ ::case.account.name }}</a></td>
-                                    <td><a href="/cases/details/{{ ::case.id }}/" title="{{ ::case.subject }}">{{ case.subject }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: case.account.id })" ng-if="::case.account">{{ ::case.account.name }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ case.subject }}</a></td>
                                     <td>
                                         <span class="label label-sm" ng-class="{'label-success': !case.priority[0], 'label-info': case.priority[0] === 1, 'label-warning': case.priority[0] === 2, 'label-danger': case.priority[0] === 3 } ">
                                             {{ case.priority[1] }}
                                         </span>
                                     </td>
                                     <td>{{ case.created  | relativeDate }}</td>
-                                    <td><a data-toggle="modal" href="/cases/update/{{ case.id }}/" class='assign-me-btn'><i class="fa fa-anchor"></i> Edit</a></td>
+                                    <td><a data-toggle="modal" ui-sref="base.cases.detail.edit({ id: case.id })" class='assign-me-btn'><i class="fa fa-anchor"></i> Edit</a></td>
                                 </tr>
                             </tbody>
                         </table>

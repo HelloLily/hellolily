@@ -28,9 +28,9 @@
                             </thead>
                             <tbody>
                                 <tr ng-repeat="mycase in mycases">
-                                    <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.id }}</a></td>
-                                    <td><a ng-href="accounts/details/{{ mycase.account.id }}/">{{ mycase.account.name }}</a></td>
-                                    <td><a ng-href="cases/details/{{ mycase.id }}/">{{ mycase.subject }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.id }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: mycase.account.id })">{{ mycase.account.name }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.subject }}</a></td>
                                     <td>
                                     <span title="3"></span>
                                     <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[mycase.priority[0]]">{{ mycase.priority[1] }}</span>

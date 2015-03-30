@@ -27,13 +27,13 @@
                             </thead>
                             <tbody>
                                 <tr ng-repeat="case in callbackRequests">
-                                    <td><a ng-href="/accounts/details/{{ case.account.id }}/">{{ case.account.name }}</a></td>
-                                    <td><a ng-href="/contacts/details/{{ case.contact.id }}/">{{ case.contact.full_name }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: case.account.id })">{{ case.account.name }}</a></td>
+                                    <td><a ui-sref="base.contacts.detail({ id: case.contact.id })">{{ case.contact.full_name }}</a></td>
                                     <td>
                                         <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
                                         <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
                                     </td>
-                                    <td>{{ case.subject }}</td>
+                                    <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a></td>
                                     <td>{{ case.created | relativeDate }}</td>
                                 </tr>
                             </tbody>

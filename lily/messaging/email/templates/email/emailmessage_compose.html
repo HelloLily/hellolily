@@ -12,9 +12,9 @@
             {{ hidden }}
         {% endfor %}
         <div class="inbox-compose-btn">
-            <button class="btn blue"><i class="fa fa-check"></i>Send</button>
-            <button class="btn">Draft</button>
-            <button class="btn inbox-discard-btn">Discard</button>
+            <button type="submit" name="submit-send" class="btn blue"><i class="fa fa-check"></i> Send</button>
+            <button type="submit" name="submit-save" class="btn">Draft</button>
+            <button type="submit" name="submit-discard" class="btn inbox-discard-btn">Discard</button>
         </div>
         <div class="inbox-form-group mail-from">
             <label class="control-label">{% trans 'From' %}:</label>
@@ -66,12 +66,12 @@
         {{ form.attachments }}
 
         <div class="inbox-compose-btn">
-            <button type="submit" name="submit-send" class="btn green" data-loading-text="<i class='fa fa-spinner fa-spin'></i> {% trans 'Sending..' %}"><i class="fa fa-ok"></i>{% trans 'Send' %}</button>
+            <button type="submit" name="submit-send" class="btn blue"><i class="fa fa-check"></i> {% trans 'Send' %}</button>
             {% if object.id and form.message_type == 'reply' %}
-                <button type="submit" name="submit-send-archive" class="btn green" data-loading-text="<i class='fa fa-spinner fa-spin'></i> {% trans 'Sending..' %}"><i class="fa fa-ok"></i>{% trans 'Send and archive' %}</button>
+                <button type="submit" name="submit-send-archive" class="btn blue"><i class="fa fa-ok"></i> {% trans 'Send and archive' %}</button>
             {% endif %}
-                <button type="submit" name="submit-discard" class="btn blue" data-loading-text="<i class='fa fa-spinner fa-spin'></i> {% trans 'Discarding..' %}">{% trans 'Discard' %}</button>
-            <button type="submit" name="submit-save" class="btn blue" data-loading-text="<i class='fa fa-spinner fa-spin'></i> {% trans 'Saving..' %}">{% trans 'Draft' %}</button>
+            <button type="submit" name="submit-discard" class="btn">{% trans 'Discard' %}</button>
+            <button type="submit" name="submit-save" class="btn">{% trans 'Draft' %}</button>
 {#            <a href="{% url 'messaging_email_inbox' %}" class="btn btn-default">{% trans 'Cancel' %}</a>#}
         </div>
     </form>

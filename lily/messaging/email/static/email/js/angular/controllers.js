@@ -438,12 +438,13 @@ EmailControllers.controller('LabelListController', [
 ]);
 
 EmailControllers.controller('EmailComposeController', [
+    '$scope',
     '$stateParams',
     '$q',
     'ContactDetail',
     'EmailMessage',
     'EmailTemplate',
-    function ($stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
+    function ($scope, $stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
 
         $scope.conf.pageTitleBig = 'Send Email';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';

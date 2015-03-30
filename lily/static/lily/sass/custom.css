@@ -273,14 +273,14 @@ li.call > .timeline-panel:after  {
 	border-right: 0 solid #FFB848;
 }
 
-li.annotation .timeline-heading, li.annotation .timeline-badge {
+li.note .timeline-heading, li.note .timeline-badge {
 	border-color: #FFB848;
 	background-image: none;
 	background-color: #FFB848 !important;
 	color: #FFFFFF;
 }
 
-li.annotation > .timeline-panel:after  {
+li.note > .timeline-panel:after  {
 	border-left: 8px solid #FFB848;
 	border-right: 0 solid #FFB848;
 }

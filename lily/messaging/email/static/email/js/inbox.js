@@ -262,7 +262,7 @@
                 return $(inboxCompose).data('formset-disabled') == true;
             }).remove();
 
-            App.blockUI($('.inbox-content'), false, '');
+            Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
         },

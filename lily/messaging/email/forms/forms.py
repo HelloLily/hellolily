@@ -154,7 +154,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
             Q(owner=user) |
             Q(shared_with_users=user) |
             Q(public=True)
-        ).filter(tenant=user.tenant)
+        ).filter(tenant=user.tenant).distinct('id')
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]
@@ -378,7 +378,7 @@ class EmailTemplateSetDefaultForm(HelloLilyModelForm):
             Q(owner=user) |
             Q(public=True) |
             Q(shared_with_users__id=user.pk)
-        )
+        ).filter(tenant=user.tenant).distinct('id')
 
     def save(self, commit=True):
         default_for_data = self.cleaned_data.get('default_for')

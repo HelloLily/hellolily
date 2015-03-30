@@ -200,7 +200,8 @@ class LilySearch(object):
             Q(owner=user) |
             Q(public=True) |
             Q(shared_with_users__id=user.pk)
-        )
+        ).filter(tenant=user.tenant).distinct('id')
+        
         if not email_accounts:
             # Disable results if no email at all for account.
             self.raw_filters.append({

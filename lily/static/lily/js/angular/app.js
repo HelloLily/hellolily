@@ -36,7 +36,7 @@ lilyApp.factory('settings', ['$rootScope', function($rootScope) {
     // supported languages
     var settings = {
         layout: {
-            pageSidebarClosed: false, // sidebar state
+            pageSidebarClosed: false // sidebar state
         }
     };
 

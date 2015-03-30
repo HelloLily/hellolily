@@ -25,7 +25,7 @@ lilyControllers.controller('baseController', [
 
     function($http, $scope, $state, $modal, Notifications) {
         $scope.conf = {
-            headerTitle: 'Welcome!',
+            headTitle: 'Welcome!',
             pageTitleBig: 'HelloLily',
             pageTitleSmall: 'welcome to my humble abode!'
         };

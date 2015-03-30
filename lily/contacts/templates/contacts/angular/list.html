@@ -91,19 +91,19 @@
                         <td ng-show="table.visibility.contactInformation">
                             <div ng-repeat="email in contact.email">
                                 <a ui-sref="base.email.composeEmail({ email: email })" title="{{ ::email }}">
-                                    <i class="icon-envelope-alt"></i>
+                                    <i class="fa fa-envelope-alt"></i>
                                     {{ email }}
                                 </a>
                             </div>
                             <div ng-repeat="phone in contact.phone_work track by $index">
                                 <a href="tel:{{ ::phone }}">
-                                    <i class="icon-phone"></i>
+                                    <i class="fa fa-phone"></i>
                                     {{ phone }}
                                 </a>
                             </div>
                             <div ng-repeat="phone in contact.phone_mobile track by $index">
                                 <a href="tel:{{ ::phone }}">
-                                    <i class="icon-mobile-phone"></i>
+                                    <i class="fa fa-mobile-phone"></i>
                                     {{ phone }}
                                 </a>
                             </div>

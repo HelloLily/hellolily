@@ -5,7 +5,7 @@
         <ul class="wysihtml5-toolbar">
             <li class="dropdown">
                 <a class="btn default dropdown-toggle" tabindex="-1" data-toggle="dropdown" title="{% trans 'Text type' %}">
-                    <i class="icon-font"></i>
+                    <i class="fa fa-font"></i>
                     <span class="current-font">{% trans 'Normal Text' %}</span>
                     <span class="caret"></span>
                 </a>
@@ -20,14 +20,15 @@
                 </ul>
             </li>
             <li><a class="btn default" tabindex="-1" data-wysihtml5-command="bold" title="{% trans 'Make bold' %}"><strong>{% trans 'bold' %}</strong></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="italic" title="{% trans 'Make italic' %}"><em>{% trans 'italic' %}</em></a></li>
+            <li><a class="btn default" tabindex="-
+            1" data-wysihtml5-command="italic" title="{% trans 'Make italic' %}"><em>{% trans 'italic' %}</em></a></li>
             <li><a class="btn default" tabindex="-1" data-wysihtml5-command="underline" title="{% trans 'Make underlined' %}"><u>{% trans 'underline' %}</u></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="insertUnorderedList" title="{% trans 'Create an unordered list' %}"><i class="icon-list"></i></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="insertOrderedList" title="{% trans 'Create an ordered list' %}"><i class="icon-th-list"></i></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="Indent" title="{% trans 'Indent, move right' %}"><i class="icon-indent-right"></i></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="Outdent" title="{% trans 'Outdent, move left' %}"><i class="icon-indent-left"></i></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-action="change_view" title="{% trans 'Edit raw html' %}"><i class="icon-pencil"></i></a></li>
-            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="createLink" title="{% trans 'Create a link' %}"><i class="icon-share"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="insertUnorderedList" title="{% trans 'Create an unordered list' %}"><i class="fa fa-list"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="insertOrderedList" title="{% trans 'Create an ordered list' %}"><i class="fa fa-th-list"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="Indent" title="{% trans 'Indent, move right' %}"><i class="fa fa-indent"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="Outdent" title="{% trans 'Outdent, move left' %}"><i class="fa fa-outdent"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-action="change_view" title="{% trans 'Edit raw html' %}"><i class="fa fa-pencil"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="createLink" title="{% trans 'Create a link' %}"><i class="fa fa-share"></i></a></li>
         </ul>
         <!-- Some wysihtml5 commands like 'createLink' require extra paramaters specified by the user (eg. href) -->
         <div data-wysihtml5-dialog="createLink" style="display: none;">

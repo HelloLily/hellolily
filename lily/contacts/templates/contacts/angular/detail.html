@@ -78,7 +78,7 @@
             <a ng-click="deleteContact(contact.id)" class="btn btn-sm blue"><i class="fa fa-trash"></i> Delete</a>
             <br/><br/>
             <div class="btn-group">
-                <a href="javascript:void(0)" data-target="#quickbutton-create" data-source="/cases/create/from_contact/{{ ::contact.id }}/" class="btn blue btn-sm">
+                <a ui-sref="base.cases.create.fromContact({ id: contact.id })" class="btn blue btn-sm">
                     <i class="icon-plus"></i>
                 </a>
                 <a ng-href="#/cases?search={{ ::contact.name }}" class="btn blue btn-sm">

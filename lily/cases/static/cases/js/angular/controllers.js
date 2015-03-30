@@ -67,6 +67,20 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Create'
         }
     });
+    $stateProvider.state('base.cases.create.fromContact', {
+        url: '/contact/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr) {
+                    return '/cases/create/from_contact/' + elem.id +'/';
+                },
+                controller: 'CaseCreateController'
+            }
+        },
+        ncyBreadcrumb: {
+            skip: true
+        }
+    });
 }]);
 
 /**

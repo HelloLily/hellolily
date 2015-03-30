@@ -363,4 +363,6 @@ a.hoekje,a.hoekje:hover {
 }
 /*  END DASHBOARD STUFF */
 
-
+.radio-btns label{
+    border:1px solid #2d6ca2 ;
+}

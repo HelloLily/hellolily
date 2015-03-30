@@ -6,10 +6,10 @@
                 <div class="portlet-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <label>Account:</label> <a ui-sref="base.accounts.detail({ id: deal.account })">{{ ::deal.account_name }}</a><br/>
+                            <label>Account:</label> <a ui-sref="base.accounts.detail({ id: deal.account })"> {{ ::deal.account_name }}</a><br/>
                             <label>Deal Name:</label> {{ ::deal.name }}<br/>
                             <label>Created:</label> {{ deal.created | relativeDate }}<br/>
-                            <label>Closing Date:</label> <span id="closed-date" ng-show="deal.closing_date">{{ deal.closing_date | relativeDate }}</span>
+                            <label>Closing Date:</label> <span id="closed-date" ng-show="deal.closing_date"> {{ deal.closing_date | relativeDate }}</span>
                        </div>
                     </div>
                 </div>

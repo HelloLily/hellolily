@@ -20,29 +20,29 @@ class CaseMapping(BaseMapping):
         mapping['properties'].update({
             'subject': {
                 'type': 'string',
-                'analyzer': 'normal_ngram_analyzer',
+                'index_analyzer': 'normal_ngram_analyzer',
             },
             'body': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'account': {
                 'type': 'integer',
             },
             'account_name': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'contact': {
                 'type': 'integer',
             },
             'contact_name': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'assigned_to_name': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'assigned_to_id': {
                 'type': 'integer',
@@ -52,19 +52,19 @@ class CaseMapping(BaseMapping):
             },
             'priority_name': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'status': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'tag': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'casetype_name': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'casetype_id': {
                 'type': 'integer',

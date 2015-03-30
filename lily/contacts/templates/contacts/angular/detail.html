@@ -97,16 +97,11 @@
                 </div>
                 <div class="portlet-body">
                     <div class="form-group">
-                        <form method="POST" action="/notes/create/">
-                            {% endverbatim %}{% csrf_token %}{% verbatim %}
-                            <div class="form-group note-input-wrapper col-md-10">
-                                <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
-                                <input type="hidden" name="content_type" value="contact">
-                                <input type="hidden" name="object_id" value="{{ ::contact.id }}">
-                            </div>
-                            <button type="submit" class="btn btn-primary col-md-2 col-xs-3">Add note</button>
-                            <div class="clearfix"></div>
-                        </form>
+                        <div class="form-group note-input-wrapper col-md-10">
+                            <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
+                        </div>
+                        <button class="btn btn-primary col-md-2 col-xs-3" ng-click="addNote('contact', contact.id, note)">Add note</button>
+                        <div class="clearfix"></div>
                     </div>
                     {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
                 </div>

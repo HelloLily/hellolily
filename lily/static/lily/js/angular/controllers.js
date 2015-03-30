@@ -17,12 +17,13 @@ lilyControllers.config(['$stateProvider', function($stateProvider) {
  *
  */
 lilyControllers.controller('baseController', [
+    '$http',
     '$scope',
     '$state',
     '$modal',
     'Notifications',
 
-    function($scope, $state, $modal, Notifications) {
+    function($http, $scope, $state, $modal, Notifications) {
         $scope.conf = {
             pageTitleBig: 'HelloLily',
             pageTitleSmall: 'welcome to my humble abode!'
@@ -68,6 +69,24 @@ lilyControllers.controller('baseController', [
             modalInstance.result.then(function() {
                 $state.go($state.current, {}, {reload: true});
             }, function () {
+            });
+        };
+
+        /**
+         * Add note to the historylist
+         */
+        $scope.addNote =function(contentType, objectId, content) {
+            $http({
+                method: 'POST',
+                url: '/notes/create/',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                data: $.param({
+                    content: content,
+                    content_type: contentType,
+                    object_id: objectId
+                })
+            }).success(function() {
+                $state.go($state.current, {}, {reload: true});
             });
         };
     }

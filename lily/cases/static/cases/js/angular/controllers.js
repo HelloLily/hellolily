@@ -120,8 +120,6 @@ caseControllers.controller('CaseDetailController', [
         $scope.case = CaseDetail.get({id: id});
         $scope.caseStatuses = CaseStatuses.query();
 
-        console.log($scope.case);
-
         /**
          *
          * @returns {string}: A string which states what label should be displayed

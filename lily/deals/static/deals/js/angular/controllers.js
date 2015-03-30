@@ -63,6 +63,20 @@ dealControllers.config(['$stateProvider', function($stateProvider) {
             label: 'New'
         }
     });
+    $stateProvider.state('base.deals.create.fromAccount', {
+        url: '/account/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr) {
+                    return '/deals/create/from_account/' + elem.id +'/';
+                },
+                controller: 'DealCreateController'
+            }
+        },
+        ncyBreadcrumb: {
+            skip: true
+        }
+    });
 }]);
 
 /**
@@ -323,9 +337,7 @@ dealControllers.controller('DealDetailController', [
             }).$promise;
 
             $q.all([notesPromise,]).then(function(results) {
-                console.log(results);
                 var notes = results[0];
-                console.log(notes);
                 notes.forEach(function(note) {
                     note.history_type = 'note';
                     note.color = 'yellow';

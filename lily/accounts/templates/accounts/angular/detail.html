@@ -87,16 +87,16 @@
 
     <div class="col-md-2">
         <div class="dashboard-stat purple-wisteria">
-            <div class="visual">
-                <i class="fa fa-briefcase"></i>
-            </div>
-            <a href="#">
+            <a ng-href="#/cases?search={{ ::account.name }}">
+                <div class="visual">
+                    <i class="fa fa-briefcase"></i>
+                </div>
                 <div class="details">
                     <div class="number">{{ ::numCases }}</div>
                     <div class="desc">Closed</div>
                 </div>
             </a>
-            <a class="more" ng-href="/cases/#/?search={{ ::account.name }}">
+            <a class="more" ui-sref="base.cases.create.fromAccount({ id: account.id })">
                 Add case <i class="m-icon-swapright m-icon-white"></i>
             </a>
         </div>
@@ -109,18 +109,18 @@
 
     <div class="col-md-2">
         <div class="dashboard-stat green-meadow">
-            <div class="visual">
-                <i class="fa fa-money"></i>
-            </div>
-            <a href="#">
-            <div class="details">
-                <div class="number">{{ ::numDeals }}</div>
-                <div class="desc">
-                     Won
+            <a ng-href="#/deals?search={{ ::account.name }}">
+                <div class="visual">
+                    <i class="fa fa-money"></i>
                 </div>
-            </div>
+                <div class="details">
+                    <div class="number">{{ ::numDeals }}</div>
+                    <div class="desc">
+                         Won
+                    </div>
+                </div>
             </a>
-            <a class="more" ng-href="/deals/#/?search={{ ::account.name }}">
+            <a class="more" ui-sref="base.deals.create.fromAccount({ id: account.id })">
                 Add deal <i class="m-icon-swapright m-icon-white"></i>
             </a>
         </div>

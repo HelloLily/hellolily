@@ -190,12 +190,12 @@
                     <h4 class='timeline-title'>
                         {{ ::item.subject }}
                         <div class="btn-group pull-right">
-                            <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
+                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
                             <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
-                                <li><a ng-href="/cases/details/{{ ::item.id }}/"><i class="fa fa-eye"></i>View</a></li>
-                                <li><a ng-href="/cases/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
+                                <li><a ui-sref="base.cases.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                                <li><a ui-sref="base.cases.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
                                 <li class='divider'></li>
                                 <li>
                                     <a ng-href="/cases/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
@@ -236,18 +236,19 @@
             <div class="timeline-panel" ng-if="::item.historyType=='deal'">
 
                 <div class='timeline-heading'>
-                    <h4 class='timeline-title'>{{ ::item.name }}</h4>
-                    <div class="btn-group pull-right">
-                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right">
-                            <li><a ng-href="/deals/details/{{ ::item.id }}/"><i class="fa fa-eye"></i>View</a></li>
-                            <li><a ng-href="/deals/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
-                            <li class='divider'></li>
-                            <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
-                        </ul>
-                    </div>
+                    <h4 class='timeline-title'>{{ ::item.name }}
+                        <div class="btn-group pull-right">
+                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a ui-sref="base.deals.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                                <li><a ui-sref="base.deals.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
+                                <li class='divider'></li>
+                                <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                            </ul>
+                        </div>
+                    </h4>
                 </div>
 
                 <div class="timeline-body first">
@@ -279,17 +280,18 @@
 
             <div class="timeline-panel" ng-if="::item.historyType=='note'">
                 <div class='timeline-heading'>
-                    <h4 class='timeline-title'>Note</h4>
-                    <div class="btn-group pull-right">
-                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right">
-                            <li><a ng-href="/notes/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
-                            <li class='divider'></li>
-                            <li><a ng-href="/notes/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
-                        </ul>
-                    </div>
+                    <h4 class='timeline-title'>Note
+                        <div class="btn-group pull-right">
+                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a ng-href="/notes/update/{{ ::item.id }}/"><i class="fa fa-edit"></i>Edit</a></li>
+                                <li class='divider'></li>
+                                <li><a ng-href="/notes/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                            </ul>
+                        </div>
+                    </h4>
                 </div>
                 <div class="timeline-time">
                     <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
@@ -307,18 +309,19 @@
 
             <div class="timeline-panel" ng-if="::item.historyType=='email'">
                 <div class='timeline-heading'>
-                    <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></h4>
-                    <div class="btn-group pull-right">
-                        <a class="hoekje" href="#" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-angle-down"></i>
-                        </a>
-                        <ul class="dropdown-menu pull-right">
-                            <li><a href="/messaging/email/#/detail/{{ ::item.id }}"><i class="fa fa-eye"></i>View</a></li>
-                            <li class='divider'></li>
-                            <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-reply"></i>Reply</a></li>
-                            <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-forward"></i>Forward</a></li>
-                        </ul>
-                    </div>
+                    <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span>
+                        <div class="btn-group pull-right">
+                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a ui-sref="base.email.detail({id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                                <li class='divider'></li>
+                                <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-reply"></i>Reply</a></li>
+                                <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-forward"></i>Forward</a></li>
+                            </ul>
+                        </div>
+                    </h4>
                 </div>
 
                 <div class="timeline-time">

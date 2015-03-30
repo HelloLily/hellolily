@@ -35,13 +35,13 @@
                             <div><i class="fa fa-user"></i>{{ ::note.author }}</div>
                         </div><br/>
                     </div>
-                    <a ng-href="/cases/update/{{ ::item.id }}/" class="nav-link pull-right">
+                    <a ui-sref="base.cases.detail.edit({ id: item.id })" class="nav-link pull-right">
                         Edit<i class="fa fa-edit"></i>
                     </a>
-                    <a ng-href="/cases/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
+                    <a ng-href="/cases/delete/{{ item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
                         Delete<i class="fa fa-trash"></i>
                     </a>
-                    <a ng-href="/cases/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
+                    <a ui-sref="base.cases.detail({ id: item.id })"  class="nav-link pull-right"> View<i class="fa fa-eye"></i></a>
                     <br/>
                     <i class="fa fa-user"></i>{{ ::item.created_by }}
                     <span ng-if="::item.assigned_to_name"><small>assigned to</small> {{ ::item.assigned_to_name }}</span>
@@ -77,13 +77,13 @@
                             <div><i class="fa fa-user"></i>{{ ::note.author }}</div>
                         </div><br/>
                     </div>
-                    <a ng-href="/deals/update/{{ ::item.id }}/" class="nav-link pull-right">
+                    <a ui-sref="base.deals.detail.edit({ id: item.id })" class="nav-link pull-right">
                         Edit<i class="fa fa-edit"></i>
                     </a>
                     <a ng-href="/deals/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/deals/delete/{{ ::item.id }}/">
                         Delete<i class="fa fa-trash"></i>
                     </a>
-                    <a ng-href="/deals/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
+                    <a ui-sref="base.deals.detail({ id: item.id })"  class="nav-link pull-right">View</a>
                     <br/>
                     <i class="fa fa-user"></i>{{ ::item.assigned_to_name }}
                 </div>
@@ -141,7 +141,7 @@
                         Forward
                         <i class="fa fa-arrow-right"></i>
                     </a>
-                    <a href="/messaging/email/#/detail/{{ ::item.id }}" class="nav-link pull-right">
+                    <a ui-sref="base.email.detail({id: message.id })" class="nav-link pull-right">
                         View
                         <i class="fa fa-envelope"></i>
                     </a>

@@ -265,7 +265,7 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
     """
     Form used for creating and updating email templates.
     """
-    id = forms.IntegerField(label=_('Template ID'))
+    id = forms.IntegerField(label=_('Template ID'), required=False)
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
 

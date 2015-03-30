@@ -20,6 +20,10 @@ var lilyApp = angular.module('lilyApp', [
     // Directives
     'lilyDirectives',
 
+    // Google Analytics
+    'angulartics',
+    'angulartics.google.analytics',
+
     // Services
     'LilyServices',
 

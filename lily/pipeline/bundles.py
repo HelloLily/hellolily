@@ -216,6 +216,8 @@ PIPELINE_JS = {
             'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
             'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
             'plugins/chart.js',
+            'plugins/angular/angular-angulartics/angulartics.js',
+            'plugins/angular/angular-angulartics/angulartics-ga.js',
             'plugins/angular/angular-chart/angular-chart.js',
             'plugins/angular/angular-sanitize/angular-sanitize.js',
             'plugins/angular/angular-slimscroll/angular-slimscroll.js',

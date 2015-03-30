@@ -37,7 +37,6 @@ lilyApp.factory('settings', ['$rootScope', function($rootScope) {
     var settings = {
         layout: {
             pageSidebarClosed: false, // sidebar state
-            pageAutoScrollOnLoad: 1000 // auto scroll to top on page load
         }
     };
 

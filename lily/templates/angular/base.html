@@ -5,13 +5,12 @@
 <!--[if IE 8]> <html lang="en" class="ie8 no-js" ng-app="lilyApp"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9 no-js" ng-app="lilyApp"> <![endif]-->
 <!--[if !IE]><!-->
-<html lang="en" ng-app="lilyApp">
+<html lang="en" ng-app="lilyApp" ng-controller="baseController">
 <!--<![endif]-->
     <!-- BEGIN HEAD -->
     <head>
         <meta charset="utf-8"/>
-        <title>Metronic | Page Layouts - Blank Page</title>
-        <title>Lily | {{ headTitle }}</title>
+        <title>HelloLily | {{ conf.headTitle }}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -34,7 +33,7 @@
     <!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
     <!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
     <!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
-    <body ng-controller="baseController" class="page-header-fixed page-sidebar-closed-hide-logo page-container-bg-solid page-sidebar-closed-hide-logo page-on-load page-sidebar-fixed">
+    <body class="page-header-fixed page-sidebar-closed-hide-logo page-container-bg-solid page-sidebar-closed-hide-logo page-on-load page-sidebar-fixed">
 
         <!-- BEGIN PAGE SPINNER -->
         <div ng-spinner-bar class="page-spinner-bar">

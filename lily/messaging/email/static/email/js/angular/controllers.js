@@ -477,16 +477,18 @@ EmailControllers.controller('EmailComposeController', [
                         email = emailMessage.sender.email_address;
                     }
 
-                    // The text which is actually used in the application/select2
-                    var used_text = '"' + contact.name + '" <' + email + '>';
-                    // The text shown in the recipient input
-                    var displayed_text = contact.name + ' <' + email + '>';
+                    if (contact) {
+                        // The text which is actually used in the application/select2
+                        var used_text = '"' + contact.name + '" <' + email + '>';
+                        // The text shown in the recipient input
+                        var displayed_text = contact.name + ' <' + email + '>';
 
-                    recipient = {
-                        id: used_text,
-                        text: displayed_text,
-                        object_id: contact.id
-                    };
+                        recipient = {
+                            id: used_text,
+                            text: displayed_text,
+                            object_id: contact.id
+                        };
+                    }
                 } else {
                     templates = results[0];
                 }

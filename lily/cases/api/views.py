@@ -36,7 +36,7 @@ class CaseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status']
+        fields = ['type', 'status', 'not_type', 'not_status', 'is_deleted']
 
 
 class CaseList(APIView):

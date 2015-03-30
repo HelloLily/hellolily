@@ -18,22 +18,22 @@ class NoteMapping(BaseMapping):
         mapping['properties'].update({
             'name': {
                 'type': 'string',
-                'analyzer': 'normal_analyzer',
+                'index_analyzer': 'normal_analyzer',
             },
             'author': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'content_type': {
                 'type': 'string',
-                'analyzer': 'keyword',
+                'index_analyzer': 'keyword',
             },
             'object_id': {
                 'type': 'integer',
             },
             'subject_repr': {
                 'type': 'string',
-                'analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'date': {
                 'type': 'date',

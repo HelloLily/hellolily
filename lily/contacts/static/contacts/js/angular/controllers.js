@@ -123,6 +123,15 @@ contacts.controller('ContactDetailController', [
             return title;
         }
 
+        $scope.showMoreText = 'Show more';
+        $scope.opts = {history_type: ''};
+        $scope.history_types = [
+            {type: '', name: 'All'},
+            {type: 'case', name: 'Cases'},
+            {type: 'email', name: 'Emails'},
+            {type: 'note', name: 'Notes'}
+        ];
+
         var add = 10;
         var size = add;
         var currentSize = 0;
@@ -162,6 +171,8 @@ contacts.controller('ContactDetailController', [
                 var notes = results[0];
                 notes.forEach(function(note) {
                     note.note = true;
+                    note.history_type = 'note';
+                    note.color = 'yellow';
                     history.push(note);
                 });
                 var emails = results[1];
@@ -175,12 +186,16 @@ contacts.controller('ContactDetailController', [
                             email.right = true;
                         }
                     });
+                    email.history_type = 'email';
+                    email.color = 'green';
                     history.push(email);
                 });
                 var cases = results[2];
                 cases.forEach(function(caseItem) {
                     caseItem.caze = true;
                     caseItem.date = caseItem.expires;
+                    caseItem.history_type = 'case'
+                    caseItem.color = 'grey'
                     history.push(caseItem);
                 });
 

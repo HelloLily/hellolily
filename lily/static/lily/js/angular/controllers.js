@@ -1,7 +1,9 @@
 /**
  * caseControllers is a container for all case related Controllers
  */
-var lilyControllers = angular.module('lilyControllers', []);
+var lilyControllers = angular.module('lilyControllers', [
+    'ui.bootstrap'
+]);
 
 lilyControllers.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base', {
@@ -16,10 +18,11 @@ lilyControllers.config(['$stateProvider', function($stateProvider) {
  */
 lilyControllers.controller('baseController', [
     '$scope',
-
+    '$state',
+    '$modal',
     'Notifications',
 
-    function($scope, Notifications) {
+    function($scope, $state, $modal, Notifications) {
         $scope.conf = {
             pageTitleBig: 'HelloLily',
             pageTitleSmall: 'welcome to my humble abode!'
@@ -49,6 +52,24 @@ lilyControllers.controller('baseController', [
                 console.log(error);
             })
         });
+
+        $scope.editNote = function(note) {
+            var modalInstance = $modal.open({
+                templateUrl: 'notes/edit.html',
+                controller: 'EditNoteModalController',
+                size: 'lg',
+                resolve: {
+                        note: function() {
+                            return note;
+                        }
+                }
+            });
+
+            modalInstance.result.then(function() {
+                $state.go($state.current, {}, {reload: true});
+            }, function () {
+            });
+        };
     }
 ]);
 
@@ -69,5 +90,33 @@ lilyControllers.controller('sidebarController', [
         $scope.$on('$includeContentLoaded', function() {
             Layout.initSidebar(); // init sidebar
         });
+    }
+]);
+
+/**
+ * EditNoteModalController is a controller to edit a note.
+ */
+lilyControllers.controller('EditNoteModalController', [
+    '$http',
+    '$modalInstance',
+    '$scope',
+    'note',
+    function($http, $modalInstance, $scope, note) {
+        $scope.note = note;
+        $scope.ok = function () {
+            $http({
+                url: '/notes/update/' + $scope.note.id + '/',
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                data: $.param({content: $scope.note.content})
+            }).success(function() {
+                $modalInstance.close($scope.note);
+            });
+        };
+
+        // Lets not change anything
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
     }
 ]);

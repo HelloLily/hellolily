@@ -1,0 +1,17 @@
+{% verbatim %}
+<script id="notes/edit.html" type="text/ng-template">
+    <div class="modal-header">
+        <h3 class="modal-title">Edit Note</h3>
+    </div>
+    <div class="modal-body" slimscroll="{height: 350}">
+        <div class="form-body">
+            <div class="form-group">
+                <textarea class="form-control inline note-textarea" cols="40" rows="10" ng-model="note.content"></textarea></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+{% endverbatim %}

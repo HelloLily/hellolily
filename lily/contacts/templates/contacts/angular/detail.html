@@ -27,7 +27,7 @@
                             </span>
                         </div>
                         <div class="col-md-6">
-                            <span ng-repeat="phone in ::contact.phone"> {{ ::phone }}</span>
+                            <span ng-repeat="phone in ::contact.phones"> {{ ::phone }}</span>
                             <span ng-repeat="email in ::contact.email"><a ui-sref="base.email.composeEmail({ email: email })">{{ ::email }}</a><br/></span>
                             <span ng-repeat="address in ::contact.address"><i class="fa fa-building" name="Visiting address"></i> {{ ::address }}<br/><br/></span>
                             <span ng-repeat="tag in ::contact.tag" class="badge badge-roundless">{{ ::tag }}</span>
@@ -58,7 +58,7 @@
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="worker in ::work.colleagues">
-                                    <td><a href="/contacts/details/{{ ::worker.id }}/">{{ ::worker.name }}</a></td>
+                                    <td> <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a></td>
                                     <td><i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a></td>
                                     <td><i class="fa fa-phone"></i> {{ ::worker.phone }}</td>
                                 </tr>

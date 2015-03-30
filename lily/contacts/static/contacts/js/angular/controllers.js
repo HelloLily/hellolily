@@ -218,6 +218,7 @@ contacts.controller('ContactDetailController', [
                 $scope.works = results;
             });
         });
+
         var tenantEmailsPromise = EmailAccount.query();
         $scope.loadHistoryFromButton = function() {
             $q.all([contactPromise, tenantEmailsPromise]).then(function(results) {

@@ -504,6 +504,13 @@ EmailControllers.controller('EmailComposeController', [
                             object_id: contact.id
                         };
                     }
+                    else {
+                        recipient = {
+                            id: email,
+                            text: email,
+                            object_id: null
+                        };
+                    }
                 } else {
                     templates = results[0];
                 }

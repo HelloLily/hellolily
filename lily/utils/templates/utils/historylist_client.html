@@ -109,7 +109,7 @@
                     <a class="nav-link pull-right" ng-click="editNote(item)">
                         Edit<i class="fa fa-edit"></i>
                     </a>
-                    <a ng-href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
+                    <a ng-click="deleteNote(item)" class="nav-link pull-right">
                         Delete<i class="fa fa-trash"></i>
                     </a>
                     <br/>

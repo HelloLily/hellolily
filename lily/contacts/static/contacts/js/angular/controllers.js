@@ -18,12 +18,7 @@ var contacts = angular.module('ContactsControllers', [
 
 contacts.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base.contacts', {
-        abstract: true,
         url: '/contacts',
-        controller: 'ContactBaseController'
-    });
-    $stateProvider.state('base.contacts.list', {
-        url: '',
         views: {
             '@': {
                 templateUrl: 'contacts/contact-list.html',
@@ -74,13 +69,6 @@ contacts.config(['$stateProvider', function($stateProvider) {
     });
 }]);
 
-contacts.controller('ContactBaseController', [
-    '$scope',
-
-    function($scope) {
-    }
-]);
-
 /**
  * ContactDetailController is a controller to show details of a contact.
  */
@@ -96,7 +84,9 @@ contacts.controller('ContactDetailController', [
     '$filter',
     '$stateParams',
     '$state',
-    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, ContactTest, $scope, $q, $filter, $stateParams, $state) {
+    'NoteService',
+
+    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, ContactTest, $scope, $q, $filter, $stateParams, $state, NoteService) {
         $scope.showMoreText = 'Show more';
         $scope.conf.pageTitleBig = 'Contact detail';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
@@ -245,6 +235,19 @@ contacts.controller('ContactDetailController', [
         CaseDetail.totalize({filterquery: 'archived:false AND contact:' + id}).$promise.then(function(total) {
             $scope.numCases = total.total;
         });
+
+        $scope.deleteNote = function(note) {
+            if (confirm('Are you sure?')) {
+                NoteService.delete({
+                    id:note.id
+                }, function() {  // On success
+                    var index = $scope.history.indexOf(note);
+                    $scope.history.splice(index, 1);
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                });
+            }
+        };
     }
 ]);
 

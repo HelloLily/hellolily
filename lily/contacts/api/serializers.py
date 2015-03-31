@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import AccountSerializer
+from lily.api.serializers import ContentTypeSerializer
 from ..models import Contact
 
 
@@ -16,6 +17,7 @@ class ContactSerializer(serializers.ModelSerializer):
     email_addresses = serializers.StringRelatedField(many=True, read_only=True)
     salutation = serializers.CharField(source='get_salutation_display')
     accounts = AccountSerializer(many=True, read_only=True)
+    content_type = ContentTypeSerializer(read_only=True)
 
     class Meta:
         model = Contact
@@ -36,4 +38,5 @@ class ContactSerializer(serializers.ModelSerializer):
             'email_addresses',
             'salutation',
             'accounts',
+            'content_type',
         )

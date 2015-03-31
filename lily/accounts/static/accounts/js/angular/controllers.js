@@ -93,7 +93,9 @@ accountController.controller('AccountDetailController', [
     'EmailAccount',
     'EmailDetail',
     'NoteDetail',
-    function($filter, $scope, $state, $stateParams, $q, AccountDetail, CaseDetail, ContactDetail, DealDetail, EmailAccount, EmailDetail, NoteDetail) {
+    'NoteService',
+
+    function($filter, $scope, $state, $stateParams, $q, AccountDetail, CaseDetail, ContactDetail, DealDetail, EmailAccount, EmailDetail, NoteDetail, NoteService) {
 
         var id = $stateParams.id;
 
@@ -220,6 +222,18 @@ accountController.controller('AccountDetailController', [
             $scope.workers = contacts;
         });
 
+        $scope.deleteNote = function(note) {
+            if (confirm('Are you sure?')) {
+                NoteService.delete({
+                    id:note.id
+                }, function() {  // On success
+                    var index = $scope.history.indexOf(note);
+                    $scope.history.splice(index, 1);
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                });
+            }
+        };
     }
 ]);
 

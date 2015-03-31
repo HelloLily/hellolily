@@ -106,12 +106,15 @@ caseControllers.controller('CaseDetailController', [
     '$location',
     '$q',
     '$scope',
+    '$state',
     '$stateParams',
 
     'CaseDetail',
     'CaseStatuses',
     'NoteDetail',
-    function($filter, $http, $location, $q, $scope, $stateParams, CaseDetail, CaseStatuses, NoteDetail) {
+    'NoteService',
+
+    function($filter, $http, $location, $q, $scope, $state, $stateParams, CaseDetail, CaseStatuses, NoteDetail, NoteService) {
         $scope.conf.pageTitleBig = 'Case';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -306,6 +309,19 @@ caseControllers.controller('CaseDetailController', [
                     error(function(data, status, headers, config) {
                         // Request failed proper error?
                     });
+            }
+        };
+
+        $scope.deleteNote = function(note) {
+            if (confirm('Are you sure?')) {
+                NoteService.delete({
+                    id:note.id
+                }, function() {  // On success
+                    var index = $scope.history.indexOf(note);
+                    $scope.history.splice(index, 1);
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                });
             }
         };
     }

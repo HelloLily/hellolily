@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
@@ -52,6 +53,13 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
     accounts = models.ManyToManyField(Account, through='Function', through_fields=('contact', 'account'))
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label="contacts", model="contact")
 
     def primary_email(self):
         if not hasattr(self, '_primary_email'):

@@ -8,6 +8,9 @@ from lily.utils.models.mixins import DeletedMixin
 from lily.users.models import LilyUser
 
 
+NOTABLE_MODELS = ('account', 'case', 'contact', 'deal')
+
+
 class Note(HistoryListItem, DeletedMixin):
     """
     Note model, simple text fields to store text about another model for everyone to see.

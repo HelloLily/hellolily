@@ -283,7 +283,7 @@
                             <ul class="dropdown-menu pull-right">
                                 <li><a ng-click="editNote(item)"><i class="fa fa-edit"></i>Edit</a></li>
                                 <li class='divider'></li>
-                                <li><a ng-href="/notes/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                                <li><a ng-click=deleteNote(item)><i class="fa fa-trash"></i>Delete</a></li>
                             </ul>
                         </div>
                     </h4>

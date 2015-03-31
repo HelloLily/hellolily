@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import AccountSerializer
+from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import ContactSerializer
 
 from ..models import Case, CaseStatus
@@ -28,6 +29,7 @@ class CaseSerializer(serializers.ModelSerializer):
     status = serializers.StringRelatedField(read_only=True)
     assigned_to = serializers.StringRelatedField(read_only=True)
     assigned_to_groups = serializers.StringRelatedField(many=True, read_only=True)
+    content_type = ContentTypeSerializer(read_only=True)
 
     class Meta:
         model = Case
@@ -45,6 +47,7 @@ class CaseSerializer(serializers.ModelSerializer):
             'expires',
             'created',
             'is_archived',
+            'content_type',
         )
 
 

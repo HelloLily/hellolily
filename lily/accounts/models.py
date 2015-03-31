@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
@@ -65,6 +66,13 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True, blank=True)
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label="accounts", model="account")
 
     def primary_email(self):
         for email in self.email_addresses.all():

@@ -1,9 +1,12 @@
 from rest_framework import serializers
 
+from lily.api.serializers import ContentTypeSerializer
 from ..models import Deal
 
 
 class DealSerializer(serializers.ModelSerializer):
+    content_type = ContentTypeSerializer(read_only=True)
+
     class Meta:
         model = Deal
         fields = (
@@ -15,4 +18,5 @@ class DealSerializer(serializers.ModelSerializer):
             'assigned_to',
             'feedback_form_sent',
             'new_business'
+            'content_type',
         )

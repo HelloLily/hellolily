@@ -298,14 +298,16 @@ dealControllers.controller('DealDetailController', [
     '$http',
     '$location',
     '$scope',
+    '$state',
     '$stateParams',
     '$q',
 
     'DealDetail',
     'DealStages',
     'NoteDetail',
+    'NoteService',
 
-    function($filter, $http, $location, $scope, $stateParams, $q, DealDetail, DealStages, NoteDetails){
+    function($filter, $http, $location, $scope, $state, $stateParams, $q, DealDetail, DealStages, NoteDetails, NoteService) {
         $scope.conf.pageTitleBig = 'Deal Detail';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -452,6 +454,19 @@ dealControllers.controller('DealDetailController', [
                     error(function(data, status, headers, config) {
                         // Request failed propper error?
                     });
+            }
+        };
+
+        $scope.deleteNote = function(note) {
+            if (confirm('Are you sure?')) {
+                NoteService.delete({
+                    id:note.id
+                }, function() {  // On success
+                    var index = $scope.history.indexOf(note);
+                    $scope.history.splice(index, 1);
+                }, function(error) {  // On error
+                    alert('something went wrong.')
+                });
             }
         };
     }

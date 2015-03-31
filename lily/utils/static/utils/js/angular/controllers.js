@@ -176,9 +176,10 @@ UtilsControllers.controller('UtilsEmailAccountEditController', [
  * UtilsEmailTemplatesListController is a controller to show the email template list.
  */
 UtilsControllers.controller('UtilsEmailTemplatesListController', [
+    '$modal',
     '$scope',
     'EmailTemplate',
-    function($scope, EmailTemplate) {
+    function($modal, $scope, EmailTemplate) {
         $scope.conf.pageTitleBig = 'EmailTemplate settings';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -186,8 +187,23 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
             $scope.emailTemplates = data;
         });
 
-        $scope.makeDefault = function(templateId) {
-            console.log(templateId);
+        $scope.makeDefault = function(emailTemplate) {
+            // TODO: LILY-756: Make this controller more Angular
+            var modalInstance = $modal.open({
+                templateUrl: '/messaging/email/templates/set-default/' + emailTemplate.id + '/',
+                controller: 'UtilsSetTemplateDefaultModalController',
+                size: 'lg',
+                resolve: {
+                    emailTemplate: function () {
+                        return emailTemplate;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function () {
+                $state.go($state.current, {}, {reload: false});
+            }, function () {
+            });
         };
 
         $scope.deleteEmailTemplate = function(emailtemplate) {
@@ -201,6 +217,32 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
                     alert('something went wrong.')
                 })
             }
+        };
+    }
+]);
+
+UtilsControllers.controller('UtilsSetTemplateDefaultModalController', [
+    '$http',
+    '$modalInstance',
+    '$scope',
+    'emailTemplate',
+    function($http, $modalInstance, $scope, emailTemplate) {
+        $scope.emailTemplate = emailTemplate;
+
+        $scope.ok = function () {
+            $http({
+                url: '/messaging/email/templates/set-default/' + $scope.emailTemplate.id + '/',
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                data: $.param({id: $scope.emailTemplate.id})
+            }).success(function() {
+                $modalInstance.close($scope.emailTemplate);
+            });
+        };
+
+        // Lets not change anything
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
         };
     }
 ]);

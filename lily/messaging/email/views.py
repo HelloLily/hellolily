@@ -753,7 +753,7 @@ class ParseEmailTemplateView(LoginRequiredMixin, FormView):
 
 
 class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
-    template_name = 'ajax_form.html'
+    template_name = 'form.html'
     model = EmailTemplate
     form_class = EmailTemplateSetDefaultForm
 
@@ -769,7 +769,7 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
         return message
 
     def get_success_url(self):
-        return reverse('messaging_email_account_list')
+        return '/#/settings/emailtemplates'
 
 
 class EmailTemplateGetDefaultView(LoginRequiredMixin, View):

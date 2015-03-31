@@ -9,8 +9,8 @@
                 <li class="list-group-item" ng-repeat="template in emailTemplates">
                     {{ template.name }}
                     <span class="pull-right">
-                        <a class="btn btn-xs default" ng-click="makeDefault(template.id)">
-                            <span><i class="fa fa-star"></i> Default settings</span>
+                        <a class="btn btn-xs default" ng-click="makeDefault(template)">
+                            <span><i class="fa fa-star"></i> Manage defaults</span>
                         </a>
                         <a ui-sref="base.settings.emailtemplates.edit({id: template.id})" class="btn btn-xs default">
                             <span><i class="fa fa-edit"></i> Edit</span>

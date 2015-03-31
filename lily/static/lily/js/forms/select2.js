@@ -33,7 +33,7 @@
             $('select').select2({
                 // at least this many results are needed to enable the search field
                 // (9 is the amount at which the user must scroll to see all items)
-                minimumResultsForSearch: 9,
+                minimumResultsForSearch: 9
             });
             this.createTagInputs();
             this.createAjaxInputs();

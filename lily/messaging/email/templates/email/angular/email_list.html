@@ -48,15 +48,27 @@
                             <ul class="dropdown-menu">
                                 <li>
                                     <a href="javascript:void(0)" ng-click="markAsRead()">
-                                        <i class="fa fa-pencil"></i> Mark as read </a>
+                                        <i class="fa fa-pencil"></i> Mark as read</a>
                                 </li>
                                 <li>
                                     <a href="javascript:void(0)" ng-click="markAsUnread()">
-                                        <i class="fa fa-pencil"></i> Mark as unread </a>
+                                        <i class="fa fa-pencil"></i> Mark as unread</a>
+                                </li>
+                                <li>
+                                    <a ng-show="showReplyOrForwardButtons()" ng-click="replyOnMessage()">
+                                        <i class="fa fa-mail-reply"></i> Reply</a>
+                                </li>
+                                <li>
+                                    <a ng-show="showReplyOrForwardButtons()" ng-click="replyAllOnMessage()">
+                                        <i class="fa fa-mail-reply-all"></i> Reply All</a>
+                                </li>
+                                <li>
+                                    <a ng-show="showReplyOrForwardButtons()" ng-click="forwardOnMessage()">
+                                        <i class="fa fa-mail-forward"></i> Forward</a>
                                 </li>
                                 <li>
                                     <a href="#">
-                                        <i class="fa fa-ban"></i> Spam </a>
+                                        <i class="fa fa-ban"></i> Spam</a>
                                 </li>
                             </ul>
                         </div>

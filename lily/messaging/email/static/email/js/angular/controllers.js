@@ -149,12 +149,13 @@ EmailControllers.controller('EmailController', [
  */
 EmailControllers.controller('EmailListController', [
     '$scope',
+    '$state',
     '$stateParams',
     'EmailMessage',
     'EmailLabel',
     'EmailAccount',
     'HLText',
-    function($scope, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
+    function($scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
 
         $scope.conf.pageTitleBig = 'Email labels';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
@@ -178,6 +179,64 @@ EmailControllers.controller('EmailListController', [
             }
         }
 
+        /**
+         * Only show the reply and forward buttons if there is one message checked.
+         */
+        $scope.showReplyOrForwardButtons = function() {
+            var number = 0;
+            for (var i in $scope.emailMessages) {
+                if($scope.emailMessages[i].checked) {
+                    number++;
+                    if (number > 1) {
+                        return false;
+                    }
+                }
+            }
+            return number == 1;
+        };
+
+        /**
+         * Get the currently selected EmailMessage instance.
+         *
+         * @returns EmailMessage instance
+         */
+        function selectedMessage() {
+            for (var i in $scope.emailMessages) {
+                if($scope.emailMessages[i].checked) {
+                    return $scope.emailMessages[i];
+                }
+            }
+        }
+
+        /**
+         * Reply on selected message.
+         */
+        $scope.replyOnMessage = function() {
+            var message = selectedMessage();
+            if(message) {
+                $state.go('base.email.reply', {id: message.id});
+            }
+        };
+
+        /**
+        * TODO: LILY-706: Reply-all on selected message.
+        */
+        $scope.replyAllOnMessage = function() {
+            var message = selectedMessage();
+            if(message) {
+                //$state.go('base.email.replyAll', {id: message.id});
+            }
+        };
+
+        /**
+        * TODO: LILY-707: Forward on selected message.
+        */
+        $scope.forwardOnMessage = function() {
+            var message = selectedMessage();
+            if(message) {
+                //$state.go('base.email.forward', {id: message.id});
+            }
+        };
 
         $scope.markAsRead = function() {
             toggleReadMessages(true);

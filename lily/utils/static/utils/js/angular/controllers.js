@@ -179,7 +179,7 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
     '$scope',
     'EmailTemplate',
     function($scope, EmailTemplate) {
-        $scope.conf.pageTitleBig = 'EmailTemplate Settings';
+        $scope.conf.pageTitleBig = 'EmailTemplate settings';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
         EmailTemplate.query({}, function(data) {
@@ -188,7 +188,21 @@ UtilsControllers.controller('UtilsEmailTemplatesListController', [
 
         $scope.makeDefault = function(templateId) {
             console.log(templateId);
-        }
+        };
+
+        // TODO: LILY-752: Fix being able to delete email templates
+        //$scope.deleteEmailTemplate = function(emailtemplate) {
+        //    if (confirm('Are you sure?')) {
+        //        EmailTemplate.delete({
+        //            id: emailtemplate.id
+        //        }, function() {  // On success
+        //            var index = $scope.table.items.indexOf(emailtemplate);
+        //            $scope.table.items.splice(index, 1);
+        //        }, function(error) {  // On error
+        //            alert('something went wrong.')
+        //        })
+        //    }
+        //};
     }
 ]);
 

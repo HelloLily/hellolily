@@ -144,5 +144,5 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
 
 class EmailTemplateViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = EmailTemplate.objects.all()
+    queryset = EmailTemplate.objects
     serializer_class = EmailTemplateSerializer

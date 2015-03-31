@@ -1,0 +1,53 @@
+{% verbatim %}
+    <script id="dashboard/unreademail.html" type="text/ng-template">
+        <div class="col-md-6">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-envelope-o"></i>
+                        <span class="caption-subject bold uppercase"> UNREAD E-MAIL</span>
+                        <span class="caption-helper">({{ emailMessages.length }})</span>
+                    </div>
+                    <div class="tools">
+                        <a href="" class="collapse" data-original-title="" title=""></a>
+                        <a href="" class="remove" data-original-title="" title=""></a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="scroll-body" slimscroll="{height: 250}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mailbox <i class="fa fa-sort-up"></i></th>
+                                    <th>From</th>
+                                    <th>Subject</th>
+                                    <th>Created <i class="fa fa-sort"></i></th>
+                                    <th width="105px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="message in emailMessages">
+                                    <td>{{ message.account_name }}</td>
+                                    <td>{{ message.sender_name || message.sender_email }}</td>
+                                    <td>
+                                        <div>{{ message.subject }}</div><br>
+                                        <div><em>{{ message.snippet }}</em></div>
+                                    </td>
+                                    <td>{{ message.sent_date | relativeDate }}</td>
+                                    <td>
+                                        <div><a ui-sref="base.email.reply({id: message.id })"><i class="fa fa-reply"></i> reply</a></div>
+                                        <div><a ui-sref="base.email.detail({id: message.id })"><i class="fa fa-eye"></i> view</a></div>
+                                        <div><i class="fa fa-sitemap"></i> create</div>
+                                    </td>
+                                </tr>
+                                    <tr ng-hide="emailMessages.length">
+                                    <td colspan="5">No unread emailmessages</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+{% endverbatim %}

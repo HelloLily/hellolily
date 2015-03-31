@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -53,6 +54,13 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                             object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=NO_YES_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('new business'), choices=NO_YES_CHOICES)
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label="deals", model="deal")
 
     def __unicode__(self):
         return self.name

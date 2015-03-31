@@ -1,7 +1,0 @@
-{% if not request.is_ajax %}
-    <td>
-{% endif %}
-{{ item.created|date:"d/m/Y H:i:s" }}
-{% if not request.is_ajax %}
-    </td>
-{% endif %}

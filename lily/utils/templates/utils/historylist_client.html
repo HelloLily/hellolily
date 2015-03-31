@@ -14,7 +14,7 @@
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
             </div>
             <div class="timeline-icon">
-                <i class="icon-briefcase"></i>
+                <i class="fa fa-briefcase"></i>
             </div>
             <div class="timeline-body">
             Expires: {{ ::item.date | date:'dd MMMM yy HH:mm' }}
@@ -30,20 +30,20 @@
                     <br/>
                     <div ng-repeat="note in ::item.notes">
                         <div class="bg-yellow">
-                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div>Note <i class="fa fa-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
                             <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
-                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                            <div><i class="fa fa-user"></i>{{ ::note.author }}</div>
                         </div><br/>
                     </div>
-                    <a ng-href="/cases/update/{{ ::item.id }}/" class="nav-link pull-right">
-                        Edit<i class="icon-edit"></i>
+                    <a ui-sref="base.cases.detail.edit({ id: item.id })" class="nav-link pull-right">
+                        Edit<i class="fa fa-edit"></i>
                     </a>
-                    <a ng-href="/cases/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
-                        Delete<i class="icon-trash"></i>
+                    <a ng-href="/cases/delete/{{ item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
+                        Delete<i class="fa fa-trash"></i>
                     </a>
-                    <a ng-href="/cases/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
+                    <a ui-sref="base.cases.detail({ id: item.id })"  class="nav-link pull-right"> View<i class="fa fa-eye"></i></a>
                     <br/>
-                    <i class="icon-user"></i>{{ ::item.created_by }}
+                    <i class="fa fa-user"></i>{{ ::item.created_by }}
                     <span ng-if="::item.assigned_to_name"><small>assigned to</small> {{ ::item.assigned_to_name }}</span>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
             </div>
             <div class="timeline-icon">
-                <i class="icon-money"></i>
+                <i class="fa fa-money"></i>
             </div>
             <div class="timeline-body">
             Closing: {{ ::item.date | date:'dd MMMM yy HH:mm' }}<br/>
@@ -72,20 +72,20 @@
                     Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
                     <div ng-repeat="note in ::item.notes">
                         <div class="bg-yellow">
-                            <div>Note <i class="icon-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                            <div>Note <i class="fa fa-comment"></i> {{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
                             <div><em style="white-space: pre-wrap;">{{ ::note.content }}</em></div>
-                            <div><i class="icon-user"></i>{{ ::note.author }}</div>
+                            <div><i class="fa fa-user"></i>{{ ::note.author }}</div>
                         </div><br/>
                     </div>
-                    <a ng-href="/deals/update/{{ ::item.id }}/" class="nav-link pull-right">
-                        Edit<i class="icon-edit"></i>
+                    <a ui-sref="base.deals.detail.edit({ id: item.id })" class="nav-link pull-right">
+                        Edit<i class="fa fa-edit"></i>
                     </a>
                     <a ng-href="/deals/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/deals/delete/{{ ::item.id }}/">
-                        Delete<i class="icon-trash"></i>
+                        Delete<i class="fa fa-trash"></i>
                     </a>
-                    <a ng-href="/deals/details/{{ ::item.id }}/"  class="nav-link pull-right">View</a>
+                    <a ui-sref="base.deals.detail({ id: item.id })"  class="nav-link pull-right">View</a>
                     <br/>
-                    <i class="icon-user"></i>{{ ::item.assigned_to_name }}
+                    <i class="fa fa-user"></i>{{ ::item.assigned_to_name }}
                 </div>
             </div>
         </div>
@@ -97,7 +97,7 @@
                 </a>
             </div>
             <div class="timeline-icon">
-                <i class="icon-comment"></i>
+                <i class="fa fa-comment"></i>
             </div>
             <div class="timeline-body">
             {{ ::item.date | date:'dd MMMM yy HH:mm' }}
@@ -106,14 +106,14 @@
                     <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
                 </div>
                 <div class="timeline-footer">
-                    <a ng-href="/notes/update/{{ ::item.id }}/" class="nav-link pull-right" data-target="#object-update" data-source="/notes/update/{{ ::item.id }}/">
-                        Edit<i class="icon-edit"></i>
+                    <a class="nav-link pull-right" ng-click="editNote(item)">
+                        Edit<i class="fa fa-edit"></i>
                     </a>
-                    <a ng-href="/notes/delete/{{ ::item.id }}/" class="nav-link pull-right" data-target="#confirm-delete" data-source="/notes/delete/{{ ::item.id }}/">
-                        Delete<i class="icon-trash"></i>
+                    <a ng-click="deleteNote(item)" class="nav-link pull-right">
+                        Delete<i class="fa fa-trash"></i>
                     </a>
                     <br/>
-                    <i class="icon-user"></i>
+                    <i class="fa fa-user"></i>
                     {{ ::item.author }}
                 </div>
             </div>
@@ -124,7 +124,7 @@
                 <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
             </div>
             <div class="timeline-icon">
-                <i class="icon-envelope"></i>
+                <i class="fa fa-envelope"></i>
             </div>
             <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
             {{ ::item.date | date:'dd MMMM yy HH:mm' }}
@@ -135,18 +135,18 @@
                 <div class="timeline-footer">
                     <a href="javascript:alert('TODO')" class="nav-link pull-right">
                         Reply
-                        <i class="icon-reply"></i>
+                        <i class="fa fa-reply"></i>
                     </a>
                     <a href="javascript:alert('TODO')" class="nav-link pull-right">
                         Forward
-                        <i class="icon-arrow-right"></i>
+                        <i class="fa fa-arrow-right"></i>
                     </a>
-                    <a href="/messaging/email/#/detail/{{ ::item.id }}" class="nav-link pull-right">
+                    <a ui-sref="base.email.detail({id: message.id })" class="nav-link pull-right">
                         View
-                        <i class="icon-envelope"></i>
+                        <i class="fa fa-envelope"></i>
                     </a>
                     <a href="#" class="nav-link">
-                        <i class="icon-user"></i>
+                        <i class="fa fa-user"></i>
                         <span>{{ ::item.sender_name }}</span>
                     </a>
                 </div>

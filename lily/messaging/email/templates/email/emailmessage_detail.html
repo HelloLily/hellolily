@@ -1,9 +1,0 @@
-{% if object.body_html %}
-    {{ object.body_html | safe }}
-{% else %}
-    {{ object.body_text | safe | linebreaksbr}}
-{% endif %}
-
-{% for attachment in object.attachments.all %}
-    <a href='{% url 'email_attachment_proxy_view' attachment.pk %}'>{{ attachment.attachment.name }}</a>
-{% endfor %}

@@ -157,6 +157,12 @@ PIPELINE_CLOSURE_ARGUMENTS = '--language_in ECMASCRIPT5'
 
 PIPELINE_DISABLE_WRAPPER = True
 
+PIPELINE_COMPILERS = (
+    'pipeline.compilers.sass.SASSCompiler',
+)
+PIPELINE_SASS_BINARY = '/usr/bin/env sassc'
+PIPELINE_SASS_ARGUMENTS = '--output-style=expanded'
+
 COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
 
 try:
@@ -168,7 +174,7 @@ except ImportError:
 # LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
 LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = reverse_lazy('dashboard')
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
@@ -245,6 +251,7 @@ INSTALLED_APPS = (
     'lily',  # required for management commands
     'lily.accounts',
     'lily.cases',
+    'lily.dashboard',
     'lily.deals',
     'lily.contacts',
     'lily.messaging',
@@ -569,8 +576,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
-
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -627,5 +635,9 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
     # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython and debug_toolbar_line_profiler
 ]
+
+# IronMQ
+IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
+IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
 
 from .celeryconfig import *

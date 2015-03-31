@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ..models.models import EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment
+from ..models.models import EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate
 
 
 class EmailLabelSerializer(serializers.ModelSerializer):
@@ -42,14 +42,39 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'sender',
             'attachments',
             'read',
+            'subject',
         )
 
 
 class EmailAccountSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+    email_address = serializers.ReadOnlyField()
     labels = EmailLabelSerializer(many=True, read_only=True)
+    label = serializers.ReadOnlyField()
+    public = serializers.BooleanField()
 
     class Meta:
         model = EmailAccount
-        fields = ('id', 'email_address', 'labels', 'label')
+        fields = (
+            'id',
+            'email_address',
+            'labels',
+            'label',
+            'public',
+            'shared_with_users',
+        )
 
+
+class EmailTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = EmailTemplate
+
+        fields = (
+            'id',
+            'name',
+            'subject',
+            'body_html',
+            'default_for',
+        )
 

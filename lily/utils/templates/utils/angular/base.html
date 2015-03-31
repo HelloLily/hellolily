@@ -1,0 +1,26 @@
+{% verbatim %}
+<script id="utils/base.html" type="text/ng-template">
+    <div class="portlet light">
+        <div class="portlet-body">
+            <div class="row inbox">
+                <div class="col-md-2">
+                    <div class="portlet">
+                        <div class="portlet-title">
+                            <div class="caption">Your email</div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="profile">
+                                <ul class="list-unstyled profile-nav">
+                                    <li><a ui-sref="base.settings.emailaccounts" class="active"><i class="fa fa-inbox"></i> Email accounts</a></li>
+                                    <li><a ui-sref="base.settings.emailtemplates"><i class="fa fa-file"></i> Templates</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-10" ui-view></div>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

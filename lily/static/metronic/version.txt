@@ -1,0 +1,9 @@
+metronic_version:3.6.3
+
+
+To upgrade:
+- Look at upgrade notes in the metronic template
+- We only use layout 4 so you only need to overwrite those files in:
+    - assets/admin/layout4/
+    - sass/admin/layout4/
+    - templates/admin4/

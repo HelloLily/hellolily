@@ -109,14 +109,19 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     """
     Form to add a contact which all fields available.
     """
-    account = forms.ModelMultipleChoiceField(
+    account = forms.CharField(
         label=_('Works at'),
         required=False,
-        queryset=Account.objects,
         help_text='',
-        widget=forms.SelectMultiple(attrs={
-            'placeholder': _('Select one or more account(s)'),
-        })
+        widget=AjaxSelect2Widget(
+            tags=True,
+            url=reverse_lazy('search_view'),
+            filter_on=AccountMapping.get_mapping_type_name(),
+            model=Account,
+            attrs= {
+                'class': 'select2ajax'
+            }
+        )
     )
 
     twitter = forms.CharField(
@@ -124,7 +129,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         required=False,
         widget=AddonTextInput(
             icon_attrs={
-                'class': 'icon-twitter',
+                'class': 'fa fa-twitter',
                 'position': 'left',
                 'is_button': False
             }
@@ -136,7 +141,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
         required=False,
         widget=AddonTextInput(
             icon_attrs={
-                'class': 'icon-linkedin',
+                'class': 'fa fa-linkedin',
                 'position': 'left',
                 'is_button': False
             }
@@ -150,6 +155,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
         if self.instance.pk:
             self.fields['account'].initial = [function.account for function in self.instance.functions.all()]
+            self.fields['account'].widget.data = self.fields['account'].initial
 
             twitter = self.instance.social_media.filter(name='twitter').first()
             self.fields['twitter'].initial = twitter.username if twitter else ''
@@ -202,6 +208,18 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
                 return lin.username
 
         return linkedin
+
+    def clean_account(self):
+        account_ids = self.cleaned_data['account'].split(',')
+        for i, account_id in enumerate(account_ids):
+            try:
+                account_ids[i] = int(account_id)
+            except ValueError:
+                account_ids[i] = 0
+
+        return Account.objects.filter(pk__in=account_ids)
+
+
 
     def clean(self):
         """

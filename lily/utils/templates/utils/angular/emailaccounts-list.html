@@ -1,0 +1,74 @@
+{% verbatim %}
+<script id="utils/emailaccounts-list.html" type="text/ng-template">
+    <form class="form form-horizontal" method="post" role="form">
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Your email accounts</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item" ng-repeat="account in ownedAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                        <span class="pull-right">
+                            <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="openShareAccountModal(account)">
+                                <i class="fa fa-group"></i>
+                                <span ng-hide="account.public">{{ account.shared_with_users.length }}</span>
+                                <span ng-show="account.public">Public</span>
+                            </button>
+                            <a class="btn btn-xs default" title="Just manage it" ui-sref="base.settings.emailaccounts.edit({id: account.id})">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a class="btn btn-xs default" title="Throw it away" ng-click="deleteAccount(account.id)">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </span>
+                    </li>
+                    <li class="list-group-item"  ng-hide="ownedAccounts.length">
+                        No Email accounts setup jet.
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/messaging/email/setup/">Add an email account</a>
+                        <br />
+                        <i>Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Email accounts shared with you</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item"  ng-repeat="account in sharedAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                    </li>
+                    <li class="list-group-item"  ng-hide="sharedAccounts.length">
+                        No Email accounts shared with you.
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Company email accounts</div>
+            </div>
+            <div class="portlet-body">
+                <ul class="list-group">
+                    <li class="list-group-item" ng-repeat="account in publicAccounts">
+                        {{ account.label }} <i>({{ account.email_address }})</i>
+                    </li>
+                    <li class="list-group-item" ng-hide="publicAccounts.length">
+                        No company wide email accounts.
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/messaging/email/setup/">Add an email account</a>
+                        <br />
+                        <i>Gmail Accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</script>
+{% endverbatim %}

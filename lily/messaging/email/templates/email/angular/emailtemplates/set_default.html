@@ -1,0 +1,22 @@
+{% verbatim %}
+<script id="emailtemplates/set_default.html" type="text/ng-template">
+    <div class="modal-header">
+        <h3 class="modal-title">Set as default for</h3>
+    </div>
+    <div class="modal-body" slimscroll="{height: 350}">
+        <div class="form-body">
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="default-for">Default for</label>
+                <div class="col-md-4">
+                    <select ng-options="accountOption for accountOption in accountOptions"></select>
+                    <span class="help-block"> Hold down "Control", or "Command" on a Mac, to select more than one.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+{% endverbatim %}

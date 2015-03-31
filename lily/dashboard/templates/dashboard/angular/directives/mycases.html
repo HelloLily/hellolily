@@ -1,0 +1,51 @@
+{% verbatim %}
+    <script id="dashboard/mycases.html" type="text/ng-template">
+        <div class="col-md-6">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-briefcase"></i>
+                        <span class="caption-subject bold uppercase"> MY CASES</span>
+                        <span class="caption-helper">({{ mycases.length }})</span>
+                    </div>
+                    <div class="tools">
+                        <a href="" class="collapse" data-original-title="" title=""></a>
+                        <a href="" class="remove" data-original-title="" title=""></a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="scroll-body" slimscroll="{height: 250}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Case nr. <i class="fa fa-sort"></i></th>
+                                    <th>Client</th>
+                                    <th>Subject</th>
+                                    <th>Prio <i class="fa fa-sort"></i></th>
+                                    <th>Status</th>
+                                    <th>Exp date <i class="fa fa-sort-up"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="mycase in mycases">
+                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.id }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: mycase.account.id })">{{ mycase.account.name }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.subject }}</a></td>
+                                    <td>
+                                    <span title="3"></span>
+                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[mycase.priority[0]]">{{ mycase.priority[1] }}</span>
+                                    </td>
+                                    <td>{{ mycase.status }}</td>
+                                    <td>{{ mycase.expires | relativeDate }}</td>
+                                </tr>
+                                <tr ng-hide="mycases.length">
+                                    <td colspan="6">No cases</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+{% endverbatim %}

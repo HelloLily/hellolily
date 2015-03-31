@@ -1,0 +1,13 @@
+{% verbatim %}
+<script id="breadcrumbs.html" type="text/ng-template">
+    <ul class="page-breadcrumb breadcrumb">
+        <li ng-repeat="step in steps | limitTo:(steps.length-1)">
+            <a href="{{step.ncyBreadcrumbLink}}" ng-bind-html="step.ncyBreadcrumbLabel"></a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li ng-repeat="step in steps | limitTo:-1" class="active">
+            <span ng-bind-html="step.ncyBreadcrumbLabel"></span>
+        </li>
+    </ul>
+</script>
+{% endverbatim %}

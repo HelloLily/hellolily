@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from lily.api.serializers import ContentTypeSerializer
+
 from ..models import Account
 
 
@@ -12,6 +14,7 @@ class AccountSerializer(serializers.ModelSerializer):
     social_media = serializers.StringRelatedField(many=True, read_only=True)
     addresses = serializers.StringRelatedField(many=True, read_only=True)
     email_addresses = serializers.StringRelatedField(many=True, read_only=True)
+    content_type = ContentTypeSerializer(read_only=True)
 
     class Meta:
         model = Account
@@ -24,4 +27,5 @@ class AccountSerializer(serializers.ModelSerializer):
             'social_media',
             'addresses',
             'email_addresses',
+            'content_type',
         )

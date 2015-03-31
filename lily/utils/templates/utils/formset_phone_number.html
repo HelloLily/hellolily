@@ -22,10 +22,10 @@
                         {% if formset.can_delete %}
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
-                                    <i class="icon-undo"></i>
+                                    <i class="fa fa-undo"></i>
                                 </a>
                                 <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="{% trans 'Delete this row' %}">
-                                    <i class="icon-trash"></i>
+                                    <i class="fa fa-trash"></i>
                                 </a>
                                 {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
                             </div>
@@ -38,7 +38,7 @@
             <label class="col-md-2 control-label{% if formset|length %} hide{% endif %}">
                 {{ formset.empty_form.raw_input.label }}
             </label>
-            <div class="col-md-10 form-control-static{% if formset|length %} col-md-offset-2{% endif %}">
+            <div class="col-md-10 {% if formset|length %} col-md-offset-2{% else %} form-control-static{% endif %}">
                 <a href="javascript:void(0)" data-formset-add>{% trans 'Add a phone number' %}</a>
             </div>
         </div>
@@ -50,10 +50,10 @@
                     {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                     <div class="col-md-1">
                         <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
-                            <i class="icon-undo"></i>
+                            <i class="fa fa-undo"></i>
                         </a>
                         <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="{% trans 'Delete this row' %}">
-                            <i class="icon-trash"></i>
+                            <i class="fa fa-trash"></i>
                         </a>
                         {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
                     </div>

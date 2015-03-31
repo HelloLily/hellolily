@@ -19,10 +19,10 @@
                                     {% if formset.can_delete %}
                                         <div class="col-md-1">
                                             <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
-                                                <i class="icon-undo"></i>
+                                                <i class="fa fa-undo"></i>
                                             </a>
                                             <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="{% trans 'Delete this row' %}">
-                                                <i class="icon-trash"></i>
+                                                <i class="fa fa-trash"></i>
                                             </a>
                                             {% bootstrap_field form.DELETE form_group_class="form-group-inline hidden" %}
                                         </div>
@@ -46,10 +46,10 @@
                                 {% bootstrap_field formset.empty_form.attachment layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 form-control-static" show_label=False %}
                                 <div class="col-md-1">
                                     <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">
-                                        <i class="icon-undo"></i>
+                                        <i class="fa fa-undo"></i>
                                     </a>
                                     <a href="javascript:void(0)" data-formset-delete-button class="btn btn-sm default" title="{% trans 'Delete this row' %}">
-                                        <i class="icon-trash"></i>
+                                        <i class="fa fa-trash"></i>
                                     </a>
                                     {% bootstrap_field formset.empty_form.DELETE form_group_class="form-group-inline hidden" %}
                                 </div>

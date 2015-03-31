@@ -13,13 +13,14 @@ from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyGroup, LilyUser
+from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 from .models import Case, CaseType, CaseStatus
 from .widgets import PrioritySelect
 
 
-class CreateUpdateCaseForm(TagsFormMixin):
+class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
     """
     Form for adding or editing a case.
     """
@@ -191,14 +192,17 @@ class CreateUpdateCaseForm(TagsFormMixin):
                 'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'assigned_to_groups', 'assigned_to',),
+                'fields': ('subject', 'description', 'type',),
+            }),
+            (_('Who is going to do this?'), {
+                'fields': ('assigned_to_groups', 'assigned_to',),
             }),
             (_('When to do it?'), {
-                'fields': ('status', 'priority', 'expires', 'type', 'is_archived',),
+                'fields': ('status', 'priority', 'expires', 'is_archived',),
             }),
             (_('Parcel information'), {
                 'fields': ('parcel_provider', 'parcel_identifier',)
-            })
+            }),
         )
 
         widgets = {

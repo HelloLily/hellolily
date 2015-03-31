@@ -28,36 +28,65 @@ class ListDealView(LoginRequiredMixin, AngularView):
     template_name = 'deals/deal_list.html'
 
 
-class ArchiveDealsView(LoginRequiredMixin, ArchiveView):
+class ArchiveDealsView(LoginRequiredMixin, AjaxUpdateView):
     """
-    Archives one or more deals.
+    Archives a deal.
     """
-    model = Deal
-    success_url = reverse_lazy('deal_list')
+    http_method_names = ['post']
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Deal has been archived.'),
-            _('%d deals have been archived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+    def post(self, request, *args, **kwargs):
+        """
+        Overloading post to update the stage and closed_date attributes for a Deal object.
+        """
+        try:
+            if 'id' in request.POST.keys():
+                instance = Deal.objects.get(pk=int(request.POST['id']))
+
+                instance.is_archived = True
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Deal could not be archived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Deal could not be archived'))
+            raise Http404()
+        else:
+            message = _('Deal has been archived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'true'}), content_type='application/json')
 
 
-class UnarchiveDealsView(LoginRequiredMixin, UnarchiveView):
+class UnarchiveDealsView(LoginRequiredMixin, AjaxUpdateView):
     """
-    Unarchives one or more deals.
+    Unarchives a deal.
     """
-    model = Deal
-    success_url = reverse_lazy('deal_archived_list')
+    http_method_names = ['post']
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Deal has been unarchived.'),
-            _('%d deals have been unarchived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+    def post(self, request, *args, **kwargs):
+        """
+        Overloading post to update the stage and closed_date attributes for a Deal object.
+        """
+        try:
+
+            if 'id' in request.POST.keys():
+                instance = Deal.objects.get(pk=int(request.POST['id']))
+
+                instance.is_archived = False
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Deal could not be unarchived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Deal could not be unarchived'))
+            raise Http404()
+        else:
+            message = _('Deal has been unarchived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'false'}), content_type='application/json')
 
 
 class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
@@ -99,7 +128,8 @@ class CreateUpdateDealMixin(LoginRequiredMixin):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
+        # return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
+        return '/#/deals'
 
 
 class CreateDealView(CreateUpdateDealMixin, CreateView):
@@ -184,6 +214,13 @@ class UpdateDealView(CreateUpdateDealMixin, UpdateView):
 
         return response
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        # return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
+        return '/#/deals'
+
 
 class UpdateAndUnarchiveDealView(CreateUpdateDealMixin, UpdateView):
     """
@@ -235,20 +272,18 @@ class DeleteDealView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, _('%s (Deal) has been deleted.') % self.object.name)
 
         redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
 
-        return HttpResponseRedirect(redirect_url)
+        response = anyjson.serialize({
+            'error': False,
+            'redirect_url': redirect_url
+        })
+        return HttpResponse(response, content_type='application/json')
 
     def get_success_url(self):
         return reverse('deal_list')
 
 
-class UpdateStageAjaxView(AjaxUpdateView):
+class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):
     """
     View that updates the stage-field of a Deal.
     """
@@ -278,9 +313,9 @@ class UpdateStageAjaxView(AjaxUpdateView):
             messages.error(self.request, _('Stage could not be changed'))
             raise Http404()
         else:
-            message = _('Stage has been changed to') + ' ' + Deal.STAGE_CHOICES[instance.stage][1]
+            message = _('Stage has been changed to') + ' ' + unicode(Deal.STAGE_CHOICES[instance.stage][1])
             messages.success(self.request, message)
-            stage = Deal.STAGE_CHOICES[instance.stage][1]
+            stage = unicode(Deal.STAGE_CHOICES[instance.stage][1])
             # Return response
             if instance.closed_date is None:
                 return HttpResponse(anyjson.serialize({'stage': stage}), content_type='application/json')

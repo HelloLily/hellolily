@@ -2,8 +2,8 @@ import django_filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import CaseSerializer
-from ..models import Case
+from .serializers import CaseSerializer, CaseStatusSerializer
+from ..models import Case, CaseStatus
 
 
 def queryset_filter(request, queryset):
@@ -36,7 +36,7 @@ class CaseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status']
+        fields = ['type', 'status', 'not_type', 'not_status', 'is_deleted']
 
 
 class CaseList(APIView):
@@ -99,4 +99,14 @@ class TeamsCaseList(APIView):
         queryset = self.get_queryset().filter(assigned_to_groups=pk)
         filtered_queryset = self.filter_class(request.GET, queryset=queryset)
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
+        return Response(serializer.data)
+
+
+class CaseStatusList(APIView):
+    model = CaseStatus
+    serializer_class = CaseStatusSerializer
+
+    def get(self, request, format=None):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        serializer = CaseStatusSerializer(queryset, many=True)
         return Response(serializer.data)

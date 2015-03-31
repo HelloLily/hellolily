@@ -159,6 +159,12 @@ class CreateCaseView(CreateUpdateCaseMixin, CreateView):
 
         return response
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        return '/#/cases'
+
 
 class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
     model = Case
@@ -172,49 +178,76 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
 
         return response
 
-
-class ArchiveCasesView(LoginRequiredMixin, ArchiveView):
-    """
-    Archives one or more cases.
-    """
-    model = Case
-    success_url = reverse_lazy('case_list')
-
-    def archive(self, archive=True, **kwargs):
+    def get_success_url(self):
         """
-        Set Case to archived and status to last position (probably closed status)
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        # return '/#/cases/%s' % self.object.pk
+        return '/#/cases'
+
+
+class ArchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
+    """
+    Archives a case.
+    """
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        """
+        Set case to archived and status to last position (probably closed status)
 
         Arguments:
             archive (boolean): True if object should be archived, False to unarchive.
         """
-        kwargs.update({'status': CaseStatus.objects.last()})
+        try:
+            if 'id' in request.POST.keys():
+                new_status = CaseStatus.objects.last()
 
-        # Even if the status can't be set we can still archive the case
-        return super(ArchiveCasesView, self).archive(**kwargs)
+                instance = Case.objects.get(pk=int(request.POST['id']))
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Case has been archived.'),
-            _('%d cases have been archived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+                instance.is_archived = True
+                instance.status = new_status
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Case could not be archived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Case could not be archived'))
+            raise Http404()
+        else:
+            message = _('Case has been archived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'true'}), content_type='application/json')
 
 
-class UnarchiveCasesView(LoginRequiredMixin, UnarchiveView):
+class UnarchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
     """
-    Unarchives one or more cases.
+    Unarchives a case.
     """
-    model = Case
-    success_url = reverse_lazy('case_archived_list')
+    http_method_names = ['post']
 
-    def get_success_message(self, count):
-        message = ungettext_lazy(
-            _('Case has been unarchived.'),
-            _('%d cases have been unarchived.') % count,
-            count
-        )
-        messages.success(self.request, message)
+    def post(self, request, *args, **kwargs):
+        try:
+            if 'id' in request.POST.keys():
+
+                instance = Case.objects.get(pk=int(request.POST['id']))
+
+                instance.is_archived = False
+
+                instance.save()
+            else:
+                messages.error(self.request, _('Case could not be unarchived'))
+                raise Http404()
+        except:
+            messages.error(self.request, _('Case could not be unarchived'))
+            raise Http404()
+        else:
+            message = _('Case has been unarchived')
+            messages.success(self.request, message)
+
+            return HttpResponse(anyjson.serialize({'archived': 'false'}), content_type='application/json')
 
 
 class UpdateAndUnarchiveCaseView(CreateUpdateCaseMixin, UpdateView):
@@ -267,14 +300,12 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
         redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
 
-        return HttpResponseRedirect(redirect_url)
+        response = anyjson.serialize({
+            'error': False,
+            'redirect_url': redirect_url
+        })
+        return HttpResponse(response, content_type='application/json')
 
     def get_success_url(self):
         return reverse('case_list')

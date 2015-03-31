@@ -1,0 +1,109 @@
+{% load compressed statici18n i18n static %}
+
+{% verbatim %}
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js" ng-app="lilyApp"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js" ng-app="lilyApp"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" ng-app="lilyApp" ng-controller="baseController">
+<!--<![endif]-->
+    <!-- BEGIN HEAD -->
+    <head>
+        <meta charset="utf-8"/>
+        <title>HelloLily | {{ conf.headTitle }}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <meta content="" name="description"/>
+        <meta content="" name="author"/>
+        <!-- BEGIN GLOBAL MANDATORY STYLES -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css">
+        {% endverbatim %}{% compressed_css 'global' %}{% verbatim %}
+        <!-- END GLOBAL STYLES -->
+        {% endverbatim %}<link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />{% verbatim %}
+    </head>
+    <!-- END HEAD -->
+    <!-- BEGIN BODY -->
+    <!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+    <!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+    <!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+    <!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+    <!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+    <!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+    <!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+    <!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+    <!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+    <body class="page-header-fixed page-sidebar-closed-hide-logo page-container-bg-solid page-sidebar-closed-hide-logo page-on-load page-sidebar-fixed">
+
+        <!-- BEGIN PAGE SPINNER -->
+        <div ng-spinner-bar class="page-spinner-bar">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+        <!-- END PAGE SPINNER -->
+
+        <!-- BEGIN HEADER -->
+        <div ng-include="'header.html'" ng-controller="headerController" class="page-header navbar navbar-fixed-top">
+        </div>
+        <!-- END HEADER -->
+
+        <div class="clearfix"></div>
+
+        <!-- BEGIN CONTAINER -->
+        <div class="page-container">
+            <!-- BEGIN SIDEBAR -->
+            <div ng-include="'sidebar.html'" ng-controller="sidebarController" class="page-sidebar-wrapper">
+            </div>
+            <!-- END SIDEBAR -->
+
+            <!-- BEGIN CONTENT -->
+            <div class="page-content-wrapper">
+                <div class="page-content">
+                    <!-- BEGIN PAGE HEAD -->
+                    <div ng-include="'page-header.html'" class="page-head">
+                    </div>
+                    <!-- END PAGE HEAD -->
+                    <!-- BEGIN PAGE BREADCRUMB -->
+                    <div ncy-breadcrumb></div>
+                    <!-- END PAGE BREADCRUMB -->
+                    <!-- BEGIN PAGE CONTENT-->
+                    <div ui-view>
+                    </div>
+                    <!-- END PAGE CONTENT -->
+                </div>
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <!-- END CONTAINER -->
+
+        <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+        <!--[if lt IE 9]>
+        {% endverbatim %}{% compressed_js 'global-ie' %}{% verbatim %}
+        <![endif]-->
+        {% endverbatim %}
+        {% compressed_js 'global' %}
+        <script>
+            var currentUser = {
+                id: '{{ user.id }}',
+                firstName: '{{ user.first_name }}',
+                lastName: '{{ user.last_name }}',
+                email: '{{ user.email }}',
+                fullName: '{{ user.full_name }}',
+                isSuperUser: '{{ user.is_superuser }}' == 'True'
+            };
+
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+         ga('create', 'UA-60721851-1', 'auto');
+        </script>
+        {% verbatim %}
+        {% endverbatim %}{% include 'angular/includes.html' %}{% verbatim %}
+        <!-- END JAVASCRIPTS -->
+    </body>
+    <!-- END BODY -->
+</html>
+{% endverbatim %}

@@ -18,6 +18,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from lily.utils.forms import HelloLilyModelForm
 from python_imap.utils import extract_tags_from_soup
 from oauth2client.client import OAuth2WebServerFlow
 
@@ -70,25 +71,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         account = create_account(credentials, request.user)
 
-        return HttpResponseRedirect(reverse('messaging_email_account_update', args=[account.pk]))
-
-
-class EmailAccountListView(LoginRequiredMixin, DetailView):
-    template_name = 'email/emailaccount_list.html'
-
-    def get_object(self, queryset=None):
-        return self.request.user
-
-    def get_context_data(self, **kwargs):
-        context = super(EmailAccountListView, self).get_context_data(**kwargs)
-
-        context.update({
-            'user_email_accounts': self.object.email_accounts_owned.filter(is_deleted=False).exclude(public=True),
-            'shared_email_accounts': self.object.shared_email_accounts.filter(is_deleted=False),
-            'company_email_accounts': EmailAccount.objects.filter(is_deleted=False, public=True)
-        })
-
-        return context
+        return HttpResponseRedirect('/#/settings/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailAccountShareView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
@@ -134,37 +117,7 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
         return email_account
 
     def get_success_url(self):
-        return reverse('messaging_email_account_list')
-
-
-class EmailAccountDeleteView(LoginRequiredMixin, FormActionMixin, StaticContextMixin, DeleteView):
-    template_name = 'confirm_delete.html'
-    model = EmailAccount
-    static_context = {'form_object_name': _('email account')}
-
-    def get_object(self, queryset=None):
-        email_account = super(EmailAccountDeleteView, self).get_object(queryset)
-        if not email_account.is_owned_by_user and not email_account.is_public:
-            raise Http404()
-
-        return email_account
-
-    def delete(self, request, *args, **kwargs):
-        response = super(EmailAccountDeleteView, self).delete(request, *args, **kwargs)
-        messages.success(self.request, _('%(label)s (%(email_address)s) has been deleted.' % {
-            'label': self.object.label,
-            'email_address': self.object.email_address,
-        }))
-
-        if is_ajax(self.request):
-            return HttpResponse(anyjson.serialize({
-                'error': False,
-                'redirect_url': self.get_success_url()
-            }), content_type='application/json')
-        return response
-
-    def get_success_url(self):
-        return reverse('messaging_email_account_list')
+        return '/#/settings/emailaccounts'
 
 
 class EmailMessageHTMLView(LoginRequiredMixin, DetailView):
@@ -384,7 +337,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return reverse('messaging_email_inbox')
+        return '/#/email/all/INBOX'
+        # return reverse('messaging_email_inbox')
 
     def get_email_headers(self):
         """
@@ -730,7 +684,7 @@ class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
         """
         Return to email template list after creating or updating an email template.
         """
-        return reverse('messaging_email_template_list')
+        return '/#/settings/emailtemplates'
 
 
 class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
@@ -799,7 +753,7 @@ class ParseEmailTemplateView(LoginRequiredMixin, FormView):
 
 
 class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
-    template_name = 'ajax_form.html'
+    template_name = 'form.html'
     model = EmailTemplate
     form_class = EmailTemplateSetDefaultForm
 
@@ -815,7 +769,7 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
         return message
 
     def get_success_url(self):
-        return reverse('messaging_email_account_list')
+        return '/#/settings/emailtemplates'
 
 
 class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
@@ -880,7 +834,8 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             else:
                 lookup.get('user').current_email_address = emailaccount.email_address
 
-        parsed_template = Template(template.body_html).render(Context(lookup))
+        # Ugly hack to make parsing of new template brackets style work
+        parsed_template = Template(template.body_html.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
 
         attachments = []
 

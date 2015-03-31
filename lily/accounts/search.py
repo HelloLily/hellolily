@@ -40,7 +40,7 @@ class AccountMapping(BaseMapping):
             },
             'email': {
                 'type': 'string',
-                'index_analyzer': 'email_analyzer',
+                'analyzer': 'email_analyzer',
             },
             'tag': {
                 'type': 'string',

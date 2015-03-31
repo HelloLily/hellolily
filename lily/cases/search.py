@@ -125,5 +125,6 @@ class CaseMapping(BaseMapping):
             'casetype_name': obj.type.type if obj.type else None,
             'casetype_id': obj.type.id if obj.type else None,
             'expires': obj.expires,
+            'created': obj.created,
             'archived': obj.is_archived,
         }

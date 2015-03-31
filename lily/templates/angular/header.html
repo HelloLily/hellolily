@@ -1,0 +1,138 @@
+{% load static %}
+
+{% verbatim %}
+<script id="header.html" type="text/ng-template">
+    <!-- BEGIN HEADER INNER -->
+    <div class="page-header-inner">
+        <!-- BEGIN LOGO -->
+        <div class="page-logo">
+            <a ui-sref="base.dashboard">
+                <p class="logo-default" style="font-size:1.4em;">
+                    Hello<strong>Lily</strong>
+                </p>
+            </a>
+            <div class="menu-toggler sidebar-toggler">
+                <!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
+            </div>
+        </div>
+        <!-- END LOGO -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+        </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
+        <!-- BEGIN PAGE ACTIONS -->
+        <div class="page-actions">
+            <!-- BEGIN LARGE ACTIONS -->
+            <div class="btn-group hidden-sm hidden-xs">
+                <a class="btn blue btn-sm" ui-sref="base.contacts.create" role="button"><i class="fa fa-plus-square-o"></i> Contact</a>
+                <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button"><i class="fa fa-plus-square-o"></i> Account</a>
+                <a class="btn blue btn-sm" ui-sref="base.deals.create" role="button"><i class="fa fa-plus-square-o"></i> Deal</a>
+                <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button"><i class="fa fa-plus-square-o"></i> Case</a>
+            </div>
+            <!-- END LARGE ACTIONS -->
+            <!-- BEGIN SMALL ACTIONS -->
+            <div class="btn-group hidden-md hidden-lg">
+                <button type="button" class="btn blue btn-sm dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+                    Add
+                    <i class="fa fa-angle-down"></i>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a ui-sref="base.contacts.create"><i class="fa fa-plus-square-o"></i> Contact</a>
+                    </li>
+                    <li>
+                        <a ui-sref="base.accounts.create"><i class="fa fa-plus-square-o"></i> Account</a>
+                    </li>
+                    <li>
+                        <a ui-sref="base.deals.create"><i class="fa fa-plus-square-o"></i> Deal</a>
+                    </li>
+                    <li>
+                        <a ui-sref="base.cases.create"><i class="fa fa-plus-square-o"></i> Case</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- END SMALL ACTIONS -->
+        </div>
+        <!-- END PAGE ACTIONS -->
+        <!-- BEGIN PAGE TOP -->
+        <div class="page-top">
+            <!-- <ui-view name="topNavSearch"></ui-view> -->
+            <!-- BEGIN TOP NAVIGATION MENU -->
+            <div class="top-menu">
+                <ul class="nav navbar-nav pull-right">
+                    <!-- BEGIN USER LOGIN DROPDOWN -->
+                    <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
+                    <li class="dropdown dropdown-user dropdown-dark">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <span class="username username-hide-on-mobile">
+                                Hello {{ currentUser.fullName }}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-default">
+                            <!--
+                            <li>
+                                <a href="page_calendar.html">
+                                    <i class="fa fa-user"></i>
+                                    My Profile
+                                </a>
+                            </li>
+                            -->
+                            <li>
+                                <a ui-sref="base.settings">
+                                    <i class="fa fa-gear"></i>
+                                    My Account
+                                </a>
+                            </li>
+                            <!--
+                            <li class="divider"></li>
+                            <li>
+                                <a href="inbox.html">
+                                    <i class="fa  fa-briefcase"></i>
+                                    Company Account
+                                </a>
+                            </li>
+                            <li>
+                                <a href="inbox.html">
+                                    <i class="fa fa-users"></i>
+                                    Company Users
+                                </a>
+                            </li>
+                            <li>
+                                <a href="inbox.html">
+                                    <i class="fa fa-grid"></i>
+                                    Company Workflow
+                                </a>
+                            </li>
+                            -->
+                            <li class="divider"></li>
+                            <li>
+                                <a ui-sref="base.settings.emailaccounts">
+                                    <i class="fa fa-inbox"></i>
+                                    E-mail Accounts
+                                </a>
+                            </li>
+                            <li>
+                                <a ui-sref="base.settings.emailtemplates">
+                                    <i class="fa fa-file"></i>
+                                    E-mail Templates
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="/logout">
+                                    <i class="fa fa-key"></i>
+                                    Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- END USER LOGIN DROPDOWN -->
+                </ul>
+            </div>
+            <!-- END TOP NAVIGATION MENU -->
+        </div>
+        <!-- END PAGE TOP -->
+    </div>
+    <!-- END HEADER INNER -->
+</script>
+{% endverbatim %}

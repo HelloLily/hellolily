@@ -140,3 +140,42 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     padding: 4px 10px;
 }
 
+.email-recipients {
+    height: 1.30em;
+    -webkit-transition: height 0.5s;
+    -moz-transition: height 0.5s;
+    -o-transition: height 0.5s;
+    -ms-transition:height 0.5s;
+    transition: height 0.5s;
+}
+
+.inbox-view-info .inbox-info-btn .btn {
+    top: 2px;
+    font-size: 13px;
+    padding: 3px 10px;
+}
+
+.inbox-view-info .row {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.inbox-view-info .email-info-top span {
+    vertical-align: middle;
+}
+
+.inbox-view-info .email-info-top {
+    height: 29px;
+}
+
+.inbox-view-info .email-recipients-wrapper {
+    max-width: 85%;
+}
+
+.inbox-view-info .email-recipients {
+    color: #a5a5a5;
+    width: 95%;
+    display: inline-block;
+
+    overflow: hidden;
+}

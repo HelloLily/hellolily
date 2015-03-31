@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -74,6 +75,13 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
 
     parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label="cases", model="case")
 
     def __unicode__(self):
         return self.subject

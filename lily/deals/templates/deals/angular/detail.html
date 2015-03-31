@@ -50,10 +50,10 @@
         </div>
     </div>
     <hr />
-    <div class="row no-margin" ng-show="deal.body">
+    <div class="row no-margin" ng-show="::deal.body">
         <div class="well well-md">
             <h4>Description</h4>
-            <p>{{ ::deal.body }}</p>
+            <p ng-bind-html="deal.body | nl2br"></p>
         </div>
     </div>
     <div class="row">

@@ -77,10 +77,10 @@
         </div>
     </div>
     <hr />
-    <div ng-show="::case.description" class="row no-margin">
+    <div ng-show="::case.body" class="row no-margin">
         <div class="well well-md">
             <h4>Description</h4>
-            <!--<p>{{ object.description|linebreaks }}</p>-->
+            <p ng-bind-html="case.body | nl2br"></p>
         </div>
     </div>
     <div class="row">

@@ -28,7 +28,7 @@ var lilyApp = angular.module('lilyApp', [
     'LilyServices',
 
     // Filters
-    'lilyFilters'
+    'LilyFilters'
 ]);
 
 /* Setup global settings */

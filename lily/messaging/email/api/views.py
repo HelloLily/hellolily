@@ -143,6 +143,12 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         return Response(serializer.data)
 
 
-class EmailTemplateViewSet(viewsets.ReadOnlyModelViewSet):
+class EmailTemplateViewSet(mixins.DestroyModelMixin,
+                           mixins.RetrieveModelMixin,
+                           mixins.ListModelMixin,
+                           GenericViewSet):
+    """
+    EmailTemplate API.
+    """
     queryset = EmailTemplate.objects
     serializer_class = EmailTemplateSerializer

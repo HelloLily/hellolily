@@ -185,6 +185,41 @@ lilyDirectives.directive('resizeIframe', function() {
     }
 });
 
+
+/**
+ * Directive used for the save and archive button. It checks the current
+ * state of the hidden field and changes it accordingly and submits
+ * the form
+ */
+lilyDirectives.directive("saveAndArchive", ["$interval", function($interval) {
+    return {
+        restrict: "A",
+        link: function(scope, elem, attrs) {
+
+            // Setting button to right text based in archived state
+            $button = $('#archive-button');
+            $archiveField = $('#id_is_archived');
+            if ($archiveField.val() === 'True') {
+                $button.find('span').text('Save and Unarchive');
+            } else {
+                $button.find('span').text('Save and Archive');
+            }
+
+            // On button click set archived hidden field and submit form
+            $(elem).click(function() {
+                $button = $('#archive-button');
+                $archiveField = $('#id_is_archived');
+                $form = $($button.closest('form').get(0));
+                var archive = ($archiveField.val() === 'True' ? 'False' : 'True');
+                $archiveField.val(archive);
+                $button.button('loading');
+                $form.find(':submit').click();
+                event.preventDefault();
+            });
+        }
+    }
+}]);
+
 /**
  * Template for checkbox directive
  */

@@ -109,6 +109,20 @@ EmailControllers.config([
                 }
             }
         });
+        $stateProvider.state('base.email.forward', {
+            url: '/forward/{id:int}',
+            params: {
+                messageType: 'forward'
+            },
+            views: {
+                '@base.email': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/forward/' + elem.id + '/';
+                    },
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
     }
 ]);
 
@@ -233,7 +247,7 @@ EmailControllers.controller('EmailListController', [
         $scope.forwardOnMessage = function() {
             var message = selectedMessage();
             if(message) {
-                //$state.go('base.email.forward', {id: message.id});
+                $state.go('base.email.forward', {id: message.id});
             }
         };
 
@@ -382,7 +396,7 @@ EmailControllers.controller('EmailDetailController', [
     'EmailMessage',
     function($scope, $state, $stateParams, EmailMessage) {
 
-        $scope.conf.pageTitleBig = 'Email Message';
+        $scope.conf.pageTitleBig = 'Email message';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         $scope.displayAllRecipients = false;

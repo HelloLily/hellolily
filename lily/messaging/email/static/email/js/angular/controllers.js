@@ -504,8 +504,7 @@ EmailControllers.controller('EmailComposeController', [
     'EmailMessage',
     'EmailTemplate',
     function ($scope, $stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
-
-        $scope.conf.pageTitleBig = 'Send Email';
+        $scope.conf.pageTitleBig = 'Send email';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         if ($stateParams.messageType == 'reply') {
@@ -524,7 +523,8 @@ EmailControllers.controller('EmailComposeController', [
 
             var promises = [];
 
-            var recipient, contactPromise;
+            var recipient = null;
+            var contactPromise;
 
             if (emailMessage) {
                 contactPromise = ContactDetail.query({filterquery: 'email:' + emailMessage.sender.email_address}).$promise;

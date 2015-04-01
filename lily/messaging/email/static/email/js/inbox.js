@@ -63,7 +63,6 @@
                     // Open links when clicking the reply button
                     $('.inbox-view').hide();
                     $('.inbox-loading').show();
-                    HLApp.redirectTo($(this).data('href'));
                 })
                 .on('click', cf.inboxComposeSubmit, function (event) {
                     self.handleInboxComposeSubmit(this, event);
@@ -207,7 +206,7 @@
                     }
 
                     // Always get a template
-                    var url = self.config.getTemplateUrl + selectedTemplate;
+                    var url = self.config.getTemplateUrl + selectedTemplate + '/';
 
                     if (recipientId != null) {
                         // If a recipient has been set we can set extra url parameters
@@ -287,10 +286,10 @@
         loadDefaultEmailTemplate: function() {
             var self = this;
             var emailAccountId = $(self.config.emailAccountInput).val();
-            var url = self.config.defaultEmailTemplateUrl + emailAccountId;
+            var url = self.config.defaultEmailTemplateUrl + emailAccountId + '/';
 
             $.getJSON(url, function(data) {
-                $(self.config.templateField).select2('val', data['template_id']).trigger('change');
+                $(self.config.templateField).select2('val', data['template_id']).change();
             });
         },
 

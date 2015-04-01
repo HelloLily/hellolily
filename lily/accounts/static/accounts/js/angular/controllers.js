@@ -35,7 +35,7 @@ accountController.config(['$stateProvider', function($stateProvider) {
     });
 
     $stateProvider.state('base.accounts.detail', {
-        url: '/{id:int}',
+        url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'accounts/account-detail.html',

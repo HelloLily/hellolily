@@ -59,7 +59,7 @@ EmailControllers.config([
             }
         });
         $stateProvider.state('base.email.detail', {
-            url: '/detail/{id:int}',
+            url: '/detail/{id:[0-9]{1,}}',
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_detail.html',
@@ -96,7 +96,7 @@ EmailControllers.config([
             }
         });
         $stateProvider.state('base.email.reply', {
-            url: '/reply/{id:int}',
+            url: '/reply/{id:[0-9]{1,}}',
             params: {
                 messageType: 'reply'
             },
@@ -110,7 +110,7 @@ EmailControllers.config([
             }
         });
         $stateProvider.state('base.email.forward', {
-            url: '/forward/{id:int}',
+            url: '/forward/{id:[0-9]{1,}}',
             params: {
                 messageType: 'forward'
             },

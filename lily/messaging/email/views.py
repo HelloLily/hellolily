@@ -18,6 +18,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from storages.backends.s3boto import S3BotoStorageFile
 from lily.utils.forms import HelloLilyModelForm
 from python_imap.utils import extract_tags_from_soup
 from oauth2client.client import OAuth2WebServerFlow
@@ -231,15 +232,21 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 if isinstance(attachment, EmailAttachment):
                     # Save as EmailOutboxAttachment
                     attachment = EmailOutboxAttachment()
-                    attachment.size = uploaded_attachment.size
                     attachment.email_outbox_message = email_outbox_message
                     attachment.attachment = uploaded_attachment
-                    attachment.save()
                 else:
                     attachment.content_type = uploaded_attachment.content_type
-                    attachment.size = uploaded_attachment.size
                     attachment.email_outbox_message = email_outbox_message
-                    attachment.save()
+
+                # Calling .size on a S3BotoStorageFile object takes very long for some reason
+                # Calling .size on the .file of a S3BotoStorageFile object doesn't
+                # So check if we're dealing with such an object and do the appropriate action
+                if uploaded_attachment.file and isinstance(uploaded_attachment.file, S3BotoStorageFile):
+                    attachment.size = uploaded_attachment.file.size
+                else:
+                    attachment.size = uploaded_attachment.size
+
+                attachment.save()
 
         template_attachment_ids = self.request.POST.get('template_attachment_ids').split(',')
         for template_attachment_id in template_attachment_ids:

@@ -131,7 +131,7 @@ accountController.controller('AccountDetailController', [
             var history = [];
             var notesPromise = NoteDetail.query({
                 filterquery: 'content_type:account AND object_id:' + id,
-                size: size,
+                size: size
             }).$promise;
 
             var casesPromise = CaseDetail.query({filterquery: 'account:' + id, size: size}).$promise;
@@ -366,7 +366,7 @@ accountController.controller('AccountListController', [
 
             $window.open(url);
         };
-    },
+    }
 ]);
 
 /**

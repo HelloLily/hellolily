@@ -1,8 +1,6 @@
 {% verbatim %}
 <script id="accounts/account-list.html" type="text/ng-template">
-
 <div class="portlet light" ng-controller="AccountListController" ng-cloak>
-
     <div class="portlet-title">
         <div class="caption">
             <div class="btn-group">
@@ -37,19 +35,18 @@
 
     <div class="portlet-body flip-scroll">
         <table class="table table-bordered table-striped flip-content">
-
             <thead class="flip-content">
                 <tr>
                     <th class="list-actions" width="75px">
                         <span class="text-nowrap">Options</span>
                     </th>
-                    <th ng-show="table.visibility.name" sort-column="last_name" table="table" class="width-22">
+                    <th ng-show="table.visibility.name" sort-column="name" table="table" class="width-22">
                         <span class="text-nowrap">Account</span>
                     </th>
                     <th ng-show="table.visibility.contactInformation" class="width-22">
                         <span class="text-nowrap">Contact information</span>
                     </th>
-                    <th ng-show="table.visibility.assignedTo" sort-column="account" table="table" class="width-22">
+                    <th ng-show="table.visibility.assignedTo" sort-column="assigned_to" table="table" class="width-22">
                         <span class="text-nowrap">Assigned to</span>
                     </th>
                     <th ng-show="table.visibility.created" sort-column="created" table="table" class="width-10">

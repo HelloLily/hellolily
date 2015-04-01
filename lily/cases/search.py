@@ -127,4 +127,7 @@ class CaseMapping(BaseMapping):
             'expires': obj.expires,
             'created': obj.created,
             'archived': obj.is_archived,
+            'parcel_provider': obj.parcel.get_provider_display() if obj.parcel else None,
+            'parcel_identifier': obj.parcel.identifier if obj.parcel else None,
+            'parcel_link': obj.parcel.get_link() if obj.parcel else None,
         }

@@ -30,7 +30,7 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.cases.detail', {
-        url: '/{id:[0-9]{1,4}}',
+        url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'cases/detail.html',

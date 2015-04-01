@@ -59,7 +59,7 @@ EmailControllers.config([
             }
         });
         $stateProvider.state('base.email.detail', {
-            url: '/detail/{id:int}',
+            url: '/detail/{id:[0-9]{1,}}',
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_detail.html',
@@ -96,7 +96,7 @@ EmailControllers.config([
             }
         });
         $stateProvider.state('base.email.reply', {
-            url: '/reply/{id:int}',
+            url: '/reply/{id:[0-9]{1,}}',
             params: {
                 messageType: 'reply'
             },
@@ -104,6 +104,20 @@ EmailControllers.config([
                 '@base.email': {
                     templateUrl: function(elem, attr) {
                         return '/messaging/email/reply/' + elem.id + '/';
+                    },
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
+        $stateProvider.state('base.email.forward', {
+            url: '/forward/{id:[0-9]{1,}}',
+            params: {
+                messageType: 'forward'
+            },
+            views: {
+                '@base.email': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/forward/' + elem.id + '/';
                     },
                     controller: 'EmailComposeController'
                 }
@@ -156,8 +170,7 @@ EmailControllers.controller('EmailListController', [
     'EmailAccount',
     'HLText',
     function($scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
-
-        $scope.conf.pageTitleBig = 'Email labels';
+        $scope.conf.pageTitleBig = 'Email';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         $scope.table.page = 0;
@@ -234,7 +247,7 @@ EmailControllers.controller('EmailListController', [
         $scope.forwardOnMessage = function() {
             var message = selectedMessage();
             if(message) {
-                //$state.go('base.email.forward', {id: message.id});
+                $state.go('base.email.forward', {id: message.id});
             }
         };
 
@@ -383,7 +396,7 @@ EmailControllers.controller('EmailDetailController', [
     'EmailMessage',
     function($scope, $state, $stateParams, EmailMessage) {
 
-        $scope.conf.pageTitleBig = 'Email Message';
+        $scope.conf.pageTitleBig = 'Email message';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         $scope.displayAllRecipients = false;
@@ -504,8 +517,7 @@ EmailControllers.controller('EmailComposeController', [
     'EmailMessage',
     'EmailTemplate',
     function ($scope, $stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
-
-        $scope.conf.pageTitleBig = 'Send Email';
+        $scope.conf.pageTitleBig = 'Send email';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         if ($stateParams.messageType == 'reply') {
@@ -524,7 +536,8 @@ EmailControllers.controller('EmailComposeController', [
 
             var promises = [];
 
-            var recipient, contactPromise;
+            var recipient = null;
+            var contactPromise;
 
             if (emailMessage) {
                 contactPromise = ContactDetail.query({filterquery: 'email:' + emailMessage.sender.email_address}).$promise;

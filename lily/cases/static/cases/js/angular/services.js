@@ -114,7 +114,7 @@ caseServices.factory('Case', ['$http', function($http) {
      */
     Case.getMyCasesWidget = function () {
         return $http({
-            url: '/api/cases/user/?not_status=Closed&not_type=Callback&is_deleted=False',
+            url: '/api/cases/user/?not_status=Closed&is_archived=false&not_type=Callback&is_deleted=False',
             method: 'GET'
         }).then(function (response) {
             return response.data;
@@ -143,7 +143,7 @@ caseServices.factory('Case', ['$http', function($http) {
          */
         Case.getCallbackRequests = function () {
             return $http({
-                url: '/api/cases/user/?type=Callback&archived=false&is_deleted=False',
+                url: '/api/cases/user/?type=Callback&is_archived=false&is_deleted=False',
                 method: 'GET'
             }).then(function (response) {
                 return {
@@ -159,7 +159,7 @@ caseServices.factory('Case', ['$http', function($http) {
  * UnassignedTeamCases endpoint gets all unassigned cases from all teams.
  */
 caseServices.factory('UnassignedTeamCases', ['$resource', function($resource) {
-    return $resource('/api/cases/teams/:teamId/?is_assigned=False&is_deleted=False')
+    return $resource('/api/cases/teams/:teamId/?is_assigned=False&is_archived=false&is_deleted=False')
 }]);
 
 caseServices.factory('CaseStatuses', ['$resource', function($resource) {

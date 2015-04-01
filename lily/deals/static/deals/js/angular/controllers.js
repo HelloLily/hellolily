@@ -26,7 +26,7 @@ dealControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.deals.detail', {
-        url: '/{id:[0-9]{1,4}}',
+        url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'deals/detail.html',

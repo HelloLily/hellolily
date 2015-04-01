@@ -35,7 +35,7 @@ accountController.config(['$stateProvider', function($stateProvider) {
     });
 
     $stateProvider.state('base.accounts.detail', {
-        url: '/{id:int}',
+        url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'accounts/account-detail.html',
@@ -131,7 +131,7 @@ accountController.controller('AccountDetailController', [
             var history = [];
             var notesPromise = NoteDetail.query({
                 filterquery: 'content_type:account AND object_id:' + id,
-                size: size,
+                size: size
             }).$promise;
 
             var casesPromise = CaseDetail.query({filterquery: 'account:' + id, size: size}).$promise;
@@ -366,7 +366,7 @@ accountController.controller('AccountListController', [
 
             $window.open(url);
         };
-    },
+    }
 ]);
 
 /**

@@ -20,7 +20,7 @@
                             </button>
                             <ul class="dropdown-menu pull-right">
                                 <li>
-                                    <a href="/messaging/email/forward/{{ message.id }}/"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
+                                    <a ui-sref="base.email.forward({ id: message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
                                 </li>
                                 <li class="divider">
                                 </li>
@@ -38,7 +38,7 @@
             </div>
             <div class="email-recipients-wrapper">
                 <div class="email-recipients" ng-class="{'overlay': !displayAllRecipients}" ng-show="message.received_by.length">
-                    <span>to</span>
+                    <span>to </span>
                     <span ng-repeat="receiver in message.all_recipients">
                         <span title="{{ receiver.email_address }}">
                             <span ng-show="receiver.name">{{ receiver.name }}</span><span ng-show="!receiver.name">{{ receiver.email_address }}</span><span ng-if="!$last">, </span>

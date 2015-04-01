@@ -36,7 +36,7 @@ UtilsControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.settings.emailaccounts.edit', {
-        url: '/edit/{id:int}',
+        url: '/edit/{id:[0-9]{1,}}',
         views: {
             '@base.settings': {
                 templateUrl: function (elem, attr) {
@@ -74,7 +74,7 @@ UtilsControllers.config(['$stateProvider', function($stateProvider) {
         }
     });
     $stateProvider.state('base.settings.emailtemplates.edit', {
-        url: '/edit/{id:int}',
+        url: '/edit/{id:[0-9]{1,}}',
         views: {
             '@base.settings': {
                 templateUrl: function(elem, attr) {

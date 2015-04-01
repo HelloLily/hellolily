@@ -265,6 +265,7 @@ PIPELINE_JS = {
             'lily/js/forms/formsets.js',
             'lily/js/forms/select2.js',
             'lily/js/forms/show-and-hide.js',
+            'utils/js/utils.js',
             'provide/js/dataprovider.js',
         ),
         'output_filename': 'compiled/js/global.js',

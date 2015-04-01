@@ -51,8 +51,8 @@
                         <li>
                             <label>Created by:</label> {{ case.created_by || 'Unknown' }}
                         </li>
-                        <li ng-show="::case.parcel">
-                            <label>Parcel:</label> <a href="{{ ::case.parcel.link }}" target="_blank">{{ case.parcel.name }}</a>
+                        <li ng-show="::case.parcel_identifier">
+                            <label>Parcel:</label> <a href="{{ ::case.parcel_link }}" target="_blank">{{ ::case.parcel_provider }}: {{ ::case.parcel_identifier }}</a>
                         </li>
                     </ul>
                 </div>

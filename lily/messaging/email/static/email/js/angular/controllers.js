@@ -156,8 +156,7 @@ EmailControllers.controller('EmailListController', [
     'EmailAccount',
     'HLText',
     function($scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
-
-        $scope.conf.pageTitleBig = 'Email labels';
+        $scope.conf.pageTitleBig = 'Email';
         $scope.conf.pageTitleSmall = 'sending love trough the world!';
 
         $scope.table.page = 0;

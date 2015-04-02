@@ -96,7 +96,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     objects = LilyUserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin', 'phone_number', 'current_email_address']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
+                                 'phone_number', 'current_email_address', 'user_group']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
@@ -149,6 +150,15 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
             pass
         else:
             return linkedin.profile_url
+
+    @property
+    def user_group(self):
+        user_group = self.lily_groups.first()
+
+        if not user_group:
+            return ''
+
+        return user_group
 
     def __unicode__(self):
         return self.get_full_name() or unicode(self.get_username())

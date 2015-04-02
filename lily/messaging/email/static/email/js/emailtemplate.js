@@ -76,7 +76,34 @@
             valueSelect.change();
 
             // TODO: LILY-XXX: Change this to API endpoint
-            var parameterChoices = {"Contact": {"contact.full_name": "Full name", "contact.work_phone": "Work phone", "contact.last_name": "Last name", "contact.twitter": "Twitter", "contact.mobile_phone": "Mobile phone", "contact.first_name": "First name", "contact.linkedin": "Linkedin", "contact.preposition": "Preposition"}, "User": {"user.full_name": "Full name", "user.first_name": "First name", "user.phone_number": "Phone number", "user.preposition": "Preposition", "user.linkedin": "Linkedin", "user.twitter": "Twitter", "user.current_email_address": "Current email address", "user.last_name": "Last name"}, "Account": {"account.work_phone": "Work phone", "account.name": "Name", "account.any_email_address": "Any email address"}};
+            var parameterChoices = {
+                "Contact": {
+                    "contact.full_name": "Full name",
+                    "contact.work_phone": "Work phone",
+                    "contact.last_name": "Last name",
+                    "contact.twitter": "Twitter",
+                    "contact.mobile_phone": "Mobile phone",
+                    "contact.first_name": "First name",
+                    "contact.linkedin": "Linkedin",
+                    "contact.preposition": "Preposition"
+                },
+                "User": {
+                    "user.full_name": "Full name",
+                    "user.first_name": "First name",
+                    "user.phone_number": "Phone number",
+                    "user.preposition": "Preposition",
+                    "user.linkedin": "Linkedin",
+                    "user.twitter": "Twitter",
+                    "user.current_email_address": "Current email address",
+                    "user.last_name": "Last name",
+                    "user.user_group": "User group"
+                },
+                "Account": {
+                    "account.work_phone": "Work phone",
+                    "account.name": "Name",
+                    "account.any_email_address": "Any email address"
+                }
+            };
 
             if (category !== '') {
                 $.each(parameterChoices[category], function(parameter, label) {

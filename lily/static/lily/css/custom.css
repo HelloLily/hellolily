@@ -366,3 +366,8 @@ a.hoekje,a.hoekje:hover {
 .radio-btns label{
     border:1px solid #2d6ca2 ;
 }
+
+.inbox tr.unread td {
+    font-weight: 800;
+    color: #595959;
+}

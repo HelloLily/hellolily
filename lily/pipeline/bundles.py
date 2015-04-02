@@ -24,7 +24,7 @@ PIPELINE_CSS = {
             'plugins/angular/angular-chart/angular-chart.css',
 
             # Custom timeline
-            'lily/sass/custom.css',
+            'lily/css/custom.css',
 
             'lily/css/profile.css',
             'accounts/css/accounts.css',

@@ -429,7 +429,7 @@ if USE_LOGGING:
             },
             'elasticsearch': {
                 'handlers': ['console'],
-                'level': 'ERROR',
+                'level': 'INFO',
                 'propagate': True,
             },
             'search.trace': {
@@ -456,16 +456,6 @@ if USE_LOGGING:
                 'handlers': ['console_debug'],
                 'level': 'DEBUG',
                 'propagate': True,
-            },
-            'requests.packages.urllib3': {
-                'handlers': ['console_debug'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'urllib3': {
-                'handlers': ['console_debug'],
-                'level': 'ERROR',
-                'propagate': False,
             },
         }
     }

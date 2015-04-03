@@ -208,6 +208,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         widgets = {
             'priority': PrioritySelect(attrs={
                 'class': 'chzn-select-no-search',
+                'update-case-expire-date': '',
             }),
             'description': forms.Textarea({
                 'rows': 3

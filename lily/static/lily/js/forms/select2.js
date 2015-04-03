@@ -49,7 +49,7 @@
                 }
                 $this.select2({
                     tags: tags,
-                    tokenSeparators: [",", " "]
+                    tokenSeparators: [',', ' ']
                 });
             });
         },
@@ -89,7 +89,6 @@
                                     sort: '-modified' //sort modified descending
                                 };
                             }
-
                             else {
                                 var term_stripped = term.trim();
                                 data = {

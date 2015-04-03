@@ -18,6 +18,7 @@ var lilyApp = angular.module('lilyApp', [
     'UtilsControllers',
 
     // Directives
+    'CaseDirectives',
     'lilyDirectives',
 
     // Google Analytics

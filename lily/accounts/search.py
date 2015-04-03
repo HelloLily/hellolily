@@ -41,7 +41,6 @@ class AccountMapping(BaseMapping):
             'email': {
                 'type': 'string',
                 'analyzer': 'email_analyzer',
-                'search_analyzer': 'email_analyzer',
             },
             'tag': {
                 'type': 'string',

@@ -1,7 +1,23 @@
 {% verbatim %}
 <script id="email/directives/contact-icon.html" type="text/ng-template">
 <td class="inbox-small-cells" ng-class="{'bg-green-jungle': color == 'green', 'bg-blue-steel': color == 'blue', 'bg-yellow-saffron': color == 'yellow', 'bg-grey-steel': color == 'grey'}">
-    <i class="fa" ng-class="{'fa-check': icon == 'check', 'fa-sitemap': icon == 'sitemap', 'fa-user': icon == 'user'}"></i>
+
+    <span ng-show="icon == 'everything'" class="fa-stack">
+        <i class="fa fa-plus email-small fa-stack-1x"></i>
+        <i class="fa fa-user email-small fa-stack-1x"></i>
+        <i class="fa fa-building-o email-small fa-stack-1x"></i>
+    </span>
+    <span ng-show="icon == 'user'" class="fa-stack">
+        <i class="fa fa-plus email fa-inverse fa-stack-1x"></i>
+        <i class="fa fa-user email fa-inverse fa-stack-1x"></i>
+    </span>
+    <span ng-show="icon == 'building'" class="fa-stack">
+      <i class="fa fa-plus email fa-inverse fa-stack-1x"></i>
+      <i class="fa fa-building-o email fa-inverse fa-stack-1x"></i>
+    </span>
+    <span ng-show="icon == 'check'" class="fa-stack">
+      <i ng-show="icon == 'check'" class="fa fa-check email"></i>
+    </span>
 </td>
 </script>
 {% endverbatim %}

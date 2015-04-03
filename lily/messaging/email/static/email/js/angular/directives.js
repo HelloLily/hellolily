@@ -40,25 +40,26 @@ EmailDirectives.directive('contactIcon', [
                             // Contact without account
                             } else {
                                 scope.action = 'needsAccount';
-                                scope.color = 'blue';
+                                scope.icon = 'building'
+                                scope.color = 'yellow';
                             }
                         }else if (data.type == 'account') {
 
                             // Account without contact
                             if (data.complete) {
                                 scope.action = 'needsContact';
-                                scope.icon = 'sitemap';
+                                scope.icon = 'user';
                                 scope.color = 'blue';
 
                             // Account with matching domain
                             } else {
                                 scope.action = 'needsContact';
                                 scope.icon = 'user';
-                                scope.color = 'yellow';
+                                scope.color = 'blue';
                             }
                         } else {
                             scope.action = 'needsEverything';
-                            scope.icon = 'sitemap';
+                            scope.icon = 'everything';
                             scope.color = 'grey';
                         }
                     });

@@ -27,8 +27,7 @@ class EmailMessageMapping(BaseMapping):
             },
             'account_email': {
                 'type': 'string',
-                'index_analyzer': 'email_analyzer',
-                'search_analyzer': 'email_analyzer',
+                'analyzer': 'email_analyzer',
             },
             'label_id': {
                 'type': 'string',

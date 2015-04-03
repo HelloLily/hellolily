@@ -118,7 +118,7 @@
                     <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
                         <i class="fa fa-paperclip" ng-if="message.has_attachment"></i>
                     </td>
-                    <td class="view-message text-right" ui-sref="base.email.detail({id: message.id})">
+                    <td class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
                         {{ message.sent_date | relativeDate }}
                     </td>
                 </tr>

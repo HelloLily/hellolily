@@ -429,7 +429,7 @@ if USE_LOGGING:
             },
             'elasticsearch': {
                 'handlers': ['console'],
-                'level': 'INFO',
+                'level': 'ERROR',
                 'propagate': True,
             },
             'search.trace': {

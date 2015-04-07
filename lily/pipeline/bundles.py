@@ -24,7 +24,7 @@ PIPELINE_CSS = {
             'plugins/angular/angular-chart/angular-chart.css',
 
             # Custom timeline
-            'lily/sass/custom.css',
+            'lily/css/custom.css',
 
             'lily/css/profile.css',
             'accounts/css/accounts.css',
@@ -213,7 +213,7 @@ PIPELINE_JS = {
             'plugins/angular/angular-resource.js',
 
             # Angular Plugins
-            'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.0.js',
+            'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.1.js',
             'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
             'plugins/chart.js',
             'plugins/angular/angular-angulartics/angulartics.js',
@@ -234,6 +234,7 @@ PIPELINE_JS = {
             'accounts/js/angular/services.js',
 
             'cases/js/angular/controllers.js',
+            'cases/js/angular/directives.js',
             'cases/js/angular/services.js',
             'cases/js/cases.js',
 
@@ -247,6 +248,7 @@ PIPELINE_JS = {
             'deals/js/angular/services.js',
 
             'email/js/angular/controllers.js',
+            'email/js/angular/directives.js',
             'email/js/angular/services.js',
             'email/js/inbox.js',
             'email/js/emailtemplate.js',

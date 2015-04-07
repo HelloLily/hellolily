@@ -457,16 +457,6 @@ if USE_LOGGING:
                 'level': 'DEBUG',
                 'propagate': True,
             },
-            'requests.packages.urllib3': {
-                'handlers': ['console_debug'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'urllib3': {
-                'handlers': ['console_debug'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
         }
     }
 else:

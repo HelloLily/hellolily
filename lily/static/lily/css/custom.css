@@ -366,3 +366,50 @@ a.hoekje,a.hoekje:hover {
 .radio-btns label{
     border:1px solid #2d6ca2 ;
 }
+
+.inbox tr.unread td {
+    font-weight: 800;
+    color: #595959;
+}
+/* EMAIL ICON STUFF */
+
+.fa-plus.email{
+    font-size: 10px;
+    line-height: 5px;
+    margin-left: 12px;
+}
+
+.fa-plus.email-small{
+    font-size: 14px;
+    line-height: 10px;
+}
+
+.fa-user.email{
+    font-size: 21px;
+    line-height: 30px;
+}
+
+.fa-user.email-small{
+    font-size: 14px;
+    line-height: 40px;
+    margin-left: -10px;
+}
+
+.fa-building-o.email{
+    font-size: 21px;
+    line-height: 35px;
+}
+
+.fa-building-o.email-small{
+    font-size: 14px;
+    line-height: 40px;
+    margin-left: 10px;
+}
+
+.fa-check.email{
+    font-size: 21px;
+    line-height: 25px;
+    margin-left: 3px;
+}
+
+/* END EMAIL ICON STUFF */

@@ -6,10 +6,11 @@
     <div class="inbox-view-info">
         <div class="row">
             <div class="email-info-top">
-                <span class="bold">{{ message.sender.name }}</span> <span>&lt;{{ message.sender.email_address }}&gt;</span>
-                <span class="bold"><abbr title="{{ message.sent_date | relativeDate }}">{{ message.sent_date | relativeDate }}</abbr></span>
+                <span class="bold">{{ message.sender.name }}</span>&nbsp;<span>&lt;{{ message.sender.email_address }}&gt;</span>
 
                 <div class="pull-right">
+                    <span class="bold"><abbr title="{{ message.sent_date | relativeDate }}">{{ message.sent_date | relativeDate }}</abbr></span>
+
                     <div class="inbox-info-btn">
                         <div class="btn-group">
                             <a ui-sref="base.email.reply({ id: message.id })" class="btn blue reply-btn">
@@ -19,6 +20,9 @@
                                 <i class="fa fa-angle-down"></i>
                             </button>
                             <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a ui-sref="base.email.replyall({ id: message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
+                                </li>
                                 <li>
                                     <a ui-sref="base.email.forward({ id: message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
                                 </li>

@@ -358,14 +358,21 @@ class AjaxSelect2Widget(Widget):
             final_attrs['data-tags'] = True
 
         if hasattr(self, 'data'):
-            # This is an ugly hack to pass the field's initial value
-            # to the select2, in case we got a multi-select version of select2.
+            # This is an ugly hack to pass the field's initial value to the select2,
+            # in case we got a multi-select version of select2.
             initial = []
             for data in self.data:
                 initial.append({'id': data.pk, 'text': data.name})
 
             final_attrs['data-initial'] = json.dumps(initial)
+        elif isinstance(value, list):
+            # This is to make sure the recipients input gets populated with recipients
+            initial = []
+            for data in value:
+                initial.append({'id': data['id'], 'text': data['text']})
 
+            final_attrs['data-initial'] = json.dumps(initial)
+            final_attrs['data-tags'] = True
         else:
             # Add initial value
             if value:
@@ -382,8 +389,7 @@ class AjaxSelect2Widget(Widget):
 
         final_attrs['data-ajax-url'] = self.url
 
-        # Multi-select version doesn't have a choices field, but uses
-        # data-initial.
+        # Multi-select version doesn't have a choices field, but uses data-initial.
         if hasattr(self, 'choices') and not isinstance(self.choices, list):
             final_attrs['placeholder'] = self.choices.field.empty_label
 
@@ -397,8 +403,6 @@ class AjaxSelect2Widget(Widget):
         else:
             class_attrs = 'select2ajax'
         final_attrs['class'] = class_attrs
-
-
 
         return mark_safe('<input type="hidden"%s>' % flatatt(final_attrs))
 

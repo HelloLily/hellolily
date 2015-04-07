@@ -4,7 +4,7 @@ from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailA
                     EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, EmailMessageHTMLView,
                     EmailAccountUpdateView, EmailTemplateListView, CreateEmailTemplateView, UpdateEmailTemplateView,
                     ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView, DetailEmailTemplateView,
-                    EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView)
+                    EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView, EmailMessageReplyAllView)
 
 
 urlpatterns = patterns(
@@ -39,5 +39,6 @@ urlpatterns = patterns(
     url(r'^draft/$', EmailMessageDraftView.as_view(), name='messaging_email_draft'),
     url(r'^draft/(?P<pk>[\d-]+)/$', EmailMessageDraftView.as_view(), name='messaging_email_draft'),
     url(r'^reply/(?P<pk>[\d-]+)/$', EmailMessageReplyView.as_view(), name='messaging_email_reply'),
+    url(r'^replyall/(?P<pk>[\d-]+)/$', EmailMessageReplyAllView.as_view(), name='messaging_email_reply_all'),
     url(r'^forward/(?P<pk>[\d-]+)/$', EmailMessageForwardView.as_view(), name='messaging_email_forward'),
 )

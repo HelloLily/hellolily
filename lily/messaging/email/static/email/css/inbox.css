@@ -179,3 +179,8 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 
     overflow: hidden;
 }
+
+.email-info-top .inbox-info-btn {
+    display: inline-block;
+    margin-left: 10px;
+}

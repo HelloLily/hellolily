@@ -110,6 +110,22 @@ EmailControllers.config([
                 }
             }
         });
+        $stateProvider.state('base.email.replyAll', {
+            // TODO: This should probably be redone so the url is nicer.
+            // Maybe we can save the action in the scope?
+            url: '/replyall/{id:[0-9]{1,}}',
+            params: {
+                messageType: 'reply-all'
+            },
+            views: {
+                '@base.email': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/replyall/' + elem.id + '/';
+                    },
+                    controller: 'EmailComposeController'
+                }
+            }
+        });
         $stateProvider.state('base.email.forward', {
             url: '/forward/{id:[0-9]{1,}}',
             params: {
@@ -238,7 +254,7 @@ EmailControllers.controller('EmailListController', [
         $scope.replyAllOnMessage = function() {
             var message = selectedMessage();
             if(message) {
-                //$state.go('base.email.replyAll', {id: message.id});
+                $state.go('base.email.replyAll', {id: message.id});
             }
         };
 

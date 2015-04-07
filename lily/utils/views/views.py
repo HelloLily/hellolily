@@ -594,7 +594,7 @@ class AngularView(TemplateView):
         return context
 
 
-class LoginRequiredRootView(LoginRequiredMixin, TemplateView):
+class BaseView(LoginRequiredMixin, TemplateView):
     template_name = 'angular/base.html'
 
 # Perform logic here instead of in urls.py

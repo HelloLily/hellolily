@@ -12,7 +12,7 @@ from lily.deals.api.views import DealList, DealCommunicationList, DealWonWritten
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet)
 from lily.users.api.views import TeamList, LilyUserViewSet
-from lily.utils.views import LoginRequiredRootView
+from lily.utils.views import BaseView
 from lily.utils.api.views import Queues, Notifications
 
 admin.autodiscover()
@@ -62,7 +62,7 @@ urlpatterns = patterns(
     url(r'^api/utils/notifications/$', Notifications.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    (r'^$', LoginRequiredRootView.as_view()),
+    url(r'^$', BaseView.as_view(), name='base_view'),
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 

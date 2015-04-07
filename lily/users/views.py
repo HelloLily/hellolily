@@ -226,7 +226,7 @@ class LoginView(View):
         Check if the user wants to be remembered and return the default login view.
         """
         if request.user.is_authenticated():
-            return redirect(reverse_lazy('dashboard'))
+            return redirect(reverse_lazy('base_view'))
 
         if request.method == 'POST':
             # If not using 'remember me' feature use default expiration time.

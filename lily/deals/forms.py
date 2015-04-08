@@ -12,6 +12,7 @@ from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
+from lily.utils.functions import add_business_days
 from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 from .models import Deal
@@ -42,6 +43,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
     expected_closing_date = forms.DateField(
         label=_('Expected closing date'),
         input_formats=settings.DATE_INPUT_FORMATS,
+        initial=add_business_days(datetime.datetime.now(), 12),
         widget=DatePicker(
             options={
                 'autoclose': 'true',

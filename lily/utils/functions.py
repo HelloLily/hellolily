@@ -1,3 +1,4 @@
+import datetime
 import operator
 import re
 from itertools import chain
@@ -244,3 +245,36 @@ def _isint(string):
         return True
     except (TypeError, ValueError):
         return False
+
+
+def add_business_days(date, days, days_of_business=None):
+    """
+    Returns the date after adding given amount of business days.
+    Args:
+        date (date)
+        days (int) - amount of business days to add
+        days_of_business (list) - days that are considered business days
+                                  (0 being monday and 6 sunday)
+    """
+    def recursive_find(date, days, business_days, elapsed_days,
+                       days_of_business):
+        if days == business_days:
+            return elapsed_days
+
+        date += datetime.timedelta(days=1)
+        if date.weekday() in days_of_business:
+            business_days += 1
+
+        return recursive_find(date, days, business_days, elapsed_days + 1,
+                              days_of_business)
+
+    # Set default value for `days_of_business`.
+    if not isinstance(days_of_business, list):
+        days_of_business = [0, 1, 2, 3, 4]
+
+    multiplier = days / 5
+    remainder = days - multiplier * 5
+    delta = (recursive_find(date, remainder, 0, 0, days_of_business) +
+             (7 * multiplier))
+
+    return date + datetime.timedelta(days=delta)

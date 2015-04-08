@@ -257,6 +257,14 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
             twitter = self.instance.social_media.filter(name='twitter').first()
             self.fields['twitter'].initial = twitter.username if twitter else ''
 
+        self.fields['addresses'].form_attrs = {
+            'extra_form_kwargs': {
+                'initial': {
+                    'country': 'NL',
+                }
+            }
+        }
+
         # Provide initial data for primary website
         try:
             self.fields['primary_website'].initial = Website.objects.filter(

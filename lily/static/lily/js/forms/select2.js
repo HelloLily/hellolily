@@ -49,7 +49,8 @@
                 }
                 $this.select2({
                     tags: tags,
-                    tokenSeparators: [',', ' ']
+                    tokenSeparators: [',', ' '],
+                    width: '100%'
                 });
             });
         },

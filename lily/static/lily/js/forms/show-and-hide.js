@@ -40,7 +40,7 @@
                         /* adding to the end of the execution queue reliably sets the focus */
                         /*  e.g. without, this only works once for select2 inputs */
                         setTimeout(function() {
-                            setCaretAtEnd(input);
+                            // setCaretAtEnd(input);
                         }, 0);
                     }
                 } else if($(this).data('action') == 'hide') {

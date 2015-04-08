@@ -164,6 +164,16 @@ dealControllers.controller('DealListController', [
                 selected: false
             },
             {
+                name: 'Called',
+                value: 'stage:4',
+                selected: false
+            },
+            {
+                name: 'Emailed',
+                value: 'stage:5',
+                selected: false
+            },
+            {
                 name: 'Feedback form not sent',
                 value: 'feedback_form_sent:false',
                 selected: false

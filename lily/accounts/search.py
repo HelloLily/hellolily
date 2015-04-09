@@ -31,6 +31,9 @@ class AccountMapping(BaseMapping):
             }],
         })
         mapping['properties'].update({
+            'customer_id': {
+                'type': 'string',
+            },
             'name': {
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
@@ -131,6 +134,7 @@ class AccountMapping(BaseMapping):
         Translate an object to an index document.
         """
         doc = {
+            'customer_id': obj.customer_id,
             'name': obj.name,
             'modified': obj.modified,
             'created': obj.created,

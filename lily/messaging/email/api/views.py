@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -152,3 +152,5 @@ class EmailTemplateViewSet(mixins.DestroyModelMixin,
     """
     queryset = EmailTemplate.objects
     serializer_class = EmailTemplateSerializer
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('name', )

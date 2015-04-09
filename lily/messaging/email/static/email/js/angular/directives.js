@@ -40,7 +40,7 @@ EmailDirectives.directive('contactIcon', [
                             // Contact without account
                             } else {
                                 scope.action = 'needsAccount';
-                                scope.icon = 'building'
+                                scope.icon = 'building';
                                 scope.color = 'yellow';
                             }
                         }else if (data.type == 'account') {

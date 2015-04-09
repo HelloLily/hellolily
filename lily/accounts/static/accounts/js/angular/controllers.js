@@ -168,7 +168,7 @@ accountController.controller('AccountDetailController', [
                 });
                 var deals = results[3];
                 deals.forEach(function(deal) {
-                    deal = $.extend(deal, {historyType: 'deal', color: 'blue', date: deal.closing_date});
+                    deal = $.extend(deal, {historyType: 'deal', color: 'blue', date: deal.modified});
                     history.push(deal);
                     NoteDetail.query({filterquery: 'content_type:deal AND object_id:' + deal.id, size: 5})
                     .$promise.then(function(notes) {

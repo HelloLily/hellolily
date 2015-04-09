@@ -206,13 +206,14 @@ PIPELINE_JS = {
             'metronic/assets/admin/layout4/scripts/demo.js',
             'lily/plugins/wysihtml/wysihtml.js',
             'lily/plugins/wysihtml/wysihtml-toolbar.js',
+            'plugins/diff.js',
 
             # Angular base
             'plugins/angular/angular.js',
             'plugins/angular/angular-cookies.js',
             'plugins/angular/angular-resource.js',
 
-            # Angular Plugins
+            # Angular plugins
             'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.1.js',
             'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
             'plugins/chart.js',
@@ -223,7 +224,7 @@ PIPELINE_JS = {
             'plugins/angular/angular-slimscroll/angular-slimscroll.js',
             'plugins/angular/angular-ui-router/angular-ui-router.js',
 
-            # Angular lily app
+            # Angular Lily app
             'lily/js/angular/app.js',
             'lily/js/angular/controllers.js',
             'lily/js/angular/directives.js',
@@ -263,7 +264,7 @@ PIPELINE_JS = {
             # Pip package static
             'js/jquery.formset.js',
 
-            # Stuffz
+            # Our JavaScript
             'lily/js/forms/formsets.js',
             'lily/js/forms/select2.js',
             'lily/js/forms/show-and-hide.js',

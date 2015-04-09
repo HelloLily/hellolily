@@ -22,7 +22,8 @@
             templateAttachmentName: '.template-attachment-name',
             templateAttachmentIds: '#template-attachment-ids',
             templateAttachmentId: '.template-attachment-id',
-            templateAttachmentRow: '.template-attachment-row'
+            templateAttachmentRow: '.template-attachment-row',
+            currentTemplate: null
         },
 
         init: function (config) {
@@ -226,9 +227,17 @@
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
 
-            // Make sure replies on this email don't break the application
-            editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
-            editor.setValue(editor.getValue().replace(' id="body-html-content"', ''));
+            // Remove unnecessary html
+            var containerDiv = $('<div>')[0];
+            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            /**
+             * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
+             * would work to set the value of the textarea.
+             * Sadly they don't, which is why .val is used
+             */
+            var templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
+            var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
+            $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
 
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
@@ -316,14 +325,29 @@
                     }
 
                     if (changeTemplate) {
+                        var addedTemplateText = '';
+
+                        if (self.config.currentTemplate) {
+                            var diff = JsDiff.diffWords(currentTemplate.html(), self.config.currentTemplate);
+
+                            diff.forEach(function (part) {
+                                // Get all text that was changed/added
+                                if (part.added || part.removed) {
+                                    addedTemplateText += part.value;
+                                }
+                            });
+                        }
+
+                        self.config.currentTemplate = htmlPart;
+
                         // Change the html of the existing email template
                         currentTemplate.html(htmlPart);
                         // Since editorValue is actually an array of elements we can't easily convert it back to text
                         var container = $('<div>');
                         // Add the (edited) html to the newly created container
                         container.append(editorValue);
-                        // Get the text version of the new html
-                        newEditorValue = container[0].innerHTML;
+                        // Get the text version of the new html and added any added text
+                        newEditorValue = container[0].innerHTML + addedTemplateText;
                     }
                 }
             }
@@ -332,6 +356,8 @@
                 var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
                 // Append the existing text
                 newEditorValue = emailTemplate + '<br>' + editor.getValue();
+
+                self.config.currentTemplate = htmlPart;
             }
 
             if (newEditorValue.length) {

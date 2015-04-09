@@ -340,6 +340,7 @@ class CreateUpdateAccountForm(FormSetFormMixin, TagsFormMixin):
                     'primary_website',
                     'name',
                     'description',
+                    'customer_id',
                     # Hidden fields
                     'legalentity',
                     'taxnumber',

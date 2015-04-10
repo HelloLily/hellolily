@@ -44,7 +44,10 @@ lilyControllers.controller('baseController', [
             HLFormsets.init();
             HLShowAndHide.init();
 
-            // Get notifications
+            $scope.loadNotifications();
+        });
+
+        $scope.loadNotifications = function(){
             Notifications.query(function(notifications) {  // On success
                 angular.forEach(notifications, function(message) {
                     toastr[message.level](message.message);
@@ -53,7 +56,7 @@ lilyControllers.controller('baseController', [
                 console.log('error!');
                 console.log(error);
             })
-        });
+        };
 
         $scope.editNote = function(note) {
             var modalInstance = $modal.open({

@@ -51,6 +51,14 @@ dealControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Edit'
         }
     });
+    $stateProvider.state('base.deals.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: 'DealDeleteController'
+            }
+        },
+    });
     $stateProvider.state('base.deals.create', {
         url: '/create',
         views: {
@@ -446,27 +454,6 @@ dealControllers.controller('DealDetailController', [
                 });
         };
 
-        /**
-         * Delete a deal and redirect to dashboard
-         */
-        $scope.delete = function(id) {
-            var req = {
-                method: 'POST',
-                url: '/deals/delete/' + id + '/',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-            };
-
-            if(confirm("Are you sure you want to delete deal " + $scope.deal.name + "?")){
-                $http(req).
-                    success(function(data, status, headers, config) {
-                        $location.path('');
-                    }).
-                    error(function(data, status, headers, config) {
-                        // Request failed propper error?
-                    });
-            }
-        };
-
         $scope.deleteNote = function(note) {
             if (confirm('Are you sure?')) {
                 NoteService.delete({
@@ -500,6 +487,32 @@ dealControllers.controller('DealEditController', [
             $scope.conf.pageTitleBig = 'Edit ' + deal.name;
             $scope.conf.pageTitleSmall = 'change is natural';
         });
+    }
+]);
+
+/**
+ * Controller for deleting a deal
+ */
+dealControllers.controller('DealDeleteController', [
+    '$http',
+    '$state',
+    '$stateParams',
+
+    function($http, $state, $stateParams) {
+        var id = $stateParams.id;
+        var req = {
+            method: 'POST',
+            url: '/deals/delete/' + id + '/',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        $http(req).
+            success(function(data, status, headers, config) {
+                $state.go('base.deals');
+            }).
+            error(function(data, status, headers, config) {
+                $state.go('base.deals');
+            });
     }
 ]);
 

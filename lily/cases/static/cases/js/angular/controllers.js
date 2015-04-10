@@ -55,6 +55,14 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             label: 'Edit'
         }
     });
+    $stateProvider.state('base.cases.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: 'CaseDeleteController'
+            }
+        },
+    });
     $stateProvider.state('base.cases.create', {
         url: '/create',
         views: {
@@ -289,27 +297,6 @@ caseControllers.controller('CaseDetailController', [
                 error(function(data, status, headers, config) {
                     // Request failed propper error?
                 });
-        };
-
-        /**
-         * Delete a case and redirect to dashboard
-         */
-        $scope.delete = function(id) {
-            var req = {
-                method: 'POST',
-                url: '/cases/delete/' + id + '/',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-            };
-
-            if(confirm("Are you sure you want to delete case " + $scope.case.subject + "?")){
-                $http(req).
-                    success(function(data, status, headers, config) {
-                        $location.path('');
-                    }).
-                    error(function(data, status, headers, config) {
-                        // Request failed proper error?
-                    });
-            }
         };
 
         $scope.deleteNote = function(note) {
@@ -590,5 +577,32 @@ caseControllers.controller('CaseEditController', [
             $scope.conf.pageTitleSmall = 'change is natural';
             HLSelect2.init();
         });
+    }
+]);
+
+/**
+ * Controller to delete a case
+ */
+caseControllers.controller('CaseDeleteController', [
+    '$http',
+    '$state',
+    '$stateParams',
+
+    function($http, $state, $stateParams) {
+        var id = $stateParams.id;
+
+        var req = {
+            method: 'POST',
+            url: '/cases/delete/' + id + '/',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        $http(req).
+            success(function(data, status, headers, config) {
+                $state.go('base.cases');
+            }).
+            error(function(data, status, headers, config) {
+                $state.go('base.cases');
+            });
     }
 ]);

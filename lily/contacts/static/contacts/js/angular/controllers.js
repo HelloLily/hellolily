@@ -67,6 +67,14 @@ contacts.config(['$stateProvider', function($stateProvider) {
             label: 'Edit'
         }
     });
+    $stateProvider.state('base.contacts.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: 'ContactDeleteController'
+            }
+        },
+    });
 }]);
 
 /**
@@ -92,18 +100,6 @@ contacts.controller('ContactDetailController', [
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
         var id = $stateParams.id;
-
-        $scope.deleteContact = function(id) {
-            if (confirm('Are you sure?')) {
-                ContactTest.delete({
-                    id:id
-                }, function() {  // On success
-                    $state.go('base.contacts.list');
-                }, function(error) {  // On error
-                    alert('something went wrong.')
-                })
-            }
-        };
 
         function pageTitle(contact) {
             var title = contact.name;
@@ -413,6 +409,29 @@ contacts.controller('ContactEditController', [
             $scope.conf.pageTitleBig = contact.name;
             $scope.conf.pageTitleSmall = 'change is natural';
             HLSelect2.init();
+        });
+    }
+]);
+
+/**
+ * Controller to delete a contact
+ */
+contacts.controller('ContactDeleteController', [
+    '$state',
+    '$stateParams',
+
+    'ContactTest',
+
+    function($state, $stateParams, ContactTest) {
+        var id = $stateParams.id;
+
+        ContactTest.delete({
+            id:id
+        }, function() {  // On success
+            $state.go('base.contacts');
+        }, function(error) {  // On error
+            // Error notification needed
+            $state.go('base.contacts');
         });
     }
 ]);

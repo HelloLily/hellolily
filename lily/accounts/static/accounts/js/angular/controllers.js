@@ -75,6 +75,15 @@ accountController.config(['$stateProvider', function($stateProvider) {
         }
     });
 
+    $stateProvider.state('base.accounts.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: 'AccountDeleteController'
+            }
+        },
+    });
+
 }]);
 
 /**
@@ -113,18 +122,6 @@ accountController.controller('AccountDetailController', [
         var add = 10;
         var size = add;
         var currentSize = 0;
-
-        $scope.deleteAccount = function(id) {
-            if (confirm('Are you sure?')) {
-                AccountDetail.delete({
-                    id:id
-                }, function() {  // On success
-                    $state.go('base.accounts');
-                }, function(error) {  // On error
-                    alert('something went wrong.')
-                });
-            }
-        };
 
         $scope.history = [];
         function loadHistory(account, tenantEmails) {
@@ -394,5 +391,28 @@ accountController.controller('AccountUpsertController', [
         }
         HLDataProvider.init();
         HLFormsets.init();
+    }
+]);
+
+/**
+ * Controller to delete a account
+ */
+accountController.controller('AccountDeleteController', [
+    '$state',
+    '$stateParams',
+
+    'AccountDetail',
+
+    function($state, $stateParams, AccountDetail) {
+        var id = $stateParams.id;
+
+        AccountDetail.delete({
+            id:id
+        }, function() {  // On success
+            $state.go('base.accounts');
+        }, function(error) {  // On error
+            // Error notification needed
+            $state.go('base.accounts');
+        });
     }
 ]);

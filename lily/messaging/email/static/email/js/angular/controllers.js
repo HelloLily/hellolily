@@ -433,17 +433,17 @@ EmailControllers.controller('EmailDetailController', [
 
         $scope.archiveMessage = function() {
             EmailMessage.API.archive({id: $scope.message.id});
-            $state.go('email.list', '');
+            $state.go('base.email.list', '');
         };
 
         $scope.trashMessage = function() {
             EmailMessage.API.trash({id: $scope.message.id});
-            $state.go('email.list', '');
+            $state.go('base.email.list', '');
         };
 
         $scope.deleteMessage = function() {
             EmailMessage.API.delete({id: $scope.message.id});
-            $state.go('email.list', '');
+            $state.go('base.email.list', '');
         };
 
         $scope.toggleOverlay = function () {

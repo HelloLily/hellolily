@@ -191,9 +191,9 @@ lilyDirectives.directive('resizeIframe', function() {
  * state of the hidden field and changes it accordingly and submits
  * the form
  */
-lilyDirectives.directive("saveAndArchive", ["$interval", function($interval) {
+lilyDirectives.directive('saveAndArchive', ['$interval', function($interval) {
     return {
-        restrict: "A",
+        restrict: 'A',
         link: function(scope, elem, attrs) {
 
             // Setting button to right text based in archived state
@@ -219,6 +219,24 @@ lilyDirectives.directive("saveAndArchive", ["$interval", function($interval) {
         }
     }
 }]);
+
+/**
+ * Directive for a confirmation box before the delete in the detail
+ * view happens
+ */
+lilyDirectives.directive('detailDelete', ['$state', function($state) {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs){
+
+            $(elem).click(function() {
+                if(confirm('You are deleting! Are you sure ?')){
+                    $state.go('.delete');
+                }
+            });
+        }
+    }
+}])
 
 /**
  * Template for checkbox directive

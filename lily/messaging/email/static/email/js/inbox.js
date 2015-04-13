@@ -265,7 +265,11 @@
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            var templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
+            var templateContent = '';
+            if ($('#compose-email-template').length) {
+                templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
+            }
+
             var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
             $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
 

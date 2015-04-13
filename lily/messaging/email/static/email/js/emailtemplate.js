@@ -10,7 +10,8 @@
             attachmentDeleteButton: '.email-template-attachments [data-formset-delete-button]',
             attachmentUndoDeleteButton: '.email-template-attachments [data-formset-undo-delete]',
             templateAttachmentName: '.template-attachment-name',
-            wysiHtmlToolbar: '#wysihtml5-toolbar'
+            wysiHtmlToolbar: '#wysihtml5-toolbar',
+            submitButton: 'button[type="submit"]'
         },
 
         init: function (config) {
@@ -57,6 +58,9 @@
                 .on('click', cf.attachmentUndoDeleteButton , function() {
                     var attachmentRow = $(this).closest('.form-group');
                     self.toggleMarkDeleted(attachmentRow);
+                })
+                .on('click', cf.submitButton, function (event) {
+                    self.handleFormSubmit(this, event);
                 });
 
             // Set heading properly after change
@@ -174,6 +178,26 @@
             else {
                 rowAttachmentName.addClass('mark-deleted');
             }
+        },
+
+        handleFormSubmit: function (submitButton, event) {
+            event.preventDefault();
+
+            // Remove unnecessary html
+            var containerDiv = $('<div>')[0];
+            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            /**
+             * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
+             * would work to set the value of the textarea.
+             * Sadly they don't, which is why .val is used
+             */
+            $('#id_body_html').val($(containerDiv).find('#body-html-content')[0].innerHTML);
+
+            var $form = $($(submitButton).closest('form'));
+
+            Metronic.blockUI($('.inbox-content'), false, '');
+
+            $form.submit();
         }
     }
 })(jQuery, window, document);

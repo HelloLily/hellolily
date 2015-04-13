@@ -131,10 +131,10 @@
                 handleTables: false
             });
 
-            // extra div is needed so the editor auto resizes
-            editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
-
             editor.observe('load', function () {
+                // extra div is needed so the editor auto resizes
+                editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
+
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });

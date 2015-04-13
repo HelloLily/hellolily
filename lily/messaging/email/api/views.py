@@ -87,7 +87,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_update(self, serializer):
         """
-        Any modifications are passed trough the manager and not directly on de db.
+        Any modifications are passed trough the manager and not directly on the db.
 
         For now, only the read status will be updated.
         """
@@ -96,7 +96,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_destroy(self, instance):
         """
-        Any modifications are passed trough the manager and not directly on de db.
+        Any modifications are passed trough the manager and not directly on the db.
 
         Delete will happen async
         """
@@ -105,11 +105,14 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on de db.
+        Any modifications are passed trough the manager and not directly on the db.
 
         Archive will happen async
         """
         email = self.get_object()
+        # Make sure emails are removed instantly from the email list
+        email.is_removed = True
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         archive_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
@@ -117,11 +120,14 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def trash(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on de db.
+        Any modifications are passed trough the manager and not directly on the db.
 
         Trash will happen async
         """
         email = self.get_object()
+        # Make sure emails are removed instantly from the email list
+        email.is_removed = True
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
@@ -129,7 +135,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def move(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on de db.
+        Any modifications are passed trough the manager and not directly on the db.
 
         Move will happen async
         """

@@ -73,10 +73,6 @@
             </div>
         </div>
         <div class="col-md-2">
-            <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn btn-sm blue"> <i class="fa fa-edit"></i> Edit</a>
-            <!--  Note remove xhr when merging! -->
-            <a ng-click="deleteContact(contact.id)" class="btn btn-sm blue"><i class="fa fa-trash"></i> Delete</a>
-            <br/><br/>
             <div class="btn-group">
                 <a ui-sref="base.cases.create.fromContact({ id: contact.id })" class="btn blue btn-sm">
                     <i class="fa fa-plus"></i>

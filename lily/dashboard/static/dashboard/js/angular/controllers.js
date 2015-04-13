@@ -52,6 +52,7 @@ dashboard.controller('MyCasesController', [
     'Case',
     function ($scope, Case) {
         Case.getMyCasesWidget().then(function (data) {
+            // NAME DEPENDANCY IN UNASSIGNEDCASES CONTROLLER
             $scope.mycases = data;
         });
     }
@@ -72,10 +73,11 @@ dashboard.controller('CallbackRequestsController', [
  * a widget per team for unassigned cases.
  */
 dashboard.controller('UnassignedCasesController', [
+    '$http',
     '$scope',
     'UserTeams',
     'UnassignedTeamCases',
-    function($scope, UserTeams, UnassignedTeamCases) {
+    function($http, $scope, UserTeams, UnassignedTeamCases) {
 
         UserTeams.query(function(teams) {
             $scope.teams = teams;
@@ -86,6 +88,30 @@ dashboard.controller('UnassignedCasesController', [
                 })
             })
         })
+
+        $scope.assignToMe = function(teamObj, caseObj){
+            var caseId = caseObj.id;
+
+            if(confirm('Assign this case to yourself?')){
+                var req = {
+                    method: 'POST',
+                    url: '/cases/update/assigned_to/' + caseId + '/',
+                    data: 'assignee=' + $scope.currentUser.id,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+                };
+
+                $http(req).
+                    success(function(data, status, headers, config) {
+                        $scope.mycases.push(caseObj);
+                        var team = $scope.teams[$scope.teams.indexOf(teamObj)];
+                        team.cases.splice(team.cases.indexOf(caseObj), 1);
+                        $scope.loadNotifications();
+                    }).
+                    error(function(data, status, headers, config) {
+                        // Request failed propper error?
+                    });
+            }
+        };
     }
 ]);
 

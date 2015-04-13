@@ -103,11 +103,6 @@
     </div>
 
     <div class="col-md-2">
-        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="btn btn-sm blue"> <i class="fa fa-edit"></i> Edit</a>
-        <a ng-click="deleteAccount(account.id)" class="btn btn-sm blue"><i class="fa fa-trash"></i> Delete</a>
-    </div>
-
-    <div class="col-md-2">
         <div class="dashboard-stat green-meadow">
             <a ng-href="#/deals?search={{ ::account.name }}">
                 <div class="visual">
@@ -125,13 +120,13 @@
             </a>
         </div>
     </div>
-<!--
-    <div class="col-md-2">
+
+    <div class="col-md-2" ng-show="::account.customer_id">
         <div class="dashboard-stat blue-madison">
-            <div class="visual">
-                <i class="fa fa-globe"></i>
-            </div>
-            <a href="#">
+            <a ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
+                <div class="visual">
+                    <i class="fa fa-globe"></i>
+                </div>
                 <div class="details">
                     <div class="number">
                          Klant :)
@@ -141,12 +136,11 @@
                     </div>
                 </div>
             </a>
-            <a class="more" href="#">
+            <a class="more" ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
             Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
             </a>
         </div>
     </div>
--->
 </div>
 
 
@@ -249,16 +243,15 @@
                 <div class="timeline-body first">
                     <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
                     <div class="timeline-footer">
-                        Closing: {{ ::item.date | date:'dd MMMM yy HH:mm' }}<br/>
-                        Created: {{ ::item.created | date:'dd MMMM yy HH:mm' }}
-                        <br/>
+                        Last changed: {{ ::item.modified | date:'dd MMMM yy HH:mm' }}<br/>
+                        Closing: {{ ::item.closing_date | date:'dd MMMM yy HH:mm' }}<br/>
                         {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
                         {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
                         Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
                         Amount once: {{ ::item.amount_once }}<br/>
                         Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
                     </div>
-                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMM yy' }}{{ ::item.date | date:'HH:mm' }}</small></p>
+                    <p><small class="text-muted"><i class="fa fa-calendar"></i> created on {{ ::item.created | date:'dd MMM yy' }}{{ ::item.created | date:'HH:mm' }}</small></p>
                     <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.assigned_to_name }}</small></p>
                 </div>
 

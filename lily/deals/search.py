@@ -110,6 +110,7 @@ class DealMapping(BaseMapping):
             'amount_recurring': obj.amount_recurring,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'created': obj.created,
+            'modified': obj.modified,
             'closing_date': obj.expected_closing_date,
             'archived': obj.is_archived,
             'feedback_form_sent': obj.feedback_form_sent,

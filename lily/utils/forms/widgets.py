@@ -118,6 +118,8 @@ class DatePicker(DateTimePicker):
         else:
             self.options = options and options.copy() or {}
             self.options['language'] = translation.get_language()
+            if not self.options.get('weekStart'):
+                self.options['weekStart'] = 1
             if format and not self.options.get('format') and not self.attrs.get('date-format'):
                 self.options['format'] = self.conv_datetime_format_py2js(format)
 

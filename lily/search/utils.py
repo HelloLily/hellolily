@@ -114,6 +114,7 @@ class LilySearch(object):
                     'operator': 'and',
                     'analyzer': 'cross_analyzer',
                     'fields': [
+                        'id',
                         'tag',
                         'email',
                         'account_name',

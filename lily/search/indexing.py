@@ -37,6 +37,7 @@ def update_in_index(instance, mapping):
             try:
                 if index in aliases:
                     tasks.index_objects(mapping, [instance.id], index=index)
+                    es.indices.refresh(index)
             except Exception, e:
                 logger.error(traceback.format_exc(e))
 
@@ -56,6 +57,7 @@ def remove_from_index(instance, mapping):
         try:
             if index in aliases:
                 tasks.unindex_objects(mapping, [instance.id], index=index)
+                es.indices.refresh(index)
         except NotFoundError, e:
             logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
         except Exception, e:

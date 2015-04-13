@@ -22,7 +22,8 @@
             templateAttachmentName: '.template-attachment-name',
             templateAttachmentIds: '#template-attachment-ids',
             templateAttachmentId: '.template-attachment-id',
-            templateAttachmentRow: '.template-attachment-row'
+            templateAttachmentRow: '.template-attachment-row',
+            currentTemplate: null
         },
 
         init: function (config) {
@@ -130,10 +131,10 @@
                 handleTables: false
             });
 
-            // extra div is needed so the editor auto resizes
-            editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
-
             editor.observe('load', function () {
+                // extra div is needed so the editor auto resizes
+                editor.setValue('<div id="body-html-content">' + editor.getValue() + '</div>');
+
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
                 });
@@ -226,14 +227,16 @@
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
 
-            // Make sure replies on this email don't break the application
-            editor.setValue(editor.getValue().replace(' id="compose-email-template"', ''));
-            editor.setValue(editor.getValue().replace(' id="body-html-content"', ''));
-
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
 
-            if (buttonName == 'submit-send') {
+            if (buttonName == 'submit-discard') {
+                // Discarding email, remove all attachments to prevent unneeded uploading.
+                //$('[id|=id_attachments]:file').remove();
+                // Prevent discard from submitting form. This will probably be made nicer later (LILY-787)
+                window.location = '/#/email/all/INBOX';
+                return;
+            } else if (buttonName == 'submit-send') {
                 // Validation of fields.
                 if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
                     $('#modal_no_email_address').modal();
@@ -248,10 +251,27 @@
                 } else {
                     $form.attr('action', '/messaging/email/draft/');
                 }
-            } else if (buttonName == 'submit-discard') {
-                // Discarding email, remove all attachments to prevent unneeded uploading.
-                $('[id|=id_attachments]:file').remove();
             }
+            else {
+                // No valid button, so do nothing;
+                return;
+            }
+
+            // Remove unnecessary html
+            var containerDiv = $('<div>')[0];
+            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            /**
+             * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
+             * would work to set the value of the textarea.
+             * Sadly they don't, which is why .val is used
+             */
+            var templateContent = '';
+            if ($('#compose-email-template').length) {
+                templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
+            }
+
+            var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
+            $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
 
             // Make sure both buttons of the same name are set to the loading state
             $('button[name="' + buttonName + '"]').button('loading');
@@ -316,14 +336,31 @@
                     }
 
                     if (changeTemplate) {
+                        var addedTemplateText = '';
+
+                        if (self.config.currentTemplate) {
+                            var diff = JsDiff.diffWords(currentTemplate.html(), self.config.currentTemplate);
+
+                            diff.forEach(function (part) {
+                                // Get all text that was changed/added
+                                if (part.added || part.removed) {
+                                    addedTemplateText += part.value;
+                                }
+                            });
+                        }
+
+                        self.config.currentTemplate = htmlPart;
+
                         // Change the html of the existing email template
                         currentTemplate.html(htmlPart);
                         // Since editorValue is actually an array of elements we can't easily convert it back to text
                         var container = $('<div>');
                         // Add the (edited) html to the newly created container
                         container.append(editorValue);
-                        // Get the text version of the new html
-                        newEditorValue = container[0].innerHTML;
+                        // Get the text version of the new html and added any added text
+                        newEditorValue = container[0].innerHTML + addedTemplateText;
+
+                        $('#id_subject').val(data['template_subject']);
                     }
                 }
             }
@@ -332,6 +369,8 @@
                 var emailTemplate = '<div id="compose-email-template">' + htmlPart + '</div>';
                 // Append the existing text
                 newEditorValue = emailTemplate + '<br>' + editor.getValue();
+
+                self.config.currentTemplate = htmlPart;
             }
 
             if (newEditorValue.length) {

@@ -909,6 +909,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
 
         # Ugly hack to make parsing of new template brackets style work
         parsed_template = Template(template.body_html.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
+        parsed_subject = Template(template.subject.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
 
         attachments = []
 
@@ -923,5 +924,6 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
 
         return HttpResponse(anyjson.serialize({
             'template': parsed_template,
+            'template_subject': parsed_subject,
             'attachments': attachments,
         }), content_type='application/json')

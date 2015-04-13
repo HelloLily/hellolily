@@ -184,3 +184,26 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     display: inline-block;
     margin-left: 10px;
 }
+
+.inbox-compose #attachments input,
+.email-template-attachments #attachments input {
+    width: 100%;
+}
+
+.inbox-form-group.email-template-attachments {
+      border: 1px solid #EEE;
+      padding-top: 10px;
+}
+
+.template-attachment-name {
+    padding: 1px 3px;
+}
+
+.template-attachment-name.mark-deleted{
+    background-color: #F9F9F9 !important
+}
+
+.email-template-attachments .add-link {
+    margin-left: 0;
+    margin-right: 0;
+}

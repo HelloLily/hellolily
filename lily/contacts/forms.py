@@ -168,6 +168,7 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             'extra_form_kwargs': {
                 'initial': {
                     'type': 'home',
+                    'country': 'NL',
                 }
             }
         }

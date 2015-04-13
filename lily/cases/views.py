@@ -163,7 +163,10 @@ class CreateCaseView(CreateUpdateCaseMixin, CreateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        return '/#/cases'
+        if self.object:
+            return '/#/cases/' + str(self.object.id)
+        else:
+            return '/#cases'
 
 
 class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):

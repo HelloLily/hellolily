@@ -39,7 +39,7 @@
                                         </span>
                                     </td>
                                     <td>{{ case.created  | relativeDate }}</td>
-                                    <td><a data-toggle="modal" ui-sref="base.cases.detail.edit({ id: case.id })" class='assign-me-btn'><i class="fa fa-anchor"></i> Edit</a></td>
+                                    <td><a data-toggle="modal" ng-click="assignToMe(team, case)" class='assign-me-btn'><i class="fa fa-anchor"></i> Me me me</a></td>
                                 </tr>
                             </tbody>
                         </table>

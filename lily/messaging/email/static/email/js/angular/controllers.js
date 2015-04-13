@@ -386,6 +386,10 @@ EmailControllers.controller('EmailListController', [
                 $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
             }
 
+            if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {
+                filterquery.push('is_removed:false');
+            }
+
             if (filterquery) {
                 filterquery = filterquery.join(' AND ');
             }
@@ -432,18 +436,21 @@ EmailControllers.controller('EmailDetailController', [
         });
 
         $scope.archiveMessage = function() {
-            EmailMessage.API.archive({id: $scope.message.id});
-            $state.go('base.email.list', '');
+            EmailMessage.API.archive({id: $scope.message.id}).$promise.then(function () {
+                $state.go('base.email.list', '');
+            });
         };
 
         $scope.trashMessage = function() {
-            EmailMessage.API.trash({id: $scope.message.id});
-            $state.go('base.email.list', '');
+            EmailMessage.API.trash({id: $scope.message.id}).$promise.then(function () {
+                $state.go('base.email.list', '');
+            });
         };
 
         $scope.deleteMessage = function() {
-            EmailMessage.API.delete({id: $scope.message.id});
-            $state.go('base.email.list', '');
+            EmailMessage.API.delete({id: $scope.message.id}).$promise.then(function () {
+                $state.go('base.email.list', '');
+            });
         };
 
         $scope.toggleOverlay = function () {

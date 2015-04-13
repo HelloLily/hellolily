@@ -152,6 +152,7 @@ class EmailMessage(models.Model):
     has_attachment = models.BooleanField(default=False)
     body_html = models.TextField(default='')
     body_text = models.TextField(default='')
+    is_removed = models.BooleanField(default=False)
 
     @property
     def tenant_id(self):

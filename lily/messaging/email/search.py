@@ -86,6 +86,9 @@ class EmailMessageMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_analyzer',
             },
+            'is_removed': {
+                'type': 'boolean',
+            },
         })
         return mapping
 
@@ -138,6 +141,7 @@ class EmailMessageMapping(BaseMapping):
             'message_id': obj.message_id,
             'thread_id': obj.thread_id,
             'body': obj.body_text or cls.body_html_parsed(obj),
+            'is_removed': obj.is_removed,
         }
 
     @classmethod

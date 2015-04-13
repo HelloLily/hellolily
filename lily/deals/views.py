@@ -201,6 +201,15 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
 
         return response
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        if self.object:
+            return '/#/deals/' + str(self.object.id)
+        else:
+            return '/#deals'
+
 
 class UpdateDealView(CreateUpdateDealMixin, UpdateView):
     model = Deal

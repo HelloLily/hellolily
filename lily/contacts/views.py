@@ -152,7 +152,13 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
         return super(AddContactView, self).form_invalid(form)
 
     def get_success_url(self):
-        return '/#/contacts'
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        if self.object:
+            return '/#/contacts/' + str(self.object.id)
+        else:
+            return '/#contacts'
 
 
 class EditContactView(CreateUpdateContactMixin, UpdateView):

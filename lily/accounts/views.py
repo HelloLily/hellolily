@@ -297,6 +297,14 @@ class AddAccountView(CreateUpdateAccountMixin, CreateView):
 
         return super(AddAccountView, self).form_valid(form)
 
+    def get_success_url(self):
+        """
+        Get the url to redirect to after this form has succesfully been submitted.
+        """
+        if self.object:
+            return '/#/accounts/' + str(self.object.id)
+        else:
+            return '/#accounts'
 
 class EditAccountView(CreateUpdateAccountMixin, UpdateView):
     """

@@ -227,22 +227,16 @@
         handleInboxComposeSubmit: function (inboxCompose, event) {
             event.preventDefault();
 
-            // Remove unnecessary html
-            var containerDiv = $('<div>')[0];
-            containerDiv.innerHTML = HLInbox.getEditor().getValue();
-            /**
-             * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
-             * would work to set the value of the textarea.
-             * Sadly they don't, which is why .val is used
-             */
-            var templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
-            var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
-            $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
-
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
 
-            if (buttonName == 'submit-send') {
+            if (buttonName == 'submit-discard') {
+                // Discarding email, remove all attachments to prevent unneeded uploading.
+                //$('[id|=id_attachments]:file').remove();
+                // Prevent discard from submitting form. This will probably be made nicer later (LILY-787)
+                window.location = '/#/email/all/INBOX';
+                return;
+            } else if (buttonName == 'submit-send') {
                 // Validation of fields.
                 if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
                     $('#modal_no_email_address').modal();
@@ -257,10 +251,23 @@
                 } else {
                     $form.attr('action', '/messaging/email/draft/');
                 }
-            } else if (buttonName == 'submit-discard') {
-                // Discarding email, remove all attachments to prevent unneeded uploading.
-                $('[id|=id_attachments]:file').remove();
             }
+            else {
+                // No valid button, so do nothing;
+                return;
+            }
+
+            // Remove unnecessary html
+            var containerDiv = $('<div>')[0];
+            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            /**
+             * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
+             * would work to set the value of the textarea.
+             * Sadly they don't, which is why .val is used
+             */
+            var templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
+            var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
+            $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
 
             // Make sure both buttons of the same name are set to the loading state
             $('button[name="' + buttonName + '"]').button('loading');

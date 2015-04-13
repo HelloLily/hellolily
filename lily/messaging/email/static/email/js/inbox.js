@@ -359,6 +359,8 @@
                         container.append(editorValue);
                         // Get the text version of the new html and added any added text
                         newEditorValue = container[0].innerHTML + addedTemplateText;
+
+                        $('#id_subject').val(data['template_subject']);
                     }
                 }
             }

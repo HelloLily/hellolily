@@ -255,15 +255,17 @@ def send_message(email_outbox_message_id, original_message_id=None):
     except EmailOutboxMessage.DoesNotExist:
         raise
 
+    email_account = email_outbox_message.send_from
+
     # If we reply or forward, we want to add the thread_id
     original_message_thread_id = None
     if original_message_id:
         try:
-            original_message_thread_id = EmailMessage.objects.get(pk=original_message_id).thread_id
+            original_message = EmailMessage.objects.get(pk=original_message_id)
+            if original_message.account.id is email_account.id:
+                original_message_thread_id = original_message.thread_id
         except EmailMessage.DoesNotExist:
             raise
-
-    email_account = email_outbox_message.send_from
 
     if not email_account.is_authorized:
         logger.error('EmailAccount not authorized: %s', email_account)

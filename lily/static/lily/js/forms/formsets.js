@@ -35,6 +35,7 @@
                         $(this).find('.field_wrapper').removeClass('col-md-offset-2');
                     }
                 }
+                HLSelect2.init();
             });
 
             body.on('formDeleted', '[data-formset-form]', function() {

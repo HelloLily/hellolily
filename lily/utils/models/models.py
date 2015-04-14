@@ -373,8 +373,13 @@ class EmailAddress(TenantMixin):
         (ACTIVE_STATUS, _('Active')),
     )
 
+    FALSE_TRUE_CHOICES = (
+        (False, _('Other')),
+        (True, _('Primary')),
+    )
+
     email_address = models.EmailField(max_length=255, verbose_name=_('e-mail address'))
-    is_primary = models.BooleanField(default=False, verbose_name=_('primary e-mail'))
+    is_primary = models.BooleanField(default=False, verbose_name=_('primary e-mail'), choices=FALSE_TRUE_CHOICES)
     status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
 

@@ -30,6 +30,18 @@ $(function() {
         }
         $phoneNumberInput.val(phone);
     });
+
+    $('body').on('change', 'select[id*="is_primary"]', function(e) {
+        if($(e.currentTarget).val() == 'True'){
+            $('select[id*="is_primary"]').each(function(i){
+                if($(this).is('select') && $(this).val() == 'True'){
+                    $(this).val('False');
+                }
+            });
+            $(e.currentTarget).val('True');
+            HLSelect2.init();
+        }
+    });
 });
 
 function addBusinessDays(date, businessDays) {

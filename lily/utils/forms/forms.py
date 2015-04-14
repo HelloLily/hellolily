@@ -54,7 +54,7 @@ class EmailAddressBaseForm(HelloLilyModelForm):
     """
     class Meta:
         model = EmailAddress
-        fields = ('email_address',)
+        fields = ('email_address', 'is_primary',)
         widgets = {
             'email_address': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',

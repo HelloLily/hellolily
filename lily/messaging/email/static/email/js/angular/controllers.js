@@ -437,19 +437,19 @@ EmailControllers.controller('EmailDetailController', [
 
         $scope.archiveMessage = function() {
             EmailMessage.API.archive({id: $scope.message.id}).$promise.then(function () {
-                $state.go('base.email.list', '');
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         };
 
         $scope.trashMessage = function() {
             EmailMessage.API.trash({id: $scope.message.id}).$promise.then(function () {
-                $state.go('base.email.list', '');
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         };
 
         $scope.deleteMessage = function() {
             EmailMessage.API.delete({id: $scope.message.id}).$promise.then(function () {
-                $state.go('base.email.list', '');
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         };
 

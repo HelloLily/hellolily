@@ -180,8 +180,8 @@ contacts.controller('ContactDetailController', [
                 cases.forEach(function(caseItem) {
                     caseItem.caze = true;
                     caseItem.date = caseItem.expires;
-                    caseItem.history_type = 'case'
-                    caseItem.color = 'grey'
+                    caseItem.history_type = 'case';
+                    caseItem.color = 'grey';
                     history.push(caseItem);
                 });
 
@@ -210,7 +210,11 @@ contacts.controller('ContactDetailController', [
                 contact.account.forEach(function(account_id, index) {
                     var query = {filterquery: 'NOT(id:' + id + ') AND account:' + account_id};
                     var work = ContactDetail.query(query).$promise.then(function(contacts) {
-                        return {name:contact.account_name[index], colleagues:contacts};
+                        return {
+                            name: contact.account_name[index],
+                            colleagues: contacts,
+                            id: account_id
+                        };
                     });
                     works.push(work);
                 });

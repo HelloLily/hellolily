@@ -68,10 +68,10 @@
                                 <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
                             </td>
                             <td>
-                                <i class="fa fa-envelope-o"></i><a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
+                                <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
                             </td>
                             <td>
-                                <i class="fa fa-phone"><a href='/'>{{ ::worker.phone }}</a>
+                                <i class="fa fa-phone"></i> <a href='/'>{{ ::worker.phone }}</a>
                             </td>
                         </tr>
                         <tr ng-if="workers.length == 0">

@@ -15,7 +15,9 @@ var lilyApp = angular.module('lilyApp', [
     'dashboardControllers',
     'DealControllers',
     'EmailControllers',
-    'UtilsControllers',
+    'PreferencesControllers',
+    'PreferencesEmailControllers',
+    'PreferencesUserControllers',
 
     // Directives
     'CaseDirectives',
@@ -61,7 +63,8 @@ lilyApp.config([
     ){
         // Don't strip trailing slashes from calculated URLs, because django needs them
         $breadcrumbProvider.setOptions({
-            templateUrl: 'breadcrumbs.html'
+            templateUrl: 'breadcrumbs.html',
+            includeAbstract: true
         });
         $controllerProvider.allowGlobals();
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';

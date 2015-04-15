@@ -2,8 +2,7 @@ from django.conf.urls import patterns, url
 
 from .forms import CustomPasswordResetForm
 from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView,
-                    CustomSetPasswordView, LoginView, DashboardView, UserProfileView, UserAccountView,
-                    SendInvitationView, APIAccessView)
+                    CustomSetPasswordView, LoginView, DashboardView, SendInvitationView, APIAccessView)
 
 
 urlpatterns = patterns('',
@@ -25,8 +24,6 @@ urlpatterns = patterns('',
     url(r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
 
     # User profile settings
-    url(r'^user/profile/$', UserProfileView.as_view(), name='user_profile_view'),
-    url(r'^user/account/$', UserAccountView.as_view(), name='user_account_view'),
     url(r'^user/api/$', APIAccessView.as_view(), name='api_access_view'),
 
     # Dashboard and other user specific views, which require a logged in user

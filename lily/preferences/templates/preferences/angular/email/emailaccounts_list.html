@@ -1,5 +1,5 @@
 {% verbatim %}
-<script id="utils/emailaccounts-list.html" type="text/ng-template">
+<script id="preferences/emailaccounts-list.html" type="text/ng-template">
     <form class="form form-horizontal" method="post" role="form">
         <div class="portlet">
             <div class="portlet-title">
@@ -15,7 +15,7 @@
                                 <span ng-hide="account.public">{{ account.shared_with_users.length }}</span>
                                 <span ng-show="account.public">Public</span>
                             </button>
-                            <a class="btn btn-xs default" title="Just manage it" ui-sref="base.settings.emailaccounts.edit({id: account.id})">
+                            <a class="btn btn-xs default" title="Just manage it" ui-sref="base.preferences.emailaccounts.edit({id: account.id})">
                                 <i class="fa fa-edit"></i>
                             </a>
                             <a class="btn btn-xs default" title="Throw it away" ng-click="deleteAccount(account.id)">

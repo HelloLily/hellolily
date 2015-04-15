@@ -436,7 +436,7 @@ var Layout = function() {
 
         initSidebar: function() {
             //layout handlers
-            handleFixedSidebar(); // handles fixed sidebar menu
+            //handleFixedSidebar(); // handles fixed sidebar menu
             handleSidebarMenu(); // handles main menu
             handleSidebarToggler(); // handles sidebar hide/show
 
@@ -444,7 +444,7 @@ var Layout = function() {
                 handleSidebarMenuActiveLink('match'); // init sidebar active links 
             }
 
-            Metronic.addResizeHandler(handleFixedSidebar); // reinitialize fixed sidebar on window resize
+            //Metronic.addResizeHandler(handleFixedSidebar); // reinitialize fixed sidebar on window resize
         },
 
         initContent: function() {

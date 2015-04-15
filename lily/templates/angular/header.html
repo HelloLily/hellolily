@@ -64,63 +64,61 @@
                     <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
                     <li class="dropdown dropdown-user dropdown-dark">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <span class="username username-hide-on-mobile">
+                            <!-- DOC: Add 'username-hide-on-mobile' class to hide on mobile to make space for buttons on this row -->
+                            <span class="username">
                                 Hello {{ currentUser.fullName }}
                             </span>
+                            <img alt="" class="img-circle" src="{% endverbatim %}{% static 'metronic/assets/admin/layout4/img/avatar.png' %}{% verbatim %}">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-default">
-                            <!--
                             <li>
-                                <a href="page_calendar.html">
-                                    <i class="fa fa-user"></i>
+                                <a ui-sref="base.preferences.user.profile">
+                                    <i class="icon-user"></i>
                                     My Profile
                                 </a>
                             </li>
-                            -->
                             <li>
-                                <a ui-sref="base.settings">
-                                    <i class="fa fa-gear"></i>
+                                <a ui-sref="base.preferences.user.account">
+                                    <i class="icon-settings"></i>
                                     My Account
                                 </a>
                             </li>
-                            <!--
                             <li class="divider"></li>
                             <li>
-                                <a href="inbox.html">
-                                    <i class="fa  fa-briefcase"></i>
+                                <a href="#">
+                                    <i class="icon-briefcase"></i>
                                     Company Account
                                 </a>
                             </li>
                             <li>
-                                <a href="inbox.html">
-                                    <i class="fa fa-users"></i>
+                                <a href="#">
+                                    <i class="icon-users"></i>
                                     Company Users
                                 </a>
                             </li>
                             <li>
-                                <a href="inbox.html">
-                                    <i class="fa fa-grid"></i>
+                                <a href="#">
+                                    <i class="icon-grid"></i>
                                     Company Workflow
                                 </a>
                             </li>
-                            -->
                             <li class="divider"></li>
                             <li>
-                                <a ui-sref="base.settings.emailaccounts">
-                                    <i class="fa fa-inbox"></i>
+                                <a ui-sref="base.preferences.emailaccounts">
+                                    <i class="icon-envelope-open"></i>
                                     E-mail Accounts
                                 </a>
                             </li>
                             <li>
-                                <a ui-sref="base.settings.emailtemplates">
-                                    <i class="fa fa-file"></i>
+                                <a ui-sref="base.preferences.emailtemplates">
+                                    <i class="icon-envelope-letter"></i>
                                     E-mail Templates
                                 </a>
                             </li>
                             <li class="divider"></li>
                             <li>
                                 <a href="/logout">
-                                    <i class="fa fa-key"></i>
+                                    <i class="icon-key"></i>
                                     Log out
                                 </a>
                             </li>

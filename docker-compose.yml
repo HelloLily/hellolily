@@ -22,6 +22,8 @@ web:
     - es
     - rabbit
     - redis
+    - beat
+    - worker
 rabbit:
   build: Dockers/rabbit
 beat:

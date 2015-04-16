@@ -96,8 +96,8 @@ class GmailManager(object):
             self.email_account.temp_history_id = self.connector.history_id
             self.email_account.save()
 
-        message_ids_full_download = []
-        message_ids_update_labels = []
+        message_ids_full_download = set()
+        message_ids_update_labels = set()
         # Check for message_ids that are saved as non email messages
         no_message_ids_in_db = set(
             NoEmailMessageId.objects.filter(
@@ -120,11 +120,12 @@ class GmailManager(object):
                 pass
             elif message_dict['id'] not in message_ids_in_db:
                 # If message is new, we need extra info from connector
-                message_ids_full_download.append(message_dict['id'])
+                message_ids_full_download.add(message_dict['id'])
             else:
                 # We only need to update the labels for this message
-                message_ids_update_labels.append(message_dict['id'])
+                message_ids_update_labels.add(message_dict['id'])
 
+        message_ids_full_download = list(message_ids_full_download)
         # Synchronize full messages in batches
         for i in range(0, len(message_ids_full_download), int(settings.GMAIL_FULL_MESSAGE_BATCH_SIZE)):
 
@@ -147,6 +148,7 @@ class GmailManager(object):
             self.email_account.save()
         else:
             # Synchronize label info in batches
+            message_ids_update_labels = list(message_ids_update_labels)
             for i in range(0, len(message_ids_update_labels), int(settings.GMAIL_LABEL_UPDATE_BATCH_SIZE)):
                 logger.debug('Batch sync label info (%(i)s/%(total)s to %(iplus)s/%(total)s)' % {
                     'i': i,
@@ -174,7 +176,11 @@ class GmailManager(object):
                     message_id, self.email_account.email_address
                 ))
                 self.message_builder.store_message_info(messages_info[message_id], message_id)
-                self.message_builder.save()
+                try:
+                    self.message_builder.save()
+                except Exception:
+                    logger.exception('Couldn\'t save message %s for account %s' % (message_id, self.email_account.id))
+
             else:
                 # Message was deleted, we need to remove it
                 logger.debug('Deleting message %s, account %s' % (
@@ -198,7 +204,10 @@ class GmailManager(object):
                     self.email_account.email_address
                 ))
                 self.message_builder.store_labels_for_message(labels_info.get(message_id, {}), message_id)
-                self.message_builder.save()
+                try:
+                    self.message_builder.save()
+                except Exception:
+                    logger.exception('Couldn\'t save message %s for account %s' % (message_id, self.email_account.id))
             else:
                 # Message was deleted, we need to remove it
                 logger.debug('Deleting message %s, account %s' % (

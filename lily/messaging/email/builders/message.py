@@ -456,6 +456,8 @@ class MessageBuilder(object):
             self.message.received_by_cc.add(*self.received_by_cc)
 
             # Save labels
+            if len(self.labels):
+                self.message.labels.clear()
             for label in self.labels:
                 label.save()
                 self.message.labels.add(label)

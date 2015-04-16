@@ -4,7 +4,7 @@ from django.views.generic.base import View
 
 from lily.utils.views.mixins import LoginRequiredMixin
 
-from .utils import LilySearch
+from .lily_search import LilySearch
 
 
 class SearchView(LoginRequiredMixin, View):

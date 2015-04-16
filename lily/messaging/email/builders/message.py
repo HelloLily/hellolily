@@ -284,12 +284,14 @@ class MessageBuilder(object):
         # create as string file
         file = StringIO.StringIO(file_data)
         if headers and 'content-type' in headers:
-            file.content_type = headers['content-type']
+            file.content_type = headers['content-type'].split(';')[0]
         else:
             file.content_type = 'application/octet-stream'
 
         file.size = len(file_data)
-        file.name = part.get('filename', '')
+        file.name = part.get('filename', '').rsplit('\\')[-1]
+        if len(file.name) > 200:
+            file.name = None
 
         # No filename in part, create a name
         if not file.name:

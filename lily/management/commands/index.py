@@ -7,6 +7,7 @@ from elasticsearch.exceptions import NotFoundError
 from elasticutils.contrib.django import get_es
 
 from lily.search.analyzers import get_analyzers
+from lily.search.connections_utils import get_connection_options
 from lily.search.indexing import index_objects, unindex_objects
 from lily.search.scan_search import ModelMappings
 
@@ -68,9 +69,9 @@ It is possible to specify multiple models, using comma separation."""
     def handle(self, *args, **options):
         url = options['url']
         if url:
-            es = get_es(urls=[url])
+            es = get_es(urls=[url], **get_connection_options())
         else:
-            es = get_es()
+            es = get_es(**get_connection_options())
 
         # Check if specific targets specified to run, or otherwise run all.
         target = options['target']

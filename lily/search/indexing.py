@@ -1,21 +1,20 @@
 from datetime import date
 import itertools
 import logging
-import random
-import time
 import traceback
 
 from django.conf import settings
-from elasticsearch.exceptions import NotFoundError, ConnectionTimeout
+from elasticsearch.exceptions import NotFoundError
 from elasticutils.contrib.django import tasks, get_es
 
+from lily.search.connections_utils import get_connection_options
 from lily.utils import logutil
 
 
 logger = logging.getLogger('search')
 NEW_INDEX = settings.ES_INDEXES['new_index']
 DEFAULT_INDEX = settings.ES_INDEXES['default']
-es = get_es()
+es = get_es(**get_connection_options())
 
 
 def update_in_index(instance, mapping):
@@ -36,7 +35,7 @@ def update_in_index(instance, mapping):
         for index in [DEFAULT_INDEX, NEW_INDEX]:
             try:
                 if index in aliases:
-                    tasks.index_objects(mapping, [instance.id], index=index)
+                    tasks.index_objects(mapping, [instance.id], es=es, index=index)
                     es.indices.refresh(index)
             except Exception, e:
                 logger.error(traceback.format_exc(e))
@@ -56,7 +55,7 @@ def remove_from_index(instance, mapping):
     for index in [DEFAULT_INDEX, NEW_INDEX]:
         try:
             if index in aliases:
-                tasks.unindex_objects(mapping, [instance.id], index=index)
+                tasks.unindex_objects(mapping, [instance.id], es=es, index=index)
                 es.indices.refresh(index)
         except NotFoundError, e:
             logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
@@ -73,27 +72,11 @@ def index_objects(mapping, queryset, index, print_progress=False):
         documents.append(mapping.extract_document(instance.id, instance))
 
         if len(documents) >= 100:
-            for n in range(0, 6):
-                try:
-                    mapping.bulk_index(documents, id_field='id', index=index)
-                    documents = []
-                    break
-                except ConnectionTimeout:
-                    # After 6 tries, we should raise
-                    if n == 5:
-                        raise
-                    sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                    logger.error('ConnectionTimeOut, sleeping for %s seconds' % sleep_time)
-                    time.sleep(sleep_time)
-                    pass
-
-    for n in range(0, 6):
-        try:
-            mapping.bulk_index(documents, id_field='id', index=index)
+            mapping.bulk_index(es, documents, id_field='id', index=index, es=es)
             documents = []
-            break
-        except ConnectionTimeout:
-            pass
+
+    mapping.bulk_index(documents, id_field='id', index=index, es=es)
+    documents = []
 
 
 def unindex_objects(mapping, queryset, index, print_progress=False):
@@ -104,7 +87,7 @@ def unindex_objects(mapping, queryset, index, print_progress=False):
 
     for instance in queryset_iterator(mapping, queryset, print_progress=print_progress):
         try:
-            mapping.unindex(instance.pk, index=index)
+            mapping.unindex(instance.pk, index=index, es=es)
         except NotFoundError:
             # Not present in the first place? Just ignore.
             pass

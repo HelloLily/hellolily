@@ -1,25 +1,17 @@
-from urlparse import urlparse
-
 import anyjson
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from lily.accounts.models import Account
-from lily.search.utils import LilySearch
+from lily.search.lily_search import LilySearch
 from lily.utils.functions import is_ajax
-from lily.utils.models.models import PhoneNumber
-from lily.utils.views import JsonListView, AngularView
 from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
 
-from .forms import CreateUpdateContactForm, AddContactQuickbuttonForm
+from .forms import CreateUpdateContactForm
 from .models import Contact, Function
 
 

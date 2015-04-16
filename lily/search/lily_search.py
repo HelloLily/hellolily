@@ -7,6 +7,7 @@ from elasticutils import S
 
 from lily.accounts.models import Account
 from lily.messaging.email.models.models import EmailAccount
+from lily.search.connections_utils import get_connection_options
 
 
 logger = logging.getLogger(__name__)
@@ -28,8 +29,7 @@ class LilySearch(object):
             page (int): page number of pagination
             size (int): max number of returned results
         """
-        search_request = S().es(urls=settings.ES_URLS,
-                                timeout=settings.ES_TIMEOUT).indexes(settings.ES_INDEXES['default'])
+        search_request = S().es(**get_connection_options()).indexes(settings.ES_INDEXES['default'])
         self.search = search_request.all()
 
         # Always filter on Tenant.

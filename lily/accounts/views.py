@@ -2,7 +2,6 @@ from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponse
@@ -13,9 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, View
 from django.views.generic.edit import UpdateView, DeleteView
 
-from lily.contacts.models import Function, Contact
-from lily.notes.models import Note
-from lily.search.utils import LilySearch
+from lily.contacts.models import Function
+from lily.search.lily_search import LilySearch
 from lily.utils.functions import flatten, is_ajax
 from lily.utils.models.models import PhoneNumber
 from lily.utils.views import JsonListView, AngularView

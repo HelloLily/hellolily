@@ -14,6 +14,7 @@ PIPELINE_CSS = {
             # Metronic layout
             'metronic/assets/admin/pages/css/inbox.css',
             'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
+            'metronic/assets/admin/pages/css/profile.css',
             'metronic/assets/admin/layout4/css/layout.css',
             'metronic/assets/admin/layout4/css/themes/light.css',
             'metronic/assets/global/css/components-rounded.css',
@@ -26,8 +27,8 @@ PIPELINE_CSS = {
             # Custom timeline
             'lily/css/custom.css',
 
-            'lily/css/profile.css',
-            'accounts/css/accounts.css',
+            'lily/css/profile.css',  # deze sheit moet er uit na history list update
+            'accounts/css/accounts.css',  # deze sheit moet er uit na history list update
             'email/css/inbox.css',
         ),
         'output_filename': 'metronic/css/global.css',
@@ -256,6 +257,10 @@ PIPELINE_JS = {
 
             'notes/js/angular/services.js',
 
+            'preferences/js/angular/controllers.js',
+            'preferences/js/angular/email/controllers.js',
+            'preferences/js/angular/user/controllers.js',
+
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
 
@@ -263,6 +268,8 @@ PIPELINE_JS = {
 
             # Pip package static
             'js/jquery.formset.js',
+            'django_password_strength/js/zxcvbn.js',
+            'django_password_strength/js/password_strength.js',
 
             # Our JavaScript
             'lily/js/forms/formsets.js',

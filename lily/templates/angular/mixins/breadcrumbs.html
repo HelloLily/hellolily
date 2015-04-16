@@ -1,12 +1,10 @@
 {% verbatim %}
 <script id="breadcrumbs.html" type="text/ng-template">
     <ul class="page-breadcrumb breadcrumb">
-        <li ng-repeat="step in steps | limitTo:(steps.length-1)">
-            <a href="{{step.ncyBreadcrumbLink}}" ng-bind-html="step.ncyBreadcrumbLabel"></a>
-            <i class="fa fa-circle"></i>
-        </li>
-        <li ng-repeat="step in steps | limitTo:-1" class="active">
-            <span ng-bind-html="step.ncyBreadcrumbLabel"></span>
+        <li ng-repeat="step in steps" ng-class="{active: $last}" ng-switch="$last || !!step.abstract">
+            <a ng-switch-when="false" href="{{step.ncyBreadcrumbLink}}">{{step.ncyBreadcrumbLabel}}</a>
+            <span ng-switch-when="true">{{step.ncyBreadcrumbLabel}}</span>
+            <i ng-hide="$last" class="fa fa-circle"></i>
         </li>
     </ul>
 </script>

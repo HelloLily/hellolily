@@ -256,6 +256,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.messaging',
     'lily.notes',
+    'lily.preferences',
     'lily.provide',
     'lily.search',
     'lily.tags',

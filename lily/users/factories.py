@@ -2,7 +2,7 @@ from random import randint, choice
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
-from factory.declarations import LazyAttribute, SubFactory
+from factory.declarations import LazyAttribute, SubFactory, Sequence
 from factory.django import DjangoModelFactory
 from factory.helpers import post_generation
 from faker.factory import Factory
@@ -49,7 +49,7 @@ class LilySuperUserFactory(LilyUserFactory):
 class LilyGroupFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
 
-    name = LazyAttribute(lambda o: faker.word())
+    name = Sequence(lambda n: '%s.%s' % (n, faker.word()))
 
     class Meta:
         model = LilyGroup

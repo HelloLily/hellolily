@@ -75,7 +75,7 @@ def synchronize_email_account(account_id):
                 logger.info('Sync done for: %s', email_account)
             except ManagerError:
                 pass
-            except Exception, e:
+            except Exception:
                 logger.exception('No sync for account %s' % email_account)
             finally:
                 manager.cleanup()
@@ -103,7 +103,7 @@ def first_synchronize_email_account(account_id):
             manager.synchronize(limit=int(settings.GMAIL_PARTIAL_SYNC_LIMIT))
         except SyncLimitReached:
             logger.debug('Finished partial sync')
-        except Exception, e:
+        except Exception:
             logger.exception('No sync for account %s' % email_account)
         finally:
             manager.cleanup()

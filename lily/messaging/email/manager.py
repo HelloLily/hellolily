@@ -266,7 +266,9 @@ class GmailManager(object):
                     labels.setdefault('removeLabelIds', []).append(label)
 
             for label in add_labels:
-                if label not in existing_labels and email_message.account.labels.filter(label_id=label).exists():
+                print label
+                # UNREAD isn't added to the database as an available label, so do a seperate check
+                if label not in existing_labels and (email_message.account.labels.filter(label_id=label).exists() or label == 'UNREAD'):
                     labels.setdefault('addLabelIds', []).append(label)
 
             if labels:

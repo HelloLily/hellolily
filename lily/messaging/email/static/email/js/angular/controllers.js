@@ -192,7 +192,7 @@ EmailControllers.controller('EmailListController', [
 
         $scope.table.page = 0;
         $scope.table.filter = '';
-        $scope.opts = { checkboxesAll: false};
+        $scope.opts = {checkboxesAll: false};
 
         $scope.toggleCheckboxes = function() {
             for (var i in $scope.emailMessages) {

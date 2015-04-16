@@ -192,7 +192,7 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/jquery-ui/jquery-ui.min.js',
             'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
             'metronic/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
-            'metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
+            'metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js',  # Upgrade to new version without custom patch as soon as PR 198 gets through
             'metronic/assets/global/plugins/jquery.blockui.min.js',
             'metronic/assets/global/plugins/jquery.cokie.min.js',
             # 'metronic/assets/global/plugins/uniform/jquery.uniform.js',

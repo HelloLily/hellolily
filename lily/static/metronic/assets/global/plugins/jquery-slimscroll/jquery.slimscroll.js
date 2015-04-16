@@ -327,7 +327,7 @@
                 }
 
                 // attach scroll events
-                attachWheel();
+                attachWheel(this);
 
                 function _onWheel(e) {
                     // use mouse wheel only when mouse is over
@@ -417,10 +417,10 @@
 
                 }
 
-                function attachWheel() {
+                function attachWheel(target) {
                     if (window.addEventListener) {
-                        this.addEventListener('DOMMouseScroll', _onWheel, false);
-                        this.addEventListener('mousewheel', _onWheel, false);
+                        target.addEventListener('DOMMouseScroll', _onWheel, false);
+                        target.addEventListener('mousewheel', _onWheel, false);
                     } else {
                         document.attachEvent("onmousewheel", _onWheel)
                     }

@@ -7,3 +7,5 @@ To upgrade:
     - assets/admin/layout4/
     - sass/admin/layout4/
     - templates/admin4/
+
+- Slimscroll is patched to prevent blocking entire page of scrolling after angular state change, more info see PR 198 on their github repo

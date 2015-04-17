@@ -37,7 +37,12 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
         model = EmailAccount
         fieldsets = (
             (_('Your account'), {
-                'fields': ['from_name', 'label', 'email_address', 'public'],
+                'fields': [
+                    'from_name',
+                    'label',
+                    'email_address',
+                    'public',
+                ],
             }),
         )
 
@@ -163,13 +168,18 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         # Set user's primary_email as default choice if there is no initial value
         initial_email_account = self.initial.get('send_from', None)
         if not initial_email_account:
-            for email_account in self.email_accounts:
-                if email_account.email_address == user.email:
-                    initial_email_account = email_account
+            if user.primary_email_account:
+                initial_email_account = user.primary_email_account.id
+            else:
+                for email_account in self.email_accounts:
+                    if email_account.email_address == user.email:
+                        initial_email_account = email_account
+                        break
         elif isinstance(initial_email_account, basestring):
             for email_account in self.email_accounts:
                 if email_account.email == initial_email_account:
                     initial_email_account = email_account
+                    break
 
         self.initial['send_from'] = initial_email_account
 

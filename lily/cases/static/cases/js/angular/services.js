@@ -59,7 +59,7 @@ caseServices.factory('Case', ['$http', function($http) {
     var Case = {};
 
     /**
-     * getCases() gets the cases from the search backend trough a promise
+     * getCases() gets the cases from the search backend through a promise
      *
      * @param queryString string: current filter on the caselist
      * @param page int: current page of pagination

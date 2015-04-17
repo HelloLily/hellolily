@@ -418,3 +418,19 @@ a.hoekje,a.hoekje:hover {
 }
 
 /* END EMAIL ICON STUFF */
+
+ul.inbox-nav li.mailbox-header span {
+    color: #fff;
+    text-shadow: none;
+    background: #a6aaae;
+    display: block;
+    font-size: 15px;
+    border-left: none;
+    text-align: left;
+    padding: 8px 14px;
+    margin-right: 0;
+}
+
+ul.inbox-nav li.mailbox-header span i {
+    background: none !important;
+}

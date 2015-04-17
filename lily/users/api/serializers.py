@@ -28,4 +28,5 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'first_name',
             'preposition',
             'last_name',
+            'primary_email_account',
         )

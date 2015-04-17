@@ -65,7 +65,7 @@ contactServices.factory('Contact', ['$http', function($http) {
     var Contact = {};
 
     /**
-     * getContacts() get the contacts from the search backend trough a promise
+     * getContacts() get the contacts from the search backend through a promise
      *
      * @param queryString string: current filter on the contactlist
      * @param page int: current page of pagination

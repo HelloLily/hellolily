@@ -87,7 +87,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_update(self, serializer):
         """
-        Any modifications are passed trough the manager and not directly on the db.
+        Any modifications are passed through the manager and not directly on the db.
 
         For now, only the read status will be updated.
         """
@@ -96,7 +96,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_destroy(self, instance):
         """
-        Any modifications are passed trough the manager and not directly on the db.
+        Any modifications are passed through the manager and not directly on the db.
 
         Delete will happen async
         """
@@ -105,7 +105,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on the db.
+        Any modifications are passed through the manager and not directly on the db.
 
         Archive will happen async
         """
@@ -120,7 +120,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def trash(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on the db.
+        Any modifications are passed through the manager and not directly on the db.
 
         Trash will happen async
         """
@@ -135,7 +135,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def move(self, request, pk=None):
         """
-        Any modifications are passed trough the manager and not directly on the db.
+        Any modifications are passed through the manager and not directly on the db.
 
         Move will happen async
         """

@@ -118,7 +118,7 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
         return email_account
 
     def get_success_url(self):
-        return '/#/settings/emailaccounts'
+        return '/#/preferences/emailaccounts'
 
 
 class EmailMessageHTMLView(LoginRequiredMixin, DetailView):

@@ -12,7 +12,7 @@ var accountController = angular.module('AccountControllers', [
     'CaseServices',
     'contactServices',
     'noteServices',
-    'EmailServices'
+    'app.email.services'
 ]);
 
 
@@ -298,7 +298,7 @@ accountController.controller('AccountListController', [
         }
 
         /**
-         * updateAccounts() reloads the accounts trough a service
+         * updateAccounts() reloads the accounts through a service
          *
          * Updates table.items and table.totalItems
          */

@@ -62,7 +62,7 @@ dealServices.factory('Deal', ['$http', function($http) {
     var Deal = {};
 
     /**
-     * getDeals() gets the deals from the search backend trough a promise
+     * getDeals() gets the deals from the search backend through a promise
      *
      * @param queryString string: current search query on the deallist
      * @param page int: current page of pagination

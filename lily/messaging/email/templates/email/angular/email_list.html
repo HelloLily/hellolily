@@ -1,16 +1,16 @@
 {% verbatim %}
     <script id="email/email_list.html" type="text/ng-template">
         <div class="inbox-header">
-            <h1 class="pull-left" ng-show="table.filter">Search: {{ table.filter }}</h1>
-            <h1 class="pull-left" ng-hide="table.filter">
-                <span ng-show="account">{{ account.email_address }}</span>
-                <span ng-hide="account">All mailboxes</span>
-                <span ng-show="label.name"> - {{ label.name }}</span>
-                <span ng-hide="label"> - All mail</span>
+            <h1 class="pull-left" ng-show="vm.table.filter">Search: {{ vm.table.filter }}</h1>
+            <h1 class="pull-left" ng-hide="vm.table.filter">
+                <span ng-show="vm.account">{{ vm.account.email_address }}</span>
+                <span ng-hide="vm.account">All mailboxes</span>
+                <span ng-show="vm.label.name"> - {{ vm.label.name }}</span>
+                <span ng-hide="vm.label"> - All mail</span>
             </h1>
             <form class="form-inline pull-right">
                 <div class="input-group input-medium">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="table.filter">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="vm.table.filter">
                     <span class="input-group-btn">
                         <button type="submit" class="btn green"><i class="fa fa-search"></i></button>
                     </span>
@@ -22,21 +22,21 @@
             <thead>
                 <tr>
                     <th colspan="3">
-                        <checkbox model="opts.checkboxesAll" ng-click="toggleCheckboxes()"></checkbox>
+                        <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
                         <div class="btn-group">
-                            <span class="pull-left" ng-if="::account">
+                            <span class="pull-left" ng-if="::vm.account">
                                 <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
                                     <i class="fa fa-folder"></i> Move to <i class="fa fa-angle-down"></i>
                                 </a>
                                 <ul class="dropdown-menu labels">
-                                    <li class="inbox" ng-hide="label.label_id == 'INBOX'">
-                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages('INBOX')">Inbox</a>
+                                    <li class="inbox" ng-hide="vm.label.label_id == 'INBOX'">
+                                        <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages('INBOX')">Inbox</a>
                                     </li>
-                                    <li class="spam" ng-hide="label.label_id == 'SPAM'">
-                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages('SPAM')">Spam</a>
+                                    <li class="spam" ng-hide="vm.label.label_id == 'SPAM'">
+                                        <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages('SPAM')">Spam</a>
                                     </li>
-                                    <li ng-repeat="account_label in account.labels" class="inbox" ng-if="account_label.label_type != 0 && account_label.label_id != label.label_id">
-                                        <a href="javascript:void(0)" class="btn" ng-click="moveMessages(account_label.label_id)">{{ account_label.name }}</a>
+                                    <li ng-repeat="accountLabel in vm.account.labels" class="inbox" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
+                                        <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
                                     </li>
                                 </ul>
                             </span>
@@ -47,23 +47,23 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="javascript:void(0)" ng-click="markAsRead()">
+                                    <a ng-click="vm.markAsRead()">
                                         <i class="fa fa-pencil"></i> Mark as read</a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void(0)" ng-click="markAsUnread()">
+                                    <a ng-click="vm.markAsUnread()">
                                         <i class="fa fa-pencil"></i> Mark as unread</a>
                                 </li>
                                 <li>
-                                    <a ng-show="showReplyOrForwardButtons()" ng-click="replyOnMessage()">
+                                    <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.replyOnMessage()">
                                         <i class="fa fa-mail-reply"></i> Reply</a>
                                 </li>
                                 <li>
-                                    <a ng-show="showReplyOrForwardButtons()" ng-click="replyAllOnMessage()">
+                                    <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.replyAllOnMessage()">
                                         <i class="fa fa-mail-reply-all"></i> Reply all</a>
                                 </li>
                                 <li>
-                                    <a ng-show="showReplyOrForwardButtons()" ng-click="forwardOnMessage()">
+                                    <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.forwardOnMessage()">
                                         <i class="fa fa-mail-forward"></i> Forward</a>
                                 </li>
                                 <li>
@@ -72,44 +72,44 @@
                                 </li>
                             </ul>
                         </div>
-                        <a class="btn btn-sm red" href="javascript:void(0)" ng-click="deleteMessages()">
+                        <a class="btn btn-sm red" ng-click="vm.deleteMessages()">
                             <i class="fa fa-trash-o"></i> Delete
                         </a>
-                        <a class="btn btn-sm blue" href="javascript:void(0)" ng-click="archiveMessages()" ng-show="label">
+                        <a class="btn btn-sm blue" ng-click="vm.archiveMessages()" ng-show="vm.label">
                             <i class="fa fa-archive"></i> Archive
                         </a>
-                        <a class="btn btn-sm blue" href="javascript:void(0)" ng-click="reloadMessages()">
+                        <a class="btn btn-sm blue" ng-click="vm.reloadMessages()">
                             <i class="fa fa-refresh"></i> Refresh
                         </a>
                     </th>
                     <th class="pagination-control" colspan="3">
                         <span class="pagination-info">
-                            {{ table.page * table.pageSize + 1}}-{{ [(table.page + 1) * table.pageSize, table.totalItems] | minValue }} of {{ table.totalItems | number }}
+                            {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
                         </span>
-                        <a class="btn btn-sm blue" ng-click="setPage(table.page - 1)">
+                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
                             <i class="fa fa-angle-left"></i>
                         </a>
-                        <a class="btn btn-sm blue" ng-click="setPage(table.page + 1)">
+                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
                             <i class="fa fa-angle-right"></i>
                         </a>
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="message in emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
+                <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                     <td class="inbox-small-cells">
                         <checkbox model="message.checked"></checkbox>
                     </td>
                     <td contact-icon message="message"></td>
-                    <td class="view-message hidden-xs" ng-if="label.name != 'Sent' && label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
+                    <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
                         <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
                         <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
                     </td>
-                    <td class="view-message hidden-xs" ng-if="label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
+                    <td class="view-message hidden-xs" ng-show="vm.label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
                         <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
                         <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
                     </td>
-                    <td class="view-message hidden-xs" ng-if="label.name == 'Draft'" ng-click="goToDraft(message.id)">
+                    <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ng-click="vm.goToDraft(message.id)">
                        {{ message.received_by_email.join(',') }}
                     </td>
                     <td class="view-message" ui-sref="base.email.detail({id: message.id})">

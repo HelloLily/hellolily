@@ -94,6 +94,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
+    primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
+
     objects = LilyUserManager()
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',

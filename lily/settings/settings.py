@@ -4,8 +4,9 @@ from urlparse import urlparse, uses_netloc
 
 from django.conf import global_settings
 from django.core.urlresolvers import reverse_lazy
-
 import dj_database_url
+
+from lily.utils.patches import patch_http_connection_pool
 
 
 #######################################################################################################################
@@ -14,6 +15,7 @@ import dj_database_url
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
 # settings itself possibly resulting in a circular import
+
 gettext_noop = lambda s: s
 
 # Don't share this with anybody
@@ -629,5 +631,11 @@ DEBUG_TOOLBAR_PANELS = [
 # IronMQ
 IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
 IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
+
+# Connectionpool monkey_patch
+patch_http_connection_pool(
+    pool_connections=os.environ.get('CONNECTION_POOL_CONNECTIONS', 10),
+    pool_maxsize=os.environ.get('CONNECTION_POOL_MAXSIZE', 10),
+)
 
 from .celeryconfig import *

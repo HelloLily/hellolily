@@ -6,8 +6,6 @@ from django.conf import global_settings
 from django.core.urlresolvers import reverse_lazy
 import dj_database_url
 
-from lily.utils.patches import patch_http_connection_pool
-
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
@@ -632,11 +630,5 @@ DEBUG_TOOLBAR_PANELS = [
 # IronMQ
 IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
 IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
-
-# Connectionpool monkey_patch
-patch_http_connection_pool(
-    connections=os.environ.get('CONNECTION_POOL_CONNECTIONS', 10),
-    maxsize=os.environ.get('CONNECTION_POOL_MAXSIZE', 10),
-)
 
 from .celeryconfig import *

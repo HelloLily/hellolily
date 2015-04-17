@@ -13,7 +13,7 @@ PIPELINE_CSS = {
 
             # Metronic layout
             'metronic/assets/admin/pages/css/inbox.css',
-            'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
+            'metronic/assets/admin/pages/css/profile-old.css',  # TODO: LILY-824: Remove this after history list update
             'metronic/assets/admin/pages/css/profile.css',
             'metronic/assets/admin/layout4/css/layout.css',
             'metronic/assets/admin/layout4/css/themes/light.css',
@@ -27,8 +27,8 @@ PIPELINE_CSS = {
             # Custom timeline
             'lily/css/custom.css',
 
-            'lily/css/profile.css',  # deze sheit moet er uit na history list update
-            'accounts/css/accounts.css',  # deze sheit moet er uit na history list update
+            'lily/css/profile.css',  # TODO: LILY-824: Remove this after history list update
+            'accounts/css/accounts.css',  # TODO: LILY-824: Remove this after history list update
             'email/css/inbox.css',
         ),
         'output_filename': 'metronic/css/global.css',

@@ -101,19 +101,19 @@ class GmailConnector(object):
         Returns:
             list with messageIds and threadIds
         """
-        response = self.execute_service_call(self.service.users().history().list(userId='me', startHistoryId=self.history_id))
+        response = self.execute_service_call(self.service.users().history().list(
+            userId='me',
+            startHistoryId=self.history_id,
+        ))
 
         messages = []
         # Get the messageIds.
-        if 'history' in response:
-            for history_item in response['history']:
-                messages += history_item['messages']
-            # Only store history id if it is bigger than currently set
-            if response['historyId'] > self.history_id:
-                self.history_id = response['historyId']
+        for history_item in response.get('history', []):
+            messages += history_item['messages']
 
-        # Check if there are more pages.
-        while 'nextPageToken' in response:
+        # Check if there are more pages but stop after 10 pages
+        i = 0
+        while 'nextPageToken' in response and i < 10:
             page_token = response['nextPageToken']
             response = self.execute_service_call(self.service.users().history().list(
                 userId='me',
@@ -123,6 +123,8 @@ class GmailConnector(object):
             if 'history' in response:
                 for history_item in response['history']:
                     messages += history_item['messages']
+                    self.history_id = history_item['id']
+            i += 1
 
         return messages
 

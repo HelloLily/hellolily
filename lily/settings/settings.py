@@ -634,8 +634,8 @@ IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
 
 # Connectionpool monkey_patch
 patch_http_connection_pool(
-    pool_connections=os.environ.get('CONNECTION_POOL_CONNECTIONS', 10),
-    pool_maxsize=os.environ.get('CONNECTION_POOL_MAXSIZE', 10),
+    connections=os.environ.get('CONNECTION_POOL_CONNECTIONS', 10),
+    maxsize=os.environ.get('CONNECTION_POOL_MAXSIZE', 10),
 )
 
 from .celeryconfig import *

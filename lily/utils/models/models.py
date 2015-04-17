@@ -8,6 +8,8 @@ from lily.tenant.models import TenantMixin, PolymorphicTenantMixin, PolymorphicT
 PHONE_TYPE_CHOICES = (
     ('work', _('Work')),
     ('mobile', _('Mobile')),
+    ('home', _('Home')),
+    ('fax', _('Fax')),
     ('other', _('Other')),
 )
 

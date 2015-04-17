@@ -3,15 +3,18 @@ import gc
 import logging
 import os
 
+from datetime import datetime
+
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db import DataError
+from django.utils import timezone
 
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Contact
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
-from lily.utils.functions import parse_address, _isint
+from lily.utils.functions import parse_address, _isint, parse_phone_number
 from lily.utils.models.models import Address, PhoneNumber, EmailAddress, COUNTRIES
 
 
@@ -119,7 +122,6 @@ E.g.:
             '': 'status',
             '': 'company_size',
             '': 'logo',
-            'Description': 'description',
             '': 'legalentity',
             '': 'taxnumber',
             '': 'bankaccountnumber',
@@ -127,6 +129,14 @@ E.g.:
             '': 'iban',
             '': 'bic',
             'ID': 'import_id',
+            'Date Created': 'created',
+        }
+
+        status_mapping = {
+            'Active': 'active',
+            'Inactive': 'inactive',
+            'Suspended': 'inactive',
+            'Unknown': 'unknown',
         }
 
         # Create account
@@ -134,6 +144,9 @@ E.g.:
         for column, value in values.items():
             if value and column in column_attribute_mapping:
                 attribute = column_attribute_mapping.get(column)
+                # Set created date to original so
+                if attribute == 'created':
+                    value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
                 account_kwargs[attribute] = value
 
         if not len(account_kwargs):
@@ -152,6 +165,22 @@ E.g.:
 
         for k, v in account_kwargs.items():
             setattr(account, k, v)
+
+        # Extend description with netwerk opstelling information
+        extended_description = ""
+        if values.get('Netwerk opstelling'):
+            extended_description = " # Netwerk opstelling: " + values.get('Netwerk opstelling')
+
+        account.description = values.get('Description') + extended_description
+
+        status = values.get('Status')
+
+        if status and status in status_mapping:
+            status = status_mapping[status]
+        else:
+            status = 'unknown'
+
+        account.status = status
 
         # Satisfy m2m contraints.
         try:
@@ -184,7 +213,7 @@ E.g.:
         # Create phone numbers
         self._create_phone(account, 'work', values.get('Office Phone'))
         self._create_phone(account, 'work', values.get('Alternate Phone'))
-        self._create_phone(account, 'other', values.get('Fax'), other_type='fax')
+        self._create_phone(account, 'other', values.get('Fax'), other_type='fax') # TODO FUGLY WHY NO FAX TYPE
 
         # Create website
         self._create_website(account, values.get('Website'))
@@ -192,22 +221,22 @@ E.g.:
         # Create social media
         self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
         self._create_social_media(account, 'twitter', values.get('Twitter'))
-        user_name = values.get('Assigned User Name')
-        if user_name and user_name in self.user_mapping:
+        user_id = values.get('Assigned To')
+        if user_id and user_id in self.user_mapping:
             try:
                 account.assigned_to = LilyUser.objects.get(
-                    email=self.user_mapping[user_name],
+                    pk=self.user_mapping[user_id],
                     tenant_id=self.tenant_pk
                 )
             except LilyUser.DoesNotExist:
-                if user_name not in self.already_logged:
-                    self.already_logged.add(user_name)
-                    logger.warning(u'Assignee does not exists as an LilyUser. %s' % user_name)
+                if user_id not in self.already_logged:
+                    self.already_logged.add(user_id)
+                    logger.warning(u'Assignee does not exists as an LilyUser. %s' % user_id)
         else:
             # Only log when user_name not empty.
-            if user_name and user_name not in self.already_logged:
-                self.already_logged.add(user_name)
-                logger.warning(u'Assignee does not have an usermapping. %s' % user_name)
+            if user_id and user_id not in self.already_logged:
+                self.already_logged.add(user_id)
+                logger.warning(u'Assignee does not have an usermapping. %s' % user_id)
 
         account.save()
 
@@ -338,20 +367,34 @@ E.g.:
             address_kwargs = dict()
             address_kwargs['type'] = type
             address_kwargs['street'] = street
+
+            # set streetnumber
             if _isint(number) and int(number) < 32766:
                 address_kwargs['street_number'] = int(number)
             address_kwargs['complement'] = complement
+
+            # set postal code
             if len(postal_code) > 10:
                 postal_code = postal_code[:10]
             address_kwargs['postal_code'] = postal_code
             address_kwargs['city'] = city
+
+            # check if country is present
             if country:
                 country = country.upper().strip()
                 country = self.country_map.get(country, country)
+
+                # in case of unkown county leave empty
                 if country and len(country) > 2 or country not in self.country_codes:
                     country = ''
-                    address_kwargs['country'] = country
+
+                # set country
+                address_kwargs['country'] = country
+
+            # set tenant
             address_kwargs['tenant_id'] = self.tenant_pk
+
+            # check if adress does not already exists to avoid duplicates
             if not instance.addresses.filter(
                     street=address_kwargs['street'],
                     city=address_kwargs['city']
@@ -420,7 +463,7 @@ E.g.:
             phone_kwargs = dict()
             phone_kwargs['type'] = type
             phone_kwargs['other_type'] = other_type
-            phone_kwargs['raw_input'] = raw_input
+            phone_kwargs['raw_input'] = parse_phone_number(raw_input)
             phone_kwargs['tenant_id'] = self.tenant_pk
             if not instance.phone_numbers.filter(**phone_kwargs).exists():
                 phone_number = PhoneNumber.objects.create(**phone_kwargs)

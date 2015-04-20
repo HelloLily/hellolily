@@ -5,16 +5,16 @@ import traceback
 
 from django.conf import settings
 from elasticsearch.exceptions import NotFoundError
-from elasticutils.contrib.django import tasks, get_es
+from elasticutils.contrib.django import tasks
 
-from lily.search.connections_utils import get_connection_options
+from lily.search.connections_utils import get_es_client
 from lily.utils import logutil
 
 
 logger = logging.getLogger('search')
 NEW_INDEX = settings.ES_INDEXES['new_index']
 DEFAULT_INDEX = settings.ES_INDEXES['default']
-es = get_es(**get_connection_options())
+es = get_es_client(maxsize=1)
 
 
 def update_in_index(instance, mapping):

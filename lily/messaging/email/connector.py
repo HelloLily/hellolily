@@ -110,6 +110,8 @@ class GmailConnector(object):
         # Get the messageIds.
         for history_item in response.get('history', []):
             messages += history_item['messages']
+            if history_item['id'] > self.history_id:
+                self.history_id = history_item['id']
 
         # Check if there are more pages but stop after 10 pages
         i = 0
@@ -123,7 +125,8 @@ class GmailConnector(object):
             if 'history' in response:
                 for history_item in response['history']:
                     messages += history_item['messages']
-                    self.history_id = history_item['id']
+                    if history_item['id'] > self.history_id:
+                        self.history_id = history_item['id']
             i += 1
 
         return messages

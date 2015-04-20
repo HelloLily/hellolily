@@ -86,10 +86,13 @@ class GmailManager(object):
         logger.debug('Syncing messages for %s' % self.email_account.email_address)
 
         # Get the message ids from the messages to update
-        if full_sync:
-            message_ids = self.connector.get_all_message_id_list()
+        if not full_sync and self.email_account.history_id:
+            self.sync_by_history()
         else:
-            message_ids = self.connector.get_new_or_changed_message_ids()
+            self.sync_by_message_ids(limit=limit, full_sync=full_sync)
+
+    def sync_by_message_ids(self, limit, full_sync):
+        message_ids = self.connector.get_all_message_id_list()
 
         # Store history id in temporary column to make label batch sync quick
         if limit and not self.email_account.temp_history_id:
@@ -214,6 +217,53 @@ class GmailManager(object):
                     message_id, self.email_account.email_address
                 ))
                 EmailMessage.objects.filter(message_id=message_id).delete()
+
+    def sync_by_history(self):
+        """
+        Synchronize emailaccount by history.
+
+        Fetches the changed from the GMail api and updates the email direct without parsing
+        """
+        history = self.connector.get_history()
+
+        for history_item in history:
+
+            logger.debug('parsing history %s' % history_item)
+            # Get new messages
+            if 'messagesAdded' in history_item:
+                logger.debug('downloading messages %s' % [item['message']['id'] for item in history_item['messagesAdded']])
+                self._batch_sync_full_messages(
+                    [item['message']['id'] for item in history_item['messagesAdded']]
+                )
+
+            # Remove messages
+            for message in history_item.get('messagesDeleted', []):
+                logger.debug('deleting message %s' % message['message']['id'])
+                EmailMessage.objects.get(message_id=message['message']['id']).delete()
+
+            # Add labels to existing messages
+            for message_dict in history_item.get('labelsAdded', []):
+                logger.debug('labels added, message: %s' % message_dict['message']['id'])
+                message = EmailMessage.objects.get(message_id=message_dict['message']['id'])
+                for added_label_id in message_dict['labelIds']:
+                    if added_label_id is settings.GMAIL_UNREAD_LABEL:
+                        message.read = False
+                    else:
+                        message.labels.add(self.get_label(added_label_id))
+                message.save()
+
+            # Remove labels from existing messages
+            for message_dict in history_item.get('labelsRemoved', []):
+                logger.debug('labels removed, message: %s' % message_dict['message']['id'])
+                message = EmailMessage.objects.get(message_id=message_dict['message']['id'])
+                for removed_label_id in message_dict['labelIds']:
+                    if removed_label_id is settings.GMAIL_UNREAD_LABEL:
+                        message.read = True
+                    else:
+                        message.labels.remove(self.get_label(removed_label_id))
+                message.save()
+
+        self.connector.save_history_id()
 
     def update_unread_count(self):
         """

@@ -457,10 +457,12 @@ class MessageBuilder(object):
 
             # Save labels
             if len(self.labels):
-                self.message.labels.clear()
-            for label in self.labels:
-                label.save()
-                self.message.labels.add(label)
+                with transaction.atomic():
+                    self.message.labels.clear()
+                    self.labels = list(set(self.labels))
+                    for label in self.labels:
+                        label.save()
+                        self.message.labels.add(label)
 
             # Save headers
             if len(self.headers):

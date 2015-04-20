@@ -132,8 +132,10 @@
             });
 
             editor.observe('load', function () {
-                // extra div is needed so the editor auto resizes
-                editor.setValue('<div id="body-html-content">' + editor.getValue() + '<br /></div>');
+                // Initial value is most likely reply/forward text, so store it for later usage
+                self.config.initialEditorValue = editor.getValue();
+                // Extra div is needed so the editor auto resizes
+                editor.setValue('<div id="body-html-content">' + self.config.initialEditorValue + '<br /></div>');
 
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
@@ -177,23 +179,10 @@
             var self = this;
             if (self.config.templateList) {
                 var selectedTemplate = parseInt($(templateField).val());
-                var subjectField = $('#id_subject');
-                var subject = '';
                 var recipientId = null;
                 var emailAccountId = $(self.config.emailAccountInput).val();
 
                 if (selectedTemplate) {
-                    angular.forEach(self.config.templateList, function (value, key) {
-                        if (value.id == selectedTemplate) {
-                            subject = value.subject;
-                        }
-                    });
-
-                    if (this.config.messageType === 'new' && subject != '') {
-                        // Only overwrite the subject if a new email is being created
-                        subjectField.val(subject);
-                    }
-
                     var recipient = $('#id_send_to_normal').select2('data')[0];
 
                     if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
@@ -266,7 +255,7 @@
              * Sadly they don't, which is why .val is used
              */
             var templateContent = '';
-            if ($('#compose-email-template').length) {
+            if ($(containerDiv).find('#compose-email-template').length) {
                 templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
             }
 
@@ -351,16 +340,18 @@
 
                         self.config.currentTemplate = htmlPart;
 
-                        // Change the html of the existing email template
-                        currentTemplate.html(htmlPart);
+                        if (addedTemplateText != '') {
+                            addedTemplateText = '<br><br>' + addedTemplateText;
+                        }
+
+                        // Change the html of the existing email template and add text that was added to the template
+                        currentTemplate.html(htmlPart + addedTemplateText);
                         // Since editorValue is actually an array of elements we can't easily convert it back to text
                         var container = $('<div>');
                         // Add the (edited) html to the newly created container
                         container.append(editorValue);
-                        // Get the text version of the new html and added any added text
-                        newEditorValue = container[0].innerHTML + addedTemplateText;
-
-                        $('#id_subject').val(data['template_subject']);
+                        // Get the text version of the new html
+                        newEditorValue = container[0].innerHTML;
                     }
                 }
             }
@@ -371,6 +362,11 @@
                 newEditorValue = emailTemplate + '<br>' + editor.getValue();
 
                 self.config.currentTemplate = htmlPart;
+            }
+
+            // Only overwrite the subject if a new email is being created
+            if (this.config.messageType === 'new' && data['template_subject'] != '') {
+                $('#id_subject').val(data['template_subject']);
             }
 
             if (newEditorValue.length) {

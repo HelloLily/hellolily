@@ -230,6 +230,8 @@ class GmailConnector(object):
                 # If 404, message no longer exists, otherwise raise error
                 if exception.resp.status != 404:
                     raise exception
+                else:
+                    logger.error('404 error: %s' % exception)
 
         # Setup batch
         batch = BatchHttpRequest(callback=get_message_info)

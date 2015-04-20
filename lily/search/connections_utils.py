@@ -8,6 +8,10 @@ from elasticutils.contrib.django import get_es
 
 
 def get_es_client(**kwargs_overrides):
+    return get_es(**get_es_client_kwargs(**kwargs_overrides))
+
+
+def get_es_client_kwargs(**kwargs_overrides):
     """
     Returns the ES client configured from settings.
     """
@@ -18,12 +22,11 @@ def get_es_client(**kwargs_overrides):
         'timeout': settings.ES_TIMEOUT,
         'maxsize': settings.ES_MAXSIZE,
         'retry_on_status': (503, 504, 429),  # we add 429 (for concurrent requests)
+        'connection_class': Urllib3HttpBlockingConnection,
+        'block': settings.ES_BLOCK
     }
     client_kwargs.update(kwargs_overrides)
-    return get_es(connection_class=Urllib3HttpBlockingConnection,
-                  block=settings.ES_BLOCK,
-                  **client_kwargs)
-
+    return client_kwargs
 
 class Urllib3HttpBlockingConnection(Urllib3HttpConnection):
     """

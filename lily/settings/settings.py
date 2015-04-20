@@ -547,6 +547,10 @@ ES_INDEXES = {'default': 'main_index', 'new_index': 'new_index'}
 # Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
 ES_TIMEOUT = os.environ.get('ES_TIMEOUT', 20)  # Default is 5
 
+ES_MAXSIZE = os.environ.get('ES_MAXSIZE', 2)  # Default is 10
+
+ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
+
 #######################################################################################################################
 ## Gmail api settings                                                                                                ##
 #######################################################################################################################

@@ -386,7 +386,7 @@ EmailControllers.controller('EmailListController', [
                 $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
             }
 
-            if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {
+            if (filterquery && $stateParams.labelId && $stateParams.labelId != 'TRASH') {
                 filterquery.push('is_removed:false');
             }
 

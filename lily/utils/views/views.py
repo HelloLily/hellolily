@@ -26,10 +26,6 @@ from .mixins import FilterQuerysetMixin, LoginRequiredMixin
 logger = logging.getLogger(__name__)
 
 
-class TestView(TemplateView):
-    template_name = 'utils/test.html'
-
-
 class ArchiveView(View):
     """
     Abstract view that makes it possible to archive an item which redirects to success_url afterwards.

@@ -8,7 +8,10 @@ var lilyControllers = angular.module('lilyControllers', [
 lilyControllers.config(['$stateProvider', function($stateProvider) {
     $stateProvider.state('base', {
         abstract: true,
-        controller: 'baseController'
+        controller: 'baseController',
+        ncyBreadcrumb: {
+            label: 'Lily'
+        }
     });
 }]);
 

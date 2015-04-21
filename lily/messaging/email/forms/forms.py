@@ -154,7 +154,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
             Q(owner=user) |
             Q(shared_with_users=user) |
             Q(public=True)
-        ).filter(tenant=user.tenant).distinct('id')
+        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]

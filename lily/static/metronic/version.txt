@@ -7,3 +7,12 @@ To upgrade:
     - assets/admin/layout4/
     - sass/admin/layout4/
     - templates/admin4/
+
+- We have a few customizations which couldn't be done in custom files, check if these should be reapplied:
+    * In layout.js: function initSidebar: line 439 and 447: commented out the function of handleFixedSidebar
+        ? This functions hides the blue 'active menu item' lines
+        ? It stretches the menu across the entire page (which we don't want)
+    * Metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js: line 330, 422 & 423:
+        ? When clicking on a link in a slimscroll container entire page was blocked
+        ? This was because slimscroll was bound on the window object not on the DOM container
+        ? For more information see pull request 198 on the github repo

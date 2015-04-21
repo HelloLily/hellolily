@@ -28,6 +28,7 @@ def get_es_client_kwargs(**kwargs_overrides):
     client_kwargs.update(kwargs_overrides)
     return client_kwargs
 
+
 class Urllib3HttpBlockingConnection(Urllib3HttpConnection):
     """
     Default connection class using the `urllib3`, with blocking option.

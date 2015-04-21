@@ -10,7 +10,7 @@
     <!-- BEGIN HEAD -->
     <head>
         <meta charset="utf-8"/>
-        <title>HelloLily | {{ conf.headTitle }}</title>
+        <title ng-bind="'HelloLily | ' + conf.headTitle">HelloLily</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -68,7 +68,10 @@
                     <div ncy-breadcrumb></div>
                     <!-- END PAGE BREADCRUMB -->
                     <!-- BEGIN PAGE CONTENT-->
-                    <div ui-view>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div ui-view></div>
+                        </div>
                     </div>
                     <!-- END PAGE CONTENT -->
                 </div>

@@ -8,6 +8,8 @@ from lily.tenant.models import TenantMixin, PolymorphicTenantMixin, PolymorphicT
 PHONE_TYPE_CHOICES = (
     ('work', _('Work')),
     ('mobile', _('Mobile')),
+    ('home', _('Home')),
+    ('fax', _('Fax')),
     ('other', _('Other')),
 )
 
@@ -387,8 +389,8 @@ class EmailAddress(TenantMixin):
         return self.email_address
 
     def save(self, *args, **kwargs):
-        super(EmailAddress, self).save(*args, **kwargs)
         self.email_address = self.email_address.lower()
+        super(EmailAddress, self).save(*args, **kwargs)
 
     class Meta:
         app_label = 'utils'

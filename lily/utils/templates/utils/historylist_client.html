@@ -9,10 +9,6 @@
 <ul class="timeline" id="history-list">
     <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{history_type:opts.history_type}" class="history-list-item" ng-class="'timeline-' + item.color">
         <div ng-if="::item.history_type=='case'">
-            <div class="timeline-time">
-                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-            </div>
             <div class="timeline-icon">
                 <i class="fa fa-briefcase"></i>
             </div>
@@ -49,10 +45,6 @@
             </div>
         </div>
         <div ng-if="::item.history_type=='deal'">
-            <div class="timeline-time">
-                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-            </div>
             <div class="timeline-icon">
                 <i class="fa fa-money"></i>
             </div>
@@ -90,17 +82,13 @@
             </div>
         </div>
         <div ng-if="::item.history_type=='note'">
-            <div class="timeline-time">
-                <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
-                    <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                    <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-                </a>
-            </div>
             <div class="timeline-icon">
                 <i class="fa fa-comment"></i>
             </div>
             <div class="timeline-body">
-            {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
+                    {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                </a>
                 <h2>Note</h2>
                 <div class="timeline-content">
                     <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
@@ -119,29 +107,29 @@
             </div>
         </div>
         <div ng-if="::item.history_type=='email'">
-            <div class="timeline-time">
-                <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-            </div>
             <div class="timeline-icon">
                 <i class="fa fa-envelope"></i>
             </div>
             <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
-            {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                {{ ::item.date | date:'dd MMMM yy HH:mm' }}
                 <h2>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></h2>
                 <div class="timeline-content">{{ left }}
                     <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
                 </div>
                 <div class="timeline-footer">
-                    <a href="javascript:alert('TODO')" class="nav-link pull-right">
-                        Reply
-                        <i class="fa fa-reply"></i>
-                    </a>
-                    <a href="javascript:alert('TODO')" class="nav-link pull-right">
+                    <a ui-sref="base.email.forward({id: item.id })" class="nav-link pull-right">
                         Forward
                         <i class="fa fa-arrow-right"></i>
                     </a>
-                    <a ui-sref="base.email.detail({id: message.id })" class="nav-link pull-right">
+                    <a ui-sref="base.email.replyAll({id: item.id })" class="nav-link pull-right">
+                        Reply all
+                        <i class="fa fa-reply-all"></i>
+                    </a>
+                    <a ui-sref="base.email.reply({id: item.id })" class="nav-link pull-right">
+                        Reply
+                        <i class="fa fa-reply"></i>
+                    </a>
+                    <a ui-sref="base.email.detail({id: item.id })" class="nav-link pull-right">
                         View
                         <i class="fa fa-envelope"></i>
                     </a>

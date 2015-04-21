@@ -54,6 +54,6 @@
                 $(this).toggleClass('hidden');
             });
 
-        },
+        }
     }
 })(jQuery, window, document);

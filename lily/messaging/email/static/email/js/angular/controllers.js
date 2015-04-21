@@ -192,7 +192,7 @@ EmailControllers.controller('EmailListController', [
 
         $scope.table.page = 0;
         $scope.table.filter = '';
-        $scope.opts = { checkboxesAll: false};
+        $scope.opts = {checkboxesAll: false};
 
         $scope.toggleCheckboxes = function() {
             for (var i in $scope.emailMessages) {
@@ -361,9 +361,7 @@ EmailControllers.controller('EmailListController', [
                 filterquery.push('NOT label_id:Sent');
             }
 
-            if ($scope.table.filter) {
-                filterquery = '';
-            } else if ($stateParams.accountId) {
+            if ($stateParams.accountId) {
                 filterquery.push('account:' + $stateParams.accountId);
 
                 if ($stateParams.labelId) {

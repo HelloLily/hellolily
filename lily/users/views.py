@@ -2,38 +2,31 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
-from braces.views import StaticContextMixin, GroupRequiredMixin
+from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.models import Site
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.views.generic import View, TemplateView, FormView, UpdateView
-from django.utils.http import base36_to_int, int_to_base36, urlunquote
+from django.views.generic import View, TemplateView, FormView
+from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 from rest_framework.authtoken.models import Token
 
-from lily.accounts.models import Account
-from lily.contacts.models import Contact
-from lily.updates.forms import CreateBlogEntryForm
-from lily.updates.models import BlogEntry
 from lily.utils.functions import is_ajax
 from lily.utils.views import AngularView
 from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
-                    InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, UserProfileForm,
-                    UserAccountForm, APIAccessForm)
+                    InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, APIAccessForm)
 from .models import LilyUser
 
 
@@ -534,36 +527,6 @@ class CustomSetPasswordView(FormView):
         """
         form.save()
         return super(CustomSetPasswordView, self).form_valid(form)
-
-
-class UserProfileView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixin, UpdateView):
-    form_class = UserProfileForm
-    template_name = 'profile.html'
-    static_context = {'form_prevent_autofill': True}
-
-    def get_success_message(self, cleaned_data):
-        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
-
-    def get_object(self, queryset=None):
-        return self.request.user
-
-    def get_success_url(self):
-        return reverse('user_profile_view')
-
-
-class UserAccountView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixin, UpdateView):
-    form_class = UserAccountForm
-    template_name = 'users/user_account_form.html'
-    static_context = {'form_prevent_autofill': True}
-
-    def get_success_message(self, cleaned_data):
-        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
-
-    def get_object(self, queryset=None):
-        return self.request.user
-
-    def get_success_url(self):
-        return reverse('user_account_view')
 
 
 class APIAccessView(LoginRequiredMixin, FormView):

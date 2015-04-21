@@ -13,7 +13,8 @@ PIPELINE_CSS = {
 
             # Metronic layout
             'metronic/assets/admin/pages/css/inbox.css',
-            'metronic/assets/admin/pages/css/profile-old.css',  # deze sheit moet er uit na history list update
+            'metronic/assets/admin/pages/css/profile-old.css',  # TODO: LILY-824: Remove this after history list update
+            'metronic/assets/admin/pages/css/profile.css',
             'metronic/assets/admin/layout4/css/layout.css',
             'metronic/assets/admin/layout4/css/themes/light.css',
             'metronic/assets/global/css/components-rounded.css',
@@ -26,8 +27,8 @@ PIPELINE_CSS = {
             # Custom timeline
             'lily/css/custom.css',
 
-            'lily/css/profile.css',
-            'accounts/css/accounts.css',
+            'lily/css/profile.css',  # TODO: LILY-824: Remove this after history list update
+            'accounts/css/accounts.css',  # TODO: LILY-824: Remove this after history list update
             'email/css/inbox.css',
         ),
         'output_filename': 'metronic/css/global.css',
@@ -192,7 +193,7 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/jquery-ui/jquery-ui.min.js',
             'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
             'metronic/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
-            'metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js',
+            'metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js',  # Upgrade to new version without custom patch as soon as PR 198 gets through
             'metronic/assets/global/plugins/jquery.blockui.min.js',
             'metronic/assets/global/plugins/jquery.cokie.min.js',
             # 'metronic/assets/global/plugins/uniform/jquery.uniform.js',
@@ -256,6 +257,10 @@ PIPELINE_JS = {
 
             'notes/js/angular/services.js',
 
+            'preferences/js/angular/controllers.js',
+            'preferences/js/angular/email/controllers.js',
+            'preferences/js/angular/user/controllers.js',
+
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
 
@@ -263,6 +268,8 @@ PIPELINE_JS = {
 
             # Pip package static
             'js/jquery.formset.js',
+            'django_password_strength/js/zxcvbn.js',
+            'django_password_strength/js/password_strength.js',
 
             # Our JavaScript
             'lily/js/forms/formsets.js',

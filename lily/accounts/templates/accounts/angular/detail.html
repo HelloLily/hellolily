@@ -2,7 +2,6 @@
 <script id="accounts/account-detail.html" type="text/ng-template"/>
 
 <div class="row">
-
     <div class="col-md-4">
         <div class='portlet light'>
             <div class="portlet-title">
@@ -68,10 +67,10 @@
                                 <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
                             </td>
                             <td>
-                                <i class="fa fa-envelope-o"></i><a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
+                                <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
                             </td>
                             <td>
-                                <i class="fa fa-phone"><a href='/'>{{ ::worker.phone }}</a>
+                                <i class="fa fa-phone"></i> <a href='/'>{{ ::worker.phone }}</a>
                             </td>
                         </tr>
                         <tr ng-if="workers.length == 0">
@@ -83,7 +82,6 @@
             </div>
         </div>
     </div>
-
 
     <div class="col-md-2">
         <div class="dashboard-stat purple-wisteria">
@@ -137,19 +135,17 @@
                 </div>
             </a>
             <a class="more" ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
-            Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
+                Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
             </a>
         </div>
     </div>
 </div>
-
 
 <ul class="mix-filter">
     <li ng-repeat="type in ::historyTypes" ng-class="{'active': opts.historyType==type.type}" ng-click="opts.historyType=type.type">
         {{type.name}}
     </li>
 </ul>
-
 
 <div class="portlet light mix-grid">
 
@@ -163,18 +159,14 @@
 
     <ul class="timeline">
         <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{historyType:opts.historyType}" class="mix mix_all" ng-class="item.historyType">
-
-
             <div class="timeline-badge">
-                <i class="fa fa-suitcase" ng-show="::item.historyType=='case'"></i>
-                <i class="fa fa-money" ng-show="::item.historyType=='deal'"></i>
-                <i class="fa fa-note" ng-show="::item.historyType=='comment'"></i>
-                <i class="fa fa-envelope" ng-show="::item.historyType=='mail'"></i>
+                <i class="fa fa-suitcase" ng-if="::item.historyType=='case'"></i>
+                <i class="fa fa-money" ng-if="::item.historyType=='deal'"></i>
+                <i class="fa fa-file-o" ng-if="::item.historyType=='note'"></i>
+                <i class="fa fa-envelope" ng-if="::item.historyType=='email'"></i>
             </div>
 
-
             <div class="timeline-panel" ng-if="::item.historyType=='case'">
-
                 <div class='timeline-heading'>
                     <h4 class='timeline-title'>
                         {{ ::item.subject }}
@@ -218,12 +210,9 @@
                         <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
                     </div>
                 </div>
-
             </div>
 
-
             <div class="timeline-panel" ng-if="::item.historyType=='deal'">
-
                 <div class='timeline-heading'>
                     <h4 class='timeline-title'>{{ ::item.name }}
                         <div class="btn-group pull-right">
@@ -263,7 +252,6 @@
                         <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
                     </div>
                 </div>
-
             </div>
 
             <div class="timeline-panel" ng-if="::item.historyType=='note'">
@@ -303,10 +291,11 @@
                             <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
-                                <li><a ui-sref="base.email.detail({id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                                <li><a ui-sref="base.email.detail({id: item.id })"><i class="fa fa-eye"></i> View</a></li>
                                 <li class='divider'></li>
-                                <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-reply"></i>Reply</a></li>
-                                <li><a href="javascript:alert('TODO')"><i class="fa fa-mail-forward"></i>Forward</a></li>
+                                <li><a ui-sref="base.email.reply({id: item.id })"><i class="fa fa-mail-reply"></i> Reply</a></li>
+                                <li><a ui-sref="base.email.replyAll({id: item.id })"><i class="fa fa-reply-all"></i> Reply all</a></li>
+                                <li><a ui-sref="base.email.forward({id: item.id })"><i class="fa fa-mail-forward"></i> Forward</a></li>
                             </ul>
                         </div>
                     </h4>

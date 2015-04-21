@@ -30,8 +30,12 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         # # klant met betalingsachterstand | arrears
         # # failliet | bankrupt
         # # oud klant | previous customer.
-        ('bankrupt', _('bankrupt')),
-        ('prev_customer', _('previous customer')),
+        ('inactive', _('Inactive')),
+        ('active', _('Active')),
+        ('pending', _('Pending')),
+        ('prev_customer', _('Previous customer')),
+        ('bankrupt', _('Bankrupt')),
+        ('unknown', _('Unknown')),
     )
 
     ACCOUNT_SIZE_CHOICES = (

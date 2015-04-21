@@ -2,7 +2,6 @@ import csv
 import gc
 import logging
 import os
-
 from datetime import datetime
 
 from django.core.files.storage import default_storage
@@ -65,6 +64,30 @@ E.g.:
         'PHILIPPINES': 'PH',
     }
 
+    account_column_attribute_mapping = {
+        'VoIPGRID ID': 'customer_id',
+        'Name': 'name',
+        '': 'flatname',
+        '': 'status',
+        '': 'company_size',
+        '': 'logo',
+        '': 'legalentity',
+        '': 'taxnumber',
+        '': 'bankaccountnumber',
+        'KvK': 'cocnumber',
+        '': 'iban',
+        '': 'bic',
+        'ID': 'import_id',
+        'Date Created': 'created',
+    }
+
+    account_status_mapping = {
+        'Active': 'active',
+        'Inactive': 'inactive',
+        'Suspended': 'inactive',
+        'Unknown': 'unknown',
+    }
+
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
     already_logged = set()
@@ -73,7 +96,7 @@ E.g.:
         self.tenant_pk = tenant_pk
         self.sugar_import = sugar == '1'
 
-        # Get user mapping from env vars
+        # Get user mapping from env vars.
         user_string = os.environ.get('USERMAPPING')
         for user in user_string.split(';'):
             sugar, lily = user.split(':')
@@ -115,36 +138,13 @@ E.g.:
         Arguments:
             values (dict): information with account information
         """
-        column_attribute_mapping = {
-            'VoIPGRID ID': 'customer_id',
-            'Name': 'name',
-            '': 'flatname',
-            '': 'status',
-            '': 'company_size',
-            '': 'logo',
-            '': 'legalentity',
-            '': 'taxnumber',
-            '': 'bankaccountnumber',
-            'KvK': 'cocnumber',
-            '': 'iban',
-            '': 'bic',
-            'ID': 'import_id',
-            'Date Created': 'created',
-        }
 
-        status_mapping = {
-            'Active': 'active',
-            'Inactive': 'inactive',
-            'Suspended': 'inactive',
-            'Unknown': 'unknown',
-        }
-
-        # Create account
+        # Create account.
         account_kwargs = dict()
         for column, value in values.items():
-            if value and column in column_attribute_mapping:
-                attribute = column_attribute_mapping.get(column)
-                # Set created date to original so
+            if value and column in self.account_column_attribute_mapping:
+                attribute = self.account_column_attribute_mapping.get(column)
+                # Set created date to original created date in sugar.
                 if attribute == 'created':
                     value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
                 account_kwargs[attribute] = value
@@ -166,17 +166,20 @@ E.g.:
         for k, v in account_kwargs.items():
             setattr(account, k, v)
 
-        # Extend description with netwerk opstelling information
+        # Extend description with netwerk opstelling information.
         extended_description = ""
+        old_description = ""
         if values.get('Netwerk opstelling'):
-            extended_description = " # Netwerk opstelling: " + values.get('Netwerk opstelling')
+            extended_description = ' # Netwerk opstelling: ' + values.get('Netwerk opstelling')
+        if not account.description:
+            account.description = values.get('Description') + extended_description
 
-        account.description = values.get('Description') + extended_description
-
+        # Status of account.
         status = values.get('Status')
 
-        if status and status in status_mapping:
-            status = status_mapping[status]
+        # Map sugar status to lily status.
+        if status and status in self.account_status_mapping:
+            status = self.account_status_mapping[status]
         else:
             status = 'unknown'
 
@@ -189,7 +192,7 @@ E.g.:
             logger.error(u'DataError for %s' % account_kwargs)
             return
 
-        # Create addresses
+        # Create addresses.
         self._create_address(
             account,
             'visiting',
@@ -207,20 +210,23 @@ E.g.:
             values.get('Shipping Country')
         )
 
-        # Create email addresses
+        # Create email addresses.
         self._create_email_addresses(account, values)
 
-        # Create phone numbers
+        # Create phone numbers.
         self._create_phone(account, 'work', values.get('Office Phone'))
         self._create_phone(account, 'work', values.get('Alternate Phone'))
-        self._create_phone(account, 'other', values.get('Fax'), other_type='fax') # TODO FUGLY WHY NO FAX TYPE
+        # In the create phone this will be converted to normal type Fax instead of other.
+        self._create_phone(account, 'other', values.get('Fax'), other_type='fax')
 
-        # Create website
+        # Create website.
         self._create_website(account, values.get('Website'))
 
-        # Create social media
+        # Create social media.
         self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
         self._create_social_media(account, 'twitter', values.get('Twitter'))
+
+        # Map sugar user to lily user and set assigned to.
         user_id = values.get('Assigned To')
         if user_id and user_id in self.user_mapping:
             try:
@@ -368,33 +374,33 @@ E.g.:
             address_kwargs['type'] = type
             address_kwargs['street'] = street
 
-            # set streetnumber
+            # Set streetnumber.
             if _isint(number) and int(number) < 32766:
                 address_kwargs['street_number'] = int(number)
             address_kwargs['complement'] = complement
 
-            # set postal code
+            # Set postal code.
             if len(postal_code) > 10:
                 postal_code = postal_code[:10]
             address_kwargs['postal_code'] = postal_code
             address_kwargs['city'] = city
 
-            # check if country is present
+            # Check if country is present.
             if country:
                 country = country.upper().strip()
                 country = self.country_map.get(country, country)
 
-                # in case of unkown county leave empty
+                # In case of unkown county leave empty.
                 if country and len(country) > 2 or country not in self.country_codes:
                     country = ''
 
-                # set country
+                # Set country.
                 address_kwargs['country'] = country
 
-            # set tenant
+            # Set tenant.
             address_kwargs['tenant_id'] = self.tenant_pk
 
-            # check if adress does not already exists to avoid duplicates
+            # Check if adress does not already exists to avoid duplicates.
             if not instance.addresses.filter(
                     street=address_kwargs['street'],
                     city=address_kwargs['city']
@@ -465,9 +471,34 @@ E.g.:
             phone_kwargs['other_type'] = other_type
             phone_kwargs['raw_input'] = parse_phone_number(raw_input)
             phone_kwargs['tenant_id'] = self.tenant_pk
-            if not instance.phone_numbers.filter(**phone_kwargs).exists():
-                phone_number = PhoneNumber.objects.create(**phone_kwargs)
-                instance.phone_numbers.add(phone_number)
+
+            phone_number_list = instance.phone_numbers.filter(**phone_kwargs)
+
+            if not phone_number_list.exists():
+                # Other types are ugly for phonenumbers.
+                if other_type is not None:
+                    phone_kwargs['type'] = phone_kwargs['other_type']
+                    phone_kwargs['other_type'] = None
+
+                # Recheck if it exists without the othertype.
+                if not instance.phone_numbers.filter(**phone_kwargs).exists():
+                    phone_number = PhoneNumber.objects.create(**phone_kwargs)
+                    instance.phone_numbers.add(phone_number)
+            else:
+
+                # Keep first in list and delete all the others.
+                for i, phone_number in enumerate(phone_number_list):
+                    if i == 0:
+                        # When othertype given set normal type instead for save.
+                        if other_type is not None:
+                            phone_number.type = phone_number.other_type
+                            phone_kwargs['type'] = phone_number.other_type
+                            phone_number.other_type = None
+                            phone_kwargs['other_type'] = None
+                            if not instance.phone_numbers.filter(**phone_kwargs).exists():
+                                phone_number.save()
+                    else:
+                        phone_number.delete()
 
     def _create_social_media(self, instance, name, username):
         """

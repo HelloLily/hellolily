@@ -239,12 +239,12 @@ class GmailManager(object):
             # Remove messages
             for message in history_item.get('messagesDeleted', []):
                 logger.debug('deleting message %s' % message['message']['id'])
-                EmailMessage.objects.get(message_id=message['message']['id']).delete()
+                EmailMessage.objects.get(message_id=message['message']['id'], account=self.email_account).delete()
 
             # Add labels to existing messages
             for message_dict in history_item.get('labelsAdded', []):
                 logger.debug('labels added, message: %s' % message_dict['message']['id'])
-                message = EmailMessage.objects.get(message_id=message_dict['message']['id'])
+                message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
                 for added_label_id in message_dict['labelIds']:
                     if added_label_id == settings.GMAIL_UNREAD_LABEL:
                         message.read = False
@@ -255,7 +255,7 @@ class GmailManager(object):
             # Remove labels from existing messages
             for message_dict in history_item.get('labelsRemoved', []):
                 logger.debug('labels removed, message: %s' % message_dict['message']['id'])
-                message = EmailMessage.objects.get(message_id=message_dict['message']['id'])
+                message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
                 for removed_label_id in message_dict['labelIds']:
                     if removed_label_id == settings.GMAIL_UNREAD_LABEL:
                         message.read = True

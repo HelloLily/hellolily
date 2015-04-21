@@ -2,16 +2,18 @@ import csv
 import gc
 import logging
 import os
+from datetime import datetime
 
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db import DataError
+from django.utils import timezone
 
 from lily.accounts.models import Account, Website
 from lily.contacts.models import Contact
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
-from lily.utils.functions import parse_address, _isint
+from lily.utils.functions import parse_address, _isint, parse_phone_number
 from lily.utils.models.models import Address, PhoneNumber, EmailAddress, COUNTRIES
 
 
@@ -62,6 +64,30 @@ E.g.:
         'PHILIPPINES': 'PH',
     }
 
+    account_column_attribute_mapping = {
+        'VoIPGRID ID': 'customer_id',
+        'Name': 'name',
+        '': 'flatname',
+        '': 'status',
+        '': 'company_size',
+        '': 'logo',
+        '': 'legalentity',
+        '': 'taxnumber',
+        '': 'bankaccountnumber',
+        'KvK': 'cocnumber',
+        '': 'iban',
+        '': 'bic',
+        'ID': 'import_id',
+        'Date Created': 'created',
+    }
+
+    account_status_mapping = {
+        'Active': 'active',
+        'Inactive': 'inactive',
+        'Suspended': 'inactive',
+        'Unknown': 'unknown',
+    }
+
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
     already_logged = set()
@@ -70,7 +96,7 @@ E.g.:
         self.tenant_pk = tenant_pk
         self.sugar_import = sugar == '1'
 
-        # Get user mapping from env vars
+        # Get user mapping from env vars.
         user_string = os.environ.get('USERMAPPING')
         for user in user_string.split(';'):
             sugar, lily = user.split(':')
@@ -112,28 +138,15 @@ E.g.:
         Arguments:
             values (dict): information with account information
         """
-        column_attribute_mapping = {
-            'VoIPGRID ID': 'customer_id',
-            'Name': 'name',
-            '': 'flatname',
-            '': 'status',
-            '': 'company_size',
-            '': 'logo',
-            'Description': 'description',
-            '': 'legalentity',
-            '': 'taxnumber',
-            '': 'bankaccountnumber',
-            'KvK': 'cocnumber',
-            '': 'iban',
-            '': 'bic',
-            'ID': 'import_id',
-        }
 
-        # Create account
+        # Create account.
         account_kwargs = dict()
         for column, value in values.items():
-            if value and column in column_attribute_mapping:
-                attribute = column_attribute_mapping.get(column)
+            if value and column in self.account_column_attribute_mapping:
+                attribute = self.account_column_attribute_mapping.get(column)
+                # Set created date to original created date in sugar.
+                if attribute == 'created':
+                    value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
                 account_kwargs[attribute] = value
 
         if not len(account_kwargs):
@@ -153,6 +166,25 @@ E.g.:
         for k, v in account_kwargs.items():
             setattr(account, k, v)
 
+        # Extend description with netwerk opstelling information.
+        extended_description = ""
+        old_description = ""
+        if values.get('Netwerk opstelling'):
+            extended_description = ' # Netwerk opstelling: ' + values.get('Netwerk opstelling')
+        if not account.description:
+            account.description = values.get('Description') + extended_description
+
+        # Status of account.
+        status = values.get('Status')
+
+        # Map sugar status to lily status.
+        if status and status in self.account_status_mapping:
+            status = self.account_status_mapping[status]
+        else:
+            status = 'unknown'
+
+        account.status = status
+
         # Satisfy m2m contraints.
         try:
             account.save()
@@ -160,7 +192,7 @@ E.g.:
             logger.error(u'DataError for %s' % account_kwargs)
             return
 
-        # Create addresses
+        # Create addresses.
         self._create_address(
             account,
             'visiting',
@@ -178,36 +210,39 @@ E.g.:
             values.get('Shipping Country')
         )
 
-        # Create email addresses
+        # Create email addresses.
         self._create_email_addresses(account, values)
 
-        # Create phone numbers
+        # Create phone numbers.
         self._create_phone(account, 'work', values.get('Office Phone'))
         self._create_phone(account, 'work', values.get('Alternate Phone'))
+        # In the create phone this will be converted to normal type Fax instead of other.
         self._create_phone(account, 'other', values.get('Fax'), other_type='fax')
 
-        # Create website
+        # Create website.
         self._create_website(account, values.get('Website'))
 
-        # Create social media
+        # Create social media.
         self._create_social_media(account, 'linkedin', values.get('LinkedIn'))
         self._create_social_media(account, 'twitter', values.get('Twitter'))
-        user_name = values.get('Assigned User Name')
-        if user_name and user_name in self.user_mapping:
+
+        # Map sugar user to lily user and set assigned to.
+        user_id = values.get('Assigned To')
+        if user_id and user_id in self.user_mapping:
             try:
                 account.assigned_to = LilyUser.objects.get(
-                    email=self.user_mapping[user_name],
+                    pk=self.user_mapping[user_id],
                     tenant_id=self.tenant_pk
                 )
             except LilyUser.DoesNotExist:
-                if user_name not in self.already_logged:
-                    self.already_logged.add(user_name)
-                    logger.warning(u'Assignee does not exists as an LilyUser. %s' % user_name)
+                if user_id not in self.already_logged:
+                    self.already_logged.add(user_id)
+                    logger.warning(u'Assignee does not exists as an LilyUser. %s' % user_id)
         else:
             # Only log when user_name not empty.
-            if user_name and user_name not in self.already_logged:
-                self.already_logged.add(user_name)
-                logger.warning(u'Assignee does not have an usermapping. %s' % user_name)
+            if user_id and user_id not in self.already_logged:
+                self.already_logged.add(user_id)
+                logger.warning(u'Assignee does not have an usermapping. %s' % user_id)
 
         account.save()
 
@@ -338,20 +373,34 @@ E.g.:
             address_kwargs = dict()
             address_kwargs['type'] = type
             address_kwargs['street'] = street
+
+            # Set streetnumber.
             if _isint(number) and int(number) < 32766:
                 address_kwargs['street_number'] = int(number)
             address_kwargs['complement'] = complement
+
+            # Set postal code.
             if len(postal_code) > 10:
                 postal_code = postal_code[:10]
             address_kwargs['postal_code'] = postal_code
             address_kwargs['city'] = city
+
+            # Check if country is present.
             if country:
                 country = country.upper().strip()
                 country = self.country_map.get(country, country)
+
+                # In case of unkown county leave empty.
                 if country and len(country) > 2 or country not in self.country_codes:
                     country = ''
-                    address_kwargs['country'] = country
+
+                # Set country.
+                address_kwargs['country'] = country
+
+            # Set tenant.
             address_kwargs['tenant_id'] = self.tenant_pk
+
+            # Check if adress does not already exists to avoid duplicates.
             if not instance.addresses.filter(
                     street=address_kwargs['street'],
                     city=address_kwargs['city']
@@ -420,11 +469,36 @@ E.g.:
             phone_kwargs = dict()
             phone_kwargs['type'] = type
             phone_kwargs['other_type'] = other_type
-            phone_kwargs['raw_input'] = raw_input
+            phone_kwargs['raw_input'] = parse_phone_number(raw_input)
             phone_kwargs['tenant_id'] = self.tenant_pk
-            if not instance.phone_numbers.filter(**phone_kwargs).exists():
-                phone_number = PhoneNumber.objects.create(**phone_kwargs)
-                instance.phone_numbers.add(phone_number)
+
+            phone_number_list = instance.phone_numbers.filter(**phone_kwargs)
+
+            if not phone_number_list.exists():
+                # Other types are ugly for phonenumbers.
+                if other_type is not None:
+                    phone_kwargs['type'] = phone_kwargs['other_type']
+                    phone_kwargs['other_type'] = None
+
+                # Recheck if it exists without the othertype.
+                if not instance.phone_numbers.filter(**phone_kwargs).exists():
+                    phone_number = PhoneNumber.objects.create(**phone_kwargs)
+                    instance.phone_numbers.add(phone_number)
+            else:
+
+                # Keep first in list and delete all the others.
+                for i, phone_number in enumerate(phone_number_list):
+                    if i == 0:
+                        # When othertype given set normal type instead for save.
+                        if other_type is not None:
+                            phone_number.type = phone_number.other_type
+                            phone_kwargs['type'] = phone_number.other_type
+                            phone_number.other_type = None
+                            phone_kwargs['other_type'] = None
+                            if not instance.phone_numbers.filter(**phone_kwargs).exists():
+                                phone_number.save()
+                    else:
+                        phone_number.delete()
 
     def _create_social_media(self, instance, name, username):
         """

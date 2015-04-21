@@ -361,9 +361,7 @@ EmailControllers.controller('EmailListController', [
                 filterquery.push('NOT label_id:Sent');
             }
 
-            if ($scope.table.filter) {
-                filterquery = '';
-            } else if ($stateParams.accountId) {
+            if ($stateParams.accountId) {
                 filterquery.push('account:' + $stateParams.accountId);
 
                 if ($stateParams.labelId) {
@@ -386,7 +384,7 @@ EmailControllers.controller('EmailListController', [
                 $scope.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
             }
 
-            if (filterquery && $stateParams.labelId && $stateParams.labelId != 'TRASH') {
+            if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {
                 filterquery.push('is_removed:false');
             }
 

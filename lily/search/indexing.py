@@ -72,7 +72,7 @@ def index_objects(mapping, queryset, index, print_progress=False):
         documents.append(mapping.extract_document(instance.id, instance))
 
         if len(documents) >= 100:
-            mapping.bulk_index(es, documents, id_field='id', index=index, es=es)
+            mapping.bulk_index(documents, id_field='id', index=index, es=es)
             documents = []
 
     mapping.bulk_index(documents, id_field='id', index=index, es=es)

@@ -79,21 +79,6 @@ class GmailConnector(object):
                     logger.exception(error)
                     raise
 
-    def get_new_or_changed_message_ids(self):
-        """
-        Get latest message ids and thread ids.
-
-        Checks if there is an initial sync. If there is no history_id, there
-        wasn't a complete sync of all the messages and all messages should be
-        fetched. Otherwise, only fetching the updates is necessary, and we
-        should fetch the history from the account.
-        """
-        # Check if there is a history_id, we should only fetch de updates after last sync.
-        if self.email_account.history_id:
-            return self.get_history()
-        else:
-            return self.get_all_message_id_list()
-
     def get_history(self):
         """
         Fetch the history list from the gmail api.
@@ -106,12 +91,8 @@ class GmailConnector(object):
             startHistoryId=self.history_id,
         ))
 
-        messages = []
         # Get the messageIds.
-        for history_item in response.get('history', []):
-            messages += history_item['messages']
-            if history_item['id'] > self.history_id:
-                self.history_id = history_item['id']
+        history = response.get('history', [])
 
         # Check if there are more pages but stop after 10 pages
         i = 0
@@ -122,14 +103,13 @@ class GmailConnector(object):
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
-            if 'history' in response:
-                for history_item in response['history']:
-                    messages += history_item['messages']
-                    if history_item['id'] > self.history_id:
-                        self.history_id = history_item['id']
+            history.extend(response.get('history', []))
             i += 1
 
-        return messages
+        if len(history) and self.history_id < history[-1]['id']:
+            self.history_id = history[-1]['id']
+
+        return history
 
     def get_all_message_id_list(self):
         """

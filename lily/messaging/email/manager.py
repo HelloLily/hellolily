@@ -239,29 +239,38 @@ class GmailManager(object):
             # Remove messages
             for message in history_item.get('messagesDeleted', []):
                 logger.debug('deleting message %s' % message['message']['id'])
-                EmailMessage.objects.get(message_id=message['message']['id'], account=self.email_account).delete()
+                EmailMessage.objects.filter(message_id=message['message']['id'], account=self.email_account).delete()
 
-            # Add labels to existing messages
-            for message_dict in history_item.get('labelsAdded', []):
-                logger.debug('labels added, message: %s' % message_dict['message']['id'])
-                message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
-                for added_label_id in message_dict['labelIds']:
-                    if added_label_id == settings.GMAIL_UNREAD_LABEL:
-                        message.read = False
-                    else:
-                        message.labels.add(self.get_label(added_label_id))
-                message.save()
+            # Make sure we have all the correct labels for
+            update_labels_for_messages = []
+            update_labels_for_messages.extend(history_item.get('labelsAdded', []))
+            update_labels_for_messages.extend(history_item.get('labelsRemoved', []))
 
-            # Remove labels from existing messages
-            for message_dict in history_item.get('labelsRemoved', []):
-                logger.debug('labels removed, message: %s' % message_dict['message']['id'])
-                message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
-                for removed_label_id in message_dict['labelIds']:
-                    if removed_label_id == settings.GMAIL_UNREAD_LABEL:
-                        message.read = True
-                    else:
-                        message.labels.remove(self.get_label(removed_label_id))
-                message.save()
+            if len(update_labels_for_messages):
+                self._batch_sync_label_info([message['message']['id'] for message in update_labels_for_messages])
+
+            # TODO: fix sync issues before incremental update of labels
+            # # Add labels to existing messages
+            # for message_dict in history_item.get('labelsAdded', []):
+            #     logger.debug('labels added, message: %s' % message_dict['message']['id'])
+            #     message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
+            #     for added_label_id in message_dict['labelIds']:
+            #         if added_label_id == settings.GMAIL_UNREAD_LABEL:
+            #             message.read = False
+            #         else:
+            #             message.labels.add(self.get_label(added_label_id))
+            #     message.save()
+            #
+            # # Remove labels from existing messages
+            # for message_dict in history_item.get('labelsRemoved', []):
+            #     logger.debug('labels removed, message: %s' % message_dict['message']['id'])
+            #     message = EmailMessage.objects.get(message_id=message_dict['message']['id'], account=self.email_account)
+            #     for removed_label_id in message_dict['labelIds']:
+            #         if removed_label_id == settings.GMAIL_UNREAD_LABEL:
+            #             message.read = True
+            #         else:
+            #             message.labels.remove(self.get_label(removed_label_id))
+            #     message.save()
 
         self.connector.save_history_id()
 

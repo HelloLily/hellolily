@@ -334,9 +334,8 @@ class GmailManager(object):
                     labels.setdefault('removeLabelIds', []).append(label)
 
             for label in add_labels:
-                print label
                 # UNREAD isn't added to the database as an available label, so do a seperate check
-                if label not in existing_labels and (email_message.account.labels.filter(label_id=label).exists() or label == 'UNREAD'):
+                if label not in existing_labels and (email_message.account.labels.filter(label_id=label).exists() or label == settings.GMAIL_UNREAD_LABEL):
                     labels.setdefault('addLabelIds', []).append(label)
 
             if labels:
@@ -352,6 +351,7 @@ class GmailManager(object):
                     full_message_dict = self.connector.get_message_info(email_message.message_id)
                     # Store updated message
                     self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+                    self.message_builder.save()
                     break
 
     def toggle_read_email_message(self, email_message, read=True):

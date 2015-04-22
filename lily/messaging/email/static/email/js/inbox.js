@@ -52,7 +52,7 @@
                     self.handleAdditionalRecipientsInput('bcc');
                 })
                 .on('change', cf.emailAccountInput, function () {
-                    self.changeTemplateField.call(self, this, false);
+                    self.changeTemplateField.call(self, cf.templateField, false);
                 })
                 .on('change', cf.templateField, function () {
                     self.changeTemplateField.call(self, this, true);

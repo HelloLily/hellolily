@@ -14,12 +14,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='deal',
-            name='amount_hardware',
-            field=models.DecimalField(default=0, verbose_name='hardware costs', max_digits=19, decimal_places=2),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='deal',
             name='import_id',
             field=models.CharField(default=b'', max_length=100, verbose_name='import id', db_index=True, blank=True),
             preserve_default=True,

@@ -19,20 +19,17 @@ class Command(BaseCommand):
         Import oppertunities from sugar
         """
 
-    user_mapping = {}
-    deal_mapping = {}
     unmatched_deals = 0
     matched_deals = 0
+    unknown_accounts = 0
+    unknown_deals = 0
+    validation_error = 0
     tenant_pk = None
 
     def handle(self, csvfile, tenant_pk, **kwargs):
         self.tenant_pk = tenant_pk
 
-        # Get user mapping from env vars
-        user_string = os.environ.get('USERMAPPING')
-        for user in user_string.split(';'):
-            sugar, lily = user.split(':')
-            self.user_mapping[sugar] = lily
+        logger.info('linking deals to accounts started')
 
         for row in self.read_csvfile(csvfile):
             self._update_deal(row)
@@ -40,7 +37,10 @@ class Command(BaseCommand):
 
         logger.info('unmatched deals: %s' % self.unmatched_deals)
         logger.info('matched deals: %s' % self.matched_deals)
-        logger.info('adding extra deal info finished')
+        logger.info('unknown_accounts: %s' % self.unknown_accounts)
+        logger.info('unknown_deals: %s' % self.unknown_deals)
+        logger.info('validation_error: %s' % self.validation_error)
+        logger.info('linking deals to accounts finished')
 
     def read_csvfile(self, file_name):
         """
@@ -58,19 +58,23 @@ class Command(BaseCommand):
             yield row
 
     def _update_deal(self, values):
-
-        try:
-            deal = Deal.objects.get(tenant_id=self.tenant_pk, import_id=values['opportunity_id'])
-        except Deal.DoesNotExist:
-            self.unmatched_deals += 1
-            logger.warning('deal doesn\'t exists: %s' % values['opportunity_id'])
+        if values.get('Deleted') == '1':
             return
 
         try:
-            account = Account.objects.get(tenant_id=self.tenant_pk, import_id=values['account_id'])
+            deal = Deal.objects.get(tenant_id=self.tenant_pk, import_id=values.get('Opportunity ID'))
+        except Deal.DoesNotExist:
+            self.unmatched_deals += 1
+            self.unknown_deals += 1
+            logger.warning('deal doesn\'t exists: %s' % values.get('Opportunity ID'))
+            return
+
+        try:
+            account = Account.objects.get(tenant_id=self.tenant_pk, import_id=values.get('Account ID'))
         except Account.DoesNotExist:
             self.unmatched_deals += 1
-            logger.warning('account doesn\'t exists: %s' % values['account_id'])
+            self.unknown_accounts += 1
+            logger.warning('account doesn\'t exists: %s' % values.get('Account ID'))
             deal.delete()
             return
 
@@ -82,3 +86,4 @@ class Command(BaseCommand):
         except ValidationError:
             deal.delete()
             self.unmatched_deals += 1
+            self.validation_error += 1

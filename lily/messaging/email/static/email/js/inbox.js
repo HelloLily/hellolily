@@ -58,6 +58,11 @@
                     self.changeTemplateField.call(self, this, true);
                 })
                 .on('change', cf.sendToNormalField, function () {
+                     // Don't do anything if it's just a new recipient being added
+                    if ($(self.config.sendToNormalField).select2('data').length > 1) {
+                        return false;
+                    }
+
                     self.changeTemplateField.call(self, cf.templateField, false);
                 })
                 .on('click', cf.replyButton, function () {

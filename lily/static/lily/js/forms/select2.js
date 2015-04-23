@@ -42,16 +42,18 @@
         createTagInputs: function() {
             // Setup tag inputs
             $(this.config.tagInputs).each(function() {
-                var tags = [];
-                var $this = $(this);
-                if ($this.data('choices')) {
-                    tags = $this.data('choices').split(',');
+                if (!$(this).data().hasOwnProperty('select2')) {
+                    var tags = [];
+                    var $this = $(this);
+                    if ($this.data('choices')) {
+                        tags = $this.data('choices').split(',');
+                    }
+                    $this.select2({
+                        tags: tags,
+                        tokenSeparators: [',', ' '],
+                        width: '100%'
+                    });
                 }
-                $this.select2({
-                    tags: tags,
-                    tokenSeparators: [',', ' '],
-                    width: '100%'
-                });
             });
         },
 

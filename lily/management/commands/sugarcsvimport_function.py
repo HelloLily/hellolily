@@ -33,9 +33,10 @@ E.g.:
         Arguments:
             values (dict): information with function information
         """
-        contact_id = values['contact_id']
-        account_id = values['account_id']
-        is_deleted = values['deleted'] == 1
+        contact_id = values.get('Contact ID')
+        account_id = values.get('Account ID')
+        is_deleted = values.get('Deleted')
+        title = values.get('Title') + " " + values.get("Department")
 
         try:
             contact = Contact.objects.get(tenant_id=self.tenant_pk, import_id=contact_id)
@@ -49,6 +50,7 @@ E.g.:
             logger.error('Account does not exist %s', values)
             return
 
+        # UPDATE!!
         Function.objects.get_or_create(
             contact=contact,
             account=account,

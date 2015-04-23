@@ -88,6 +88,20 @@ E.g.:
         'Unknown': 'unknown',
     }
 
+    contact_column_attribute_mapping = {
+        'ID': 'import_id',
+        'First Name': 'first_name',
+        '': 'preposition',
+        'Last Name': 'last_name',
+        '': 'gender',
+        '': 'title',
+        '': 'status',
+        '': 'picture',
+        'Description': 'description',
+        '': 'salutation',
+        'Date Created': 'created',
+    }
+
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
     already_logged = set()
@@ -258,24 +272,14 @@ E.g.:
             if not values.get('ID') or 30 > len(values.get('ID')) > 40:
                 return
 
-        column_attribute_mapping = {
-            'ID': 'import_id',
-            'First Name': 'first_name',
-            '': 'preposition',
-            'Last Name': 'last_name',
-            '': 'gender',
-            '': 'title',
-            '': 'status',
-            '': 'picture',
-            'Description': 'description',
-            '': 'salutation',
-        }
-
         # Create contact
         contact_kwargs = dict()
         for column, value in values.items():
-            if value and column in column_attribute_mapping:
-                attribute = column_attribute_mapping.get(column)
+            if value and column in self.contact_column_attribute_mapping:
+                attribute = self.contact_column_attribute_mapping.get(column)
+                # Set created date to original created date in sugar.
+                if attribute == 'created':
+                    value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
                 contact_kwargs[attribute] = value
 
         first, last = None, None
@@ -290,11 +294,11 @@ E.g.:
             logger.warning(u'No first or last name for contact. %s' % contact_kwargs)
             return
 
-        gender = 0
+        gender = Contact.UNKNOWN_GENDER
         if values.get('Salutation') in ['Mr.', 'Dhr.', 'mr.']:
-            gender = 1
+            gender = Contact.MALE_GENDER
         elif values.get('Salutation') in ['Ms.', 'Mrs.']:
-            gender = 2
+            gender = Contact.FEMALE_GENDER
         contact_kwargs['gender'] = gender
 
         contact_kwargs['tenant_id'] = self.tenant_pk
@@ -353,6 +357,14 @@ E.g.:
 
         # Create social media
         self._create_social_media(contact, 'twitter', values.get('Twitter'))
+
+        try:
+            account = Account.objects.get(name=values.get('Account Name'), tenant_id=self.tenant_pk)
+        except Account.DoesNotExist:
+            pass
+        else:
+            # Create function (link with account)
+            Function.objects.create(account=account, contact=contact)
 
         contact.save()
 

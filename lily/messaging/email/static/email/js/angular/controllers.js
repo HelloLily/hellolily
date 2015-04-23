@@ -149,7 +149,7 @@ EmailControllers.controller('EmailController', [
     function($location, $scope) {
 
         $scope.conf.pageTitleBig = 'Email';
-        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+        $scope.conf.pageTitleSmall = 'sending love through the world!';
 
         // Setup filter
         var filter = '';
@@ -188,7 +188,7 @@ EmailControllers.controller('EmailListController', [
     'HLText',
     function($scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText) {
         $scope.conf.pageTitleBig = 'Email';
-        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+        $scope.conf.pageTitleSmall = 'sending love through the world!';
 
         $scope.table.page = 0;
         $scope.table.filter = '';
@@ -416,7 +416,7 @@ EmailControllers.controller('EmailDetailController', [
     function($scope, $state, $stateParams, EmailMessage) {
 
         $scope.conf.pageTitleBig = 'Email message';
-        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+        $scope.conf.pageTitleSmall = 'sending love through the world!';
 
         $scope.displayAllRecipients = false;
 
@@ -540,7 +540,7 @@ EmailControllers.controller('EmailComposeController', [
     'EmailTemplate',
     function ($scope, $stateParams, $q, ContactDetail, EmailMessage, EmailTemplate) {
         $scope.conf.pageTitleBig = 'Send email';
-        $scope.conf.pageTitleSmall = 'sending love trough the world!';
+        $scope.conf.pageTitleSmall = 'sending love through the world!';
 
         if ($stateParams.messageType == 'reply') {
             // If it's a reply, load the email message first

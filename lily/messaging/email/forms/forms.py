@@ -187,14 +187,14 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
             if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'), cleaned_data.get('send_to_bcc')]):
                 self._errors['send_to_normal'] = self.error_class([_('Please provide at least one recipient.')])
 
-        for recipient in self.cleaned_data['send_to_normal']:
-            email = parseaddr(recipient)[1]
-            validate_email(email)
-
         # Clean send_to addresses.
         cleaned_data['send_to_normal'] = self.format_recipients(cleaned_data.get('send_to_normal'))
         cleaned_data['send_to_cc'] = self.format_recipients(cleaned_data.get('send_to_cc'))
         cleaned_data['send_to_bcc'] = self.format_recipients(cleaned_data.get('send_to_bcc'))
+
+        for recipient in self.cleaned_data['send_to_normal']:
+            email = parseaddr(recipient)[1]
+            validate_email(email)
 
         return cleaned_data
 

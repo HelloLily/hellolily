@@ -23,15 +23,13 @@
                 label: 'Email'
             },
             resolve: {
-                User: 'User',
-                $q: '$q',
-                primaryEmailAccountId: function($q, User) {
+                primaryEmailAccountId: ['$q', 'User', function($q, User) {
                     var deferred = $q.defer();
                     User.me(null, function(data) {
                         deferred.resolve(data.primary_email_account);
                     });
                     return deferred.promise;
-                }
+                }]
             }
         });
     }

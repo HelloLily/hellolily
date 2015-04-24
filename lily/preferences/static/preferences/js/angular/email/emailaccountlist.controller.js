@@ -18,20 +18,18 @@
                 label: 'Email Account'
             },
             resolve: {
-                EmailAccount: 'EmailAccount',
-                ownedAccounts: function (EmailAccount) {
+                ownedAccounts: ['EmailAccount', function (EmailAccount) {
                     return EmailAccount.query({owner: currentUser.id}).$promise;
-                },
-                sharedAccounts: function (EmailAccount) {
+                }],
+                sharedAccounts: ['EmailAccount', function (EmailAccount) {
                     return EmailAccount.query({shared_with_users__id: currentUser.id}).$promise;
-                },
-                publicAccounts: function (EmailAccount) {
+                }],
+                publicAccounts: ['EmailAccount', function (EmailAccount) {
                     return EmailAccount.query({public: "True"}).$promise;
-                },
-                User: 'User',
-                user: function (User) {
+                }],
+                user: ['User', function (User) {
                     return User.me().$promise;
-                }
+                }]
             }
         });
     }

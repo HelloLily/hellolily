@@ -1,58 +1,59 @@
-/**
- * PreferencesUserControllers is a container for all user preference related Controllers
- */
-var PreferencesUserControllers = angular.module('PreferencesUserControllers', [
+(function(){
+    'use strict';
 
-]);
+    /**
+     * PreferencesUserControllers is a container for all user preference related Controllers
+     */
+    angular.module('app.preferences.user', []);
 
-PreferencesEmailControllers.config(['$stateProvider', function($stateProvider) {
-    $stateProvider.state('base.preferences.user', {
-        url: '/user',
-        abstract: true,
-        ncyBreadcrumb: {
-            label: 'user'
-        }
-    });
-    $stateProvider.state('base.preferences.user.profile', {
-        url: '/profile',
-        views: {
-            '@base.preferences': {
-                templateUrl: 'preferences/user/profile/',
-                controller: 'PreferencesUserProfileController'
+    angular.module('app.preferences.user').config(userPreferencesStates);
+
+    userPreferencesStates.$inject = ['$stateProvider'];
+    function userPreferencesStates ($stateProvider) {
+        $stateProvider.state('base.preferences.user', {
+            url: '/user',
+            abstract: true,
+            ncyBreadcrumb: {
+                label: 'user'
             }
-        },
-        ncyBreadcrumb: {
-            label: 'profile'
-        }
-    });
-    $stateProvider.state('base.preferences.user.account', {
-        url: '/account',
-        views: {
-            '@base.preferences': {
-                templateUrl: 'preferences/user/account/',
-                controller: 'PreferencesUserAccountController'
+        });
+        $stateProvider.state('base.preferences.user.profile', {
+            url: '/profile',
+            views: {
+                '@base.preferences': {
+                    templateUrl: 'preferences/user/profile/',
+                    controller: 'PreferencesUserProfile',
+                    controllerAs: 'vm'
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'profile'
             }
-        },
-        ncyBreadcrumb: {
-            label: 'account'
-        }
-    });
-}]);
+        });
+        $stateProvider.state('base.preferences.user.account', {
+            url: '/account',
+            views: {
+                '@base.preferences': {
+                    templateUrl: 'preferences/user/account/',
+                    controller: 'PreferencesUserAccount',
+                    controllerAs: 'vm'
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'account'
+            }
+        });
+    }
 
-/**
- * PreferencesUserProfileController is a controller to show the user profile page.
- */
-PreferencesUserControllers.controller('PreferencesUserProfileController', [
-    '$scope',
+    /**
+     * PreferencesUserProfile is a controller to show the user profile page.
+     */
+    angular.module('app.preferences.user').controller('PreferencesUserProfile', PreferencesUserProfile);
+    function PreferencesUserProfile () {}
 
-    function($scope) {}
-]);
-
-/**
- * PreferencesUserAccountController is a controller to show the user account page.
- */
-PreferencesUserControllers.controller('PreferencesUserAccountController', [
-    '$scope',
-
-    function($scope) {}
-]);
+    /**
+     * PreferencesUserAccount is a controller to show the user account page.
+     */
+    angular.module('app.preferences.user').controller('PreferencesUserAccount', PreferencesUserAccount);
+    function PreferencesUserAccount () {}
+})();

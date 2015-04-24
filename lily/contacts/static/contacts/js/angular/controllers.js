@@ -13,7 +13,7 @@ var contacts = angular.module('ContactsControllers', [
     'CaseServices',
     'contactServices',
     'noteServices',
-    'EmailServices'
+    'app.email.services'
 ]);
 
 contacts.config(['$stateProvider', function($stateProvider) {
@@ -314,7 +314,7 @@ contacts.controller('ContactListController', [
         }
 
         /**
-         * updateContacts() reloads the contacts trough a service
+         * updateContacts() reloads the contacts through a service
          *
          * Updates table.items and table.totalItems
          */

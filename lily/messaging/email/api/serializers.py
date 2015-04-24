@@ -22,6 +22,7 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
 
 
 class EmailMessageSerializer(serializers.ModelSerializer):
+    account = serializers.PrimaryKeyRelatedField(read_only=True)
     sender = RecipientSerializer(many=False, read_only=True)
     received_by = RecipientSerializer(many=True, read_only=True)
     received_by_cc = RecipientSerializer(many=True, read_only=True)
@@ -33,6 +34,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
         model = EmailMessage
         fields = (
             'id',
+            'account',
             'labels',
             'sent_date',
             'body_html',

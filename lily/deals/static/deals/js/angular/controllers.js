@@ -216,7 +216,7 @@ dealControllers.controller('DealListController', [
         }
 
         /**
-         * updateDeals() reloads the deals trough a service
+         * updateDeals() reloads the deals through a service
          *
          * Updates table.items and table.totalItems
          */

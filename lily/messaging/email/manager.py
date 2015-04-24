@@ -25,7 +25,7 @@ class SyncLimitReached(ManagerError):
 
 class GmailManager(object):
     """
-    Manager for handling in and output of EmailAccount that connects trough Gmail Api.
+    Manager for handling in and output of EmailAccount that connects through Gmail Api.
 
     Attributes:
         connector: GmailConnector instance

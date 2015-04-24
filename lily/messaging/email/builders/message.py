@@ -135,7 +135,7 @@ class MessageBuilder(object):
 
     def _save_message_payload(self, payload):
         """
-        Walk trough message and save headers and parts
+        Walk through message and save headers and parts
 
         Args:
             payload: dict with message payload

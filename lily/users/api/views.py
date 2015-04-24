@@ -1,5 +1,6 @@
 import django_filters
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -35,10 +36,31 @@ class TeamList(APIView):
         return Response(serializer.data)
 
 
-class LilyUserViewSet(viewsets.ReadOnlyModelViewSet):
+class LilyUserViewSet(mixins.UpdateModelMixin,
+                      viewsets.ReadOnlyModelViewSet):
     serializer_class = LilyUserSerializer
     model = LilyUser
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
         return queryset
+
+    def get_object(self):
+        """
+        Get a user by pk
+
+        If the pk is set to 'me', the currently logged in user will be returned
+
+        Returns:
+            serialized user instance
+        """
+        if self.kwargs['pk'] == 'me':
+            return self.request.user
+        else:
+            return super(LilyUserViewSet, self).get_object()
+
+    def update(self, request, *args, **kwargs):
+        if self.request.user != self.get_object():
+            raise PermissionDenied
+
+        return super(LilyUserViewSet, self).update(request, args, kwargs)

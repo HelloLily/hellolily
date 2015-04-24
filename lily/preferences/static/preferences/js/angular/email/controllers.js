@@ -1,156 +1,80 @@
-/**
- * ContactsControllers is a container for all case related Controllers
- */
-var PreferencesEmailControllers = angular.module('PreferencesEmailControllers', [
-    'ui.bootstrap',
-    'ui.slimscroll',
-    'EmailServices',
-    'LilyServices',
-    'UserFilters',
-    'UserServices'
-]);
+(function() {
+    'use strict';
 
-PreferencesEmailControllers.config(['$stateProvider', function($stateProvider) {
-    $stateProvider.state('base.preferences.emailaccounts', {
-        url: '/emailaccounts',
-        views: {
-            '@base.preferences': {
-                templateUrl: 'preferences/emailaccounts-list.html',
-                controller: 'PreferencesEmailAccountListController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Email Accounts'
-        }
-    });
-    $stateProvider.state('base.preferences.emailaccounts.edit', {
-        url: '/edit/{id:[0-9]{1,}}',
-        views: {
-            '@base.preferences': {
-                templateUrl: function (elem, attr) {
-                    return 'messaging/email/accounts/update/' + elem.id;
-                },
-                controller: 'PreferencesEmailAccountEditController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Edit EmailAccount'
-        }
-    });
-    $stateProvider.state('base.preferences.emailtemplates', {
-        url: '/emailtemplates',
-        views: {
-            '@base.preferences': {
-                templateUrl: 'preferences/emailtemplates-list.html',
-                controller: 'PreferencesEmailTemplatesListController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Email templates'
-        }
-    });
-    $stateProvider.state('base.preferences.emailtemplates.create', {
-        url: '/create',
-        views: {
-            '@base.preferences': {
-                templateUrl: '/messaging/email/templates/create/',
-                controller: 'PreferencesEmailTemplatesCreateController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Email template edit'
-        }
-    });
-    $stateProvider.state('base.preferences.emailtemplates.edit', {
-        url: '/edit/{id:[0-9]{1,}}',
-        views: {
-            '@base.preferences': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/templates/update/' + elem.id +'/';
-                },
-                controller: 'PreferencesEmailTemplatesEditController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Email template create'
-        }
-    });
-}]);
+    angular.module('app.preferences.email').config(emailPreferencesStates);
 
-/**
- * PreferencesEmailAccountListController is a controller to show the base of the settings page.
- */
-PreferencesEmailControllers.controller('PreferencesEmailAccountListController', [
-    '$modal',
-    '$scope',
-    'EmailAccount',
-    function($modal, $scope, EmailAccount) {
-        // Get relevant accounts
-        var loadAccounts = function() {
-            // Accounts owned
-            EmailAccount.query({owner: currentUser.id}, function(data) {
-                $scope.ownedAccounts = data;
-            });
-
-            // Accounts shared with user
-            EmailAccount.query({shared_with_users__id: currentUser.id}, function(data) {
-                $scope.sharedAccounts = data;
-            });
-
-            // Accounts public
-            EmailAccount.query({public: "True"}, function(data) {
-                $scope.publicAccounts = data;
-            });
-        };
-        // Initial load
-        loadAccounts();
-
-        $scope.deleteAccount = function (accountId) {
-            if (confirm('sure to delete?')) {
-                EmailAccount.delete({id: accountId}, function() {
-                    // Reload accounts
-                    loadAccounts();
-                });
-            }
-        };
-
-        $scope.openShareAccountModal = function (emailAccount) {
-            var modalInstance = $modal.open({
-                templateUrl: 'preferences/emailaccount-share.html',
-                controller: 'EmailAccountShareModalController',
-                size: 'lg',
-                resolve: {
-                    currentAccount: function() {
-                        return emailAccount;
-                    }
+    emailPreferencesStates.$inject = ['$stateProvider'];
+    function emailPreferencesStates($stateProvider) {
+        $stateProvider.state('base.preferences.emailaccounts.edit', {
+            url: '/edit/{id:[0-9]{1,}}',
+            views: {
+                '@base.preferences': {
+                    templateUrl: function (elem, attr) {
+                        return 'messaging/email/accounts/update/' + elem.id;
+                    },
+                    controller: 'PreferencesEmailAccountEdit'
                 }
-            });
-
-            modalInstance.result.then(function () {
-                loadAccounts();
-            }, function() {
-                loadAccounts();
-            });
-        };
+            },
+            ncyBreadcrumb: {
+                label: 'Edit EmailAccount'
+            }
+        });
+        $stateProvider.state('base.preferences.emailtemplates', {
+            url: '/emailtemplates',
+            views: {
+                '@base.preferences': {
+                    templateUrl: 'preferences/emailtemplates-list.html',
+                    controller: 'PreferencesEmailTemplatesList'
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'Email templates'
+            }
+        });
+        $stateProvider.state('base.preferences.emailtemplates.create', {
+            url: '/create',
+            views: {
+                '@base.preferences': {
+                    templateUrl: '/messaging/email/templates/create/',
+                    controller: 'PreferencesEmailTemplatesCreate'
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'Email template edit'
+            }
+        });
+        $stateProvider.state('base.preferences.emailtemplates.edit', {
+            url: '/edit/{id:[0-9]{1,}}',
+            views: {
+                '@base.preferences': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/templates/update/' + elem.id +'/';
+                    },
+                    controller: 'PreferencesEmailTemplatesEdit'
+                }
+            },
+            ncyBreadcrumb: {
+                label: 'Email template create'
+            }
+        });
     }
-]);
 
-/**
- * PreferencesEmailAccountEditController is a controller to show the base of the settings page.
- */
-PreferencesEmailControllers.controller('PreferencesEmailAccountEditController', [
-    '$scope',
-    function($scope) {}
-]);
+    /**
+     * PreferencesEmailAccountEdit is a controller to show the base of the settings page.
+     */
+    angular.module('app.preferences.email')
+        .controller('PreferencesEmailAccountEdit', PreferencesEmailAccountEdit);
 
-/**
- * PreferencesEmailTemplatesListController is a controller to show the email template list.
- */
-PreferencesEmailControllers.controller('PreferencesEmailTemplatesListController', [
-    '$modal',
-    '$scope',
-    'EmailTemplate',
-    function($modal, $scope, EmailTemplate) {
+    function PreferencesEmailAccountEdit () {}
+
+    /**
+     * PreferencesEmailTemplatesList is a controller to show the email template list.
+     */
+    angular.module('app.preferences.email')
+        .controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
+
+    PreferencesEmailTemplatesList.$inject = ['$modal', '$scope', 'EmailTemplate'];
+    function PreferencesEmailTemplatesList ($modal, $scope, EmailTemplate) {
         //$scope.conf.pageTitleBig = 'EmailTemplate settings';
         //$scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -162,7 +86,7 @@ PreferencesEmailControllers.controller('PreferencesEmailTemplatesListController'
             // TODO: LILY-756: Make this controller more Angular
             var modalInstance = $modal.open({
                 templateUrl: '/messaging/email/templates/set-default/' + emailTemplate.id + '/',
-                controller: 'PreferencesSetTemplateDefaultModalController',
+                controller: 'PreferencesSetTemplateDefaultModal',
                 size: 'lg',
                 resolve: {
                     emailTemplate: function () {
@@ -190,14 +114,12 @@ PreferencesEmailControllers.controller('PreferencesEmailTemplatesListController'
             }
         };
     }
-]);
 
-PreferencesEmailControllers.controller('PreferencesSetTemplateDefaultModalController', [
-    '$http',
-    '$modalInstance',
-    '$scope',
-    'emailTemplate',
-    function($http, $modalInstance, $scope, emailTemplate) {
+    angular.module('app.preferences.email')
+        .controller('PreferencesSetTemplateDefaultModal', PreferencesSetTemplateDefaultModal);
+
+    PreferencesSetTemplateDefaultModal.$inject = ['$http', '$modalInstance', '$scope', 'emailTemplate'];
+    function PreferencesSetTemplateDefaultModal ($http, $modalInstance, $scope, emailTemplate) {
         $scope.emailTemplate = emailTemplate;
 
         $scope.ok = function () {
@@ -216,14 +138,14 @@ PreferencesEmailControllers.controller('PreferencesSetTemplateDefaultModalContro
             $modalInstance.dismiss('cancel');
         };
     }
-]);
+    /**
+     * PreferencesEmailTemplatesCreate is a controller to show edit an email template.
+     */
+    angular.module('app.preferences.email')
+        .controller('PreferencesEmailTemplatesCreate', PreferencesEmailTemplatesCreate);
 
-/**
- * PreferencesEmailTemplatesEditController is a controller to show edit an email template.
- */
-PreferencesEmailControllers.controller('PreferencesEmailTemplatesCreateController', [
     // TODO: LILY-XXX: Try to change the openVariable and closeVariable to curly braces, so it's consistent with other templating engines
-    function () {
+    function PreferencesEmailTemplatesCreate () {
         HLInbox.init();
         HLInbox.initWysihtml5();
         HLEmailTemplates.init({
@@ -232,14 +154,15 @@ PreferencesEmailControllers.controller('PreferencesEmailTemplatesCreateControlle
             closeVariable: ']]'
         });
     }
-]);
 
-/**
- * PreferencesEmailTemplatesEditController is a controller to show edit an email template.
- */
-PreferencesEmailControllers.controller('PreferencesEmailTemplatesEditController', [
+    /**
+     * PreferencesEmailTemplatesEdit is a controller to show edit an email template.
+     */
+    angular.module('app.preferences.email')
+        .controller('PreferencesEmailTemplatesEdit', PreferencesEmailTemplatesEdit);
+
     // TODO: LILY-XXX: Try to change the openVariable and closeVariable to curly braces, so it's consistent with other templating engines
-    function () {
+    function PreferencesEmailTemplatesEdit () {
         HLInbox.init();
         HLInbox.initWysihtml5();
         HLEmailTemplates.init({
@@ -248,18 +171,15 @@ PreferencesEmailControllers.controller('PreferencesEmailTemplatesEditController'
             closeVariable: ']]'
         });
     }
-]);
 
-/**
- * EmailAccountShareModalController is a controller to show the base of the settings page.
- */
-PreferencesEmailControllers.controller('EmailAccountShareModalController', [
-    '$modalInstance',
-    '$scope',
-    'EmailAccount',
-    'User',
-    'currentAccount',
-    function($modalInstance, $scope, EmailAccount, User, currentAccount) {
+    /**
+     * EmailAccountShareModal is a controller to show the base of the settings page.
+     */
+    angular.module('app.preferences.email')
+        .controller('EmailAccountShareModal', EmailAccountShareModal);
+
+    EmailAccountShareModal.$inject = ['$modalInstance', '$scope', 'EmailAccount', 'User', 'currentAccount'];
+    function EmailAccountShareModal ($modalInstance, $scope, EmailAccount, User, currentAccount) {
         $scope.currentAccount = currentAccount;
 
         // Get all users to display in a list
@@ -300,4 +220,4 @@ PreferencesEmailControllers.controller('EmailAccountShareModalController', [
             $modalInstance.dismiss('cancel');
         };
     }
-]);
+})();

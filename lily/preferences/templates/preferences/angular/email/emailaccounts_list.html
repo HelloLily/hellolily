@@ -7,10 +7,12 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="account in ownedAccounts">
+                    <li class="list-group-item" ng-repeat="account in vm.ownedAccounts">
+                        <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" tooltip="Primary account"></i>
+                        <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
                         {{ account.label }} <i>({{ account.email_address }})</i>
                         <span class="pull-right">
-                            <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="openShareAccountModal(account)">
+                            <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="vm.openShareAccountModal(account)">
                                 <i class="fa fa-group"></i>
                                 <span ng-hide="account.public">{{ account.shared_with_users.length }}</span>
                                 <span ng-show="account.public">Public</span>
@@ -18,12 +20,12 @@
                             <a class="btn btn-xs default" title="Just manage it" ui-sref="base.preferences.emailaccounts.edit({id: account.id})">
                                 <i class="fa fa-edit"></i>
                             </a>
-                            <a class="btn btn-xs default" title="Throw it away" ng-click="deleteAccount(account.id)">
+                            <a class="btn btn-xs default" title="Throw it away" ng-click="vm.deleteAccount(account.id)">
                                 <i class="fa fa-trash"></i>
                             </a>
                         </span>
                     </li>
-                    <li class="list-group-item"  ng-hide="ownedAccounts.length">
+                    <li class="list-group-item"  ng-hide="vm.ownedAccounts.length">
                         No email accounts setup yet
                     </li>
                     <li class="list-group-item">
@@ -40,10 +42,12 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item"  ng-repeat="account in sharedAccounts">
+                    <li class="list-group-item"  ng-repeat="account in vm.sharedAccounts">
+                        <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" tooltip="Primary account"></i>
+                        <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
                         {{ account.label }} <i>({{ account.email_address }})</i>
                     </li>
-                    <li class="list-group-item"  ng-hide="sharedAccounts.length">
+                    <li class="list-group-item"  ng-hide="vm.sharedAccounts.length">
                         No email accounts shared with you.
                     </li>
                 </ul>
@@ -55,10 +59,12 @@
             </div>
             <div class="portlet-body">
                 <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="account in publicAccounts">
+                    <li class="list-group-item" ng-repeat="account in vm.publicAccounts">
+                        <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" tooltip="Primary account"></i>
+                        <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
                         {{ account.label }} <i>({{ account.email_address }})</i>
                     </li>
-                    <li class="list-group-item" ng-hide="publicAccounts.length">
+                    <li class="list-group-item" ng-hide="vm.publicAccounts.length">
                         No company wide email accounts.
                     </li>
                     <li class="list-group-item">

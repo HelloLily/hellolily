@@ -1,19 +1,19 @@
 {% verbatim %}
 <script id="email/email_detail.html" type="text/ng-template">
     <div class="inbox-header inbox-view-header">
-        <h1 class="pull-left">{{ message .subject}}</h1>
+        <h1 class="pull-left">{{ vm.message.subject}}</h1>
     </div>
     <div class="inbox-view-info">
         <div class="row">
             <div class="email-info-top">
-                <span class="bold">{{ message.sender.name }}</span>&nbsp;<span>&lt;{{ message.sender.email_address }}&gt;</span>
+                <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
 
                 <div class="pull-right">
-                    <span class="bold"><abbr title="{{ message.sent_date | relativeDate }}">{{ message.sent_date | relativeDate }}</abbr></span>
+                    <span class="bold"><abbr title="{{ vm.message.sent_date | relativeDate }}">{{ vm.message.sent_date | relativeDate }}</abbr></span>
 
                     <div class="inbox-info-btn">
                         <div class="btn-group">
-                            <a ui-sref="base.email.reply({ id: message.id })" class="btn blue reply-btn">
+                            <a ui-sref="base.email.reply({ id: vm.message.id })" class="btn blue reply-btn">
                                 <i class="fa fa-mail-reply"></i> Reply
                             </a>
                             <button class="btn blue dropdown-toggle" data-toggle="dropdown">
@@ -21,10 +21,10 @@
                             </button>
                             <ul class="dropdown-menu pull-right">
                                 <li>
-                                    <a ui-sref="base.email.replyAll({ id: message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
+                                    <a ui-sref="base.email.replyAll({ id: vm.message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
                                 </li>
                                 <li>
-                                    <a ui-sref="base.email.forward({ id: message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
+                                    <a ui-sref="base.email.forward({ id: vm.message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
                                 </li>
                                 <li class="divider">
                                 </li>
@@ -34,32 +34,32 @@
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <a class="btn blue" href="javascript:void(0)" ng-click="trashMessage()"><i class="fa fa-trash-o"></i> Delete </a>
-                            <a class="btn blue" href="javascript:void(0)" ng-click="archiveMessage()">Archive <i class="fa fa-archive"></i></a>
+                            <a class="btn blue" href="javascript:void(0)" ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </a>
+                            <a class="btn blue" href="javascript:void(0)" ng-click="vm.archiveMessage()">Archive <i class="fa fa-archive"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="email-recipients-wrapper">
-                <div class="email-recipients" ng-class="{'overlay': !displayAllRecipients}" ng-show="message.received_by.length">
+                <div class="email-recipients" ng-class="{'overlay': !vm.displayAllRecipients}" ng-show="vm.message.received_by.length">
                     <span>to </span>
-                    <span ng-repeat="receiver in message.all_recipients">
+                    <span ng-repeat="receiver in vm.message.all_recipients">
                         <span title="{{ receiver.email_address }}">
                             <span ng-show="receiver.name">{{ receiver.name }}</span><span ng-show="!receiver.name">{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
                         </span>
                     </span>
                 </div>
-                <button class="btn show-more-recipients" ng-click="toggleOverlay()"><i class="fa" ng-class="{true: 'fa-collapse-top', false: 'fa-collapse'}[displayAllRecipients]"></i></button>
+                <button class="btn show-more-recipients" ng-click="vm.toggleOverlay()"><i class="fa" ng-class="{true: 'fa-collapse-top', false: 'fa-collapse'}[vm.displayAllRecipients]"></i></button>
             </div>
         </div>
     </div>
-    <div class="inbox-view" ng-show="message.body_html" id="ifrm_container">
-        <iframe resize-iframe ng-src="{{ message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden" frameBorder="0"></iframe>
+    <div class="inbox-view" ng-show="vm.message.body_html" id="ifrm_container">
+        <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden" frameBorder="0"></iframe>
     </div>
-    <div class="inbox-view" ng-hide="message.body_html" ng-bind-html="message.body_text | nl2br"></div>
+    <div class="inbox-view" ng-hide="vm.message.body_html" ng-bind-html="vm.message.body_text | nl2br"></div>
     <hr>
-    <div class="inbox-attached" ng-show="message.attachments.length">
-        <div class="margin-bottom-25" ng-repeat="attachment in message.attachments">
+    <div class="inbox-attached" ng-show="vm.message.attachments.length">
+        <div class="margin-bottom-25" ng-repeat="attachment in vm.message.attachments">
             <div>
                 <strong>{{ attachment.attachment }}</strong>
                 <span>

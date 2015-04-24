@@ -13,7 +13,7 @@ var caseControllers = angular.module('CaseControllers', [
     'CaseServices',
     'contactServices',
     'noteServices',
-    'EmailServices'
+    'app.email.services'
 ]);
 
 caseControllers.config(['$stateProvider', function($stateProvider) {
@@ -453,7 +453,7 @@ caseControllers.controller('CaseListController', [
         }
 
         /**
-         * updateCases() reloads the cases trough a service
+         * updateCases() reloads the cases through a service
          *
          * Updates table.items and table.totalItems
          */

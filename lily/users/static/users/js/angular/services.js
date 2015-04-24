@@ -1,15 +1,35 @@
-var UserServices = angular.module('UserServices', ['ngResource']);
+(function() {
+    'use strict';
 
-/**
- * Resource to get all teams that this user is part of.
- */
-UserServices.factory('UserTeams', ['$resource', function($resource) {
-    return $resource('/api/users/teams/');
-}]);
+    angular.module('app.users.services', ['ngResource']);
+    /**
+     * Resource to get all teams that this user is part of.
+     */
+    angular.module('app.users.services').factory('UserTeams', UserTeams);
 
-/**
- * Resource to get users.
- */
-UserServices.factory('User', ['$resource', function($resource) {
-    return $resource('/api/users/user/');
-}]);
+    UserTeams.$inject = ['$resource'];
+    function UserTeams ($resource) {
+        return $resource('/api/users/teams/');
+    }
+
+    /**
+     * Resource to get users.
+     */
+    angular.module('app.users.services').factory('User', User);
+
+    User.$inject = ['$resource'];
+    function User ($resource) {
+        return $resource('/api/users/user/', null, {
+            me: {
+                method: 'GET',
+                url: '/api/users/user/me/',
+                isArray: false
+            },
+            update: {
+                method: 'PUT',
+                url: '/api/users/user/:id/'
+            }
+        });
+    }
+})();
+

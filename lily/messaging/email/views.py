@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
@@ -118,7 +119,7 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
         return email_account
 
     def get_success_url(self):
-        return '/#/settings/emailaccounts'
+        return '/#/preferences/emailaccounts'
 
 
 class EmailMessageHTMLView(LoginRequiredMixin, DetailView):
@@ -233,7 +234,9 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                     # Save as EmailOutboxAttachment
                     attachment = EmailOutboxAttachment()
                     attachment.email_outbox_message = email_outbox_message
-                    attachment.attachment = uploaded_attachment
+                    file = ContentFile(uploaded_attachment.read())
+                    file.name = uploaded_attachment.name
+                    attachment.attachment = file
                 else:
                     attachment.content_type = uploaded_attachment.content_type
                     attachment.email_outbox_message = email_outbox_message

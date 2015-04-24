@@ -1,5 +1,5 @@
 .git
-bin
+temp_bin
 dist-packages
 Dockers
 lily

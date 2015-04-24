@@ -57,7 +57,11 @@ class GmailConnector(object):
             try:
                 return service.execute()
             except HttpError, e:
-                error = anyjson.loads(e.content)
+                try:
+                    error = anyjson.loads(e.content)
+                except ValueError:
+                    logger.exception('error %s' % e)
+                    error = e
                 # Error could be nested, so unwrap if nessecary
                 error = error.get('error', error)
                 if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded', 'userRateLimitExceeded']:

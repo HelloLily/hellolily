@@ -154,6 +154,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
                     message_id=kwargs['initial']['draft_pk'],
                 )
 
+        self.fields['template'].queryset = EmailTemplate.objects.order_by('name')
+
         user = get_current_user()
         self.email_accounts = EmailAccount.objects.filter(
             Q(owner=user) |

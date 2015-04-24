@@ -15,10 +15,10 @@
                     <span ng-if="account.description"> {{ ::account.description }} <br/><br/></span>
                     <div class='row'>
                         <div class="col-md-6">
-                            <span ng-repeat="website in ::account.website"><i class="fa fa-envelope"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
+                            <span ng-repeat="website in ::account.website"><i class="fa fa-globe"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
                             <i class="fa fa-phone"></i> {{ ::account.phone }} <br/>
 
-                            <i class='fa fa-envelope'></i> <a ui-sref="base.email.emailCompose({ email: account.email[0] })">{{ ::account.email[0] }}</a>
+                            <i class='fa fa-envelope'></i> <a ui-sref="base.email.composeEmail({ email: account.email[0] })">{{ ::account.email[0] }}</a>
                             <div ng-repeat="social in ::account.social">
                                 <span class="summary-label">{{ ::social.social_name }}</span>
                                 <span class="summary-data">

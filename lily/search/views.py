@@ -93,7 +93,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             email_address (string): string representation of an email address
 
         Returns:
-            dict with search results empty dict
+            dict with search results or empty dict
         """
         search = LilySearch(
             tenant_id=self.request.user.tenant_id,
@@ -118,7 +118,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             email_address (string): string representation of an email address
 
         Returns:
-            dict with search results empty dict
+            dict with search results or empty dict
         """
         search = LilySearch(
             tenant_id=self.request.user.tenant_id,

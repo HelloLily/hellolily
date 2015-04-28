@@ -337,6 +337,8 @@ class EmailOutboxMessage(TenantMixin, models.Model):
     body = models.TextField(null=True, blank=True, verbose_name=_('html body'))
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
+    template_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
+    original_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
 
     def message(self):
         from ..utils import EmailMultiRelated, get_attachment_filename_from_url

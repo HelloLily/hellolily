@@ -223,49 +223,28 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             bcc=anyjson.dumps(email_draft['send_to_bcc'] if len(email_draft['send_to_bcc']) else None),
             body=email_draft['body_html'],
             headers=anyjson.dumps(self.get_email_headers()),
-            mapped_attachments=len(mapped_attachments.keys())
+            mapped_attachments=len(mapped_attachments),
+            template_attachment_ids=self.request.POST.get('template_attachment_ids'),
         )
 
+        original_attachment_ids = set()
         for attachment_form in form.cleaned_data.get('attachments'):
             if not attachment_form.cleaned_data['DELETE']:
                 uploaded_attachment = attachment_form.cleaned_data['attachment']
                 attachment = attachment_form.save(commit=False)
                 if isinstance(attachment, EmailAttachment):
-                    # Save as EmailOutboxAttachment
-                    attachment = EmailOutboxAttachment()
-                    attachment.email_outbox_message = email_outbox_message
-                    file = ContentFile(uploaded_attachment.read())
-                    file.name = uploaded_attachment.name
-                    attachment.attachment = file
+                    # Only store attachment id for now
+                    original_attachment_ids.add('%s' % attachment.id)
                 else:
+                    # Uploaded file, add it to email_outbox_message
                     attachment.content_type = uploaded_attachment.content_type
                     attachment.email_outbox_message = email_outbox_message
-
-                # Calling .size on a S3BotoStorageFile object takes very long for some reason
-                # Calling .size on the .file of a S3BotoStorageFile object doesn't
-                # So check if we're dealing with such an object and do the appropriate action
-                if uploaded_attachment.file and isinstance(uploaded_attachment.file, S3BotoStorageFile):
-                    attachment.size = uploaded_attachment.file.size
-                else:
                     attachment.size = uploaded_attachment.size
-
-                attachment.save()
-
-        template_attachment_ids = self.request.POST.get('template_attachment_ids').split(',')
-        for template_attachment_id in template_attachment_ids:
-            # An empty string gives a ValueError, so check for an empty string
-            if template_attachment_id:
-                try:
-                    template_attachment = EmailTemplateAttachment.objects.get(pk=template_attachment_id)
-                except EmailTemplateAttachment.DoesNotExist:
-                    pass
-                else:
-                    attachment = EmailOutboxAttachment()
-                    attachment.content_type = template_attachment.content_type
-                    attachment.size = template_attachment.size
-                    attachment.email_outbox_message = email_outbox_message
-                    attachment.attachment = template_attachment.attachment
                     attachment.save()
+
+        # Store the ids of the original message attachments
+        email_outbox_message.original_attachment_ids = ','.join(original_attachment_ids)
+        email_outbox_message.save()
 
         # Remove an old draft when sending an e-mail message or saving a new draft
         if self.object and self.remove_old_message:

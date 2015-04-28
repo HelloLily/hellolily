@@ -11,6 +11,7 @@
         'ncy-angular-breadcrumb',
 
         // Controllers
+        'app.accounts',
         'app.email',
         'app.preferences',
         'app.preferences.email',
@@ -18,7 +19,6 @@
         'lilyControllers',
         'CaseControllers',
         'ContactsControllers',
-        'AccountControllers',
         'dashboardControllers',
         'DealControllers',
 

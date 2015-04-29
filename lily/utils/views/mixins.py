@@ -162,6 +162,7 @@ class ExportListViewMixin(FilterQuerysetMixin):
         writer = unicodecsv.writer(response)
 
         # Add headers to response.
+        headers = [unicode(header) for header in headers]
         writer.writerow(headers)
 
         # For each item, make a row to export.

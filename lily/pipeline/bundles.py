@@ -90,7 +90,9 @@ PIPELINE_JS = {
             'lily/js/angular/filters.js',
             'lily/js/angular/services.js',
 
+            'accounts/js/angular/module.js',
             'accounts/js/angular/controllers.js',
+            'accounts/js/angular/list.ctrl.js',
             'accounts/js/angular/services.js',
 
             'cases/js/angular/controllers.js',

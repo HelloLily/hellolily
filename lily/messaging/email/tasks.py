@@ -3,11 +3,13 @@ import traceback
 
 from celery.task import task
 from django.conf import settings
+from django.core.files.base import ContentFile
 from taskmonitor.decorators import monitor_task
 from taskmonitor.utils import lock_task
 
 from .manager import GmailManager, ManagerError, SyncLimitReached
-from .models.models import EmailAccount, EmailMessage, EmailOutboxMessage
+from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
+                            EmailOutboxAttachment, EmailAttachment)
 
 
 logger = logging.getLogger(__name__)
@@ -266,6 +268,40 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 original_message_thread_id = original_message.thread_id
         except EmailMessage.DoesNotExist:
             raise
+
+    # Add template attachments
+    if email_outbox_message.template_attachment_ids:
+        template_attachment_id_list = email_outbox_message.template_attachment_ids.split(',')
+        for template_attachment_id in template_attachment_id_list:
+            try:
+                template_attachment = EmailTemplateAttachment.objects.get(pk=template_attachment_id)
+            except EmailTemplateAttachment.DoesNotExist:
+                pass
+            else:
+                attachment = EmailOutboxAttachment()
+                attachment.content_type = template_attachment.content_type
+                attachment.size = template_attachment.size
+                attachment.email_outbox_message = email_outbox_message
+                attachment.attachment = template_attachment.attachment
+                attachment.save()
+
+    #  Add attachment from original message (if mail is being forwarded)
+    if email_outbox_message.original_attachment_ids:
+        original_attachment_id_list = email_outbox_message.original_attachment_ids.split(',')
+        for attachment_id in original_attachment_id_list:
+            try:
+                original_attachment = EmailAttachment.objects.get(pk=attachment_id)
+            except EmailAttachment.DoesNotExist:
+                pass
+            else:
+                outbox_attachment = EmailOutboxAttachment()
+                outbox_attachment.email_outbox_message = email_outbox_message
+                outbox_attachment.tenant_id = original_attachment.message.tenant_id
+                file = ContentFile(original_attachment.attachment.read())
+                file.name = original_attachment.attachment.name
+                outbox_attachment.attachment = file
+                outbox_attachment.size = file.size
+                outbox_attachment.save()
 
     if not email_account.is_authorized:
         logger.error('EmailAccount not authorized: %s', email_account)

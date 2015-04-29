@@ -31,36 +31,22 @@ EmailDirectives.directive('contactIcon', [
                     .success(function(data) {
                         scope.emailAddressResults = data;
                         if (data.type == 'contact') {
-
-                            scope.icon = 'check';
                             // Contact and has account
                             if (data.data.account) {
-                                scope.color = 'green';
-
+                                scope.status = 'complete';
                             // Contact without account
                             } else {
-                                scope.action = 'needsAccount';
-                                scope.icon = 'building';
-                                scope.color = 'yellow';
+                                scope.status = 'needsAccount';
                             }
                         }else if (data.type == 'account') {
-
-                            // Account without contact
-                            if (data.complete) {
-                                scope.action = 'needsContact';
-                                scope.icon = 'user';
-                                scope.color = 'blue';
-
-                            // Account with matching domain
+                            // Is the emailadress from the account it self (eg. info@)
+                            if (data.complete == true) {
+                                scope.status = 'complete';
                             } else {
-                                scope.action = 'needsContact';
-                                scope.icon = 'user';
-                                scope.color = 'blue';
+                                scope.status = 'needsContact';
                             }
                         } else {
-                            scope.action = 'needsEverything';
-                            scope.icon = 'everything';
-                            scope.color = 'grey';
+                            scope.status = 'needsEverything';
                         }
                     });
 

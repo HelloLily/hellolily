@@ -27,7 +27,7 @@
         var vm = this;
         vm.displayAllRecipients = false;
         vm.message = null;
-        vm.archiveMessaeg = archiveMessage;
+        vm.archiveMessage = archiveMessage;
         vm.trashMessage = trashMessage;
         vm.deleteMessage = deleteMessage;
         vm.toggleOverlay = toggleOverlay;

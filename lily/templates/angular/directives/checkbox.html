@@ -1,0 +1,12 @@
+{% verbatim %}
+<script id="directives/checkbox.html" type="text/ng-template">
+    <label>
+        <div class="checker">
+            <span ng-class="{checked: model}">
+                <input type="checkbox" data-skip-uniform ng-model="model">
+            </span>
+        </div>
+        <ng-transclude></ng-transclude>
+    </label>
+</script>
+{% endverbatim %}

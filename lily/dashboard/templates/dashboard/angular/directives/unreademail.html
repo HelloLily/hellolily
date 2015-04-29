@@ -6,7 +6,7 @@
                     <div class="caption">
                         <i class="fa fa-envelope-o"></i>
                         <span class="caption-subject bold uppercase"> UNREAD E-MAIL</span>
-                        <span class="caption-helper">({{ emailMessages.length }})</span>
+                        <span class="caption-helper">({{ vm.table.items.length }})</span>
                     </div>
                     <div class="tools">
                         <a href="" class="collapse" data-original-title="" title=""></a>
@@ -18,15 +18,15 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Mailbox <i class="fa fa-sort-up"></i></th>
+                                    <th sort-column="account_name" table="vm.table">Mailbox</th>
                                     <th>From</th>
                                     <th>Subject</th>
-                                    <th>Created <i class="fa fa-sort"></i></th>
+                                    <th sort-column="sent_date" table="vm.table">Created</th>
                                     <th width="105px">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="message in emailMessages">
+                                <tr ng-repeat="message in vm.table.items">
                                     <td>{{ message.account_name }}</td>
                                     <td>{{ message.sender_name || message.sender_email }}</td>
                                     <td>
@@ -40,7 +40,7 @@
                                         <div><i class="fa fa-sitemap"></i> create</div>
                                     </td>
                                 </tr>
-                                    <tr ng-hide="emailMessages.length">
+                                    <tr ng-hide="vm.table.items.length">
                                     <td colspan="5">No unread emailmessages</td>
                                 </tr>
                             </tbody>

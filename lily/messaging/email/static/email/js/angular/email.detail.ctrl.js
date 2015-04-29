@@ -44,7 +44,7 @@
         }
 
         function _getMessage() {
-            EmailMessage.API.get({id: $stateParams.id}, function(result) {
+            EmailMessage.get({id: $stateParams.id}, function(result) {
                 if (result.body_html) {
                     result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
                 }
@@ -61,19 +61,19 @@
         }
 
         function archiveMessage() {
-            EmailMessage.API.archive({id: vm.message.id}).$promise.then(function () {
+            EmailMessage.archive({id: vm.message.id}).$promise.then(function () {
                 $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         }
 
         function trashMessage() {
-            EmailMessage.API.trash({id: vm.message.id}).$promise.then(function () {
+            EmailMessage.trash({id: vm.message.id}).$promise.then(function () {
                 $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         }
 
         function deleteMessage () {
-            EmailMessage.API.delete({id: vm.message.id}).$promise.then(function () {
+            EmailMessage.delete({id: vm.message.id}).$promise.then(function () {
                 $state.go('base.email.list', { 'labelId': 'INBOX' });
             });
         }

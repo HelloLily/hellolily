@@ -29,6 +29,7 @@ noteServices.factory('NoteDetail', ['$resource', function($resource) {
                     var objects = [];
                     if (data && data.hits && data.hits.length > 0) {
                         data.hits.forEach(function(obj) {
+                            obj = $.extend(obj, {historyType: 'note', color: 'yellow'});
                             objects.push(obj)
                         });
                     }

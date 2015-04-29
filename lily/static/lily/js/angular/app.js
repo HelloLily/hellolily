@@ -21,10 +21,12 @@
         'AccountControllers',
         'dashboardControllers',
         'DealControllers',
+        'UtilsControllers',
 
         // Directives
         'CaseDirectives',
         'lilyDirectives',
+        'UtilsDirectives',
 
         // Google Analytics
         'angulartics',

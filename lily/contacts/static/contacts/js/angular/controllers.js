@@ -95,11 +95,11 @@ contacts.controller('ContactDetailController', [
     'NoteService',
 
     function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, ContactTest, $scope, $q, $filter, $stateParams, $state, NoteService) {
-        $scope.showMoreText = 'Show more';
+        var id = $stateParams.id;
+
         $scope.conf.pageTitleBig = 'Contact detail';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
-        var id = $stateParams.id;
 
         function pageTitle(contact) {
             var title = contact.name;
@@ -109,100 +109,8 @@ contacts.controller('ContactDetailController', [
             return title;
         }
 
-        $scope.showMoreText = 'Show more';
-        $scope.opts = {history_type: ''};
-        $scope.history_types = [
-            {type: '', name: 'All'},
-            {type: 'case', name: 'Cases'},
-            {type: 'email', name: 'Emails'},
-            {type: 'note', name: 'Notes'}
-        ];
-
-        var add = 10;
-        var size = add;
-        var currentSize = 0;
-        $scope.history = [];
-        function loadHistory(contact, tenantEmails) {
-            var notesPromise = NoteDetail.query({
-                filterquery: 'content_type:contact AND object_id:' + id,
-                size: size
-            }).$promise;
-
-            var casesPromise = CaseDetail.query({
-                filterquery: 'contact:' + id,
-                size: size
-            }).$promise;
-
-            var emailAddresses = [];
-            if (contact.email) {
-                contact.email.forEach(function(emailAddress) {
-                    emailAddresses.push(emailAddress);
-                });
-            }
-            var emailPromise = $q.when([]);
-            if (emailAddresses.length > 0) {
-                var join = emailAddresses.map(function(emailAddress) {
-                    // Enclose email addresses with quotes, for exact matching.
-                    return '"' + emailAddress + '"';
-                }).join(' OR ');
-                // Search for correspondence with the user, by checking the email addresses
-                // with sent / received headers.
-                emailPromise = EmailDetail.query({
-                    filterquery: 'sender_email:(' + join + ') OR received_by_email:(' + join + ') OR received_by_cc_email:(' + join + ')',
-                    size: size
-                }).$promise;
-            }
-            $q.all([notesPromise, emailPromise, casesPromise]).then(function(results) {
-                var history = [];
-                var notes = results[0];
-                notes.forEach(function(note) {
-                    note.note = true;
-                    note.history_type = 'note';
-                    note.color = 'yellow';
-                    history.push(note);
-                });
-                var emails = results[1];
-                emails.forEach(function(email) {
-                    email.email = true;
-                    email.date = email.sent_date;
-                    email.right = false;
-                    // Check if the sender is from tenant.
-                    tenantEmails.forEach(function(emailAddress) {
-                        if (emailAddress.email_address == email.sender_email) {
-                            email.right = true;
-                        }
-                    });
-                    email.history_type = 'email';
-                    email.color = 'green';
-                    history.push(email);
-                });
-                var cases = results[2];
-                cases.forEach(function(caseItem) {
-                    caseItem.caze = true;
-                    caseItem.date = caseItem.expires;
-                    caseItem.history_type = 'case';
-                    caseItem.color = 'grey';
-                    history.push(caseItem);
-                });
-
-                $scope.history.splice(0, $scope.history.length);
-                $filter('orderBy')(history, 'date', true).forEach(function(item) {
-                    $scope.history.push(item);
-                });
-                $scope.limitSize = size;
-                size += add;
-                if ($scope.history.length == 0) {
-                    $scope.showMoreText = 'No history (refresh)';
-                }
-                else if ($scope.history.length <= currentSize || $scope.history.length < size / 3) {
-                    $scope.showMoreText = 'End reached (refresh)';
-                }
-                currentSize = $scope.history.length;
-            });
-        }
-
-        var contactPromise = ContactDetail.get({id: id}).$promise;
-        contactPromise.then(function(contact) {
+        $scope.contact = ContactDetail.get({id: id});
+        $scope.contact.$promise.then(function(contact) {
             $scope.contact = contact;
             $scope.pageTitle = pageTitle(contact);
             var works = [];
@@ -224,30 +132,9 @@ contacts.controller('ContactDetailController', [
             });
         });
 
-        var tenantEmailsPromise = EmailAccount.query();
-        $scope.loadHistoryFromButton = function() {
-            $q.all([contactPromise, tenantEmailsPromise]).then(function(results) {
-                loadHistory(results[0], results[1]);
-            });
-        };
-        $scope.loadHistoryFromButton();
-
         CaseDetail.totalize({filterquery: 'archived:false AND contact:' + id}).$promise.then(function(total) {
             $scope.numCases = total.total;
         });
-
-        $scope.deleteNote = function(note) {
-            if (confirm('Are you sure?')) {
-                NoteService.delete({
-                    id:note.id
-                }, function() {  // On success
-                    var index = $scope.history.indexOf(note);
-                    $scope.history.splice(index, 1);
-                }, function(error) {  // On error
-                    alert('something went wrong.')
-                });
-            }
-        };
     }
 ]);
 

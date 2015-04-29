@@ -26,9 +26,10 @@ dealServices.factory('DealDetail', ['$resource', function($resource) {
                 isArray: true,
                 transformResponse: function(data) {
                     data = angular.fromJson(data);
-                    var objects = []
+                    var objects = [];
                     if (data && data.hits && data.hits.length > 0) {
                         data.hits.forEach(function(obj) {
+                            obj = $.extend(obj, {historyType: 'deal', color: 'blue', date: obj.modified});
                             objects.push(obj)
                         });
                     }

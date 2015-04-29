@@ -10,7 +10,7 @@ from django.db import DataError
 from django.utils import timezone
 
 from lily.accounts.models import Account, Website
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
 from lily.utils.functions import parse_address, _isint, parse_phone_number
@@ -102,6 +102,11 @@ E.g.:
         'Date Created': 'created',
     }
 
+    unmatched_accounts = list()
+
+    duplicate_contacts = list()
+    unmatched_contacts = list()
+
     country_codes = set([country[0] for country in COUNTRIES])
     user_mapping = {}
     already_logged = set()
@@ -122,6 +127,11 @@ E.g.:
             for row in self.read_csvfile(csvfile):
                 self._create_account_data(row)
                 gc.collect()
+
+            unmatched_filename = self.write_to_file(self.unmatched_accounts, 'unmatched_accounts')
+
+            logger.info('Unmatched Accounts file %s' % unmatched_filename)
+
             logger.info('importing accounts finished')
 
         elif model in ['contact', 'contacts']:
@@ -130,6 +140,12 @@ E.g.:
             for row in self.read_csvfile(csvfile):
                 self._create_contact_data(row)
                 gc.collect()
+
+            duplicates_filename = self.write_to_file(self.duplicate_contacts, 'duplicate_contacts')
+            unmatched_filename = self.write_to_file(self.unmatched_contacts, 'unmatched_contacts')
+
+            logger.info('Duplicate Contacts file %s' % duplicates_filename)
+            logger.info('Unmatched Contacts file %s' % unmatched_filename)
             logger.info('importing contacts finished')
 
         else:
@@ -144,6 +160,21 @@ E.g.:
         reader = csv.DictReader(csv_file, delimiter=',', quoting=csv.QUOTE_ALL)
         for row in reader:
             yield row
+
+    def write_to_file(self, item_list, name):
+        i = 0
+        file_name = None
+        while True:
+            file_name = '%s_%s' % (name, i)
+            if not default_storage.exists(file_name):
+                break
+            else:
+                i += 1
+        file = default_storage.open(file_name, 'a+')
+        for item in item_list:
+            file.write(item + "\n")
+        file.clos
+        return file_name
 
     def _create_account_data(self, values):
         """
@@ -203,6 +234,7 @@ E.g.:
         try:
             account.save()
         except DataError:
+            self.unmatched_accounts.append(values.get('ID'))
             logger.error(u'DataError for %s' % account_kwargs)
             return
 
@@ -268,11 +300,7 @@ E.g.:
             values (dict):
 
         """
-        if self.sugar_import:
-            if not values.get('ID') or 30 > len(values.get('ID')) > 40:
-                return
-
-        # Create contact
+        # Map columns and values to Contact model attributes
         contact_kwargs = dict()
         for column, value in values.items():
             if value and column in self.contact_column_attribute_mapping:
@@ -282,7 +310,8 @@ E.g.:
                     value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
                 contact_kwargs[attribute] = value
 
-        first, last = None, None
+        # Check if we can find a first and or last name
+        first, last = False, False
         if 'first_name' in contact_kwargs and contact_kwargs['first_name']:
             first = True
             contact_kwargs['first_name'] = contact_kwargs['first_name'][:254]
@@ -291,6 +320,7 @@ E.g.:
             contact_kwargs['last_name'] = contact_kwargs['last_name'][:254]
 
         if not (first or last):
+            self.unmatched_contacts.append(values.get('ID'))
             logger.warning(u'No first or last name for contact. %s' % contact_kwargs)
             return
 
@@ -302,6 +332,7 @@ E.g.:
         contact_kwargs['gender'] = gender
 
         contact_kwargs['tenant_id'] = self.tenant_pk
+        contact_kwargs['salutation'] = Contact.INFORMAL
         try:
             contact = Contact.objects.get(tenant_id=self.tenant_pk, import_id=contact_kwargs['import_id'])
         except Contact.DoesNotExist:
@@ -317,10 +348,37 @@ E.g.:
                 except Contact.DoesNotExist:
                     contact = Contact(tenant_id=self.tenant_pk)
                 except Contact.MultipleObjectsReturned:
-                    logger.warning(u'Multiple contacts returned for %s' % contact_kwargs)
-                    return
+
+                    if values.get('Email Address'):
+                        # Check for contact with matching email
+                        email_address_kwargs = dict()
+                        email_address_kwargs['email_address'] = values.get('Email Address')
+                        email_address_kwargs['tenant_id'] = self.tenant_pk
+
+                        contact_list = Contact.objects.filter(
+                            tenant_id=self.tenant_pk,
+                            first_name=contact_kwargs['first_name'],
+                            last_name=contact_kwargs['last_name'],
+                            email_addresses__email_address=values.get('Email Address'),
+                            email_addresses__tenant_id=self.tenant_pk)
+
+                        if not contact_list.exists():
+                            contact = Contact(tenant_id=self.tenant_pk)
+                        else:
+                            # Pick first we do not delete the others
+                            # incase they are duplicate but contain a
+                            # lot more info or are connected to a other
+                            # account
+                            contact = contact_list.first()
+                            if len(contact_list) > 1:
+                                self.duplicate_contacts.append(contact_kwargs['first_name'] + " " + contact_kwargs['last_name'])
+                    else:
+                        self.unmatched_contacts.append(values.get('ID'))
+                        return
             else:
-                contact = Contact(tenant_id=self.tenant_pk)
+                # What to do if a contact has no first and last name
+                self.unmatched_contacts.append(values.get('ID'))
+                return
 
         for k, v in contact_kwargs.items():
             setattr(contact, k, v)
@@ -330,19 +388,19 @@ E.g.:
         # Create addresses
         self._create_address(
             contact,
-            'visiting',
-            values.get('Primary Street'),
-            values.get('Primary Postal Code'),
-            values.get('Primary City'),
-            values.get('Primary Country')
+            'billing',
+            values.get('Primary Address Street'),
+            values.get('Primary Address Postal Code'),
+            values.get('Primary Address City'),
+            values.get('Primary Address Country')
         )
         self._create_address(
             contact,
             'shipping',
-            values.get('Alternate Street'),
-            values.get('Alternate Postal Code'),
-            values.get('Alternate City'),
-            values.get('Alternate Country')
+            values.get('Alternate Address Street'),
+            values.get('Alternate Address Postal Code'),
+            values.get('Alternate Address City'),
+            values.get('Alternate Address Country')
         )
 
         # Create email addresses
@@ -361,10 +419,17 @@ E.g.:
         try:
             account = Account.objects.get(name=values.get('Account Name'), tenant_id=self.tenant_pk)
         except Account.DoesNotExist:
-            pass
-        else:
+            account = None
+        except Account.MultipleObjectsReturned:
+            account = Account.objects.filter(name=values.get('Account Name'), tenant_id=self.tenant_pk).first()
+            logger.warning('Pick first account of multiple accounts for name: %s' % values.get('Account Name'))
+
+        if account:
             # Create function (link with account)
-            Function.objects.create(account=account, contact=contact)
+            function, created = Function.objects.get_or_create(account=account, contact=contact)
+            title = (values.get('Title') + " " + values.get("Department"))[:50]
+            function.title = title
+            function.save()
 
         contact.save()
 

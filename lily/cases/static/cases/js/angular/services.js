@@ -63,8 +63,8 @@
      */
     angular.module('app.cases.services').factory('Case', Case);
 
-    Case.$inject = ['$http', '$resource'];
-    function Case ($http, $resource) {
+    Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail'];
+    function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
 
         var Case = $resource(
             '/api/cases/case/:id',
@@ -93,8 +93,18 @@
             }
         );
 
+        Case.getCases = getCases;
+        Case.getCaseTypes = getCaseTypes;
+        Case.getMyCasesWidget = getMyCasesWidget;
+        Case.getCallbackRequests = getCallbackRequests;
+        Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+
+        return Case;
+
+        /////////
+
         /**
-         * _getCases() gets the cases from the search backend through a promise
+         * getCases() gets the cases from the search backend through a promise
          *
          * @param queryString string: current filter on the caselist
          * @param page int: current page of pagination
@@ -110,10 +120,7 @@
          *          total int: total number of case objects
          *      }
          */
-        function _getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
-            var sort = '';
-            if (orderedAsc) sort += '-';
-            sort += orderColumn;
+        function getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
 
             return $http({
                 url: '/search/search/',
@@ -123,11 +130,10 @@
                     q: queryString,
                     page: page - 1,
                     size: pageSize,
-                    sort: sort,
+                    sort: _getSorting(orderColumn, orderedAsc),
                     filterquery: filterQuery
                 }
-            })
-            .then(function(response) {
+            }).then(function(response) {
                 return {
                     cases: response.data.hits,
                     total: response.data.total
@@ -135,59 +141,79 @@
             });
         }
 
-        Case.getCaseTypes = function () {
+        function getCaseTypes () {
             return $http({
                 url: '/cases/casetypes/',
                 method: 'GET'
             }).then(function (response) {
                 return response.data.casetypes;
             });
-        };
+        }
+
+        function _getSorting(field, sorting) {
+            var sort = '';
+            sort += sorting ? '-': '';
+            sort += field;
+            return sort;
+        }
 
         /**
          * Service to return a resource for my cases widget
          */
-        Case.getMyCasesWidget = function () {
-            return $http({
-                url: '/api/cases/user/?not_status=Closed&is_archived=false&not_type=Callback&is_deleted=False',
-                method: 'GET'
-            }).then(function (response) {
-                return response.data;
+        function getMyCasesWidget (field, sorting) {
+            var deferred = $q.defer();
+            var filterQuery = 'archived:false AND NOT casetype_name:Callback';
+            filterQuery += ' AND assigned_to_id:' + currentUser.id;
+            Case.query({
+                filterquery: filterQuery,
+                sort: _getSorting(field, sorting)
+            }, function (cases) {
+                deferred.resolve(cases);
             });
-        };
 
-        /**
-         * query() makes it possible to query on cases on backend search
-         *
-         * @param table object: holds all the info needed to get cases from backend
-         *
-         * @returns Promise object: when promise is completed:
-         *      {
-         *          cases list: paginated case objects
-         *          total int: total number of case objects
-         *      }
-         */
-        Case.query = function (table) {
-            return _getCases(table.searchQuery, table.page, table.pageSize, table.order.column, table.order.ascending, table.archived, table.filterQuery);
-        };
+            return deferred.promise;
+        }
 
         /**
          * Gets all cases with the 'callback' case type
          *
          * @returns cases with the callback case type
          */
-        Case.getCallbackRequests = function () {
-            return $http({
-                url: '/api/cases/user/?type=Callback&is_archived=false&is_deleted=False',
-                method: 'GET'
-            }).then(function (response) {
-                return {
-                    callbackRequests: response.data
-                };
-            });
-        };
+        function getCallbackRequests (field, sorting) {
+            var filterQuery = 'archived:false AND casetype_name:Callback';
+            filterQuery += ' AND assigned_to_id:' + currentUser.id;
 
-        return Case;
+            var deferred = $q.defer();
+            Case.query({
+                filterquery: filterQuery,
+                sort: _getSorting(field, sorting)
+            }, function (cases) {
+                angular.forEach(cases, function(callbackCase) {
+                    if (callbackCase.account) {
+                        AccountDetail.get({id: callbackCase.account}, function(account) {
+                            callbackCase.accountPhone = account.phone;
+                        });
+                    }
+                    if (callbackCase.contact) {
+                        ContactDetail.get({id: callbackCase.contact}, function(contact) {
+                            callbackCase.contactPhone = contact.phone;
+                        });
+                    }
+                });
+                deferred.resolve(cases);
+            });
+            return deferred.promise;
+        }
+
+        function getUnassignedCasesForTeam (teamId, field, sorting) {
+            var filterQuery = 'archived:false AND _missing_:assigned_to_id';
+            filterQuery += ' AND assigned_to_groups:' + teamId;
+
+            return Case.query({
+                filterquery: filterQuery,
+                sort: _getSorting(field, sorting)
+            }).$promise;
+        }
     }
 
     /**

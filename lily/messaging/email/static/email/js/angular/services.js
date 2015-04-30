@@ -135,7 +135,8 @@
             this.update({id: id, read: read});
         }
 
-        function getDashboardMessages (field, sorting, filterQuery) {
+        function getDashboardMessages (field, sorting) {
+            var filterQuery = ['read:false AND label_id:INBOX'];
             var sort = '';
             sort += sorting ? '-': '';
             sort += field;

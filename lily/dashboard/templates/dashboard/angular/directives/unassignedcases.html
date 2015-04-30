@@ -1,49 +1,48 @@
 {% verbatim %}
     <script id="dashboard/unassignedcases.html" type="text/ng-template">
-        <div class="col-md-6" ng-repeat="team in teams">
-            <div class="portlet light">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-suitcase"></i>
-                        <span class="caption-subject bold uppercase"> {{team.name | uppercase}} CASES</span>
-                        <span class="caption-helper">({{ team.cases.length }})</span>
-                    </div>
-                    <div class="tools">
-                        <a href="" class="collapse" data-original-title="" title=""></a>
-                        <a href="" class="remove" data-original-title="" title=""></a>
-                    </div>
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-suitcase"></i>
+                    <span class="caption-subject bold uppercase"> {{uc.team.name | uppercase}} CASES</span>
+                    <span class="caption-helper">({{ uc.table.items.length }})</span>
                 </div>
-                <div class="portlet-body">
-                    <div class="scroll-body" slimscroll="{height: 250}">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Casenr. <i class="fa fa-sort-up"></i></th>
-                                    <th>Client</th>
-                                    <th>Subject</th>
-                                    <th>Prio <i class="fa fa-sort"></i></th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-hide="team.cases.length">
-                                    <td colspan="5">There are no unassigned cases for this team...</td>
-                                </tr>
-                                <tr ng-repeat="case in team.cases">
-                                    <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>
-                                    <td><a ui-sref="base.accounts.detail({ id: case.account.id })" ng-if="::case.account">{{ ::case.account.name }}</a></td>
-                                    <td><a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ case.subject }}</a></td>
-                                    <td>
-                                        <span class="label label-sm" ng-class="{'label-success': !case.priority[0], 'label-info': case.priority[0] === 1, 'label-warning': case.priority[0] === 2, 'label-danger': case.priority[0] === 3 } ">
-                                            {{ case.priority[1] }}
-                                        </span>
-                                    </td>
-                                    <td>{{ case.created  | relativeDate }}</td>
-                                    <td><a data-toggle="modal" ng-click="assignToMe(team, case)" class='assign-me-btn'><i class="fa fa-anchor"></i> Me me me</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="tools">
+                    <a href="" class="collapse" data-original-title="" title=""></a>
+                    <a href="" class="remove" data-original-title="" title=""></a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="scroll-body" slimscroll="{height: 250}">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th sort-column="id" table="uc.table">Casenr.</th>
+                                <th>Client</th>
+                                <th>Subject</th>
+                                <th sort-column="priority" table="uc.table">Prio</th>
+                                <th sort-column="created" table="uc.table">Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-hide="uc.table.items.length">
+                                <td colspan="6">There are no unassigned cases for this team...</td>
+                            </tr>
+                            <tr ng-repeat="case in uc.table.items">
+                                <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>
+                                <td><a ui-sref="base.accounts.detail({ id: case.account })" ng-if="::case.account">{{ ::case.account_name }}</a></td>
+                                <td><a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a></td>
+                                <td>
+                                    <span class="label label-sm" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[case.priority]">
+                                        {{ case.priority_name }}
+                                    </span>
+                                </td>
+                                <td>{{ case.created  | relativeDate }}</td>
+                                <td><a ng-click="uc.assignToMe(case)"><i class="fa fa-anchor"></i> Me me me</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

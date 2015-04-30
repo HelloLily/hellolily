@@ -21,10 +21,12 @@
         'CaseControllers',
         'ContactsControllers',
         'DealControllers',
+        'UtilsControllers',
 
         // Directives
         'CaseDirectives',
         'app.directives',
+        'UtilsDirectives',
 
         // Google Analytics
         'angulartics',

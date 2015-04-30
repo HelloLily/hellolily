@@ -1,0 +1,77 @@
+{% verbatim %}
+<script id="utils/history-list-deal.html" type="text/ng-template">
+    <div class="timeline-badge">
+        <i class="fa fa-money"></i>
+    </div>
+    <div class="timeline-panel">
+        <div class='timeline-heading'>
+            <h4 class='timeline-title'>
+                {{ ::item.name }}
+                <div class="btn-group pull-right">
+                    <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a ui-sref="base.deals.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                        <li><a ui-sref="base.deals.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
+                        <li class='divider'></li>
+                        <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                    </ul>
+                </div>
+            </h4>
+        </div>
+        <div class="timeline-body first">
+            <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+            <div class="timeline-footer">
+                Last changed: {{ ::item.modified | date:'dd MMMM yy HH:mm' }}<br/>
+                Closing: {{ ::item.closing_date | date:'dd MMMM yy HH:mm' }}<br/>
+                {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
+                {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
+                Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
+                Amount once: {{ ::item.amount_once }}<br/>
+                Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
+            </div>
+            <ul class="list-inline list-justified">
+                <li>
+                    <small class="text-muted" tooltip="Created on {{ ::item.created| date:'dd MMMM yy' }} at {{ ::item.created| date:'HH:mm' }}">
+                        <i class="fa fa-calendar"></i>
+                        {{ ::item.created | date:'dd MMM yy HH:mm' }}
+                    </small>
+                </li>
+                <li>
+                    <small class="text-muted" tooltip="Assigned to: {{ ::item.assigned_to_name }}">
+                        <i class="fa fa-child"></i>
+                        {{ ::item.assigned_to_name || "Nobody" }}
+                    </small>
+                </li>
+                <li>
+                    <small class="text-muted" tooltip="Created by: {{ ::item.created_by }}">
+                        <i class="fa fa-user"></i>
+                        {{ ::item.created_by || "Nobody" }}
+                    </small>
+                </li>
+            </ul>
+        </div>
+        <div class='timeline-body next' ng-repeat="note in ::item.notes">
+            <p class='inline-header'><i class="fa fa-file-text-o"></i> Note</p>
+            <div class="inline-body">
+                <p>{{ ::note.content }}</p>
+                <ul class="list-inline list-justified">
+                    <li>
+                        <small class="text-muted" tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
+                            <i class="fa fa-calendar"></i>
+                            {{ ::note.date | date:'dd MMMM yy HH:mm' }}
+                        </small>
+                    </li>
+                    <li>
+                        <small class="text-muted" tooltip="Created by: {{ ::note.author }}">
+                            <i class="fa fa-user"></i>
+                            {{ ::note.author }}
+                        </small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

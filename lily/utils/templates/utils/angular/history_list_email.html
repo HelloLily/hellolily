@@ -1,0 +1,34 @@
+{% verbatim %}
+<script id="utils/history-list-email.html" type="text/ng-template">
+    <div class="timeline-badge">
+        <i class="fa fa-envelope-o"></i>
+    </div>
+    <div class="timeline-panel">
+        <div class='timeline-heading'>
+            <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span>
+                <div class="btn-group pull-right">
+                    <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a ui-sref="base.email.detail({id: item.id})"><i class="fa fa-eye"></i>View</a></li>
+                        <li class='divider'></li>
+                        <li><a ng-href="base.email.reply({id: item.id})"><i class="fa fa-mail-reply"></i>Reply</a></li>
+                        <li><a ng-href="base.email.forward({id: item.id})"><i class="fa fa-mail-forward"></i>Forward</a></li>
+                    </ul>
+                </div>
+            </h4>
+        </div>
+        <div class="timeline-time">
+            <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
+            <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
+        </div>
+        <div class="timeline-body">
+            {{ left }}
+            <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
+            <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
+            <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.sender_name }}</small></p>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

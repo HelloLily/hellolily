@@ -23,6 +23,7 @@
                         var objects = [];
                         if (data && data.hits && data.hits.length > 0) {
                             data.hits.forEach(function(obj) {
+                                obj = $.extend(obj, {historyType: 'email', color: 'green', date: obj.sent_date, right: false});
                                 objects.push(obj)
                             });
                         }

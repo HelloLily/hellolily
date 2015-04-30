@@ -1,7 +1,46 @@
+/*  GENERIC STUFF */
+.no-round-right {
+    -webkit-border-top-right-radius: 0px !important;
+    -webkit-border-bottom-right-radius: 0px !important;
+    -moz-border-radius-topright: 0px !important;
+    -moz-border-radius-bottomright: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+.list-justified {
+    width: 100%;
+    display: table;
+    table-layout: fixed;
+}
+
+    .list-justified li {
+        display: table-cell;
+        text-align: center;
+    }
+
+    .list-justified li:first-of-type {
+        text-align: left;
+    }
+
+    .list-justified li:last-of-type {
+        text-align: right;
+        padding-right: 0;
+    }
+/*  END GENERIC STUFF */
+
 /*  BREADCRUMB STUFF */
 .breadcrumb .fa {
     margin: 0 5px 0 4px;
 }
+/*  END BREADCRUMB STUFF */
+
+/*  TEXT STUFF */
+.text-white,
+.text-white:hover {
+    color:#fff;
+}
+/*  END TEXT STUFF */
 
 /*  TABLE STUFF */
 .table-fixed-layout td {
@@ -28,23 +67,13 @@ width: 6%;
 width: 20%;
 }
 
-/*  END TABLE STUFF */
 td .label-sm {
 display: block;
 padding: 4px 6px !important;
 }
+/*  END TABLE STUFF */
 
-.no-round-right {
--webkit-border-top-right-radius: 0px !important;
--webkit-border-bottom-right-radius: 0px !important;
--moz-border-radius-topright: 0px !important;
--moz-border-radius-bottomright: 0px !important;
-border-top-right-radius: 0px !important;
-border-bottom-right-radius: 0px !important;
-}
-
-/* TIMELINE STUFF */
-
+/*  TIMELINE STUFF */
 .timeline {
     list-style: none;
     padding: 20px 0 20px;
@@ -52,7 +81,7 @@ border-bottom-right-radius: 0px !important;
 }
 
     .timeline:before {
-        top: 60px;
+        top: 100px;
         bottom: 35px;
         position: absolute;
         content: " ";
@@ -85,6 +114,16 @@ border-bottom-right-radius: 0px !important;
 
         .timeline > li:after {
             clear: both;
+        }
+
+        .timeline > li.note-wrapper {
+            display: block;
+            opacity: 1;
+        }
+
+        .timeline > li.note-wrapper > .note-form-wrapper {
+            float:right;
+            width:51.8%;
         }
 
         .timeline > li > .timeline-panel {
@@ -162,11 +201,11 @@ border-bottom-right-radius: 0px !important;
 }
 
 .timeline-title {
-    margin-top: 0;
+    margin: 5px 0 5px 0;
     color: inherit;
+    text-transform: capitalize;
 }
 
-.timeline-body > p,
 .timeline-body > ul {
     margin-bottom: 0;
 }
@@ -230,86 +269,92 @@ border-bottom-right-radius: 0px !important;
 }
 
 
-li.email .timeline-heading, li.email .timeline-badge {
+li.history-email .timeline-heading, li.history-email .timeline-badge {
 	border-color: #578ebe;
 	background-image: none;
 	background-color: #578ebe !important;
 	color: #FFFFFF;
 }
 
-li.email > .timeline-panel:after  {
+li.history-email > .timeline-panel:after  {
 	border-left: 8px solid #578ebe;
 	border-right: 0 solid #578ebe;
 }
 
-li.deal .timeline-heading, li.deal .timeline-badge {
+li.history-deal .timeline-heading, li.history-deal .timeline-badge {
 	border-color: #1BBC9B;
 	background-image: none;
 	background-color: #1BBC9B !important;
 	color: #FFFFFF;
 }
 
-li.deal > .timeline-panel:after  {
+li.history-deal > .timeline-panel:after  {
 	border-left: 8px solid #1BBC9B;
 	border-right: 0 solid #1BBC9B;
 }
 
-li.meetup .timeline-heading, li.meetup .timeline-badge {
+li.history-meetup .timeline-heading, li.history-meetup .timeline-badge {
 	border-color: #FFB848;
 	background-image: none;
 	background-color: #FFB848 !important;
 	color: #FFFFFF;
 }
 
-li.meetup > .timeline-panel:after  {
+li.history-meetup > .timeline-panel:after  {
 	border-left: 8px solid #FFB848;
 	border-right: 0 solid #FFB848;
 }
 
-li.call .timeline-heading, li.call .timeline-badge {
+li.history-call .timeline-heading, li.history-call .timeline-badge {
 	border-color: #FFB848;
 	background-image: none;
 	background-color: #FFB848 !important;
 	color: #FFFFFF;
 }
 
-li.call > .timeline-panel:after  {
+li.history-call > .timeline-panel:after  {
 	border-left: 8px solid #FFB848;
 	border-right: 0 solid #FFB848;
 }
 
-li.note .timeline-heading, li.note .timeline-badge {
+li.history-note .timeline-heading, li.history-note .timeline-badge {
 	border-color: #FFB848;
 	background-image: none;
 	background-color: #FFB848 !important;
 	color: #FFFFFF;
 }
 
-li.note > .timeline-panel:after  {
+li.history-note > .timeline-panel:after  {
 	border-left: 8px solid #FFB848;
 	border-right: 0 solid #FFB848;
 }
 
-li.case .timeline-heading, li.case .timeline-badge  {
+li.history-case .timeline-heading, li.history-case .timeline-badge  {
 	border-color: #9B59B6;
 	background-image: none;
 	background-color: #9B59B6 !important;
 	color: #FFFFFF;
 }
 
-li.case > .timeline-panel:after {
+li.history-case .inline-header {
+    background-color: #9B59B6;
+}
+
+li.history-case > .timeline-panel:after {
 	border-left: 8px solid #9B59B6;
 	border-right: 0 solid #9B59B6;
 }
 
-li.account .timeline-heading, li.account .timeline-badge, li.contact .timeline-heading, li.contact .timeline-badge  {
+li.history-account .timeline-heading, li.history-account .timeline-badge,
+li.history-contact .timeline-heading, li.history-contact .timeline-badge  {
 	border-color: #e9edef;
 	background-image: none;
 	background-color: #e9edef !important;
 	color: #80898e;
 }
 
-li.account > .timeline-panel:after, li.contact > .timeline-panel:after   {
+li.history-account > .timeline-panel:after,
+li.history-contact > .timeline-panel:after   {
 	border-left: 8px solid #e9edef;
 	border-right: 0 solid #e9edef;
 }
@@ -318,13 +363,14 @@ li.account > .timeline-panel:after, li.contact > .timeline-panel:after   {
 	border-bottom:10px solid #fff;
 }
 
-li.deal .timeline-body.next, li.case .timeline-body.next{
+li.history-deal .timeline-body.next,
+li.history-case .timeline-body.next{
 	border-bottom:10px solid #fff;
 	padding:0;
 }
 
 .inline-body {
-	padding: 10px 10px 0 10px;
+	padding: 0 10px 10px 10px;
 }
 
 li .inline-header {
@@ -348,10 +394,6 @@ li.case .inline-header {
 
 .timeline-panel th, .timeline-panel td {
 	vertical-align: top;
-}
-
-a.hoekje,a.hoekje:hover {
-	color:#fff;
 }
 
 /*  END TIMELINE STUFF */

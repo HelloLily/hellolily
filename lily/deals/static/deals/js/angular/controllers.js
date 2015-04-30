@@ -334,60 +334,6 @@ dealControllers.controller('DealDetailController', [
         $scope.deal = DealDetail.get({id: id});
         $scope.dealStages = DealStages.query();
 
-        $scope.showMoreText = 'Show more';
-        $scope.opts = {history_type: 'note'};
-        $scope.history_types = [
-            {type: 'note', name: 'Notes'},
-        ]
-
-        var add = 10,
-            size = add,
-            currentSize = 0;
-
-        $scope.history = [];
-
-        /**
-         * Load history of notes for this deal for historylist
-         */
-        function loadHistory() {
-            var history = [];
-            var notesPromise = NoteDetails.query({
-                filterquery: 'content_type:deal AND object_id:' + id,
-                size: size
-            }).$promise;
-
-            $q.all([notesPromise,]).then(function(results) {
-                var notes = results[0];
-                notes.forEach(function(note) {
-                    note.history_type = 'note';
-                    note.color = 'yellow';
-                    history.push(note);
-                });
-
-                $scope.history.splice(0, $scope.history.length);
-                $filter('orderBy')(history, 'date', true).forEach(function(item) {
-                    $scope.history.push(item);
-                });
-                $scope.limitSize = size;
-                size += add;
-                if ($scope.history.length == 0) {
-                    $scope.showMoreText = 'No history (refresh)';
-                }
-                else if ($scope.history.length <= currentSize || $scope.history.length < size / 4) {
-                    $scope.showMoreText = 'End reached (refresh)';
-                }
-                currentSize = $scope.history.length;
-            });
-        };
-
-        /**
-         * Allows the (re)load of the history
-         */
-        $scope.loadHistoryFromButton = function() {
-            loadHistory();
-        };
-        $scope.loadHistoryFromButton();
-
         /**
          * Change the state of a deal
          */
@@ -452,19 +398,6 @@ dealControllers.controller('DealDetailController', [
                 error(function(data, status, headers, config) {
                     // Request failed propper error?
                 });
-        };
-
-        $scope.deleteNote = function(note) {
-            if (confirm('Are you sure?')) {
-                NoteService.delete({
-                    id:note.id
-                }, function() {  // On success
-                    var index = $scope.history.indexOf(note);
-                    $scope.history.splice(index, 1);
-                }, function(error) {  // On error
-                    alert('something went wrong.')
-                });
-            }
         };
     }
 ]);

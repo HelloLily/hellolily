@@ -739,7 +739,7 @@ class CreateUpdateEmailTemplateMixin(LoginRequiredMixin):
         """
         Return to email template list after creating or updating an email template.
         """
-        return '/#/settings/emailtemplates'
+        return '/#/preferences/emailtemplates'
 
 
 class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):

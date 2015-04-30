@@ -318,7 +318,8 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
         if not html_part and not text_part:
             self._errors['body_html'] = self.error_class([_('Please fill in the html part or the text part, at least one of these is required.')])
         elif html_part:
-            parsed_template = TemplateParser(html_part)
+            # For some reason sometimes nbsp's are added, so remove them
+            parsed_template = TemplateParser(self.clean_nbsp(html_part))
             if parsed_template.is_valid():
                 cleaned_data.update({
                     'body_html': parsed_template.get_text(),
@@ -327,7 +328,8 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
                 self._errors['body_html'] = parsed_template.error.message
                 del cleaned_data['body_html']
         elif text_part:
-            parsed_template = TemplateParser(text_part)
+            # For some reason sometimes nbsp's are added, so remove them
+            parsed_template = TemplateParser(self.clean_nbsp(text_part))
             if parsed_template.is_valid():
                 cleaned_data.update({
                     'body_text': parsed_template.get_text(),
@@ -337,6 +339,20 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
                 del cleaned_data['body_text']
 
         return cleaned_data
+
+    def clean_nbsp(self, text):
+        variable_regex = '\[\[&nbsp.+\]\]'
+        # Get all template variables that contain an &nbsp;
+        search_result = re.findall(variable_regex, text)
+
+        if search_result:
+            for template_variable in search_result:
+                # Change the nbsp to an actual space
+                replace_variable = template_variable.replace('&nbsp;', ' ')
+                # Replace the variable in the actual text
+                text = re.sub(variable_regex, replace_variable, text)
+
+        return text
 
     def save(self, commit=True):
         instance = super(CreateUpdateEmailTemplateForm, self).save(False)

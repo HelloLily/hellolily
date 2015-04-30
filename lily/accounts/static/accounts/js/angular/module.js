@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * app.account manages all routes, controllers eg.
+     * app.accounts manages all routes, controllers eg.
      * that relate to Account.
      */
     angular.module('app.accounts', [
@@ -10,9 +10,9 @@
         'ui.bootstrap',
         'ui.slimscroll',
         'AccountServices',
-        'CaseServices',
+        'app.cases.services',
+        'app.email.services',
         'contactServices',
-        'noteServices',
-        'app.email.services'
+        'noteServices'
     ]);
 })();

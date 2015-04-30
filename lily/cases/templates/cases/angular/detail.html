@@ -18,7 +18,7 @@
                             <label>Created:</label> {{ ::case.created | date:"d MMM y H:ss" }}
                         </li>
                         <li ng-show="::case.expires">
-                            <label>Expires:</label> {{ case.expires | date:"d MMM y" }}
+                            <label>Expires:</label><a ng-click="openPostponeWidget(case)" tooltip="Aaah, that's too soon!"> {{ case.expires | date:"d MMM y" }} <i class="fa fa-history"></i></a>
                         </li>
                         <li>
                             <label>Status:</label> {{ case.status }}<span ng-show="case.archived"> - Archived</span>

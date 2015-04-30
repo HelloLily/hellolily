@@ -1,6 +1,8 @@
 import django_filters
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from .serializers import CaseSerializer, CaseStatusSerializer
 from ..models import Case, CaseStatus
@@ -39,7 +41,10 @@ class CaseFilter(django_filters.FilterSet):
         fields = ['type', 'status', 'not_type', 'not_status', 'is_deleted']
 
 
-class CaseList(APIView):
+class CaseViewSet(mixins.RetrieveModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.UpdateModelMixin,
+                  GenericViewSet):
     """
     List all cases for a tenant.
     """

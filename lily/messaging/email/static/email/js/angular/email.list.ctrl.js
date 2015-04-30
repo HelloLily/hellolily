@@ -200,7 +200,7 @@
         function archiveMessages () {
             for (var i in vm.emailMessages) {
                 if (vm.emailMessages[i].checked) {
-                    EmailMessage.API.archive({id: vm.emailMessages[i].id});
+                    EmailMessage.archive({id: vm.emailMessages[i].id});
                 }
             }
             _removeCheckedMessagesFromList();
@@ -209,7 +209,7 @@
         function trashMessages () {
             for (var i in vm.emailMessages) {
                 if (vm.emailMessages[i].checked) {
-                    EmailMessage.API.trash({id: vm.emailMessages[i].id});
+                    EmailMessage.trash({id: vm.emailMessages[i].id});
                 }
             }
             _removeCheckedMessagesFromList();
@@ -218,7 +218,7 @@
         function deleteMessages () {
             for (var i in vm.emailMessages) {
                 if (vm.emailMessages[i].checked) {
-                    EmailMessage.API.delete({id: vm.emailMessages[i].id});
+                    EmailMessage.delete({id: vm.emailMessages[i].id});
                 }
             }
             _removeCheckedMessagesFromList();
@@ -237,7 +237,7 @@
             };
             for (var i in vm.emailMessages) {
                 if (vm.emailMessages[i].checked) {
-                    EmailMessage.API.move({id: vm.emailMessages[i].id, data: data});
+                    EmailMessage.move({id: vm.emailMessages[i].id, data: data});
                 }
             }
             _removeCheckedMessagesFromList();
@@ -292,7 +292,7 @@
                 filterquery = filterquery.join(' AND ');
             }
 
-            EmailMessage.SEARCH.get({
+            EmailMessage.search({
                 filterquery: filterquery,
                 q: vm.table.filter,
                 size: vm.table.pageSize,

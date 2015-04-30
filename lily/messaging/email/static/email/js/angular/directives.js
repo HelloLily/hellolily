@@ -1,5 +1,5 @@
 /**
- * lilyDirectives is a container for all global lily related Angular directives
+ * EmailDirectives is a container for all global lily related Angular directives
  */
 var EmailDirectives = angular.module('EmailDirectives', []);
 

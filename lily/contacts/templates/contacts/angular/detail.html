@@ -83,26 +83,6 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="portlet light">
-                <div class="portlet-title">
-                    <div class="caption">
-                        Historylist
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <div class="form-group">
-                        <div class="form-group note-input-wrapper col-md-10">
-                            <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
-                        </div>
-                        <button class="btn btn-primary col-md-2 col-xs-3" ng-click="addNote('contact', contact.id, note)">Add note</button>
-                        <div class="clearfix"></div>
-                    </div>
-                    {% endverbatim %}{% include 'utils/historylist_client.html' %}{% verbatim %}
-                </div>
-            </div>
-        </div>
-    </div>
+    <history-list target="'contact'" object="contact"></history-list>
 </script>
 {% endverbatim %}

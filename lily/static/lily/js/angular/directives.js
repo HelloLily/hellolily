@@ -1,12 +1,15 @@
-/**
- * lilyDirectives is a container for all global lily related Angular directives
- */
-var lilyDirectives = angular.module('lilyDirectives', [
-    'template/directive/checkbox.html'
-]);
+(function() {
+    'use strict';
 
-lilyDirectives.directive('ngSpinnerBar', ['$rootScope',
-    function($rootScope) {
+    /**
+     * app.directives is a container for all global lily related Angular directives
+     */
+    angular.module('app.directives', []);
+
+    angular.module('app.directives').directive('ngSpinnerBar', ngSpinnerBar);
+
+    ngSpinnerBar.$inject = ['$rootScope'];
+    function ngSpinnerBar ($rootScope) {
         return {
             link: function(scope, element, attrs) {
                 // by defult hide the spinner bar
@@ -41,216 +44,200 @@ lilyDirectives.directive('ngSpinnerBar', ['$rootScope',
             }
         };
     }
-]);
-
-/**
- * sortColumn Directive adds sorting classes to an DOM element based on `table` object
- *
- * It makes the element clickable and sets the table sorting based on that element
- *
- * @param sortColumn string: name of the column to sort on when clicked
- * @param table object: The object to bind sort column and ordering
- *
- * Example:
- *
- * <th sort-column="last_name" table="table">Name</th>
- *
- * Possible classes:
- * - sorting: Unsorted
- * - sorting_asc: Sorted ascending
- * - sorting_desc: Sorted descending
- */
-lilyDirectives.directive('sortColumn', function() {
-    var classes = {
-        unsorted: 'sorting',
-        ascending: 'sorting_asc',
-        descending: 'sorting_desc'
-    };
 
     /**
-     * addClasses() removes current sorting classes and adds new based on current
-     * sorting column and direction
-     * @param $scope object: current scope
-     * @param element object: current DOM element
-     * @param sortColumn string: column from current DOM element
+     * sortColumn Directive adds sorting classes to an DOM element based on `table` object
+     *
+     * It makes the element clickable and sets the table sorting based on that element
+     *
+     * @param sortColumn string: name of the column to sort on when clicked
+     * @param table object: The object to bind sort column and ordering
+     *
+     * Example:
+     *
+     * <th sort-column="last_name" table="table">Name</th>
+     *
+     * Possible classes:
+     * - sorting: Unsorted
+     * - sorting_asc: Sorted ascending
+     * - sorting_desc: Sorted descending
      */
-    var setClasses = function($scope, element, sortColumn) {
-        // Remove current classes
-        for (var prop in classes) {
-            element.removeClass(classes[prop]);
-        }
+    angular.module('app.directives').directive('sortColumn', sortColumn);
 
-        // Add classes based on current sorted column
-        if($scope.table.order.column === sortColumn) {
-            if ($scope.table.order.ascending) {
-                element.addClass(classes.ascending);
-            } else {
-                element.addClass(classes.descending);
-            }
-        } else {
-            element.addClass(classes.unsorted);
-        }
-    };
-
-    return {
-        restrict: 'A',
-        scope: {
-            table: '='
-        },
-        link: function ($scope, element, attrs) {
-            // Watch the table ordering & sorting
-            $scope.$watchCollection('table.order', function() {
-                setClasses($scope, element, attrs.sortColumn);
-            });
-
-            // When element is clicked, set the table ordering & sorting based on this DOM element
-            element.on('click', function() {
-                if($scope.table.order.column === attrs.sortColumn) {
-                    $scope.table.order.ascending = !$scope.table.order.ascending;
-                    $scope.$apply();
+    function sortColumn () {
+        /**
+         * _setSortableIcon() removes current sorting classes and adds new based on current
+         * sorting column and direction
+         *
+         * @param $scope object: current scope
+         * @param element object: current DOM element
+         * @param sortColumn string: column from current DOM element
+         */
+        var _setSortableIcon = function($scope, element, sortColumn) {
+            // Add classes based on current sorted column
+            if($scope.table.order.column === sortColumn) {
+                if ($scope.table.order.ascending) {
+                    $scope.sorted = 1;
                 } else {
-                    $scope.table.order.column = attrs.sortColumn;
-                    $scope.$apply();
+                    $scope.sorted = -1;
                 }
-            });
-        }
-    }
-});
-
-/**
- * checkbox Directive makes a nice uniform checkbox and binds to a model
- *
- * @param model object: model to bind checkbox with
- *
- * Example:
- *
- * <checkbox model="table.visibility.name">Name</checkbox>
- */
-lilyDirectives.directive('checkbox', function() {
-    return {
-        restrict: 'E',
-        replace: true,
-        transclude: true,
-        scope: {
-            model: '='
-        },
-        templateUrl: 'template/directive/checkbox.html'
-    }
-});
-
-
-/**
- *
- */
-lilyDirectives.directive('resizeIframe', function() {
-    return {
-        restrict: 'A',
-        link: function ($scope, element, attrs ) {
-            var maxHeight = $('body').outerHeight();
-            element.on('load', function() {
-                element.removeClass('hidden');
-
-                // do this after .inbox-view is visible
-                var ifDoc, ifRef = this;
-
-                // set ifDoc to 'document' from frame
-                try {
-                    ifDoc = ifRef.contentWindow.document.documentElement;
-                } catch (e1) {
-                    try {
-                        ifDoc = ifRef.contentDocument.documentElement;
-                    } catch (e2) {
-                    }
-                }
-
-                // calculate and set max height for frame
-                if (ifDoc) {
-                    var subtractHeights = [
-                        element.offset().top,
-                        $('.footer').outerHeight(),
-                        $('.inbox-attached').outerHeight()
-                    ];
-                    for (var height in subtractHeights) {
-                        maxHeight = maxHeight - height;
-                    }
-
-                    if (ifDoc.scrollHeight > maxHeight) {
-                        ifRef.height = maxHeight;
-                    } else {
-                        ifRef.height = ifDoc.scrollHeight;
-                    }
-                }
-            });
-        }
-    }
-});
-
-
-/**
- * Directive used for the save and archive button. It checks the current
- * state of the hidden field and changes it accordingly and submits
- * the form
- */
-lilyDirectives.directive('saveAndArchive', ['$interval', function($interval) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-
-            // Setting button to right text based in archived state
-            $button = $('#archive-button');
-            $archiveField = $('#id_is_archived');
-            if ($archiveField.val() === 'True') {
-                $button.find('span').text('Save and Unarchive');
             } else {
-                $button.find('span').text('Save and Archive');
+                $scope.sorted = 0;
             }
+        };
 
-            // On button click set archived hidden field and submit form
-            $(elem).click(function() {
-                $button = $('#archive-button');
-                $archiveField = $('#id_is_archived');
-                $form = $($button.closest('form').get(0));
-                var archive = ($archiveField.val() === 'True' ? 'False' : 'True');
-                $archiveField.val(archive);
-                $button.button('loading');
-                $form.find(':submit').click();
-                event.preventDefault();
-            });
+        return {
+            restrict: 'A',
+            scope: {
+                table: '='
+            },
+            transclude: true,
+            templateUrl: 'directives/sorting.html',
+            link: function ($scope, element, attrs) {
+                // Watch the table ordering & sorting
+                $scope.$watchCollection('table.order', function() {
+                    _setSortableIcon($scope, element, attrs.sortColumn);
+                });
+
+                // When element is clicked, set the table ordering & sorting based on this DOM element
+                element.on('click', function() {
+                    if($scope.table.order.column === attrs.sortColumn) {
+                        $scope.table.order.ascending = !$scope.table.order.ascending;
+                        $scope.$apply();
+                    } else {
+                        $scope.table.order.column = attrs.sortColumn;
+                        $scope.$apply();
+                    }
+                });
+            }
         }
     }
-}]);
 
-/**
- * Directive for a confirmation box before the delete in the detail
- * view happens
- */
-lilyDirectives.directive('detailDelete', ['$state', function($state) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs){
+    /**
+     * checkbox Directive makes a nice uniform checkbox and binds to a model
+     *
+     * @param model object: model to bind checkbox with
+     *
+     * Example:
+     *
+     * <checkbox model="table.visibility.name">Name</checkbox>
+     */
+    angular.module('app.directives').directive('checkbox', checkbox);
 
-            $(elem).click(function() {
-                if(confirm('You are deleting! Are you sure ?')){
-                    $state.go('.delete');
+    function checkbox () {
+        return {
+            restrict: 'E',
+            replace: true,
+            transclude: true,
+            scope: {
+                model: '='
+            },
+            templateUrl: 'directives/checkbox.html'
+        }
+    }
+
+    /**
+     *
+     */
+    angular.module('app.directives').directive('resizeIframe', resizeIframe);
+
+    function resizeIframe () {
+        return {
+            restrict: 'A',
+            link: function ($scope, element, attrs) {
+                var maxHeight = $('body').outerHeight();
+                element.on('load', function() {
+                    element.removeClass('hidden');
+
+                    // do this after .inbox-view is visible
+                    var ifDoc, ifRef = this;
+
+                    // set ifDoc to 'document' from frame
+                    try {
+                        ifDoc = ifRef.contentWindow.document.documentElement;
+                    } catch (e1) {
+                        try {
+                            ifDoc = ifRef.contentDocument.documentElement;
+                        } catch (e2) {
+                        }
+                    }
+
+                    // calculate and set max height for frame
+                    if (ifDoc) {
+                        var subtractHeights = [
+                            element.offset().top,
+                            $('.footer').outerHeight(),
+                            $('.inbox-attached').outerHeight()
+                        ];
+                        for (var height in subtractHeights) {
+                            maxHeight = maxHeight - height;
+                        }
+
+                        if (ifDoc.scrollHeight > maxHeight) {
+                            ifRef.height = maxHeight;
+                        } else {
+                            ifRef.height = ifDoc.scrollHeight;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Directive used for the save and archive button. It checks the current
+     * state of the hidden field and changes it accordingly and submits
+     * the form
+     */
+    angular.module('app.directives').directive('saveAndArchive', saveAndArchive);
+
+    function saveAndArchive () {
+        return {
+            restrict: 'A',
+            link: function(scope, elem, attrs) {
+
+                // Setting button to right text based in archived state
+                var $button = $('#archive-button'),
+                    $archiveField = $('#id_is_archived');
+                if ($archiveField.val() === 'True') {
+                    $button.find('span').text('Save and Unarchive');
+                } else {
+                    $button.find('span').text('Save and Archive');
                 }
-            });
+
+                // On button click set archived hidden field and submit form
+                $(elem).click(function() {
+                    $button = $('#archive-button');
+                    $archiveField = $('#id_is_archived');
+                    var $form = $($button.closest('form').get(0)),
+                        archive = ($archiveField.val() === 'True' ? 'False' : 'True');
+                    $archiveField.val(archive);
+                    $button.button('loading');
+                    $form.find(':submit').click();
+                    event.preventDefault();
+                });
+            }
         }
     }
-}])
 
-/**
- * Template for checkbox directive
- */
-angular.module('template/directive/checkbox.html', [])
-    .run(['$templateCache', function($templateCache) {
-        $templateCache.put('template/directive/checkbox.html',
-            '<label>' +
-            '<div class="checker">' +
-            '<span ng-class="{checked: model}">' +
-            '<input type="checkbox" data-skip-uniform ng-model="model">' +
-            '</span>' +
-            '</div> ' +
-            '<ng-transclude></ng-transclude>' +
-            '</label>');
-    }]
-);
+    /**
+     * Directive for a confirmation box before the delete in the detail
+     * view happens
+     */
+    angular.module('app.directives').directive('detailDelete', detailDelete);
+
+    detailDelete.$inject = ['$state'];
+    function detailDelete ($state) {
+        return {
+            restrict: 'A',
+            link: function (scope, elem, attrs) {
+
+                $(elem).click(function () {
+                    if (confirm('You are deleting! Are you sure ?')) {
+                        $state.go('.delete');
+                    }
+                });
+            }
+        }
+    }
+})();

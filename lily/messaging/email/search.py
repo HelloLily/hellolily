@@ -123,7 +123,7 @@ class EmailMessageMapping(BaseMapping):
         """
         return {
             'account': obj.account.id,
-            'account_name': str(obj.account.owner),
+            'account_name': obj.account.label,
             'account_email': obj.account.email_address,
             'subject': obj.subject,
             'sent_date': obj.sent_date,

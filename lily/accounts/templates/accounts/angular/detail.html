@@ -1,326 +1,144 @@
 {% verbatim %}
 <script id="accounts/account-detail.html" type="text/ng-template"/>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class='portlet light'>
-            <div class="portlet-title">
-                <div class="caption">
-                    <i class="fa fa-institution"></i>  {{ ::account.name }}
+    <div class="row">
+        <div class="col-md-4">
+            <div class='portlet light'>
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-institution"></i>  {{ ::account.name }}
+                    </div>
                 </div>
-            </div>
 
-            <div class="portlet-body">
-                <div class="scroll-body" slimscroll="{height: 250}">
-                    <span ng-if="account.description"> {{ ::account.description }} <br/><br/></span>
-                    <div class='row'>
-                        <div class="col-md-6">
-                            <span ng-repeat="website in ::account.website"><i class="fa fa-globe"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
-                            <i class="fa fa-phone"></i> {{ ::account.phone }} <br/>
+                <div class="portlet-body">
+                    <div class="scroll-body" slimscroll="{height: 250}">
+                        <span ng-if="account.description"> {{ ::account.description }} <br/><br/></span>
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <span ng-repeat="website in ::account.website"><i class="fa fa-globe"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
+                                <i class="fa fa-phone"></i> {{ ::account.phone }} <br/>
 
-                            <i class='fa fa-envelope'></i> <a ui-sref="base.email.composeEmail({ email: account.email[0] })">{{ ::account.email[0] }}</a>
-                            <div ng-repeat="social in ::account.social">
-                                <span class="summary-label">{{ ::social.social_name }}</span>
-                                <span class="summary-data">
-                                    <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                                <i class='fa fa-envelope'></i> <a ui-sref="base.email.composeEmail({ email: account.email[0] })">{{ ::account.email[0] }}</a>
+                                <div ng-repeat="social in ::account.social">
+                                    <span class="summary-label">{{ ::social.social_name }}</span>
+                                    <span class="summary-data">
+                                        <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
+                                    </span>
+                                </div>
+                                <div ng-if="::account.address">
+                                    <i class='fa fa-building'></i>
+                                    <span class="summary-data">
+                                        {{ ::account.address[0].address_street }} {{ ::account.address[0].address_street_number }}{{ ::account.address[0].address_complement }}<br/>
+                                        {{ ::account.address[0].address_postal_code }} {{ ::account.address[0].address_city }}<br/>
+                                        {{ ::account.address[0].address_country }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="summary-label">Assigned to</span>
+                                <span class="summary-data" ng-show="::account.assigned_to">
+                                    {{ ::account.assigned_to }}
+                                </span>
+                                <span class="summary-data" ng-hide="::account.assigned_to">
+                                    Not assigned yet
                                 </span>
                             </div>
-                            <div ng-if="::account.address">
-                                <i class='fa fa-building'></i>
-                                <span class="summary-data">
-                                    {{ ::account.address[0].address_street }} {{ ::account.address[0].address_street_number }}{{ ::account.address[0].address_complement }}<br/>
-                                    {{ ::account.address[0].address_postal_code }} {{ ::account.address[0].address_city }}<br/>
-                                    {{ ::account.address[0].address_country }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="summary-label">Assigned to</span>
-                            <span class="summary-data" ng-show="::account.assigned_to">
-                                {{ ::account.assigned_to }}
-                            </span>
-                            <span class="summary-data" ng-hide="::account.assigned_to">
-                                Not assigned yet
-                            </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class='portlet light'>
-            <div class="portlet-title">
-                <div class="caption">
-                    <i class="fa fa-users"></i>
-                    <span class="caption-subject bold uppercase"> Contacts</span>
-                </div>
-            </div>
-
-            <div class="portlet-body">
-                <div class="scroll-body" slimscroll="{height: 250}">
-                    <table class="table table-hover table-light">
-                    <tbody>
-                        <tr ng-repeat="worker in workers">
-                            <td>
-                                <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
-                            </td>
-                            <td>
-                                <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
-                            </td>
-                            <td>
-                                <i class="fa fa-phone"></i> <a href='/'>{{ ::worker.phone }}</a>
-                            </td>
-                        </tr>
-                        <tr ng-if="workers.length == 0">
-                            <td colspan="3">There are no known contact for this company</td>
-                        </tr>
-                    </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-2">
-        <div class="dashboard-stat purple-wisteria">
-            <a ng-href="#/cases?search={{ ::account.name }}">
-                <div class="visual">
-                    <i class="fa fa-briefcase"></i>
-                </div>
-                <div class="details">
-                    <div class="number">{{ ::numCases }}</div>
-                    <div class="desc">Closed</div>
-                </div>
-            </a>
-            <a class="more" ui-sref="base.cases.create.fromAccount({ id: account.id })">
-                Add case <i class="m-icon-swapright m-icon-white"></i>
-            </a>
-        </div>
-    </div>
-
-    <div class="col-md-2">
-        <div class="dashboard-stat green-meadow">
-            <a ng-href="#/deals?search={{ ::account.name }}">
-                <div class="visual">
-                    <i class="fa fa-money"></i>
-                </div>
-                <div class="details">
-                    <div class="number">{{ ::numDeals }}</div>
-                    <div class="desc">
-                         Won
+        <div class="col-md-4">
+            <div class='portlet light'>
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-users"></i>
+                        <span class="caption-subject bold uppercase"> Contacts</span>
                     </div>
                 </div>
-            </a>
-            <a class="more" ui-sref="base.deals.create.fromAccount({ id: account.id })">
-                Add deal <i class="m-icon-swapright m-icon-white"></i>
-            </a>
-        </div>
-    </div>
 
-    <div class="col-md-2" ng-show="::account.customer_id">
-        <div class="dashboard-stat blue-madison">
-            <a ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
-                <div class="visual">
-                    <i class="fa fa-globe"></i>
-                </div>
-                <div class="details">
-                    <div class="number">
-                         Klant :)
+                <div class="portlet-body">
+                    <div class="scroll-body" slimscroll="{height: 250}">
+                        <table class="table table-hover table-light">
+                        <tbody>
+                            <tr ng-repeat="worker in workers">
+                                <td>
+                                    <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
+                                </td>
+                                <td>
+                                    <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
+                                </td>
+                                <td>
+                                    <i class="fa fa-phone"></i> <a href='/'>{{ ::worker.phone }}</a>
+                                </td>
+                            </tr>
+                            <tr ng-if="workers.length == 0">
+                                <td colspan="3">There are no known contact for this company</td>
+                            </tr>
+                        </tbody>
+                        </table>
                     </div>
-                    <div class="desc">
-                         naar Freedom
-                    </div>
                 </div>
-            </a>
-            <a class="more" ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
-                Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
-<ul class="mix-filter">
-    <li ng-repeat="type in ::historyTypes" ng-class="{'active': opts.historyType==type.type}" ng-click="opts.historyType=type.type">
-        {{type.name}}
-    </li>
-</ul>
-
-<div class="portlet light mix-grid">
-
-    <div class="form-group">
-        <div class="form-group note-input-wrapper col-md-10">
-            <textarea ng-model="note" required class="form-control" id="id_content" name="content" placeholder="Write your note here" rows="1"></textarea>
-        </div>
-        <button class="btn btn-primary col-md-2 col-xs-3" ng-click="addNote('account', account.id, note)">Add note</button>
-        <div class="clearfix"></div>
-    </div>
-
-    <ul class="timeline">
-        <li ng-if="$index < limitSize" ng-repeat="item in history | filter:{historyType:opts.historyType}" class="mix mix_all" ng-class="item.historyType">
-            <div class="timeline-badge">
-                <i class="fa fa-suitcase" ng-if="::item.historyType=='case'"></i>
-                <i class="fa fa-money" ng-if="::item.historyType=='deal'"></i>
-                <i class="fa fa-file-o" ng-if="::item.historyType=='note'"></i>
-                <i class="fa fa-envelope" ng-if="::item.historyType=='email'"></i>
             </div>
+        </div>
 
-            <div class="timeline-panel" ng-if="::item.historyType=='case'">
-                <div class='timeline-heading'>
-                    <h4 class='timeline-title'>
-                        {{ ::item.subject }}
-                        <div class="btn-group pull-right">
-                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-angle-down"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li><a ui-sref="base.cases.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
-                                <li><a ui-sref="base.cases.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
-                                <li class='divider'></li>
-                                <li>
-                                    <a ng-href="/cases/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
-                                        <i class="fa fa-trash"></i>Delete
-                                    </a>
-                                </li>
-                            </ul>
+        <div class="col-md-2">
+            <div class="dashboard-stat purple-wisteria">
+                <a ng-href="#/cases?search={{ ::account.name }}">
+                    <div class="visual">
+                        <i class="fa fa-briefcase"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number">{{ ::numCases }}</div>
+                        <div class="desc">Closed</div>
+                    </div>
+                </a>
+                <a class="more" ui-sref="base.cases.create.fromAccount({ id: account.id })">
+                    Add case <i class="m-icon-swapright m-icon-white"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="dashboard-stat green-meadow">
+                <a ng-href="#/deals?search={{ ::account.name }}">
+                    <div class="visual">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number">{{ ::numDeals }}</div>
+                        <div class="desc">
+                             Won
                         </div>
-                    </h4>
-                </div>
-
-                <div class='timeline-body first'>
-                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
-                    <div class="timeline-footer">
-                        <br/>
-                        Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
-                        Priority: {{ ::item.priority_name }}<br/>
-                        Type: {{ ::item.casetype_name}}<br/>
-                        <br/>
                     </div>
-                    <p><small class="text-muted"><i class="fa fa-calendar"></i> expires: {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
-                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.created_by }}<span ng-if="::item.assigned_to_name">assigned to {{ ::item.assigned_to_name }}</span></small>
-                    </p>
-                </div>
-
-                <div class='timeline-body next' ng-repeat="note in ::item.notes">
-                    <p class='inline-header'><i class="fa fa-file-o"></i>Note</p>
-                    <div class="inline-body">
-                        {{ ::note.content }}
-                        <p><small class="text-muted"><i class="fa fa-calendar"></i> created on: {{ ::note.date | date:'dd MMMM yy HH:mm' }}</small></p>
-                        <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
-                    </div>
-                </div>
+                </a>
+                <a class="more" ui-sref="base.deals.create.fromAccount({ id: account.id })">
+                    Add deal <i class="m-icon-swapright m-icon-white"></i>
+                </a>
             </div>
+        </div>
 
-            <div class="timeline-panel" ng-if="::item.historyType=='deal'">
-                <div class='timeline-heading'>
-                    <h4 class='timeline-title'>{{ ::item.name }}
-                        <div class="btn-group pull-right">
-                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-angle-down"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li><a ui-sref="base.deals.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
-                                <li><a ui-sref="base.deals.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
-                                <li class='divider'></li>
-                                <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
-                            </ul>
+        <div class="col-md-2" ng-show="::account.customer_id">
+            <div class="dashboard-stat blue-madison">
+                <a ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
+                    <div class="visual">
+                        <i class="fa fa-globe"></i>
+                    </div>
+                    <div class="details">
+                        <div class="number">
+                             Klant :)
                         </div>
-                    </h4>
-                </div>
-
-                <div class="timeline-body first">
-                    <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
-                    <div class="timeline-footer">
-                        Last changed: {{ ::item.modified | date:'dd MMMM yy HH:mm' }}<br/>
-                        Closing: {{ ::item.closing_date | date:'dd MMMM yy HH:mm' }}<br/>
-                        {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
-                        {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
-                        Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
-                        Amount once: {{ ::item.amount_once }}<br/>
-                        Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
-                    </div>
-                    <p><small class="text-muted"><i class="fa fa-calendar"></i> created on {{ ::item.created | date:'dd MMM yy' }}{{ ::item.created | date:'HH:mm' }}</small></p>
-                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.assigned_to_name }}</small></p>
-                </div>
-
-                <div class='timeline-body next' ng-repeat="note in ::item.notes">
-                    <p class='inline-header'><i class="fa fa-file-o"></i>Note</p>
-                    <div class="inline-body">
-                        {{ ::note.content }}
-                        <p><small class="text-muted"><i class="fa fa-calendar"></i> created on: {{ ::note.date | date:'dd MMMM yy HH:mm' }}</small></p>
-                        <p><small class="text-muted"><i class="fa fa-user"></i>by {{ ::note.author }}</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-panel" ng-if="::item.historyType=='note'">
-                <div class='timeline-heading'>
-                    <h4 class='timeline-title'>Note
-                        <div class="btn-group pull-right">
-                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-angle-down"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li><a ng-click="editNote(item)"><i class="fa fa-edit"></i>Edit</a></li>
-                                <li class='divider'></li>
-                                <li><a ng-click=deleteNote(item)><i class="fa fa-trash"></i>Delete</a></li>
-                            </ul>
+                        <div class="desc">
+                             naar Freedom
                         </div>
-                    </h4>
-                </div>
-                <div class="timeline-time">
-                    <a ng-href="/notes/update_date/{{ ::item.id }}/" class="nav-link" data-target="#object-update" data-source="/notes/update_date/{{ ::item.id }}/">
-                        <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                        <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-                    </a>
-                </div>
-
-                <div class="timeline-body">
-                    <em style="white-space: pre-wrap;">{{ ::item.content }}</em>
-                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
-                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.author }}</small></p>
-                </div>
+                    </div>
+                </a>
+                <a class="more" ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
+                    Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
+                </a>
             </div>
-
-            <div class="timeline-panel" ng-if="::item.historyType=='email'">
-                <div class='timeline-heading'>
-                    <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span>
-                        <div class="btn-group pull-right">
-                            <a class="hoekje" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-angle-down"></i>
-                            </a>
-                            <ul class="dropdown-menu pull-right">
-                                <li><a ui-sref="base.email.detail({id: item.id })"><i class="fa fa-eye"></i> View</a></li>
-                                <li class='divider'></li>
-                                <li><a ui-sref="base.email.reply({id: item.id })"><i class="fa fa-mail-reply"></i> Reply</a></li>
-                                <li><a ui-sref="base.email.replyAll({id: item.id })"><i class="fa fa-reply-all"></i> Reply all</a></li>
-                                <li><a ui-sref="base.email.forward({id: item.id })"><i class="fa fa-mail-forward"></i> Forward</a></li>
-                            </ul>
-                        </div>
-                    </h4>
-                </div>
-
-                <div class="timeline-time">
-                    <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-                    <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-                </div>
-
-                <div class="timeline-body" ng-class="{'body-right': item.right, 'body-left': !item.right}">
-                    {{ left }}
-                    <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
-                    <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
-                    <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.sender_name }}</small></p>
-                </div>
-            </div>
-        </li>
-    </ul>
-
-</div>
-
-<p class="text-center">
-    <button ng-click="loadHistoryFromButton()" class="btn btn-primary margin-top-20">{{ showMoreText }}</button>
-</p>
-
+        </div>
+    </div>
+    <history-list target="'account'" object="account"></history-list>
 </script>
 {% endverbatim %}

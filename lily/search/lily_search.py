@@ -6,6 +6,7 @@ from elasticsearch.exceptions import RequestError
 from elasticutils import S
 
 from lily.accounts.models import Account
+from lily.contacts.models import Contact
 from lily.messaging.email.models.models import EmailAccount
 from lily.search.connections_utils import get_es_client_kwargs
 
@@ -185,7 +186,28 @@ class LilySearch(object):
             })
             return
         # Enclose emails with quotes.
-        emails = ['"%s"' % email for email in emails]
+        emails = list(set(['"%s"' % email for email in emails]))
+        join = ' OR '.join(emails)
+        filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
+        self.filter_query(filterquery)
+
+    def contact_related(self, contact_id):
+        """
+        Search email related to an contact.
+
+        Args:
+            contact_id (integer): search with this contact's email addresses
+        """
+        contact = Contact.objects.get(id=contact_id)
+        emails = set(['"%s"' % email.email_address for email in contact.email_addresses.all() if email.email_address])
+
+        if not emails:
+            self.raw_filters.append({
+                'limit': {
+                    'value': 0
+                }
+            })
+            return
         join = ' OR '.join(emails)
         filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
         self.filter_query(filterquery)

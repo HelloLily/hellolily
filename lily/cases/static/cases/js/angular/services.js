@@ -29,6 +29,7 @@ caseServices.factory('CaseDetail', ['$resource', function($resource) {
                     var objects = [];
                     if (data && data.hits && data.hits.length > 0) {
                         data.hits.forEach(function(obj) {
+                            obj = $.extend(obj, {historyType: 'case', color: 'grey', date: obj.expires});
                             objects.push(obj);
                         });
                     }

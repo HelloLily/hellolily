@@ -103,7 +103,8 @@ PIPELINE_JS = {
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
 
-            'dashboard/js/angular/controllers.js',
+            'dashboard/js/angular/module.js',
+            'dashboard/js/angular/base.ctrl.js',
             'dashboard/js/angular/directives.js',
 
             'deals/js/angular/controllers.js',
@@ -132,6 +133,7 @@ PIPELINE_JS = {
             'users/js/angular/filters.js',
 
             'utils/js/angular/controllers.js',
+            'utils/js/angular/directives.js',
 
             # Pip package static
             'js/jquery.formset.js',

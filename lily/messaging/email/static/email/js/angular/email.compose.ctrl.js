@@ -102,7 +102,7 @@
 
             if ($stateParams.messageType == 'reply') {
                 // If it's a reply, load the email message first
-                EmailMessage.API.get({id: $stateParams.id}).$promise.then(function (emailMessage) {
+                EmailMessage.get({id: $stateParams.id}).$promise.then(function (emailMessage) {
                     _initEmailCompose(emailMessage);
                 });
             }

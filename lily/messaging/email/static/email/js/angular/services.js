@@ -23,6 +23,7 @@
                         var objects = [];
                         if (data && data.hits && data.hits.length > 0) {
                             data.hits.forEach(function(obj) {
+                                obj = $.extend(obj, {historyType: 'email', color: 'green', date: obj.sent_date, right: false});
                                 objects.push(obj)
                             });
                         }
@@ -63,63 +64,92 @@
 
     angular.module('app.email.services').factory('EmailMessage', EmailMessage);
 
-    EmailMessage.$inject = ['$resource'];
-    function EmailMessage ($resource) {
-        return {
-            API: $resource(
-                '/api/messaging/email/email/:id/:actions',
-                {},
-                {
-                    'update': {
-                        method: 'PUT',
-                        params: {
-                            id: '@id',
-                            actions: ''
-                        }
-                    },
-                    'delete': {
-                        method: 'DELETE',
-                        params: {
-                            id: '@id',
-                            actions: ''
-                        }
-                    },
-                    'archive': {
-                        method: 'PUT',
-                        params: {
-                            id: '@id',
-                            actions: 'archive'
-                        }
-                    },
-                    'trash': {
-                        method: 'PUT',
-                        params: {
-                            id: '@id',
-                            actions: 'trash'
-                        }
-                    },
-                    'get': {
-                        method: 'GET',
-                        params: {
-                            id: '@id',
-                            actions: ''
-                        }
-                    },
-                    'move': {
-                        method: 'PUT',
-                        params: {
-                            id: '@id',
-                            actions: 'move'
-                        }
+    EmailMessage.$inject = ['$resource', '$q'];
+    function EmailMessage ($resource, $q) {
+        var EmailMessage = $resource(
+            '/api/messaging/email/email/:id/:actions',
+            {},
+            {
+                'update': {
+                    method: 'PUT',
+                    params: {
+                        id: '@id',
+                        actions: ''
+                    }
+                },
+                'delete': {
+                    method: 'DELETE',
+                    params: {
+                        id: '@id',
+                        actions: ''
+                    }
+                },
+                'archive': {
+                    method: 'PUT',
+                    params: {
+                        id: '@id',
+                        actions: 'archive'
+                    }
+                },
+                'trash': {
+                    method: 'PUT',
+                    params: {
+                        id: '@id',
+                        actions: 'trash'
+                    }
+                },
+                'get': {
+                    method: 'GET',
+                    params: {
+                        id: '@id',
+                        actions: ''
+                    }
+                },
+                'move': {
+                    method: 'PUT',
+                    params: {
+                        id: '@id',
+                        actions: 'move'
+                    }
+                },
+                'search': {
+                    method: 'GET',
+                    url: '/search/search/',
+                    params: {
+                        user_email_related: 1,
+                        type: 'email_emailmessage',
+                        sort: '-sent_date',
+                        size: 20
                     }
                 }
-            ),
-            SEARCH: $resource('/search/search/?user_email_related=1&type=email_emailmessage&sort=-sent_date&size=20'),
-
-            markAsRead: function(id, read) {
-                this.API.update({id: id, read:read});
             }
-        };
+        );
+
+        EmailMessage.markAsRead = markAsRead;
+        EmailMessage.getDashboardMessages = getDashboardMessages;
+
+
+        //////
+
+        function markAsRead (id, read) {
+            this.update({id: id, read: read});
+        }
+
+        function getDashboardMessages (field, sorting, filterQuery) {
+            var sort = '';
+            sort += sorting ? '-': '';
+            sort += field;
+
+            var deferred = $q.defer();
+            EmailMessage.search({
+                filterquery: filterQuery,
+                sort: sort
+            }, function (data) {
+                deferred.resolve(data.hits);
+            });
+            return deferred.promise;
+        }
+        return EmailMessage
     }
 
     /**

@@ -1,8 +1,9 @@
-import logging
 import base64
-import email
 import datetime
+import email
 import gc
+import logging
+import re
 import StringIO
 
 from bs4 import BeautifulSoup, UnicodeDammit
@@ -403,20 +404,30 @@ class MessageBuilder(object):
         """
         header_name = header_name.lower()
 
-        # Get or create recipient
-        email_address = email.utils.parseaddr(header_value)
-        recipient = Recipient.objects.get_or_create(
-            name=email_address[0],
-            email_address=email_address[1],
-        )[0]
+        # Selects all comma's with the following conditions:
+        # 1. Preceded by a TLD (with a max of 16 chars) or
+        # 2. Preceded by an angle bracket (>)
+        # Then swap out with regex group 1 + a semicolon (\1;)
+        # After that split by semicolon (;)
+        # Note: Basic tests have shown that char limit on the TLD can be increased without problems
+        # 16 chars seems to be enough for now though
+        recipients = re.sub(r'(\.[A-Z]{2,16}|>)(,)', r'\1;', header_value, flags=re.IGNORECASE).split('; ')
 
-        # Set recipient to correct field
-        if header_name == 'from':
-            self.message.sender = recipient
-        elif header_name in ['to', 'delivered-to']:
-            self.received_by.add(recipient)
-        elif header_name == 'cc':
-            self.received_by_cc.add(recipient)
+        for recipient in recipients:
+            # Get or create recipient
+            email_address = email.utils.parseaddr(recipient)
+            recipient = Recipient.objects.get_or_create(
+                name=email_address[0],
+                email_address=email_address[1],
+            )[0]
+
+            # Set recipient to correct field
+            if header_name == 'from':
+                self.message.sender = recipient
+            elif header_name in ['to', 'delivered-to']:
+                self.received_by.add(recipient)
+            elif header_name == 'cc':
+                self.received_by_cc.add(recipient)
 
     def _place_inline_attachments(self):
         """

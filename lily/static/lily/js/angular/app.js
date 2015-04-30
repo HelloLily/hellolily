@@ -12,6 +12,7 @@
 
         // Controllers
         'app.accounts',
+        'app.dashboard',
         'app.email',
         'app.preferences',
         'app.preferences.email',
@@ -19,12 +20,11 @@
         'lilyControllers',
         'CaseControllers',
         'ContactsControllers',
-        'dashboardControllers',
         'DealControllers',
 
         // Directives
         'CaseDirectives',
-        'lilyDirectives',
+        'app.directives',
 
         // Google Analytics
         'angulartics',

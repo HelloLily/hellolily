@@ -103,7 +103,8 @@ PIPELINE_JS = {
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
 
-            'dashboard/js/angular/controllers.js',
+            'dashboard/js/angular/module.js',
+            'dashboard/js/angular/base.ctrl.js',
             'dashboard/js/angular/directives.js',
 
             'deals/js/angular/controllers.js',

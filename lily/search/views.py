@@ -53,6 +53,10 @@ class SearchView(LoginRequiredMixin, View):
         if account_related:
             search.account_related(int(account_related))
 
+        contact_related = request.GET.get('contact_related', '')
+        if contact_related:
+            search.contact_related(int(contact_related))
+
         user_email_related = request.GET.get('user_email_related', '')
         if user_email_related:
             search.user_email_related(self.request.user)

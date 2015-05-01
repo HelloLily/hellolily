@@ -46,7 +46,7 @@
                 </div>
                 <div class="portlet-body">
                     <div ng-repeat="work in ::works">
-                        <h4><i class="fa fa-building"></i> <a ui-sref="base.accounts.detail({ id: work.id })" title="{{ ::work.name }}">{{ ::work.name }}</a> </h4>
+                        <h4><i class="fa fa-building"></i> <a ui-sref="base.accounts.detail({ id: work.id })" title="{{ ::work.name }}">{{ ::work.name }}</a> <a ng-show="::work.customer_id" ng-href="https://freedom.voys.nl/client/{{ ::work.customer_id }}" target="_blank"><span class="contact freedom-link"><i class="fa fa-arrow-right contact freedom-link-arrow"></i> Freedom</span></a></h4>
                         <div class="row no-margin">
                             <table class="table no-margin table-light">
                                 <thead>

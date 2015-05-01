@@ -12,19 +12,19 @@
 
         // Controllers
         'app.accounts',
+        'app.cases',
         'app.dashboard',
         'app.email',
         'app.preferences',
         'app.preferences.email',
         'app.preferences.user',
         'lilyControllers',
-        'CaseControllers',
         'ContactsControllers',
         'DealControllers',
         'UtilsControllers',
 
         // Directives
-        'CaseDirectives',
+        'app.cases.directives',
         'app.directives',
         'UtilsDirectives',
 

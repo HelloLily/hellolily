@@ -97,6 +97,7 @@ PIPELINE_JS = {
 
             'cases/js/angular/controllers.js',
             'cases/js/angular/directives.js',
+            'cases/js/angular/postpone.ctrl.js',
             'cases/js/angular/services.js',
             'cases/js/cases.js',
 
@@ -106,6 +107,7 @@ PIPELINE_JS = {
             'dashboard/js/angular/module.js',
             'dashboard/js/angular/base.ctrl.js',
             'dashboard/js/angular/directives.js',
+            'dashboard/js/angular/mycases.direct.js',
 
             'deals/js/angular/controllers.js',
             'deals/js/angular/services.js',

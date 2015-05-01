@@ -2,22 +2,6 @@
     'use strict';
 
     /**
-     * AccountsControllers manages all routes and controllers
-     * that relate to Account.
-     */
-    angular.module('app.accounts', [
-        'ngCookies',
-        'ui.bootstrap',
-        'ui.slimscroll',
-        'AccountServices',
-        'CaseServices',
-        'contactServices',
-        'noteServices',
-        'app.email.services'
-    ]);
-
-
-    /**
      * Router definition.
      */
     angular.module('app.accounts').config(['$stateProvider', function($stateProvider) {

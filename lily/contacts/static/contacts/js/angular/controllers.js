@@ -121,7 +121,8 @@ contacts.controller('ContactDetailController', [
                         return {
                             name: contact.account_name[index],
                             colleagues: contacts,
-                            id: account_id
+                            id: account_id,
+                            customer_id: contact.account_customer_id[index]
                         };
                     });
                     works.push(work);

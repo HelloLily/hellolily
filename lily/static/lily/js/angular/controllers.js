@@ -45,6 +45,7 @@ lilyControllers.controller('baseController', [
             HLSelect2.init();
             HLFormsets.init();
             HLShowAndHide.init();
+            autosize($('textarea'));
 
             $scope.loadNotifications();
         });

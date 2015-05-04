@@ -83,6 +83,9 @@ PIPELINE_JS = {
             'plugins/angular/angular-slimscroll/angular-slimscroll.js',
             'plugins/angular/angular-ui-router/angular-ui-router.js',
 
+            # Other plugins
+            'plugins/autosize.js',
+
             # Angular Lily app
             'lily/js/angular/app.js',
             'lily/js/angular/controllers.js',

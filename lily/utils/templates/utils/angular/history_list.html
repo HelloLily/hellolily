@@ -14,29 +14,24 @@
                         <div class="note-form-wrapper">
                             <form role="form">
                                 <div class="form-body text-center">
-                                    <!--
                                     <div class="form-group">
-                                        <div class="btn-group" data-toggle="buttons">
-                                            <label class="btn btn-default active">
-                                                <input type="radio" class="toggle">
+                                        <div class="btn-group">
+                                            <label class="btn btn-default" ng-model="note.type" btn-radio="1">
                                                 <i class="fa fa-phone"></i>
                                                 Call
                                             </label>
-                                            <label class="btn btn-default">
-                                                <input type="radio" class="toggle">
+                                            <label class="btn btn-default" ng-model="note.type" btn-radio="2">
                                                 <i class="fa fa-calendar"></i>
                                                 Meetup
                                             </label>
-                                            <label class="btn btn-default">
-                                                <input type="radio" class="toggle">
+                                            <label class="btn btn-default" ng-model="note.type" btn-radio="0">
                                                 <i class="fa fa-file-o"></i>
                                                 Note
                                             </label>
                                         </div>
                                     </div>
-                                    -->
                                     <div class="form-group">
-                                        <textarea required class="form-control" id="id_content" ng-model="note" name="content" rows="4" placeholder="Write your note here"></textarea>
+                                        <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
                                     </div>
                                 </div>
                                 <div class="form-actions text-right">

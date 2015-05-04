@@ -6,6 +6,7 @@
      */
     angular.module('lilyApp', [
         'ui.router',
+        'ui.bootstrap',
         'ngResource',
         'ngSanitize',
         'ncy-angular-breadcrumb',

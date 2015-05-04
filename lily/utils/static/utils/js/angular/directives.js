@@ -58,6 +58,9 @@ function HistoryList($filter, $http, $modal, $q, $state, EmailAccount, NoteDetai
             ////////
 
             function activate() {
+                // Somehow calling autosize on page content load dus not work
+                // in the historylist.
+                autosize($('textarea'));
                 loadMore();
             }
 

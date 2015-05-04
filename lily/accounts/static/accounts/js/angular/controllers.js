@@ -95,7 +95,7 @@
                 $scope.numDeals = total.total;
             });
 
-            ContactDetail.query({filterquery: 'account:' + id}).$promise.then(function(contacts) {
+            ContactDetail.query({filterquery: 'accounts.id:' + id}).$promise.then(function(contacts) {
                 $scope.workers = contacts;
             });
         }

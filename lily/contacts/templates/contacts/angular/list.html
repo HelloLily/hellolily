@@ -109,8 +109,8 @@
                             </div>
                         </td>
                         <td ng-show="table.visibility.worksAt">
-                            <div ng-repeat="account in contact.account">
-                                <a ui-sref="base.accounts.detail({id: account})">{{ ::contact.account_name[$index] }}</a>
+                            <div ng-repeat="account in contact.accounts">
+                                <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
                             </div>
                         </td>
                         <td ng-show="table.visibility.created">

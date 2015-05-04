@@ -436,3 +436,25 @@ ul.inbox-nav li.mailbox-header span {
 ul.inbox-nav li.mailbox-header span i {
     background: none !important;
 }
+
+/* FIX z-index of topnav */
+.page-header.navbar.navbar-fixed-top {
+    z-index: 3;
+}
+
+/* Contacts freedomlink style */
+
+.contact.freedom-link {
+    padding: 4px;
+    float: right;
+    border: 1px solid #2f3490;
+    border-radius: 5px;
+    color: #2f3490;
+    font-size: 12px;
+}
+
+.contact.freedom-link-arrow {
+    font-size: 12px;
+}
+
+/* END Contacts freedomlink style */

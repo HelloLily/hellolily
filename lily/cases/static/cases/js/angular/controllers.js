@@ -1,7 +1,7 @@
 /**
  * caseControllers is a container for all case related Controllers
  */
-var caseControllers = angular.module('CaseControllers', [
+var caseControllers = angular.module('app.cases', [
     // Angular dependencies
     'ngCookies',
 
@@ -10,10 +10,10 @@ var caseControllers = angular.module('CaseControllers', [
 
     // Lily dependencies
     'AccountServices',
-    'CaseServices',
+    'app.cases.services',
+    'app.email.services',
     'contactServices',
-    'noteServices',
-    'app.email.services'
+    'noteServices'
 ]);
 
 caseControllers.config(['$stateProvider', function($stateProvider) {
@@ -112,6 +112,7 @@ caseControllers.controller('CaseDetailController', [
     '$filter',
     '$http',
     '$location',
+    '$modal',
     '$q',
     '$scope',
     '$state',
@@ -122,7 +123,7 @@ caseControllers.controller('CaseDetailController', [
     'NoteDetail',
     'NoteService',
 
-    function($filter, $http, $location, $q, $scope, $state, $stateParams, CaseDetail, CaseStatuses, NoteDetail, NoteService) {
+    function($filter, $http, $location, $modal, $q, $scope, $state, $stateParams, CaseDetail, CaseStatuses, NoteDetail, NoteService) {
         $scope.conf.pageTitleBig = 'Case';
         $scope.conf.pageTitleSmall = 'the devil is in the detail';
 
@@ -243,6 +244,24 @@ caseControllers.controller('CaseDetailController', [
                     // Request failed propper error?
                 });
         };
+
+        $scope.openPostponeWidget = function (myCase) {
+            var modalInstance = $modal.open({
+                templateUrl: 'cases/casepostpone.modal.html',
+                controller: 'CasePostponeModal',
+                controllerAs: 'vm',
+                size: 'sm',
+                resolve: {
+                    myCase: function() {
+                        return myCase
+                    }
+                }
+            });
+
+            modalInstance.result.then(function() {
+                $state.go($state.current, {}, {reload: true});
+            });
+        }
     }
 ]);
 

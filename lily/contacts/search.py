@@ -88,6 +88,9 @@ class ContactMapping(BaseMapping):
             'account': {
                 'type': 'integer',
             },
+            'account_customer_id': {
+                'type': 'string',
+            },
             'created': {
                 'type': 'date',
             },
@@ -152,6 +155,7 @@ class ContactMapping(BaseMapping):
         if functions:
             doc['account'] = [function.account_id for function in functions]
             doc['account_name'] = [function.account.name for function in functions if function.account.name]
+            doc['account_customer_id'] = [function.account.customer_id for function in functions]
             doc['function'] = sorted(functions, key=lambda o: o.created, reverse=True)[0].title
 
         phones = obj.phone_numbers.all()

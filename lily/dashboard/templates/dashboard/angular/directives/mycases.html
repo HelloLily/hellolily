@@ -6,7 +6,7 @@
                     <div class="caption">
                         <i class="fa fa-briefcase"></i>
                         <span class="caption-subject bold uppercase"> MY CASES</span>
-                        <span class="caption-helper">({{ mycases.length }})</span>
+                        <span class="caption-helper">({{ mc.myCases.length }})</span>
                     </div>
                     <div class="tools">
                         <a href="" class="collapse" data-original-title="" title=""></a>
@@ -27,18 +27,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="mycase in mycases">
-                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.id }}</a></td>
-                                    <td><a ui-sref="base.accounts.detail({ id: mycase.account.id })">{{ mycase.account.name }}</a></td>
-                                    <td><a ui-sref="base.cases.detail({ id: mycase.id })">{{ mycase.subject }}</a></td>
+                                <tr ng-repeat="myCase in mc.myCases">
+                                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.id }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: myCase.account.id })">{{ myCase.account.name }}</a></td>
+                                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.subject }}</a></td>
                                     <td>
                                     <span title="3"></span>
-                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[mycase.priority[0]]">{{ mycase.priority[1] }}</span>
+                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority[0]]">{{ myCase.priority[1] }}</span>
                                     </td>
-                                    <td>{{ mycase.status }}</td>
-                                    <td>{{ mycase.expires | relativeDate }}</td>
+                                    <td>{{ myCase.status }}</td>
+                                    <td><a ng-click="mc.openPostPoneWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
                                 </tr>
-                                <tr ng-hide="mycases.length">
+                                <tr ng-hide="mc.myCases.length">
                                     <td colspan="6">No cases</td>
                                 </tr>
                             </tbody>

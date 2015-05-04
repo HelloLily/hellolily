@@ -1,0 +1,38 @@
+{% verbatim %}
+    <script id="cases/casepostpone.modal.html" type="text/ng-template">
+        <div class="modal-header">
+            <h3 class="modal-title">Postpone this case!</h3>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Booh, can't close this case so quickly :( Lets postpone the expiry date</p>
+                    <a ng-click="vm.postponeWithDays(1)" class="btn btn-default margin-top-10" ng-hide="vm.expireDate.getDay() == 5">Add 1 day ({{ vm.getFutureDate(1) | date }})</a>
+                    <a ng-click="vm.postponeWithDays(2)" class="btn btn-default margin-top-10" ng-hide="vm.expireDate.getDay() == 4">Add 2 days ({{ vm.getFutureDate(2) | date }})</a>
+                    <a ng-click="vm.postponeWithDays(3)" class="btn btn-default margin-top-10" ng-show="vm.expireDate.getDay() == 5">Add 3 days ({{ vm.getFutureDate(3) | date }})</a>
+                    <a ng-click="vm.postponeWithDays(4)" class="btn btn-default margin-top-10" ng-show="vm.expireDate.getDay() == 4">Add 4 days ({{ vm.getFutureDate(4) | date }})</a>
+                    <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(7) | date }})</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 margin-top-10">
+                    <p>Lets go crazy:</p>
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               ng-model="vm.expireDate"
+                               datepicker-popup="{{ vm.dateFormat }}"
+                               datepicker-options="vm.datepickerOptions"
+                               show-button-bar="false"
+                               is-open="vm.pickerIsOpen"
+                               date-disabled="vm.disabledDates(date, mode)"
+                               date-formatter="{{ vm.dateFormat }}" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="vm.openDatePicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+{% endverbatim %}

@@ -89,8 +89,10 @@ class DataproviderView(ProvideBaseView):
         """
         self.domain = super(DataproviderView, self).get_domain()
 
-        if self.domain[:6] == 'http://':
-                self.domain = self.domain[6:]
+        if self.domain[:8] == 'https://':
+                self.domain = self.domain[8:]
+        if self.domain[:7] == 'http://':
+                self.domain = self.domain[7:]
         if self.domain[:4] == 'www.':
             self.domain = self.domain[4:]
 

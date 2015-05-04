@@ -91,6 +91,7 @@
 
         sanitizeDomain: function(url) {
             var domain = $.trim(url.replace('http://', ''));
+            domain = $.trim(domain.replace('https://', ''));
             // Always add last '/'
             if (domain.slice(-1) !== '/') {
                 domain += '/';

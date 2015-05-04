@@ -60,28 +60,6 @@
     }
 
     /**
-     * MyCases Widget
-     */
-    angular.module('app.dashboard.directives').directive('myCases', myCases);
-
-    function myCases () {
-        return {
-            templateUrl: 'dashboard/mycases.html',
-            controller: 'MyCases'
-        }
-    }
-
-    angular.module('app.dashboard.directives').controller('MyCases', MyCases);
-
-    MyCases.$inject = ['$scope', 'Case'];
-    function MyCases ($scope, Case) {
-        Case.getMyCasesWidget().then(function (data) {
-            // NAME DEPENDANCY IN UNASSIGNEDCASES CONTROLLER
-            $scope.mycases = data;
-        });
-    }
-
-    /**
      * CallbackRequests widget
      */
     angular.module('app.dashboard.directives').directive('callbackRequests', callbackRequests);

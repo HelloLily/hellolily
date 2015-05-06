@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from rest_framework.fields import empty
+from lily.tags.models import Tag
 
 from ..models.models import Address, EmailAddress, PhoneNumber
 
 
+# TODO: Once we start our refactor sprint we should probably delete this serializer
 class RelatedModelSerializer(serializers.ModelSerializer):
 
     def __init__(self, instance=None, data=empty, **kwargs):
@@ -16,26 +18,35 @@ class RelatedModelSerializer(serializers.ModelSerializer):
         return instance
 
 
-class PhoneNumberSerializer(RelatedModelSerializer):
+class RelatedFieldSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        obj = super(RelatedFieldSerializer, self).to_internal_value(data)
+
+        is_deleted = data.get('is_deleted', False)
+
+        if 'id' not in data and is_deleted:
+            # New object but removed, don't do anything
+            return {}
+        else:
+            obj.update({
+                'is_deleted': data.get('is_deleted', False)
+            })
+
+        return obj
+
+
+class PhoneNumberSerializer(RelatedFieldSerializer):
+    id = serializers.IntegerField(required=False)
     status_name = serializers.CharField(source='get_status_display', read_only=True)
     number = serializers.CharField(read_only=True)
-
-    def create(self, validated_data):
-        instance = super(PhoneNumberSerializer, self).create(validated_data)
-        self.related_object.phone_numbers.add(instance)
-        return instance
 
     class Meta:
         model = PhoneNumber
         fields = ('id', 'status_name', 'number', 'raw_input', 'type', 'other_type', 'status',)
 
 
-class AddressSerializer(RelatedModelSerializer):
-
-    def create(self, validated_data):
-        instance = super(AddressSerializer, self).create(validated_data)
-        self.related_object.addresses.add(instance)
-        return instance
+class AddressSerializer(RelatedFieldSerializer):
+    id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Address
@@ -52,14 +63,16 @@ class AddressSerializer(RelatedModelSerializer):
         )
 
 
-class EmailAddressSerializer(RelatedModelSerializer):
+class EmailAddressSerializer(RelatedFieldSerializer):
+    id = serializers.IntegerField(required=False)
     status_name = serializers.CharField(source='get_status_display', read_only=True)
-
-    def create(self, validated_data):
-        instance = super(EmailAddressSerializer, self).create(validated_data)
-        self.related_object.email_addresses.add(instance)
-        return instance
 
     class Meta:
         model = EmailAddress
         fields = ('id', 'status_name', 'email_address', 'status',)
+
+
+class TagSerializer(RelatedFieldSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'name',)

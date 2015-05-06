@@ -1,0 +1,107 @@
+<div ng-repeat="address in vm.addresses">
+    <div class="form-group">
+        <div class="form-group-inline">
+            <label class="col-md-2 control-label" for="id_addresses-street-{{ $index }}" ng-show="$first">Addresses</label>
+            <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+                <input class="form-control"
+                       id="id_addresses-street-{{ $index }}"
+                       maxlength="255"
+                       name="addresses-street-{{ $index }}"
+                       placeholder="Address"
+                       type="text"
+                       ng-model="address.street"
+                       ng-readonly="address.is_deleted">
+            </div>
+        </div>
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-number-{{ $index }}">Street number</label>
+            <div class="col-md-2 field_wrapper">
+                <input class="form-control"
+                       id="id_addresses-number-{{ $index }}"
+                       maxlength="255"
+                       name="addresses-number-{{ $index }}"
+                       placeholder="Street number"
+                       type="text"
+                       ng-model="address.street_number"
+                       ng-readonly="address.is_deleted">
+            </div>
+        </div>
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-complement-{{ $index }}">Complement</label>
+            <div class="col-md-2 field_wrapper">
+                <input class="form-control"
+                       id="id_addresses-complement-{{ $index }}"
+                       maxlength="255"
+                       name="addresses-complement-{{ $index }}"
+                       placeholder="Street complement"
+                       type="text"
+                       ng-model="address.complement"
+                       ng-readonly="address.is_deleted">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal Code</label>
+            <div class="col-md-4 col-md-offset-2 field_wrapper">
+                <input class="form-control"
+                       id="id_addresses-postal_code-{{ $index }}"
+                       maxlength="255"
+                       name="addresses-postal_code-{{ $index }}"
+                       placeholder="Postal Code"
+                       type="text"
+                       ng-model="address.postal_code"
+                       ng-readonly="address.is_deleted">
+            </div>
+        </div>
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
+            <div class="col-md-4 field_wrapper">
+                <input class="form-control"
+                       id="id_addresses-city-{{ $index }}"
+                       maxlength="255"
+                       name="addresses-city-{{ $index }}"
+                       placeholder="City"
+                       type="text"
+                       ng-model="address.city"
+                       ng-readonly="address.is_deleted">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
+            <div class="col-md-4 col-md-offset-2">
+                <country-selector address="address"></country-selector>
+            </div>
+        </div>
+        <div class="form-group-inline">
+            <label class="hidden control-label" for="id_addresses-type-{{ $index }}">Type</label>
+            <div class="col-md-4">
+                <select class="form-control"
+                        id="id_addresses-type-{{ $index }}"
+                        name="addresses-type-{{ $index }}"
+                        ng-model="address.type"
+                        ng-options="labelType.key as labelType.value for labelType in vm.addressTypes"
+                        ng-readonly="address.is_deleted">
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="col-md-1">
+                <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="address.is_deleted">
+                    <i class="fa fa-undo"></i>
+                </a>
+                <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="address.is_deleted">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-md-2 control-label" ng-hide="vm.addresses.length">Addresses</label>
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.addresses.length }">
+        <a ng-click="vm.addRelatedField({field: 'address'})" class="btn btn-default btn-sm">Add an address</a>
+    </div>
+</div>

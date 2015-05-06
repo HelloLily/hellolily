@@ -6,9 +6,13 @@ angular.module('app.accounts', [
     'ngCookies',
     'ui.bootstrap',
     'ui.slimscroll',
+    'ui.select',
+
     'app.accounts.services',
     'app.cases.services',
     'app.contacts.services',
     'app.email.services',
-    'app.notes'
+    'app.forms.directives',
+    'app.notes',
+    'app.services'
 ]);

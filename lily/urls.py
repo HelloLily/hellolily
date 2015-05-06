@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 from lily.accounts.api.views import AccountViewSet
-from lily.api.urls import router
+from lily.api.urls import router, accounts_router
 from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList, CaseViewSet
 from lily.deals.api.views import DealList, DealCommunicationList, DealWonWrittenList, DealStagesList
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
@@ -19,7 +19,6 @@ admin.autodiscover()
 
 
 # Routers provide an easy way of automatically determining the URL conf.
-router.register(r'accounts/account', AccountViewSet)
 router.register(r'cases/case', CaseViewSet)
 router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
@@ -49,6 +48,7 @@ urlpatterns = patterns(
 
     # Django rest
     url(r'^api/', include(router.urls)),
+    url(r'^api/', include(accounts_router.urls)),
     url(r'^api/cases/teams/$', TeamsCaseList.as_view()),
     url(r'^api/cases/teams/(?P<pk>[0-9]+)/$', TeamsCaseList.as_view()),
     url(r'^api/cases/user/$', UserCaseList.as_view()),

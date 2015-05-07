@@ -187,33 +187,38 @@
                 var recipientId = null;
                 var emailAccountId = $(self.config.emailAccountInput).val();
 
-                if (selectedTemplate) {
-                    var recipient = $('#id_send_to_normal').select2('data')[0];
+                if (emailAccountId) {
+                    if (selectedTemplate) {
+                        var recipient = $('#id_send_to_normal').select2('data')[0];
 
-                    if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
-                        // Check if a contact has been entered
-                        recipientId = recipient.object_id;
-                    }
-                    else if (self.config.sender !== '' && self.config.sender != null) {
-                        // If it's a reply there might be contact set
-                        recipientId = self.config.sender;
-                        self.config.sender = null;
-                    }
+                        if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
+                            // Check if a contact has been entered
+                            recipientId = recipient.object_id;
+                        }
+                        else if (self.config.sender !== '' && self.config.sender != null) {
+                            // If it's a reply there might be contact set
+                            recipientId = self.config.sender;
+                            self.config.sender = null;
+                        }
 
-                    // Always get a template
-                    var url = self.config.getTemplateUrl + selectedTemplate + '/';
+                        // Always get a template
+                        var url = self.config.getTemplateUrl + selectedTemplate + '/';
 
-                    if (recipientId != null) {
-                        // If a recipient has been set we can set extra url parameters
-                        url += '?contact_id=' + recipientId + '&emailaccount_id=' + emailAccountId;
-                    }
-                    else {
-                        url += '?emailaccount_id=' + emailAccountId;
-                    }
+                        if (recipientId != null) {
+                            // If a recipient has been set we can set extra url parameters
+                            url += '?contact_id=' + recipientId + '&emailaccount_id=' + emailAccountId;
+                        }
+                        else {
+                            url += '?emailaccount_id=' + emailAccountId;
+                        }
 
-                    $.getJSON(url, function (data) {
-                        self.setNewEditorValue(data, templateChanged);
-                    });
+                        $.getJSON(url, function (data) {
+                            self.setNewEditorValue(data, templateChanged);
+                        });
+                    }
+                }
+                else {
+                    toastr.error('I couldn\'t load the template because your email account doesn\'t seem to be set. Please check your email account and try again');
                 }
             }
         },
@@ -300,11 +305,17 @@
         loadDefaultEmailTemplate: function() {
             var self = this;
             var emailAccountId = $(self.config.emailAccountInput).val();
-            var url = self.config.defaultEmailTemplateUrl + emailAccountId + '/';
 
-            $.getJSON(url, function(data) {
-                $(self.config.templateField).select2('val', data['template_id']).change();
-            });
+            if (emailAccountId) {
+                var url = self.config.defaultEmailTemplateUrl + emailAccountId + '/';
+
+                $.getJSON(url, function(data) {
+                    $(self.config.templateField).select2('val', data['template_id']).change();
+                });
+            }
+            else {
+                toastr.error('Sorry, I couldn\'t load your default email template. You could try reloading the page');
+            }
         },
 
         setNewEditorValue: function (data, templateChanged) {

@@ -92,7 +92,7 @@ class ContactMapping(BaseMapping):
                 'properties': {
                     'id': {'type': 'integer'},
                     'name': {'type': 'string'},
-                    'customer_id': {'type': 'integer'},
+                    'customer_id': {'type': 'string'},
                     'function': {'type': 'string'}
                 }
             }

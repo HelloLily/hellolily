@@ -81,22 +81,21 @@ class ContactMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
-            'account_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'account': {
-                'type': 'integer',
-            },
-            'account_customer_id': {
-                'type': 'string',
-            },
             'created': {
                 'type': 'date',
             },
             'modified': {
                 'type': 'date',
             },
+            'accounts': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {'type': 'string'},
+                    'customer_id': {'type': 'integer'},
+                    'function': {'type': 'string'}
+                }
+            }
         })
         return mapping
 
@@ -152,11 +151,16 @@ class ContactMapping(BaseMapping):
         }
 
         functions = obj.functions.all()
-        if functions:
-            doc['account'] = [function.account_id for function in functions]
-            doc['account_name'] = [function.account.name for function in functions if function.account.name]
-            doc['account_customer_id'] = [function.account.customer_id for function in functions]
-            doc['function'] = sorted(functions, key=lambda o: o.created, reverse=True)[0].title
+
+        for function in functions:
+            account = {
+                'id': function.account_id,
+                'name': function.account.name if function.account.name else '',
+                'customer_id': function.account.customer_id,
+                'function': function.title
+            }
+
+            doc.setdefault('accounts', []).append(account)
 
         phones = obj.phone_numbers.all()
         dedup_phones = set()

@@ -128,11 +128,10 @@
         EmailMessage.markAsRead = markAsRead;
         EmailMessage.getDashboardMessages = getDashboardMessages;
 
-
         //////
 
         function markAsRead (id, read) {
-            this.update({id: id, read: read});
+            return this.update({id: id, read: read});
         }
 
         function getDashboardMessages (field, sorting) {

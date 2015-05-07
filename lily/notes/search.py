@@ -62,6 +62,8 @@ class NoteMapping(BaseMapping):
         Translate an object to an index document.
         """
         return {
+            'type': obj.type,
+            'type_name': obj.get_type_display(),
             'content': obj.content,
             'author': obj.author.get_full_name(),
             'content_type': obj.content_type.name,

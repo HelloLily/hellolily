@@ -6,7 +6,7 @@
                     <div class="caption">
                         <i class="fa fa-phone"></i>
                         <span class="caption-subject bold uppercase"> CALLBACK REQUESTS</span>
-                        <span class="caption-helper">({{ callbackRequests.length }})</span>
+                        <span class="caption-helper">({{ cbr.table.items.length }})</span>
                     </div>
                     <div class="tools">
                         <a href="" class="collapse" data-original-title="" title=""></a>
@@ -22,20 +22,24 @@
                                     <th>Contact</th>
                                     <th>Phonenumber</th>
                                     <th>Subject</th>
-                                    <th>Created</th>
+                                    <th sort-column="created" table="cbr.table">Created</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="case in callbackRequests">
-                                    <td><a ui-sref="base.accounts.detail({ id: case.account.id })">{{ case.account.name }}</a></td>
-                                    <td><a ui-sref="base.contacts.detail({ id: case.contact.id })">{{ case.contact.full_name }}</a></td>
+                                <tr ng-repeat="case in cbr.table.items">
+                                    <td><a ui-sref="base.accounts.detail({ id: case.account })">{{ case.account_name }}</a></td>
+                                    <td><a ui-sref="base.contacts.detail({ id: case.contact })">{{ case.contact_name }}</a></td>
                                     <td>
-                                        <div ng-show="case.contact.phone_numbers[0]"><i class="fa fa-user"></i> {{ case.contact.phone_numbers[0] }}</div>
-                                        <div ng-show="case.account.phone_numbers[0]"><i class="fa fa-building"></i> {{ case.account.phone_numbers[0] }}</div>
+                                        <div ng-show="case.accountPhone"><i class="fa fa-building"></i> {{ case.accountPhone }}</div>
+                                        <div ng-show="case.contactPhone"><i class="fa fa-user"></i> {{ case.contactPhone }}</div>
                                     </td>
                                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a></td>
                                     <td>{{ case.created | relativeDate }}</td>
                                 </tr>
+                                <tr ng-hide="cbr.table.items.length">
+                                    <td colspan="5">Callback requests</td>
+                                </tr>
+
                             </tbody>
                         </table>
                     </div>

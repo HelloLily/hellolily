@@ -409,8 +409,14 @@ caseControllers.controller('CaseListController', [
          * Updates table.items and table.totalItems
          */
         function updateCases() {
-            Case.query(
-                $scope.table
+            Case.getCases(
+                $scope.table.searchQuery,
+                $scope.table.page,
+                $scope.table.pageSize,
+                $scope.table.order.column,
+                $scope.table.order.ascending,
+                $scope.table.archived,
+                $scope.table.filterQuery
             ).then(function (data) {
                     $scope.table.items = data.cases;
                     $scope.table.totalItems = data.total;

@@ -47,6 +47,9 @@ class CaseMapping(BaseMapping):
             'assigned_to_id': {
                 'type': 'integer',
             },
+            'assigned_to_groups': {
+                'type': 'integer',
+            },
             'priority': {
                 'type': 'integer',
             },
@@ -116,6 +119,7 @@ class CaseMapping(BaseMapping):
             'contact': obj.contact_id if obj.contact else None,
             'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'assigned_to_groups': [group.id for group in obj.assigned_to_groups.all()],
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'created_by': obj.created_by.get_full_name() if obj.created_by else None,
             'priority': obj.priority,

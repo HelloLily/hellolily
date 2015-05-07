@@ -107,10 +107,16 @@ PIPELINE_JS = {
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
 
-            'dashboard/js/angular/module.js',
-            'dashboard/js/angular/base.ctrl.js',
-            'dashboard/js/angular/directives.js',
-            'dashboard/js/angular/mycases.direct.js',
+            'dashboard/js/angular/controllers/module.js',
+            'dashboard/js/angular/controllers/base.js',
+            'dashboard/js/angular/directives/module.js',
+            'dashboard/js/angular/directives/callback.js',
+            'dashboard/js/angular/directives/mycases.js',
+            'dashboard/js/angular/directives/queuesize.js',
+            'dashboard/js/angular/directives/teams.js',
+            'dashboard/js/angular/directives/unassigned.js',
+            'dashboard/js/angular/directives/unread.js',
+
 
             'deals/js/angular/controllers.js',
             'deals/js/angular/services.js',

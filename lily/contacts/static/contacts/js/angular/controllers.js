@@ -103,8 +103,8 @@ contacts.controller('ContactDetailController', [
 
         function pageTitle(contact) {
             var title = contact.name;
-            if (contact.account) {
-                title += ' - ' + contact.account_name[0];
+            if (contact.accounts) {
+                title += ' - ' + contact.accounts[0].name;
             }
             return title;
         }
@@ -114,15 +114,15 @@ contacts.controller('ContactDetailController', [
             $scope.contact = contact;
             $scope.pageTitle = pageTitle(contact);
             var works = [];
-            if (contact.account) {
-                contact.account.forEach(function(account_id, index) {
-                    var query = {filterquery: 'NOT(id:' + id + ') AND account:' + account_id};
+            if (contact.accounts) {
+                contact.accounts.forEach(function(account) {
+                    var query = {filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id};
                     var work = ContactDetail.query(query).$promise.then(function(contacts) {
                         return {
-                            name: contact.account_name[index],
+                            name: account.name,
                             colleagues: contacts,
-                            id: account_id,
-                            customer_id: contact.account_customer_id[index]
+                            id: account.id,
+                            customer_id: account.customer_id
                         };
                     });
                     works.push(work);

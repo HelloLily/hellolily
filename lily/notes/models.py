@@ -15,9 +15,22 @@ class Note(HistoryListItem, DeletedMixin):
     """
     Note model, simple text fields to store text about another model for everyone to see.
     """
+    TYPE_NOTE, TYPE_CALL, TYPE_MEETUP = range(3)
+    NOTE_TYPE_CHOICES = (
+        (TYPE_NOTE, _('Note')),
+        (TYPE_CALL, _('Call')),
+        (TYPE_MEETUP, _('Meetup')),
+    )
+
     content = models.TextField(verbose_name=_('note'))
     author = models.ForeignKey(LilyUser, verbose_name=_('author'))
 
+    type = models.SmallIntegerField(
+            max_length=2,
+            choices=NOTE_TYPE_CHOICES,
+            default=TYPE_NOTE,
+            verbose_name=_('type')
+        )
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     subject = GenericForeignKey('content_type', 'object_id')

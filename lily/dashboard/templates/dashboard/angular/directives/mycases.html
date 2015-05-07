@@ -6,7 +6,7 @@
                     <div class="caption">
                         <i class="fa fa-briefcase"></i>
                         <span class="caption-subject bold uppercase"> MY CASES</span>
-                        <span class="caption-helper">({{ mc.myCases.length }})</span>
+                        <span class="caption-helper">({{ mc.table.items.length }})</span>
                     </div>
                     <div class="tools">
                         <a href="" class="collapse" data-original-title="" title=""></a>
@@ -18,27 +18,27 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Case nr. <i class="fa fa-sort"></i></th>
+                                    <th sort-column="id" table="mc.table">Case nr.</th>
                                     <th>Client</th>
                                     <th>Subject</th>
-                                    <th>Prio <i class="fa fa-sort"></i></th>
+                                    <th sort-column="priority" table="mc.table">Prio</th>
                                     <th>Status</th>
-                                    <th>Exp date <i class="fa fa-sort-up"></i></th>
+                                    <th sort-column="expires" table="mc.table">Exp date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="myCase in mc.myCases">
+                                <tr ng-repeat="myCase in mc.table.items">
                                     <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.id }}</a></td>
-                                    <td><a ui-sref="base.accounts.detail({ id: myCase.account.id })">{{ myCase.account.name }}</a></td>
+                                    <td><a ui-sref="base.accounts.detail({ id: myCase.account })">{{ myCase.account_name }}</a></td>
                                     <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.subject }}</a></td>
                                     <td>
                                     <span title="3"></span>
-                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority[0]]">{{ myCase.priority[1] }}</span>
+                                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">{{ myCase.priority_name }}</span>
                                     </td>
                                     <td>{{ myCase.status }}</td>
-                                    <td><a ng-click="mc.openPostPoneWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
+                                    <td><a ng-click="mc.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
                                 </tr>
-                                <tr ng-hide="mc.myCases.length">
+                                <tr ng-hide="mc.table.items.length">
                                     <td colspan="6">No cases</td>
                                 </tr>
                             </tbody>

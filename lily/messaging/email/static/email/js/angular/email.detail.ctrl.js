@@ -31,6 +31,7 @@
         vm.trashMessage = trashMessage;
         vm.deleteMessage = deleteMessage;
         vm.toggleOverlay = toggleOverlay;
+        vm.markAsUnread = markAsUnread;
 
         $scope.conf.pageTitleBig = 'Email message';
         $scope.conf.pageTitleSmall = 'sending love through the world!';
@@ -88,6 +89,12 @@
             } else {
                 $emailRecipients.height('1.30em');
             }
+        }
+
+        function markAsUnread() {
+            EmailMessage.markAsRead(vm.message.id, false).$promise.then(function () {
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
+            });
         }
     }
 })();

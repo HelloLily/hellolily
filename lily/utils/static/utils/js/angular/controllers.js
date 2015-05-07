@@ -18,7 +18,7 @@ function EditNoteModalController($http, $modalInstance, $scope, note) {
             url: '/notes/update/' + $scope.note.id + '/',
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            data: $.param({content: $scope.note.content})
+            data: $.param({content: $scope.note.content, type: $scope.note.type,})
         }).success(function() {
             $modalInstance.close($scope.note);
         });

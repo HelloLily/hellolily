@@ -1,7 +1,9 @@
 {% verbatim %}
 <script id="utils/history-list-note.html" type="text/ng-template">
     <div class="timeline-badge">
-        <i class="fa fa-file-text-o"></i>
+        <i ng-show="item.type == 1" class="fa fa-phone"></i>
+        <i ng-show="item.type == 2" class="fa fa-calendar"></i>
+        <i ng-show="item.type == 0" class="fa fa-file-o"></i>
     </div>
     <div class="timeline-panel">
         <div class='timeline-heading'>

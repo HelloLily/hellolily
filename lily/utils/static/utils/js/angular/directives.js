@@ -53,6 +53,9 @@ function HistoryList($filter, $http, $modal, $q, $state, EmailAccount, NoteDetai
             scope.history.editNote = editNote;
             scope.history.deleteNote = deleteNote;
 
+            scope.note = {};
+            scope.note.type = 0;
+
             activate();
 
             ////////
@@ -191,13 +194,14 @@ function HistoryList($filter, $http, $modal, $q, $state, EmailAccount, NoteDetai
                 });
             }
 
-            function addNote(content) {
+            function addNote(note) {
                 $http({
                     method: 'POST',
                     url: '/notes/create/',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     data: $.param({
-                        content: content,
+                        content: note.content,
+                        type: note.type,
                         content_type: scope.target,
                         object_id: scope.object.id
                     })

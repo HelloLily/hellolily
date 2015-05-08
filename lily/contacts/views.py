@@ -44,7 +44,7 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
         },
         'worksAt': {
             'headers': [_('Works at')],
-            'columns_for_item': ['account_name']
+            'columns_for_item': ['accounts']
         },
         'created': {
             'headers': [_('Created')],
@@ -63,7 +63,14 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
     # ExportListViewMixin
     def value_for_column(self, contact, column):
         try:
-            value = contact[column]
+            if column == 'accounts':
+                # 'accounts' is a dict, so we need to process it differently
+                value = []
+                for account in contact.get('accounts', []):
+                    value.append(account['name'])
+            else:
+                value = contact[column]
+
             if isinstance(value, list):
                 value = ', '.join(value)
         except KeyError:

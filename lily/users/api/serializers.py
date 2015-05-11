@@ -18,8 +18,9 @@ class LilyGroupSerializer(serializers.ModelSerializer):
 
 class LilyUserSerializer(serializers.ModelSerializer):
     """
-    Serializer for the contact model.
+    Serializer for the LilyUser model.
     """
+    full_name = serializers.CharField(read_only=True)
 
     class Meta:
         model = LilyUser
@@ -28,5 +29,6 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'first_name',
             'preposition',
             'last_name',
+            'full_name',
             'primary_email_account',
         )

@@ -2,9 +2,15 @@ import requests
 
 from django.conf import settings
 from django.contrib.messages import get_messages
-from rest_framework import exceptions
+from django.db.models import get_model
+from rest_framework import exceptions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
+from .serializers import AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer
+from ..models.models import Address, EmailAddress, PhoneNumber
 
 
 class Queues(APIView):
@@ -33,6 +39,7 @@ class Queues(APIView):
         else:
             return exceptions.NotAcceptable
 
+
 class Notifications(APIView):
     """
     List all notifications posted in request.messages
@@ -49,3 +56,58 @@ class Notifications(APIView):
             })
 
         return Response(notifications)
+
+
+class RelatedModelViewSet(viewsets.ModelViewSet):
+
+    related_model = None
+
+    def list(self, request, object_pk=None):
+        queryset = self._get_related_queryset(object_pk).all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None, object_pk=None):
+        queryset = self._get_related_queryset(object_pk).filter(pk=pk)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, object_pk=None):
+        serializer = self.get_serializer(data=request.data, related_object=self._get_related_object(object_pk))
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def _get_related_object(self, object_pk):
+        return self.related_model.objects.get(pk=object_pk)
+
+    def _get_related_queryset(self, object_pk):
+        pass
+
+
+class PhoneNumberViewSet(RelatedModelViewSet):
+
+    queryset = PhoneNumber.objects
+    serializer_class = PhoneNumberSerializer
+
+    def _get_related_queryset(self, object_pk):
+        return self._get_related_object(object_pk).phone_numbers
+
+
+class EmailAddressViewSet(RelatedModelViewSet):
+
+    queryset = EmailAddress.objects
+    serializer_class = EmailAddressSerializer
+
+    def _get_related_queryset(self, object_pk):
+        return self._get_related_object(object_pk).email_addresses
+
+
+class AddressViewSet(RelatedModelViewSet):
+
+    queryset = Address.objects
+    serializer_class = AddressSerializer
+
+    def _get_related_queryset(self, object_pk):
+        return self._get_related_object(object_pk).addresses

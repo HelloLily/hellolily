@@ -1,15 +1,25 @@
 {% extends 'anonymous/form.html' %}
 
-{% load i18n %}
+{% load i18n bootstrap3 %}
 
 {% block head-title %}{% trans 'Reset password' %}{% endblock %}
-{% block form-title %}{% trans 'Reset my password' %}{% endblock %}
+{% block page-title %}{% trans 'Forgotten your password?' %}{% endblock %}
+
 {% block help-text %}
-<p>{% trans "Forgotten your password? Enter your e-mail address below, and I'll email instructions for setting a new one." %}</p>
+    <p>
+        {% trans "Enter your e-mail address below, and I'll email instructions for setting a new one." %}
+    </p>
 {% endblock %}
-{% block submit-label %}{% trans 'Reset my password' %}{% endblock %}
-{% block bottom-links %}
-<div class="panel">
-	<a class="btn" href="{% url 'login' %}" class="float-right" id="sub-panel-link">{% trans 'Go to log in' %}</a>
-</div>
+
+{% block form-actions-extra-class %}margin-bottom-15{% endblock %}
+
+{% block form-actions-btn-text %}
+    {% trans 'Reset my password' %}
+    <i class="m-icon-swapright m-icon-white"></i>
+{% endblock %}
+
+{% block extra-form-links %}
+    <a href="{% url 'login' %}">
+        {% trans 'Back to login' %}
+    </a>
 {% endblock %}

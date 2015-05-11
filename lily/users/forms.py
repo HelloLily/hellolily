@@ -28,6 +28,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     This form is a subclass from the default AuthenticationForm. Necessary to set CSS classes and
     custom error_messages.
     """
+
     error_messages = {
         'invalid_login': _("Please enter a correct e-mail address and password. "
                            "Note that both fields are case-sensitive."),
@@ -36,24 +37,42 @@ class CustomAuthenticationForm(AuthenticationForm):
         'inactive': _("This account is inactive."),
     }
 
-    username = forms.CharField(
+    username = forms.EmailField(
         label=_('Email address'),
         max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control placeholder-no-fix',
-            'autocomplete': 'off',
-            'placeholder': _('Email address'),
-        })
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'fa fa-user',
+                'position': 'left',
+                'is_button': False
+            },
+            attrs={
+                'class': 'form-control placeholder-no-fix',
+                'autocomplete': 'off',
+                'placeholder': _('Email address'),
+            }
+        )
     )
+
     password = forms.CharField(
         label=_('Password'),
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control placeholder-no-fix',
-            'autocomplete': 'off',
-            'placeholder': _('Password'),
-        })
+        max_length=255,
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'fa fa-lock',
+                'position': 'left',
+                'is_button': False
+            },
+            attrs={
+                'class': 'form-control placeholder-no-fix',
+                'autocomplete': 'off',
+                'placeholder': _('Password'),
+                'type': 'password'
+            }
+        )
     )
-    remember_me = forms.BooleanField(label=_('Remember me on this device'), required=False)
+
+    remember_me = forms.BooleanField(label=_('Remember me'), required=False)
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -70,34 +89,26 @@ class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         label=_('Email address'),
         max_length=255,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control placeholder-no-fix',
-            'placeholder': _('Email address'),
-        })
-    )
-
-    def form_valid(self, form):
-        """
-        Overloading super().form_valid to add a message telling an e-mail was sent.
-        """
-
-        # Send e-mail
-        super(CustomPasswordResetForm, self).form_valid(form)
-
-        # Show message
-        messages.info(
-            self.request,
-            _('An <nobr>e-mail</nobr> with reset instructions has been sent to %s.') % form.cleaned_data['email']
+        widget=AddonTextInput(
+            icon_attrs={
+                'class': 'fa fa-user',
+                'position': 'left',
+                'is_button': False
+            },
+            attrs={
+                'class': 'form-control placeholder-no-fix',
+                'autocomplete': 'off',
+                'placeholder': _('Email address'),
+            }
         )
-
-        return self.get_success_url()
+    )
 
     def clean_email(self):
         """
         Validates that an active user exists with the given email address.
         """
         email = self.cleaned_data["email"]
-        self.users_cache = LilyUser.objects.filter(email__iexact=email, is_active=True)
+        self.users_cache = LilyUser.objects.filter(email__iexact=email)
 
         if not len(self.users_cache):
             raise forms.ValidationError(self.error_messages['unknown'])
@@ -105,40 +116,8 @@ class CustomPasswordResetForm(PasswordResetForm):
             for user in self.users_cache:
                 if not user.is_active:
                     raise forms.ValidationError(self.error_messages['inactive_error_message'])
-        if any((is_password_usable(user.password)) for user in self.users_cache):
-            raise forms.ValidationError(self.error_messages['unusable'])
-        return email
 
-    def save(self, domain_override=None,
-             subject_template_name='registration/password_reset_subject.txt',
-             email_template_name='registration/password_reset_email.html',
-             use_https=False, token_generator=default_token_generator,
-             from_email=None, request=None):
-        """
-        Overloading super().save to use a custom email_template_name.
-        """
-        email_template_name = 'email/password_reset.email'
-        for user in self.users_cache:
-            if not domain_override:
-                current_site = get_current_site(request)
-                site_name = current_site.name
-                domain = current_site.domain
-            else:
-                site_name = domain = domain_override
-            context_data = {
-                'email': user.email,
-                'domain': domain,
-                'site_name': site_name,
-                'uid': int_to_base36(user.id),
-                'user': user,
-                'token': token_generator.make_token(user),
-                'protocol': use_https and 'https' or 'http',
-            }
-            subject = loader.render_to_string(subject_template_name, context_data)
-            # Email subject *must not* contain newlines
-            subject = ''.join(subject.splitlines())
-            email = loader.render_to_string(email_template_name, context_data)
-            send_mail(subject, email, from_email, [str(user.email)])
+        return email
 
 
 class CustomSetPasswordForm(SetPasswordForm):
@@ -159,7 +138,20 @@ class ResendActivationForm(HelloLilyForm):
         'active': _("You cannot request a new activation e-mail for an account that is already active."),
     }
 
-    email = forms.EmailField(label=_('E-mail address'), max_length=255)
+    email = forms.EmailField(
+        label=_('Email address'),
+        max_length=255,
+        widget=AddonTextInput(
+            icon_attrs={'class': 'fa fa-user',
+                        'position': 'left',
+                        'is_button': False
+                        },
+            attrs={'class': 'form-control placeholder-no-fix',
+                   'autocomplete': 'off',
+                   'placeholder': _('Email address'),
+                   }
+        )
+    )
 
     def clean_email(self):
         """

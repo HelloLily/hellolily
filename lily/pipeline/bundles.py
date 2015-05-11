@@ -1,5 +1,21 @@
 
 PIPELINE_CSS = {
+    'anonymous': {
+        'source_filenames': (
+            'metronic/assets/global/plugins/font-awesome/css/font-awesome.css',
+            'metronic/assets/global/plugins/simple-line-icons/simple-line-icons.css',
+            'metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
+            'metronic/assets/global/plugins/uniform/css/uniform.default.css',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
+            'metronic/assets/global/css/components-rounded.css',
+            'metronic/assets/global/css/plugins.css',
+            'metronic/assets/admin/layout4/css/layout.css',
+            'metronic/assets/admin/layout4/css/themes/light.css',
+            'users/css/custom.css',
+        ),
+        'output_filename': 'metronic/css/anonymous_global.css',
+    },
+
     'global': {
         'source_filenames': (
             # Metronic global
@@ -36,6 +52,18 @@ PIPELINE_CSS = {
 }
 
 PIPELINE_JS = {
+    'anonymous': {
+        'source_filenames': (
+            'metronic/assets/global/plugins/jquery.min.js',
+            'metronic/assets/global/plugins/jquery-migrate.min.js',
+            'metronic/assets/global/plugins/jquery-ui/jquery-ui.min.js',
+
+            'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
+            'lily/plugins/analytics/analytics.js',
+        ),
+        'output_filename': 'compiled/js/anonymous.js'
+    },
     'global-ie': {
         'source_filenames': (
             'metronic/assets/global/plugins/respond.js',
@@ -157,6 +185,7 @@ PIPELINE_JS = {
             'lily/js/forms/show-and-hide.js',
             'utils/js/utils.js',
             'provide/js/dataprovider.js',
+            'lily/plugins/analytics/analytics.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

@@ -12,40 +12,6 @@ from .serializers import CaseSerializer, CaseStatusSerializer
 from ..models import Case, CaseStatus
 
 
-# class CaseDetail(viewsets.ModelViewSet):
-#     queryset = Case.objects
-#     serializer_class = CaseSerializer
-#
-#     # def get(self, request, *args, **kwargs):
-#     #     return self.retrieve(request, *args, **kwargs)
-#     #
-#     # def patch(self, request, *args, **kwargs):
-#     #     # case = Case.objects.get(pk=kwargs.get('pk'))
-#     #     # assignee = request.data.get('assigned_to')
-#     #     #
-#     #     # serializer = CaseSerializer(case, data=request.data)
-#     #     #
-#     #     # import ipdb
-#     #     # ipdb.set_trace()
-#     #     #
-#     #     # if assignee:
-#     #     #     try:
-#     #     #         user = LilyUser.objects.get(pk=request.data.get('assigned_to'), tenant=self.request.user.tenant)
-#     #     #     except LilyUser.DoesNotExist:
-#     #     #         return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
-#     #     #
-#     #     # # user = self.get_object(pk)
-#     #     # # serializer = UserSerializer(user, data=request.DATA)
-#     #     # # if serializer.is_valid():
-#     #     # #     serializer.save()
-#     #     # #     return Response(serializer.data)
-#     #     # # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     #     return self.partial_update(request, *args, **kwargs)
-#
-#     def get_queryset(self):
-#         return super(CaseDetail, self).get_queryset().filter(is_deleted=False)
-
-
 def queryset_filter(request, queryset):
     """
     General queryset filter being used by all views in this file.
@@ -101,19 +67,10 @@ class CaseViewSet(mixins.RetrieveModelMixin,
         return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):
-        assignee = request.data.get('assigned_to', None)
         case = Case.objects.get(pk=kwargs.get('pk'))
         serializer = CaseSerializer(case, data=request.data, partial=True)
 
         if serializer.is_valid(raise_exception=True):
-            # For now manually check if assignee belongs to tenant
-            # In the future we can hopefully implement a generic solution
-            if assignee:
-                try:
-                    LilyUser.objects.get(pk=request.data.get('assigned_to'), tenant=request.user.tenant)
-                except LilyUser.DoesNotExist:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
             serializer.save()
             return Response(serializer.data)
 

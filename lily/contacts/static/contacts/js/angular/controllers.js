@@ -9,7 +9,7 @@ var contacts = angular.module('ContactsControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'AccountServices',
+    'app.accounts.services',
     'app.cases.services',
     'contactServices',
     'noteServices',

@@ -117,6 +117,7 @@ PIPELINE_JS = {
             'dashboard/js/angular/directives/module.js',
             'dashboard/js/angular/directives/callback.js',
             'dashboard/js/angular/directives/dealstocheck.js',
+            'dashboard/js/angular/directives/feedback.js',
             'dashboard/js/angular/directives/mycases.js',
             'dashboard/js/angular/directives/queuesize.js',
             'dashboard/js/angular/directives/teams.js',

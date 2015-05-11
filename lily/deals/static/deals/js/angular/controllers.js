@@ -9,7 +9,7 @@ var dealControllers = angular.module('DealControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'DealServices',
+    'app.deals.services'
 ]);
 
 dealControllers.config(['$stateProvider', function($stateProvider) {
@@ -221,13 +221,17 @@ dealControllers.controller('DealListController', [
          * Updates table.items and table.totalItems
          */
         function updateDeals() {
-            Deal.query(
-                $scope.table
-            ).then(function(data) {
-                    $scope.table.items = data.deals;
-                    $scope.table.totalItems = data.total;
-                }
-            );
+            Deal.getDeals(
+                $scope.table.searchQuery,
+                $scope.table.page,
+                $scope.table.pageSize,
+                $scope.table.order.column,
+                $scope.table.order.ascending,
+                $scope.table.filterQuery
+            ).then(function(deals) {
+                $scope.table.items = deals;
+                $scope.table.totalItems = deals.length ? deals[0].total_size: 0;
+            });
         }
 
         /**

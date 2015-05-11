@@ -24,6 +24,15 @@
                             <label>One-time cost:</label> {{ ::deal.amount_once | currency:"€" }}<br/>
                             <label>Recurring costs:</label> {{ ::deal.amount_recurring | currency:"€" }}<br/>
                             <label>Status:</label> {{ deal.stage_name }} <span ng-show="deal.archived">- Archived</span><br/>
+                            <div ng-show="deal.stage == 2">
+                                <label>Checked:</label>
+                                <span ng-show="deal.is_checked"> <i class="fa fa-checked"></i> Yes</span>
+                                <span ng-hide="deal.is_checked"> <a href="javascript:void(0);">Nope :-(</a></span><br/>
+                            </div>
+                            <div ng-show="deal.quote_id">
+                                <label>Freedom quote:</label>
+                                <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/">Open in freedom</a>
+                            </div>
                             <label>Feedback form sent:</label> {{ ::deal.feedback_form_sent }}<br/>
                        </div>
                     </div>

@@ -59,7 +59,6 @@
         vm.setFilter = setFilter;
         vm.exportToCsv = exportToCsv;
 
-
         activate();
 
         /////////////

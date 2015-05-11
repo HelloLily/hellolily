@@ -1,8 +1,12 @@
 import django_filters
 from rest_framework import mixins
+from rest_framework import generics
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from lily.users.models import LilyUser
 
 from .serializers import CaseSerializer, CaseStatusSerializer
 from ..models import Case, CaseStatus
@@ -61,6 +65,14 @@ class CaseViewSet(mixins.RetrieveModelMixin,
         filtered_queryset = self.filter_class(request.GET, queryset=self.get_queryset())
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        case = Case.objects.get(pk=kwargs.get('pk'))
+        serializer = CaseSerializer(case, data=request.data, partial=True)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
 
 
 class UserCaseList(APIView):

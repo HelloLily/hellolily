@@ -112,6 +112,11 @@
                                             var filter_name = filter.substring(3);
                                             if (filter_name.indexOf('case_quickbutton_') === 0) {
                                                 filter_name = filter.substring(20);
+                                            } else if (filter_name == 'account') {
+                                                // This is a special case at the moment, in the future we might have
+                                                // more cases like this.
+                                                // But for now, just do this check
+                                                filter_name = 'accounts.id';
                                             }
                                             if (filter_val && filter_val > 0) {
                                                 data.filterquery += ' ' + filter_name + ':' + filter_val;

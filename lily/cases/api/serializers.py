@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import AccountSerializer
+from lily.api.fields import LilyPrimaryKeyRelatedField
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import ContactSerializer
+from lily.users.models import LilyUser
 
 from ..models import Case, CaseStatus
 
@@ -27,7 +29,7 @@ class CaseSerializer(serializers.ModelSerializer):
     type = serializers.StringRelatedField(read_only=True)
     priority = CasePriorityField(read_only=True)
     status = serializers.StringRelatedField(read_only=True)
-    assigned_to = serializers.StringRelatedField(read_only=True)
+    assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects)
     assigned_to_groups = serializers.StringRelatedField(many=True, read_only=True)
     content_type = ContentTypeSerializer(read_only=True)
 

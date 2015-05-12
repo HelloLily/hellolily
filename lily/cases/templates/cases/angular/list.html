@@ -104,7 +104,8 @@
                         {{ ::case.expires | relativeDate:'':true }}
                     </td>
                     <td ng-show="table.visibility.assignedTo">
-                        {{ ::case.assigned_to_name }}
+                        <span ng-if="case.assigned_to_id">{{ ::case.assigned_to_name }}</span>
+                        <a ng-if="!case.assigned_to_id" ng-click="assignTo(case)">Assign case</a>
                     </td>
                     <td ng-show="table.visibility.createdBy">
                         {{ ::case.created_by }}

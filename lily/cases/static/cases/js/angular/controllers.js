@@ -61,7 +61,7 @@ caseControllers.config(['$stateProvider', function($stateProvider) {
             '@': {
                 controller: 'CaseDeleteController'
             }
-        },
+        }
     });
     $stateProvider.state('base.cases.create', {
         url: '/create',
@@ -273,14 +273,16 @@ caseControllers.controller('CaseListController', [
     '$cookieStore',
     '$http',
     '$location',
+    '$modal',
     '$scope',
+    '$state',
     '$window',
 
     'Case',
     'Cookie',
     'HLDate',
     'HLFilters',
-    function ($cookieStore, $http, $location, $scope, $window, Case, Cookie, HLDate, HLFilters) {
+    function ($cookieStore, $http, $location, $modal, $scope, $state, $window, Case, Cookie, HLDate, HLFilters) {
         Cookie.prefix = 'caseList';
 
         $scope.conf.pageTitleBig = 'Cases';
@@ -487,7 +489,7 @@ caseControllers.controller('CaseListController', [
                 headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
             };
 
-            if(confirm("Are you sure you want to delete case " + subject + "?")){
+            if(confirm('Are you sure you want to delete case ' + subject + '?')){
                 $http(req).
                     success(function(data, status, headers, config) {
                         var index = $scope.table.items.indexOf(cases);
@@ -497,6 +499,24 @@ caseControllers.controller('CaseListController', [
                         // Request failed proper error?
                     });
             }
+        };
+
+        $scope.assignTo = function(myCase) {
+            var modalInstance = $modal.open({
+                templateUrl: 'cases/caseassign.modal.html',
+                controller: 'CaseAssignModal',
+                controllerAs: 'vm',
+                size: 'sm',
+                resolve: {
+                    myCase: function() {
+                        return myCase;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function() {
+                $state.go($state.current, {}, {reload: true});
+            });
         };
     }
 ]);

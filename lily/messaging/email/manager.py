@@ -331,7 +331,7 @@ class GmailManager(object):
 
             labels = {}
             for label in remove_labels:
-                if label in existing_labels:
+                if label in existing_labels and label != settings.GMAIL_SENT_LABEL:
                     labels.setdefault('removeLabelIds', []).append(label)
 
             for label in add_labels:

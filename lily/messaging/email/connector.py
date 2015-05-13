@@ -13,6 +13,10 @@ from .services import build_gmail_service
 logger = logging.getLogger(__name__)
 
 
+class FailedServiceCallException(Exception):
+    pass
+
+
 class ConnectorError(Exception):
     pass
 
@@ -80,8 +84,11 @@ class GmailConnector(object):
                     logger.warning('Backend error, sleeping for %d seconds' % sleep_time)
                     time.sleep(sleep_time)
                 else:
-                    logger.exception(error)
+                    logger.exception('Unkown error code for error %s' % error)
                     raise
+
+        logger.warning('Service call failed after all retries')
+        raise FailedServiceCallException('Service call failed after all retries')
 
     def get_history(self):
         """

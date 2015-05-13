@@ -5,6 +5,7 @@ import mimetypes
 
 from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
+from celery.states import PENDING, FAILURE
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -367,6 +368,8 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         Returns:
             Task instance
         """
+        send_logger = logging.getLogger('email_errors_temp_logger')
+
         status = create_task_status('send_message')
 
         task = send_message.apply_async(
@@ -379,7 +382,9 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         status.task_id = task.id
         status.save()
 
-        if task:
+        send_logger.info('Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id))
+
+        if status.status is not FAILURE:
             messages.info(
                 self.request,
                 _('Gonna deliver your email as fast as I can')
@@ -391,8 +396,8 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
                 self.request,
                 _('Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later')
             )
-            logging.error(_('Failed to create send_message task for email account %d. Outbox message id was %d.') % (
-                email_outbox_message.send_from, email_outbox_message.id
+            send_logger.error(_('Failed to create send_message task (%s) outbox message id was %d. TRACE: %s') % (
+                task.id, email_outbox_message.id, task.traceback
             ))
 
         return task
@@ -414,38 +419,6 @@ class EmailMessageSendView(EmailMessageSendOrArchiveView):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
             return HttpResponseRedirect(self.get_success_url())
-#
-#
-# class EmailMessageSendAndArchiveView(EmailMessageSendOrArchiveView):
-#     def form_valid(self, form):
-#         email_outbox_message, task = super(EmailMessageSendAndArchiveView, self).form_valid(form)
-#
-#         status = create_task_status('archive_message')
-#
-#         task = archive_email_message.apply_async(
-#             args=(self.object.id,),
-#             max_retries=1,
-#             default_retry_delay=100,
-#             kwargs={'status_id': status.pk},
-#         )
-#
-#         status.task_id = task.id
-#         status.save()
-#
-#         if not task:
-#             messages.error(
-#                 self.request,
-#                 _('Sorry, I couldn\'t archive your e-mail. You should try to archive it again later')
-#             )
-#             logging.error(_('Failed to create archive_message task for email account %d. Message id was %d') % (
-#                 email_outbox_message.send_from.id,
-#                 self.object.id
-#             ))
-#
-#         if is_ajax(self.request):
-#             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
-#         else:
-#             return HttpResponseRedirect(self.get_success_url())
 
 
 class EmailMessageDraftView(EmailMessageComposeView):

@@ -97,6 +97,8 @@ PIPELINE_JS = {
             'accounts/js/angular/controllers.js',
             'accounts/js/angular/list.ctrl.js',
             'accounts/js/angular/services.js',
+            'accounts/js/angular/directives/module.js',
+            'accounts/js/angular/directives/detail_widget.js',
 
             'cases/js/angular/controllers.js',
             'cases/js/angular/directives.js',
@@ -106,6 +108,8 @@ PIPELINE_JS = {
 
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
+            'contacts/js/angular/directives/module.js',
+            'contacts/js/angular/directives/list_widget.js',
 
             'dashboard/js/angular/controllers/module.js',
             'dashboard/js/angular/controllers/base.js',
@@ -121,6 +125,8 @@ PIPELINE_JS = {
 
             'deals/js/angular/controllers.js',
             'deals/js/angular/services.js',
+            'deals/js/angular/directives/module.js',
+            'deals/js/angular/directives/list_widget.js',
 
             'email/js/angular/module.js',
             'email/js/angular/base.ctrl.js',

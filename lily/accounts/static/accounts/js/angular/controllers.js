@@ -58,48 +58,37 @@
 
     }]);
 
-    /**
-     * Details page with historylist and more detailed contact information.
-     */
-    angular.module('app.accounts').controller('AccountDetailController', [
-        '$filter',
-        '$scope',
-        '$state',
-        '$stateParams',
-        '$q',
-        'AccountDetail',
-        'CaseDetail',
-        'ContactDetail',
-        'DealDetail',
-        'EmailAccount',
-        'EmailDetail',
-        'NoteDetail',
-        'NoteService',
+    angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-        function($filter, $scope, $state, $stateParams, $q, AccountDetail, CaseDetail, ContactDetail, DealDetail, EmailAccount, EmailDetail, NoteDetail, NoteService) {
-            var id = $stateParams.id;
+    AccountDetailController.$inject = ['$scope', '$stateParams', 'AccountDetail', 'CaseDetail', 'ContactDetail', 'DealDetail'];
+    function AccountDetailController($scope, $stateParams, AccountDetail, CaseDetail, ContactDetail, DealDetail) {
+        /**
+         * Details page with historylist and more detailed account information.
+         */
+        var id = $stateParams.id;
 
-            $scope.account = AccountDetail.get({id: id});
-            $scope.account.$promise.then(function(account) {
-                $scope.account = account;
-                $scope.conf.pageTitleBig = account.name;
-                $scope.conf.pageTitleSmall = 'change is natural';
-                HLSelect2.init();
-            });
+        $scope.account = AccountDetail.get({id: id});
+        $scope.account.$promise.then(function(account) {
+            $scope.account = account;
+            $scope.conf.pageTitleBig = account.name;
+            $scope.conf.pageTitleSmall = 'change is natural';
+        });
 
-            CaseDetail.totalize({filterquery: 'archived:false AND account:' + id}).$promise.then(function(total) {
-                $scope.numCases = total.total;
-            });
+        $scope.caseList = CaseDetail.query({filterquery: 'archived:false AND account:' + id});
+        $scope.caseList.$promise.then(function(caseList) {
+            $scope.caseList = caseList;
+        });
 
-            DealDetail.totalize({filterquery: 'archived:false AND account:' + id}).$promise.then(function(total) {
-                $scope.numDeals = total.total;
-            });
+        $scope.dealList = DealDetail.query({filterquery: 'archived:false AND account:' + id});
+        $scope.dealList.$promise.then(function(dealList) {
+            $scope.dealList = dealList;
+        });
 
-            ContactDetail.query({filterquery: 'accounts.id:' + id}).$promise.then(function(contacts) {
-                $scope.workers = contacts;
-            });
-        }
-    ]);
+        $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + id});
+        $scope.contactList.$promise.then(function(contactList) {
+            $scope.contactList = contactList;
+        });
+    }
 
     /**
      * Controller for update and new Account actions.

@@ -242,7 +242,7 @@ def delete_email_message(email_id):
 
 
 @task(name='send_message', bind=True)
-@monitor_task(logger=logger)
+@monitor_task(logger=logging.getLogger('email_errors_temp_logger'))
 def send_message(email_outbox_message_id, original_message_id=None):
     """
     Send EmailOutboxMessage.
@@ -251,6 +251,9 @@ def send_message(email_outbox_message_id, original_message_id=None):
         email_outbox_message_id (int): id of the EmailOutboxMessage
         original_message_id (int, optional): ID of the original EmailMessage
     """
+    send_logger = logging.getLogger('email_errors_temp_logger')
+    send_logger.info('Start sending email_outbox_message: %d' % (email_outbox_message_id,))
+
     sent_success = False
     try:
         email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
@@ -321,7 +324,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
             raise
         finally:
             manager.cleanup()
-
+    send_logger.info('Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success))
     return sent_success
 
 

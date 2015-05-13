@@ -54,14 +54,17 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                             object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=NO_YES_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('new business'), choices=NO_YES_CHOICES)
+    is_checked = models.BooleanField(default=False, choices=NO_YES_CHOICES)
+    quote_id = models.CharField(max_length=255, verbose_name=_('Freedom quote id'), blank=True)
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
+
     @property
     def content_type(self):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label="deals", model="deal")
+        return ContentType.objects.get(app_label='deals', model='deal')
 
     def __unicode__(self):
         return self.name

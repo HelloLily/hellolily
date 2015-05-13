@@ -100,6 +100,7 @@ PIPELINE_JS = {
 
             'cases/js/angular/controllers.js',
             'cases/js/angular/directives.js',
+            'cases/js/angular/assignto.ctrl.js',
             'cases/js/angular/postpone.ctrl.js',
             'cases/js/angular/services.js',
             'cases/js/cases.js',
@@ -111,12 +112,12 @@ PIPELINE_JS = {
             'dashboard/js/angular/controllers/base.js',
             'dashboard/js/angular/directives/module.js',
             'dashboard/js/angular/directives/callback.js',
+            'dashboard/js/angular/directives/dealstocheck.js',
             'dashboard/js/angular/directives/mycases.js',
             'dashboard/js/angular/directives/queuesize.js',
             'dashboard/js/angular/directives/teams.js',
             'dashboard/js/angular/directives/unassigned.js',
             'dashboard/js/angular/directives/unread.js',
-
 
             'deals/js/angular/controllers.js',
             'deals/js/angular/services.js',

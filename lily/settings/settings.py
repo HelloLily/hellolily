@@ -368,6 +368,9 @@ if USE_LOGGING:
             'simple': {
                 'format': '[%(asctime)s] (%(levelname)s): %(message)s'
             },
+            'email_errors_temp_format': {
+                'format': '[%(asctime)s] (%(levelname)s) EMAIL_LOG: %(message)s'
+            }
         },
         'handlers': {
             'console': {
@@ -391,6 +394,11 @@ if USE_LOGGING:
                 'class': 'django.utils.log.AdminEmailHandler',
                 'include_html': True,
             },
+            'email_errors_temp_handler': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'email_errors_temp_format'
+            }
         },
         'loggers': {
             '': {
@@ -458,6 +466,11 @@ if USE_LOGGING:
                 'level': 'DEBUG',
                 'propagate': True,
             },
+            'email_errors_temp_logger': {
+                'handlers': ['email_errors_temp_handler'],
+                'level': 'INFO',
+                'propagate': False,
+            }
         }
     }
 else:

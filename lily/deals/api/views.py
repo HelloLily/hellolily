@@ -1,26 +1,14 @@
 from datetime import date, timedelta
+
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
+
 from lily.users.models import LilyUser
 
 from .serializers import DealSerializer
 from ..models import Deal
-
-
-class DealList(APIView):
-    serializer_class = DealSerializer
-
-    def get(self, request, format=None):
-        queryset = Deal.objects.filter(tenant_id=self.request.user.tenant_id)
-
-        # TODO: LILY-630: Expand this API. Can be used as a general API where the user has to manually set url params
-        # stage = self.request.QUERY_PARAMS.get('stage', None)
-        # if stage is not None:
-        #     queryset = queryset.filter(stage=stage)
-
-        serializer = DealSerializer(queryset, many=True)
-
-        return Response(serializer.data)
 
 
 class DealCommunicationList(APIView):
@@ -121,3 +109,18 @@ class DealWonWrittenList(APIView):
             })
 
         return Response(statistics)
+
+
+class DealViewSet(mixins.RetrieveModelMixin,
+                  mixins.ListModelMixin,
+                  mixins.UpdateModelMixin,
+                  GenericViewSet):
+    """
+    List all cases for a tenant.
+    """
+    model = Deal
+    serializer_class = DealSerializer
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        return queryset

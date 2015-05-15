@@ -378,7 +378,6 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
             args=(email_outbox_message.id,),
             max_retries=1,
             default_retry_delay=100,
-            kwargs={'status_id': status.pk},
         )
 
         status.task_id = task.id

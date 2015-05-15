@@ -370,6 +370,8 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
+        send_logger.info('Begin creating task for email_outbox_message %d' % email_outbox_message.id)
+
         status = create_task_status('send_message')
 
         task = send_message.apply_async(

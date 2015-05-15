@@ -242,7 +242,7 @@ def delete_email_message(email_id):
 
 
 @task(name='send_message', bind=True)
-@monitor_task(logger=logging.getLogger('email_errors_temp_logger'))
+@task(logger=logger)
 def send_message(email_outbox_message_id, original_message_id=None):
     """
     Send EmailOutboxMessage.

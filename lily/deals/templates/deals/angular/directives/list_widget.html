@@ -1,0 +1,42 @@
+{% verbatim %}
+<script id="deals/directives/list-widget.html" type="text/ng-template">
+    <div class="portlet light">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fa fa-money"></i>
+                {{ title }}
+            </div>
+            <div class="tools">
+                <a ui-sref="base.cases.create">Add</a>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="scroll-body" slimscroll="{height: height}">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Subject</th>
+                        <th>Created</th>
+                        <th>Costs</th>
+                        <th>Closes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="deal in list" ng-show="list.length">
+                        <td>{{ deal.stage_name }}</td>
+                        <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a></td>
+                        <td>{{ deal.created | date:'dd MMMM yy' }}</td>
+                        <td>&euro;{{ deal.amount_once }} + &euro;{{ deal.amount_recurring }}/m</td>
+                        <td>{{ deal.closing_date | date:'dd MMMM yy' }}</td>
+                    </tr>
+                    <tr ng-hide="list.length">
+                        <td colspan="3">No Deals</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</script>
+{% endverbatim %}

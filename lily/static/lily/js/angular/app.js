@@ -25,8 +25,11 @@
         'UtilsControllers',
 
         // Directives
-        'app.cases.directives',
         'app.directives',
+        'app.accounts.directives',
+        'app.cases.directives',
+        'app.contacts.directives',
+        'app.deals.directives',
         'UtilsDirectives',
 
         // Google Analytics

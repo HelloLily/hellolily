@@ -76,11 +76,11 @@
                 .on('change', cf.tags, function () {
                     self.handleTagsAjaxChange(this);
                 })
-                .on('click', cf.templateAttachmentDeleteButton, function() {
+                .on('click', cf.templateAttachmentDeleteButton, function () {
                     var attachmentRow = $(this).closest('.form-group');
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 })
-                .on('click', cf.templateAttachmentUndoDeleteButton, function() {
+                .on('click', cf.templateAttachmentUndoDeleteButton, function () {
                     var attachmentRow = $(this).closest('.form-group');
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
@@ -140,7 +140,7 @@
                 // Initial value is most likely reply/forward text, so store it for later usage
                 self.config.initialEditorValue = editor.getValue();
                 // Extra div is needed so the editor auto resizes
-                editor.setValue('<div id="body-html-content">' + self.config.initialEditorValue + '<br /></div>');
+                editor.setValue(self.config.initialEditorValue + '<div id="resize-div"></div>');
 
                 $(this.composer.element).on('keydown paste change focus blur', function () {
                     self.resizeEditor();
@@ -257,20 +257,25 @@
             }
 
             // Remove unnecessary html
-            var containerDiv = $('<div>')[0];
-            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            var $containerDiv = $('<div id="email-container-div">');
+            $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
+
+            var templateContent = '';
+            // Get template content if there is a template set
+            if ($containerDiv.find('#compose-email-template').length) {
+                templateContent = $containerDiv.find('#compose-email-template')[0].innerHTML;
+            }
+
+            // Remove email template div and resize div and only keep user typed text
+            $containerDiv.find('#compose-email-template').remove();
+            $containerDiv.find('#resize-div').remove();
+
             /**
              * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            var templateContent = '';
-            if ($(containerDiv).find('#compose-email-template').length) {
-                templateContent = $(containerDiv).find('#compose-email-template')[0].innerHTML;
-            }
-
-            var bodyHtml = $(containerDiv).find('#body-html-content')[0].innerHTML;
-            $('#id_body_html').val(templateContent + '<br>' + bodyHtml);
+            $('#id_body_html').val(templateContent + '<br>' + $containerDiv.innerHTML);
 
             // Make sure both buttons of the same name are set to the loading state
             $('button[name="' + buttonName + '"]').button('loading');

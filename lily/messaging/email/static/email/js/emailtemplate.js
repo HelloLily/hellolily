@@ -183,15 +183,17 @@
         handleFormSubmit: function (submitButton, event) {
             event.preventDefault();
 
-            // Remove unnecessary html
-            var containerDiv = $('<div>')[0];
-            containerDiv.innerHTML = HLInbox.getEditor().getValue();
+            var $containerDiv = $('<div>');
+            $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
+            // Remove resize div
+            $containerDiv.find('#resize-div').remove();
+
             /**
              * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            $('#id_body_html').val($(containerDiv).find('#body-html-content')[0].innerHTML);
+            $('#id_body_html').val($containerDiv[0].innerHTML);
 
             var $form = $($(submitButton).closest('form'));
 

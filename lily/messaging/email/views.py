@@ -539,7 +539,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             args=(email_outbox_message.id, self.object.id),
             max_retries=1,
             default_retry_delay=100,
-            kwargs={'status_id': status.pk},
         )
 
         status.task_id = task.id

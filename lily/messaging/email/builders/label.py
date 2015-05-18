@@ -1,5 +1,5 @@
 import gc
-from django.db import transaction
+from django.db import IntegrityError
 
 from ..models.models import EmailLabel
 
@@ -34,7 +34,7 @@ class LabelBuilder(object):
                 label_id=label_dict['id'],
                 label_type=label_type,
             )
-        except EmailLabel.IntegrityError:
+        except IntegrityError as e:
             self.label = EmailLabel.objects.get(
                 account=self.manager.email_account,
                 label_id=label_dict['id'],

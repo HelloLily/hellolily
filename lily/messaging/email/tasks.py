@@ -39,24 +39,17 @@ def synchronize_email_account_scheduler():
             else:
                 logger.debug('Skipping task first sync for %s, already scheduled', email_account.email_address)
         else:
-            # Update synchronize
-            # Lock the task to prevent multiple tasks
-            locked, status = lock_task('synchronize_email_account', email_account.pk)
-            if locked:
-                logger.debug('Adding task for sync for %s', email_account.email_address)
+            logger.debug('Adding task for sync for %s', email_account.email_address)
 
-                synchronize_email_account.apply_async(
-                    args=(email_account.pk,),
-                    max_retries=1,
-                    default_retry_delay=100,
-                    kwargs={'status_id': status.pk},
-                )
-            else:
-                logger.debug('Skipping task sync for %s, already scheduled', email_account.email_address)
+            synchronize_email_account.apply_async(
+                args=(email_account.pk,),
+                max_retries=1,
+                default_retry_delay=100,
+            )
 
 
 @task(name='synchronize_email_account', bind=True)
-@monitor_task(logger=logger)
+@task(logger=logger)
 def synchronize_email_account(account_id):
     """
     Synchronize task for all email accounts that are connected with gmail api.

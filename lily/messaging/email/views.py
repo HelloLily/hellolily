@@ -370,9 +370,7 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
-        send_logger.info('Begin creating task for email_outbox_message %d' % email_outbox_message.id)
-
-        status = create_task_status('send_message')
+        send_logger.info('Begin creating task for email_outbox_message %d to %s' % (email_outbox_message.id, email_outbox_message.to))
 
         task = send_message.apply_async(
             args=(email_outbox_message.id,),
@@ -380,12 +378,9 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
             default_retry_delay=100,
         )
 
-        status.task_id = task.id
-        status.save()
-
         send_logger.info('Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id))
 
-        if status.status is not FAILURE:
+        if task.status is not FAILURE:
             messages.info(
                 self.request,
                 _('Gonna deliver your email as fast as I can')
@@ -533,7 +528,9 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         Returns:
             Task instance
         """
-        status = create_task_status('send_message')
+        send_logger = logging.getLogger('email_errors_temp_logger')
+
+        send_logger.info('Begin creating reply/forward task for email_outbox_message %d to %s' % (email_outbox_message.id, email_outbox_message.to))
 
         task = send_message.apply_async(
             args=(email_outbox_message.id, self.object.id),
@@ -541,8 +538,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             default_retry_delay=100,
         )
 
-        status.task_id = task.id
-        status.save()
+        send_logger.info('Reply/forward Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id))
 
         if task:
             messages.info(

@@ -2,141 +2,14 @@
 <script id="accounts/account-detail.html" type="text/ng-template"/>
     <div class="row">
         <div class="col-md-4">
-            <div class='portlet light'>
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-institution"></i>  {{ ::account.name }}
-                    </div>
-                </div>
-
-                <div class="portlet-body">
-                    <div class="scroll-body" slimscroll="{height: 250}">
-                        <span ng-if="account.description"> {{ ::account.description }} <br/><br/></span>
-                        <div class='row'>
-                            <div class="col-md-6">
-                                <span ng-repeat="website in ::account.website"><i class="fa fa-globe"></i>  <a href="{{ ::website }}">{{ ::website }}</a><br/></span>
-                                <i class="fa fa-phone"></i> {{ ::account.phone }} <br/>
-
-                                <i class='fa fa-envelope'></i> <a ui-sref="base.email.composeEmail({ email: account.email[0] })">{{ ::account.email[0] }}</a>
-                                <div ng-repeat="social in ::account.social">
-                                    <span class="summary-label">{{ ::social.social_name }}</span>
-                                    <span class="summary-data">
-                                        <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a>
-                                    </span>
-                                </div>
-                                <div ng-if="::account.address">
-                                    <i class='fa fa-building'></i>
-                                    <span class="summary-data">
-                                        {{ ::account.address[0].address_street }} {{ ::account.address[0].address_street_number }}{{ ::account.address[0].address_complement }}<br/>
-                                        {{ ::account.address[0].address_postal_code }} {{ ::account.address[0].address_city }}<br/>
-                                        {{ ::account.address[0].address_country }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <span class="summary-label">Assigned to</span>
-                                <span class="summary-data" ng-show="::account.assigned_to">
-                                    {{ ::account.assigned_to }}
-                                </span>
-                                <span class="summary-data" ng-hide="::account.assigned_to">
-                                    Not assigned yet
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <account-detail-widget account="account" height="300"></account-detail-widget>
         </div>
-
         <div class="col-md-4">
-            <div class='portlet light'>
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-users"></i>
-                        <span class="caption-subject bold uppercase"> Contacts</span>
-                    </div>
-                </div>
-
-                <div class="portlet-body">
-                    <div class="scroll-body" slimscroll="{height: 250}">
-                        <table class="table table-hover table-light">
-                        <tbody>
-                            <tr ng-repeat="worker in workers">
-                                <td>
-                                    <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a>
-                                </td>
-                                <td>
-                                    <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a>
-                                </td>
-                                <td>
-                                    <i class="fa fa-phone"></i> <a href='/'>{{ ::worker.phone }}</a>
-                                </td>
-                            </tr>
-                            <tr ng-if="workers.length == 0">
-                                <td colspan="3">There are no known contact for this company</td>
-                            </tr>
-                        </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <contact-list-widget title="Contacts" list="contactList" height="300"></contact-list-widget>
         </div>
-
-        <div class="col-md-2">
-            <div class="dashboard-stat purple-wisteria">
-                <a ng-href="#/cases?search={{ ::account.name }}">
-                    <div class="visual">
-                        <i class="fa fa-briefcase"></i>
-                    </div>
-                    <div class="details">
-                        <div class="number">{{ ::numCases }}</div>
-                        <div class="desc">Closed</div>
-                    </div>
-                </a>
-                <a class="more" ui-sref="base.cases.create.fromAccount({ id: account.id })">
-                    Add case <i class="m-icon-swapright m-icon-white"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="dashboard-stat green-meadow">
-                <a ng-href="#/deals?search={{ ::account.name }}">
-                    <div class="visual">
-                        <i class="fa fa-money"></i>
-                    </div>
-                    <div class="details">
-                        <div class="number">{{ ::numDeals }}</div>
-                        <div class="desc">
-                             Won
-                        </div>
-                    </div>
-                </a>
-                <a class="more" ui-sref="base.deals.create.fromAccount({ id: account.id })">
-                    Add deal <i class="m-icon-swapright m-icon-white"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="col-md-2" ng-show="::account.customer_id">
-            <div class="dashboard-stat blue-madison">
-                <a ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
-                    <div class="visual">
-                        <i class="fa fa-globe"></i>
-                    </div>
-                    <div class="details">
-                        <div class="number">
-                             Klant :)
-                        </div>
-                        <div class="desc">
-                             naar Freedom
-                        </div>
-                    </div>
-                </a>
-                <a class="more" ng-href="https://freedom.voys.nl/client/{{ ::account.customer_id }}" target="_blank">
-                    Direct naar freedom <i class="m-icon-swapright m-icon-white"></i>
-                </a>
-            </div>
+        <div class="col-md-4">
+            <case-list-widget title="Current cases" list="caseList" height="91"></case-list-widget>
+            <deal-list-widget title="Current deals" list="dealList" height="91"></deal-list-widget>
         </div>
     </div>
     <history-list target="'account'" object="account"></history-list>

@@ -1,5 +1,5 @@
 import gc
-from django.db import transaction
+from django.db import IntegrityError
 
 from ..models.models import EmailLabel
 
@@ -25,21 +25,22 @@ class LabelBuilder(object):
         """
         # Check if it is a system label or not
         label_type = EmailLabel.LABEL_SYSTEM if label_dict['type'] == 'system' else EmailLabel.LABEL_USER
-        created = False
-        with transaction.atomic():
-            try:
-                self.label = EmailLabel.objects.get(
-                    account=self.manager.email_account,
-                    label_id=label_dict['id'],
-                    label_type=label_type,
-                )
-            except EmailLabel.DoesNotExist:
-                self.label = EmailLabel(
-                    account=self.manager.email_account,
-                    label_id=label_dict['id'],
-                    label_type=label_type,
-                )
-                created = True
+
+        # Async issue that adds a label right after the get call which
+        # makes the create fail due to unique constraint
+        try:
+            self.label, created = EmailLabel.objects.get_or_create(
+                account=self.manager.email_account,
+                label_id=label_dict['id'],
+                label_type=label_type,
+            )
+        except IntegrityError as e:
+            self.label = EmailLabel.objects.get(
+                account=self.manager.email_account,
+                label_id=label_dict['id'],
+                label_type=label_type,
+            )
+            created = False
 
         # Name could have changed, always set the name
         self.label.name = label_dict['name']

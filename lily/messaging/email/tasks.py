@@ -142,7 +142,7 @@ def archive_email_message(email_id):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        email_message.labels.all().delete()
+        email_message.labels.clear()
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:

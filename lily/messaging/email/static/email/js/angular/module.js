@@ -11,7 +11,7 @@
 
         // Lily dependencies
         'app.email.services',
-        'EmailDirectives',
+        'app.email.directives',
         'LilyServices'
     ]);
 })();

@@ -275,7 +275,7 @@
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            $('#id_body_html').val(templateContent + '<br>' + $containerDiv.innerHTML);
+            $('#id_body_html').val(templateContent + '<br>' + $containerDiv[0].innerHTML);
 
             // Make sure both buttons of the same name are set to the loading state
             $('button[name="' + buttonName + '"]').button('loading');

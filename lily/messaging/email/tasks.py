@@ -322,7 +322,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
 
 
 @task(name='create_draft_email_message', bind=True)
-@monitor_task(logger=logger)
+@task(logger=logger)
 def create_draft_email_message(email_outbox_message_id):
     """
     Send EmailOutboxMessage.

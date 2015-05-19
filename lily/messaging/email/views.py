@@ -440,17 +440,11 @@ class EmailMessageDraftView(EmailMessageComposeView):
         Returns:
             Task instance
         """
-        status = create_task_status('create_draft_email_message')
-
         task = create_draft_email_message.apply_async(
             args=(email_outbox_message.id,),
             max_retries=1,
             default_retry_delay=100,
-            kwargs={'status_id': status.pk},
         )
-
-        status.task_id = task.id
-        status.save()
 
         if task:
             messages.info(

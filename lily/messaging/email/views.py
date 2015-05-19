@@ -231,17 +231,18 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         original_attachment_ids = set()
         for attachment_form in form.cleaned_data.get('attachments'):
             if not attachment_form.cleaned_data['DELETE']:
-                uploaded_attachment = attachment_form.cleaned_data['attachment']
-                attachment = attachment_form.save(commit=False)
-                if isinstance(attachment, EmailAttachment):
+                form_attachment = attachment_form.cleaned_data
+                if form_attachment['id']:
                     # Only store attachment id for now
-                    original_attachment_ids.add('%s' % attachment.id)
+                    original_attachment_ids.add('%s' % form_attachment['id'].id)
                 else:
                     # Uploaded file, add it to email_outbox_message
-                    attachment.content_type = uploaded_attachment.content_type
-                    attachment.email_outbox_message = email_outbox_message
-                    attachment.size = uploaded_attachment.size
-                    attachment.save()
+                    outbox_attachment = EmailOutboxAttachment()
+                    outbox_attachment.attachment = form_attachment['attachment']
+                    outbox_attachment.content_type = form_attachment['attachment'].content_type
+                    outbox_attachment.email_outbox_message = email_outbox_message
+                    outbox_attachment.size = form_attachment['attachment'].size
+                    outbox_attachment.save()
 
         # Store the ids of the original message attachments
         email_outbox_message.original_attachment_ids = ','.join(original_attachment_ids)

@@ -35,6 +35,21 @@
                 }
             }
         });
+        $stateProvider.state('base.email.draft', {
+            url: '/draft/{id:[0-9]{1,}}',
+            params: {
+                messageType: 'draft'
+            },
+            views: {
+                '@base.email': {
+                    templateUrl: function(elem, attr) {
+                        return '/messaging/email/draft/' + elem.id + '/';
+                    },
+                    controller: 'EmailCompose',
+                    controllerAs: 'vm'
+                }
+            }
+        });
         $stateProvider.state('base.email.reply', {
             url: '/reply/{id:[0-9]{1,}}',
             params: {

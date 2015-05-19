@@ -7,7 +7,10 @@
                 {{ title }}
             </div>
             <div class="tools">
-                <a ui-sref="base.cases.create">Add</a>
+                <a ui-sref="base.deals.create">
+                    <i class="fa fa-plus-square-o"></i>
+                    Add
+                </a>
             </div>
         </div>
         <div class="portlet-body">
@@ -31,7 +34,7 @@
                         <td>{{ deal.closing_date | date:'dd MMMM yy' }}</td>
                     </tr>
                     <tr ng-hide="list.length">
-                        <td colspan="3">No Deals</td>
+                        <td colspan="5">No Deals</td>
                     </tr>
                     </tbody>
                 </table>

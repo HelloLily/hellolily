@@ -113,7 +113,9 @@
 
         Deal.getDeals = getDeals;
         Deal.getDealsToCheck = getDealsToCheck;
+        Deal.getFeedbackDeals = getFeedbackDeals;
         Deal.prototype.markDealAsChecked = markDealAsChecked;
+        Deal.prototype.feedbackFormSent = feedbackFormSent;
 
         /////
 
@@ -161,6 +163,17 @@
                 filterQuery += ' AND assigned_to_id:' + userId;
             }
             return getDeals('', 1, 20, column, ordering, filterQuery);
+        }
+
+        function getFeedbackDeals (column, ordering) {
+            var filterQuery = 'stage:2 AND feedback_form_sent:false AND assigned_to_id:' + currentUser.id;
+            return getDeals('', 1, 20, column, ordering, filterQuery);
+        }
+
+        function feedbackFormSent () {
+            var deal = this;
+            deal.feedback_form_sent = true;
+            return deal.$update();
         }
 
         function markDealAsChecked () {

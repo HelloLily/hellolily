@@ -36,7 +36,7 @@
                             scope.emailAddressResults = data;
                             if (data.type == 'contact') {
                                 // Contact and has account
-                                if (data.data.account) {
+                                if (data.data.accounts) {
                                     scope.status = 'complete';
                                     // Contact without account
                                 } else {

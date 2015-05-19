@@ -166,6 +166,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
     form_class = ComposeEmailForm
     object = None
     remove_old_message = True
+    success_url = '/#/email/all/INBOX'
 
     def get(self, request, *args, **kwargs):
         self.get_object(request, **kwargs)
@@ -326,8 +327,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return '/#/email/all/INBOX'
-        # return reverse('messaging_email_inbox')
+        self.success_url = '/' + self.request.POST.get('success_url', self.success_url)
+        return self.success_url
 
     def get_email_headers(self):
         """

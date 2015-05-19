@@ -496,6 +496,12 @@
             });
 
             $(cf.templateAttachmentIds).val(newAttachmentIds);
+        },
+
+        setSuccesURL: function(previousState){
+            if(previousState != null){
+                $("input[name='success_url']").val(previousState);
+            }
         }
     }
 })(jQuery, window, document);

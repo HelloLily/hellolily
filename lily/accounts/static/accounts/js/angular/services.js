@@ -117,7 +117,7 @@
         function getEmailAddress() {
             var account = this;
 
-            var primaryEmails = $filter('filter')(account.email_addresses, {is_primary: true});
+            var primaryEmails = $filter('filter')(account.email_addresses, {status: 2});
 
             if (primaryEmails.length) {
                 return primaryEmails[0];

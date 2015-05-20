@@ -131,15 +131,15 @@ class AddAccountQuickbuttonForm(HelloLilyModelForm):
 
         if commit:
             # Save email addresses
-            first = True
+            status = EmailAddress.PRIMARY_STATUS
             for email in self.cleaned_data['emails']:
                 email_address = EmailAddress.objects.create(
                     email_address=email,
-                    is_primary=first,
+                    status=status,
                     tenant=instance.tenant
                 )
                 instance.email_addresses.add(email_address)
-                first = False
+                status = EmailAddress.OTHER_STATUS
 
             # Save addresses
             for address in self.cleaned_data['addresses']:

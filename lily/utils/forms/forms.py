@@ -50,11 +50,11 @@ class HelloLilyModelForm(BetterModelForm):
 
 class EmailAddressBaseForm(HelloLilyModelForm):
     """
-    Form for adding an e-mail address, only including the is_primary and the e-mail fields.
+    Form for adding an e-mail address, only including the status and the e-mail fields.
     """
     class Meta:
         model = EmailAddress
-        fields = ('email_address', 'is_primary',)
+        fields = ('email_address', 'status',)
         widgets = {
             'email_address': forms.TextInput(attrs={
                 'class': 'mws-textinput tabbable',

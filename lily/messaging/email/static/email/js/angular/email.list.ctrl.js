@@ -9,7 +9,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }
@@ -19,7 +19,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }
@@ -29,7 +29,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }

@@ -86,6 +86,7 @@
 
         $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + id});
         $scope.contactList.$promise.then(function(contactList) {
+            console.log(contactList);
             $scope.contactList = contactList;
         });
     }

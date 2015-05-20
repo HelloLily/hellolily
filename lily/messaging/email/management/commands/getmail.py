@@ -29,5 +29,5 @@ class Command(BaseCommand):
         manager.message_builder.store_message_info(message_info, message_id)
         builder = manager.message_builder
 
-        import pdb
-        pdb.set_trace()
+        import ipdb
+        ipdb.set_trace()

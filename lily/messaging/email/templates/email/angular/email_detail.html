@@ -47,12 +47,19 @@
                 <div class="email-recipients" ng-class="{'overlay': !vm.displayAllRecipients}" ng-show="vm.message.received_by.length">
                     <span>to </span>
                     <span ng-repeat="receiver in vm.message.all_recipients">
-                        <span title="{{ receiver.email_address }}">
-                            <span ng-show="receiver.name">{{ receiver.name }}</span><span ng-show="!receiver.name">{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
+                        <span ng-if="receiver.name">
+                                <span ng-if="receiver.contact_id"><a ui-sref="base.contacts.detail({ id: receiver.contact_id })">{{ receiver.name }}</a></span>
+                                <span ng-if="!receiver.contact_id">{{ receiver.name }}</span>
+                                <{{ receiver.email_address }}><span ng-if="!$last">, </span>
+                        </span>
+                        <span ng-if="!receiver.name">
+                            <span>{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
                         </span>
                     </span>
                 </div>
-                <button class="btn show-more-recipients" ng-click="vm.toggleOverlay()"><i class="fa" ng-class="{true: 'fa-collapse-top', false: 'fa-collapse'}[vm.displayAllRecipients]"></i></button>
+                <button class="btn show-more-recipients" ng-click="vm.toggleOverlay()">
+                    <i class="fa" ng-class="{true: 'fa-caret-square-o-up', false: 'fa-caret-square-o-down'}[vm.displayAllRecipients]"></i>
+                </button>
             </div>
         </div>
     </div>

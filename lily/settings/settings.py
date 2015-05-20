@@ -617,7 +617,7 @@ MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 # Settings for 3rd party apps
 
 # django debug toolbar
-INTERNAL_IPS = (['127.0.0.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
+INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')

@@ -14,25 +14,25 @@
             </li>
             <li class="inbox" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.list({labelId:'INBOX'})">
-                    Inbox <span ng-if="labelCount['INBOX'] > 0"> ({{ vm.labelCount['INBOX'] }})</span>
+                    Inbox <span ng-if="vm.labelCount['INBOX']"> ({{ vm.labelCount['INBOX'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="sent" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.list({labelId:'SENT'})">
-                    Sent <span ng-if="labelCount['SENT'] > 0"> ({{ vm.labelCount['SENT'] }})</span>
+                    Sent <span ng-if="vm.labelCount['SENT']"> ({{ vm.labelCount['SENT'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="draft" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.list({labelId:'DRAFT'})">
-                    Draft <span ng-if="labelCount['DRAFT'] > 0"> ({{ vm.labelCount['DRAFT'] }})</span>
+                    Draft <span ng-if="vm.labelCount['DRAFT']"> ({{ vm.labelCount['DRAFT'] }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="trash" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.list({labelId:'TRASH'})">
-                    Trash <span ng-if="labelCount['TRASH'] > 0"> ({{ vm.labelCount['TRASH'] }})</span>
+                    Trash <span ng-if="vm.labelCount['TRASH']"> ({{ vm.labelCount['TRASH'] }})</span>
                 </a>
                 <b></b>
             </li>
@@ -50,31 +50,31 @@
             </li>
             <li class="inbox" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})">
-                    Inbox <span ng-if="hasUnreadLabel(account, 'INBOX')"> ({{ vm.unreadCountForLabel(account, 'INBOX') }})</span>
+                    Inbox <span ng-if="vm.hasUnreadLabel(account, 'INBOX')"> ({{ vm.unreadCountForLabel(account, 'INBOX') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="sent" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})">
-                    Sent <span ng-if="hasUnreadLabel(account, 'SENT')"> ({{ vm.unreadCountForLabel(account, 'SENT') }})</span>
+                    Sent <span ng-if="vm.hasUnreadLabel(account, 'SENT')"> ({{ vm.unreadCountForLabel(account, 'SENT') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="draft" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})">
-                    Draft <span ng-if="hasUnreadLabel(account, 'DRAFT')"> ({{ vm.unreadCountForLabel(account, 'DRAFT') }})</span>
+                    Draft <span ng-if="vm.hasUnreadLabel(account, 'DRAFT')"> ({{ vm.unreadCountForLabel(account, 'DRAFT') }})</span>
                 </a>
                 <b></b>
             </li>
             <li class="trash" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})">
-                    Trash <span ng-if="hasUnreadLabel(account, 'TRASH')"> ({{ vm.unreadCountForLabel(account, 'TRASH') }})</span>
+                    Trash <span ng-if="vm.hasUnreadLabel(account, 'TRASH')"> ({{ vm.unreadCountForLabel(account, 'TRASH') }})</span>
                 </a>
                 <b></b>
             </li>
             <li ng-repeat="label in account.labels | orderBy:'name'" class="inbox" ng-if="label.label_type != 0" ui-sref-active="active">
                 <a class="btn" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})">
-                    {{ label.name }}<span ng-show="label.unread > 0"> ({{ label.unread }})</span></a>
+                    {{ label.name }}<span ng-show="label.unread"> ({{ label.unread }})</span></a>
                 <b></b>
             </li>
             <li class="allmail" ui-sref-active="active">

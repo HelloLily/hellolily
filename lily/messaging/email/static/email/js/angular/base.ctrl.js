@@ -2,10 +2,10 @@
     'use strict';
 
     angular.module('app.email').config(emailConfig);
-    emailConfig.$inject = ['$stateProvider'];
-    function emailConfig($stateProvider) {
+    emailConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function emailConfig($stateProvider, $urlRouterProvider) {
+        $urlRouterProvider.when('/email', '/email/all/INBOX');
         $stateProvider.state('base.email', {
-            abstract: true,
             url: '/email',
             views: {
                 '@': {

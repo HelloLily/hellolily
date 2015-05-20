@@ -119,7 +119,7 @@
 
         function unreadCountForLabel(account, labelId) {
             var count = 0;
-            angular.forEach(account.labels, function(label, key) {
+            angular.forEach(account.labels, function(label) {
                 if (label.label_id == labelId) {
                     count = label.unread;
                     return true

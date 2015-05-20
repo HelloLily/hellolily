@@ -281,7 +281,7 @@
                 // Get the account for the given accountId
                 vm.account = EmailAccount.get({id: $stateParams.accountId});
             } else {
-                vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
+                vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
             }
 
             if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {

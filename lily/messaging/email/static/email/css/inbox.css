@@ -207,3 +207,7 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     margin-left: 0;
     margin-right: 0;
 }
+
+.inbox ul.inbox-nav li.active span {
+  color: #F9F9F9;
+}

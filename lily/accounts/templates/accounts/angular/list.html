@@ -76,10 +76,11 @@
                         <a ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">{{ ::account.name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.contactInformation">
-                        <div ng-repeat="email in account.email">
-                            <a ui-sref="base.email.composeEmail({ email:email })" title="{{ ::email }}">
+
+                        <div ng-repeat="email in account.email_addresses | filter: {status: '!'+ 0}">
+                            <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
                                 <i class="fa fa-envelope-alt"></i>
-                                {{ email }}
+                                {{ email.email_address }}
                             </a>
                         </div>
                         <div ng-repeat="phone in account.phone_work track by $index">

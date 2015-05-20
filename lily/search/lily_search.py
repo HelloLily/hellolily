@@ -118,7 +118,9 @@ class LilySearch(object):
                         'id',
                         'tag',
                         'email',
+                        'email_addresses.email_address',
                         'account_name',
+                        'accounts.name',
                         'assigned_to',
                         'created_by',
                         'subject',
@@ -186,7 +188,7 @@ class LilySearch(object):
             })
             return
         # Enclose emails with quotes.
-        emails = list(set(['"%s"' % email for email in emails]))
+        emails = set(['"%s"' % email for email in emails])
         join = ' OR '.join(emails)
         filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
         self.filter_query(filterquery)

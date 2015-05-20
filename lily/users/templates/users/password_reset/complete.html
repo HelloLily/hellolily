@@ -1,18 +1,20 @@
-{% extends 'anonymous/page_narrow.html' %}
+{% extends 'anonymous/base.html' %}
 
-{% load i18n %}
+{% load i18n bootstrap3 %}
 
 {% block head-title %}{% trans 'Password reset complete' %}{% endblock %}
+{% block page-title %}{% trans 'Password reset complete' %}{% endblock %}
+
 {% block content %}
-<h3 class="form-title">{% block form-title %}{% trans 'Password reset complete' %}{% endblock %}</h3>
-{% block help-text %}
-<p>{% trans 'Your password has been reset. You can go ahead and log in now.' %}</p>
-{% endblock %}
-<div>
-<a href="{% url 'login' %}">
-    <button type="button" class="btn btn-primary">
-        {% trans 'Back to Log in' %}
-    </button>
-</a>
-</div>
+    <p>
+        {% trans 'Your password has been reset. You can go ahead and log in now.' %}
+    </p>
+
+    <div>
+        <a href="{% url 'login' %}">
+            <button type="button" class="btn btn-primary">
+                {% trans 'Back to Log in' %}
+            </button>
+        </a>
+    </div>
 {% endblock %}

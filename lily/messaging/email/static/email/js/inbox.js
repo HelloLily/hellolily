@@ -125,6 +125,32 @@
             if (self.config.recipient) {
                 $(self.config.sendToNormalField).select2('data', self.config.recipient);
             }
+
+            // Decode special chars
+            var decodedEditorValue = self.decodeEntities(editor.getValue());
+            var $composeEmailTemplate = $(decodedEditorValue).closest('#compose-email-template');
+
+            // If there's a template, we're dealing with a draft, so set currentTemplate
+            if ($composeEmailTemplate.length) {
+                self.config.currentTemplate = $composeEmailTemplate[0].innerHTML;
+            }
+        },
+
+        // Courtesy of Robert K/Ian Clark @ http://stackoverflow.com/questions/5796718/html-entity-decode/9609450#9609450
+        decodeEntities: function (str) {
+            // This prevents any overhead from creating the object each time
+            var element = document.createElement('div');
+
+            if (str && typeof str === 'string') {
+                // Strip script/html tags
+                str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
+                str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
+                element.innerHTML = str;
+                str = element.textContent;
+                element.textContent = '';
+            }
+
+            return str;
         },
 
         initWysihtml5: function () {
@@ -261,13 +287,14 @@
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
 
             var templateContent = '';
-            // Get template content if there is a template set
-            if ($containerDiv.find('#compose-email-template').length) {
+            // Get template content if we're not dealing with the creation of a draft and there is a template set
+            if (buttonName != 'submit-save' && $containerDiv.find('#compose-email-template').length) {
                 templateContent = $containerDiv.find('#compose-email-template')[0].innerHTML;
+
+                // Remove email template div and resize div and only keep user typed text
+                $containerDiv.find('#compose-email-template').remove();
             }
 
-            // Remove email template div and resize div and only keep user typed text
-            $containerDiv.find('#compose-email-template').remove();
             $containerDiv.find('#resize-div').remove();
 
             /**
@@ -349,7 +376,16 @@
                         var addedTemplateText = '';
 
                         if (self.config.currentTemplate) {
-                            var diff = JsDiff.diffWords(currentTemplate.html(), self.config.currentTemplate);
+                            var diff = {};
+
+                            // If these are the same we're dealing with a draft, so compare with the htmlPart
+                            if (currentTemplate.html() == self.config.currentTemplate) {
+                                diff = JsDiff.diffChars(currentTemplate.html(), htmlPart);
+                            }
+                            else {
+                                // Otherwise compare the current editor value with the current template
+                                diff = JsDiff.diffChars(currentTemplate.html(), self.config.currentTemplate);
+                            }
 
                             diff.forEach(function (part) {
                                 // Get all text that was changed/added
@@ -360,10 +396,6 @@
                         }
 
                         self.config.currentTemplate = htmlPart;
-
-                        if (addedTemplateText != '') {
-                            addedTemplateText = '<br><br>' + addedTemplateText;
-                        }
 
                         // Change the html of the existing email template and add text that was added to the template
                         currentTemplate.html(htmlPart + addedTemplateText);

@@ -1,23 +1,10 @@
 from django import forms
-from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, SetPasswordForm
-from django.contrib.auth.hashers import is_password_usable
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
 from django.forms.formsets import BaseFormSet
-from django.template import loader
-from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
-from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
-from rest_framework.authtoken.models import Token
 
-from lily.socialmedia.connectors import LinkedIn, Twitter
-from lily.socialmedia.models import SocialMedia
-from lily.tenant.middleware import get_current_user
-from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
+from lily.utils.forms import HelloLilyForm
 from lily.utils.forms.widgets import JqueryPasswordInput, AddonTextInput
 
 from .models import LilyUser
@@ -314,29 +301,3 @@ class InvitationFormset(RequiredFirstFormFormset):
                     message=_('You can\'t invite someone more than once (e-mail addresses must be unique).')
                 )
             emails.append(email)
-
-
-class APIAccessForm(HelloLilyModelForm):
-    key = forms.CharField(label=_('Current API key'), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(APIAccessForm, self).__init__(*args, **kwargs)
-
-        self.fields['key'].widget.attrs['readonly'] = True
-
-        user = get_current_user()
-
-        try:
-            token = Token.objects.get(user=user)
-        except Token.DoesNotExist:
-            pass
-        else:
-            self.fields['key'].initial = token.key
-
-    class Meta:
-        model = Token
-        fieldsets = [
-            (_('API Key'), {
-                'fields': ['key', ],
-            }),
-        ]

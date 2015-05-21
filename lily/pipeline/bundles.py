@@ -175,7 +175,11 @@ PIPELINE_JS = {
             'preferences/js/angular/email/module.js',
             'preferences/js/angular/email/controllers.js',
             'preferences/js/angular/email/emailaccountlist.controller.js',
-            'preferences/js/angular/user/controllers.js',
+            'preferences/js/angular/user/module.js',
+            'preferences/js/angular/user/controllers/api_token.js',
+            'preferences/js/angular/user/controllers/base.js',
+            'preferences/js/angular/user/controllers/user_account.js',
+            'preferences/js/angular/user/controllers/user_profile.js',
 
             'users/js/angular/services.js',
             'users/js/angular/filters.js',

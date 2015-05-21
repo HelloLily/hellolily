@@ -3,35 +3,28 @@ from hashlib import sha256
 
 import anyjson
 from braces.views import GroupRequiredMixin
-from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
-from django.contrib.auth.views import login, password_reset
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.views.generic import View, TemplateView, FormView, RedirectView
+from django.views.generic import View, TemplateView, FormView
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
-from rest_framework.authtoken.models import Token
-from django.core.mail import send_mail
-from django.contrib.sites.shortcuts import get_current_site
-from django.template import loader
 
 
 from lily.utils.functions import is_ajax
-from lily.utils.views import AngularView
-from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
-                    InvitationFormset, UserRegistrationForm, CustomPasswordResetForm, CustomSetPasswordForm, APIAccessForm)
+                    InvitationFormset, UserRegistrationForm)
 from .models import LilyUser
 
 
@@ -454,34 +447,3 @@ class AcceptInvitationView(FormView):
 
     def get_success_url(self):
         return redirect(reverse_lazy('login'))
-
-
-class DashboardView(LoginRequiredMixin, AngularView):
-    """
-    This view shows the dashboard of the logged in user.
-    """
-    template_name = 'users/dashboard.html'
-
-
-class APIAccessView(LoginRequiredMixin, FormView):
-    form_class = APIAccessForm
-    template_name = 'users/api_access_form.html'
-    static_context = {'form_prevent_autofill': True}
-
-    def post(self, request, *args, **kwargs):
-        user = self.request.user
-
-        try:
-            token = Token.objects.get(user=user)
-        except Token.DoesNotExist:
-            pass
-        else:
-            # Simply updating the key doesn't work, so delete the token and create a new one
-            token.delete()
-
-        Token.objects.create(user=user)
-
-        return super(APIAccessView, self).post(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('api_access_view')

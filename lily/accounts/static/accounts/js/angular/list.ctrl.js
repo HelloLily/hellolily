@@ -52,7 +52,8 @@
                 assignedTo: true,
                 created: true,
                 modified: true,
-                tags: true
+                tags: true,
+                customerId: true
             })
         };
         vm.deleteAccount = deleteAccount;

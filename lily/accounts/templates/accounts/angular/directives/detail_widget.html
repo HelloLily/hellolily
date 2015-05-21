@@ -6,8 +6,8 @@
                 <i class="fa fa-building-o"></i>
                 {{ account.name }}
             </div>
-            <div class="tools">
-                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank">
+            <div class="actions">
+                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default">
                     <i class="fa fa-external-link fa-sm"></i>
                     Freedom
                 </a>
@@ -75,7 +75,7 @@
                         </th>
                         <td>
                             <div ng-repeat="address in account.address">
-                                {{ address.address_street }} {{ address.address_street_number }}{{ address.address_compliment }}, {{ address.address_postal_code }}
+                                {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}, {{ address.address_postal_code }}
                                 <br />
                                 {{ address.address_city }}, {{ address.address_country }}
                                 <br />

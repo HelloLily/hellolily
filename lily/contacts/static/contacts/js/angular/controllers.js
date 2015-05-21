@@ -39,6 +39,13 @@ contacts.config(['$stateProvider', function($stateProvider) {
         },
         ncyBreadcrumb: {
             label: '{{ contact.name }}'
+        },
+        resolve: {
+            ContactDetail: 'ContactDetail',
+            contact: function(ContactDetail, $stateParams) {
+                var contactId = $stateParams.id;
+                return ContactDetail.get({id: contactId}).$promise
+            }
         }
     });
     $stateProvider.state('base.contacts.create', {
@@ -79,21 +86,23 @@ contacts.config(['$stateProvider', function($stateProvider) {
 
 contacts.controller('ContactDetailController', ContactDetail);
 
-ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'DealDetail'];
-function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, DealDetail) {
+ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'DealDetail', 'contact'];
+function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, DealDetail, contact) {
     var id = $stateParams.id;
 
-    $scope.conf.pageTitleBig = 'Contact detail';
-    $scope.conf.pageTitleSmall = 'the devil is in the detail';
+    $scope.contact = contact;
 
-
-    function pageTitle(contact) {
-        var title = contact.name;
-        if (contact.accounts) {
-            title += ' - ' + contact.accounts[0].name;
-        }
-        return title;
+    if ($scope.contact.accounts) {
+        $scope.contact.accounts.forEach(function(account) {
+            var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
+            colleagueList.$promise.then(function(colleagues) {
+                account.colleagueList = colleagues;
+            })
+        });
     }
+
+    $scope.conf.pageTitleBig = 'Contact detail';
+    $scope.conf.pageTitleSmall = 'the devil is in the details';
 
     $scope.caseList = CaseDetail.query({filterquery: 'archived:false AND contact:' + id});
     $scope.caseList.$promise.then(function(caseList) {
@@ -105,20 +114,7 @@ function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, DealDeta
         $scope.dealList = dealList;
     });
 
-    $scope.contact = ContactDetail.get({id: id});
-    $scope.contact.$promise.then(function(contact) {
-        $scope.contact = contact;
-        $scope.pageTitle = pageTitle(contact);
 
-        if ($scope.contact.accounts) {
-            $scope.contact.accounts.forEach(function(account) {
-                var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
-                colleagueList.$promise.then(function(colleagues) {
-                    account.colleagueList = colleagues;
-                })
-            });
-        }
-    });
 }
 
 /**

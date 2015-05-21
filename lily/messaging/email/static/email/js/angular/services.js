@@ -44,6 +44,11 @@
                 'shareWith': {
                     method: 'POST',
                     url: '/api/messaging/email/account/:id/shared/'
+                },
+                'mine': {
+                    method: 'GET',
+                    url: '/api/messaging/email/account/mine/',
+                    isArray: true
                 }
             });
     }

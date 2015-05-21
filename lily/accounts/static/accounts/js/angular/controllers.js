@@ -16,6 +16,13 @@
             },
             ncyBreadcrumb: {
                 label: '{{ account.name }}'
+            },
+            resolve: {
+                AccountDetail: 'AccountDetail',
+                account: function(AccountDetail, $stateParams) {
+                    var accountId = $stateParams.id;
+                    return AccountDetail.get({id: accountId}).$promise
+                }
             }
         });
 
@@ -60,19 +67,16 @@
 
     angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-    AccountDetailController.$inject = ['$scope', '$stateParams', 'AccountDetail', 'CaseDetail', 'ContactDetail', 'DealDetail'];
-    function AccountDetailController($scope, $stateParams, AccountDetail, CaseDetail, ContactDetail, DealDetail) {
+    AccountDetailController.$inject = ['$scope', '$stateParams', 'CaseDetail', 'ContactDetail', 'DealDetail', 'account'];
+    function AccountDetailController($scope, $stateParams, CaseDetail, ContactDetail, DealDetail, account) {
         /**
          * Details page with historylist and more detailed account information.
          */
         var id = $stateParams.id;
 
-        $scope.account = AccountDetail.get({id: id});
-        $scope.account.$promise.then(function(account) {
-            $scope.account = account;
-            $scope.conf.pageTitleBig = account.name;
-            $scope.conf.pageTitleSmall = 'change is natural';
-        });
+        $scope.account = account;
+        $scope.conf.pageTitleBig = account.name;
+        $scope.conf.pageTitleSmall = 'change is natural';
 
         $scope.caseList = CaseDetail.query({filterquery: 'archived:false AND account:' + id});
         $scope.caseList.$promise.then(function(caseList) {

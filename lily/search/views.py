@@ -104,7 +104,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             model_type='contacts_contact',
             size=1,
         )
-        search.filter_query('email:%s' % email_address)
+        search.filter_query('email_addresses.email_address:%s' % email_address)
 
         hits, total, took = search.do_search()
         if hits:
@@ -129,7 +129,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             model_type='accounts_account',
             size=1,
         )
-        search.filter_query('email:%s' % email_address)
+        search.filter_query('email_addresses.email_address:%s' % email_address)
 
         hits, total, took = search.do_search()
         if hits:
@@ -144,7 +144,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
                 model_type='accounts_account',
                 size=1,
             )
-            search.filter_query('email:%s' % email_address.split('@')[1])
+            search.filter_query('email_addresses.email_address:%s' % email_address.split('@')[1])
 
             hits, total, took = search.do_search()
             if total > 1:

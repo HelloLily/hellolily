@@ -27,10 +27,10 @@
                     <tr ng-repeat="contact in list" ng-show="list.length">
                         <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
                         <td>
-                            <a ui-sref="base.email.composeEmail({email: contact.email[0]})" ng-show="contact.email[0]">
-                                {{ contact.email[0] }}
+                            <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
+                                {{ contact.email_addresses[0].email_address }}
                             </a>
-                            <span ng-hide="contact.email[0]">No email</span>
+                            <span ng-hide="contact.email_addresses[0]">No email</span>
                         </td>
                         <td>{{ contact.phones[0] || 'No phone' }}</td>
                     </tr>

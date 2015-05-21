@@ -369,20 +369,15 @@ class EmailAddress(TenantMixin):
     Email address model, it's possible to set an email address as primary address as a model can
     own multiple email addresses.
     """
-    INACTIVE_STATUS, ACTIVE_STATUS = range(2)
+    INACTIVE_STATUS, OTHER_STATUS, PRIMARY_STATUS = range(3)
     EMAIL_STATUS_CHOICES = (
+        (PRIMARY_STATUS, _('Primary')),
+        (OTHER_STATUS, _('Other')),
         (INACTIVE_STATUS, _('Inactive')),
-        (ACTIVE_STATUS, _('Active')),
-    )
-
-    FALSE_TRUE_CHOICES = (
-        (False, _('Other')),
-        (True, _('Primary')),
     )
 
     email_address = models.EmailField(max_length=255, verbose_name=_('e-mail address'))
-    is_primary = models.BooleanField(default=False, verbose_name=_('primary e-mail'), choices=FALSE_TRUE_CHOICES)
-    status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=ACTIVE_STATUS,
+    status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=OTHER_STATUS,
                                  verbose_name=_('status'))
 
     def __unicode__(self):

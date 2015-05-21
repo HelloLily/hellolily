@@ -526,7 +526,7 @@ E.g.:
         if email and len(email) > 2:
             email_address_kwargs = dict()
             email_address_kwargs['email_address'] = email
-            email_address_kwargs['is_primary'] = is_primary
+            email_address_kwargs['status'] = EmailAddress.PRIMARY_STATUS if is_primary else EmailAddress.OTHER_STATUS
             email_address_kwargs['tenant_id'] = self.tenant_pk
             if not instance.email_addresses.filter(**email_address_kwargs).exists():
                 email_address = EmailAddress.objects.create(**email_address_kwargs)

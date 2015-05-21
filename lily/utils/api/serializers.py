@@ -62,4 +62,4 @@ class EmailAddressSerializer(RelatedModelSerializer):
 
     class Meta:
         model = EmailAddress
-        fields = ('id', 'status_name', 'email_address', 'is_primary', 'status',)
+        fields = ('id', 'status_name', 'email_address', 'status',)

@@ -33,7 +33,7 @@ CELERY_QUEUES = (
     Queue('queue2', routing_key='email_scheduled_tasks'),
 )
 CELERY_ROUTES = (
-    {'synchronize_email_scheduler': {  # schedule priority email tasks without interference
+    {'synchronize_email_account_scheduler': {  # schedule priority email tasks without interference
         'queue': 'queue2'
     }},
     {'synchronize_email_account': {  # schedule priority email tasks without interference

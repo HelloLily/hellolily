@@ -1,10 +1,12 @@
 import django_filters
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import list_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import LilyGroupSerializer, LilyUserSerializer
+from .serializers import LilyGroupSerializer, LilyUserSerializer, LilyUserTokenSerializer
 from ..models import LilyGroup, LilyUser
 
 
@@ -58,6 +60,26 @@ class LilyUserViewSet(mixins.UpdateModelMixin,
             return self.request.user
         else:
             return super(LilyUserViewSet, self).get_object()
+
+    @list_route(methods=['GET', 'DELETE', 'POST'])
+    def token(self, request, *args, **kwargs):
+        """
+        This view only returns the token of the currently logged in user
+
+        GET returns the current token
+        POST generates a new token
+        DELETE removes the current token
+        """
+        if request.method in ('DELETE', 'POST'):
+            Token.objects.filter(user=request.user).delete()
+            if request.method == 'DELETE':
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                Token.objects.create(user=request.user)
+
+        serializer = LilyUserTokenSerializer(request.user)
+
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         if self.request.user != self.get_object():

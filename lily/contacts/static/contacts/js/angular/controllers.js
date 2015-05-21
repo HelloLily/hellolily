@@ -9,7 +9,7 @@ var contacts = angular.module('ContactsControllers', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'AccountServices',
+    'app.accounts.services',
     'app.cases.services',
     'contactServices',
     'noteServices',
@@ -39,6 +39,13 @@ contacts.config(['$stateProvider', function($stateProvider) {
         },
         ncyBreadcrumb: {
             label: '{{ contact.name }}'
+        },
+        resolve: {
+            ContactDetail: 'ContactDetail',
+            contact: function(ContactDetail, $stateParams) {
+                var contactId = $stateParams.id;
+                return ContactDetail.get({id: contactId}).$promise
+            }
         }
     });
     $stateProvider.state('base.contacts.create', {
@@ -77,67 +84,38 @@ contacts.config(['$stateProvider', function($stateProvider) {
     });
 }]);
 
-/**
- * ContactDetailController is a controller to show details of a contact.
- */
-contacts.controller('ContactDetailController', [
-    'ContactDetail',
-    'CaseDetail',
-    'NoteDetail',
-    'EmailDetail',
-    'EmailAccount',
-    'ContactTest',
-    '$scope',
-    '$q',
-    '$filter',
-    '$stateParams',
-    '$state',
-    'NoteService',
+contacts.controller('ContactDetailController', ContactDetail);
 
-    function(ContactDetail, CaseDetail, NoteDetail, EmailDetail, EmailAccount, ContactTest, $scope, $q, $filter, $stateParams, $state, NoteService) {
-        var id = $stateParams.id;
+ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'DealDetail', 'contact'];
+function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, DealDetail, contact) {
+    var id = $stateParams.id;
 
-        $scope.conf.pageTitleBig = 'Contact detail';
-        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+    $scope.contact = contact;
 
-
-        function pageTitle(contact) {
-            var title = contact.name;
-            if (contact.accounts) {
-                title += ' - ' + contact.accounts[0].name;
-            }
-            return title;
-        }
-
-        $scope.contact = ContactDetail.get({id: id});
-        $scope.contact.$promise.then(function(contact) {
-            $scope.contact = contact;
-            $scope.pageTitle = pageTitle(contact);
-            var works = [];
-            if (contact.accounts) {
-                contact.accounts.forEach(function(account) {
-                    var query = {filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id};
-                    var work = ContactDetail.query(query).$promise.then(function(contacts) {
-                        return {
-                            name: account.name,
-                            colleagues: contacts,
-                            id: account.id,
-                            customer_id: account.customer_id
-                        };
-                    });
-                    works.push(work);
-                });
-            }
-            $q.all(works).then(function(results) {
-                $scope.works = results;
-            });
-        });
-
-        CaseDetail.totalize({filterquery: 'archived:false AND contact:' + id}).$promise.then(function(total) {
-            $scope.numCases = total.total;
+    if ($scope.contact.accounts) {
+        $scope.contact.accounts.forEach(function(account) {
+            var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
+            colleagueList.$promise.then(function(colleagues) {
+                account.colleagueList = colleagues;
+            })
         });
     }
-]);
+
+    $scope.conf.pageTitleBig = 'Contact detail';
+    $scope.conf.pageTitleSmall = 'the devil is in the details';
+
+    $scope.caseList = CaseDetail.query({filterquery: 'archived:false AND contact:' + id});
+    $scope.caseList.$promise.then(function(caseList) {
+        $scope.caseList = caseList;
+    });
+
+    $scope.dealList = DealDetail.query({filterquery: 'archived:false AND contact:' + id});
+    $scope.dealList.$promise.then(function(dealList) {
+        $scope.dealList = dealList;
+    });
+
+
+}
 
 /**
  * ContactListController is a controller to show list of contacts

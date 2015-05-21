@@ -40,7 +40,8 @@
             scope: {
                 title: '@',
                 list: '=',
-                height: '='
+                height: '=',
+                addLink: '@'
             },
             templateUrl: 'cases/directives/list-widget.html'
         }

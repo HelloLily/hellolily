@@ -5,11 +5,11 @@ import anyjson
 from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.tokens import default_token_generator, PasswordResetTokenGenerator
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template import RequestContext
@@ -19,14 +19,12 @@ from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
-from rest_framework.authtoken.models import Token
+
 
 from lily.utils.functions import is_ajax
-from lily.utils.views import AngularView
-from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
-                    InvitationFormset, UserRegistrationForm, CustomSetPasswordForm, APIAccessForm)
+                    InvitationFormset, UserRegistrationForm)
 from .models import LilyUser
 
 
@@ -51,7 +49,7 @@ class RegistrationView(FormView):
         """
         # Do not accept any valid form when registration is closed.
         if not settings.REGISTRATION_POSSIBLE:
-            messages.error(self.request, _('I\m sorry, but I can\'t let anyone register at the moment.'))
+            messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
             return redirect(reverse_lazy('login'))
 
         # Create and save user
@@ -185,7 +183,6 @@ class ActivationResendView(FormView):
                 context={
                     'current_site': current_site,
                     'protocol': self.request.is_secure() and 'https' or 'http',
-                    'full_name': user.get_full_name(),
                     'user': user,
                     'uidb36': uidb36,
                     'token': token,
@@ -450,104 +447,3 @@ class AcceptInvitationView(FormView):
 
     def get_success_url(self):
         return redirect(reverse_lazy('login'))
-
-
-class DashboardView(LoginRequiredMixin, AngularView):
-    """
-    This view shows the dashboard of the logged in user.
-    """
-    template_name = 'users/dashboard.html'
-
-
-class CustomSetPasswordView(FormView):
-    """
-    View that checks the hash in a password reset link and presents a
-    form for entering a new password.
-
-    This is a Class-based view copy based on django's default function view password_reset_confirm.
-    """
-    form_class = CustomSetPasswordForm
-    token_generator = default_token_generator
-    template_name_invalid = 'users/password_reset/confirm_invalid.html'
-    template_name_valid = 'users/password_reset/confirm_valid.html'
-    success_url = reverse_lazy('password_reset_complete')
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Overload super().dispatch to verify the reset link before rendering the response.
-        """
-        self.is_valid_link, self.user = self.check_valid_link(**kwargs)
-
-        return super(CustomSetPasswordView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Update the keyword arguments for instanciating the form to include the user.
-        """
-        kwargs = super(CustomSetPasswordView, self).get_form_kwargs()
-        kwargs.update({
-            'user': self.user
-        })
-
-        return kwargs
-
-    def check_valid_link(self, **kwargs):
-        """
-        Check the url is a valid password reset link.
-        """
-        uidb36 = kwargs.pop('uidb36')
-        token = kwargs.pop('token')
-
-        assert uidb36 is not None and token is not None  # checked by URLconf
-        try:
-            user_id = base36_to_int(uidb36)
-            user = LilyUser.objects.get(id=user_id)
-        except (ValueError, LilyUser.DoesNotExist):
-            user = None
-
-        if user is not None and self.token_generator.check_token(user, token):
-            return True, user
-
-        return False, user
-
-    def get_template_names(self):
-        """
-        Overload super().get_template_names to conditionally return different templates.
-        """
-        if self.is_valid_link:
-            template_name = self.template_name_valid
-        else:
-            template_name = self.template_name_invalid
-
-        return [template_name]
-
-    def form_valid(self, form):
-        """
-        Overload super().form_valid to save the password change.
-        """
-        form.save()
-        return super(CustomSetPasswordView, self).form_valid(form)
-
-
-class APIAccessView(LoginRequiredMixin, FormView):
-    form_class = APIAccessForm
-    template_name = 'users/api_access_form.html'
-    static_context = {'form_prevent_autofill': True}
-
-    def post(self, request, *args, **kwargs):
-        user = self.request.user
-
-        try:
-            token = Token.objects.get(user=user)
-        except Token.DoesNotExist:
-            pass
-        else:
-            # Simply updating the key doesn't work, so delete the token and create a new one
-            token.delete()
-
-        Token.objects.create(user=user)
-
-        return super(APIAccessView, self).post(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('api_access_view')

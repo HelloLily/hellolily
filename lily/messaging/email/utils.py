@@ -22,6 +22,8 @@ from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VA
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
 
 from python_imap.errors import IMAPConnectionError
 from python_imap.folder import INBOX
@@ -538,3 +540,58 @@ def create_task_status(task_name, args=None, kwargs=None):
     )
 
     return status
+
+
+def create_recipients(receivers, filter_emails=[]):
+    """
+    Converts Select2 ready recipients based on the received_by and/or received_by_cc of an email
+
+    Arguments:
+        receivers (list): list of Recipient objects
+        filter_emails (list, optional): list of email addresses that shouldn't be converted
+
+    Returns:
+        recipients (list):
+    """
+    recipients = []
+    email_addresses = []
+
+    for receiver in receivers:
+        # TODO: Once we correct the sync we probably won't need this check
+        if receiver.email_address in email_addresses or receiver.email_address in [filter_emails]:
+            continue
+
+        name = receiver.name
+
+        if not name:
+            # If no name was synced try to load a contact
+            recipient = Contact.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
+                'created').first()
+
+            if recipient:
+                # If contact exists, set contact's full name as name
+                name = recipient.full_name()
+            else:
+                recipient = Account.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
+                    'created').first()
+
+                if recipient:
+                    # Otherwise if account exists, set account's name as name
+                    name = recipient.name
+
+        if name:
+            # If a name is available we setup the select2 field differently
+            recipients.append({
+                'id': '"' + name + '" <' + receiver.email_address + '>',
+                'text': name + ' <' + receiver.email_address + '>'
+            })
+        else:
+            # Otherwise only display the email address
+            recipients.append({
+                'id': receiver.email_address,
+                'text': receiver.email_address
+            })
+
+        email_addresses.append(receiver.email_address)
+
+    return recipients

@@ -77,6 +77,10 @@ class ExportAccountView(ExportListViewMixin, View):
             'headers': [_('Tags')],
             'columns_for_item': ['tag']
         },
+        'customerId': {
+            'headers': [_('Customer ID')],
+            'columns_for_item': ['customer_id']
+        }
     }
 
     # ExportListViewMixin

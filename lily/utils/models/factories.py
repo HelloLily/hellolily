@@ -8,7 +8,7 @@ faker = Factory.create()
 
 
 class EmailAddressFactory(DjangoModelFactory):
-    is_primary = True
+    status = EmailAddress.PRIMARY_STATUS
 
     class Meta:
         model = EmailAddress

@@ -52,7 +52,8 @@
                 assignedTo: true,
                 created: true,
                 modified: true,
-                tags: true
+                tags: true,
+                customerId: true
             })
         };
         vm.deleteAccount = deleteAccount;
@@ -100,8 +101,12 @@
          * Updates table.items and table.totalItems
          */
         function _updateAccounts() {
-            Account.query(
-                vm.table
+            Account.getAccounts(
+                vm.table.filter,
+                vm.table.page,
+                vm.table.pageSize,
+                vm.table.order.column,
+                vm.table.order.ascending
             ).then(function(data) {
                     vm.table.items = data.accounts;
                     vm.table.totalItems = data.total;

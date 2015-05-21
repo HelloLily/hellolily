@@ -1,88 +1,23 @@
 {% verbatim %}
 <script id="contacts/contact-detail.html" type="text/ng-template">
     <div class="row">
-        <div class="col-md-5">
-            <div class="portlet light">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <span ng-show="'Formal' == contact.salutation">Formal</span>
-                        <span ng-show="'Informal' == contact.salutation">Informal</span> /
-                        <span ng-show="'Unknown/Other' == contact.gender">Other</span>
-                        <span ng-show="'Male' == contact.gender">Male</span>
-                        <span ng-show="'Female' == contact.gender">Female</span>
-                        <span class="caption-subject bold uppercase"> {{ ::contact.name }}</span>
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <em class="pre-wrap" ng-if="::contact.description">{{ ::contact.description }}</em><br/><br/>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- not in frontend  {{ ::contact.title }} / {{ ::contact.function }}  -->
-                            <i class="fa fa-phone"></i> {{ ::contact.phone_work[0] }}<br/>
-                            <i class="fa fa-mobile"></i> {{ ::contact.phone_mobile[0] }}<br/>
-                            <i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: contact.email[0] })">{{ ::contact.email[0] }}</a><br/>
-                            <span ng-repeat="social in ::contact.social">
-                                <span ng-show="'Twitter' == social.social_name"><i class="fa fa-twitter"></i></span>
-                                <span ng-show="'LinkedIn' == social.social_name"><i class="fa fa-linkedin-square"></i></span> <a href="{{ ::social.social_url }}">{{ ::social.social_profile }}</a><br/>
-                            </span>
-                        </div>
-                        <div class="col-md-6">
-                            <span ng-repeat="phone in ::contact.phones"> {{ ::phone }}</span>
-                            <span ng-repeat="email in ::contact.email"><a ui-sref="base.email.composeEmail({ email: email })">{{ ::email }}</a><br/></span>
-                            <span ng-repeat="address in ::contact.address"><i class="fa fa-building" name="Visiting address"></i> {{ ::address }}<br/><br/></span>
-                            <span ng-repeat="tag in ::contact.tag" class="badge badge-roundless">{{ ::tag }}</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="col-md-4">
+            <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
+        </div>
+        <div class="col-md-4">
+            <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
+                <contact-list-widget title="Colleagues at {{ account.name }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
+                <contact-list-widget title="Colleagues at {{ account.name }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+            </div>
+            <div ng-hide="contact.accounts.length">
+                <contact-list-widget title="No known workplaces" list="" height="300"></contact-list-widget>
             </div>
         </div>
-        <div class="col-md-5">
-            <div class="portlet light">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-users"></i>
-                        <span class="caption-subject bold uppercase"> Colleagues</span>
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <div ng-repeat="work in ::works">
-                        <h4><i class="fa fa-building"></i> <a ui-sref="base.accounts.detail({ id: work.id })" title="{{ ::work.name }}">{{ ::work.name }}</a> <a ng-show="::work.customer_id" ng-href="https://freedom.voys.nl/client/{{ ::work.customer_id }}" target="_blank"><span class="contact freedom-link"><i class="fa fa-arrow-right contact freedom-link-arrow"></i> Freedom</span></a></h4>
-                        <div class="row no-margin">
-                            <table class="table no-margin table-light">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>E-mail address</th>
-                                        <th>Phone number</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <tr ng-repeat="worker in ::work.colleagues">
-                                    <td> <a ui-sref="base.contacts.detail({ id: worker.id })">{{ ::worker.name }}</a></td>
-                                    <td><i class="fa fa-envelope-o"></i> <a ui-sref="base.email.composeEmail({ email: worker.email[0] })">{{ ::worker.email[0] }}</a></td>
-                                    <td><i class="fa fa-phone"></i> {{ ::worker.phone }}</td>
-                                </tr>
-                                <tr ng-if="work.colleagues.length == 0">
-                                    <td colspan="3">This is the only known contact for this company</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="btn-group">
-                <a ui-sref="base.cases.create.fromContact({ id: contact.id })" class="btn blue btn-sm">
-                    <i class="fa fa-plus"></i>
-                </a>
-                <a ng-href="#/cases?search={{ ::contact.name }}" class="btn blue btn-sm">
-                    Cases <span class="badge badge-success pull-right">{{ ::numCases }}</span>
-                </a>
-            </div>
+        <div class="col-md-4">
+            <case-list-widget title="Cases" list="caseList" height="300" add-link="base.cases.create.fromContact({id: {{ contact.id }}})"></case-list-widget>
         </div>
     </div>
+
     <history-list target="'contact'" object="contact"></history-list>
 </script>
 {% endverbatim %}

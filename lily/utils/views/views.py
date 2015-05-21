@@ -15,7 +15,7 @@ from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
-from django.views.generic.base import View, TemplateView
+from django.views.generic.base import View, TemplateView, RedirectView
 
 from ..forms import SugarCsvImportForm
 from ..functions import is_ajax
@@ -579,6 +579,30 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
             file.write(chunk)
         file.close()
         return file_name
+
+
+class RedirectSetMessageView(RedirectView):
+    message = ''
+    message_level = 'info'
+
+    def get_message_level(self):
+        if not self.message_level:
+            raise NotImplementedError(_('Didn\'t set the correct message level'))
+
+        return self.message_level
+
+    def get_message(self):
+        if not self.message:
+            raise NotImplementedError(_('No message has been set'))
+
+        return self.message
+
+    def dispatch(self, request, *args, **kwargs):
+        message_level = self.get_message_level()
+        message = self.get_message()
+        getattr(messages, message_level)(request, message)
+
+        return super(RedirectSetMessageView, self).dispatch(request, *args, **kwargs)
 
 
 class AngularView(TemplateView):

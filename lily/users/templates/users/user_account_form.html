@@ -1,8 +1,0 @@
-{% extends 'profile.html' %}
-
-{% load i18n static pipeline %}
-
-{% block scripts %}
-    {{ block.super }}
-    {% javascript 'password_strength' %}
-{% endblock %}

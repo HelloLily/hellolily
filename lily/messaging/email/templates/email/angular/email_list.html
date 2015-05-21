@@ -109,10 +109,13 @@
                         <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
                         <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
                     </td>
-                    <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ng-click="vm.goToDraft(message.id)">
+                    <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
                        {{ message.received_by_email.join(',') }}
                     </td>
-                    <td class="view-message" ui-sref="base.email.detail({id: message.id})">
+                    <td class="view-message" ng-if="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
+                        {{ message.subject }}
+                    </td>
+                    <td class="view-message" ng-if="vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
                         {{ message.subject }}
                     </td>
                     <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">

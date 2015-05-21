@@ -1,5 +1,21 @@
 
 PIPELINE_CSS = {
+    'anonymous': {
+        'source_filenames': (
+            'metronic/assets/global/plugins/font-awesome/css/font-awesome.css',
+            'metronic/assets/global/plugins/simple-line-icons/simple-line-icons.css',
+            'metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
+            'metronic/assets/global/plugins/uniform/css/uniform.default.css',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
+            'metronic/assets/global/css/components-rounded.css',
+            'metronic/assets/global/css/plugins.css',
+            'metronic/assets/admin/layout4/css/layout.css',
+            'metronic/assets/admin/layout4/css/themes/light.css',
+            'users/css/custom.css',
+        ),
+        'output_filename': 'metronic/css/anonymous_global.css',
+    },
+
     'global': {
         'source_filenames': (
             # Metronic global
@@ -36,6 +52,18 @@ PIPELINE_CSS = {
 }
 
 PIPELINE_JS = {
+    'anonymous': {
+        'source_filenames': (
+            'metronic/assets/global/plugins/jquery.min.js',
+            'metronic/assets/global/plugins/jquery-migrate.min.js',
+            'metronic/assets/global/plugins/jquery-ui/jquery-ui.min.js',
+
+            'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
+            'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
+            'lily/plugins/analytics/analytics.js',
+        ),
+        'output_filename': 'compiled/js/anonymous.js'
+    },
     'global-ie': {
         'source_filenames': (
             'metronic/assets/global/plugins/respond.js',
@@ -111,12 +139,14 @@ PIPELINE_JS = {
             'contacts/js/angular/services.js',
             'contacts/js/angular/directives/module.js',
             'contacts/js/angular/directives/list_widget.js',
+            'contacts/js/angular/directives/detail_widget.js',
 
             'dashboard/js/angular/controllers/module.js',
             'dashboard/js/angular/controllers/base.js',
             'dashboard/js/angular/directives/module.js',
             'dashboard/js/angular/directives/callback.js',
             'dashboard/js/angular/directives/dealstocheck.js',
+            'dashboard/js/angular/directives/feedback.js',
             'dashboard/js/angular/directives/mycases.js',
             'dashboard/js/angular/directives/queuesize.js',
             'dashboard/js/angular/directives/teams.js',
@@ -145,7 +175,11 @@ PIPELINE_JS = {
             'preferences/js/angular/email/module.js',
             'preferences/js/angular/email/controllers.js',
             'preferences/js/angular/email/emailaccountlist.controller.js',
-            'preferences/js/angular/user/controllers.js',
+            'preferences/js/angular/user/module.js',
+            'preferences/js/angular/user/controllers/api_token.js',
+            'preferences/js/angular/user/controllers/base.js',
+            'preferences/js/angular/user/controllers/user_account.js',
+            'preferences/js/angular/user/controllers/user_profile.js',
 
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
@@ -164,6 +198,7 @@ PIPELINE_JS = {
             'lily/js/forms/show-and-hide.js',
             'utils/js/utils.js',
             'provide/js/dataprovider.js',
+            'lily/plugins/analytics/analytics.js',
         ),
         'output_filename': 'compiled/js/global.js',
     },

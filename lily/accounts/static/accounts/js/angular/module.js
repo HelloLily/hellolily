@@ -9,7 +9,7 @@
         'ngCookies',
         'ui.bootstrap',
         'ui.slimscroll',
-        'AccountServices',
+        'app.accounts.services',
         'app.cases.services',
         'app.email.services',
         'contactServices',

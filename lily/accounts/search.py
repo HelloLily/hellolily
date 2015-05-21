@@ -41,9 +41,16 @@ class AccountMapping(BaseMapping):
             'contact': {
                 'type': 'integer'
             },
-            'email': {
-                'type': 'string',
-                'analyzer': 'email_analyzer',
+            'email_addresses': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'email_address': {
+                        'type': 'string',
+                        'analyzer': 'email_analyzer',
+                    },
+                    'status': {'type': 'integer'},
+                }
             },
             'tag': {
                 'type': 'string',
@@ -141,7 +148,11 @@ class AccountMapping(BaseMapping):
             'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'contact': [contact.id for contact in obj.get_contacts()],
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'email_addresses': [{
+                'id': email.id,
+                'email_address': email.email_address,
+                'status': email.status,
+            } for email in obj.email_addresses.all()],
             'description': obj.description,
             'website': [website.website for website in obj.websites.all()],
             'address': [{

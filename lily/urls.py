@@ -5,7 +5,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from lily.accounts.api.views import AccountViewSet
 from lily.api.urls import router, accounts_router
 from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList, CaseViewSet
 from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList, DealViewSet

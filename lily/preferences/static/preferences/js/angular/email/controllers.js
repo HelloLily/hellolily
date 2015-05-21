@@ -76,7 +76,7 @@
     PreferencesEmailTemplatesList.$inject = ['$modal', '$scope', 'EmailTemplate'];
     function PreferencesEmailTemplatesList ($modal, $scope, EmailTemplate) {
         //$scope.conf.pageTitleBig = 'EmailTemplate settings';
-        //$scope.conf.pageTitleSmall = 'the devil is in the detail';
+        //$scope.conf.pageTitleSmall = 'the devil is in the details';
 
         EmailTemplate.query({}, function(data) {
             $scope.emailTemplates = data;

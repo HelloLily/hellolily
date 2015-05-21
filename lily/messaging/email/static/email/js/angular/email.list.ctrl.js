@@ -9,7 +9,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }
@@ -19,7 +19,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }
@@ -29,7 +29,7 @@
             views: {
                 '@base.email': {
                     templateUrl: 'email/email_list.html',
-                    controller: 'EmailList',
+                    controller: EmailList,
                     controllerAs: 'vm'
                 }
             }
@@ -281,7 +281,7 @@
                 // Get the account for the given accountId
                 vm.account = EmailAccount.get({id: $stateParams.accountId});
             } else {
-                vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()}
+                vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
             }
 
             if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {

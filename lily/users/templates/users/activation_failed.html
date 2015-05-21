@@ -1,23 +1,26 @@
-{% extends 'anonymous/page_narrow.html' %}
+{% extends 'anonymous/base.html' %}
 
-{% load i18n %}
+{% load i18n bootstrap3 %}
 
 {% block head-title %}{% trans 'Account activation failed' %}{% endblock %}
+{% block page-title %}{% trans 'Account activation failed' %}{% endblock %}
+
 {% block content %}
-<h3 class="form-title">{% block form-title %}{% trans 'Account activation failed' %}{% endblock %}</h3>
-{% block help-text %}
-<p>{% trans 'Activation failed. This happened because either the link is invalid, the activation period expired or the associated account has already been activated. You can apply for a new activation link or try to log in.' %}</p>
-{% endblock %}
-<div>
-<a href="{% url 'activation_resend' %}">
-    <button type="button" class="btn btn-primary">
-        {% trans 'Try again' %}
-    </button>
-</a>
-<a href="{% url 'login' %}">
-    <button type="button" class="btn btn-primary">
-        {% trans 'Back to Log in' %}
-    </button>
-</a>
-</div>
+    <p>
+        {% trans 'This happened because either the link is invalid, the activation period expired or the associated account has already been activated. You can apply for a new activation link or try to log in.' %}
+    </p>
+
+    <div class="row">
+        <div class="col-xs-6">
+            <a href="{% url 'activation_resend' %}" class="btn btn-primary">
+                {% trans 'Try again' %}
+            </a>
+        </div>
+
+        <div class="col-xs-6">
+            <a href="{% url 'login' %}"  class="btn btn-primary">
+                {% trans 'Back to login' %}
+            </a>
+        </div>
+    </div>
 {% endblock %}

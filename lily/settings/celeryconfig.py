@@ -7,7 +7,7 @@ from .settings import DEBUG, TIME_ZONE
 
 
 # Using IronMQ when available
-if os.environ.get('IRON_MQ_PROJECT_ID') and os.environ.get('IRON_MQ_TOKEN'):
+if not os.environ.get('DEBUG', False) and os.environ.get('IRON_MQ_PROJECT_ID') and os.environ.get('IRON_MQ_TOKEN'):
     BROKER_URL = 'ironmq://%s:%s@mq-aws-eu-west-1.iron.io' % (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))
 else:
     BROKER_URL = 'amqp://guest@%s:5672' % os.environ.get('BROKER_HOST', '127.0.0.1')
@@ -29,9 +29,20 @@ CELERY_RESULT_BACKEND = os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'
 CELERY_TASK_RESULT_EXPIRES = 300
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_QUEUES = (
-    Queue('queue1', routing_key='email_tasks'),
+    Queue('queue1', routing_key='email_async_tasks'),
+    Queue('queue2', routing_key='email_scheduled_tasks'),
 )
-
+CELERY_ROUTES = (
+    {'synchronize_email_account_scheduler': {  # schedule priority email tasks without interference
+        'queue': 'queue2'
+    }},
+    {'synchronize_email_account': {  # schedule priority email tasks without interference
+        'queue': 'queue2'
+    }},
+    {'first_synchronize_email_account': {  # schedule priority email tasks without interference
+        'queue': 'queue2'
+    }},
+)
 CELERYBEAT_SCHEDULE = {
     'synchronize_email_account_scheduler': {
         'task': 'synchronize_email_account_scheduler',

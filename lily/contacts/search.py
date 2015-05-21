@@ -73,9 +73,16 @@ class ContactMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
-            'email': {
-                'type': 'string',
-                'analyzer': 'email_analyzer',
+            'email_addresses': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'email_address': {
+                        'type': 'string',
+                        'analyzer': 'email_analyzer',
+                    },
+                    'status': {'type': 'integer'},
+                }
             },
             'tag': {
                 'type': 'string',
@@ -91,11 +98,14 @@ class ContactMapping(BaseMapping):
                 'type': 'object',
                 'properties': {
                     'id': {'type': 'integer'},
-                    'name': {'type': 'string'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
                     'customer_id': {'type': 'string'},
                     'function': {'type': 'string'}
                 }
-            }
+            },
         })
         return mapping
 
@@ -139,7 +149,11 @@ class ContactMapping(BaseMapping):
             'created': obj.created,
             'modified': obj.modified,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'email': [email.email_address for email in obj.email_addresses.all() if email.email_address],
+            'email_addresses': [{
+                'id': email.id,
+                'email_address': email.email_address,
+                'status': email.status,
+            } for email in obj.email_addresses.all()],
             'description': obj.description,
             'social': [{'social_name': soc.get_name_display(),
                         'social_profile': soc.username,
@@ -148,6 +162,16 @@ class ContactMapping(BaseMapping):
             'salutation': obj.get_salutation_display(),
             'gender': obj.get_gender_display(),
             'address': [address.full() for address in obj.addresses.all()],
+            'addresses': [{
+                'street': address.street,
+                'street_number': address.street_number,
+                'complement': address.complement,
+                'postal_code': address.postal_code,
+                'city': address.city,
+                'state_province': address.state_province,
+                'country': address.get_country_display(),
+                'type': address.get_type_display(),
+            } for address in obj.addresses.all()],
         }
 
         functions = obj.functions.all()

@@ -37,7 +37,8 @@ from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateU
                     EmailTemplateFileForm, EmailTemplateSetDefaultForm, ComposeEmailForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment)
-from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status
+from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status, \
+    create_recipients
 from .tasks import send_message, create_draft_email_message, delete_email_message
 
 
@@ -440,17 +441,11 @@ class EmailMessageDraftView(EmailMessageComposeView):
         Returns:
             Task instance
         """
-        status = create_task_status('create_draft_email_message')
-
         task = create_draft_email_message.apply_async(
             args=(email_outbox_message.id,),
             max_retries=1,
             default_retry_delay=100,
-            kwargs={'status_id': status.pk},
         )
-
-        status.task_id = task.id
-        status.save()
 
         if task:
             messages.info(
@@ -481,8 +476,8 @@ class EmailMessageDraftView(EmailMessageComposeView):
                     'draft_pk': self.object.pk,
                     'send_from': self.object.sender,
                     'subject': self.object.subject,
-                    'send_to_normal': ','.join(self.object.received_by.all().values_list('email_address', flat=True)),
-                    'send_to_cc': ','.join(self.object.received_by_cc.all().values_list('email_address', flat=True)),
+                    'send_to_normal': create_recipients(self.object.received_by.all()),
+                    'send_to_cc': create_recipients(self.object.received_by_cc.all()),
                     'body_html': self.object.body_html,
                 },
             })
@@ -605,51 +600,14 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
-        recipients = []
-
         # Combine all the receivers into a single array
         # TODO: Once the sync is correct we might need to split this up
         # This means that send_to_normal will get all standard receivers
         # and send_to_cc will get all CC receivers
         receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
-
-        email_addresses = []
-
-        for receiver in receivers:
-            # TODO: Once we correct the sync we probably won't need this check
-            if receiver.email_address in email_addresses or receiver.email_address in [self.object.sender.email_address, self.object.account.email_address]:
-                continue
-
-            name = receiver.name
-
-            if not name:
-                # If no name was synced try to load a contact
-                recipient = Contact.objects.filter(email_addresses__email_address=receiver.email_address).order_by('created').first()
-
-                if recipient:
-                    # If contact exists, set contact's full name as name
-                    name = recipient.full_name()
-                else:
-                    recipient = Account.objects.filter(email_addresses__email_address=receiver.email_address).order_by('created').first()
-
-                    if recipient:
-                        # Otherwise if account exists, set account's name as name
-                        name = recipient.name
-
-            if name:
-                # If a name is available we setup the select2 field differently
-                recipients.append({
-                    'id': '"' + name + '" <' + receiver.email_address + '>',
-                    'text': name + ' <' + receiver.email_address + '>'
-                })
-            else:
-                # Otherwise only display the email address
-                recipients.append({
-                    'id': receiver.email_address,
-                    'text': receiver.email_address
-                })
-
-            email_addresses.append(receiver.email_address)
+        filter_emails = [self.object.sender.email_address, self.object.account.email_addresses]
+        
+        recipients = create_recipients(receivers, filter_emails)
 
         # Provide initial data
         kwargs.update({

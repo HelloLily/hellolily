@@ -62,12 +62,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         return ContentType.objects.get(app_label="contacts", model="contact")
 
     def primary_email(self):
-        if not hasattr(self, '_primary_email'):
-            self._primary_email = None
-            for email in self.email_addresses.all():
-                if email.is_primary:
-                    self._primary_email = email
-        return self._primary_email
+        return self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
 
     @property
     def any_email_address(self):
@@ -223,14 +218,14 @@ def post_save_contact_handler(sender, **kwargs):
     if 'primary_email' in instance.__dict__:
         new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
-            try:
-                # Overwrite existing primary e-mail address
-                email = instance.email_addresses.get(is_primary=True)
+            # Overwrite existing primary e-mail address
+            email = instance.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
+            if email:
                 email.email_address = new_email_address
                 email.save()
-            except EmailAddress.DoesNotExist:
+            else:
                 # Add new e-mail address as primary
-                email = EmailAddress(email_address=new_email_address, is_primary=True)
+                email = EmailAddress(email_address=new_email_address, status=EmailAddress.PRIMARY_STATUS)
                 add_tenant(email, instance.tenant)
                 email.save()
                 instance.email_addresses.add(email)

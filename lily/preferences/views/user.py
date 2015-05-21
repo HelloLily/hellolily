@@ -1,6 +1,5 @@
 from braces.views import StaticContextMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.urlresolvers import reverse
 from django.views.generic import UpdateView
 from django.utils.translation import ugettext_lazy as _
 

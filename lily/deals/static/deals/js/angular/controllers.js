@@ -331,7 +331,7 @@ dealControllers.controller('DealDetailController', [
 
     function($filter, $http, $location, $scope, $state, $stateParams, $q, DealDetail, DealStages, NoteDetails, NoteService) {
         $scope.conf.pageTitleBig = 'Deal Detail';
-        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+        $scope.conf.pageTitleSmall = 'the devil is in the details';
 
         var id = $stateParams.id;
 

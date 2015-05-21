@@ -9,7 +9,7 @@ var caseControllers = angular.module('app.cases', [
     'ui.bootstrap',
 
     // Lily dependencies
-    'AccountServices',
+    'app.accounts.services',
     'app.cases.services',
     'app.email.services',
     'contactServices',
@@ -125,7 +125,7 @@ caseControllers.controller('CaseDetailController', [
 
     function($filter, $http, $location, $modal, $q, $scope, $state, $stateParams, CaseDetail, CaseStatuses, NoteDetail, NoteService) {
         $scope.conf.pageTitleBig = 'Case';
-        $scope.conf.pageTitleSmall = 'the devil is in the detail';
+        $scope.conf.pageTitleSmall = 'the devil is in the details';
 
         var id = $stateParams.id;
 

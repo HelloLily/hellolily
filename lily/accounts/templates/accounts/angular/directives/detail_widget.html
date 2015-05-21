@@ -6,8 +6,8 @@
                 <i class="fa fa-building-o"></i>
                 {{ account.name }}
             </div>
-            <div class="tools">
-                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank">
+            <div class="actions">
+                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default">
                     <i class="fa fa-external-link fa-sm"></i>
                     Freedom
                 </a>
@@ -22,15 +22,15 @@
         </div>
         <div class="scroll-body" slimscroll="{height: height/2}">
                 <table class="table table-hover no-margin">
-                    <tr ng-show="account.email">
+                    <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
                         <th>
                             <i class="fa">@</i>
                             Email
                         </th>
                         <td>
-                            <div ng-repeat="email in account.email">
-                                <a ui-sref="base.email.composeEmail({email: email})">
-                                    {{ email }}
+                            <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                                <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                    {{ email.email_address }}
                                 </a>
                             </div>
                         </td>
@@ -53,7 +53,7 @@
                         </th>
                         <td>
                             <div ng-repeat="site in account.website">
-                                <a href="site">
+                                <a href="{{ site }}" target="_blank">
                                     {{ site }}
                                 </a>
                             </div>
@@ -75,7 +75,7 @@
                         </th>
                         <td>
                             <div ng-repeat="address in account.address">
-                                {{ address.address_street }} {{ address.address_street_number }}{{ address.address_compliment }}, {{ address.address_postal_code }}
+                                {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}, {{ address.address_postal_code }}
                                 <br />
                                 {{ address.address_city }}, {{ address.address_country }}
                                 <br />

@@ -359,6 +359,8 @@ class GmailManager(object):
                     self.message_builder.save()
                     break
 
+        self.update_unread_count()
+
     def toggle_read_email_message(self, email_message, read=True):
         """
         Mark message as read or unread.
@@ -395,6 +397,8 @@ class GmailManager(object):
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+        self.message_builder.save()
+        self.update_unread_count()
 
     def delete_email_message(self, email_message):
         """
@@ -404,6 +408,7 @@ class GmailManager(object):
             email_message (instance): EmailMessage instance
         """
         self.connector.delete_email_message(email_message.message_id)
+        self.update_unread_count()
 
     def send_email_message(self, email_message, thread_id=None):
         """
@@ -419,6 +424,8 @@ class GmailManager(object):
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+        self.message_builder.save()
+        self.update_unread_count()
 
     def create_draft_email_message(self, email_message):
         """
@@ -433,6 +440,8 @@ class GmailManager(object):
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+        self.message_builder.save()
+        self.update_unread_count()
 
     def cleanup(self):
         """

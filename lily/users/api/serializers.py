@@ -32,3 +32,16 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'full_name',
             'primary_email_account',
         )
+
+
+class LilyUserTokenSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the LilyUser model.
+
+    Only returns the user token
+    """
+    auth_token = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = LilyUser
+        fields = ('auth_token',)

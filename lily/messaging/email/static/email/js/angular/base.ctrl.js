@@ -2,10 +2,10 @@
     'use strict';
 
     angular.module('app.email').config(emailConfig);
-    emailConfig.$inject = ['$stateProvider'];
-    function emailConfig($stateProvider) {
+    emailConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
+    function emailConfig($stateProvider, $urlRouterProvider) {
+        $urlRouterProvider.when('/email', '/email/all/INBOX');
         $stateProvider.state('base.email', {
-            abstract: true,
             url: '/email',
             views: {
                 '@': {
@@ -85,7 +85,7 @@
 
         // Fetch the EmailAccounts & associated labels
         function _getAccountInfo () {
-            EmailAccount.query(function (results) {
+            EmailAccount.mine(function (results) {
                 // Sort accounts on id
                 results = $filter('orderBy')(results, 'id');
 
@@ -119,7 +119,7 @@
 
         function unreadCountForLabel(account, labelId) {
             var count = 0;
-            angular.forEach(account.labels, function(label, key) {
+            angular.forEach(account.labels, function(label) {
                 if (label.label_id == labelId) {
                     count = label.unread;
                     return true

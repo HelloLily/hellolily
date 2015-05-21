@@ -5,7 +5,7 @@ import time
 
 import anyjson
 from googleapiclient.errors import HttpError
-from googleapiclient.http import BatchHttpRequest
+from googleapiclient.http import BatchHttpRequest, MediaFileUpload, MediaInMemoryUpload
 
 from .credentials import get_credentials, InvalidCredentialsError
 from .services import build_gmail_service
@@ -307,11 +307,12 @@ class GmailConnector(object):
         )
 
     def send_email_message(self, message_string, thread_id=None):
-        message_dict = {'raw': base64.urlsafe_b64encode(message_string)}
+        message_dict = {}
+        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=1024*1024, resumable=True)
         if thread_id:
             message_dict.update({'threadId': thread_id})
         return self.execute_service_call(
-            self.service.users().messages().send(userId='me', body=message_dict)
+            self.service.users().messages().send(userId='me', body=message_dict, media_body=media)
         )
 
     def create_draft_email_message(self, message_string):

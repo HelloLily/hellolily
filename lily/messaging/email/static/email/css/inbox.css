@@ -211,3 +211,16 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 .inbox ul.inbox-nav li.active span {
   color: #F9F9F9;
 }
+
+.show-more-recipients {
+    background: none !important;
+}
+
+.show-more-recipients:hover {
+    color: #545B5E !important;
+}
+
+.show-more-recipients:active,
+.show-more-recipients:focus {
+    color: #94A4AB !important;
+}

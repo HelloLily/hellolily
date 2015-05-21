@@ -22,8 +22,8 @@
     angular.module('app.email').controller('EmailDetail', EmailDetail);
 
 
-    EmailDetail.$inject = ['$scope', '$state', '$stateParams', 'EmailMessage', 'SelectedEmailAccount'];
-    function EmailDetail ($scope, $state, $stateParams, EmailMessage, SelectedEmailAccount) {
+    EmailDetail.$inject = ['$scope', '$state', '$stateParams', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount'];
+    function EmailDetail ($scope, $state, $stateParams, EmailMessage, RecipientInformation, SelectedEmailAccount) {
         var vm = this;
         vm.displayAllRecipients = false;
         vm.message = null;
@@ -52,6 +52,8 @@
                 vm.message = result;
                 // It's easier to iterate through a single array, so make an array with all recipients
                 vm.message.all_recipients = result.received_by.concat(result.received_by_cc);
+                // Get contacts
+                RecipientInformation.getInformation(vm.message.all_recipients);
 
                 if (!result.read) {
                     EmailMessage.markAsRead($stateParams.id, true);

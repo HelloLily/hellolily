@@ -19,15 +19,31 @@
                 </div>
             </h4>
         </div>
-        <div class="timeline-time">
-            <span class="date">{{ ::item.date | date:'dd MMM yy' }}</span>
-            <span class="time">{{ ::item.date | date:'HH:mm' }}</span>
-        </div>
         <div class="timeline-body">
-            {{ left }}
-            <em style="white-space: pre-wrap;">{{ ::item.body | limitTo:265 }}<span ng-if="::item.body_text.length >= 265">...</span></em>
-            <p><small class="text-muted"><i class="fa fa-calendar"></i> {{ ::item.date | date:'dd MMMM yy HH:mm' }}</small></p>
-            <p><small class="text-muted"><i class="fa fa-user"></i>{{ ::item.sender_name }}</small></p>
+            <em style="white-space: pre-wrap;">
+                {{ ::item.body | limitTo:265 }}
+                <span ng-if="::item.body.length >= 265">...</span>
+            </em>
+            <ul class="list-inline list-justified">
+                <li>
+                    <small class="text-muted" tooltip="Sent on {{ ::item.date | date:'dd MMMM yy' }} at {{ ::item.date | date:'HH:mm' }}">
+                        <i class="fa fa-calendar"></i>
+                        {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                    </small>
+                </li>
+                <li>
+                    <small class="text-muted" tooltip="Sent by: {{ ::item.sender_name }}">
+                        <i class="fa fa-user"></i>
+                        {{ ::item.sender_name }}
+                    </small>
+                </li>
+                <li>
+                    <small class="text-muted" tooltip="Sent by: {{ ::item.sender_email }}">
+                        <i class="fa">@</i>
+                        {{ ::item.sender_email }}
+                    </small>
+                </li>
+            </ul>
         </div>
     </div>
 </script>

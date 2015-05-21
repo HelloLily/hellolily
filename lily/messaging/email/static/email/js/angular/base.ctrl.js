@@ -85,7 +85,7 @@
 
         // Fetch the EmailAccounts & associated labels
         function _getAccountInfo () {
-            EmailAccount.query(function (results) {
+            EmailAccount.mine(function (results) {
                 // Sort accounts on id
                 results = $filter('orderBy')(results, 'id');
 

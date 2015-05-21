@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework import viewsets, mixins, status, filters
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from lily.users.models import LilyUser
@@ -33,11 +33,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     )
 
     def get_queryset(self):
-        return EmailAccount.objects.filter(
-            Q(owner=self.request.user) |
-            Q(public=True) |
-            Q(shared_with_users__id=self.request.user.pk)
-        ).filter(is_deleted=False).distinct('id')
+        return EmailAccount.objects.filter(is_deleted=False).distinct('id')
 
     def perform_destroy(self, instance):
         if instance.owner_id is self.request.user.id:
@@ -45,6 +41,18 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
             instance.save()
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @list_route()
+    def mine(self, request):
+        email_account_list = EmailAccount.objects.filter(
+            Q(owner=request.user) |
+            Q(public=True) |
+            Q(shared_with_users__id=request.user.pk)
+        ).filter(is_deleted=False).distinct('id')
+
+        serializer = self.get_serializer(email_account_list, many=True)
+
+        return Response(serializer.data)
 
     @detail_route(methods=['post'])
     def shared(self, request, pk):

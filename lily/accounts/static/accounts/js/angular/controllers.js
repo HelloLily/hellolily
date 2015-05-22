@@ -18,11 +18,10 @@
                 label: '{{ account.name }}'
             },
             resolve: {
-                AccountDetail: 'AccountDetail',
-                account: function(AccountDetail, $stateParams) {
+                account: ['AccountDetail', '$stateParams', function(AccountDetail, $stateParams) {
                     var accountId = $stateParams.id;
                     return AccountDetail.get({id: accountId}).$promise
-                }
+                }]
             }
         });
 

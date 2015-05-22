@@ -41,11 +41,10 @@ contacts.config(['$stateProvider', function($stateProvider) {
             label: '{{ contact.name }}'
         },
         resolve: {
-            ContactDetail: 'ContactDetail',
-            contact: function(ContactDetail, $stateParams) {
+            contact: ['ContactDetail', '$stateParams', function(ContactDetail, $stateParams) {
                 var contactId = $stateParams.id;
                 return ContactDetail.get({id: contactId}).$promise
-            }
+            }]
         }
     });
     $stateProvider.state('base.contacts.create', {

@@ -605,7 +605,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         # This means that send_to_normal will get all standard receivers
         # and send_to_cc will get all CC receivers
         receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
-        filter_emails = [self.object.sender.email_address, self.object.account.email_addresses]
+        filter_emails = [self.object.sender.email_address, self.object.account.email_address]
         
         recipients = create_recipients(receivers, filter_emails)
 

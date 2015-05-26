@@ -124,5 +124,5 @@ contactServices.factory('Contact', ['$http', function($http) {
 
 
 contactServices.factory('ContactTest', ['$resource', function($resource) {
-    return $resource('/api/contacts/:id/');
+    return $resource('/api/contacts/contact/:id/');
 }]);

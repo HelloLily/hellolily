@@ -17,7 +17,7 @@ django-sslify==0.2.5
 python-dateutil==2.4  # Old version is: 1.5
 pytz==2014.10  # Old version is: 2012c
 
-djangorestframework==3.0.3
+djangorestframework==3.1.2
 django-filter==0.9.1
 
 #######################################################
@@ -41,6 +41,7 @@ django-redis-cache==0.13.0  # Old version is: 0.11.1
 django-templated-email==0.4.9
 MarkupSafe==0.23
 django-activelink==0.4
+Markdown==2.6.2 # markdown for inline docstrings on API
 
 #######################################################
 ### Views & Forms                                   ###

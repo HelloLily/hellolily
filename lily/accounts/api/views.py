@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 
+from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import MultiSerializerViewSetMixin
 from lily.tags.api.views import TagViewSet
 from lily.utils.api.views import AddressViewSet, EmailAddressViewSet, PhoneNumberViewSet, RelatedModelViewSet
@@ -9,7 +10,17 @@ from ..models import Account, Website
 
 class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     """
-    This viewset contains all possible ways to manipulate an Account.
+    Returns a list of all **active** accounts in the system.
+
+
+    #Search#
+    Searching is enabled on this API.
+
+    Example:
+    `/api/accounts/account/?search=name:CompanyA`
+
+    #Returns#
+    * List of accounts with related fields
     """
     queryset = Account.objects  # Without .all() this filters on the tenant
     serializer_class = AccountSerializer
@@ -17,6 +28,8 @@ class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
         'create': AccountCreateSerializer,
         'options': AccountCreateSerializer,
     }
+    filter_backends = (ElasticSearchFilter,)
+    model_type = 'accounts_account'
 
     def get_queryset(self):
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)

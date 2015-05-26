@@ -40,8 +40,10 @@ class TeamList(APIView):
 
 class LilyUserViewSet(mixins.UpdateModelMixin,
                       viewsets.ReadOnlyModelViewSet):
-    serializer_class = LilyUserSerializer
+
     model = LilyUser
+    serializer_class = LilyUserSerializer
+    queryset = LilyUser.objects
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)

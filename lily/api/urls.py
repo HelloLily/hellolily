@@ -6,7 +6,7 @@ from .routers import SimpleRouter, NestedSimpleRouter
 
 router = SimpleRouter()
 router.register(r'accounts/account', AccountViewSet)
-router.register(r'contacts', ContactViewSet)
+router.register(r'contacts/contact', ContactViewSet)
 router.register(r'notes', NoteViewSet)
 
 accounts_router = NestedSimpleRouter(router, r'accounts/account', lookup='object')

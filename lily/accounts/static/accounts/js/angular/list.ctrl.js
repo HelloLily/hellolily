@@ -69,7 +69,7 @@
         }
 
         Cookie.prefix ='accountList';
-        $scope.conf.pageTitleBig = 'Account List';
+        $scope.conf.pageTitleBig = 'Accounts';
         $scope.conf.pageTitleSmall = 'An overview of accounts';
 
 

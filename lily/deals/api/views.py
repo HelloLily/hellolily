@@ -120,6 +120,7 @@ class DealViewSet(mixins.RetrieveModelMixin,
     """
     model = Deal
     serializer_class = DealSerializer
+    queryset = Deal.objects
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)

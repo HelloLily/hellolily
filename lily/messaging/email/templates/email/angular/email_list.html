@@ -21,7 +21,7 @@
             <table class="table table-striped table-advance table-hover">
             <thead>
                 <tr>
-                    <th colspan="3">
+                    <th colspan="6">
                         <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
                         <div class="btn-group">
                             <span class="pull-left" ng-if="::vm.account">
@@ -81,17 +81,17 @@
                         <a class="btn btn-sm blue" ng-click="vm.reloadMessages()">
                             <i class="fa fa-refresh"></i> Refresh
                         </a>
-                    </th>
-                    <th class="pagination-control" colspan="3">
-                        <span class="pagination-info">
-                            {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
-                        </span>
-                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
-                            <i class="fa fa-angle-left"></i>
-                        </a>
-                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
-                            <i class="fa fa-angle-right"></i>
-                        </a>
+                        <div class="pagination-control pull-right">
+                            <span class="pagination-info">
+                                {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
+                            </span>
+                            <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </div>
                     </th>
                 </tr>
             </thead>

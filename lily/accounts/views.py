@@ -55,7 +55,7 @@ class ExportAccountView(ExportListViewMixin, View):
                 _('Address'),
             ],
             'columns_for_item': [
-                'email',
+                'email_addresses',
                 'phone_work',
                 'phone_mobile',
                 'address',
@@ -86,7 +86,13 @@ class ExportAccountView(ExportListViewMixin, View):
     # ExportListViewMixin
     def value_for_column(self, account, column):
         try:
-            value = account[column]
+            if column == 'email_addresses':
+                # 'email_addresses' is a dict, so we need to process it differently
+                value = []
+                for account in account.get('email_addresses', []):
+                    value.append(account['email_address'])
+            else:
+                value = account[column]
         except KeyError:
             result = ''
         else:
@@ -100,7 +106,6 @@ class ExportAccountView(ExportListViewMixin, View):
                     address['address_city'] or '',
                     address['address_country'] or '',
                 ) for address in value])
-
             elif isinstance(value, list):
                 result = ', '.join(value)
             else:

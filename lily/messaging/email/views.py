@@ -39,7 +39,7 @@ from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTe
                             EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment)
 from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status, \
     create_recipients
-from .tasks import send_message, create_draft_email_message, delete_email_message
+from .tasks import send_message, create_draft_email_message, delete_email_message, archive_email_message
 
 
 logger = logging.getLogger(__name__)
@@ -509,6 +509,10 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         task = self.send_message(email_outbox_message)
 
+        # Send and archive was pressed, so start an archive task
+        if task and form.data.get('archive', False) == 'true':
+            archive_email_message.apply_async(args=(self.object.id,))
+
         if is_ajax(self.request):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
@@ -605,7 +609,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         # This means that send_to_normal will get all standard receivers
         # and send_to_cc will get all CC receivers
         receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
-        filter_emails = [self.object.sender.email_address, self.object.account.email_addresses]
+        filter_emails = [self.object.sender.email_address, self.object.account.email_address]
         
         recipients = create_recipients(receivers, filter_emails)
 

@@ -1,12 +1,8 @@
 import django_filters
 from rest_framework import mixins
-from rest_framework import generics
-from rest_framework import status
-from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from lily.users.models import LilyUser
 
 from .serializers import CaseSerializer, CaseStatusSerializer
 from ..models import Case, CaseStatus
@@ -52,9 +48,10 @@ class CaseViewSet(mixins.RetrieveModelMixin,
     """
     List all cases for a tenant.
     """
+    filter_class = CaseFilter
     model = Case
     serializer_class = CaseSerializer
-    filter_class = CaseFilter
+    queryset = Case.objects  # Without .all() this filters on the tenant
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)

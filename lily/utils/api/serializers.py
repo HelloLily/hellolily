@@ -49,7 +49,7 @@ class AddressSerializer(RelatedModelSerializer):
             'state_province',
             'country',
             'type',
-            )
+        )
 
 
 class EmailAddressSerializer(RelatedModelSerializer):

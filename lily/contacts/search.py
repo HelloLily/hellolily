@@ -118,10 +118,10 @@ class ContactMapping(BaseMapping):
             Function: lambda obj: [obj.contact],
             Account: lambda obj: [f.contact for f in obj.functions.all()],
             Tag: lambda obj: [obj.subject],
-            EmailAddress: lambda obj: obj.contact_set.all(),
-            PhoneNumber: lambda obj: obj.contact_set.all(),
-            Address: lambda obj: obj.contact_set.all(),
-            SocialMedia: lambda obj: obj.contact_set.all(),
+            EmailAddress: lambda obj: obj.contacts.all(),
+            PhoneNumber: lambda obj: obj.contacts.all(),
+            Address: lambda obj: obj.contacts.all(),
+            SocialMedia: lambda obj: obj.contacts.all(),
         }
 
     @classmethod

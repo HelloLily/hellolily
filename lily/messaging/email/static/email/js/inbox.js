@@ -277,6 +277,13 @@
                     $form.attr('action', '/messaging/email/draft/');
                 }
             }
+            else if (buttonName == 'submit-send-archive') {
+                // Send and archive was pressed, so set an extra field
+                $('<input />').attr('type', 'hidden')
+                    .attr('name', 'archive')
+                    .attr('value', true)
+                    .appendTo($form);
+            }
             else {
                 // No valid button, so do nothing;
                 return;

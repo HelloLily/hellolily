@@ -4,6 +4,7 @@ import random
 import time
 
 import anyjson
+from django.conf import settings
 from googleapiclient.errors import HttpError
 from googleapiclient.http import BatchHttpRequest, MediaFileUpload, MediaInMemoryUpload
 
@@ -308,7 +309,7 @@ class GmailConnector(object):
 
     def send_email_message(self, message_string, thread_id=None):
         message_dict = {}
-        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=1024*1024, resumable=True)
+        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
         if thread_id:
             message_dict.update({'threadId': thread_id})
         return self.execute_service_call(
@@ -316,9 +317,15 @@ class GmailConnector(object):
         )
 
     def create_draft_email_message(self, message_string):
-        message_dict = {'message': {'raw': base64.urlsafe_b64encode(message_string)}}
+        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
         return self.execute_service_call(
-            self.service.users().drafts().create(userId='me', body=message_dict)
+            self.service.users().drafts().create(userId='me', media_body=media)
+        )
+
+    def update_draft_email_message(self, message_string, draft_id):
+        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
+        return self.execute_service_call(
+            self.service.users().drafts().update(userId='me', media_body=media, id=draft_id)
         )
 
     def remove_draft_email_message(self, message_id):

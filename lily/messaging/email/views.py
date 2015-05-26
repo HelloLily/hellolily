@@ -5,11 +5,10 @@ import mimetypes
 
 from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
-from celery.states import PENDING, FAILURE
+from celery.states import FAILURE
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
@@ -21,7 +20,6 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from storages.backends.s3boto import S3BotoStorageFile
 from python_imap.utils import extract_tags_from_soup
 from oauth2client.client import OAuth2WebServerFlow
 
@@ -36,11 +34,10 @@ from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFor
 from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm,
                     EmailTemplateFileForm, EmailTemplateSetDefaultForm, ComposeEmailForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
-                            EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment)
-from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_task_status, \
-    create_recipients
-from .tasks import send_message, create_draft_email_message, delete_email_message, archive_email_message
-
+                            EmailOutboxMessage, EmailOutboxAttachment)
+from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_recipients
+from .tasks import send_message, create_draft_email_message, delete_email_message, archive_email_message, \
+    update_draft_email_message
 
 logger = logging.getLogger(__name__)
 
@@ -441,11 +438,20 @@ class EmailMessageDraftView(EmailMessageComposeView):
         Returns:
             Task instance
         """
-        task = create_draft_email_message.apply_async(
-            args=(email_outbox_message.id,),
-            max_retries=1,
-            default_retry_delay=100,
-        )
+        current_draft_pk = self.kwargs.get('pk', None)
+
+        if current_draft_pk:
+            task = update_draft_email_message.apply_async(
+                args=(email_outbox_message.id, current_draft_pk,),
+                max_retries=1,
+                default_retry_delay=100,
+            )
+        else:
+            task = create_draft_email_message.apply_async(
+                args=(email_outbox_message.id,),
+                max_retries=1,
+                default_retry_delay=100,
+            )
 
         if task:
             messages.info(
@@ -474,7 +480,7 @@ class EmailMessageDraftView(EmailMessageComposeView):
             kwargs.update({
                 'initial': {
                     'draft_pk': self.object.pk,
-                    'send_from': self.object.sender,
+                    'send_from': self.object.account.id,
                     'subject': self.object.subject,
                     'send_to_normal': create_recipients(self.object.received_by.all()),
                     'send_to_cc': create_recipients(self.object.received_by_cc.all()),
@@ -610,7 +616,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         # and send_to_cc will get all CC receivers
         receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
         filter_emails = [self.object.sender.email_address, self.object.account.email_address]
-        
+
         recipients = create_recipients(receivers, filter_emails)
 
         # Provide initial data

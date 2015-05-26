@@ -139,20 +139,21 @@ class EmailMessage(models.Model):
     EmailMessage has all information from an email message
     """
     account = models.ForeignKey(EmailAccount, related_name='messages')
-    labels = models.ManyToManyField(EmailLabel, related_name='messages')
-    sender = models.ForeignKey(Recipient, related_name='sent_messages')
-    received_by = models.ManyToManyField(Recipient, related_name='received_messages')
-    received_by_cc = models.ManyToManyField(Recipient, related_name='received_messages_as_cc')
-    message_id = models.CharField(max_length=50, db_index=True)
-    thread_id = models.CharField(max_length=50, db_index=True)
-    sent_date = models.DateTimeField(db_index=True)
-    read = models.BooleanField(default=False, db_index=True)
-    subject = models.TextField(default='')
-    snippet = models.TextField(default='')
-    has_attachment = models.BooleanField(default=False)
     body_html = models.TextField(default='')
     body_text = models.TextField(default='')
+    draft_id = models.CharField(max_length=50, db_index=True, default='')
+    has_attachment = models.BooleanField(default=False)
     is_removed = models.BooleanField(default=False)
+    labels = models.ManyToManyField(EmailLabel, related_name='messages')
+    message_id = models.CharField(max_length=50, db_index=True)
+    read = models.BooleanField(default=False, db_index=True)
+    received_by = models.ManyToManyField(Recipient, related_name='received_messages')
+    received_by_cc = models.ManyToManyField(Recipient, related_name='received_messages_as_cc')
+    sender = models.ForeignKey(Recipient, related_name='sent_messages')
+    sent_date = models.DateTimeField(db_index=True)
+    snippet = models.TextField(default='')
+    subject = models.TextField(default='')
+    thread_id = models.CharField(max_length=50, db_index=True)
 
     @property
     def tenant_id(self):
@@ -216,10 +217,11 @@ class EmailAttachment(models.Model):
     """
     Email attachment for an EmailMessage
     """
-    inline = models.BooleanField(default=False)
     attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
-    size = models.PositiveIntegerField(default=0)
+    cid = models.TextField(default='')
+    inline = models.BooleanField(default=False)
     message = models.ForeignKey(EmailMessage, related_name='attachments')
+    size = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
         return self.attachment.name
@@ -289,10 +291,14 @@ class EmailTemplateAttachment(TenantMixin):
     @attachment: the actual file to add per default to all e-mails using the template
 
     """
-    template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
-    attachment = models.FileField(verbose_name=_('template attachment'), upload_to=get_template_attachment_upload_path, max_length=255)
-    size = models.PositiveIntegerField(default=0)
+    attachment = models.FileField(
+        verbose_name=_('template attachment'),
+        upload_to=get_template_attachment_upload_path,
+        max_length=255
+    )
     content_type = models.CharField(max_length=255, verbose_name=_('content type'))
+    size = models.PositiveIntegerField(default=0)
+    template = models.ForeignKey(EmailTemplate, verbose_name=_(''), related_name='attachments')
 
     def save(self):
         if isinstance(self.attachment.file, (TemporaryUploadedFile, InMemoryUploadedFile)):
@@ -329,16 +335,16 @@ class EmailDraft(TimeStampedModel):
 
 
 class EmailOutboxMessage(TenantMixin, models.Model):
-    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
-    send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
-    to = models.TextField(verbose_name=_('to'))
-    cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
     bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
     body = models.TextField(null=True, blank=True, verbose_name=_('html body'))
+    cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
-    template_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
     original_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
+    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
+    template_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
+    to = models.TextField(verbose_name=_('to'))
 
     def message(self):
         from ..utils import EmailMultiRelated, get_attachment_filename_from_url

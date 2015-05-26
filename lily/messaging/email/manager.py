@@ -440,6 +440,25 @@ class GmailManager(object):
 
         # Store updated message
         self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+        self.message_builder.message.draft_id = message_dict.get('id', '')
+        self.message_builder.save()
+        self.update_unread_count()
+
+    def update_draft_email_message(self, email_message, draft_id):
+        """
+        Update email draft.
+
+        Args:
+            email_message (instance): Email instance
+            draft_id (string): id of current draft
+        """
+        # Send message
+        message_dict = self.connector.update_draft_email_message(email_message.as_string(), draft_id)
+        full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
+
+        # Store updated message
+        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+        self.message_builder.message.draft_id = message_dict.get('id', '')
         self.message_builder.save()
         self.update_unread_count()
 

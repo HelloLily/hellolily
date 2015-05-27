@@ -9,7 +9,7 @@
         'ui.slimscroll',
         'app.users.services',
         'app.email.services',
-        'LilyServices',
+        'app.services',
         'UserFilters'
     ]);
 })();

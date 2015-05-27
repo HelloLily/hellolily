@@ -124,23 +124,19 @@
     /**
      * Controller to delete a account
      */
-    angular.module('app.accounts').controller('AccountDeleteController', [
-        '$state',
-        '$stateParams',
+    angular.module('app.accounts').controller('AccountDeleteController', AccountDeleteController);
 
-        'AccountDetail',
+    AccountDeleteController.$inject = ['$state', '$stateParams', 'Account'];
+    function AccountDeleteController ($state, $stateParams, Account) {
+        var id = $stateParams.id;
 
-        function($state, $stateParams, AccountDetail) {
-            var id = $stateParams.id;
-
-            AccountDetail.delete({
-                id:id
-            }, function() {  // On success
-                $state.go('base.accounts');
-            }, function(error) {  // On error
-                // Error notification needed
-                $state.go('base.accounts');
-            });
-        }
-    ]);
+        Account.delete({
+            id:id
+        }, function() {  // On success
+            $state.go('base.accounts');
+        }, function(error) {  // On error
+            // Error notification needed
+            $state.go('base.accounts');
+        });
+    }
 })();

@@ -3,31 +3,20 @@ from urlparse import urlparse
 import anyjson
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, View
-from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic.edit import UpdateView
 
-from lily.contacts.models import Function
 from lily.search.lily_search import LilySearch
-from lily.utils.functions import flatten, is_ajax
+from lily.utils.functions import is_ajax
 from lily.utils.models.models import PhoneNumber
-from lily.utils.views import JsonListView, AngularView
 from lily.utils.views.mixins import ExportListViewMixin, LoginRequiredMixin
 
 from .forms import AddAccountQuickbuttonForm, CreateUpdateAccountForm
 from .models import Account, Website
-
-
-class ListAccountView(LoginRequiredMixin, AngularView):
-    """
-    Display a list of all accounts
-    """
-    template_name = 'accounts/account_list.html'
 
 
 class ExportAccountView(ExportListViewMixin, View):
@@ -123,33 +112,6 @@ class ExportAccountView(ExportListViewMixin, View):
         if self.request.GET.get('export_filter'):
             search.query_common_fields(self.request.GET.get('export_filter'))
         return search.do_search()[0]
-
-
-class JsonAccountListView(LoginRequiredMixin, JsonListView):
-    """
-    JSON: Display account information for a contact
-    """
-    # ListView
-    model = Account
-
-    # FilterQuerysetMixin
-    search_fields = [
-        'name__icontains',
-    ]
-
-    # JsonListView
-    filter_on_field = 'functions__contact__id'
-
-    def get_queryset(self):
-        queryset = super(JsonAccountListView, self).get_queryset()
-        return queryset.filter(is_deleted=False)
-
-
-class DetailAccountView(LoginRequiredMixin, AngularView):
-    """
-    Display the details of an account.
-    """
-    template_name = 'accounts/account_detail.html'
 
 
 class CreateUpdateAccountMixin(LoginRequiredMixin):
@@ -328,70 +290,3 @@ class EditAccountView(CreateUpdateAccountMixin, UpdateView):
         messages.success(self.request, _('%s (Account) has been edited.') % self.object.name)
 
         return success_url
-
-
-class DeleteAccountView(LoginRequiredMixin, DeleteView):
-    """
-    Delete an instance and all instances of m2m relationships.
-    """
-    model = Account
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Overloading super().delete to remove the related models and the instance itself.
-        """
-        self.object = self.get_object()
-        self.object.email_addresses.remove()
-        self.object.addresses.remove()
-        self.object.phone_numbers.remove()
-        self.object.tags.remove()
-
-        functions = Function.objects.filter(account=self.object)
-        functions.delete()
-
-        # Show delete message
-        messages.success(self.request, _('%s (Account) has been deleted.') % self.object.name)
-
-        self.object.delete()
-
-        # TODO: check for contacts and websites ..
-
-        redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return redirect(redirect_url)
-
-    def get_success_url(self):
-        return reverse('account_list')
-
-
-class ExistsAccountView(LoginRequiredMixin, View):
-    """
-    Check whether an account exists based on slugs.
-    """
-    http_method_names = ['get']
-
-    def get(self, request, *args, **kwargs):
-        # Check if an account can be found using slugified names
-        name = kwargs.pop('account_name')
-        flattened = flatten(name)
-
-        exists = False
-        edit_url = None
-        accounts = Account.objects.filter(flatname=flattened)
-        if accounts.exists():
-            account = accounts[0]
-            exists = True
-            edit_url = reverse('account_edit', kwargs={'pk': account.pk})
-        else:
-            raise Http404()
-
-        return HttpResponse(anyjson.serialize({
-            'exists': exists,
-            'edit_url': edit_url
-        }), content_type='application/json')

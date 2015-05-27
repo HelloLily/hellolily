@@ -136,11 +136,11 @@
             var contactPromise;
 
             if (emailMessage) {
-                contactPromise = ContactDetail.query({filterquery: 'email:' + emailMessage.sender.email_address}).$promise;
+                contactPromise = ContactDetail.query({filterquery: 'email_addresses.email_address:' + emailMessage.sender.email_address}).$promise;
                 promises.push(contactPromise);
             }
             else if (email) {
-                contactPromise = ContactDetail.query({filterquery: 'email:' + email}).$promise;
+                contactPromise = ContactDetail.query({filterquery: 'email_addresses.email_address:' + email}).$promise;
                 promises.push(contactPromise);
             }
 
@@ -181,6 +181,8 @@
                 } else {
                     templates = results[0];
                 }
+
+                console.log(recipient);
 
                 var template = $stateParams.template;
                 // Determine whether the default template should be loaded or not

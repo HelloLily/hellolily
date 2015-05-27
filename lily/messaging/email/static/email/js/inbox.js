@@ -385,8 +385,9 @@
                         if (self.config.currentTemplate) {
                             var diff = {};
 
-                            // If these are the same we're dealing with a draft, so compare with the htmlPart
-                            if (currentTemplate.html() == self.config.currentTemplate) {
+                            // First time changing a draft needs a different operation
+                            // We want to check if the draft template differs from the default
+                            if (self.config.messageType == 'draft' && htmlPart == self.config.currentTemplate) {
                                 diff = JsDiff.diffChars(currentTemplate.html(), htmlPart);
                             }
                             else {

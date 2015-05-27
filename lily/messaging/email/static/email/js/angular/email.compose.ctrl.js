@@ -182,8 +182,6 @@
                     templates = results[0];
                 }
 
-                console.log(recipient);
-
                 var template = $stateParams.template;
                 // Determine whether the default template should be loaded or not
                 var loadDefaultTemplate = template == undefined;

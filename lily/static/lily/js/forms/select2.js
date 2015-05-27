@@ -83,9 +83,9 @@
                                         term = '*';
                                     }
                                     // search for contacts and accounts containing the search term, but only those with an email address
-                                    var filterQuery = '((_type:contacts_contact AND (name:' + term + ' OR email:' + term + ')) ' +
-                                        'OR (_type:accounts_account AND (name:' + term + ' OR email:' + term + '))) ' +
-                                        'AND email:*';
+                                    var filterQuery = '((_type:contacts_contact AND (name:' + term + ' OR email_addresses.email_address:' + term + ')) ' +
+                                        'OR (_type:accounts_account AND (name:' + term + ' OR email_addresses.email_address:' + term + '))) ' +
+                                        'AND email_addresses.email_address:*';
 
                                     data = {
                                         filterquery: filterQuery,
@@ -136,13 +136,13 @@
                                 if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
                                     var parsed_data = [];
 
-                                    data.hits.forEach(function(hit) {
+                                    data.hits.forEach(function (hit) {
                                         // Only display contacts with an e-mail address
-                                        for (var i = 0; i < hit.email.length; i++) {
+                                        for (var i = 0; i < hit.email_addresses.length; i++) {
                                             // The text which is actually used in the application
-                                            var used_text = '"' + hit.name + '" <' + hit.email[i] + '>';
+                                            var used_text = '"' + hit.name + '" <' + hit.email_addresses[i].email_address + '>';
                                             // The displayed text
-                                            var displayed_text = hit.name + ' <' + hit.email[i] + '>';
+                                            var displayed_text = hit.name + ' <' + hit.email_addresses[i].email_address + '>';
                                             // Select2 sends 'id' as the value, but we want to use the email
                                             // So store the actual id (hit.id) under a different name
                                             parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
@@ -153,7 +153,7 @@
                                     data.hits = parsed_data;
                                 }
                                 else {
-                                    data.hits.forEach(function(hit) {
+                                    data.hits.forEach(function (hit) {
                                         hit.text = hit.name;
                                     });
                                 }

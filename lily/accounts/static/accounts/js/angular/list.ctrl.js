@@ -30,8 +30,8 @@
      */
     angular.module('app.accounts').controller('AccountList', AccountList);
 
-    AccountList.$inject = ['$scope', '$window', 'Account', 'AccountDetail', 'Cookie'];
-    function AccountList ($scope, $window, Account, AccountDetail, Cookie) {
+    AccountList.$inject = ['$scope', '$window', 'Account', 'Cookie'];
+    function AccountList ($scope, $window, Account, Cookie) {
         var vm = this;
 
         /**
@@ -75,7 +75,7 @@
 
         function deleteAccount (account) {
             if (confirm('Are you sure?')) {
-                AccountDetail.delete({
+                Account.delete({
                     id:account.id
                 }, function() {  // On success
                     var index = vm.table.items.indexOf(account);

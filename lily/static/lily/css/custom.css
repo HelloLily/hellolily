@@ -458,3 +458,7 @@ ul.inbox-nav li.mailbox-header span i {
 }
 
 /* END Contacts freedomlink style */
+
+.font-size-inherit {
+    font-size: inherit !important;
+}

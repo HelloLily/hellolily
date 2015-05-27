@@ -110,7 +110,7 @@
                             <span ng-if="!deal.new_business">No</span>
                         </td>
                         <td ng-show="table.visibility.feedbackFormSent">
-                            <span ng-if="!deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"> Done</i></span>
+                            <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"> Done</i></span>
                             <span ng-if="!deal.feedback_form_sent"><i class="fa fa-remove text-warning font-size-inherit"> Not yet</i></span>
                         </td>
                         <td ng-show="table.visibility.tags">

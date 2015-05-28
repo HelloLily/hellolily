@@ -166,11 +166,10 @@ class EmailMessage(models.Model):
         This is preferably the html part, but in case that doesn't exist we use the text part
         """
         if self.body_html:
-            body_html = '<br /><br /><hr />' + self.body_html
             # In case of html, wrap body in blockquote tag.
-            soup = BeautifulSoup(body_html)
+            soup = BeautifulSoup(self.body_html)
             if soup.html is None:
-                soup = BeautifulSoup("""<html>%s</html>""" % body_html)  # haven't figured out yet how to do this elegantly..
+                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)  # haven't figured out yet how to do this elegantly..
 
             soup.html.unwrap()
             return soup.decode()

@@ -13,7 +13,8 @@
             scope: {
                 title: '@',
                 list: '=',
-                height: '='
+                height: '=',
+                accountId: '@'
             },
             templateUrl: 'contacts/directives/list-widget.html'
         }

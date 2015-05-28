@@ -6,8 +6,8 @@
         </div>
         <div class="col-md-4">
             <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
-                <contact-list-widget title="Colleagues at {{ account.name }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
-                <contact-list-widget title="Colleagues at {{ account.name }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+                <contact-list-widget title="Colleagues at {{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
+                <contact-list-widget title="Colleagues at {{ account.name }}" account-id="{{ account.id }}" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
             </div>
             <div ng-hide="contact.accounts.length">
                 <contact-list-widget title="No known workplaces" list="" height="300"></contact-list-widget>

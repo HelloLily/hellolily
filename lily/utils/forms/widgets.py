@@ -14,23 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 
-class JqueryPasswordInput(PasswordInput):
-    def render(self, name, value, attrs=None):
-        if value is None:
-            value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
-        if value != '':
-            # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(self._format_value(value))
-
-        if 'class' in final_attrs:
-            final_attrs['class'] = final_attrs['class'] + ' jquery-password'
-        else:
-            final_attrs.update({'class': 'jquery-password'})
-
-        return super(JqueryPasswordInput, self).render(name, value, final_attrs)
-
-
 class TagInput(TextInput):
     """
     The input used to select tags, seperate them by commas and put the entire tag list in a data attribute

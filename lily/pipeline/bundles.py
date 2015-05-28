@@ -61,6 +61,10 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
             'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
             'lily/plugins/analytics/analytics.js',
+
+            # Pip package static
+            'django_password_strength/js/zxcvbn.js',
+            'django_password_strength/js/password_strength.js',
         ),
         'output_filename': 'compiled/js/anonymous.js'
     },

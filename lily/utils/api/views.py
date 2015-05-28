@@ -2,7 +2,8 @@ import requests
 
 from django.conf import settings
 from django.contrib.messages import get_messages
-from django.db.models import get_model
+from django.db.models import Q
+from django.http import HttpResponse
 from rest_framework import exceptions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -56,6 +57,40 @@ class Notifications(APIView):
             })
 
         return Response(notifications)
+
+
+class CallerName(APIView):
+    """
+    Serve a caller name to voipgrid based on the phone number provided
+    """
+
+    def get(self, request, format=None, *args, **kwargs):
+        name = '[NK]'
+        phone_number = request.GET.get('phonenumber', '')
+        caller_name = request.GET.get('callername', '')
+
+        if not phone_number:
+            return HttpResponse()
+
+        phone_number_end = phone_number[-9:]
+
+        contact = Contact.objects.filter(
+            Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+        ).filter(is_deleted=False).first()
+
+        if contact:
+            name = contact.full_name()
+        else:
+            account = Account.objects.filter(
+                Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+            ).filter(is_deleted=False).first()
+
+            if account:
+                name = account.name
+            else:
+                name += caller_name
+
+        return HttpResponse('status=ACK&callername=%s' % name, content_type='application/x-www-form-urlencoded')
 
 
 class RelatedModelViewSet(viewsets.ModelViewSet):

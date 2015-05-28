@@ -3,9 +3,10 @@ from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm, Set
 from django.core.exceptions import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext_lazy as _
+from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
 
 from lily.utils.forms import HelloLilyForm
-from lily.utils.forms.widgets import JqueryPasswordInput, AddonTextInput
+from lily.utils.forms.widgets import AddonTextInput
 
 from .models import LilyUser
 
@@ -112,8 +113,11 @@ class CustomSetPasswordForm(SetPasswordForm):
     This form is a subclass from the default SetPasswordForm.
     LilyUser is used for validation instead of User.
     """
-    new_password1 = forms.CharField(label=_('New password'), widget=JqueryPasswordInput())
-    new_password2 = forms.CharField(label=_('Confirmation'), widget=forms.PasswordInput())
+    new_password1 = forms.CharField(label=_('New password'), widget=PasswordStrengthInput())
+    new_password2 = forms.CharField(
+        label=_('Confirm new password'),
+        widget=PasswordConfirmationInput(confirm_with='new_password1'),
+    )
 
 
 class ResendActivationForm(HelloLilyForm):
@@ -163,17 +167,15 @@ class RegistrationForm(HelloLilyForm):
     password = forms.CharField(
         label=_('Password'),
         min_length=6,
-        widget=JqueryPasswordInput(attrs={
-            'placeholder': _('Password')
-        })
+        widget=PasswordStrengthInput(),
     )
     password_repeat = forms.CharField(
-        label=_('Password confirmation'),
+        label=_('Confirm password'),
         min_length=6,
-        widget=forms.PasswordInput(attrs={
-            'placeholder': _('Password confirmation')
-        })
+        widget=PasswordConfirmationInput(confirm_with='password'),
     )
+
+
     first_name = forms.CharField(label=_('First name'), max_length=255)
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)

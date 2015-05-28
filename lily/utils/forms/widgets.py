@@ -4,31 +4,14 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, PasswordInput, RadioFieldRenderer, Textarea
+from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea
 from django.forms.util import flatatt
 from django.utils import translation
-from django.utils.encoding import force_unicode, force_text
+from django.utils.encoding import force_text
 from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-
-
-class JqueryPasswordInput(PasswordInput):
-    def render(self, name, value, attrs=None):
-        if value is None:
-            value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
-        if value != '':
-            # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(self._format_value(value))
-
-        if 'class' in final_attrs:
-            final_attrs['class'] = final_attrs['class'] + ' jquery-password'
-        else:
-            final_attrs.update({'class': 'jquery-password'})
-
-        return super(JqueryPasswordInput, self).render(name, value, final_attrs)
 
 
 class TagInput(TextInput):

@@ -23,7 +23,8 @@
             templateAttachmentIds: '#template-attachment-ids',
             templateAttachmentId: '.template-attachment-id',
             templateAttachmentRow: '.template-attachment-row',
-            currentTemplate: null
+            currentTemplate: null,
+            previousSendToNormalLength: 0
         },
 
         init: function (config) {
@@ -58,8 +59,12 @@
                     self.changeTemplateField.call(self, this, true);
                 })
                 .on('change', cf.sendToNormalField, function () {
-                     // Don't do anything if it's just a new recipient being added
-                    if ($(self.config.sendToNormalField).select2('data').length > 1) {
+                    var previousSendToNormalLength = self.config.previousSendToNormalLength;
+                    self.config.previousSendToNormalLength = $(this).select2('data').length;
+
+                    // Don't do anything if it's just an extra recipient being added/removed
+                    // or the last recipient is removed
+                    if ($(this).select2('data').length < previousSendToNormalLength) {
                         return false;
                     }
 

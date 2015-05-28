@@ -9,3 +9,6 @@ beat: celery worker -B --app=lily.celery --loglevel=debug -Q celery -n beat.%h -
 
 ## worker: Execute tasks in queue 'queue1'
 worker1: celery worker --loglevel=debug --app=lily.celery -Q queue1 -n worker1.%h -c 10 -P eventlet
+
+worker2: celery worker --loglevel=debug --app=lily.celery -Q queue2 -n worker2.%h -c 10 -P eventlet
+

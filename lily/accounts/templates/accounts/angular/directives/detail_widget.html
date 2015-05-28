@@ -7,9 +7,13 @@
                 {{ account.name }}
             </div>
             <div class="actions">
-                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default">
+                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">
                     <i class="fa fa-external-link fa-sm"></i>
                     Freedom
+                </a>
+                <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-hide="account.customer_id">
+                    <i class="fa fa-external-link fa-sm"></i>
+                    Write quote
                 </a>
             </div>
         </div>

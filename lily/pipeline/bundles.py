@@ -39,6 +39,7 @@ PIPELINE_CSS = {
             'metronic/assets/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css',
 
             'plugins/angular/angular-chart/angular-chart.css',
+            'plugins/angular/angular-ui-select/angular-ui-select.css',
 
             # Custom timeline
             'lily/css/custom.css',
@@ -61,6 +62,10 @@ PIPELINE_JS = {
             'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
             'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
             'lily/plugins/analytics/analytics.js',
+
+            # Pip package static
+            'django_password_strength/js/zxcvbn.js',
+            'django_password_strength/js/password_strength.js',
         ),
         'output_filename': 'compiled/js/anonymous.js'
     },
@@ -110,6 +115,8 @@ PIPELINE_JS = {
             'plugins/angular/angular-sanitize/angular-sanitize.js',
             'plugins/angular/angular-slimscroll/angular-slimscroll.js',
             'plugins/angular/angular-ui-router/angular-ui-router.js',
+            'plugins/angular/angular-ui-select/angular-ui-select.js',
+            'plugins/angular/angular-infinite-scroll/ng-infinite-scroll.js',
 
             # Other plugins
             'plugins/autosize.js',
@@ -152,8 +159,10 @@ PIPELINE_JS = {
             'dashboard/js/angular/directives/teams.js',
             'dashboard/js/angular/directives/unassigned.js',
             'dashboard/js/angular/directives/unread.js',
+            'dashboard/js/angular/directives/followup.js',
 
             'deals/js/angular/controllers.js',
+            'deals/js/angular/followup_widget_ctrl.js',
             'deals/js/angular/services.js',
             'deals/js/angular/directives/module.js',
             'deals/js/angular/directives/list_widget.js',

@@ -12,7 +12,7 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
                                             EmailTemplateViewSet)
 from lily.users.api.views import TeamList, LilyUserViewSet
 from lily.utils.views import BaseView
-from lily.utils.api.views import Queues, Notifications
+from lily.utils.api.views import CallerName, Notifications, Queues
 
 admin.autodiscover()
 
@@ -60,6 +60,7 @@ urlpatterns = patterns(
     url(r'^api/users/teams/$', TeamList.as_view()),
     url(r'^api/utils/queues/(?P<queue>[\w]+)/$', Queues.as_view()),
     url(r'^api/utils/notifications/$', Notifications.as_view()),
+    url(r'^api/utils/callername/$', CallerName.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     url(r'^$', BaseView.as_view(), name='base_view'),

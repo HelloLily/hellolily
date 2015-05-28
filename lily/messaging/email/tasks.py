@@ -20,6 +20,7 @@ def synchronize_email_account_scheduler():
     """
     Start new tasks for every active mailbox to start synchronizing.
     """
+    delay_timer = 0
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         logger.debug('Scheduling sync for %s', email_account.email_address)
 
@@ -45,7 +46,9 @@ def synchronize_email_account_scheduler():
                 args=(email_account.pk,),
                 max_retries=1,
                 default_retry_delay=100,
+                countdown=delay_timer,
             )
+            delay_timer += settings.GMAIL_SYNC_DELAY_INTERVAL
 
 
 @task(name='synchronize_email_account', bind=True)
@@ -340,19 +343,68 @@ def create_draft_email_message(email_outbox_message_id):
 
     if not email_account.is_authorized:
         logger.error('EmailAccount not authorized: %s', email_account)
-    else:
-        manager = GmailManager(email_account)
+        return draft_success
+
+    manager = GmailManager(email_account)
+    try:
+        manager.create_draft_email_message(email_outbox_message.message())
+        logger.debug('Message saved as draft for: %s', email_account)
+        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+        email_outbox_message.delete()
+        draft_success = True
+    except Exception:
+        logger.exception('Couldn\'t create draft')
+        raise
+    finally:
+        manager.cleanup()
+
+    return draft_success
+
+@task(name='update_draft_email_message', bind=True)
+@task(logger=logger)
+def update_draft_email_message(email_outbox_message_id, current_draft_pk):
+    """
+    Send EmailOutboxMessage.
+
+    Args:
+        email_outbox_message_id (int): id of the EmailOutboxMessage
+        current_draft_pk (int): id of the EmailMessage that is the current draft
+    """
+    draft_success = False
+    email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
+    current_draft = EmailMessage.objects.get(pk=current_draft_pk)
+
+    email_account = email_outbox_message.send_from
+
+    if not email_account.is_authorized:
+        logger.error('EmailAccount not authorized: %s', email_account)
+        return draft_success
+
+    manager = GmailManager(email_account)
+    if current_draft.draft_id:
+        # Update current draft
         try:
-            manager.create_draft_email_message(email_outbox_message.message())
-            logger.debug('Message saved as draft for: %s', email_account)
+            manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
+            logger.debug('Updated draft for: %s', email_account)
             # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
             email_outbox_message.delete()
             draft_success = True
-        except ManagerError, e:
-            logger.error(traceback.format_exc(e))
+        except Exception:
+            logger.exception('Couldn\'t create draft')
             raise
-        except Exception, e:
-            logger.error(traceback.format_exc(e))
+        finally:
+            manager.cleanup()
+    else:
+        # There is no draft pk stored, just remove and create a new draft
+        try:
+            manager.create_draft_email_message(email_outbox_message.message())
+            manager.delete_email_message(current_draft)
+            logger.debug('Message saved as draft and removed current draft, for: %s', email_account)
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            email_outbox_message.delete()
+            draft_success = True
+        except Exception:
+            logger.exception('Couldn\'t update draft')
             raise
         finally:
             manager.cleanup()

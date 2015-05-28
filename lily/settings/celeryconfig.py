@@ -6,9 +6,12 @@ from kombu import Queue
 from .settings import DEBUG, TIME_ZONE
 
 
-# Using IronMQ when available
-if os.environ.get('IRON_MQ_PROJECT_ID') and os.environ.get('IRON_MQ_TOKEN'):
+BROKER = os.environ.get('BROKER', 'DEV')
+
+if BROKER == 'IRONMQ':
     BROKER_URL = 'ironmq://%s:%s@mq-aws-eu-west-1.iron.io' % (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))
+elif BROKER == 'CLOUDAMQP':
+    BROKER_URL = os.environ.get('CLOUDAMQP_URL')
 else:
     BROKER_URL = 'amqp://guest@%s:5672' % os.environ.get('BROKER_HOST', '127.0.0.1')
 

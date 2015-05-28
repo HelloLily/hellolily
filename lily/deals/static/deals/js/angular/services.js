@@ -71,8 +71,8 @@
      */
     angular.module('app.deals.services').factory('Deal', Deal);
 
-    Deal.$inject = ['$http', '$resource'];
-    function Deal ($http, $resource) {
+    Deal.$inject = ['$http', '$resource', 'DealStages'];
+    function Deal ($http, $resource, DealStages) {
         var Deal = $resource(
             '/api/deals/deal/:id',
             null,
@@ -114,6 +114,7 @@
         Deal.getDeals = getDeals;
         Deal.getDealsToCheck = getDealsToCheck;
         Deal.getFeedbackDeals = getFeedbackDeals;
+        Deal.getFollowUpWidgetData = getFollowUpWidgetData;
         Deal.prototype.markDealAsChecked = markDealAsChecked;
         Deal.prototype.feedbackFormSent = feedbackFormSent;
 
@@ -168,6 +169,13 @@
         function getFeedbackDeals (column, ordering) {
             var filterQuery = 'stage:2 AND feedback_form_sent:false AND assigned_to_id:' + currentUser.id;
             return getDeals('', 1, 20, column, ordering, filterQuery);
+        }
+
+        function getFollowUpWidgetData (column, ordering){
+            var filterQuery = '(stage: 0 OR stage: 1 OR stage: 4 OR stage: 5) AND assigned_to_id: ' + currentUser.id;
+            var followUpDeals = getDeals('', 1, 20, column, ordering, filterQuery);
+
+            return followUpDeals;
         }
 
         function feedbackFormSent () {

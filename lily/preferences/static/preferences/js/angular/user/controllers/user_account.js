@@ -24,5 +24,11 @@
      * PreferencesUserAccount is a controller to show the user account page.
      */
     angular.module('app.preferences.user').controller('PreferencesUserAccount', PreferencesUserAccount);
-    function PreferencesUserAccount () {}
+
+    PreferencesUserAccount.$inject = ['$scope'];
+    function PreferencesUserAccount ($scope) {
+        $scope.$on('$viewContentLoaded', function() {
+            djangoPasswordStrength.initListeners();
+        });
+    }
 })();

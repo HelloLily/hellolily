@@ -588,7 +588,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
-                'body_html': mark_safe(self.object.reply_body),
+                'body_html': mark_safe('<br /><br /><hr />' + self.object.reply_body),
             },
         })
         return kwargs
@@ -625,7 +625,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
                 'send_to_cc': recipients,
-                'body_html': mark_safe(self.object.reply_body),
+                'body_html': mark_safe('<br /><br /><hr />' + self.object.reply_body),
             },
         })
 
@@ -639,14 +639,33 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
+        forward_header_to = []
+
+        for recipient in self.object.received_by.all():
+            if recipient.name:
+                forward_header_to.append(recipient.name + ' <' + recipient.email_address + '>')
+            else:
+                forward_header_to.append(recipient.email_address)
+
+        forward_header = (
+            '<br /><br />'
+            '<hr />'
+            '---------- Forwarded message ---------- <br />'
+            'From: ' + self.object.sender.email_address + '<br/>'
+            'Date: ' + self.object.sent_date.ctime() + '<br/>'
+            'Subject: ' + self.get_subject('') + '<br/>'
+            'To: ' + ', '.join(forward_header_to) + '<br />'
+        )
+
         # Provide initial data
         kwargs.update({
             'initial': {
                 'draft_pk': self.object.pk,
                 'subject': self.get_subject(prefix='Fwd: '),
-                'body_html': mark_safe(self.object.reply_body),
+                'body_html': forward_header + mark_safe(self.object.reply_body),
             },
         })
+
         return kwargs
 
 

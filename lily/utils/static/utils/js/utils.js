@@ -9,6 +9,12 @@ $(function() {
             return false;
         }
 
+        // Match on mobile phone nrs e.g. +316 or 06, so we can automatically set the type to mobile.
+        if (phone.match(/^\+316|^06/)) {
+            var typeId = $phoneNumberInput.attr('id').replace('raw_input', 'type');
+            $('#' + typeId).select2('val', 'mobile');
+        }
+
         phone = phone
             .replace("(0)","")
             .replace(/\s|\(|\-|\)|\.|x|:|\*/g, "")

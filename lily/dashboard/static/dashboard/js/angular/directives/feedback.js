@@ -17,11 +17,11 @@
 
     Feedback.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal'];
     function Feedback ($scope, $state, Account, Cookie, Deal) {
-        Cookie.prefix ='feedbackWidget';
+        var cookie = Cookie('feedbackWidget');
 
         var vm = this;
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'closing_date'  // string: current sorted column
             }),
@@ -68,6 +68,7 @@
         function _watchTable() {
             $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
                 _getFeedbackDeals();
+                cookie.put('order', vm.table.order);
             })
         }
     }

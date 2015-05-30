@@ -103,7 +103,7 @@ dealControllers.controller('DealListController', [
     'HLDate',
     'HLFilters',
     function($cookieStore, $http, $location, $scope, $window, Cookie, Deal, HLDate, HLFilters) {
-        Cookie.prefix ='dealList';
+        var cookie = Cookie('dealList');
 
         $scope.conf.pageTitleBig = 'Deals';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
@@ -117,7 +117,7 @@ dealControllers.controller('DealListController', [
             searchQuery = search;
         } else {
             // Get searchQuery from cookie
-            searchQuery = Cookie.getCookieValue('searchQuery', '');
+            searchQuery = cookie.get('searchQuery', '');
         }
 
         /**
@@ -129,12 +129,12 @@ dealControllers.controller('DealListController', [
             totalItems: 0, // total number of items
             searchQuery: searchQuery,  // search query
             filterQuery: '',
-            archived: Cookie.getCookieValue('archived', false),
-            order:  Cookie.getCookieValue('order', {
+            archived: cookie.get('archived', false),
+            order:  cookie.get('order', {
                 ascending: true,
                 column:  'closing_date'  // string: current sorted column
             }),
-            visibility: Cookie.getCookieValue('visibility', {
+            visibility: cookie.get('visibility', {
                 deal: true,
                 stage: true,
                 created: true,
@@ -151,7 +151,7 @@ dealControllers.controller('DealListController', [
         /**
          * stores the selected filters
          */
-        $scope.filterList = Cookie.getCookieValue('filterList', [
+        $scope.filterList = cookie.get('filterList', [
             {
                 name: 'Assigned to me',
                 value: 'assigned_to_id:' + currentUser.id,
@@ -209,11 +209,11 @@ dealControllers.controller('DealListController', [
          * updateTableSettings() sets scope variables to the cookie
          */
         function updateTableSettings() {
-            Cookie.setCookieValue('searchQuery', $scope.table.searchQuery);
-            Cookie.setCookieValue('archived', $scope.table.archived);
-            Cookie.setCookieValue('order', $scope.table.order);
-            Cookie.setCookieValue('visibility', $scope.table.visibility);
-            Cookie.setCookieValue('filterList', $scope.filterList);
+            cookie.put('searchQuery', $scope.table.searchQuery);
+            cookie.put('archived', $scope.table.archived);
+            cookie.put('order', $scope.table.order);
+            cookie.put('visibility', $scope.table.visibility);
+            cookie.put('filterList', $scope.filterList);
         }
 
         /**

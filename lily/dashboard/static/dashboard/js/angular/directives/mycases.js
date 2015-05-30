@@ -16,12 +16,11 @@
 
     MyCases.$inject = ['$modal', '$scope', 'Case', 'Cookie'];
     function MyCases ($modal, $scope, Case, Cookie) {
-
-        Cookie.prefix ='myCasesWidget';
+        var cookie = Cookie('myCasesWidget');
 
         var vm = this;
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'expires'  // string: current sorted column
             }),
@@ -68,6 +67,7 @@
         function _watchTable() {
             $scope.$watchGroup(['mc.table.order.ascending', 'mc.table.order.column'], function() {
                 _getMyCases();
+                cookie.put('order', vm.table.order);
             })
         }
     }

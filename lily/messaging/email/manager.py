@@ -219,13 +219,12 @@ class GmailManager(object):
                 ))
                 EmailMessage.objects.filter(message_id=message_id).delete()
 
-    def sync_by_history(self):
+    def sync_by_history(self, history):
         """
         Synchronize emailaccount by history.
 
         Fetches the changed from the GMail api and updates the email direct without parsing
         """
-        history = self.connector.get_history()
 
         for history_item in history:
 

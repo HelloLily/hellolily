@@ -59,6 +59,20 @@ contacts.config(['$stateProvider', function($stateProvider) {
             label: 'Create'
         }
     });
+    $stateProvider.state('base.contacts.create.fromAccount', {
+        url: '/account/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr){
+                    return '/contacts/add/from_account/' + elem.id + '/';
+                },
+                controller: 'ContactCreateController'
+            }
+        },
+        ncyBreadcrumb:{
+            skip: true
+        }
+    });
     $stateProvider.state('base.contacts.detail.edit', {
         url: '/edit',
         views: {

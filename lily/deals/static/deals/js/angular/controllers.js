@@ -359,6 +359,7 @@ dealControllers.controller('DealDetailController', [
                     if(data.closed_date !== undefined){
                         $scope.deal.closing_date = data.closed_date;
                     }
+                    $scope.loadNotifications();
                 }).
                 error(function(data, status, headers, config) {
                     // Request failed propper error?

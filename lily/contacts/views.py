@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
+from lily.accounts.models import Account
 from lily.search.lily_search import LilySearch
 from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
@@ -126,6 +127,24 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
     View to add a contact. Also supports a smaller (quickbutton) form for ajax requests.
     """
     action = 'saved'
+
+    def get_initial(self):
+        """
+        Set the initials for the form
+        """
+        initial = super(AddContactView, self).get_initial()
+
+        # If the Deal is created from an Account, initialize the form with data from that Account
+        account_pk = self.kwargs.get('account_pk', None)
+        if account_pk:
+            try:
+                account = Account.objects.get(pk=account_pk)
+            except Account.DoesNotExist:
+                pass
+            else:
+                initial.update({'account': account})
+
+        return initial
 
     def get_form_kwargs(self):
         kwargs = super(AddContactView, self).get_form_kwargs()

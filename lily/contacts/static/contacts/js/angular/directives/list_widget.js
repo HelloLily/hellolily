@@ -14,7 +14,8 @@
                 title: '@',
                 list: '=',
                 height: '=',
-                accountId: '@'
+                accountId: '@',
+                addLink: '@'
             },
             templateUrl: 'contacts/directives/list-widget.html'
         }

@@ -8,7 +8,7 @@
                 <span ng-hide="accountId">{{ title }}</span>
             </div>
             <div class="actions">
-                <a ui-sref="base.contacts.create" class="btn btn-circle btn-default">
+                <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
                     <i class="fa fa-plus"></i>
                     Add
                 </a>

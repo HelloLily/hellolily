@@ -31,6 +31,7 @@ web:
   extends:
     file: docker-compose.yml
     service: base
+  entrypoint: ['python', 'manage.py']
   command: runserver 0.0.0.0:8000
   ports:
     - 8003:8000

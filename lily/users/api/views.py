@@ -4,7 +4,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .serializers import LilyGroupSerializer, LilyUserSerializer, LilyUserTokenSerializer
 from ..models import LilyGroup, LilyUser
@@ -20,20 +19,28 @@ class TeamFilter(django_filters.FilterSet):
         fields = ['name', ]
 
 
-class TeamList(APIView):
+class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     List all teams assigned to the current user.
     """
     model = LilyGroup
     serializer_class = LilyGroupSerializer
     filter_class = TeamFilter
+    queryset = LilyGroup.objects
 
     def get_queryset(self):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id, user=self.request.user)
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
         return queryset
 
     def get(self, request, format=None):
         filtered_queryset = self.filter_class(request.GET, queryset=self.get_queryset())
+        serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
+        return Response(serializer.data)
+
+    @list_route(methods=['GET'])
+    def mine(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(user=self.request.user)
+        filtered_queryset = self.filter_class(request.GET, queryset=queryset)
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 

@@ -26,8 +26,13 @@ lilyServices.factory('Cookie', ['$cookieStore', function ($cookieStore) {
      * @returns {*}: retrieved or default value
      */
     Cookie.prototype.get = function (field, defaultValue) {
-        var value = $cookieStore.get(this.prefix + field);
-        return (value !== undefined) ? value : defaultValue;
+        try {
+            var value = $cookieStore.get(this.prefix + field);
+            return (value !== undefined) ? value : defaultValue;
+        } catch (error) {
+            $cookieStore.remove(this.prefix + field);
+            return defaultValue;
+        }
     };
 
     /**

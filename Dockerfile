@@ -52,5 +52,3 @@ ENV BROKER_HOST rabbit
 ENV SEARCHBOX_SSL_URL http://es:9200
 
 WORKDIR /home/docker/hellolily
-
-CMD /bin/bash

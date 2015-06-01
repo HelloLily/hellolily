@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import socket
@@ -43,6 +44,7 @@ from .services import build_gmail_service
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
+logger = logging.getLogger(__name__)
 
 
 #######################################################################################################################
@@ -622,7 +624,7 @@ class EmailSyncLock(object):
 
     def get_connection(self):
         redis_path = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'))
-        return Redis(redis_path.hostname, port=redis_path.port)
+        return Redis(redis_path.hostname, port=redis_path.port, password=redis_path.password)
 
     def get(self):
         return self.connection.get(self.key)

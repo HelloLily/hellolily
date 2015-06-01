@@ -331,7 +331,7 @@ dealControllers.controller('DealDetailController', [
     'NoteService',
 
     function($filter, $http, $location, $scope, $state, $stateParams, $q, DealDetail, DealStages, NoteDetails, NoteService) {
-        $scope.conf.pageTitleBig = 'Deal Detail';
+        $scope.conf.pageTitleBig = 'Deal detail';
         $scope.conf.pageTitleSmall = 'the devil is in the details';
 
         var id = $stateParams.id;
@@ -461,7 +461,7 @@ dealControllers.controller('DealCreateController', [
     '$scope',
 
     function($scope) {
-        $scope.conf.pageTitleBig = 'New deal'
+        $scope.conf.pageTitleBig = 'New deal';
         $scope.conf.pageTitleSmall = 'making deals';
     }
 ]);

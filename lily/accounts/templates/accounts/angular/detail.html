@@ -9,7 +9,7 @@
         </div>
         <div class="col-md-4">
             <case-list-widget title="Cases" list="caseList" height="91" add-link="base.cases.create.fromAccount({id: {{ account.id }}})"></case-list-widget>
-            <deal-list-widget title="Deals" list="dealList" height="91"></deal-list-widget>
+            <deal-list-widget title="Deals" list="dealList" height="91" add-link="base.deals.create.fromAccount({id: {{ account.id }}})"></deal-list-widget>
         </div>
     </div>
     <history-list target="'account'" object="account"></history-list>

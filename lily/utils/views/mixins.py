@@ -475,6 +475,7 @@ class ModelFormSetViewMixin(object):
 
 
 class HistoryListViewMixin(NoteDetailViewMixin):
+    # TODO: Can this class be removed?
     """
     Mix in a paginated list of history list items.
     Supports AJAX calls to show more older items.

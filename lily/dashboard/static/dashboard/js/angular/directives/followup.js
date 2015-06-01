@@ -17,11 +17,11 @@
     FollowUp.$inject = ['$modal', '$scope', 'Deal', 'Cookie'];
     function FollowUp($modal, $scope, Deal, Cookie){
 
-        Cookie.prefix = 'followupWidget';
+        var cookie = Cookie('followupWidget');
 
         var vm = this;
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'created'
             }),
@@ -65,6 +65,7 @@
         function _watchTable(){
             $scope.$watchGroup(['fu.table.order.ascending', 'fu.table.order.column'], function() {
                 _getFollowUp();
+                cookie.put('order', vm.table.order);
             })
         }
     }

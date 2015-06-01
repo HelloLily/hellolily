@@ -17,16 +17,16 @@
 
     DealsToCheck.$inject = ['$scope', 'Cookie', 'Deal', 'User'];
     function DealsToCheck ($scope, Cookie, Deal, User) {
-        Cookie.prefix ='dealsToCheckkWidget';
+        var cookie = Cookie('dealsToCheckkWidget');
 
         var vm = this;
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'closing_date'  // string: current sorted column
             }),
             items: [],
-            selectedUser: Cookie.getCookieValue('selectedUser')
+            selectedUser: cookie.get('selectedUser')
         };
 
         vm.markDealAsChecked = markDealAsChecked;
@@ -59,6 +59,8 @@
         function _watchTable() {
             $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column', 'vm.table.selectedUser'], function() {
                 _getDealsToCheck();
+                cookie.put('order', vm.table.order);
+                cookie.put('selectedUser', vm.table.selectedUser);
             })
         }
 

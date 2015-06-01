@@ -33,7 +33,7 @@
     AccountList.$inject = ['$scope', '$window', 'Account', 'Cookie'];
     function AccountList ($scope, $window, Account, Cookie) {
         var vm = this;
-
+        var cookie = Cookie('accountList');
         /**
          * table object: stores all the information to correctly display the table
          */
@@ -41,12 +41,12 @@
             page: 1,  // current page of pagination: 1-index
             pageSize: 20,  // number of items per page
             totalItems: 0, // total number of items
-            filter: Cookie.getCookieValue('filter', ''),  // search filter
-            order:  Cookie.getCookieValue('order', {
+            filter: cookie.get('filter', ''),  // search filter
+            order:  cookie.get('order', {
                 ascending: true,
                 column:  'modified'  // string: current sorted column
             }),
-            visibility: Cookie.getCookieValue('visibility', {
+            visibility: cookie.get('visibility', {
                 name: true,
                 contactInformation: true,
                 assignedTo: true,
@@ -68,7 +68,6 @@
             _setupWatches();
         }
 
-        Cookie.prefix ='accountList';
         $scope.conf.pageTitleBig = 'Accounts';
         $scope.conf.pageTitleSmall = 'An overview of accounts';
 
@@ -90,9 +89,9 @@
          * _updateTableSettings() sets scope variables to the cookie
          */
         function _updateTableSettings() {
-            Cookie.setCookieValue('filter', vm.table.filter);
-            Cookie.setCookieValue('order', vm.table.order);
-            Cookie.setCookieValue('visibility', vm.table.visibility);
+            cookie.put('filter', vm.table.filter);
+            cookie.put('order', vm.table.order);
+            cookie.put('visibility', vm.table.visibility);
         }
 
         /**

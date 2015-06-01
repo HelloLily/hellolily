@@ -8,14 +8,15 @@ var lilyServices = angular.module('LilyServices', []);
  *
  * Set `prefix` to give cookie keys a prefix
  */
-lilyServices.service('Cookie', ['$cookieStore', function ($cookieStore) {
+lilyServices.factory('Cookie', ['$cookieStore', function ($cookieStore) {
 
-    /**
-     * prefix is used to add as a prefix to the field name.
-     *
-     * @type {string}
-     */
-    this.prefix = '';
+    function CookieFactory (prefix) {
+        return new Cookie(prefix);
+    }
+
+    function Cookie(prefix) {
+        this.prefix = prefix;
+    }
 
     /**
      * getCookieValue() tries to retrieve a value from the cookie, or returns default value
@@ -24,13 +25,9 @@ lilyServices.service('Cookie', ['$cookieStore', function ($cookieStore) {
      * @param defaultValue {*}: default value when nothing set on cache
      * @returns {*}: retrieved or default value
      */
-    this.getCookieValue = function (field, defaultValue) {
+    Cookie.prototype.get = function (field, defaultValue) {
         var value = $cookieStore.get(this.prefix + field);
-        if (value !== undefined) {
-            return value;
-        } else {
-            return defaultValue;
-        }
+        return (value !== undefined) ? value : defaultValue;
     };
 
     /**
@@ -41,34 +38,13 @@ lilyServices.service('Cookie', ['$cookieStore', function ($cookieStore) {
      * @param field string: the key on which to store the value
      * @param value {*}: JSON serializable object to store
      */
-    this.setCookieValue = function (field, value) {
+    Cookie.prototype.put = function (field, value) {
         $cookieStore.put(this.prefix + field, value);
     };
 
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    this.getCsrftoken = function () {
-        if (!this._csrftoken) {
-            this._csrftoken = getCookie('csrftoken');
-            $cookieStore.put('x-csrftoken', this._csrftoken);
-        }
-        return this._csrftoken;
-    };
+    return CookieFactory;
 }]);
+
 lilyServices.service('HLDate', [function () {
     /**
      * getSubtractedDate() subtracts x amount of days from the current date

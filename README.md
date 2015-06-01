@@ -25,7 +25,7 @@ Do a first time migration of the models.
 
 Create a search index.
 
-    docker-compose run manage index.
+    docker-compose run manage index
 
 Populate the database with some testdata.
 

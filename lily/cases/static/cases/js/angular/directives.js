@@ -16,7 +16,7 @@
 
                 select.on('change', function(event) {
                     var priority = parseInt(select.val());
-                    if(select.val() == NaN){
+                    if(isNaN(select.val())){
                         priority = 3;
                     }
                     var due = addBusinessDays(new Date(), daysToAdd[priority]);

@@ -29,7 +29,7 @@
         }
 
         function _getTeams() {
-            UserTeams.query(function(teams) {
+            UserTeams.mine(function(teams) {
                 vm.teams = teams;
             });
         }

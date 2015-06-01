@@ -59,6 +59,20 @@ contacts.config(['$stateProvider', function($stateProvider) {
             label: 'Create'
         }
     });
+    $stateProvider.state('base.contacts.create.fromAccount', {
+        url: '/account/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr){
+                    return '/contacts/add/from_account/' + elem.id + '/';
+                },
+                controller: 'ContactCreateController'
+            }
+        },
+        ncyBreadcrumb:{
+            skip: true
+        }
+    });
     $stateProvider.state('base.contacts.detail.edit', {
         url: '/edit',
         views: {
@@ -130,7 +144,7 @@ contacts.controller('ContactListController', [
     'Cookie',
     'ContactTest',
     function($scope, $state, $cookieStore, $window, Contact, Cookie, ContactTest) {
-        Cookie.prefix ='contactList';
+        var cookie = Cookie('contactList');
 
         $scope.conf.pageTitleBig = 'Contacts';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
@@ -142,12 +156,12 @@ contacts.controller('ContactListController', [
             page: 1,  // current page of pagination: 1-index
             pageSize: 20,  // number of items per page
             totalItems: 0, // total number of items
-            filter: Cookie.getCookieValue('filter', ''),  // search filter
-            order:  Cookie.getCookieValue('order', {
+            filter: cookie.get('filter', ''),  // search filter
+            order:  cookie.get('order', {
                 ascending: true,
                 column:  'modified'  // string: current sorted column
             }),
-            visibility: Cookie.getCookieValue('visibility', {
+            visibility: cookie.get('visibility', {
                 name: true,
                 contactInformation: true,
                 worksAt: true,
@@ -173,9 +187,9 @@ contacts.controller('ContactListController', [
          * updateTableSettings() sets scope variables to the cookie
          */
         function updateTableSettings() {
-            Cookie.setCookieValue('filter', $scope.table.filter);
-            Cookie.setCookieValue('order', $scope.table.order);
-            Cookie.setCookieValue('visibility', $scope.table.visibility);
+            cookie.put('filter', $scope.table.filter);
+            cookie.put('order', $scope.table.order);
+            cookie.put('visibility', $scope.table.visibility);
         }
 
         /**

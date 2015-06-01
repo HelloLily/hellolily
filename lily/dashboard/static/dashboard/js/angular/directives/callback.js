@@ -16,12 +16,11 @@
 
     CallbackRequests.$inject = ['$scope', 'Case', 'Cookie'];
     function CallbackRequests ($scope, Case, Cookie) {
-
-        Cookie.prefix ='callbackWidget';
-
         var vm = this;
+        var cookie = Cookie('callbackWidget');
+
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'created'  // string: current sorted column
             }),
@@ -48,6 +47,7 @@
         function _watchTable() {
             $scope.$watchGroup(['cbr.table.order.ascending', 'cbr.table.order.column'], function() {
                 _getCallbackRequests();
+                cookie.put('order', vm.table.order);
             })
         }
 

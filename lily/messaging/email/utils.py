@@ -1,9 +1,12 @@
+import logging
+import os
 import re
 import socket
 
 from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
 from urllib import unquote
+from urlparse import urlparse
 
 from bs4 import BeautifulSoup
 from celery import signature
@@ -22,6 +25,8 @@ from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VA
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
+from redis import Redis
+
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 
@@ -39,6 +44,7 @@ from .services import build_gmail_service
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
+logger = logging.getLogger(__name__)
 
 
 #######################################################################################################################
@@ -595,3 +601,41 @@ def create_recipients(receivers, filter_emails=[]):
         email_addresses.append(receiver.email_address)
 
     return recipients
+
+
+class EmailSyncLock(object):
+    """
+    Class to create locks that expire in redis with key as lock id.
+
+    key: Name of the lock
+    value: Extra information about the lock
+    expires: Lifetime of task in seconds (default 300sec)
+    prefix: Prefix for the key
+    """
+
+    DEFAULT_PREFIX = 'SYNC_'
+    FIRST_SYNC_PREFIX = 'FIRST_SYNC_'
+
+    def __init__(self, key, value=None, expires=settings.GMAIL_SYNC_LOCK_LIFETIME, prefix=DEFAULT_PREFIX):
+        self.key = prefix + str(key)
+        self.value = value
+        self.expires = expires
+        self.connection = self.get_connection()
+
+    def get_connection(self):
+        redis_path = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'))
+        return Redis(redis_path.hostname, port=redis_path.port, password=redis_path.password)
+
+    def get(self):
+        return self.connection.get(self.key)
+
+    def acquire(self):
+        # If the lock already exists it overrides and extends the expire time
+        self.connection.set(self.key, self.value)
+        self.connection.expire(self.key, self.expires)
+
+    def release(self):
+        self.connection.delete(self.key)
+
+    def is_set(self):
+        return bool(self.get())

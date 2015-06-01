@@ -82,7 +82,7 @@
                             </button>
                         </td>
                         <td ng-show="table.visibility.account">
-                            {{ deal.account_name }}
+                            <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
                         </td>
                         <td ng-show="table.visibility.stage">
                             {{ deal.stage_name }}

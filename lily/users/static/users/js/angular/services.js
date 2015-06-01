@@ -9,7 +9,13 @@
 
     UserTeams.$inject = ['$resource'];
     function UserTeams ($resource) {
-        return $resource('/api/users/teams/');
+        return $resource('/api/users/team/', null, {
+            mine: {
+                method: 'GET',
+                url: '/api/users/team/mine/',
+                isArray: true
+            }
+        });
     }
 
     /**

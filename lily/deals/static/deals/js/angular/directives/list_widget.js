@@ -13,7 +13,8 @@
             scope: {
                 title: '@',
                 list: '=',
-                height: '='
+                height: '=',
+                addLink: '@'
             },
             templateUrl: 'deals/directives/list-widget.html'
         }

@@ -153,6 +153,12 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
         self.fields['account'].help_text = ''  # Fixed in django 1.8: now the help text is appended instead of overwritten
 
+        if kwargs.get('initial', None):
+            kwargs_initial = kwargs.get('initial', None)
+            if kwargs_initial.get('account', None):
+                self.fields['account'].initial = {kwargs_initial.get('account', None)}
+                self.fields['account'].widget.data = self.fields['account'].initial
+
         if self.instance.pk:
             self.fields['account'].initial = [function.account for function in self.instance.functions.all()]
             self.fields['account'].widget.data = self.fields['account'].initial

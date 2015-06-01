@@ -22,10 +22,10 @@
     UnassignedCases.$inject = ['$http', '$scope', 'Case', 'Cookie'];
     function UnassignedCases ($http, $scope, Case, Cookie) {
         var vm = this;
-        Cookie.prefix = 'unassignedCasesForTeam' + vm.team.id + 'Widget';
+        var cookie = Cookie('unassignedCasesForTeam' + vm.team.id + 'Widget');
 
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'id'  // string: current sorted column
             }),
@@ -71,6 +71,7 @@
         function _watchTable() {
             $scope.$watchGroup(['uc.table.order.ascending', 'uc.table.order.column'], function() {
                  _getUnassignedCases();
+                cookie.put('order', vm.table.order);
             })
         }
     }

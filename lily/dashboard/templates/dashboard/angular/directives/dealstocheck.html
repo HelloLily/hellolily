@@ -13,7 +13,7 @@
                         <a href="" class="remove" data-original-title="" title=""></a>
                     </div>
                     <div class="actions">
-                        <select class="form-control input-sm xsm" ng-options="user as user.first_name for user in vm.users" ng-model="vm.table.selectedUser"></select>
+                        <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
                     </div>
                 </div>
                 <div class="portlet-body">

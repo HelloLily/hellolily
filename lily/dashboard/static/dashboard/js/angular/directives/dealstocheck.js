@@ -15,22 +15,20 @@
         }
     }
 
-    DealsToCheck.$inject = ['$scope', 'Cookie', 'Deal', 'User'];
-    function DealsToCheck ($scope, Cookie, Deal, User) {
-        Cookie.prefix ='dealsToCheckkWidget';
-
+    DealsToCheck.$inject = ['$scope', 'Cookie', 'Deal', 'UserTeams'];
+    function DealsToCheck ($scope, Cookie, Deal, UserTeams) {
+        var cookie = Cookie('dealsToCheckkWidget');
         var vm = this;
+        vm.users = [];
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'closing_date'  // string: current sorted column
             }),
             items: [],
-            selectedUser: Cookie.getCookieValue('selectedUser')
+            selectedUserId: cookie.get('selectedUserId')
         };
-
         vm.markDealAsChecked = markDealAsChecked;
-
         activate();
 
         ///////////
@@ -41,11 +39,11 @@
         }
 
         function _getDealsToCheck () {
-            if (vm.table.selectedUser) {
+            if (vm.table.selectedUserId) {
                 Deal.getDealsToCheck(
                     vm.table.order.column,
                     vm.table.order.ascending,
-                    vm.table.selectedUser.id
+                    vm.table.selectedUserId
                 ).then(function (deals) {
                     vm.table.items = deals;
                 });
@@ -53,12 +51,18 @@
         }
 
         function _getUsers() {
-            vm.users = User.query();
+            UserTeams.mine(function (teams) {
+                angular.forEach(teams, function (team) {
+                    vm.users = vm.users.concat(team.user_set);
+                });
+            });
         }
 
         function _watchTable() {
-            $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column', 'vm.table.selectedUser'], function() {
+            $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column', 'vm.table.selectedUserId'], function() {
                 _getDealsToCheck();
+                cookie.put('order', vm.table.order);
+                cookie.put('selectedUserId', vm.table.selectedUserId);
             })
         }
 

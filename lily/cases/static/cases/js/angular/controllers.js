@@ -283,7 +283,7 @@ caseControllers.controller('CaseListController', [
     'HLDate',
     'HLFilters',
     function ($cookieStore, $http, $location, $modal, $scope, $state, $window, Case, Cookie, HLDate, HLFilters) {
-        Cookie.prefix = 'caseList';
+        var cookie = Cookie('caseList');
 
         $scope.conf.pageTitleBig = 'Cases';
         $scope.conf.pageTitleSmall = 'do all your lookin\' here';
@@ -297,7 +297,7 @@ caseControllers.controller('CaseListController', [
             searchQuery = search;
         } else {
             // Get searchQuery from cookie
-            searchQuery = Cookie.getCookieValue('searchQuery', '');
+            searchQuery = cookie.get('searchQuery', '');
         }
 
         /**
@@ -308,12 +308,12 @@ caseControllers.controller('CaseListController', [
             pageSize: 60,  // number of items per page
             totalItems: 0, // total number of items
             searchQuery: searchQuery,  // search query
-            archived: Cookie.getCookieValue('archived', false),
-            order: Cookie.getCookieValue('order', {
+            archived: cookie.get('archived', false),
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'expires'  // string: current sorted column
             }),
-            visibility: Cookie.getCookieValue('visibility', {
+            visibility: cookie.get('visibility', {
                 caseId: true,
                 client: true,
                 subject: true,
@@ -337,7 +337,7 @@ caseControllers.controller('CaseListController', [
          * @returns filterList (object): object containing the filter list
          */
         function getFilterList() {
-            var filterListCookie = Cookie.getCookieValue('filterList', null);
+            var filterListCookie = cookie.get('filterList', null);
 
             if (!filterListCookie) {
                 var filterList = [
@@ -398,11 +398,11 @@ caseControllers.controller('CaseListController', [
          * updateTableSettings() sets scope variables to the cookie
          */
         function updateTableSettings() {
-            Cookie.setCookieValue('searchQuery', $scope.table.searchQuery);
-            Cookie.setCookieValue('archived', $scope.table.archived);
-            Cookie.setCookieValue('order', $scope.table.order);
-            Cookie.setCookieValue('visibility', $scope.table.visibility);
-            Cookie.setCookieValue('filterList', $scope.filterList);
+            cookie.put('searchQuery', $scope.table.searchQuery);
+            cookie.put('archived', $scope.table.archived);
+            cookie.put('order', $scope.table.order);
+            cookie.put('visibility', $scope.table.visibility);
+            cookie.put('filterList', $scope.filterList);
         }
 
         /**

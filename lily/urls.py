@@ -10,7 +10,7 @@ from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList, Ca
 from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList, DealViewSet
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet)
-from lily.users.api.views import TeamList, LilyUserViewSet
+from lily.users.api.views import LilyUserViewSet, TeamViewSet
 from lily.utils.views import BaseView
 from lily.utils.api.views import CallerName, Notifications, Queues
 
@@ -25,6 +25,7 @@ router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
 router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
 router.register(r'users/user', LilyUserViewSet)
+router.register(r'users/team', TeamViewSet)
 
 urlpatterns = patterns(
     '',
@@ -57,7 +58,6 @@ urlpatterns = patterns(
     url(r'^api/deals/stages/$', DealStagesList.as_view()),
     url(r'^api/deals/stats/communication/$', DealCommunicationList.as_view()),
     url(r'^api/deals/stats/wonwritten/$', DealWonWrittenList.as_view()),
-    url(r'^api/users/teams/$', TeamList.as_view()),
     url(r'^api/utils/queues/(?P<queue>[\w]+)/$', Queues.as_view()),
     url(r'^api/utils/notifications/$', Notifications.as_view()),
     url(r'^api/utils/callername/$', CallerName.as_view()),

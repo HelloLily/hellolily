@@ -10,14 +10,33 @@ redis:
   image: redis:2.8
   ports:
     - 6373:6379
-web:
+base:
   build: .
-  command: python manage.py runserver 0.0.0.0:8000
   volumes:
     - .:/home/docker/hellolily
+bash:
+  extends:
+    file: docker-compose.yml
+    service: base
+  command: bash
+  links: [rabbit, db, redis, es]
+manage:
+  extends:
+    file: docker-compose.yml
+    service: base
+  entrypoint: ['python', 'manage.py']
+  command: []
+  links: [rabbit, db, redis, es]
+web:
+  extends:
+    file: docker-compose.yml
+    service: base
+  entrypoint: ['python', 'manage.py']
+  command: runserver 0:8000
   ports:
     - 8003:8000
   links:
+    # Define all containers for easy running of development setup.
     - db
     - es
     - rabbit
@@ -28,17 +47,20 @@ web:
 rabbit:
   build: Dockers/rabbit
 beat:
-  build: .
+  extends:
+    file: docker-compose.yml
+    service: base
   command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]
 worker1:
-  build: .
+  extends:
+    file: docker-compose.yml
+    service: base
   command: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]
 worker2:
-  build: .
+  extends:
+    file: docker-compose.yml
+    service: base
   command: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]

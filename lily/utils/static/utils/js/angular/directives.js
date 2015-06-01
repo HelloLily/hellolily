@@ -63,7 +63,7 @@
                 ////////
 
                 function activate() {
-                    // Somehow calling autosize on page content load dus not work
+                    // Somehow calling autosize on page content load does not work
                     // in the historylist.
                     autosize($('textarea'));
                     loadMore();
@@ -319,6 +319,5 @@
             });
         }
     }
-
 })();
 

@@ -203,7 +203,6 @@ padding: 4px 6px !important;
 .timeline-title {
     margin: 5px 0 5px 0;
     color: inherit;
-    text-transform: capitalize;
 }
 
 .timeline-body > ul {

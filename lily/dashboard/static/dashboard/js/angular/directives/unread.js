@@ -16,12 +16,11 @@
 
     UnreadEmail.$inject = ['$scope', 'EmailMessage', 'Cookie'];
     function UnreadEmail ($scope, EmailMessage, Cookie) {
-
-        Cookie.prefix ='unreadEmailWidget';
+        var cookie = Cookie('unreadEmailWidget');
 
         var vm = this;
         vm.table = {
-            order: Cookie.getCookieValue('order', {
+            order: cookie.get('order', {
                 ascending: true,
                 column: 'sent_date'  // string: current sorted column
             }),
@@ -47,6 +46,7 @@
         function _watchTable() {
             $scope.$watchGroup(['ue.table.order.ascending', 'ue.table.order.column'], function() {
                 _getMessages();
+                cookie.put('order', vm.table.order);
             })
         }
     }

@@ -7,7 +7,7 @@
                 {{ title }}
             </div>
             <div class="actions">
-                <a ui-sref="base.deals.create" class="btn btn-circle btn-default">
+                <a ui-sref="{{ addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
                     <i class="fa fa-plus"></i>
                     Add
                 </a>

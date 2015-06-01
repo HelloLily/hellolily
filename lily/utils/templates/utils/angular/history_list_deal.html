@@ -28,8 +28,8 @@
                 {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
                 {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
                 Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
-                Amount once: {{ ::item.amount_once }}<br/>
-                Amount recurring: {{ ::item.amount_recurring}}<br/><br/>
+                Amount once: &euro; {{ ::item.amount_once }}<br/>
+                Amount recurring: &euro; {{ ::item.amount_recurring}}<br/><br/>
             </div>
             <ul class="list-inline list-justified">
                 <li>

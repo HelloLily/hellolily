@@ -35,8 +35,8 @@ from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateU
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment)
 from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_recipients
-from .tasks import send_message, create_draft_email_message, delete_email_message, archive_email_message, \
-    update_draft_email_message
+from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
+                    update_draft_email_message)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         account = create_account(credentials, request.user)
 
-        return HttpResponseRedirect('/#/settings/emailaccounts/edit/%s' % account.pk)
+        return HttpResponseRedirect('#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailAccountShareView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):

@@ -106,18 +106,6 @@ class GmailConnector(object):
         # Get the messageIds.
         history = response.get('history', [])
 
-        # Check if there are more pages but stop after 10 pages
-        i = 0
-        while 'nextPageToken' in response and i < 10:
-            page_token = response['nextPageToken']
-            response = self.execute_service_call(self.service.users().history().list(
-                userId='me',
-                startHistoryId=self.history_id,
-                pageToken=page_token
-            ))
-            history.extend(response.get('history', []))
-            i += 1
-
         if len(history) and self.history_id < history[-1]['id']:
             self.history_id = history[-1]['id']
 

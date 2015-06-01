@@ -10,6 +10,7 @@ from taskmonitor.utils import lock_task
 from .manager import GmailManager, ManagerError, SyncLimitReached
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
                             EmailOutboxAttachment, EmailAttachment)
+from .utils import EmailSyncLock
 
 
 logger = logging.getLogger(__name__)
@@ -42,13 +43,17 @@ def synchronize_email_account_scheduler():
         else:
             logger.debug('Adding task for sync for %s', email_account.email_address)
 
-            synchronize_email_account.apply_async(
-                args=(email_account.pk,),
-                max_retries=1,
-                default_retry_delay=100,
-                countdown=delay_timer,
-            )
-            delay_timer += settings.GMAIL_SYNC_DELAY_INTERVAL
+            lock = EmailSyncLock(email_account.pk)
+
+            if not lock.is_set():
+                logger.info('Starting sync for: %s', email_account.email_address)
+                synchronize_email_account.apply_async(
+                    args=(email_account.pk,),
+                    max_retries=1,
+                    default_retry_delay=100,
+                    countdown=delay_timer,
+                )
+                delay_timer += settings.GMAIL_SYNC_DELAY_INTERVAL
 
 
 @task(name='synchronize_email_account', bind=True)
@@ -60,25 +65,51 @@ def synchronize_email_account(account_id):
     Args:
         account_id (int): id of the EmailAccount
     """
+    succes = False
+    # Create lock object for account
+    lock = EmailSyncLock(account_id)
     try:
         email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', account_id)
-    else:
-        if email_account.is_authorized:
-            logger.info('Sync for: %s', email_account)
-            manager = GmailManager(email_account)
-            try:
-                manager.synchronize()
+        return False
+
+    if email_account.is_authorized:
+        # Set the lock for this email account
+        lock.acquire()
+        manager = GmailManager(email_account)
+        try:
+            history = manager.connector.get_history()
+            if len(history):
+                manager.sync_by_history(history)
+                manager.update_unread_count()
+                synchronize_email_account.apply_async(
+                    args=(account_id,),
+                    max_retries=1,
+                    default_retry_delay=100,
+                    countdown=1,
+                )
+                logger.info('History page sync done for: %s', email_account)
+            else:
+                # Done syncing
+                # Release the lock for this account
+                lock.release()
                 logger.info('Sync done for: %s', email_account)
-            except ManagerError:
-                pass
-            except Exception:
-                logger.exception('No sync for account %s' % email_account)
-            finally:
-                manager.cleanup()
-        else:
-            logger.debug('Not syncing, no authorization for: %s', email_account.email_address)
+
+            succes = True
+        except ManagerError:
+            pass
+        except Exception:
+            logger.exception('No sync for account %s' % email_account)
+        finally:
+            manager.cleanup()
+            return succes
+    else:
+        logger.info('Not syncing, no authorization for: %s', email_account.email_address)
+
+    # If we get this far something went wrong so release the lock
+    lock.release()
+    return succes
 
 
 @task(name='first_synchronize_email_account', bind=True)

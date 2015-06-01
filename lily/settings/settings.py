@@ -576,6 +576,7 @@ GMAIL_SENT_LABEL = os.environ.get('GMAIL_SENT_LABEL', 'SENT')
 GMAIL_PARTIAL_SYNC_LIMIT = os.environ.get('GMAIL_PARTIAL_SYNC_LIMIT', 899)
 GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000/messaging/email/callback/')
 GMAIL_SYNC_DELAY_INTERVAL = 1
+GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
 
 #######################################################################################################################

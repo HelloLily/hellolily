@@ -21,15 +21,15 @@ After checking out the project, build the Docker images.
 
 Do a first time migration of the models.
 
-    docker-compose run manage migrate
+    docker-compose run web python manage.py migrate
 
 Create a search index.
 
-    docker-compose run manage index
+    docker-compose run web python manage.py index
 
 Populate the database with some testdata.
 
-    docker-compose run manage testdata
+    docker-compose run web python manage.py testdata
 
 ## Running the webserver
 

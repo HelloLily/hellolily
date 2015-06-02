@@ -1,56 +1,41 @@
-/**
- * caseControllers is a container for all case related Controllers
- */
-var lilyControllers = angular.module('lilyControllers', [
-    'ui.bootstrap'
-]);
+(function() {
+    'use strict';
 
-lilyControllers.config(['$stateProvider', function($stateProvider) {
-    $stateProvider.state('base', {
-        abstract: true,
-        controller: 'baseController',
-        ncyBreadcrumb: {
-            label: 'Lily'
-        }
-    });
-}]);
+    angular.module('app.base', ['ui.bootstrap']).config(baseConfig);
 
-/**
- * BaseController is the controller where all the default things are loaded
- *
- */
-lilyControllers.controller('baseController', [
-    '$http',
-    '$scope',
-    '$state',
-    'Notifications',
+    baseConfig.$inject = ['$stateProvider'];
+    function baseConfig($stateProvider){
+        $stateProvider.state('base', {
+            abstract: true,
+            controller: 'baseController',
+            ncyBreadcrumb: {
+                label: 'Lily'
+            }
+        });
+    }
 
-    function($http, $scope, $state, Notifications) {
+    angular.module('app.base').controller('baseController', baseController);
+
+    baseController.$inject = ['$http', '$scope', '$state', 'Notifications'];
+    function baseController($http, $scope, $state, Notifications){
         $scope.conf = {
             headTitle: 'Welcome!',
             pageTitleBig: 'HelloLily',
             pageTitleSmall: 'welcome to my humble abode!'
         };
 
-        //$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-        //    console.log('Starting the state change');
-        //});
-        //
-        //$scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
-        //    console.log('The state has been changed');
-        //});
+        $scope.loadNotifications = loadNotifications;
 
-        $scope.$on('$viewContentLoaded', function() {
-            Metronic.initComponents(); // init core components
-            HLSelect2.init();
-            HLFormsets.init();
-            HLShowAndHide.init();
-            autosize($('textarea'));
+        activate();
 
-            $scope.loadNotifications();
-        });
+        //////////
 
-        $scope.loadNotifications = function(){
+        function activate(){
+            $scope.$on('$stateChangeSuccess', _setPreviousState);
+            $scope.$on('$viewContentLoaded', _contentLoadedActions);
+        }
+
+        function loadNotifications() {
             Notifications.query(function(notifications) {  // On success
                 angular.forEach(notifications, function(message) {
                     toastr[message.level](message.message);
@@ -59,26 +44,46 @@ lilyControllers.controller('baseController', [
                 console.log('error!');
                 console.log(error);
             })
-        };
+        }
+
+        function _contentLoadedActions() {
+            Metronic.initComponents(); // init core components
+            HLSelect2.init();
+            HLFormsets.init();
+            HLShowAndHide.init();
+            autosize($('textarea'));
+
+            $scope.loadNotifications();
+        }
+
+        function _setPreviousState(event, toState, toParams, fromState, fromParams){
+            $scope.previousState = $state.href(fromState, fromParams);
+        }
     }
-]);
 
-lilyControllers.controller('headerController', [
-    '$scope',
+    angular.module('app.base').controller('headerController', headerController);
 
-    function($scope) {
-        $scope.$on('$includeContentLoaded', function() {
-            Layout.initHeader(); // init header
-        });
+    headerController.$inject = ['$scope'];
+    function headerController($scope){
+        $scope.$on('$includeContentLoaded', initHeader);
+
+        //////////
+
+        function initHeader(){
+            Layout.initHeader();
+        }
     }
-]);
 
-lilyControllers.controller('sidebarController', [
-    '$scope',
+    angular.module('app.base').controller('sidebarController', sidebarController);
 
-    function($scope) {
-        $scope.$on('$includeContentLoaded', function() {
-            Layout.initSidebar(); // init sidebar
-        });
+    sidebarController.$inject = ['$scope'];
+    function sidebarController($scope){
+        $scope.$on('$includeContentLoaded', initSidebar);
+
+        //////////
+
+        function initSidebar(){
+            Layout.initSidebar();
+        }
     }
-]);
+})();

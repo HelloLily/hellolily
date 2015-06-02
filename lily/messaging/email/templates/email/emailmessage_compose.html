@@ -11,6 +11,7 @@
         {% for hidden in form.hidden_fields %}
             {{ hidden }}
         {% endfor %}
+        <input type="hidden" name="success_url" value="">
         <div class="inbox-compose-btn">
             <button type="submit" name="submit-send" class="btn blue"><i class="fa fa-check"></i> Send</button>
             {% if form.message_type == 'reply' %}

@@ -13,13 +13,13 @@
 
         // Controllers
         'app.accounts',
+        'app.base',
         'app.cases',
         'app.dashboard',
         'app.email',
         'app.preferences',
         'app.preferences.email',
         'app.preferences.user',
-        'lilyControllers',
         'ContactsControllers',
         'DealControllers',
         'UtilsControllers',

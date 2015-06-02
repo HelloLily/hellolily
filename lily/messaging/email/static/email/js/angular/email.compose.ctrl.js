@@ -199,6 +199,7 @@
                     recipient: recipient,
                     template: template
                 });
+                HLInbox.setSuccesURL($scope.previousState)
                 if (SelectedEmailAccount.currentAccountId) {
                     angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
                 }

@@ -79,7 +79,7 @@
             valueSelect.find('option').not('option[value=""]').remove();
             valueSelect.change();
 
-            // TODO: LILY-XXX: Change this to API endpoint
+            // TODO: LILY-953: Change this to API endpoint
             var parameterChoices = {
                 "Contact": {
                     "contact.full_name": "Full name",
@@ -89,7 +89,9 @@
                     "contact.mobile_phone": "Mobile phone",
                     "contact.first_name": "First name",
                     "contact.linkedin": "Linkedin",
-                    "contact.preposition": "Preposition"
+                    "contact.preposition": "Preposition",
+                    "contact.primary_email": "Primary email",
+                    "contact.account_city": "Account city"
                 },
                 "User": {
                     "user.full_name": "Full name",

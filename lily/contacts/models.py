@@ -64,10 +64,23 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label="contacts", model="contact")
+        return ContentType.objects.get(app_label='contacts', model='contact')
 
+    @property
     def primary_email(self):
-        return self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
+        """
+        Will return the primary email address set to this contact if one exists.
+
+        Returns:
+            EmailAddress or empty string.
+        """
+        if not hasattr(self, '_primary_email'):
+            self._primary_email = self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
+
+            if not self._primary_email:
+                self._primary_email = ''
+
+        return self._primary_email
 
     @property
     def any_email_address(self):
@@ -78,16 +91,26 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         grab the first of the email address set.
 
         Returns:
-            EmailAddress or None.
+            EmailAddress or empty string.
         """
         if not hasattr(self, '_any_email_address'):
-            self._any_email_address = self.primary_email()
+            self._any_email_address = self.primary_email
             if self._any_email_address is None:
                 try:
                     self._any_email_address = self.email_addresses.all()[0]
                 except IndexError:
-                    pass
+                    self._any_email_address = ''
         return self._any_email_address
+
+    @property
+    def account_city(self):
+        city = ''
+        account = self.accounts.first()
+
+        if account:
+            city = account.main_address.city
+
+        return city
 
     @property
     def work_phone(self):
@@ -175,7 +198,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         return self.full_name()
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
-                                 'work_phone', 'mobile_phone']
+                                 'work_phone', 'mobile_phone', 'primary_email', 'account_city']
 
     class Meta:
         ordering = ['last_name', 'first_name']

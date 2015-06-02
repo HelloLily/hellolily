@@ -4,7 +4,10 @@
         <div class="portlet-title">
             <div class="caption">
                 <i class="fa fa-users"></i>
-                <a ui-sref="base.accounts.detail({id: accountId })" ng-show="accountId">{{ title }}</a>
+                <span ng-show="accountId">
+                    Colleagues at
+                    <a ui-sref="base.accounts.detail({id: accountId })">{{ title }}</a>
+                </span>
                 <span ng-hide="accountId">{{ title }}</span>
             </div>
             <div class="actions">

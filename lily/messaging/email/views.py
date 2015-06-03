@@ -589,7 +589,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
-                'body_html': mark_safe('<br /><br /><hr />' + self.object.reply_body),
+                'body_html': mark_safe('<br /><hr />' + self.object.reply_body),
             },
         })
         return kwargs
@@ -644,7 +644,7 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
 
         for recipient in self.object.received_by.all():
             if recipient.name:
-                forward_header_to.append(recipient.name + ' <' + recipient.email_address + '>')
+                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
             else:
                 forward_header_to.append(recipient.email_address)
 

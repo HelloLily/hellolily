@@ -154,7 +154,8 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     def get_visiting_addresses(self):
         return self.get_addresses(type='visiting')
 
-    def get_main_address(self):
+    @property
+    def main_address(self):
         addresses = self.get_addresses(type='visiting')
 
         if len(addresses):

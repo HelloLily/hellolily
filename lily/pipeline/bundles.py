@@ -56,14 +56,6 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            # Angular Lily app
-            'accounts/js/angular/module.js',
-            'accounts/js/angular/controllers.js',
-            'accounts/js/angular/list.ctrl.js',
-            'accounts/js/angular/services.js',
-            'accounts/js/angular/directives/module.js',
-            'accounts/js/angular/directives/detail_widget.js',
-
             'cases/js/angular/controllers.js',
             'cases/js/angular/directives.js',
             'cases/js/angular/assignto.ctrl.js',

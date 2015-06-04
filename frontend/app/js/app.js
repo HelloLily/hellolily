@@ -9,7 +9,6 @@ angular.module('lilyApp', [
     'ncy-angular-breadcrumb',
 
     // Controllers
-    'app',
     'app.accounts',
     'app.base',
     'app.cases',

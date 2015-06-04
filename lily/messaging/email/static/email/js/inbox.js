@@ -60,11 +60,13 @@
                 })
                 .on('change', cf.sendToNormalField, function () {
                     var previousSendToNormalLength = self.config.previousSendToNormalLength;
-                    self.config.previousSendToNormalLength = $(this).select2('data').length;
+
+                    var inputLength = $(this).select2('data').length;
+                    self.config.previousSendToNormalLength = inputLength;
 
                     // Don't do anything if it's just an extra recipient being added/removed
                     // or the last recipient is removed
-                    if ($(this).select2('data').length < previousSendToNormalLength) {
+                    if (inputLength > 1 || inputLength < previousSendToNormalLength) {
                         return false;
                     }
 
@@ -496,6 +498,12 @@
             });
 
             $(cf.templateAttachmentIds).val(newAttachmentIds);
+        },
+
+        setSuccesURL: function(previousState){
+            if(previousState != null){
+                $("input[name='success_url']").val(previousState);
+            }
         }
     }
 })(jQuery, window, document);

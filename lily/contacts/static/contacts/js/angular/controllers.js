@@ -117,17 +117,10 @@ function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, DealDeta
     $scope.conf.pageTitleBig = 'Contact detail';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
 
-    $scope.caseList = CaseDetail.query({filterquery: 'archived:false AND contact:' + id});
+    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });
-
-    $scope.dealList = DealDetail.query({filterquery: 'archived:false AND contact:' + id});
-    $scope.dealList.$promise.then(function(dealList) {
-        $scope.dealList = dealList;
-    });
-
-
 }
 
 /**

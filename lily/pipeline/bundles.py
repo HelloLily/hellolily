@@ -15,40 +15,17 @@ PIPELINE_CSS = {
         ),
         'output_filename': 'metronic/css/anonymous_global.css',
     },
-
-    'global': {
+    'vendor': {
         'source_filenames': (
-            # Metronic global
-            'metronic/assets/global/plugins/font-awesome/css/font-awesome.css',
-            'metronic/assets/global/plugins/simple-line-icons/simple-line-icons.css',
-            'metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
-            'metronic/assets/global/plugins/uniform/css/uniform.default.css',
-            'metronic/assets/global/plugins/bootstrap-switch/css/bootstrap-switch.css',
-            'metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
-            'metronic/assets/global/plugins/select2/select2.css',
-
-            # Metronic layout
-            'metronic/assets/admin/pages/css/inbox.css',
-            'metronic/assets/admin/pages/css/profile-old.css',  # TODO: LILY-824: Remove this after history list update
-            'metronic/assets/admin/pages/css/profile.css',
-            'metronic/assets/admin/layout4/css/layout.css',
-            'metronic/assets/admin/layout4/css/themes/light.css',
-            'metronic/assets/global/css/components-rounded.css',
-            'metronic/assets/global/css/plugins.css',
-            'metronic/assets/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css',
-            'metronic/assets/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css',
-
-            'plugins/angular/angular-chart/angular-chart.css',
-            'plugins/angular/angular-ui-select/angular-ui-select.css',
-
-            # Custom timeline
-            'lily/css/custom.css',
-
-            'lily/css/profile.css',  # TODO: LILY-824: Remove this after history list update
-            'accounts/css/accounts.css',  # TODO: LILY-824: Remove this after history list update
-            'email/css/inbox.css',
+            'build/vendor.min.css',
         ),
-        'output_filename': 'metronic/css/global.css',
+        'output_filename': 'compiled/css/vendor.css',
+    },
+    'app': {
+        'source_filenames': (
+            'build/app.min.css',
+        ),
+        'output_filename': 'compiled/css/app.css',
     },
 }
 
@@ -78,69 +55,6 @@ PIPELINE_JS = {
     },
     'global': {
         'source_filenames': (
-            'metronic/assets/global/plugins/jquery.min.js',
-            'metronic/assets/global/plugins/jquery-migrate.min.js',
-            # Load jquery-ui.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip
-            'metronic/assets/global/plugins/jquery-ui/jquery-ui.min.js',
-            'metronic/assets/global/plugins/bootstrap/js/bootstrap.min.js',
-            'metronic/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js',
-            'metronic/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js',  # Upgrade to new version without custom patch as soon as PR 198 gets through
-            'metronic/assets/global/plugins/jquery.blockui.min.js',
-            'metronic/assets/global/plugins/jquery.cokie.min.js',
-            # 'metronic/assets/global/plugins/uniform/jquery.uniform.js',
-            'metronic/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
-            'metronic/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js',
-            'metronic/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js',
-            'metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
-            'metronic/assets/global/plugins/select2/select2.js',
-            'metronic/assets/global/scripts/metronic.js',
-            'metronic/assets/admin/layout4/scripts/layout.js',
-            'metronic/assets/admin/layout4/scripts/demo.js',
-            'lily/plugins/wysihtml/wysihtml.js',
-            'lily/plugins/wysihtml/wysihtml-toolbar.js',
-            'plugins/diff.js',
-
-            # Angular base
-            'plugins/angular/angular.js',
-            'plugins/angular/angular-cookies.js',
-            'plugins/angular/angular-resource.js',
-
-            # Angular plugins
-            'plugins/angular/angular-bootstrap/ui-bootstrap-tpls-0.12.1.js',
-            'plugins/angular/angular-breadcrumb/angular-breadcrumb.js',
-            'plugins/chart.js',
-            'plugins/angular/angular-angulartics/angulartics.js',
-            'plugins/angular/angular-angulartics/angulartics-ga.js',
-            'plugins/angular/angular-chart/angular-chart.js',
-            'plugins/angular/angular-sanitize/angular-sanitize.js',
-            'plugins/angular/angular-slimscroll/angular-slimscroll.js',
-            'plugins/angular/angular-ui-router/angular-ui-router.js',
-            'plugins/angular/angular-ui-select/angular-ui-select.js',
-            'plugins/angular/angular-infinite-scroll/ng-infinite-scroll.js',
-
-            # Other plugins
-            'plugins/autosize.js',
-
-            # Angular Lily app
-            'lily/js/angular/app.js',
-            'lily/js/angular/controllers.js',
-            'lily/js/angular/directives.js',
-            'lily/js/angular/filters.js',
-            'lily/js/angular/services.js',
-
-            'accounts/js/angular/module.js',
-            'accounts/js/angular/controllers.js',
-            'accounts/js/angular/list.ctrl.js',
-            'accounts/js/angular/services.js',
-            'accounts/js/angular/directives/module.js',
-            'accounts/js/angular/directives/detail_widget.js',
-
-            'cases/js/angular/controllers.js',
-            'cases/js/angular/directives.js',
-            'cases/js/angular/assignto.ctrl.js',
-            'cases/js/angular/postpone.ctrl.js',
-            'cases/js/angular/services.js',
-            'cases/js/cases.js',
 
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
@@ -200,15 +114,25 @@ PIPELINE_JS = {
             'js/jquery.formset.js',
             'django_password_strength/js/zxcvbn.js',
             'django_password_strength/js/password_strength.js',
-
-            # Our JavaScript
-            'lily/js/forms/formsets.js',
-            'lily/js/forms/select2.js',
-            'lily/js/forms/show-and-hide.js',
-            'utils/js/utils.js',
-            'provide/js/dataprovider.js',
-            'lily/plugins/analytics/analytics.js',
         ),
         'output_filename': 'compiled/js/global.js',
+    },
+    'vendor': {
+        'source_filenames': (
+            'build/vendor.min.js',
+        ),
+        'output_filename': 'compiled/js/vendor.js',
+    },
+    'app': {
+        'source_filenames': (
+            'build/app.min.js',
+        ),
+        'output_filename': 'compiled/js/app.js',
+    },
+    'templates': {
+        'source_filenames': (
+            'build/templates.js',
+        ),
+        'output_filename': 'compiled/js/templates.js',
     },
 }

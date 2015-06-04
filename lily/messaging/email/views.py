@@ -166,6 +166,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
     form_class = ComposeEmailForm
     object = None
     remove_old_message = True
+    success_url = '/#/email/all/INBOX'
 
     def get(self, request, *args, **kwargs):
         self.get_object(request, **kwargs)
@@ -326,8 +327,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         return kwargs
 
     def get_success_url(self):
-        return '/#/email/all/INBOX'
-        # return reverse('messaging_email_inbox')
+        self.success_url = '/' + self.request.POST.get('success_url', self.success_url)
+        return self.success_url
 
     def get_email_headers(self):
         """
@@ -588,7 +589,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
-                'body_html': mark_safe('<br /><br /><hr />' + self.object.reply_body),
+                'body_html': mark_safe('<br /><hr />' + self.object.reply_body),
             },
         })
         return kwargs
@@ -643,7 +644,7 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
 
         for recipient in self.object.received_by.all():
             if recipient.name:
-                forward_header_to.append(recipient.name + ' <' + recipient.email_address + '>')
+                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
             else:
                 forward_header_to.append(recipient.email_address)
 

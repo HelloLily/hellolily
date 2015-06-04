@@ -86,7 +86,6 @@ amqp==1.4.6
 billiard==3.3.0.19
 celery==3.1.17
 iron_celery==0.4.3  # Old version is: 0.4.0
-iron-cache==0.3.1
 iron-core==1.1.5  # Old version is: 1.1.1
 iron-mq==0.5
 kombu==3.0.24  # Old version is: 3.0.14

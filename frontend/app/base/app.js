@@ -70,7 +70,7 @@ appConfig.$inject = [
 function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
     // Don't strip trailing slashes from calculated URLs, because django needs them
     $breadcrumbProvider.setOptions({
-        templateUrl: 'breadcrumbs.html',
+        templateUrl: 'base/breadcrumbs.html',
         includeAbstract: true
     });
     $controllerProvider.allowGlobals();

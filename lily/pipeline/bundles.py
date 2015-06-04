@@ -56,13 +56,6 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            'cases/js/angular/controllers.js',
-            'cases/js/angular/directives.js',
-            'cases/js/angular/assignto.ctrl.js',
-            'cases/js/angular/postpone.ctrl.js',
-            'cases/js/angular/services.js',
-            'cases/js/cases.js',
-
             'contacts/js/angular/controllers.js',
             'contacts/js/angular/services.js',
             'contacts/js/angular/directives/module.js',

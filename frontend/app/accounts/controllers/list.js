@@ -10,7 +10,7 @@ function accountConfig ($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/list.html',
-                controller: 'AccountList',
+                controller: AccountList,
                 controllerAs: 'vm'
             }
         },

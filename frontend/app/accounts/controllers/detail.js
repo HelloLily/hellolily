@@ -10,7 +10,7 @@ function accountConfig ($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/detail.html',
-                controller: 'AccountDetailController'
+                controller: AccountDetailController
             }
         },
         ncyBreadcrumb: {

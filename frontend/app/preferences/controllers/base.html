@@ -1,0 +1,114 @@
+<!-- BEGIN PROFILE SIDEBAR -->
+<div class="profile-sidebar hidden-sm hidden-xs hidden-md">
+    <!-- PORTLET MAIN -->
+    <div class="portlet light profile-sidebar-portlet">
+        <!-- SIDEBAR USERPIC -->
+        <div class="profile-userpic">
+            <img src="static/metronic/assets/admin/layout4/img/avatar.png" class="img-responsive" alt="">
+        </div>
+        <!-- END SIDEBAR USERPIC -->
+        <!-- SIDEBAR USER TITLE -->
+        <div class="profile-usertitle">
+            <div class="profile-usertitle-name">
+                {{ currentUser.fullName }}
+            </div>
+        </div>
+        <!-- END SIDEBAR USER TITLE -->
+        <!-- SIDEBAR BUTTONS -->
+        <!-- These buttons can be added later for more functionality
+        <div class="profile-userbuttons">
+            <button type="button" class="btn btn-circle green-haze btn-sm">Follow</button>
+            <button type="button" class="btn btn-circle btn-danger btn-sm">Message</button>
+        </div>
+        -->
+        <!-- END SIDEBAR BUTTONS -->
+        <!-- SIDEBAR MENU -->
+        <div class="profile-usermenu">
+            <ul class="nav">
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.user.profile">
+                        <i class="icon-user"></i>
+                        My profile
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.user.account">
+                        <i class="icon-settings"></i>
+                        My account
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.user.token">
+                        <i class="icon-settings"></i>
+                        My API token
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- END MENU -->
+    </div>
+    <!-- END PORTLET MAIN -->
+    <!-- PORTLET MAIN -->
+    <div class="portlet light profile-sidebar-portlet">
+        <!-- SIDEBAR MENU -->
+        <div class="profile-usermenu no-margin">
+            <ul class="nav">
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.companyaccount">
+                        <i class="icon-briefcase"></i>
+                        Company account
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.users">
+                        <i class="icon-users"></i>
+                        Company users
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.workflow">
+                        <i class="icon-grid"></i>
+                        Workflow
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- END MENU -->
+    </div>
+    <!-- END PORTLET MAIN -->
+    <!-- PORTLET MAIN -->
+    <div class="portlet light profile-sidebar-portlet">
+        <!-- SIDEBAR MENU -->
+        <div class="profile-usermenu no-margin">
+            <ul class="nav">
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.emailaccounts">
+                        <i class="icon-envelope-open"></i>
+                        Email accounts
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.emailtemplates">
+                        <i class="icon-envelope-letter"></i>
+                        Email templates
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- END MENU -->
+    </div>
+    <!-- END PORTLET MAIN -->
+</div>
+<!-- END BEGIN PROFILE SIDEBAR -->
+
+<!-- BEGIN PROFILE CONTENT -->
+<div class="profile-content">
+    <div class="portlet light">
+        <div class="portlet-body">
+            <div ui-view>
+                Here comes a preference pane kind of view.
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END PROFILE CONTENT -->

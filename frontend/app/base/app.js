@@ -14,13 +14,11 @@ angular.module('app', [
     'app.cases',
     'app.contacts',
     'app.dashboard',
+    'app.deals',
     'app.email',
     'app.preferences',
-    'app.preferences.email',
-    'app.preferences.user',
     'app.templates',
-    'app.deals',
-    'UtilsControllers',
+    'app.utils',
 
     // Directives
     'app.directives',
@@ -28,7 +26,7 @@ angular.module('app', [
     'app.cases.directives',
     'app.contacts.directives',
     'app.deals.directives',
-    'UtilsDirectives',
+    'app.utils.directives',
 
     // Google Analytics
     'angulartics',

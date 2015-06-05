@@ -10,5 +10,5 @@ angular.module('app.cases', [
     'app.cases.services',
     'app.email.services',
     'app.contacts.services',
-    'noteServices'
+    'app.notes'
 ]);

@@ -56,24 +56,8 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            'notes/js/angular/services.js',
-
-            'preferences/js/angular/module.js',
-            'preferences/js/angular/base.ctrl.js',
-            'preferences/js/angular/email/module.js',
-            'preferences/js/angular/email/controllers.js',
-            'preferences/js/angular/email/emailaccountlist.controller.js',
-            'preferences/js/angular/user/module.js',
-            'preferences/js/angular/user/controllers/api_token.js',
-            'preferences/js/angular/user/controllers/base.js',
-            'preferences/js/angular/user/controllers/user_account.js',
-            'preferences/js/angular/user/controllers/user_profile.js',
-
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
-
-            'utils/js/angular/controllers.js',
-            'utils/js/angular/directives.js',
 
             # Pip package static
             'js/jquery.formset.js',

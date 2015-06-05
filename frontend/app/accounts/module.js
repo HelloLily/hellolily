@@ -8,7 +8,7 @@ angular.module('app.accounts', [
     'ui.slimscroll',
     'app.accounts.services',
     'app.cases.services',
-    'app.email.services',
     'app.contacts.services',
-    'noteServices'
+    'app.email.services',
+    'app.notes'
 ]);

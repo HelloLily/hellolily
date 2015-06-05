@@ -1,0 +1,39 @@
+<div class="timeline-badge">
+    <i ng-show="item.type == 1" class="fa fa-phone"></i>
+    <i ng-show="item.type == 2" class="fa fa-calendar"></i>
+    <i ng-show="item.type == 0" class="fa fa-file-o"></i>
+</div>
+<div class="timeline-panel">
+    <div class='timeline-heading'>
+        <h4 class='timeline-title'>
+            Note
+            <div class="btn-group pull-right">
+                <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-angle-down"></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li><a ng-click="history.editNote(item)"><i class="fa fa-edit"></i>Edit</a></li>
+                    <li class='divider'></li>
+                    <li><a ng-click="history.deleteNote(item)"><i class="fa fa-trash"></i>Delete</a></li>
+                </ul>
+            </div>
+        </h4>
+    </div>
+    <div class="timeline-body">
+        <p><em>{{ ::item.content }}</em></p>
+        <ul class="list-inline list-justified">
+            <li>
+                <small class="text-muted" tooltip="Created on {{ ::item.date | date:'dd MMMM yy' }} at {{ ::item.date | date:'HH:mm' }}">
+                    <i class="fa fa-calendar"></i>
+                    {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                </small>
+            </li>
+            <li>
+                <small class="text-muted" tooltip="Created by: {{ ::item.author }}">
+                    <i class="fa fa-user"></i>
+                    {{ ::item.author }}
+                </small>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -81,8 +81,9 @@ function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $re
 /* Init global settings and run the app */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', 'settings', '$state'];
-function runApp ($rootScope, $state) {
+runApp.$inject = ['$rootScope', '$state', 'settings'];
+function runApp ($rootScope, $state, settings) {
     $rootScope.$state = $state; // state to be accessed from view
     $rootScope.currentUser = currentUser;
+    $rootScope.settings = settings;
 }

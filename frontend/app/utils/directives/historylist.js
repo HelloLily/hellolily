@@ -9,7 +9,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             target: '=',
             object: '='
         },
-        templateUrl: 'utils/historylist.html',
+        templateUrl: 'utils/directives/historylist.html',
         link: function (scope, element, attrs) {
             var noteTargets = ['account', 'contact', 'deal', 'case'];
             var caseTargets = ['account', 'contact'];

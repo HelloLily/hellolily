@@ -11,7 +11,7 @@ function HistoryListItemDirective($compile, $http, $templateCache) {
         link: function(scope, element, attrs) {
             var getTemplate = function(historyType) {
                 var templateLoader,
-                    baseUrl = 'utils/controllers/history_list_',
+                    baseUrl = 'utils/directives/history_list_',
                     templateMap = {
                         case: 'case.html',
                         deal: 'deal.html',

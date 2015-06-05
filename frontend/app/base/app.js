@@ -87,3 +87,4 @@ function runApp ($rootScope, $state, settings) {
     $rootScope.currentUser = currentUser;
     $rootScope.settings = settings;
 }
+

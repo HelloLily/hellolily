@@ -87,7 +87,7 @@ var config = {
  *      - livereload call
  */
 gulp.task('app:js', function () {
-    gulp.src(config.appJs.src)
+    return gulp.src(config.appJs.src)
         .pipe(sourcemaps.init())
         .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
         .pipe(concat(config.appJs.minifiedFileName))
@@ -114,7 +114,7 @@ gulp.task('app:js', function () {
  *      - livereload call
  */
 gulp.task('app:templates', function () {
-    gulp.src(config.templates.src)
+    return gulp.src(config.templates.src)
         // clean whitespace
         .pipe(cleanhtml())
         // Turn into Angular templates
@@ -142,7 +142,7 @@ gulp.task('app:templates', function () {
  *      - livereload call
  */
 gulp.task('vendor:js', function () {
-    gulp.src(config.vendorJs.src)
+    return gulp.src(config.vendorJs.src)
         .pipe(sourcemaps.init())
         .pipe(concat(config.vendorJs.minifiedFileName))
         .pipe(uglify())
@@ -169,7 +169,7 @@ gulp.task('vendor:js', function () {
  *      - livereload call
  */
 gulp.task('app:css', function () {
-    gulp.src(config.appCss.src)
+    return gulp.src(config.appCss.src)
         .pipe(sourcemaps.init())
         .pipe(rebaseUrls({root: config.appCss.root}))
         .pipe(concat(config.appCss.minifiedFileName))
@@ -197,7 +197,7 @@ gulp.task('app:css', function () {
  *      - livereload call
  */
 gulp.task('vendor:css', function () {
-    gulp.src(config.vendorCss.src)
+    return gulp.src(config.vendorCss.src)
         .pipe(sourcemaps.init())
         .pipe(rebaseUrls({root: config.vendorCss.root}))
         .pipe(concat(config.vendorCss.minifiedFileName))
@@ -217,7 +217,7 @@ gulp.task('vendor:css', function () {
  *      - files moved
  */
 gulp.task('vendor:assets', function () {
-   gulp.src(config.vendorAssets.src)
+   return gulp.src(config.vendorAssets.src)
        .pipe(gulp.dest(config.vendorAssets.buildDir))
        .pipe(livereload());
 });
@@ -226,7 +226,7 @@ gulp.task('vendor:assets', function () {
  * Clean build dir
  */
 gulp.task('clean', function() {
-    del([config.buildDir]);
+    return del([config.buildDir]);
 });
 
 /**

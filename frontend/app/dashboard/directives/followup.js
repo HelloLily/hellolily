@@ -44,7 +44,7 @@ function FollowUpController ($modal, $scope, Deal, Cookie){
 
     function openFollowUpWidgetModal(followUp){
         var modalInstance = $modal.open({
-            templateUrl: 'deals/followup_widget_modal.html',
+            templateUrl: 'deals/controllers/followup_widget.html',
             controller: 'FollowUpWidgetModal',
             controllerAs: 'vm',
             size: 'md',

@@ -19,7 +19,7 @@ angular.module('app', [
     'app.preferences.email',
     'app.preferences.user',
     'app.templates',
-    'DealControllers',
+    'app.deals',
     'UtilsControllers',
 
     // Directives

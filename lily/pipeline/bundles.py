@@ -56,31 +56,6 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            'contacts/js/angular/controllers.js',
-            'contacts/js/angular/services.js',
-            'contacts/js/angular/directives/module.js',
-            'contacts/js/angular/directives/list_widget.js',
-            'contacts/js/angular/directives/detail_widget.js',
-
-            'dashboard/js/angular/controllers/module.js',
-            'dashboard/js/angular/controllers/base.js',
-            'dashboard/js/angular/directives/module.js',
-            'dashboard/js/angular/directives/callback.js',
-            'dashboard/js/angular/directives/dealstocheck.js',
-            'dashboard/js/angular/directives/feedback.js',
-            'dashboard/js/angular/directives/mycases.js',
-            'dashboard/js/angular/directives/queuesize.js',
-            'dashboard/js/angular/directives/teams.js',
-            'dashboard/js/angular/directives/unassigned.js',
-            'dashboard/js/angular/directives/unread.js',
-            'dashboard/js/angular/directives/followup.js',
-
-            'deals/js/angular/controllers.js',
-            'deals/js/angular/followup_widget_ctrl.js',
-            'deals/js/angular/services.js',
-            'deals/js/angular/directives/module.js',
-            'deals/js/angular/directives/list_widget.js',
-
             'email/js/angular/module.js',
             'email/js/angular/base.ctrl.js',
             'email/js/angular/email.compose.ctrl.js',

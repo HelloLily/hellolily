@@ -1,0 +1,73 @@
+<div class='portlet light'>
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-building-o"></i>
+            {{ contact.salutation }} / {{ contact.gender }} <b>{{ contact.name }}</b>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <div>
+            <div class="scroll-body" slimscroll="{height: height/2}">
+                <!-- Do not put content of paragraph on new line, because of pre-line css that whitespace will show -->
+                <p style="white-space: pre-line">{{ contact.description || 'No description' }}</p>
+            </div>
+        </div>
+        <div class="scroll-body" slimscroll="{height: height/2}">
+            <table class="table table-hover no-margin">
+                <tr ng-show="(contact.email_addresses | filter: {status: '!' + 0}).length">
+                    <th>
+                        <i class="fa">@</i>
+                        Email
+                    </th>
+                    <td>
+                        <div ng-repeat="email in contact.email_addresses | filter: {status: '!' + 0}">
+                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                {{ email.email_address }}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="contact.phones">
+                    <th>
+                        <i class="fa fa-phone"></i>
+                        Phone
+                    </th>
+                    <td>
+                        <div ng-repeat="phone in contact.phones">
+                            {{ phone }}
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="contact.addresses">
+                    <th>
+                        <i class="fa fa-map-marker"></i>
+                        Address
+                    </th>
+                    <td>
+                        <div ng-repeat="address in contact.addresses">
+                            {{ address.street }} {{ address.street_number }}{{ address.complement }}, {{ address.postal_code }}
+                            <br />
+                            {{ address.city }}, {{ address.country }}
+                            <br />
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="contact.social" ng-repeat="social in contact.social">
+                    <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
+                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                </tr>
+                <tr ng-show="contact.tag">
+                    <th>
+                        <i class="fa fa-tag"></i>
+                        Tags
+                    </th>
+                    <td>
+                        <a class="btn btn-xs btn-default" ng-repeat="tag in contact.tag">
+                            {{ tag }}
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

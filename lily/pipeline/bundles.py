@@ -56,16 +56,6 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            'email/js/angular/module.js',
-            'email/js/angular/base.ctrl.js',
-            'email/js/angular/email.compose.ctrl.js',
-            'email/js/angular/email.detail.ctrl.js',
-            'email/js/angular/email.list.ctrl.js',
-            'email/js/angular/directives.js',
-            'email/js/angular/services.js',
-            'email/js/inbox.js',
-            'email/js/emailtemplate.js',
-
             'notes/js/angular/services.js',
 
             'preferences/js/angular/module.js',

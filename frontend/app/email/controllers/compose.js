@@ -98,11 +98,14 @@ function emailConfig ($stateProvider) {
 
 angular.module('app.email').controller('EmailComposeController', EmailComposeController);
 
-EmailComposeController.$inject = ['$scope', '$stateParams', '$templateCache', '$q', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
-function EmailComposeController ($scope, $stateParams, $templateCache, $q, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
+function EmailComposeController ($scope, $state, $stateParams, $templateCache, $q, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+    var vm = this;
 
     $scope.conf.pageTitleBig = 'Send email';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
+
+    vm.discard = discard;
 
     activate();
 
@@ -201,5 +204,13 @@ function EmailComposeController ($scope, $stateParams, $templateCache, $q, Conta
                 angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
             }
         });
+    }
+
+    function discard () {
+        if ($scope.previousState) {
+            window.location = $scope.previousState;
+        } else {
+            $state.go('base.email');
+        }
     }
 }

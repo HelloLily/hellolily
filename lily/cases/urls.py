@@ -1,8 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import (CreateCaseView, DetailCaseView, UpdateCaseView, DeleteCaseView, ListCaseView, UpdateStatusAjaxView,
-                    ArchiveCasesView, UnarchiveCasesView, UpdateAndUnarchiveCaseView, GetCaseTypesView,
-                    UpdateAssignedToView)
+from .views import (CreateCaseView, UpdateCaseView, DeleteCaseView, UpdateStatusAjaxView, ArchiveCasesView,
+                    UnarchiveCasesView, UpdateAndUnarchiveCaseView, GetCaseTypesView, UpdateAssignedToView)
 
 
 urlpatterns = patterns(
@@ -17,10 +16,8 @@ urlpatterns = patterns(
     url(r'^update/status/$', UpdateStatusAjaxView.as_view(), name='case_update_status_short'),
     url(r'^update/assigned_to/(?P<pk>[\w-]+)/$', UpdateAssignedToView.as_view(), name='case_assign_to_user'),
     url(r'^update/assigned_to/$', UpdateAssignedToView.as_view(), name='case_assign_to_user_short'),
-    url(r'^details/(?P<pk>[\w-]+)/$', DetailCaseView.as_view(), name='case_details'),
     url(r'^delete/(?P<pk>[\w-]+)/$', DeleteCaseView.as_view(), name='case_delete'),
     url(r'^archive/$', ArchiveCasesView.as_view(), name='case_archive'),
     url(r'^unarchive/$', UnarchiveCasesView.as_view(), name='case_unarchive'),
     url(r'^casetypes/$', GetCaseTypesView.as_view(), name='get_casetypes'),
-    url(r'^$', ListCaseView.as_view(), name='case_list'),
 )

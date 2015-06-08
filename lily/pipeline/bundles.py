@@ -17,13 +17,13 @@ PIPELINE_CSS = {
     },
     'vendor': {
         'source_filenames': (
-            'build/vendor.min.css',
+            'build/vendor.css',
         ),
         'output_filename': 'compiled/css/vendor.css',
     },
     'app': {
         'source_filenames': (
-            'build/app.min.css',
+            'build/app.css',
         ),
         'output_filename': 'compiled/css/app.css',
     },
@@ -68,13 +68,13 @@ PIPELINE_JS = {
     },
     'vendor': {
         'source_filenames': (
-            'build/vendor.min.js',
+            'build/vendor.js',
         ),
         'output_filename': 'compiled/js/vendor.js',
     },
     'app': {
         'source_filenames': (
-            'build/app.min.js',
+            'build/app.js',
         ),
         'output_filename': 'compiled/js/app.js',
     },

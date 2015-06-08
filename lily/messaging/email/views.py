@@ -28,7 +28,6 @@ from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax
-from lily.utils.views import AngularView
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
 from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm,
@@ -40,11 +39,6 @@ from .tasks import send_message, create_draft_email_message, delete_email_messag
     update_draft_email_message
 
 logger = logging.getLogger(__name__)
-
-
-class EmailBaseView(LoginRequiredMixin, AngularView):
-    def get_template_names(self):
-        return 'email/%s' % self.kwargs.get('template_file', 'email_base.html')
 
 
 FLOW = OAuth2WebServerFlow(

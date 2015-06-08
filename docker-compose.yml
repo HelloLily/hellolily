@@ -32,6 +32,8 @@ gulp:
   volumes:
     - .:/home/docker/hellolily
   working_dir: /home/docker/hellolily
+  ports:
+    - 35723:35729
 rabbit:
   build: Dockers/rabbit
 beat:

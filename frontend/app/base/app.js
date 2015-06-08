@@ -12,15 +12,13 @@ angular.module('app', [
     'app.accounts',
     'app.base',
     'app.cases',
+    'app.contacts',
     'app.dashboard',
+    'app.deals',
     'app.email',
     'app.preferences',
-    'app.preferences.email',
-    'app.preferences.user',
     'app.templates',
-    'ContactsControllers',
-    'DealControllers',
-    'UtilsControllers',
+    'app.utils',
 
     // Directives
     'app.directives',
@@ -28,7 +26,7 @@ angular.module('app', [
     'app.cases.directives',
     'app.contacts.directives',
     'app.deals.directives',
-    'UtilsDirectives',
+    'app.utils.directives',
 
     // Google Analytics
     'angulartics',
@@ -70,7 +68,7 @@ appConfig.$inject = [
 function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
     // Don't strip trailing slashes from calculated URLs, because django needs them
     $breadcrumbProvider.setOptions({
-        templateUrl: 'breadcrumbs.html',
+        templateUrl: 'base/breadcrumbs.html',
         includeAbstract: true
     });
     $controllerProvider.allowGlobals();

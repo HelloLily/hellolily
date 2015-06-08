@@ -5,27 +5,20 @@ from urlparse import urlparse
 import anyjson
 from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponse
 from django.utils.timezone import utc
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from pytz import timezone
 
 from lily.accounts.models import Account
 from lily.utils.functions import is_ajax
-from lily.utils.views import AjaxUpdateView, ArchiveView, UnarchiveView, AngularView
-from lily.utils.views.mixins import HistoryListViewMixin, LoginRequiredMixin
+from lily.utils.views import AjaxUpdateView
+from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
 from .models import Deal
-
-
-class ListDealView(LoginRequiredMixin, AngularView):
-    """
-    Display a list of all deals.
-    """
-    template_name = 'deals/deal_list.html'
 
 
 class ArchiveDealsView(LoginRequiredMixin, AjaxUpdateView):
@@ -87,13 +80,6 @@ class UnarchiveDealsView(LoginRequiredMixin, AjaxUpdateView):
             messages.success(self.request, message)
 
             return HttpResponse(anyjson.serialize({'archived': 'false'}), content_type='application/json')
-
-
-class DetailDealView(LoginRequiredMixin, HistoryListViewMixin):
-    """
-    Display a detail page for a single deal.
-    """
-    model = Deal
 
 
 class CreateUpdateDealMixin(LoginRequiredMixin):

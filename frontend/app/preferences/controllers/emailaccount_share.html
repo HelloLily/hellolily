@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h3 class="modal-title">Yes, let me share this email account!</h3>
+</div>
+<div class="modal-body" slimscroll="{height: 350}">
+    <ul class="list-unstyled">
+        <li>
+            <checkbox model="currentAccount.public">Make it a public account!</checkbox>
+        </li>
+    </ul>
+    <div ng-hide="currentAccount.public">
+        No, just share it with these peeps:
+        <ul class="list-unstyled">
+            <li ng-repeat="user in users" ng-hide="currentAccount.public">
+                <checkbox model="user.sharedWith" >{{ user | fullName }}</checkbox>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

@@ -1,0 +1,46 @@
+<div class="portlet light">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-users"></i>
+            <span ng-show="accountId">
+                Colleagues at
+                <a ui-sref="base.accounts.detail({id: accountId })">{{ title }}</a>
+            </span>
+            <span ng-hide="accountId">{{ title }}</span>
+        </div>
+        <div class="actions">
+            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
+                <i class="fa fa-plus"></i>
+                Add
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <div class="scroll-body" slimscroll="{height: height || 250}">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>E-mail address</th>
+                    <th>Phone number</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="contact in list" ng-show="list.length">
+                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
+                    <td>
+                        <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
+                            {{ contact.email_addresses[0].email_address }}
+                        </a>
+                        <span ng-hide="contact.email_addresses[0]">No email</span>
+                    </td>
+                    <td>{{ contact.phones[0] || 'No phone' }}</td>
+                </tr>
+                <tr ng-hide="list.length">
+                    <td colspan="4">No contacts</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="timeline-badge">
+    <i class="fa fa-briefcase"></i>
+</div>
+<div class="timeline-panel">
+    <div class='timeline-heading'>
+        <h4 class='timeline-title'>
+            {{ ::item.subject }}
+            <div class="btn-group pull-right">
+                <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-angle-down"></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li><a ui-sref="base.cases.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
+                    <li><a ui-sref="base.cases.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
+                    <li class='divider'></li>
+                    <li>
+                        <a ng-href="/cases/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/">
+                            <i class="fa fa-trash"></i>Delete
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </h4>
+    </div>
+    <div class='timeline-body first'>
+        <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+        <div class="timeline-footer">
+            <br/>
+            Status: {{ ::item.status}} ({{ ::item.archived ? 'active' : 'archived'}})<br/>
+            Priority: {{ ::item.priority_name }}<br/>
+            Type: {{ ::item.casetype_name }}<br/>
+            <br/>
+        </div>
+        <ul class="list-inline list-justified">
+            <li>
+                <small class="text-muted" tooltip="Expires on {{ ::item.date | date:'dd MMMM yy' }} at {{ ::item.date | date:'HH:mm' }}">
+                    <i class="fa fa-calendar"></i>
+                    {{ ::item.date | date:'dd MMMM yy HH:mm' }}
+                </small>
+            </li>
+            <li ng-if="::item.assigned_to_name">
+                <small class="text-muted" tooltip="Assigned to: {{ ::item.assigned_to_name }}">
+                    <i class="fa fa-child"></i>
+                    {{ ::item.assigned_to_name || "Nobody" }}
+                </small>
+            </li>
+            <li>
+                <small class="text-muted" tooltip="Created by: {{ ::item.created_by }}">
+                    <i class="fa fa-user"></i>
+                    {{ ::item.created_by || "Nobody" }}
+                </small>
+            </li>
+        </ul>
+    </div>
+    <history-add-note item="item"></history-add-note>
+    <div class='timeline-body next' ng-repeat="note in item.notes">
+        <p class='inline-header'><i class="fa fa-file-o"></i> Note</p>
+        <div class="inline-body">
+            <p>{{ ::note.content }}</p>
+            <ul class="list-inline list-justified">
+                <li>
+                    <small class="text-muted" tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
+                        <i class="fa fa-calendar"></i>
+                        {{ ::note.date | date:'dd MMMM yy HH:mm' }}
+                    </small>
+                </li>
+                <li>
+                    <small class="text-muted" tooltip="Created by: {{ ::note.author }}">
+                        <i class="fa fa-user"></i>
+                        {{ ::note.author }}
+                    </small>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

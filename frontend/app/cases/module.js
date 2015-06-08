@@ -9,6 +9,6 @@ angular.module('app.cases', [
     'app.accounts.services',
     'app.cases.services',
     'app.email.services',
-    'contactServices',
-    'noteServices'
+    'app.contacts.services',
+    'app.notes'
 ]);

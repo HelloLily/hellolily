@@ -5,7 +5,7 @@
 <!--[if IE 8]> <html lang="en" class="ie8 no-js" ng-app="app"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9 no-js" ng-app="app"> <![endif]-->
 <!--[if !IE]><!-->
-<html lang="en" ng-app="app" ng-controller="baseController">
+<html lang="en" ng-app="app" ng-controller="BaseController">
 <!--<![endif]-->
     <!-- BEGIN HEAD -->
     <head>
@@ -56,7 +56,7 @@
         <!-- BEGIN CONTAINER -->
         <div class="page-container">
             <!-- BEGIN SIDEBAR -->
-            <div ng-include="'sidebar.html'" ng-controller="sidebarController" class="page-sidebar-wrapper">
+            <div ng-include="'base/controllers/sidebar.html'" ng-controller="sidebarController" class="page-sidebar-wrapper">
             </div>
             <!-- END SIDEBAR -->
 
@@ -64,7 +64,7 @@
             <div class="page-content-wrapper">
                 <div class="page-content">
                     <!-- BEGIN PAGE HEAD -->
-                    <div ng-include="'page-header.html'" class="page-head">
+                    <div ng-include="'base/page_header.html'" class="page-head">
                     </div>
                     <!-- END PAGE HEAD -->
                     <!-- BEGIN PAGE BREADCRUMB -->
@@ -92,6 +92,11 @@
         {% compressed_js 'global' %}
         {% compressed_js 'templates' %}
         {% compressed_js 'app' %}
+        {% if DEBUG %}
+            <script>
+                document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35723/livereload.js?snipver=1"></' + 'script>');
+            </script>
+        {% endif %}
         <script>
             var currentUser = {
                 id: '{{ user.id }}',

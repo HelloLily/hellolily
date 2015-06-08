@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
@@ -605,17 +606,15 @@ class RedirectSetMessageView(RedirectView):
         return super(RedirectSetMessageView, self).dispatch(request, *args, **kwargs)
 
 
-class AngularView(TemplateView):
-    def get_context_data(self, **kwargs):
-        context = super(AngularView, self).get_context_data(**kwargs)
-        context.update({
-            'angular_app': True
-        })
-        return context
-
-
 class BaseView(LoginRequiredMixin, TemplateView):
     template_name = 'angular/base.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(BaseView, self).get_context_data(**kwargs)
+        kwargs.update({
+            'DEBUG': settings.DEBUG
+        })
+        return kwargs
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())

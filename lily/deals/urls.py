@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import ArchiveDealsView, CreateDealView, DetailDealView, DeleteDealView, \
-    UpdateDealView, ListDealView, UpdateStageAjaxView, UnarchiveDealsView, UpdateAndUnarchiveDealView
+from .views import (ArchiveDealsView, CreateDealView, DeleteDealView, UpdateDealView, UpdateStageAjaxView,
+                    UnarchiveDealsView, UpdateAndUnarchiveDealView)
 
 urlpatterns = patterns(
     '',
@@ -11,9 +11,7 @@ urlpatterns = patterns(
     url(r'^update/stage/(?P<pk>[\w-]+)/$', UpdateStageAjaxView.as_view(), name='deal_update_stage'),
     url(r'^update/stage/$', UpdateStageAjaxView.as_view(), name='deal_update_stage_short'),
     url(r'^update/unarchive/(?P<pk>[\w-]+)/$', UpdateAndUnarchiveDealView.as_view(), name='deal_update_unarchive'),
-    url(r'^details/(?P<pk>[\w-]+)/$', DetailDealView.as_view(), name='deal_details'),
     url(r'^delete/(?P<pk>[\w-]+)/$', DeleteDealView.as_view(), name='deal_delete'),
     url(r'^archive/$', ArchiveDealsView.as_view(), name='deal_archive'),
     url(r'^unarchive/$', UnarchiveDealsView.as_view(), name='deal_unarchive'),
-    url(r'^$', ListDealView.as_view(), name='deal_list'),
 )

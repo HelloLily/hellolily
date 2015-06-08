@@ -28,7 +28,6 @@ from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax
-from lily.utils.views import AngularView
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
 from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm,
@@ -36,15 +35,10 @@ from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateU
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment)
 from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_recipients
-from .tasks import send_message, create_draft_email_message, delete_email_message, archive_email_message, \
-    update_draft_email_message
+from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
+                    update_draft_email_message)
 
 logger = logging.getLogger(__name__)
-
-
-class EmailBaseView(LoginRequiredMixin, AngularView):
-    def get_template_names(self):
-        return 'email/%s' % self.kwargs.get('template_file', 'email_base.html')
 
 
 FLOW = OAuth2WebServerFlow(
@@ -72,7 +66,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         account = create_account(credentials, request.user)
 
-        return HttpResponseRedirect('/#/settings/emailaccounts/edit/%s' % account.pk)
+        return HttpResponseRedirect('#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailAccountShareView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):

@@ -18,7 +18,7 @@ var wrap = require('gulp-wrap');  // surround current file(s) with other content
  * Config for Gulp
  */
 var config = {
-    buildDir: 'lily/static/build',
+    buildDir: 'lily/static/build/',
     templates: {
         src: 'frontend/app/**/*.html',
         module: 'app.templates',
@@ -30,7 +30,7 @@ var config = {
             'frontend/app/**/*.js'
         ],
         minifiedFileName: 'app.min.js',
-        devFileName: 'app.dev.js'
+        devFileName: 'app.js'
     },
     vendorJs: {
         src: [
@@ -39,13 +39,13 @@ var config = {
             'frontend/vendor/**/*.js'
         ],
         minifiedFileName: 'vendor.min.js',
-        devFileName: 'vendor.dev.js'
+        devFileName: 'vendor.js'
     },
     appCss: {
         src: 'frontend/app/**/*.css',
         root: 'frontend',
         minifiedFileName: 'app.min.css',
-        devFileName: 'app.dev.css'
+        devFileName: 'app.css'
     },
     vendorCss: {
         src: [
@@ -56,7 +56,7 @@ var config = {
         ],
         root: 'frontend',
         minifiedFileName: 'vendor.min.css',
-        devFileName: 'vendor.dev.css'
+        devFileName: 'vendor.css'
     },
     vendorAssets: {
         src: [
@@ -69,7 +69,7 @@ var config = {
 };
 
 /**
- * Create a minified file of app Javascript files
+ * Create a file of app Javascript files
  *
  * Call:
  *      gulp app:js
@@ -79,7 +79,6 @@ var config = {
  *      - create a sourcemap from original files
  *      - wraps all files in IIFE
  *      - concat all files to one file
- *      - uglify file
  *
  * Outcome:
  *      - production file
@@ -87,18 +86,25 @@ var config = {
  *      - livereload call
  */
 gulp.task('app:js', function () {
-    gulp.src(config.appJs.src)
+    return gulp.src(config.appJs.src)
         .pipe(sourcemaps.init())
         .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
-        .pipe(concat(config.appJs.minifiedFileName))
-        .pipe(uglify())
+        .pipe(concat(config.appJs.devFileName))
+        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.buildDir))
         .pipe(livereload());
 });
 
+gulp.task('app:minify:js', function() {
+    return gulp.src(config.buildDir + config.appJs.devFileName)
+        .pipe(rename(config.appJs.minifiedFileName))
+        .pipe(uglify())
+        .pipe(gulp.dest(config.buildDir))
+});
+
 /**
- * Create a minified file of Angular Template files
+ * Create a file of Angular Template files
  *
  * Call:
  *      gulp app:templates
@@ -107,26 +113,24 @@ gulp.task('app:js', function () {
  *      - clean html
  *      - create js file from angular templates
  *      - wraps file in IIFE
- *      - uglify file
  *
  * Outcome:
  *      - production file
  *      - livereload call
  */
 gulp.task('app:templates', function () {
-    gulp.src(config.templates.src)
+    return gulp.src(config.templates.src)
         // clean whitespace
         .pipe(cleanhtml())
         // Turn into Angular templates
         .pipe(templateCache(config.templates.fileName, {module: config.templates.module, standalone:true}))
         .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
-        .pipe(uglify())
         .pipe(gulp.dest(config.buildDir))
         .pipe(livereload());
 });
 
 /**
- * Create a minified file of vendor Javascript files
+ * Create a file of vendor Javascript files
  *
  * Call:
  *      gulp vendor:js
@@ -134,7 +138,6 @@ gulp.task('app:templates', function () {
  * Actions:
  *      - create a sourcemap from original files
  *      - concat all files to one file
- *      - uglify file
  *
  * Outcome:
  *      - production file
@@ -142,17 +145,23 @@ gulp.task('app:templates', function () {
  *      - livereload call
  */
 gulp.task('vendor:js', function () {
-    gulp.src(config.vendorJs.src)
+    return gulp.src(config.vendorJs.src)
         .pipe(sourcemaps.init())
-        .pipe(concat(config.vendorJs.minifiedFileName))
-        .pipe(uglify())
+        .pipe(concat(config.vendorJs.devFileName))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.buildDir))
         .pipe(livereload());
 });
 
+gulp.task('vendor:minify:js', function() {
+    return gulp.src(config.buildDir + config.vendorJs.devFileName)
+        .pipe(rename(config.vendorJs.minifiedFileName))
+        .pipe(uglify())
+        .pipe(gulp.dest(config.buildDir))
+});
+
 /**
- * Create a minified file of app css files
+ * Create a file of app css files
  *
  * Call:
  *      gulp app:css
@@ -161,7 +170,6 @@ gulp.task('vendor:js', function () {
  *      - create a sourcemap from original files
  *      - rebase src urls in file to correct path
  *      - concat all files to one file
- *      - uglify file
  *
  * Outcome:
  *      - production file
@@ -169,18 +177,24 @@ gulp.task('vendor:js', function () {
  *      - livereload call
  */
 gulp.task('app:css', function () {
-    gulp.src(config.appCss.src)
+    return gulp.src(config.appCss.src)
         .pipe(sourcemaps.init())
         .pipe(rebaseUrls({root: config.appCss.root}))
-        .pipe(concat(config.appCss.minifiedFileName))
-        .pipe(uglifyCss())
+        .pipe(concat(config.appCss.devFileName))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.buildDir))
         .pipe(livereload());
 });
 
+gulp.task('app:minify:css', function() {
+    return gulp.src(config.buildDir + config.appCss.devFileName)
+        .pipe(rename(config.appCss.minifiedFileName))
+        .pipe(uglifyCss())
+        .pipe(gulp.dest(config.buildDir))
+});
+
 /**
- * Create a minified file of vendor css files
+ * Create a file of vendor css files
  *
  * Call:
  *      gulp vendor:css
@@ -189,7 +203,6 @@ gulp.task('app:css', function () {
  *      - create a sourcemap from original files
  *      - rebase src urls in file to correct path
  *      - concat all files to one file
- *      - uglify file
  *
  * Outcome:
  *      - production file
@@ -197,14 +210,20 @@ gulp.task('app:css', function () {
  *      - livereload call
  */
 gulp.task('vendor:css', function () {
-    gulp.src(config.vendorCss.src)
+    return gulp.src(config.vendorCss.src)
         .pipe(sourcemaps.init())
         .pipe(rebaseUrls({root: config.vendorCss.root}))
-        .pipe(concat(config.vendorCss.minifiedFileName))
-        .pipe(uglifyCss())
+        .pipe(concat(config.vendorCss.devFileName))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(config.buildDir))
         .pipe(livereload());
+});
+
+gulp.task('vendor:minify:css', function() {
+    return gulp.src(config.buildDir + config.vendorCss.devFileName)
+        .pipe(rename(config.vendorCss.minifiedFileName))
+        .pipe(uglifyCss())
+        .pipe(gulp.dest(config.buildDir))
 });
 
 /**
@@ -217,7 +236,7 @@ gulp.task('vendor:css', function () {
  *      - files moved
  */
 gulp.task('vendor:assets', function () {
-   gulp.src(config.vendorAssets.src)
+   return gulp.src(config.vendorAssets.src)
        .pipe(gulp.dest(config.vendorAssets.buildDir))
        .pipe(livereload());
 });
@@ -226,7 +245,7 @@ gulp.task('vendor:assets', function () {
  * Clean build dir
  */
 gulp.task('clean', function() {
-    del([config.buildDir]);
+    return del([config.buildDir]);
 });
 
 /**
@@ -243,3 +262,4 @@ gulp.task('watch', ['default'], function() {
 });
 
 gulp.task('default', ['app:js', 'app:css', 'app:templates', 'vendor:js', 'vendor:assets', 'vendor:css'], function() {});
+gulp.task('minify', ['app:minify:js', 'app:minify:css', 'vendor:minify:js', 'vendor:minify:css'], function () {});

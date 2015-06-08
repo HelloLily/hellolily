@@ -3,9 +3,9 @@ from urlparse import urlparse
 
 import anyjson
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
@@ -15,33 +15,12 @@ from lily.notes.models import Note
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.functions import is_ajax
-from lily.utils.views import AjaxUpdateView, ArchiveView, UnarchiveView, AngularView
-from lily.utils.views.mixins import HistoryListViewMixin, LoginRequiredMixin
+from lily.utils.views import AjaxUpdateView
+from lily.utils.views.mixins import LoginRequiredMixin
 
 
 from .forms import CreateUpdateCaseForm, CreateCaseQuickbuttonForm
 from .models import Case, CaseStatus, CaseType
-
-
-class ListCaseView(LoginRequiredMixin, AngularView):
-    """
-    Display a list of all cases.
-    """
-    template_name = 'cases/case_list.html'
-
-
-class DetailCaseView(LoginRequiredMixin, HistoryListViewMixin):
-    """
-    Display a detail page for a single case.
-    """
-    model = Case
-
-    def get_context_data(self, **kwargs):
-        context = super(DetailCaseView, self).get_context_data(**kwargs)
-        context.update({
-            'status_choices': CaseStatus.objects.all()
-        })
-        return context
 
 
 class CreateUpdateCaseMixin(LoginRequiredMixin):

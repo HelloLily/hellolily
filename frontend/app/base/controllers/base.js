@@ -4,60 +4,56 @@ appConfig.$inject = ['$stateProvider'];
 function appConfig ($stateProvider) {
     $stateProvider.state('base', {
         abstract: true,
-        controller: 'baseController',
+        controller: BaseController,
         ncyBreadcrumb: {
             label: 'Lily'
         }
     });
 }
 
-/**
- * BaseController is the controller where all the default things are loaded
- *
- */
-angular.module('app.base').controller('baseController', baseController);
+angular.module('app.base').controller('BaseController', BaseController);
 
-baseController.$inject = ['$scope', '$state', 'Notifications'];
-function baseController ($scope, $state, Notifications) {
-        $scope.conf = {
-            headTitle: 'Welcome!',
-            pageTitleBig: 'HelloLily',
-            pageTitleSmall: 'welcome to my humble abode!'
-        };
+BaseController.$inject = ['$scope', '$state', 'Notifications'];
+function BaseController ($scope, $state, Notifications) {
+    $scope.conf = {
+        headTitle: 'Welcome!',
+        pageTitleBig: 'HelloLily',
+        pageTitleSmall: 'welcome to my humble abode!'
+    };
 
-        $scope.loadNotifications = loadNotifications;
+    $scope.loadNotifications = loadNotifications;
 
-        activate();
+    activate();
 
-        //////////
+    //////////
 
-        function activate(){
-            $scope.$on('$stateChangeSuccess', _setPreviousState);
-            $scope.$on('$viewContentLoaded', _contentLoadedActions);
-        }
+    function activate(){
+        $scope.$on('$stateChangeSuccess', _setPreviousState);
+        $scope.$on('$viewContentLoaded', _contentLoadedActions);
+    }
 
-        function loadNotifications() {
-            Notifications.query(function(notifications) {  // On success
-                angular.forEach(notifications, function(message) {
-                    toastr[message.level](message.message);
-                });
-            }, function(error) {  // On error
-                console.log('error!');
-                console.log(error);
-            })
-        }
+    function loadNotifications() {
+        Notifications.query(function(notifications) {  // On success
+            angular.forEach(notifications, function(message) {
+                toastr[message.level](message.message);
+            });
+        }, function(error) {  // On error
+            console.log('error!');
+            console.log(error);
+        })
+    }
 
-        function _contentLoadedActions() {
-            Metronic.initComponents(); // init core components
-            HLSelect2.init();
-            HLFormsets.init();
-            HLShowAndHide.init();
-            autosize($('textarea'));
+    function _contentLoadedActions() {
+        Metronic.initComponents(); // init core components
+        HLSelect2.init();
+        HLFormsets.init();
+        HLShowAndHide.init();
+        autosize($('textarea'));
 
-            $scope.loadNotifications();
-        }
+        $scope.loadNotifications();
+    }
 
-        function _setPreviousState(event, toState, toParams, fromState, fromParams){
-            $scope.previousState = $state.href(fromState, fromParams);
-        }
+    function _setPreviousState(event, toState, toParams, fromState, fromParams){
+        $scope.previousState = $state.href(fromState, fromParams);
+    }
 }

@@ -1,0 +1,64 @@
+<div class="row">
+    <div class="col-md-6">
+      <div class="portlet light">
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Account:</label> <a ui-sref="base.accounts.detail({ id: deal.account })"> {{ ::deal.account_name }}</a><br/>
+                        <label>Deal Name:</label> {{ ::deal.name }}<br/>
+                        <label>Created:</label> {{ deal.created | relativeDate }}<br/>
+                        <label>Closing Date:</label> <span id="closed-date" ng-show="deal.closing_date"> {{ deal.closing_date | relativeDate }}</span>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+      <div class="portlet light">
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Assigned to:</label> {{ ::deal.assigned_to_name }}<br/>
+                        <label>One-time cost:</label> {{ ::deal.amount_once | currency:"€" }}<br/>
+                        <label>Recurring costs:</label> {{ ::deal.amount_recurring | currency:"€" }}<br/>
+                        <label>Status:</label> {{ deal.stage_name }} <span ng-show="deal.archived">- Archived</span><br/>
+                        <div ng-show="deal.stage == 2">
+                            <label>Checked:</label>
+                            <span ng-show="deal.is_checked"> <i class="fa fa-checked"></i> Yes</span>
+                            <span ng-hide="deal.is_checked"> <a href="javascript:void(0);">Nope :-(</a></span><br/>
+                        </div>
+                        <div ng-show="deal.quote_id">
+                            <label>Freedom quote:</label>
+                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/">Open in freedom</a>
+                        </div>
+                        <label>Feedback form sent:</label> {{ ::deal.feedback_form_sent }}<br/>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-12 summary-info text-center">
+        <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ ::deal.id }}">
+                <label ng-repeat="stage in dealStages" for="stage-{{ ::stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': deal.stage == stage[0], 'btn default disabled': deal.archived }" ng-click="changeState(stage[0])">
+                    <input class="toggle" type="radio" id="stage-{{ ::stage[1] | lowercase }}" name="radio" value="{{ ::stage[0] }}" ng-checked="deal.stage == stage[0]">
+                    {{ ::stage[1] }}
+                </label>
+            <div class="btn-group">
+                <a ng-class="{'btn default': true}" ng-click="unarchive(deal.id)" ng-show="deal.archived">Unarchive</a>
+                <a ng-class="{'btn default': deal.archived, 'btn default': !deal.archived}" ng-click="archive(deal.id)" ng-hide="deal.archived">Archive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row no-margin" ng-show="::deal.body">
+    <div class="well well-md">
+        <h4>Description</h4>
+        <p ng-bind-html="deal.body | nl2br"></p>
+    </div>
+</div>
+<history-list target="'deal'" object="deal"></history-list>

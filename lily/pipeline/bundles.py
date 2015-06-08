@@ -17,13 +17,13 @@ PIPELINE_CSS = {
     },
     'vendor': {
         'source_filenames': (
-            'build/vendor.min.css',
+            'build/vendor.css',
         ),
         'output_filename': 'compiled/css/vendor.css',
     },
     'app': {
         'source_filenames': (
-            'build/app.min.css',
+            'build/app.css',
         ),
         'output_filename': 'compiled/css/app.css',
     },
@@ -56,59 +56,8 @@ PIPELINE_JS = {
     'global': {
         'source_filenames': (
 
-            'contacts/js/angular/controllers.js',
-            'contacts/js/angular/services.js',
-            'contacts/js/angular/directives/module.js',
-            'contacts/js/angular/directives/list_widget.js',
-            'contacts/js/angular/directives/detail_widget.js',
-
-            'dashboard/js/angular/controllers/module.js',
-            'dashboard/js/angular/controllers/base.js',
-            'dashboard/js/angular/directives/module.js',
-            'dashboard/js/angular/directives/callback.js',
-            'dashboard/js/angular/directives/dealstocheck.js',
-            'dashboard/js/angular/directives/feedback.js',
-            'dashboard/js/angular/directives/mycases.js',
-            'dashboard/js/angular/directives/queuesize.js',
-            'dashboard/js/angular/directives/teams.js',
-            'dashboard/js/angular/directives/unassigned.js',
-            'dashboard/js/angular/directives/unread.js',
-            'dashboard/js/angular/directives/followup.js',
-
-            'deals/js/angular/controllers.js',
-            'deals/js/angular/followup_widget_ctrl.js',
-            'deals/js/angular/services.js',
-            'deals/js/angular/directives/module.js',
-            'deals/js/angular/directives/list_widget.js',
-
-            'email/js/angular/module.js',
-            'email/js/angular/base.ctrl.js',
-            'email/js/angular/email.compose.ctrl.js',
-            'email/js/angular/email.detail.ctrl.js',
-            'email/js/angular/email.list.ctrl.js',
-            'email/js/angular/directives.js',
-            'email/js/angular/services.js',
-            'email/js/inbox.js',
-            'email/js/emailtemplate.js',
-
-            'notes/js/angular/services.js',
-
-            'preferences/js/angular/module.js',
-            'preferences/js/angular/base.ctrl.js',
-            'preferences/js/angular/email/module.js',
-            'preferences/js/angular/email/controllers.js',
-            'preferences/js/angular/email/emailaccountlist.controller.js',
-            'preferences/js/angular/user/module.js',
-            'preferences/js/angular/user/controllers/api_token.js',
-            'preferences/js/angular/user/controllers/base.js',
-            'preferences/js/angular/user/controllers/user_account.js',
-            'preferences/js/angular/user/controllers/user_profile.js',
-
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
-
-            'utils/js/angular/controllers.js',
-            'utils/js/angular/directives.js',
 
             # Pip package static
             'js/jquery.formset.js',
@@ -119,13 +68,13 @@ PIPELINE_JS = {
     },
     'vendor': {
         'source_filenames': (
-            'build/vendor.min.js',
+            'build/vendor.js',
         ),
         'output_filename': 'compiled/js/vendor.js',
     },
     'app': {
         'source_filenames': (
-            'build/app.min.js',
+            'build/app.js',
         ),
         'output_filename': 'compiled/js/app.js',
     },

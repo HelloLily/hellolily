@@ -226,8 +226,6 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
         return Account.objects.filter(pk__in=account_ids)
 
-
-
     def clean(self):
         """
         Form validation: fill in at least first or last name.

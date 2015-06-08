@@ -367,7 +367,6 @@ class EmailOutboxMessage(TenantMixin, models.Model):
             from_email=from_email,
             to=to,
             cc=cc,
-            bcc=bcc,
             headers=anyjson.loads(self.headers),
             body=convert_html_to_text(self.body, keep_linebreaks=True),
         )
@@ -415,7 +414,15 @@ class EmailOutboxMessage(TenantMixin, models.Model):
 
             email_message.attach(msg)
 
-        return email_message.message()
+        message = email_message.message()
+
+        # By default Django's EmailMessage doesn't set the Bcc recipients
+        # So get the actual message
+        if bcc:
+            # If there are Bcc recipients, set them (this is how the EmailMessage does it)
+            message['Bcc'] = ', '.join(bcc)
+
+        return message
 
     class Meta:
         app_label = 'email'

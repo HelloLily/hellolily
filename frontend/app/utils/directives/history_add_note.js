@@ -6,7 +6,7 @@ function historyAddNoteDirective () {
         scope: {
             item: '='
         },
-        templateUrl: 'utils/controllers/history_add_note.html',
+        templateUrl: 'utils/directives/history_add_note.html',
         controller: HistoryAddNoteController,
         controllerAs: 'vm',
         bindToController: true

@@ -56,6 +56,16 @@ angular.module('app.contacts', [
 })(angular);
 (function(angular){
 'use strict';
+angular.module('app.dashboard', [
+    'app.dashboard.directives',
+    'app.users.services',
+    'chart.js',
+    'ui.slimscroll'
+]);
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.deals', [
     // Angular dependencies
     'ngCookies',
@@ -66,16 +76,6 @@ angular.module('app.deals', [
 
     // Lily dependencies
     'app.deals.services'
-]);
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.dashboard', [
-    'app.dashboard.directives',
-    'app.users.services',
-    'chart.js',
-    'ui.slimscroll'
 ]);
 
 })(angular);
@@ -122,26 +122,6 @@ angular.module('app.accounts.services', ['ngResource']);
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.contacts.directives', []);
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts.services', ['ngResource']);
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.cases.directives', []);
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.cases.services', ['ngResource']);
-
-})(angular);
-(function(angular){
-'use strict';
 angular.module('app.base', [
     'ui.bootstrap'
 ]);
@@ -167,6 +147,26 @@ angular.module('app.services', []);
 })(angular);
 (function(angular){
 'use strict';
+angular.module('app.cases.directives', []);
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.cases.services', ['ngResource']);
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts.directives', []);
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts.services', ['ngResource']);
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.dashboard.directives', []);
 
 })(angular);
@@ -177,12 +177,12 @@ angular.module('app.deals.directives', []);
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.email.directives', []);
+angular.module('app.deals.services', []);
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.deals.services', []);
+angular.module('app.email.directives', []);
 
 })(angular);
 (function(angular){
@@ -197,161 +197,17 @@ angular.module('app.notes', ['ngResource']);
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.users.services', ['ngResource']);
-
-})(angular);
-(function(angular){
-'use strict';
 angular.module('app.users.filters', []);
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.utils.directives', []);
+angular.module('app.users.services', ['ngResource']);
 
 })(angular);
 (function(angular){
 'use strict';
-(function($, window, document, undefined) {
-    var currentStatus;
-
-    window.HLCases = {
-        config: {
-            caseUpdateUrl: '/cases/update/status/',
-            caseUpdateAssignedToUrl: '/cases/update/assigned_to/',
-            caseId: null,
-            statusSpan: '#status',
-            statusDiv: '#case-status',
-            parcelProviderSelect: '#id_parcel_provider',
-            parcelIdentifierInput: '#id_parcel_identifier',
-            assignedToField: '#id_assigned_to',
-            assignToMeButton: '.assign-me-btn',
-            currentAssignedTo: null
-        },
-
-        init: function(config) {
-            // Setup config
-            var self = this;
-            if ($.isPlainObject(config)) {
-                $.extend(self.config, config);
-            }
-            self.initListeners();
-            self.setCurrentStatus();
-        },
-
-        initListeners: function() {
-            var self = this,
-                cf = self.config;
-
-            $(cf.statusDiv).on('click', function(event) {
-               self.changeStatus.call(self, event);
-            });
-
-            $(cf.parcelProviderSelect).on('change', function() {
-               self.changedParcelProviderSelect.call(self, this);
-            });
-
-            $(cf.assignToMeButton).on('click', function() {
-                self.changeAssignedTo.call(self, this);
-            });
-        },
-
-        setCurrentStatus: function() {
-            currentStatus = $('input[name=radio]:checked', this.config.statusDiv).closest('label').attr('for');
-        },
-
-        changeStatus: function(event) {
-            var self = this,
-                cf = self.config;
-            var radio_element = $('#' + $(event.target).closest('label').attr('for'));
-            if(radio_element.attr('id') != currentStatus) {
-                var $radio_element = $(radio_element);
-                if (cf.caseId != null) {
-                    $.ajax({
-                        url: cf.caseUpdateUrl + cf.caseId + '/',
-                        type: 'POST',
-                        data: {
-                            status: $radio_element.val()
-                        },
-                        beforeSend: HLApp.addCSRFHeader,
-                        dataType: 'json'
-                    }).done(function (data) {
-                        currentStatus = $radio_element.attr('id');
-                        $(cf.statusSpan).text(data.status);
-                        // loads notifications if any
-                        load_notifications();
-                    }).fail(function () {
-                        // reset selected status
-                        $(radio_element).attr('checked', false).closest('label').removeClass('active');
-                        $('#' + currentStatus).attr('checked', true).closest('label').addClass('active');
-                        // loads notifications if any
-                        load_notifications();
-                    });
-                }
-            }
-        },
-
-        changedParcelProviderSelect: function(select) {
-            // Remove identifier if the provider is removed
-            var $select = $(select);
-            if (!$select.val()) {
-                $(this.config.parcelIdentifierInput).val('');
-            }
-        },
-
-        changeAssignedTo: function () {
-            var self = this,
-                cf = self.config;
-
-            var assignee = null;
-
-            if (cf.currentAssignedTo != currentUser.id) {
-                assignee = currentUser.id;
-            }
-
-            if (cf.caseId != null) {
-                $.ajax({
-                    url: cf.caseUpdateAssignedToUrl + cf.caseId + '/',
-                    type: 'POST',
-                    data: {
-                        assignee: assignee
-                    },
-                    beforeSend: HLApp.addCSRFHeader,
-                    dataType: 'json'
-                }).done(function (data) {
-                    var assignee = data.assignee;
-
-                    // TODO: This will be made prettier once we Angularify the detail page(s)
-                    if (assignee) {
-                        $('.summary-data.assigned-to').html(data.assignee.name);
-                        $('.assign-me-btn').html('Unassign');
-                        cf.currentAssignedTo = data.assignee.id;
-                    }
-                    else {
-                        $('.summary-data.assigned-to').html('Unassigned');
-                        $('.assign-me-btn').html('Assign to me');
-                        cf.currentAssignedTo = null;
-                    }
-                }).always(function () {
-                    // loads notifications if any
-                    load_notifications();
-                });
-            }
-        },
-
-        addAssignToMeButton: function() {
-            var self = this;
-            var assignToMeButton = $('<button class="btn btn-link assign-me-btn">Assign to me</button>');
-
-            $(self.config.assignedToField).after(assignToMeButton);
-
-            assignToMeButton.click(function (event) {
-                event.preventDefault();
-                $(self.config.assignedToField).val(currentUser.id).change();
-            });
-        }
-    }
-})(jQuery, window, document);
+angular.module('app.utils.directives', []);
 
 })(angular);
 (function(angular){
@@ -524,6 +380,150 @@ function addBusinessDays(date, businessDays) {
     date.setDate(date.getDate() + weeks * 7 + days);
     return date;
 }
+
+})(angular);
+(function(angular){
+'use strict';
+(function($, window, document, undefined) {
+    var currentStatus;
+
+    window.HLCases = {
+        config: {
+            caseUpdateUrl: '/cases/update/status/',
+            caseUpdateAssignedToUrl: '/cases/update/assigned_to/',
+            caseId: null,
+            statusSpan: '#status',
+            statusDiv: '#case-status',
+            parcelProviderSelect: '#id_parcel_provider',
+            parcelIdentifierInput: '#id_parcel_identifier',
+            assignedToField: '#id_assigned_to',
+            assignToMeButton: '.assign-me-btn',
+            currentAssignedTo: null
+        },
+
+        init: function(config) {
+            // Setup config
+            var self = this;
+            if ($.isPlainObject(config)) {
+                $.extend(self.config, config);
+            }
+            self.initListeners();
+            self.setCurrentStatus();
+        },
+
+        initListeners: function() {
+            var self = this,
+                cf = self.config;
+
+            $(cf.statusDiv).on('click', function(event) {
+               self.changeStatus.call(self, event);
+            });
+
+            $(cf.parcelProviderSelect).on('change', function() {
+               self.changedParcelProviderSelect.call(self, this);
+            });
+
+            $(cf.assignToMeButton).on('click', function() {
+                self.changeAssignedTo.call(self, this);
+            });
+        },
+
+        setCurrentStatus: function() {
+            currentStatus = $('input[name=radio]:checked', this.config.statusDiv).closest('label').attr('for');
+        },
+
+        changeStatus: function(event) {
+            var self = this,
+                cf = self.config;
+            var radio_element = $('#' + $(event.target).closest('label').attr('for'));
+            if(radio_element.attr('id') != currentStatus) {
+                var $radio_element = $(radio_element);
+                if (cf.caseId != null) {
+                    $.ajax({
+                        url: cf.caseUpdateUrl + cf.caseId + '/',
+                        type: 'POST',
+                        data: {
+                            status: $radio_element.val()
+                        },
+                        beforeSend: HLApp.addCSRFHeader,
+                        dataType: 'json'
+                    }).done(function (data) {
+                        currentStatus = $radio_element.attr('id');
+                        $(cf.statusSpan).text(data.status);
+                        // loads notifications if any
+                        load_notifications();
+                    }).fail(function () {
+                        // reset selected status
+                        $(radio_element).attr('checked', false).closest('label').removeClass('active');
+                        $('#' + currentStatus).attr('checked', true).closest('label').addClass('active');
+                        // loads notifications if any
+                        load_notifications();
+                    });
+                }
+            }
+        },
+
+        changedParcelProviderSelect: function(select) {
+            // Remove identifier if the provider is removed
+            var $select = $(select);
+            if (!$select.val()) {
+                $(this.config.parcelIdentifierInput).val('');
+            }
+        },
+
+        changeAssignedTo: function () {
+            var self = this,
+                cf = self.config;
+
+            var assignee = null;
+
+            if (cf.currentAssignedTo != currentUser.id) {
+                assignee = currentUser.id;
+            }
+
+            if (cf.caseId != null) {
+                $.ajax({
+                    url: cf.caseUpdateAssignedToUrl + cf.caseId + '/',
+                    type: 'POST',
+                    data: {
+                        assignee: assignee
+                    },
+                    beforeSend: HLApp.addCSRFHeader,
+                    dataType: 'json'
+                }).done(function (data) {
+                    var assignee = data.assignee;
+
+                    // TODO: This will be made prettier once we Angularify the detail page(s)
+                    if (assignee) {
+                        $('.summary-data.assigned-to').html(data.assignee.name);
+                        $('.assign-me-btn').html('Unassign');
+                        cf.currentAssignedTo = data.assignee.id;
+                    }
+                    else {
+                        $('.summary-data.assigned-to').html('Unassigned');
+                        $('.assign-me-btn').html('Assign to me');
+                        cf.currentAssignedTo = null;
+                    }
+                }).always(function () {
+                    // loads notifications if any
+                    load_notifications();
+                });
+            }
+        },
+
+        addAssignToMeButton: function() {
+            var self = this;
+            var assignToMeButton = $('<button class="btn btn-link assign-me-btn">Assign to me</button>');
+
+            $(self.config.assignedToField).after(assignToMeButton);
+
+            assignToMeButton.click(function (event) {
+                event.preventDefault();
+                $(self.config.assignedToField).val(currentUser.id).change();
+            });
+        }
+    }
+})(jQuery, window, document);
 
 })(angular);
 (function(angular){
@@ -2397,695 +2397,112 @@ function AccountDetail ($resource) {
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.contacts.services').factory('ContactDetail', ContactDetail);
+angular.module('app.base').config(appConfig);
 
-ContactDetail.$inject = ['$resource'];
-function ContactDetail ($resource) {
-    function getPhone(contact) {
-        if (contact.phone_mobile) return contact.phone_mobile[0];
-        if (contact.phone_work) return contact.phone_work[0];
-        if (contact.phone_other) return contact.phone_other[0];
-        return '';
-    }
-
-    function getPhones(contact) {
-        var phones = [];
-        if (contact.phone_mobile) phones = phones.concat(contact.phone_mobile);
-        if (contact.phone_work) phones = phones.concat(contact.phone_work);
-        if (contact.phone_other) phones = phones.concat(contact.phone_other);
-        return phones;
-    }
-
-    return $resource(
-        '/search/search/?type=contacts_contact&filterquery=id\::id',
-        {},
-        {
-            get: {
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    if (data && data.hits && data.hits.length > 0) {
-                        var contact = data.hits[0];
-                        contact.phones = getPhones(contact);
-                        contact.phone = getPhone(contact);
-                        return contact;
-                    }
-                    return null;
-                }
-            },
-            query: {
-                url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery',
-                isArray: true,
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    var contacts = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function (contact) {
-                            contact.phones = getPhones(contact);
-                            contact.phone = getPhone(contact);
-                            contacts.push(contact);
-                        });
-                    }
-                    return contacts;
-                }
-            }
+appConfig.$inject = ['$stateProvider'];
+function appConfig ($stateProvider) {
+    $stateProvider.state('base', {
+        abstract: true,
+        controller: BaseController,
+        ncyBreadcrumb: {
+            label: 'Lily'
         }
-    )
+    });
 }
 
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts.services').factory('Contact', Contact);
+angular.module('app.base').controller('BaseController', BaseController);
 
-Contact.$inject = ['$http'];
-function Contact ($http) {
-    var Contact = {};
+BaseController.$inject = ['$scope', '$state', 'Notifications'];
+function BaseController ($scope, $state, Notifications) {
+    $scope.conf = {
+        headTitle: 'Welcome!',
+        pageTitleBig: 'HelloLily',
+        pageTitleSmall: 'welcome to my humble abode!'
+    };
 
-    /**
-     * getContacts() get the contacts from the search backend through a promise
-     *
-     * @param queryString string: current filter on the contactlist
-     * @param page int: current page of pagination
-     * @param pageSize int: current page size of pagination
-     * @param orderColumn string: current sorting of contacts
-     * @param orderedAsc {boolean}: current ordering
-     *
-     * @returns Promise object: when promise is completed:
-     *      {
-     *          contacts list: paginated contact objects
-     *          total int: total number of contact objects
-     *      }
-     */
-    var getContacts = function(queryString, page, pageSize, orderColumn, orderedAsc) {
+    $scope.loadNotifications = loadNotifications;
 
-        var sort = '';
-        if (orderedAsc) sort += '-';
-        sort += orderColumn;
+    activate();
 
-        return $http({
-            url: '/search/search/',
-            method: 'GET',
-            params: {
-                type: 'contacts_contact',
-                q: queryString,
-                page: page - 1,
-                size: pageSize,
-                sort: sort
-            }
+    //////////
+
+    function activate(){
+        $scope.$on('$stateChangeSuccess', _setPreviousState);
+        $scope.$on('$viewContentLoaded', _contentLoadedActions);
+    }
+
+    function loadNotifications() {
+        Notifications.query(function(notifications) {  // On success
+            angular.forEach(notifications, function(message) {
+                toastr[message.level](message.message);
+            });
+        }, function(error) {  // On error
+            console.log('error!');
+            console.log(error);
         })
-            .then(function(response) {
-                return {
-                    contacts: response.data.hits,
-                    total: response.data.total
-                };
-            });
-    };
-
-    /**
-     * query() makes it possible to query on contacts on backend search
-     *
-     * @param table object: holds all the info needed to get contacts from backend
-     *
-     * @returns Promise object: when promise is completed:
-     *      {
-     *          contacts list: paginated contact objects
-     *          total int: total number of contact objects
-     *      }
-     */
-    Contact.query = function(table) {
-        return getContacts(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending);
-    };
-
-    return Contact;
-}
-
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts.services').factory('ContactTest', ContactTest);
-
-ContactTest.$inject = ['$resource'];
-function ContactTest ($resource) {
-    return $resource('/api/contacts/contact/:id/');
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts').config(contactsConfig);
-
-contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
-    $stateProvider.state('base.contacts.create', {
-        url: '/create',
-        views: {
-            '@': {
-                templateUrl: 'contacts/create/',
-                controller: ContactCreateController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Create'
-        }
-    });
-    $stateProvider.state('base.contacts.create.fromAccount', {
-        url: '/account/{id:[0-9]{1,}}',
-        views: {
-            '@': {
-                templateUrl: function(elem, attr){
-                    return '/contacts/add/from_account/' + elem.id + '/';
-                },
-                controller: ContactCreateController
-            }
-        },
-        ncyBreadcrumb:{
-            skip: true
-        }
-    });
-}
-
-angular.module('app.contacts').controller('ContactCreateController', ContactCreateController);
-
-ContactCreateController.$inject = ['$scope'];
-function ContactCreateController ($scope) {
-    $scope.conf.pageTitleBig = 'New contact';
-    $scope.conf.pageTitleSmall = 'who did you talk to?';
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts').config(contactsConfig);
-
-contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
-    $stateProvider.state('base.contacts.detail.delete', {
-        url: '/delete',
-        views: {
-            '@': {
-                controller: ContactDeleteController
-            }
-        }
-    });
-}
-
-angular.module('app.contacts').controller('ContactDeleteController', ContactDeleteController);
-
-ContactDeleteController.$inject = ['$state', '$stateParams', 'ContactTest'];
-function ContactDeleteController($state, $stateParams, ContactTest) {
-    var id = $stateParams.id;
-
-    ContactTest.delete({
-        id:id
-    }, function() {  // On success
-        $state.go('base.contacts');
-    }, function(error) {  // On error
-        // Error notification needed
-        $state.go('base.contacts');
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts').config(contactsConfig);
-
-contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
-    $stateProvider.state('base.contacts.detail', {
-        url: '/{id:[0-9]{1,}}',
-        views: {
-            '@': {
-                templateUrl: 'contacts/controllers/detail.html',
-                controller: 'ContactDetailController'
-            }
-        },
-        ncyBreadcrumb: {
-            label: '{{ contact.name }}'
-        },
-        resolve: {
-            contact: ['ContactDetail', '$stateParams', function (ContactDetail, $stateParams) {
-                var contactId = $stateParams.id;
-                return ContactDetail.get({id: contactId}).$promise
-            }]
-        }
-    });
-}
-
-angular.module('app.contacts').controller('ContactDetailController', ContactDetail);
-
-ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'contact'];
-function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, contact) {
-    var id = $stateParams.id;
-
-    $scope.contact = contact;
-
-    if ($scope.contact.accounts) {
-        $scope.contact.accounts.forEach(function(account) {
-            var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
-            colleagueList.$promise.then(function(colleagues) {
-                account.colleagueList = colleagues;
-            })
-        });
     }
 
-    $scope.conf.pageTitleBig = 'Contact detail';
-    $scope.conf.pageTitleSmall = 'the devil is in the details';
-
-    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id});
-    $scope.caseList.$promise.then(function(caseList) {
-        $scope.caseList = caseList;
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts').config(contactsConfig);
-
-contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
-    $stateProvider.state('base.contacts.detail.edit', {
-        url: '/edit',
-        views: {
-            '@': {
-                templateUrl: function(elem, attr) {
-                    return '/contacts/edit/' + elem.id +'/';
-                },
-                controller: ContactEditController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Edit'
-        }
-    });
-}
-
-angular.module('app.contacts').controller('ContactEditController', ContactEditController);
-
-ContactEditController.$inject = ['$scope', '$stateParams', 'ContactDetail'];
-function ContactEditController ($scope, $stateParams, ContactDetail) {
-    var id = $stateParams.id;
-    var contactPromise = ContactDetail.get({id: id}).$promise;
-
-    contactPromise.then(function(contact) {
-        $scope.contact = contact;
-        $scope.conf.pageTitleBig = contact.name;
-        $scope.conf.pageTitleSmall = 'change is natural';
+    function _contentLoadedActions() {
+        Metronic.initComponents(); // init core components
         HLSelect2.init();
-    });
-}
+        HLFormsets.init();
+        HLShowAndHide.init();
+        autosize($('textarea'));
 
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts').config(contactsConfig);
-
-contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
-    $stateProvider.state('base.contacts', {
-        url: '/contacts',
-        views: {
-            '@': {
-                templateUrl: 'contacts/controllers/list.html',
-                controller: ContactListController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Contacts'
-        }
-    });
-}
-
-angular.module('app.contacts').controller('ContactListController', ContactListController);
-
-ContactListController.$inject = ['$scope', '$window', 'Contact', 'Cookie', 'ContactTest'];
-function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
-    var cookie = Cookie('contactList');
-
-    $scope.conf.pageTitleBig = 'Contacts';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
-
-    /**
-     * table object: stores all the information to correctly display the table
-     */
-    $scope.table = {
-        page: 1,  // current page of pagination: 1-index
-        pageSize: 20,  // number of items per page
-        totalItems: 0, // total number of items
-        filter: cookie.get('filter', ''),  // search filter
-        order:  cookie.get('order', {
-            ascending: true,
-            column:  'modified'  // string: current sorted column
-        }),
-        visibility: cookie.get('visibility', {
-            name: true,
-            contactInformation: true,
-            worksAt: true,
-            created: true,
-            modified: true,
-            tags: true
-        })};
-
-    $scope.deleteContact = function(contact) {
-        if (confirm('Are you sure?')) {
-            ContactTest.delete({
-                id:contact.id
-            }, function() {  // On success
-                var index = $scope.table.items.indexOf(contact);
-                $scope.table.items.splice(index, 1);
-            }, function(error) {  // On error
-                alert('something went wrong.')
-            })
-        }
-    };
-
-    /**
-     * updateTableSettings() sets scope variables to the cookie
-     */
-    function updateTableSettings() {
-        cookie.put('filter', $scope.table.filter);
-        cookie.put('order', $scope.table.order);
-        cookie.put('visibility', $scope.table.visibility);
+        $scope.loadNotifications();
     }
 
-    /**
-     * updateContacts() reloads the contacts through a service
-     *
-     * Updates table.items and table.totalItems
-     */
-    function updateContacts() {
-        Contact.query(
-            $scope.table
-        ).then(function(data) {
-                $scope.table.items = data.contacts;
-                $scope.table.totalItems = data.total;
-            }
-        );
-    }
-
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs a new set of contacts
-     */
-    $scope.$watchGroup([
-        'table.page',
-        'table.order.column',
-        'table.order.ascending',
-        'table.filter'
-    ], function() {
-        updateTableSettings();
-        updateContacts();
-    });
-
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs to store the info to the cache
-     */
-    $scope.$watchCollection('table.visibility', function() {
-        updateTableSettings();
-    });
-
-    /**
-     * setFilter() sets the filter of the table
-     *
-     * @param queryString string: string that will be set as the new filter on the table
-     */
-    $scope.setFilter = function(queryString) {
-        $scope.table.filter = queryString;
-    };
-
-    /**
-     * exportToCsv() creates an export link and opens it
-     */
-    $scope.exportToCsv = function() {
-        var getParams = '';
-
-        // If there is a filter, add it
-        if ($scope.table.filter) {
-            getParams += '&export_filter=' + $scope.table.filter;
-        }
-
-        // Add all visible columns
-        angular.forEach($scope.table.visibility, function(value, key) {
-            if (value) {
-                getParams += '&export_columns='+ key;
-            }
-        });
-
-        // Setup url
-        var url = '/contacts/export/';
-        if (getParams) {
-            url += '?' + getParams.substr(1);
-        }
-
-        // Open url
-        $window.open(url);
+    function _setPreviousState(event, toState, toParams, fromState, fromParams){
+        $scope.previousState = $state.href(fromState, fromParams);
     }
 }
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.contacts.directives').directive('contactDetailWidget', ContactDetailWidget);
+angular.module('app.base').controller('headerController', headerController);
 
-function ContactDetailWidget() {
+headerController.$inject = ['$scope'];
+function headerController ($scope) {
+    $scope.$on('$includeContentLoaded', function() {
+        Layout.initHeader(); // init header
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.base').controller('sidebarController', sidebarController);
+
+sidebarController.$inject = ['$scope'];
+function sidebarController ($scope) {
+    $scope.$on('$includeContentLoaded', function() {
+        Layout.initSidebar(); // init sidebar
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+/**
+ * checkbox Directive makes a nice uniform checkbox and binds to a model
+ *
+ * @param model object: model to bind checkbox with
+ *
+ * Example:
+ * <checkbox model="table.visibility.name">Name</checkbox>
+ */
+angular.module('app.directives').directive('checkbox', checkbox);
+
+function checkbox () {
     return {
         restrict: 'E',
         replace: true,
+        transclude: true,
         scope: {
-            contact: '=',
-            height: '='
+            model: '='
         },
-        templateUrl: 'contacts/directives/detail_widget.html'
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.contacts.directives').directive('contactListWidget', ContactListWidget);
-
-function ContactListWidget() {
-    return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            title: '@',
-            list: '=',
-            height: '=',
-            accountId: '@',
-            addLink: '@'
-        },
-        templateUrl: 'contacts/directives/list_widget.html'
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.cases.directives').directive('caseListWidget', CaseListWidget);
-function CaseListWidget(){
-    return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            title: '@',
-            list: '=',
-            height: '=',
-            addLink: '@'
-        },
-        templateUrl: 'cases/directives/list_widget.html'
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.cases.directives').directive('updateCaseExpireDate', updateCaseExpireDate);
-
-function updateCaseExpireDate () {
-    return {
-        restrict: "A",
-        link: function(scope, element, attrs) {
-
-            var select = $('#id_priority');
-            var daysToAdd = [5, 3, 1, 0];
-
-            select.on('change', function(event) {
-                var priority = parseInt(select.val());
-                if(isNaN(select.val())){
-                    priority = 3;
-                }
-                var due = addBusinessDays(new Date(), daysToAdd[priority]);
-                var month = due.getMonth() + 1;
-                if(month < 10){
-                    month = '0' + month;
-                }
-                var expires = due.getDate() + '/' + month + '/' + due.getFullYear();
-                $('#id_expires').val(expires);
-                $('#id_expires_picker').datepicker('update', expires);
-            });
-        }
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.cases.services').factory('Case', Case);
-
-Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail'];
-function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
-
-    var Case = $resource(
-        '/api/cases/case/:id',
-        {},
-        {
-            query: {
-                url: '/search/search/?type=cases_case&filterquery=:filterquery',
-                isArray: true,
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
-                            objects.push(obj);
-                        });
-                    }
-                    return objects;
-                }
-            },
-            update: {
-                method: 'PATCH',
-                params: {
-                    id: '@id'
-                }
-            }
-        }
-    );
-
-    Case.getCases = getCases;
-    Case.getCaseTypes = getCaseTypes;
-    Case.getMyCasesWidget = getMyCasesWidget;
-    Case.getCallbackRequests = getCallbackRequests;
-    Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
-
-    return Case;
-
-    /////////
-
-    /**
-     * getCases() gets the cases from the search backend through a promise
-     *
-     * @param queryString string: current filter on the caselist
-     * @param page int: current page of pagination
-     * @param pageSize int: current page size of pagination
-     * @param orderColumn string: current sorting of cases
-     * @param orderedAsc {boolean}: current ordering
-     * @param archived {boolean}: when true, only archived are fetched, if false, only active
-     * @param filterQuery {string}: contains the filters which are used in ElasticSearch
-     *
-     * @returns Promise object: when promise is completed:
-     *      {
-     *          cases list: paginated cases objects
-     *          total int: total number of case objects
-     *      }
-     */
-    function getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
-
-        return $http({
-            url: '/search/search/',
-            method: 'GET',
-            params: {
-                type: 'cases_case',
-                q: queryString,
-                page: page - 1,
-                size: pageSize,
-                sort: _getSorting(orderColumn, orderedAsc),
-                filterquery: filterQuery
-            }
-        }).then(function(response) {
-            return {
-                cases: response.data.hits,
-                total: response.data.total
-            };
-        });
-    }
-
-    function getCaseTypes () {
-        return $http({
-            url: '/cases/casetypes/',
-            method: 'GET'
-        }).then(function (response) {
-            return response.data.casetypes;
-        });
-    }
-
-    function _getSorting (field, sorting) {
-        var sort = '';
-        sort += sorting ? '-': '';
-        sort += field;
-        return sort;
-    }
-
-    /**
-     * Service to return a resource for my cases widget
-     */
-    function getMyCasesWidget (field, sorting) {
-        var deferred = $q.defer();
-        var filterQuery = 'archived:false AND NOT casetype_name:Callback';
-        filterQuery += ' AND assigned_to_id:' + currentUser.id;
-        Case.query({
-            filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
-        }, function (cases) {
-            deferred.resolve(cases);
-        });
-
-        return deferred.promise;
-    }
-
-    /**
-     * Gets all cases with the 'callback' case type
-     *
-     * @returns cases with the callback case type
-     */
-    function getCallbackRequests (field, sorting) {
-        var filterQuery = 'archived:false AND casetype_name:Callback';
-        filterQuery += ' AND assigned_to_id:' + currentUser.id;
-
-        var deferred = $q.defer();
-        Case.query({
-            filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
-        }, function (cases) {
-            angular.forEach(cases, function(callbackCase) {
-                if (callbackCase.account) {
-                    AccountDetail.get({id: callbackCase.account}, function(account) {
-                        callbackCase.accountPhone = account.phone;
-                    });
-                }
-                if (callbackCase.contact) {
-                    ContactDetail.get({id: callbackCase.contact}, function(contact) {
-                        callbackCase.contactPhone = contact.phone;
-                    });
-                }
-            });
-            deferred.resolve(cases);
-        });
-        return deferred.promise;
-    }
-
-    function getUnassignedCasesForTeam (teamId, field, sorting) {
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id';
-        filterQuery += ' AND assigned_to_groups:' + teamId;
-
-        return Case.query({
-            filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
-        }).$promise;
+        templateUrl: 'base/directives/checkbox.html'
     }
 }
 
@@ -3093,73 +2510,513 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
 (function(angular){
 'use strict';
 /**
- * $resource for Case model, now only used for detail page.
+ * Directive give a nice formatting on input elements.
+ *
+ * It makes sure that the value of the ngModel on the scope has a nice
+ * formatting for the user
  */
-angular.module('app.cases.services').factory('CaseDetail', CaseDetail);
+angular.module('app.directives').directive('dateFormatter', dateFormatter);
 
-CaseDetail.$inject = ['$resource'];
-function CaseDetail ($resource) {
-    return $resource(
-        '/search/search/?type=cases_case&filterquery=id\::id',
-        {},
-        {
-            get: {
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.hits && data.hits.length > 0) {
-                        var obj = data.hits[0];
-                        return obj;
-                    }
-                    return null;
+dateFormatter.$inject = ['dateFilter'];
+function dateFormatter(dateFilter) {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$formatters.push(function(value) {
+                if (value) {
+                    return dateFilter(value, attrs.dateFormatter);
                 }
-            },
-            query: {
-                url: '/search/search/?type=cases_case&filterquery=:filterquery',
-                isArray: true,
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
-                            obj = $.extend(obj, {historyType: 'case', color: 'grey', date: obj.expires});
-                            objects.push(obj);
-                        });
-                    }
-                    return objects;
+            })
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+/**
+ * Directive for a confirmation box before the delete in the detail
+ * view happens
+ */
+angular.module('app.directives').directive('detailDelete', detailDelete);
+
+detailDelete.$inject = ['$state'];
+function detailDelete ($state) {
+    return {
+        restrict: 'A',
+        link: function (scope, elem, attrs) {
+
+            $(elem).click(function () {
+                if (confirm('You are deleting! Are you sure ?')) {
+                    $state.go('.delete');
                 }
-            },
-            totalize: {
-                url: '/search/search/?type=cases_case&size=0&filterquery=:filterquery',
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.total) {
-                        return {total: data.total};
+            });
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.directives').directive('resizeIframe', resizeIframe);
+
+function resizeIframe () {
+    return {
+        restrict: 'A',
+        link: function ($scope, element, attrs) {
+            var maxHeight = $('body').outerHeight();
+            element.on('load', function() {
+                element.removeClass('hidden');
+
+                // do this after .inbox-view is visible
+                var ifDoc, ifRef = this;
+
+                // set ifDoc to 'document' from frame
+                try {
+                    ifDoc = ifRef.contentWindow.document.documentElement;
+                } catch (e1) {
+                    try {
+                        ifDoc = ifRef.contentDocument.documentElement;
+                    } catch (e2) {
                     }
-                    return {total: 0};
+                }
+
+                // calculate and set max height for frame
+                if (ifDoc) {
+                    var subtractHeights = [
+                        element.offset().top,
+                        $('.footer').outerHeight(),
+                        $('.inbox-attached').outerHeight()
+                    ];
+                    for (var height in subtractHeights) {
+                        maxHeight = maxHeight - height;
+                    }
+
+                    if (ifDoc.scrollHeight > maxHeight) {
+                        ifRef.height = maxHeight;
+                    } else {
+                        ifRef.height = ifDoc.scrollHeight;
+                    }
+                }
+            });
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+/**
+ * sortColumn Directive adds sorting classes to an DOM element based on `table` object
+ *
+ * It makes the element clickable and sets the table sorting based on that element
+ *
+ * @param sortColumn string: name of the column to sort on when clicked
+ * @param table object: The object to bind sort column and ordering
+ *
+ * Example:
+ *
+ * <th sort-column="last_name" table="table">Name</th>
+ *
+ * Possible classes:
+ * - sorting: Unsorted
+ * - sorting_asc: Sorted ascending
+ * - sorting_desc: Sorted descending
+ */
+angular.module('app.directives').directive('sortColumn', sortColumn);
+
+function sortColumn () {
+    /**
+     * _setSortableIcon() removes current sorting classes and adds new based on current
+     * sorting column and direction
+     *
+     * @param $scope object: current scope
+     * @param element object: current DOM element
+     * @param sortColumn string: column from current DOM element
+     */
+    var _setSortableIcon = function($scope, element, sortColumn) {
+        // Add classes based on current sorted column
+        if($scope.table.order.column === sortColumn) {
+            if ($scope.table.order.ascending) {
+                $scope.sorted = 1;
+            } else {
+                $scope.sorted = -1;
+            }
+        } else {
+            $scope.sorted = 0;
+        }
+    };
+
+    return {
+        restrict: 'A',
+        scope: {
+            table: '='
+        },
+        transclude: true,
+        templateUrl: 'base/directives/sort_column.html',
+        link: function ($scope, element, attrs) {
+            // Watch the table ordering & sorting
+            $scope.$watchCollection('table.order', function() {
+                _setSortableIcon($scope, element, attrs.sortColumn);
+            });
+
+            // When element is clicked, set the table ordering & sorting based on this DOM element
+            element.on('click', function() {
+                if($scope.table.order.column === attrs.sortColumn) {
+                    $scope.table.order.ascending = !$scope.table.order.ascending;
+                    $scope.$apply();
+                } else {
+                    $scope.table.order.column = attrs.sortColumn;
+                    $scope.$apply();
+                }
+            });
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.directives').directive('ngSpinnerBar', ngSpinnerBar);
+
+ngSpinnerBar.$inject = ['$rootScope'];
+function ngSpinnerBar ($rootScope) {
+    return {
+        link: function(scope, element, attrs) {
+            // by defult hide the spinner bar
+            element.addClass('hide'); // hide spinner bar by default
+
+            // display the spinner bar whenever the route changes(the content part started loading)
+            $rootScope.$on('$stateChangeStart', function() {
+                element.removeClass('hide'); // show spinner bar
+            });
+
+            // hide the spinner bar on rounte change success(after the content loaded)
+            $rootScope.$on('$stateChangeSuccess', function() {
+                element.addClass('hide'); // hide spinner bar
+                $('body').removeClass('page-on-load'); // remove page loading indicator
+
+                // auto scroll to page top
+                setTimeout(function () {
+                    Metronic.scrollTop(); // scroll to the top on content load
+                }, $rootScope.settings.layout.pageAutoScrollOnLoad);
+            });
+
+            // handle errors
+            $rootScope.$on('$stateNotFound', function() {
+                element.addClass('hide'); // hide spinner bar
+            });
+
+            // handle errors
+            $rootScope.$on('$stateChangeError', function() {
+                element.addClass('hide'); // hide spinner bar
+            });
+        }
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.filters').filter('minValue', minValue);
+function minValue () {
+    return function(values) {
+        values.sort(function(a, b){return a-b});
+        return values[0];
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.filters').filter('nl2br', nl2br);
+
+nl2br.$inject = ['$sce'];
+function nl2br ($sce) {
+    return function(msg,is_xhtml) {
+        var is_xhtml = is_xhtml || true;
+        var breakTag = (is_xhtml) ? '<br />' : '<br>';
+        var msg = (msg + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
+        return $sce.trustAsHtml(msg);
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+/**
+ * relativeDate filter is a filter that represents the date in a nice format
+ *
+ * relativeDate will return a relative date string given the date. If the
+ * date is to far in the past, it will fallback to angulars $filter
+ *
+ * @param: date {date|string} : date object or date string to transform
+ * @param: fallbackDateFormat string (optional): fallback $filter argument
+ * @param: compareWithMidnight boolean (optional): should the date comparison be with midnight or not
+ *
+ * @returns: string : a relative date string
+ *
+ * usage:
+ *
+ * {{ '2014-11-19T12:44:15.795312+00:00' | relativeDate }}
+ */
+angular.module('app.filters').filter('relativeDate', relativeDate);
+
+relativeDate.$inject = ['$filter'];
+function relativeDate ($filter) {
+    return function (date, fallbackDateFormat, compareWithMidnight) {
+        // Get current date
+        var now = new Date(),
+            calculateDelta, day, delta, hour, minute, week, month, year;
+
+        // If date is a string, format to date object
+        if (!(date instanceof Date)) {
+            date = new Date(date);
+            if (compareWithMidnight) {
+                // In certain cases we want to compare with midnight
+                date.setHours(23);
+                date.setMinutes(59);
+                date.setSeconds(59);
+            }
+        }
+
+        delta = null;
+        minute = 60;
+        hour = minute * 60;
+        day = hour * 24;
+        week = day * 7;
+        month = day * 30;
+        year = day * 365;
+
+        // Calculate delta in seconds
+        calculateDelta = function () {
+            return delta = Math.round((date - now) / 1000);
+        };
+
+        calculateDelta();
+
+        if (delta > day && delta < week) {
+            date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            if (compareWithMidnight) {
+                // In certain cases we want to compare with midnight
+                date.setHours(23);
+                date.setMinutes(59);
+                date.setSeconds(59);
+            }
+            calculateDelta();
+        }
+
+        if (!fallbackDateFormat) {
+            if (window.innerWidth < 992) {
+                // Display as a short version if it's a small screen (tablet, smartphone, etc.)
+                fallbackDateFormat = 'dd MMM. yyyy'; // Renders as 29 Jan. 2015
+            }
+            else {
+                fallbackDateFormat = 'dd MMMM yyyy'; // Renders as 29 January 2015
+            }
+        }
+
+        // Check delta and return result
+        if (delta < 0) {
+            switch (false) {
+                case !(-delta > week):
+                    return $filter('date')(date, fallbackDateFormat);
+                case !(-delta > day * 2):
+                    return '' + -(Math.ceil(delta / day)) + ' days ago';
+                case !(-delta > day):
+                    return 'yesterday';
+                case !(-delta > hour):
+                    return '' + -(Math.ceil(delta / hour)) + ' hours ago';
+                case !(-delta > minute * 2):
+                    return '' + -(Math.ceil(delta / minute)) + ' minutes ago';
+                case !(-delta > minute):
+                    return 'a minutes ago';
+                case !(-delta > 30):
+                    return '' + -delta + ' seconds ago';
+                default:
+                    return 'just now';
+            }
+        } else {
+            switch (false) {
+                case !(delta < 30):
+                    return 'just now';
+                case !(delta < minute):
+                    return '' + delta + ' seconds';
+                case !(delta < 2 * minute):
+                    return 'a minute';
+                case !(delta < hour):
+                    return '' + (Math.floor(delta / minute)) + ' minutes';
+                case Math.floor(delta / hour) !== 1:
+                    return 'an hour';
+                case !(delta < day):
+                    return '' + (Math.floor(delta / hour)) + ' hours';
+                case !(delta < day * 2):
+                    return 'tomorrow';
+                case !(delta < week):
+                    return '' + (Math.floor(delta / day)) + ' days';
+                case Math.floor(delta / week) !== 1:
+                    return 'a week';
+                default:
+                    // Use angular $filter
+                    return $filter('date')(date, fallbackDateFormat);
+            }
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.filters').filter('trustAsResourceUrl', trustAsResourceUrl);
+
+trustAsResourceUrl.$inject = ['$sce'];
+function trustAsResourceUrl ($sce) {
+    return function(val) {
+        return $sce.trustAsResourceUrl(val);
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+/**
+ * Cookie Service provides a simple interface to get and store cookie values
+ *
+ * Set `prefix` to give cookie keys a prefix
+ */
+angular.module('app.services').service('Cookie', Cookie);
+
+Cookie.$inject = ['$cookieStore'];
+function Cookie ($cookieStore) {
+    function CookieFactory (prefix) {
+        return new Cookie(prefix);
+    }
+
+    function Cookie(prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
+     * getCookieValue() tries to retrieve a value from the cookie, or returns default value
+     *
+     * @param field string: key to retrieve info from
+     * @param defaultValue {*}: default value when nothing set on cache
+     * @returns {*}: retrieved or default value
+     */
+    Cookie.prototype.get = function (field, defaultValue) {
+        try {
+            var value = $cookieStore.get(this.prefix + field);
+            return (value !== undefined) ? value : defaultValue;
+        } catch (error) {
+            $cookieStore.remove(this.prefix + field);
+            return defaultValue;
+        }
+    };
+
+    /**
+     * setCookieValue() sets value on the cookie
+     *
+     * It prefixes the field to make field unique for this controller
+     *
+     * @param field string: the key on which to store the value
+     * @param value {*}: JSON serializable object to store
+     */
+    Cookie.prototype.put = function (field, value) {
+        $cookieStore.put(this.prefix + field, value);
+    };
+
+    return CookieFactory;
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.services').service('HLDate', HLDate);
+
+function HLDate () {
+    /**
+     * getSubtractedDate() subtracts x amount of days from the current date
+     *
+     * @param days (int): amount of days to subtract from the current date
+     *
+     * @returns (string): returns the subtracted date in a yyyy-mm-dd format
+     */
+    this.getSubtractedDate = function (days) {
+        var date = new Date();
+        date.setDate(date.getDate() - days);
+
+        return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.services').service('HLFilters', HLFilters);
+
+function HLFilters () {
+    this.updateFilterQuery = function ($scope) {
+        $scope.table.filterQuery = '';
+        $scope.displayFilterClear = false;
+        var filterStrings = [];
+
+        for (var i = 0; i < $scope.filterList.length; i++) {
+            var filter = $scope.filterList[i];
+            if (filter.id && filter.id == 'archived') {
+                if (!filter.selected) {
+                    filterStrings.push('archived:false');
+                }
+                else {
+                    $scope.displayFilterClear = true;
+                }
+            }
+            else {
+                if (filter.selected) {
+                    filterStrings.push(filter.value);
+                    $scope.displayFilterClear = true;
                 }
             }
         }
-    );
+
+        $scope.table.filterQuery = filterStrings.join(' AND ');
+    };
+
+    this.clearFilters = function ($scope) {
+        for (var i = 0; i < $scope.filterList.length; i++) {
+            $scope.filterList[i].selected = false;
+        }
+
+        $scope.updateFilterQuery();
+    };
 }
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.cases.services').factory('CaseStatuses', CaseStatuses);
-
-CaseStatuses.$inject = ['$resource'];
-function CaseStatuses ($resource) {
-    return $resource('/api/cases/statuses');
+angular.module('app.services').service('HLText', HLText);
+function HLText () {
+    /**
+     * hlCapitalize() lowercases the whole string and makes the first character uppercase
+     * This means 'STRING' becomes 'String'
+     *
+     * @returns (string): returns a string with only the first character uppercased
+     */
+    String.prototype.hlCapitalize = function () {
+        var newString = this.toLowerCase();
+        return newString.charAt(0).toUpperCase() + newString.substring(1);
+    }
 }
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.cases.services').factory('UnassignedTeamCases', UnassignedTeamCases);
+angular.module('app.services').factory('Notifications', Notifications);
 
-UnassignedTeamCases.$inject = ['$resource'];
-function UnassignedTeamCases ($resource) {
-    return $resource('/api/cases/teams/:teamId/?is_assigned=False&is_archived=false&is_deleted=False')
+Notifications.$inject = ['$resource'];
+
+function Notifications ($resource) {
+    return $resource('/api/utils/notifications/');
 }
 
 })(angular);
@@ -3853,273 +3710,207 @@ function CasePostponeModal ($filter, $modalInstance, $scope, Case, myCase) {
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.base').config(appConfig);
-
-appConfig.$inject = ['$stateProvider'];
-function appConfig ($stateProvider) {
-    $stateProvider.state('base', {
-        abstract: true,
-        controller: BaseController,
-        ncyBreadcrumb: {
-            label: 'Lily'
-        }
-    });
-}
-
-angular.module('app.base').controller('BaseController', BaseController);
-
-BaseController.$inject = ['$scope', '$state', 'Notifications'];
-function BaseController ($scope, $state, Notifications) {
-    $scope.conf = {
-        headTitle: 'Welcome!',
-        pageTitleBig: 'HelloLily',
-        pageTitleSmall: 'welcome to my humble abode!'
-    };
-
-    $scope.loadNotifications = loadNotifications;
-
-    activate();
-
-    //////////
-
-    function activate(){
-        $scope.$on('$stateChangeSuccess', _setPreviousState);
-        $scope.$on('$viewContentLoaded', _contentLoadedActions);
-    }
-
-    function loadNotifications() {
-        Notifications.query(function(notifications) {  // On success
-            angular.forEach(notifications, function(message) {
-                toastr[message.level](message.message);
-            });
-        }, function(error) {  // On error
-            console.log('error!');
-            console.log(error);
-        })
-    }
-
-    function _contentLoadedActions() {
-        Metronic.initComponents(); // init core components
-        HLSelect2.init();
-        HLFormsets.init();
-        HLShowAndHide.init();
-        autosize($('textarea'));
-
-        $scope.loadNotifications();
-    }
-
-    function _setPreviousState(event, toState, toParams, fromState, fromParams){
-        $scope.previousState = $state.href(fromState, fromParams);
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.base').controller('headerController', headerController);
-
-headerController.$inject = ['$scope'];
-function headerController ($scope) {
-    $scope.$on('$includeContentLoaded', function() {
-        Layout.initHeader(); // init header
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.base').controller('sidebarController', sidebarController);
-
-sidebarController.$inject = ['$scope'];
-function sidebarController ($scope) {
-    $scope.$on('$includeContentLoaded', function() {
-        Layout.initSidebar(); // init sidebar
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.filters').filter('minValue', minValue);
-function minValue () {
-    return function(values) {
-        values.sort(function(a, b){return a-b});
-        return values[0];
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.filters').filter('nl2br', nl2br);
-
-nl2br.$inject = ['$sce'];
-function nl2br ($sce) {
-    return function(msg,is_xhtml) {
-        var is_xhtml = is_xhtml || true;
-        var breakTag = (is_xhtml) ? '<br />' : '<br>';
-        var msg = (msg + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2');
-        return $sce.trustAsHtml(msg);
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-/**
- * relativeDate filter is a filter that represents the date in a nice format
- *
- * relativeDate will return a relative date string given the date. If the
- * date is to far in the past, it will fallback to angulars $filter
- *
- * @param: date {date|string} : date object or date string to transform
- * @param: fallbackDateFormat string (optional): fallback $filter argument
- * @param: compareWithMidnight boolean (optional): should the date comparison be with midnight or not
- *
- * @returns: string : a relative date string
- *
- * usage:
- *
- * {{ '2014-11-19T12:44:15.795312+00:00' | relativeDate }}
- */
-angular.module('app.filters').filter('relativeDate', relativeDate);
-
-relativeDate.$inject = ['$filter'];
-function relativeDate ($filter) {
-    return function (date, fallbackDateFormat, compareWithMidnight) {
-        // Get current date
-        var now = new Date(),
-            calculateDelta, day, delta, hour, minute, week, month, year;
-
-        // If date is a string, format to date object
-        if (!(date instanceof Date)) {
-            date = new Date(date);
-            if (compareWithMidnight) {
-                // In certain cases we want to compare with midnight
-                date.setHours(23);
-                date.setMinutes(59);
-                date.setSeconds(59);
-            }
-        }
-
-        delta = null;
-        minute = 60;
-        hour = minute * 60;
-        day = hour * 24;
-        week = day * 7;
-        month = day * 30;
-        year = day * 365;
-
-        // Calculate delta in seconds
-        calculateDelta = function () {
-            return delta = Math.round((date - now) / 1000);
-        };
-
-        calculateDelta();
-
-        if (delta > day && delta < week) {
-            date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            if (compareWithMidnight) {
-                // In certain cases we want to compare with midnight
-                date.setHours(23);
-                date.setMinutes(59);
-                date.setSeconds(59);
-            }
-            calculateDelta();
-        }
-
-        if (!fallbackDateFormat) {
-            if (window.innerWidth < 992) {
-                // Display as a short version if it's a small screen (tablet, smartphone, etc.)
-                fallbackDateFormat = 'dd MMM. yyyy'; // Renders as 29 Jan. 2015
-            }
-            else {
-                fallbackDateFormat = 'dd MMMM yyyy'; // Renders as 29 January 2015
-            }
-        }
-
-        // Check delta and return result
-        if (delta < 0) {
-            switch (false) {
-                case !(-delta > week):
-                    return $filter('date')(date, fallbackDateFormat);
-                case !(-delta > day * 2):
-                    return '' + -(Math.ceil(delta / day)) + ' days ago';
-                case !(-delta > day):
-                    return 'yesterday';
-                case !(-delta > hour):
-                    return '' + -(Math.ceil(delta / hour)) + ' hours ago';
-                case !(-delta > minute * 2):
-                    return '' + -(Math.ceil(delta / minute)) + ' minutes ago';
-                case !(-delta > minute):
-                    return 'a minutes ago';
-                case !(-delta > 30):
-                    return '' + -delta + ' seconds ago';
-                default:
-                    return 'just now';
-            }
-        } else {
-            switch (false) {
-                case !(delta < 30):
-                    return 'just now';
-                case !(delta < minute):
-                    return '' + delta + ' seconds';
-                case !(delta < 2 * minute):
-                    return 'a minute';
-                case !(delta < hour):
-                    return '' + (Math.floor(delta / minute)) + ' minutes';
-                case Math.floor(delta / hour) !== 1:
-                    return 'an hour';
-                case !(delta < day):
-                    return '' + (Math.floor(delta / hour)) + ' hours';
-                case !(delta < day * 2):
-                    return 'tomorrow';
-                case !(delta < week):
-                    return '' + (Math.floor(delta / day)) + ' days';
-                case Math.floor(delta / week) !== 1:
-                    return 'a week';
-                default:
-                    // Use angular $filter
-                    return $filter('date')(date, fallbackDateFormat);
-            }
-        }
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.filters').filter('trustAsResourceUrl', trustAsResourceUrl);
-
-trustAsResourceUrl.$inject = ['$sce'];
-function trustAsResourceUrl ($sce) {
-    return function(val) {
-        return $sce.trustAsResourceUrl(val);
-    };
-}
-
-})(angular);
-(function(angular){
-'use strict';
-/**
- * checkbox Directive makes a nice uniform checkbox and binds to a model
- *
- * @param model object: model to bind checkbox with
- *
- * Example:
- * <checkbox model="table.visibility.name">Name</checkbox>
- */
-angular.module('app.directives').directive('checkbox', checkbox);
-
-function checkbox () {
+angular.module('app.cases.directives').directive('caseListWidget', CaseListWidget);
+function CaseListWidget(){
     return {
         restrict: 'E',
         replace: true,
-        transclude: true,
         scope: {
-            model: '='
+            title: '@',
+            list: '=',
+            height: '=',
+            addLink: '@'
         },
-        templateUrl: 'base/directives/checkbox.html'
+        templateUrl: 'cases/directives/list_widget.html'
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.cases.directives').directive('updateCaseExpireDate', updateCaseExpireDate);
+
+function updateCaseExpireDate () {
+    return {
+        restrict: "A",
+        link: function(scope, element, attrs) {
+
+            var select = $('#id_priority');
+            var daysToAdd = [5, 3, 1, 0];
+
+            select.on('change', function(event) {
+                var priority = parseInt(select.val());
+                if(isNaN(select.val())){
+                    priority = 3;
+                }
+                var due = addBusinessDays(new Date(), daysToAdd[priority]);
+                var month = due.getMonth() + 1;
+                if(month < 10){
+                    month = '0' + month;
+                }
+                var expires = due.getDate() + '/' + month + '/' + due.getFullYear();
+                $('#id_expires').val(expires);
+                $('#id_expires_picker').datepicker('update', expires);
+            });
+        }
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.cases.services').factory('Case', Case);
+
+Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail'];
+function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
+
+    var Case = $resource(
+        '/api/cases/case/:id',
+        {},
+        {
+            query: {
+                url: '/search/search/?type=cases_case&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    var objects = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+                    return objects;
+                }
+            },
+            update: {
+                method: 'PATCH',
+                params: {
+                    id: '@id'
+                }
+            }
+        }
+    );
+
+    Case.getCases = getCases;
+    Case.getCaseTypes = getCaseTypes;
+    Case.getMyCasesWidget = getMyCasesWidget;
+    Case.getCallbackRequests = getCallbackRequests;
+    Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+
+    return Case;
+
+    /////////
+
+    /**
+     * getCases() gets the cases from the search backend through a promise
+     *
+     * @param queryString string: current filter on the caselist
+     * @param page int: current page of pagination
+     * @param pageSize int: current page size of pagination
+     * @param orderColumn string: current sorting of cases
+     * @param orderedAsc {boolean}: current ordering
+     * @param archived {boolean}: when true, only archived are fetched, if false, only active
+     * @param filterQuery {string}: contains the filters which are used in ElasticSearch
+     *
+     * @returns Promise object: when promise is completed:
+     *      {
+     *          cases list: paginated cases objects
+     *          total int: total number of case objects
+     *      }
+     */
+    function getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
+
+        return $http({
+            url: '/search/search/',
+            method: 'GET',
+            params: {
+                type: 'cases_case',
+                q: queryString,
+                page: page - 1,
+                size: pageSize,
+                sort: _getSorting(orderColumn, orderedAsc),
+                filterquery: filterQuery
+            }
+        }).then(function(response) {
+            return {
+                cases: response.data.hits,
+                total: response.data.total
+            };
+        });
+    }
+
+    function getCaseTypes () {
+        return $http({
+            url: '/cases/casetypes/',
+            method: 'GET'
+        }).then(function (response) {
+            return response.data.casetypes;
+        });
+    }
+
+    function _getSorting (field, sorting) {
+        var sort = '';
+        sort += sorting ? '-': '';
+        sort += field;
+        return sort;
+    }
+
+    /**
+     * Service to return a resource for my cases widget
+     */
+    function getMyCasesWidget (field, sorting) {
+        var deferred = $q.defer();
+        var filterQuery = 'archived:false AND NOT casetype_name:Callback';
+        filterQuery += ' AND assigned_to_id:' + currentUser.id;
+        Case.query({
+            filterquery: filterQuery,
+            sort: _getSorting(field, sorting)
+        }, function (cases) {
+            deferred.resolve(cases);
+        });
+
+        return deferred.promise;
+    }
+
+    /**
+     * Gets all cases with the 'callback' case type
+     *
+     * @returns cases with the callback case type
+     */
+    function getCallbackRequests (field, sorting) {
+        var filterQuery = 'archived:false AND casetype_name:Callback';
+        filterQuery += ' AND assigned_to_id:' + currentUser.id;
+
+        var deferred = $q.defer();
+        Case.query({
+            filterquery: filterQuery,
+            sort: _getSorting(field, sorting)
+        }, function (cases) {
+            angular.forEach(cases, function(callbackCase) {
+                if (callbackCase.account) {
+                    AccountDetail.get({id: callbackCase.account}, function(account) {
+                        callbackCase.accountPhone = account.phone;
+                    });
+                }
+                if (callbackCase.contact) {
+                    ContactDetail.get({id: callbackCase.contact}, function(contact) {
+                        callbackCase.contactPhone = contact.phone;
+                    });
+                }
+            });
+            deferred.resolve(cases);
+        });
+        return deferred.promise;
+    }
+
+    function getUnassignedCasesForTeam (teamId, field, sorting) {
+        var filterQuery = 'archived:false AND _missing_:assigned_to_id';
+        filterQuery += ' AND assigned_to_groups:' + teamId;
+
+        return Case.query({
+            filterquery: filterQuery,
+            sort: _getSorting(field, sorting)
+        }).$promise;
     }
 }
 
@@ -4127,352 +3918,561 @@ function checkbox () {
 (function(angular){
 'use strict';
 /**
- * Directive give a nice formatting on input elements.
- *
- * It makes sure that the value of the ngModel on the scope has a nice
- * formatting for the user
+ * $resource for Case model, now only used for detail page.
  */
-angular.module('app.directives').directive('dateFormatter', dateFormatter);
+angular.module('app.cases.services').factory('CaseDetail', CaseDetail);
 
-dateFormatter.$inject = ['dateFilter'];
-function dateFormatter(dateFilter) {
-    return {
-        restrict: 'A',
-        require: 'ngModel',
-        link: function(scope, element, attrs, ngModel) {
-            ngModel.$formatters.push(function(value) {
-                if (value) {
-                    return dateFilter(value, attrs.dateFormatter);
+CaseDetail.$inject = ['$resource'];
+function CaseDetail ($resource) {
+    return $resource(
+        '/search/search/?type=cases_case&filterquery=id\::id',
+        {},
+        {
+            get: {
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    if (data && data.hits && data.hits.length > 0) {
+                        var obj = data.hits[0];
+                        return obj;
+                    }
+                    return null;
                 }
+            },
+            query: {
+                url: '/search/search/?type=cases_case&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    var objects = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function(obj) {
+                            obj = $.extend(obj, {historyType: 'case', color: 'grey', date: obj.expires});
+                            objects.push(obj);
+                        });
+                    }
+                    return objects;
+                }
+            },
+            totalize: {
+                url: '/search/search/?type=cases_case&size=0&filterquery=:filterquery',
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    if (data && data.total) {
+                        return {total: data.total};
+                    }
+                    return {total: 0};
+                }
+            }
+        }
+    );
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.cases.services').factory('CaseStatuses', CaseStatuses);
+
+CaseStatuses.$inject = ['$resource'];
+function CaseStatuses ($resource) {
+    return $resource('/api/cases/statuses');
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.cases.services').factory('UnassignedTeamCases', UnassignedTeamCases);
+
+UnassignedTeamCases.$inject = ['$resource'];
+function UnassignedTeamCases ($resource) {
+    return $resource('/api/cases/teams/:teamId/?is_assigned=False&is_archived=false&is_deleted=False')
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts').config(contactsConfig);
+
+contactsConfig.$inject = ['$stateProvider'];
+function contactsConfig ($stateProvider) {
+    $stateProvider.state('base.contacts.create', {
+        url: '/create',
+        views: {
+            '@': {
+                templateUrl: 'contacts/create/',
+                controller: ContactCreateController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Create'
+        }
+    });
+    $stateProvider.state('base.contacts.create.fromAccount', {
+        url: '/account/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr){
+                    return '/contacts/add/from_account/' + elem.id + '/';
+                },
+                controller: ContactCreateController
+            }
+        },
+        ncyBreadcrumb:{
+            skip: true
+        }
+    });
+}
+
+angular.module('app.contacts').controller('ContactCreateController', ContactCreateController);
+
+ContactCreateController.$inject = ['$scope'];
+function ContactCreateController ($scope) {
+    $scope.conf.pageTitleBig = 'New contact';
+    $scope.conf.pageTitleSmall = 'who did you talk to?';
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts').config(contactsConfig);
+
+contactsConfig.$inject = ['$stateProvider'];
+function contactsConfig ($stateProvider) {
+    $stateProvider.state('base.contacts.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: ContactDeleteController
+            }
+        }
+    });
+}
+
+angular.module('app.contacts').controller('ContactDeleteController', ContactDeleteController);
+
+ContactDeleteController.$inject = ['$state', '$stateParams', 'ContactTest'];
+function ContactDeleteController($state, $stateParams, ContactTest) {
+    var id = $stateParams.id;
+
+    ContactTest.delete({
+        id:id
+    }, function() {  // On success
+        $state.go('base.contacts');
+    }, function(error) {  // On error
+        // Error notification needed
+        $state.go('base.contacts');
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts').config(contactsConfig);
+
+contactsConfig.$inject = ['$stateProvider'];
+function contactsConfig ($stateProvider) {
+    $stateProvider.state('base.contacts.detail', {
+        url: '/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: 'contacts/controllers/detail.html',
+                controller: 'ContactDetailController'
+            }
+        },
+        ncyBreadcrumb: {
+            label: '{{ contact.name }}'
+        },
+        resolve: {
+            contact: ['ContactDetail', '$stateParams', function (ContactDetail, $stateParams) {
+                var contactId = $stateParams.id;
+                return ContactDetail.get({id: contactId}).$promise
+            }]
+        }
+    });
+}
+
+angular.module('app.contacts').controller('ContactDetailController', ContactDetail);
+
+ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'contact'];
+function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, contact) {
+    var id = $stateParams.id;
+
+    $scope.contact = contact;
+
+    if ($scope.contact.accounts) {
+        $scope.contact.accounts.forEach(function(account) {
+            var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
+            colleagueList.$promise.then(function(colleagues) {
+                account.colleagueList = colleagues;
+            })
+        });
+    }
+
+    $scope.conf.pageTitleBig = 'Contact detail';
+    $scope.conf.pageTitleSmall = 'the devil is in the details';
+
+    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id});
+    $scope.caseList.$promise.then(function(caseList) {
+        $scope.caseList = caseList;
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts').config(contactsConfig);
+
+contactsConfig.$inject = ['$stateProvider'];
+function contactsConfig ($stateProvider) {
+    $stateProvider.state('base.contacts.detail.edit', {
+        url: '/edit',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr) {
+                    return '/contacts/edit/' + elem.id +'/';
+                },
+                controller: ContactEditController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Edit'
+        }
+    });
+}
+
+angular.module('app.contacts').controller('ContactEditController', ContactEditController);
+
+ContactEditController.$inject = ['$scope', '$stateParams', 'ContactDetail'];
+function ContactEditController ($scope, $stateParams, ContactDetail) {
+    var id = $stateParams.id;
+    var contactPromise = ContactDetail.get({id: id}).$promise;
+
+    contactPromise.then(function(contact) {
+        $scope.contact = contact;
+        $scope.conf.pageTitleBig = contact.name;
+        $scope.conf.pageTitleSmall = 'change is natural';
+        HLSelect2.init();
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts').config(contactsConfig);
+
+contactsConfig.$inject = ['$stateProvider'];
+function contactsConfig ($stateProvider) {
+    $stateProvider.state('base.contacts', {
+        url: '/contacts',
+        views: {
+            '@': {
+                templateUrl: 'contacts/controllers/list.html',
+                controller: ContactListController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Contacts'
+        }
+    });
+}
+
+angular.module('app.contacts').controller('ContactListController', ContactListController);
+
+ContactListController.$inject = ['$scope', '$window', 'Contact', 'Cookie', 'ContactTest'];
+function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
+    var cookie = Cookie('contactList');
+
+    $scope.conf.pageTitleBig = 'Contacts';
+    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+
+    /**
+     * table object: stores all the information to correctly display the table
+     */
+    $scope.table = {
+        page: 1,  // current page of pagination: 1-index
+        pageSize: 20,  // number of items per page
+        totalItems: 0, // total number of items
+        filter: cookie.get('filter', ''),  // search filter
+        order:  cookie.get('order', {
+            ascending: true,
+            column:  'modified'  // string: current sorted column
+        }),
+        visibility: cookie.get('visibility', {
+            name: true,
+            contactInformation: true,
+            worksAt: true,
+            created: true,
+            modified: true,
+            tags: true
+        })};
+
+    $scope.deleteContact = function(contact) {
+        if (confirm('Are you sure?')) {
+            ContactTest.delete({
+                id:contact.id
+            }, function() {  // On success
+                var index = $scope.table.items.indexOf(contact);
+                $scope.table.items.splice(index, 1);
+            }, function(error) {  // On error
+                alert('something went wrong.')
             })
         }
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-/**
- * Directive for a confirmation box before the delete in the detail
- * view happens
- */
-angular.module('app.directives').directive('detailDelete', detailDelete);
-
-detailDelete.$inject = ['$state'];
-function detailDelete ($state) {
-    return {
-        restrict: 'A',
-        link: function (scope, elem, attrs) {
-
-            $(elem).click(function () {
-                if (confirm('You are deleting! Are you sure ?')) {
-                    $state.go('.delete');
-                }
-            });
-        }
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.directives').directive('resizeIframe', resizeIframe);
-
-function resizeIframe () {
-    return {
-        restrict: 'A',
-        link: function ($scope, element, attrs) {
-            var maxHeight = $('body').outerHeight();
-            element.on('load', function() {
-                element.removeClass('hidden');
-
-                // do this after .inbox-view is visible
-                var ifDoc, ifRef = this;
-
-                // set ifDoc to 'document' from frame
-                try {
-                    ifDoc = ifRef.contentWindow.document.documentElement;
-                } catch (e1) {
-                    try {
-                        ifDoc = ifRef.contentDocument.documentElement;
-                    } catch (e2) {
-                    }
-                }
-
-                // calculate and set max height for frame
-                if (ifDoc) {
-                    var subtractHeights = [
-                        element.offset().top,
-                        $('.footer').outerHeight(),
-                        $('.inbox-attached').outerHeight()
-                    ];
-                    for (var height in subtractHeights) {
-                        maxHeight = maxHeight - height;
-                    }
-
-                    if (ifDoc.scrollHeight > maxHeight) {
-                        ifRef.height = maxHeight;
-                    } else {
-                        ifRef.height = ifDoc.scrollHeight;
-                    }
-                }
-            });
-        }
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-/**
- * sortColumn Directive adds sorting classes to an DOM element based on `table` object
- *
- * It makes the element clickable and sets the table sorting based on that element
- *
- * @param sortColumn string: name of the column to sort on when clicked
- * @param table object: The object to bind sort column and ordering
- *
- * Example:
- *
- * <th sort-column="last_name" table="table">Name</th>
- *
- * Possible classes:
- * - sorting: Unsorted
- * - sorting_asc: Sorted ascending
- * - sorting_desc: Sorted descending
- */
-angular.module('app.directives').directive('sortColumn', sortColumn);
-
-function sortColumn () {
-    /**
-     * _setSortableIcon() removes current sorting classes and adds new based on current
-     * sorting column and direction
-     *
-     * @param $scope object: current scope
-     * @param element object: current DOM element
-     * @param sortColumn string: column from current DOM element
-     */
-    var _setSortableIcon = function($scope, element, sortColumn) {
-        // Add classes based on current sorted column
-        if($scope.table.order.column === sortColumn) {
-            if ($scope.table.order.ascending) {
-                $scope.sorted = 1;
-            } else {
-                $scope.sorted = -1;
-            }
-        } else {
-            $scope.sorted = 0;
-        }
     };
 
+    /**
+     * updateTableSettings() sets scope variables to the cookie
+     */
+    function updateTableSettings() {
+        cookie.put('filter', $scope.table.filter);
+        cookie.put('order', $scope.table.order);
+        cookie.put('visibility', $scope.table.visibility);
+    }
+
+    /**
+     * updateContacts() reloads the contacts through a service
+     *
+     * Updates table.items and table.totalItems
+     */
+    function updateContacts() {
+        Contact.query(
+            $scope.table
+        ).then(function(data) {
+                $scope.table.items = data.contacts;
+                $scope.table.totalItems = data.total;
+            }
+        );
+    }
+
+    /**
+     * Watches the model info from the table that, when changed,
+     * needs a new set of contacts
+     */
+    $scope.$watchGroup([
+        'table.page',
+        'table.order.column',
+        'table.order.ascending',
+        'table.filter'
+    ], function() {
+        updateTableSettings();
+        updateContacts();
+    });
+
+    /**
+     * Watches the model info from the table that, when changed,
+     * needs to store the info to the cache
+     */
+    $scope.$watchCollection('table.visibility', function() {
+        updateTableSettings();
+    });
+
+    /**
+     * setFilter() sets the filter of the table
+     *
+     * @param queryString string: string that will be set as the new filter on the table
+     */
+    $scope.setFilter = function(queryString) {
+        $scope.table.filter = queryString;
+    };
+
+    /**
+     * exportToCsv() creates an export link and opens it
+     */
+    $scope.exportToCsv = function() {
+        var getParams = '';
+
+        // If there is a filter, add it
+        if ($scope.table.filter) {
+            getParams += '&export_filter=' + $scope.table.filter;
+        }
+
+        // Add all visible columns
+        angular.forEach($scope.table.visibility, function(value, key) {
+            if (value) {
+                getParams += '&export_columns='+ key;
+            }
+        });
+
+        // Setup url
+        var url = '/contacts/export/';
+        if (getParams) {
+            url += '?' + getParams.substr(1);
+        }
+
+        // Open url
+        $window.open(url);
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.contacts.directives').directive('contactDetailWidget', ContactDetailWidget);
+
+function ContactDetailWidget() {
     return {
-        restrict: 'A',
+        restrict: 'E',
+        replace: true,
         scope: {
-            table: '='
+            contact: '=',
+            height: '='
         },
-        transclude: true,
-        templateUrl: 'base/directives/sort_column.html',
-        link: function ($scope, element, attrs) {
-            // Watch the table ordering & sorting
-            $scope.$watchCollection('table.order', function() {
-                _setSortableIcon($scope, element, attrs.sortColumn);
-            });
-
-            // When element is clicked, set the table ordering & sorting based on this DOM element
-            element.on('click', function() {
-                if($scope.table.order.column === attrs.sortColumn) {
-                    $scope.table.order.ascending = !$scope.table.order.ascending;
-                    $scope.$apply();
-                } else {
-                    $scope.table.order.column = attrs.sortColumn;
-                    $scope.$apply();
-                }
-            });
-        }
+        templateUrl: 'contacts/directives/detail_widget.html'
     }
 }
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.directives').directive('ngSpinnerBar', ngSpinnerBar);
+angular.module('app.contacts.directives').directive('contactListWidget', ContactListWidget);
 
-ngSpinnerBar.$inject = ['$rootScope'];
-function ngSpinnerBar ($rootScope) {
+function ContactListWidget() {
     return {
-        link: function(scope, element, attrs) {
-            // by defult hide the spinner bar
-            element.addClass('hide'); // hide spinner bar by default
-
-            // display the spinner bar whenever the route changes(the content part started loading)
-            $rootScope.$on('$stateChangeStart', function() {
-                element.removeClass('hide'); // show spinner bar
-            });
-
-            // hide the spinner bar on rounte change success(after the content loaded)
-            $rootScope.$on('$stateChangeSuccess', function() {
-                element.addClass('hide'); // hide spinner bar
-                $('body').removeClass('page-on-load'); // remove page loading indicator
-
-                // auto scroll to page top
-                setTimeout(function () {
-                    Metronic.scrollTop(); // scroll to the top on content load
-                }, $rootScope.settings.layout.pageAutoScrollOnLoad);
-            });
-
-            // handle errors
-            $rootScope.$on('$stateNotFound', function() {
-                element.addClass('hide'); // hide spinner bar
-            });
-
-            // handle errors
-            $rootScope.$on('$stateChangeError', function() {
-                element.addClass('hide'); // hide spinner bar
-            });
-        }
-    };
+        restrict: 'E',
+        replace: true,
+        scope: {
+            title: '@',
+            list: '=',
+            height: '=',
+            accountId: '@',
+            addLink: '@'
+        },
+        templateUrl: 'contacts/directives/list_widget.html'
+    }
 }
 
 })(angular);
 (function(angular){
 'use strict';
-/**
- * Cookie Service provides a simple interface to get and store cookie values
- *
- * Set `prefix` to give cookie keys a prefix
- */
-angular.module('app.services').service('Cookie', Cookie);
+angular.module('app.contacts.services').factory('ContactDetail', ContactDetail);
 
-Cookie.$inject = ['$cookieStore'];
-function Cookie ($cookieStore) {
-    function CookieFactory (prefix) {
-        return new Cookie(prefix);
+ContactDetail.$inject = ['$resource'];
+function ContactDetail ($resource) {
+    function getPhone(contact) {
+        if (contact.phone_mobile) return contact.phone_mobile[0];
+        if (contact.phone_work) return contact.phone_work[0];
+        if (contact.phone_other) return contact.phone_other[0];
+        return '';
     }
 
-    function Cookie(prefix) {
-        this.prefix = prefix;
+    function getPhones(contact) {
+        var phones = [];
+        if (contact.phone_mobile) phones = phones.concat(contact.phone_mobile);
+        if (contact.phone_work) phones = phones.concat(contact.phone_work);
+        if (contact.phone_other) phones = phones.concat(contact.phone_other);
+        return phones;
     }
 
-    /**
-     * getCookieValue() tries to retrieve a value from the cookie, or returns default value
-     *
-     * @param field string: key to retrieve info from
-     * @param defaultValue {*}: default value when nothing set on cache
-     * @returns {*}: retrieved or default value
-     */
-    Cookie.prototype.get = function (field, defaultValue) {
-        try {
-            var value = $cookieStore.get(this.prefix + field);
-            return (value !== undefined) ? value : defaultValue;
-        } catch (error) {
-            $cookieStore.remove(this.prefix + field);
-            return defaultValue;
-        }
-    };
-
-    /**
-     * setCookieValue() sets value on the cookie
-     *
-     * It prefixes the field to make field unique for this controller
-     *
-     * @param field string: the key on which to store the value
-     * @param value {*}: JSON serializable object to store
-     */
-    Cookie.prototype.put = function (field, value) {
-        $cookieStore.put(this.prefix + field, value);
-    };
-
-    return CookieFactory;
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.services').service('HLDate', HLDate);
-
-function HLDate () {
-    /**
-     * getSubtractedDate() subtracts x amount of days from the current date
-     *
-     * @param days (int): amount of days to subtract from the current date
-     *
-     * @returns (string): returns the subtracted date in a yyyy-mm-dd format
-     */
-    this.getSubtractedDate = function (days) {
-        var date = new Date();
-        date.setDate(date.getDate() - days);
-
-        return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-    };
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.services').service('HLFilters', HLFilters);
-
-function HLFilters () {
-    this.updateFilterQuery = function ($scope) {
-        $scope.table.filterQuery = '';
-        $scope.displayFilterClear = false;
-        var filterStrings = [];
-
-        for (var i = 0; i < $scope.filterList.length; i++) {
-            var filter = $scope.filterList[i];
-            if (filter.id && filter.id == 'archived') {
-                if (!filter.selected) {
-                    filterStrings.push('archived:false');
+    return $resource(
+        '/search/search/?type=contacts_contact&filterquery=id\::id',
+        {},
+        {
+            get: {
+                transformResponse: function (data) {
+                    data = angular.fromJson(data);
+                    if (data && data.hits && data.hits.length > 0) {
+                        var contact = data.hits[0];
+                        contact.phones = getPhones(contact);
+                        contact.phone = getPhone(contact);
+                        return contact;
+                    }
+                    return null;
                 }
-                else {
-                    $scope.displayFilterClear = true;
-                }
-            }
-            else {
-                if (filter.selected) {
-                    filterStrings.push(filter.value);
-                    $scope.displayFilterClear = true;
+            },
+            query: {
+                url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: function (data) {
+                    data = angular.fromJson(data);
+                    var contacts = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function (contact) {
+                            contact.phones = getPhones(contact);
+                            contact.phone = getPhone(contact);
+                            contacts.push(contact);
+                        });
+                    }
+                    return contacts;
                 }
             }
         }
-
-        $scope.table.filterQuery = filterStrings.join(' AND ');
-    };
-
-    this.clearFilters = function ($scope) {
-        for (var i = 0; i < $scope.filterList.length; i++) {
-            $scope.filterList[i].selected = false;
-        }
-
-        $scope.updateFilterQuery();
-    };
+    )
 }
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.services').service('HLText', HLText);
-function HLText () {
+angular.module('app.contacts.services').factory('Contact', Contact);
+
+Contact.$inject = ['$http'];
+function Contact ($http) {
+    var Contact = {};
+
     /**
-     * hlCapitalize() lowercases the whole string and makes the first character uppercase
-     * This means 'STRING' becomes 'String'
+     * getContacts() get the contacts from the search backend through a promise
      *
-     * @returns (string): returns a string with only the first character uppercased
+     * @param queryString string: current filter on the contactlist
+     * @param page int: current page of pagination
+     * @param pageSize int: current page size of pagination
+     * @param orderColumn string: current sorting of contacts
+     * @param orderedAsc {boolean}: current ordering
+     *
+     * @returns Promise object: when promise is completed:
+     *      {
+     *          contacts list: paginated contact objects
+     *          total int: total number of contact objects
+     *      }
      */
-    String.prototype.hlCapitalize = function () {
-        var newString = this.toLowerCase();
-        return newString.charAt(0).toUpperCase() + newString.substring(1);
-    }
+    var getContacts = function(queryString, page, pageSize, orderColumn, orderedAsc) {
+
+        var sort = '';
+        if (orderedAsc) sort += '-';
+        sort += orderColumn;
+
+        return $http({
+            url: '/search/search/',
+            method: 'GET',
+            params: {
+                type: 'contacts_contact',
+                q: queryString,
+                page: page - 1,
+                size: pageSize,
+                sort: sort
+            }
+        })
+            .then(function(response) {
+                return {
+                    contacts: response.data.hits,
+                    total: response.data.total
+                };
+            });
+    };
+
+    /**
+     * query() makes it possible to query on contacts on backend search
+     *
+     * @param table object: holds all the info needed to get contacts from backend
+     *
+     * @returns Promise object: when promise is completed:
+     *      {
+     *          contacts list: paginated contact objects
+     *          total int: total number of contact objects
+     *      }
+     */
+    Contact.query = function(table) {
+        return getContacts(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending);
+    };
+
+    return Contact;
 }
+
 
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.services').factory('Notifications', Notifications);
+angular.module('app.contacts.services').factory('ContactTest', ContactTest);
 
-Notifications.$inject = ['$resource'];
-
-function Notifications ($resource) {
-    return $resource('/api/utils/notifications/');
+ContactTest.$inject = ['$resource'];
+function ContactTest ($resource) {
+    return $resource('/api/contacts/contact/:id/');
 }
 
 })(angular);
@@ -4503,513 +4503,6 @@ DashboardController.$inject = ['$scope'];
 function DashboardController ($scope) {
     $scope.conf.pageTitleBig = 'Dashboard';
     $scope.conf.pageTitleSmall = 'statistics and usage';
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').config(dealsConfig);
-
-dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
-    $stateProvider.state('base.deals.create', {
-        url: '/create',
-        views: {
-            '@': {
-                templateUrl: '/deals/create',
-                controller: DealCreateController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'New'
-        }
-    });
-    $stateProvider.state('base.deals.create.fromAccount', {
-        url: '/account/{id:[0-9]{1,}}',
-        views: {
-            '@': {
-                templateUrl: function(elem, attr) {
-                    return '/deals/create/from_account/' + elem.id +'/';
-                },
-                controller: DealCreateController
-            }
-        },
-        ncyBreadcrumb: {
-            skip: true
-        }
-    });
-}
-
-angular.module('app.deals').controller('DealCreateController', DealCreateController);
-
-DealCreateController.$inject = ['$scope'];
-function DealCreateController ($scope) {
-    $scope.conf.pageTitleBig = 'New deal';
-    $scope.conf.pageTitleSmall = 'making deals';
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').config(dealsConfig);
-
-dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
-    $stateProvider.state('base.deals.detail.delete', {
-        url: '/delete',
-        views: {
-            '@': {
-                controller: DealDeleteController
-            }
-        }
-    });
-}
-
-angular.module('app.deals').controller('DealDeleteController', DealDeleteController);
-
-DealDeleteController.$inject = ['$http', '$state', '$stateParams'];
-function DealDeleteController ($http, $state, $stateParams) {
-    var id = $stateParams.id;
-    var req = {
-        method: 'POST',
-        url: '/deals/delete/' + id + '/',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-    };
-
-    $http(req).
-        success(function(data, status, headers, config) {
-            $state.go('base.deals');
-        }).
-        error(function(data, status, headers, config) {
-            $state.go('base.deals');
-        });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').config(dealsConfig);
-
-dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
-    $stateProvider.state('base.deals.detail', {
-        url: '/{id:[0-9]{1,}}',
-        views: {
-            '@': {
-                templateUrl: 'deals/controllers/detail.html',
-                controller: DealDetailController
-            }
-        },
-        ncyBreadcrumb: {
-            label: '{{ deal.name }}'
-        }
-    });
-}
-
-angular.module('app.deals').controller('DealDetailController', DealDetailController);
-
-DealDetailController.$inject = ['$http', '$scope', '$stateParams', 'DealDetail', 'DealStages'];
-function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStages) {
-    $scope.conf.pageTitleBig = 'Deal detail';
-    $scope.conf.pageTitleSmall = 'the devil is in the details';
-
-    var id = $stateParams.id;
-
-    $scope.deal = DealDetail.get({id: id});
-    $scope.dealStages = DealStages.query();
-
-    /**
-     * Change the state of a deal
-     */
-    $scope.changeState = function(stage) {
-        var newStage = stage;
-
-        var req = {
-            method: 'POST',
-            url: '/deals/update/stage/' + $scope.deal.id + '/',
-            data: 'stage=' + stage,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                $scope.deal.stage = newStage;
-                $scope.deal.stage_name = data.stage;
-                if(data.closed_date !== undefined){
-                    $scope.deal.closing_date = data.closed_date;
-                }
-                $scope.loadNotifications();
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
-    };
-
-    /**
-     * Archive a deal
-     */
-    $scope.archive = function(id) {
-        var req = {
-            method: 'POST',
-            url: '/deals/archive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                $scope.deal.archived = true;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
-    };
-
-    /**
-     * Unarchive a deal
-     */
-    $scope.unarchive = function(id) {
-        var req = {
-            method: 'POST',
-            url: '/deals/unarchive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                $scope.deal.archived = false;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
-    };
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').config(dealsConfig);
-
-dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
-    $stateProvider.state('base.deals.detail.edit', {
-        url: '/edit',
-        views: {
-            '@': {
-                templateUrl: function (elem, attr) {
-                    return '/deals/update/' + elem.id + '/';
-                },
-                controller: DealEditController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Edit'
-        }
-    });
-}
-
-angular.module('app.deals').controller('DealEditController', DealEditController);
-
-DealEditController.$inject = ['$scope', '$stateParams', 'DealDetail'];
-function DealEditController ($scope, $stateParams, DealDetail) {
-    var id = $stateParams.id;
-    var dealPromise = DealDetail.get({id: id}).$promise;
-
-    dealPromise.then(function(deal) {
-        $scope.deal = deal;
-        $scope.conf.pageTitleBig = 'Edit ' + deal.name;
-        $scope.conf.pageTitleSmall = 'change is natural';
-    })
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').controller('FollowUpWidgetModal', FollowUpWidgetModalController);
-
-FollowUpWidgetModalController.$inject = ['$filter', '$modalInstance', 'Deal', 'DealStages', 'followUp'];
-function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStages, followUp) {
-    var vm = this;
-    vm.dealStages = [];
-    vm.selectedStage = { id: followUp.stage, name: followUp.stage_name };
-    vm.followUp = followUp;
-    vm.pickerIsOpen = false;
-    vm.closingDate = new Date(followUp.closing_date);
-    vm.dateFormat = 'dd MMMM yyyy';
-    vm.datepickerOptions = {
-        startingDay: 1
-    };
-
-    vm.openDatePicker = openDatePicker;
-    vm.saveModal = saveModal;
-    vm.closeModal = closeModal;
-
-    activate();
-
-    function activate(){
-        _getDealStages();
-    }
-
-    function _getDealStages(){
-        DealStages.query({}, function(data){
-            vm.dealStages = [];
-            for(var i = 0; i < data.length; i++){
-                vm.dealStages.push({ id: data[i][0], name: data[i][1]});
-            }
-        });
-    }
-
-    function saveModal(){
-        var newDate = $filter('date')(vm.closingDate, 'yyyy-MM-dd');
-        var newStage = vm.selectedStage.id;
-        Deal.update({id: followUp.id}, {stage: newStage, expected_closing_date: newDate}, function() {
-            $modalInstance.close();
-        });
-    }
-
-    function openDatePicker($event){
-        $event.preventDefault();
-        $event.stopPropagation();
-        vm.pickerIsOpen = true;
-    }
-
-    function closeModal(){
-        $modalInstance.close();
-    }
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.deals').config(dealsConfig);
-
-dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
-    $stateProvider.state('base.deals', {
-        url: '/deals',
-        views: {
-            '@': {
-                templateUrl: 'deals/controllers/list.html',
-                controller: DealListController
-            }
-        },
-        ncyBreadcrumb: {
-            label: 'Deals'
-        }
-    });
-}
-
-angular.module('app.deals').controller('DealListController', DealListController);
-
-DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLDate', 'HLFilters'];
-function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFilters) {
-    var cookie = Cookie('dealList');
-
-    $scope.conf.pageTitleBig = 'Deals';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
-
-    // Setup search query
-    var searchQuery = '';
-
-    // Check if searchQuery is set as query parameter
-    var search = $location.search().search;
-    if (search != undefined) {
-        searchQuery = search;
-    } else {
-        // Get searchQuery from cookie
-        searchQuery = cookie.get('searchQuery', '');
-    }
-
-    /**
-     * table object: stores all the information to correctly display the table
-     */
-    $scope.table = {
-        page: 1,  // current page of pagination: 1-index
-        pageSize: 20,  // number of items per page
-        totalItems: 0, // total number of items
-        searchQuery: searchQuery,  // search query
-        filterQuery: '',
-        archived: cookie.get('archived', false),
-        order:  cookie.get('order', {
-            ascending: true,
-            column:  'closing_date'  // string: current sorted column
-        }),
-        visibility: cookie.get('visibility', {
-            deal: true,
-            stage: true,
-            created: true,
-            name: true,
-            amountOnce: true,
-            amountRecurring: true,
-            assignedTo: true,
-            closingDate: true,
-            feedbackFormSent: true,
-            newBusiness: true,
-            tags: true
-        })};
-
-    /**
-     * stores the selected filters
-     */
-    $scope.filterList = cookie.get('filterList', [
-        {
-            name: 'Assigned to me',
-            value: 'assigned_to_id:' + currentUser.id,
-            selected: false
-        },
-        {
-            name: 'New business',
-            value: 'new_business:true',
-            selected: false
-        },
-        {
-            name: 'Proposal stage',
-            value: 'stage:1',
-            selected: false
-        },
-        {
-            name: 'Won stage',
-            value: 'stage:2',
-            selected: false
-        },
-        {
-            name: 'Called',
-            value: 'stage:4',
-            selected: false
-        },
-        {
-            name: 'Emailed',
-            value: 'stage:5',
-            selected: false
-        },
-        {
-            name: 'Feedback form not sent',
-            value: 'feedback_form_sent:false',
-            selected: false
-        },
-        {
-            name: 'Age between 7 and 30 days',
-            value: 'created:[' + HLDate.getSubtractedDate(30) + ' TO ' + HLDate.getSubtractedDate(7) + ']',
-            selected: false
-        },
-        {
-            name: 'Age between 30 and 120 days',
-            value: 'created:[' + HLDate.getSubtractedDate(120) + ' TO ' + HLDate.getSubtractedDate(30) + ']',
-            selected: false
-        },
-        {
-            name: 'Archived',
-            value: '',
-            selected: false,
-            id: 'archived'
-        }
-    ]);
-
-    /**
-     * updateTableSettings() sets scope variables to the cookie
-     */
-    function updateTableSettings() {
-        cookie.put('searchQuery', $scope.table.searchQuery);
-        cookie.put('archived', $scope.table.archived);
-        cookie.put('order', $scope.table.order);
-        cookie.put('visibility', $scope.table.visibility);
-        cookie.put('filterList', $scope.filterList);
-    }
-
-    /**
-     * updateDeals() reloads the deals through a service
-     *
-     * Updates table.items and table.totalItems
-     */
-    function updateDeals() {
-        Deal.getDeals(
-            $scope.table.searchQuery,
-            $scope.table.page,
-            $scope.table.pageSize,
-            $scope.table.order.column,
-            $scope.table.order.ascending,
-            $scope.table.filterQuery
-        ).then(function(deals) {
-            $scope.table.items = deals;
-            $scope.table.totalItems = deals.length ? deals[0].total_size: 0;
-        });
-    }
-
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs a new set of deals
-     */
-    $scope.$watchGroup([
-        'table.page',
-        'table.order.column',
-        'table.order.ascending',
-        'table.searchQuery',
-        'table.archived',
-        'table.filterQuery'
-    ], function() {
-        updateTableSettings();
-        updateDeals();
-    });
-
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs to store the info to the cache
-     */
-    $scope.$watchCollection('table.visibility', function() {
-        updateTableSettings();
-    });
-
-    /**
-     * Watches the filters so when the cookie is loaded,
-     * the filterQuery changes and a new set of deals is fetched
-     */
-    $scope.$watchCollection('filterList', function() {
-        $scope.updateFilterQuery();
-    });
-
-    /**
-     * setSearchQuery() sets the search query of the table
-     *
-     * @param queryString string: string that will be set as the new search query on the table
-     */
-    $scope.setSearchQuery = function(queryString) {
-        $scope.table.searchQuery = queryString;
-    };
-
-    $scope.toggleArchived = function() {
-        $scope.table.archived = !$scope.table.archived;
-    };
-
-    $scope.updateFilterQuery = function() {
-        HLFilters.updateFilterQuery($scope);
-    };
-
-    $scope.clearFilters = function() {
-        HLFilters.clearFilters($scope);
-    };
-
-    /**
-     * Deletes the deal in django and updates the angular view
-     */
-    $scope.delete = function(id, name, deal) {
-        var req = {
-            method: 'POST',
-            url: '/deals/delete/' + id + '/',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        if(confirm("Are you sure you want to delete deal " + name + "?")){
-            $http(req).
-                success(function(data, status, headers, config) {
-                    var index = $scope.table.items.indexOf(deal);
-                    $scope.table.items.splice(index, 1);
-                }).
-                error(function(data, status, headers, config) {
-                    // Request failed propper error?
-                });
-        }
-    };
 }
 
 })(angular);
@@ -5571,6 +5064,532 @@ function UnreadEmailController ($scope, EmailMessage, Cookie) {
 })(angular);
 (function(angular){
 'use strict';
+angular.module('app.deals').config(dealsConfig);
+
+dealsConfig.$inject = ['$stateProvider'];
+function dealsConfig ($stateProvider) {
+    $stateProvider.state('base.deals.create', {
+        url: '/create',
+        views: {
+            '@': {
+                templateUrl: '/deals/create',
+                controller: DealCreateController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'New'
+        }
+    });
+    $stateProvider.state('base.deals.create.fromAccount', {
+        url: '/account/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: function(elem, attr) {
+                    return '/deals/create/from_account/' + elem.id +'/';
+                },
+                controller: DealCreateController
+            }
+        },
+        ncyBreadcrumb: {
+            skip: true
+        }
+    });
+}
+
+angular.module('app.deals').controller('DealCreateController', DealCreateController);
+
+DealCreateController.$inject = ['$scope'];
+function DealCreateController ($scope) {
+    $scope.conf.pageTitleBig = 'New deal';
+    $scope.conf.pageTitleSmall = 'making deals';
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals').config(dealsConfig);
+
+dealsConfig.$inject = ['$stateProvider'];
+function dealsConfig ($stateProvider) {
+    $stateProvider.state('base.deals.detail.delete', {
+        url: '/delete',
+        views: {
+            '@': {
+                controller: DealDeleteController
+            }
+        }
+    });
+}
+
+angular.module('app.deals').controller('DealDeleteController', DealDeleteController);
+
+DealDeleteController.$inject = ['$http', '$state', '$stateParams'];
+function DealDeleteController ($http, $state, $stateParams) {
+    var id = $stateParams.id;
+    var req = {
+        method: 'POST',
+        url: '/deals/delete/' + id + '/',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+    };
+
+    $http(req).
+        success(function(data, status, headers, config) {
+            $state.go('base.deals');
+        }).
+        error(function(data, status, headers, config) {
+            $state.go('base.deals');
+        });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals').config(dealsConfig);
+
+dealsConfig.$inject = ['$stateProvider'];
+function dealsConfig ($stateProvider) {
+    $stateProvider.state('base.deals.detail', {
+        url: '/{id:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: 'deals/controllers/detail.html',
+                controller: DealDetailController
+            }
+        },
+        ncyBreadcrumb: {
+            label: '{{ deal.name }}'
+        }
+    });
+}
+
+angular.module('app.deals').controller('DealDetailController', DealDetailController);
+
+DealDetailController.$inject = ['$http', '$scope', '$stateParams', 'DealDetail', 'DealStages'];
+function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStages) {
+    $scope.conf.pageTitleBig = 'Deal detail';
+    $scope.conf.pageTitleSmall = 'the devil is in the details';
+
+    var id = $stateParams.id;
+
+    $scope.deal = DealDetail.get({id: id});
+    $scope.dealStages = DealStages.query();
+
+    /**
+     * Change the state of a deal
+     */
+    $scope.changeState = function(stage) {
+        var newStage = stage;
+
+        var req = {
+            method: 'POST',
+            url: '/deals/update/stage/' + $scope.deal.id + '/',
+            data: 'stage=' + stage,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        $http(req).
+            success(function(data, status, headers, config) {
+                $scope.deal.stage = newStage;
+                $scope.deal.stage_name = data.stage;
+                if(data.closed_date !== undefined){
+                    $scope.deal.closing_date = data.closed_date;
+                }
+                $scope.loadNotifications();
+            }).
+            error(function(data, status, headers, config) {
+                // Request failed propper error?
+            });
+    };
+
+    /**
+     * Archive a deal
+     */
+    $scope.archive = function(id) {
+        var req = {
+            method: 'POST',
+            url: '/deals/archive/',
+            data: 'id=' + id,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        $http(req).
+            success(function(data, status, headers, config) {
+                $scope.deal.archived = true;
+            }).
+            error(function(data, status, headers, config) {
+                // Request failed propper error?
+            });
+    };
+
+    /**
+     * Unarchive a deal
+     */
+    $scope.unarchive = function(id) {
+        var req = {
+            method: 'POST',
+            url: '/deals/unarchive/',
+            data: 'id=' + id,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        $http(req).
+            success(function(data, status, headers, config) {
+                $scope.deal.archived = false;
+            }).
+            error(function(data, status, headers, config) {
+                // Request failed propper error?
+            });
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals').config(dealsConfig);
+
+dealsConfig.$inject = ['$stateProvider'];
+function dealsConfig ($stateProvider) {
+    $stateProvider.state('base.deals.detail.edit', {
+        url: '/edit',
+        views: {
+            '@': {
+                templateUrl: function (elem, attr) {
+                    return '/deals/update/' + elem.id + '/';
+                },
+                controller: DealEditController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Edit'
+        }
+    });
+}
+
+angular.module('app.deals').controller('DealEditController', DealEditController);
+
+DealEditController.$inject = ['$scope', '$stateParams', 'DealDetail'];
+function DealEditController ($scope, $stateParams, DealDetail) {
+    var id = $stateParams.id;
+    var dealPromise = DealDetail.get({id: id}).$promise;
+
+    dealPromise.then(function(deal) {
+        $scope.deal = deal;
+        $scope.conf.pageTitleBig = 'Edit ' + deal.name;
+        $scope.conf.pageTitleSmall = 'change is natural';
+    })
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals').controller('FollowUpWidgetModal', FollowUpWidgetModalController);
+
+FollowUpWidgetModalController.$inject = ['$filter', '$modalInstance', 'Deal', 'DealStages', 'followUp'];
+function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStages, followUp) {
+    var vm = this;
+    vm.dealStages = [];
+    vm.selectedStage = { id: followUp.stage, name: followUp.stage_name };
+    vm.followUp = followUp;
+    vm.pickerIsOpen = false;
+    vm.closingDate = new Date(followUp.closing_date);
+    vm.dateFormat = 'dd MMMM yyyy';
+    vm.datepickerOptions = {
+        startingDay: 1
+    };
+
+    vm.openDatePicker = openDatePicker;
+    vm.saveModal = saveModal;
+    vm.closeModal = closeModal;
+
+    activate();
+
+    function activate(){
+        _getDealStages();
+    }
+
+    function _getDealStages(){
+        DealStages.query({}, function(data){
+            vm.dealStages = [];
+            for(var i = 0; i < data.length; i++){
+                vm.dealStages.push({ id: data[i][0], name: data[i][1]});
+            }
+        });
+    }
+
+    function saveModal(){
+        var newDate = $filter('date')(vm.closingDate, 'yyyy-MM-dd');
+        var newStage = vm.selectedStage.id;
+        Deal.update({id: followUp.id}, {stage: newStage, expected_closing_date: newDate}, function() {
+            $modalInstance.close();
+        });
+    }
+
+    function openDatePicker($event){
+        $event.preventDefault();
+        $event.stopPropagation();
+        vm.pickerIsOpen = true;
+    }
+
+    function closeModal(){
+        $modalInstance.close();
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals').config(dealsConfig);
+
+dealsConfig.$inject = ['$stateProvider'];
+function dealsConfig ($stateProvider) {
+    $stateProvider.state('base.deals', {
+        url: '/deals',
+        views: {
+            '@': {
+                templateUrl: 'deals/controllers/list.html',
+                controller: DealListController
+            }
+        },
+        ncyBreadcrumb: {
+            label: 'Deals'
+        }
+    });
+}
+
+angular.module('app.deals').controller('DealListController', DealListController);
+
+DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLDate', 'HLFilters'];
+function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFilters) {
+    var cookie = Cookie('dealList');
+
+    $scope.conf.pageTitleBig = 'Deals';
+    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+
+    // Setup search query
+    var searchQuery = '';
+
+    // Check if searchQuery is set as query parameter
+    var search = $location.search().search;
+    if (search != undefined) {
+        searchQuery = search;
+    } else {
+        // Get searchQuery from cookie
+        searchQuery = cookie.get('searchQuery', '');
+    }
+
+    /**
+     * table object: stores all the information to correctly display the table
+     */
+    $scope.table = {
+        page: 1,  // current page of pagination: 1-index
+        pageSize: 20,  // number of items per page
+        totalItems: 0, // total number of items
+        searchQuery: searchQuery,  // search query
+        filterQuery: '',
+        archived: cookie.get('archived', false),
+        order:  cookie.get('order', {
+            ascending: true,
+            column:  'closing_date'  // string: current sorted column
+        }),
+        visibility: cookie.get('visibility', {
+            deal: true,
+            stage: true,
+            created: true,
+            name: true,
+            amountOnce: true,
+            amountRecurring: true,
+            assignedTo: true,
+            closingDate: true,
+            feedbackFormSent: true,
+            newBusiness: true,
+            tags: true
+        })};
+
+    /**
+     * stores the selected filters
+     */
+    $scope.filterList = cookie.get('filterList', [
+        {
+            name: 'Assigned to me',
+            value: 'assigned_to_id:' + currentUser.id,
+            selected: false
+        },
+        {
+            name: 'New business',
+            value: 'new_business:true',
+            selected: false
+        },
+        {
+            name: 'Proposal stage',
+            value: 'stage:1',
+            selected: false
+        },
+        {
+            name: 'Won stage',
+            value: 'stage:2',
+            selected: false
+        },
+        {
+            name: 'Called',
+            value: 'stage:4',
+            selected: false
+        },
+        {
+            name: 'Emailed',
+            value: 'stage:5',
+            selected: false
+        },
+        {
+            name: 'Feedback form not sent',
+            value: 'feedback_form_sent:false',
+            selected: false
+        },
+        {
+            name: 'Age between 7 and 30 days',
+            value: 'created:[' + HLDate.getSubtractedDate(30) + ' TO ' + HLDate.getSubtractedDate(7) + ']',
+            selected: false
+        },
+        {
+            name: 'Age between 30 and 120 days',
+            value: 'created:[' + HLDate.getSubtractedDate(120) + ' TO ' + HLDate.getSubtractedDate(30) + ']',
+            selected: false
+        },
+        {
+            name: 'Archived',
+            value: '',
+            selected: false,
+            id: 'archived'
+        }
+    ]);
+
+    /**
+     * updateTableSettings() sets scope variables to the cookie
+     */
+    function updateTableSettings() {
+        cookie.put('searchQuery', $scope.table.searchQuery);
+        cookie.put('archived', $scope.table.archived);
+        cookie.put('order', $scope.table.order);
+        cookie.put('visibility', $scope.table.visibility);
+        cookie.put('filterList', $scope.filterList);
+    }
+
+    /**
+     * updateDeals() reloads the deals through a service
+     *
+     * Updates table.items and table.totalItems
+     */
+    function updateDeals() {
+        Deal.getDeals(
+            $scope.table.searchQuery,
+            $scope.table.page,
+            $scope.table.pageSize,
+            $scope.table.order.column,
+            $scope.table.order.ascending,
+            $scope.table.filterQuery
+        ).then(function(deals) {
+            $scope.table.items = deals;
+            $scope.table.totalItems = deals.length ? deals[0].total_size: 0;
+        });
+    }
+
+    /**
+     * Watches the model info from the table that, when changed,
+     * needs a new set of deals
+     */
+    $scope.$watchGroup([
+        'table.page',
+        'table.order.column',
+        'table.order.ascending',
+        'table.searchQuery',
+        'table.archived',
+        'table.filterQuery'
+    ], function() {
+        updateTableSettings();
+        updateDeals();
+    });
+
+    /**
+     * Watches the model info from the table that, when changed,
+     * needs to store the info to the cache
+     */
+    $scope.$watchCollection('table.visibility', function() {
+        updateTableSettings();
+    });
+
+    /**
+     * Watches the filters so when the cookie is loaded,
+     * the filterQuery changes and a new set of deals is fetched
+     */
+    $scope.$watchCollection('filterList', function() {
+        $scope.updateFilterQuery();
+    });
+
+    /**
+     * setSearchQuery() sets the search query of the table
+     *
+     * @param queryString string: string that will be set as the new search query on the table
+     */
+    $scope.setSearchQuery = function(queryString) {
+        $scope.table.searchQuery = queryString;
+    };
+
+    $scope.toggleArchived = function() {
+        $scope.table.archived = !$scope.table.archived;
+    };
+
+    $scope.updateFilterQuery = function() {
+        HLFilters.updateFilterQuery($scope);
+    };
+
+    $scope.clearFilters = function() {
+        HLFilters.clearFilters($scope);
+    };
+
+    /**
+     * Deletes the deal in django and updates the angular view
+     */
+    $scope.delete = function(id, name, deal) {
+        var req = {
+            method: 'POST',
+            url: '/deals/delete/' + id + '/',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+        };
+
+        if(confirm("Are you sure you want to delete deal " + name + "?")){
+            $http(req).
+                success(function(data, status, headers, config) {
+                    var index = $scope.table.items.indexOf(deal);
+                    $scope.table.items.splice(index, 1);
+                }).
+                error(function(data, status, headers, config) {
+                    // Request failed propper error?
+                });
+        }
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.deals.directives').directive('dealListWidget', DealListWidgetDirective);
+
+function DealListWidgetDirective () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            title: '@',
+            list: '=',
+            height: '=',
+            addLink: '@'
+        },
+        templateUrl: 'deals/directives/list_widget.html'
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.deals.services').factory('Deal', Deal);
 
 Deal.$inject = ['$resource'];
@@ -5752,63 +5771,6 @@ DealStages.$inject = ['$resource'];
 
 function DealStages ($resource) {
     return $resource('/api/deals/stages');
-}
-
-})(angular);
-(function(angular){
-'use strict';
-/**
- * contactIcon Directive shows how the email is connected with an account or contact
- *
- * @param message object: object with message info
- *
- * Example:
- *
- * <td contact-icon message="message"></td>
- *
- */
-angular.module('app.email.directives').directive('contactIcon', contactIcon);
-
-contactIcon.$inject = ['$http'];
-function contactIcon ($http) {
-    return {
-        restrict: 'A',
-        scope: {
-            message: '='
-        },
-        replace: true,
-        templateUrl: 'email/directives/contact_icon.html',
-        link: function (scope, element, attrs) {
-
-            // Do we have an associated account or contact?
-            if (scope.message.sender_email) {
-                $http.get('/search/emailaddress/' + scope.message.sender_email)
-                    .success(function (data) {
-                        scope.emailAddressResults = data;
-                        if (data.type == 'contact') {
-                            // Contact and has account
-                            if (data.data.accounts) {
-                                scope.status = 'complete';
-                                // Contact without account
-                            } else {
-                                scope.status = 'needsAccount';
-                            }
-                        } else if (data.type == 'account') {
-                            // Is the emailadress from the account it self (eg. info@)
-                            if (data.complete) {
-                                scope.status = 'complete';
-                            } else {
-                                scope.status = 'needsContact';
-                            }
-                        } else {
-                            scope.status = 'needsEverything';
-                        }
-                    });
-            } else {
-                scope.status = 'complete';
-            }
-        }
-    };
 }
 
 })(angular);
@@ -6556,61 +6518,58 @@ function LabelListController ($filter, $interval, $scope, EmailAccount, primaryE
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.notes').factory('Note', Note);
+/**
+ * contactIcon Directive shows how the email is connected with an account or contact
+ *
+ * @param message object: object with message info
+ *
+ * Example:
+ *
+ * <td contact-icon message="message"></td>
+ *
+ */
+angular.module('app.email.directives').directive('contactIcon', contactIcon);
 
-Note.$inject = ['$resource'];
-function Note ($resource) {
-    return $resource('/api/notes/:id/');
-}
+contactIcon.$inject = ['$http'];
+function contactIcon ($http) {
+    return {
+        restrict: 'A',
+        scope: {
+            message: '='
+        },
+        replace: true,
+        templateUrl: 'email/directives/contact_icon.html',
+        link: function (scope, element, attrs) {
 
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.notes').factory('NoteDetail', NoteDetail);
-
-NoteDetail.$inject = ['$resource'];
-function NoteDetail ($resource) {
-    return $resource(
-        '/search/search/?type=notes_note&filterquery=id\::id',
-        {size:100},
-        {
-            get: {
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.hits && data.hits.length > 0) {
-                        var obj = data.hits[0];
-                        return obj;
-                    }
-                    return null;
-                }
-            },
-            query: {
-                url: '/search/search/?type=notes_note&size=:size&sort=-date&filterquery=:filterquery',
-                isArray: true,
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
-                            obj = $.extend(obj, {historyType: 'note', color: 'yellow'});
-                            objects.push(obj)
-                        });
-                    }
-                    return objects;
-                }
-            },
-            totalize: {
-                url: '/search/search/?type=notes_note&size=0&filterquery=:filterquery',
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.total) {
-                        return {total: data.total};
-                    }
-                    return {total: 0};
-                }
+            // Do we have an associated account or contact?
+            if (scope.message.sender_email) {
+                $http.get('/search/emailaddress/' + scope.message.sender_email)
+                    .success(function (data) {
+                        scope.emailAddressResults = data;
+                        if (data.type == 'contact') {
+                            // Contact and has account
+                            if (data.data.accounts) {
+                                scope.status = 'complete';
+                                // Contact without account
+                            } else {
+                                scope.status = 'needsAccount';
+                            }
+                        } else if (data.type == 'account') {
+                            // Is the emailadress from the account it self (eg. info@)
+                            if (data.complete) {
+                                scope.status = 'complete';
+                            } else {
+                                scope.status = 'needsContact';
+                            }
+                        } else {
+                            scope.status = 'needsEverything';
+                        }
+                    });
+            } else {
+                scope.status = 'complete';
             }
         }
-    );
+    };
 }
 
 })(angular);
@@ -6834,31 +6793,61 @@ function SelectedEmailAccount () {
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.deals.directives').directive('dealListWidget', DealListWidgetDirective);
+angular.module('app.notes').factory('Note', Note);
 
-function DealListWidgetDirective () {
-    return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            title: '@',
-            list: '=',
-            height: '=',
-            addLink: '@'
-        },
-        templateUrl: 'deals/directives/list_widget.html'
-    }
+Note.$inject = ['$resource'];
+function Note ($resource) {
+    return $resource('/api/notes/:id/');
 }
 
 })(angular);
 (function(angular){
 'use strict';
- angular.module('app.users.filters').filter('fullName', fullName);
+angular.module('app.notes').factory('NoteDetail', NoteDetail);
 
- function fullName () {
-    return function(user) {
-        return [user.first_name, user.preposition, user.last_name].join(' ');
-    };
+NoteDetail.$inject = ['$resource'];
+function NoteDetail ($resource) {
+    return $resource(
+        '/search/search/?type=notes_note&filterquery=id\::id',
+        {size:100},
+        {
+            get: {
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    if (data && data.hits && data.hits.length > 0) {
+                        var obj = data.hits[0];
+                        return obj;
+                    }
+                    return null;
+                }
+            },
+            query: {
+                url: '/search/search/?type=notes_note&size=:size&sort=-date&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    var objects = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function(obj) {
+                            obj = $.extend(obj, {historyType: 'note', color: 'yellow'});
+                            objects.push(obj)
+                        });
+                    }
+                    return objects;
+                }
+            },
+            totalize: {
+                url: '/search/search/?type=notes_note&size=0&filterquery=:filterquery',
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    if (data && data.total) {
+                        return {total: data.total};
+                    }
+                    return {total: 0};
+                }
+            }
+        }
+    );
 }
 
 })(angular);
@@ -7383,6 +7372,17 @@ function PreferencesUserProfileController () {}
 })(angular);
 (function(angular){
 'use strict';
+ angular.module('app.users.filters').filter('fullName', fullName);
+
+ function fullName () {
+    return function(user) {
+        return [user.first_name, user.preposition, user.last_name].join(' ');
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.users.services').factory('User', User);
 
 User.$inject = ['$resource'];
@@ -7464,7 +7464,7 @@ function historyAddNoteDirective () {
         scope: {
             item: '='
         },
-        templateUrl: 'utils/controllers/history_add_note.html',
+        templateUrl: 'utils/directives/history_add_note.html',
         controller: HistoryAddNoteController,
         controllerAs: 'vm',
         bindToController: true

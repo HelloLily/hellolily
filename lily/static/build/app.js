@@ -1870,7 +1870,7 @@ $(function() {
 
         phone = phone
             .replace("(0)","")
-            .replace(/\s|\(|\-|\)|\.|x|:|\*/g, "")
+            .replace(/[\s\(\-\)\.\\\/\–x:\*]/g, "")
             .replace(/^00/,"+");
 
         if (phone.length == 0) {

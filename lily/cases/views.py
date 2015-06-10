@@ -281,16 +281,10 @@ class DeleteCaseView(LoginRequiredMixin, DeleteView):
         # Show delete message
         messages.success(self.request, _('%s (Case) has been deleted.') % self.object.subject)
 
-        redirect_url = self.get_success_url()
-
         response = anyjson.serialize({
             'error': False,
-            'redirect_url': redirect_url
         })
         return HttpResponse(response, content_type='application/json')
-
-    def get_success_url(self):
-        return reverse('case_list')
 
 
 class UpdateStatusAjaxView(AjaxUpdateView):

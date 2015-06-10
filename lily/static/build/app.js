@@ -6885,6 +6885,65 @@ function NoteDetail ($resource) {
 })(angular);
 (function(angular){
 'use strict';
+ angular.module('app.users.filters').filter('fullName', fullName);
+
+ function fullName () {
+    return function(user) {
+        return [user.first_name, user.preposition, user.last_name].join(' ');
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.users.services').factory('User', User);
+
+User.$inject = ['$resource'];
+function User ($resource) {
+    return $resource('/api/users/user/', null, {
+        me: {
+            method: 'GET',
+            url: '/api/users/user/me/',
+            isArray: false
+        },
+        update: {
+            method: 'PUT',
+            url: '/api/users/user/:id/'
+        },
+        token: {
+            method: 'GET',
+            url: '/api/users/user/token/'
+        },
+        deleteToken: {
+            method: 'DELETE',
+            url: '/api/users/user/token/'
+        },
+        generateToken: {
+            method: 'POST',
+            url: '/api/users/user/token/'
+        }
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.users.services').factory('UserTeams', UserTeams);
+
+UserTeams.$inject = ['$resource'];
+function UserTeams ($resource) {
+    return $resource('/api/users/team/', null, {
+        mine: {
+            method: 'GET',
+            url: '/api/users/team/mine/',
+            isArray: true
+        }
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.preferences').config(preferencesConfig);
 
 preferencesConfig.$inject = ['$stateProvider'];
@@ -7400,65 +7459,6 @@ function preferencesConfig ($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesUserProfile', PreferencesUserProfileController);
 function PreferencesUserProfileController () {}
-
-})(angular);
-(function(angular){
-'use strict';
- angular.module('app.users.filters').filter('fullName', fullName);
-
- function fullName () {
-    return function(user) {
-        return [user.first_name, user.preposition, user.last_name].join(' ');
-    };
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.users.services').factory('User', User);
-
-User.$inject = ['$resource'];
-function User ($resource) {
-    return $resource('/api/users/user/', null, {
-        me: {
-            method: 'GET',
-            url: '/api/users/user/me/',
-            isArray: false
-        },
-        update: {
-            method: 'PUT',
-            url: '/api/users/user/:id/'
-        },
-        token: {
-            method: 'GET',
-            url: '/api/users/user/token/'
-        },
-        deleteToken: {
-            method: 'DELETE',
-            url: '/api/users/user/token/'
-        },
-        generateToken: {
-            method: 'POST',
-            url: '/api/users/user/token/'
-        }
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.users.services').factory('UserTeams', UserTeams);
-
-UserTeams.$inject = ['$resource'];
-function UserTeams ($resource) {
-    return $resource('/api/users/team/', null, {
-        mine: {
-            method: 'GET',
-            url: '/api/users/team/mine/',
-            isArray: true
-        }
-    });
-}
 
 })(angular);
 (function(angular){

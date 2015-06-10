@@ -651,6 +651,10 @@ td .label-sm {
 .assign-me-btn:hover {
   text-decoration: none;
 }
+#deal-stage {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
 .inbox .emailmessage-list td i.icon-paper-clip {
   color: #777;
 }
@@ -875,10 +879,6 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 .show-more-recipients:active,
 .show-more-recipients:focus {
   color: #94A4AB !important;
-}
-#deal-stage {
-  margin-top: 15px;
-  margin-bottom: 15px;
 }
 /* BEGIN Login scherm fixes */
 

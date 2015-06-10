@@ -20,7 +20,7 @@
         </h4>
     </div>
     <div class="timeline-body">
-        <p><em>{{ ::item.content }}</em></p>
+        <p><em ng-bind-html="::item.content | nl2br"></em></p>
         <ul class="list-inline list-justified">
             <li>
                 <small class="text-muted" tooltip="Created on {{ ::item.date | date:'dd MMMM yy' }} at {{ ::item.date | date:'HH:mm' }}">

@@ -17,3 +17,4 @@ ipdb==0.8
 readline==6.2.4.1
 gnureadline==6.3.3
 werkzeug==0.9.6
+flake8==2.4.1

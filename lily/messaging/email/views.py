@@ -29,8 +29,8 @@ from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
-from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm,
-                    EmailTemplateFileForm, EmailTemplateSetDefaultForm, ComposeEmailForm)
+from .forms import (EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm, EmailTemplateFileForm,
+                    EmailTemplateSetDefaultForm, ComposeEmailForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment)
 from .utils import (create_account, get_attachment_filename_from_url, get_email_parameter_choices,
@@ -67,26 +67,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         account = create_account(credentials, request.user)
 
-        return HttpResponseRedirect('#/preferences/emailaccounts/edit/%s' % account.pk)
-
-
-class EmailAccountShareView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
-    template_name = 'ajax_form.html'
-    model = EmailAccount
-    form_class = EmailAccountShareForm
-
-    def get_success_message(self, cleaned_data):
-        return _('%(account)s has been updated' % {'account': self.object.label})
-
-    def get_object(self, queryset=None):
-        email_account = super(EmailAccountShareView, self).get_object(queryset)
-        if not email_account.is_owned_by_user:
-            raise Http404()
-
-        return email_account
-
-    def get_success_url(self):
-        return reverse('messaging_email_account_list')
+        return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):

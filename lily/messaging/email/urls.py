@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, url
 
-from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailAccountShareView,
-                    EmailTemplateSetDefaultView, EmailTemplateGetDefaultView, EmailMessageHTMLView,
-                    EmailAccountUpdateView, EmailTemplateListView, CreateEmailTemplateView, UpdateEmailTemplateView,
-                    ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView, DetailEmailTemplateView,
-                    EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView, EmailMessageReplyAllView)
+from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailTemplateSetDefaultView,
+                    EmailTemplateGetDefaultView, EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView,
+                    CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView,
+                    EmailTemplateDeleteView, DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView,
+                    EmailMessageForwardView, EmailMessageReplyAllView)
 
 
 urlpatterns = patterns(
@@ -15,7 +15,6 @@ urlpatterns = patterns(
     url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
 
     # Account config
-    url(r'^accounts/share/(?P<pk>[\d-]+)$', EmailAccountShareView.as_view(), name='messaging_email_account_share'),
     url(r'^accounts/update/(?P<pk>[\d-]+)$', EmailAccountUpdateView.as_view(), name='messaging_email_account_update'),
 
     # Email templates

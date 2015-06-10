@@ -227,7 +227,6 @@ class GmailManager(object):
         """
 
         for history_item in history:
-
             logger.debug('parsing history %s' % history_item)
             # Get new messages
             if 'messagesAdded' in history_item:

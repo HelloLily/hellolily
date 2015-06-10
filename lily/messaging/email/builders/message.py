@@ -317,9 +317,9 @@ class MessageBuilder(object):
 
         # Check if inline attachment
         if inline:
-            self.inline_attachments[headers.get('content-id')] = attachment
-        else:
-            self.attachments.append(attachment)
+            attachment.cid = headers.get('content-id')
+
+        self.attachments.append(attachment)
 
     def _create_body_html(self, body, encoding=None):
         """
@@ -429,20 +429,6 @@ class MessageBuilder(object):
             elif header_name == 'cc':
                 self.received_by_cc.add(recipient)
 
-    def _place_inline_attachments(self):
-        """
-        Try to replace the cid src for a url to the attachment
-
-        TODO: make url look fancy with filename
-        """
-        if not self.message.body_html:
-            return
-
-        for key, attachment in self.inline_attachments.iteritems():
-            key = key[1:-1]
-            src = reverse('email_attachment_proxy_view', kwargs={'pk': attachment.pk})
-            self.message.body_html = self.message.body_html.replace('cid:%s' % key, src)
-
     def save(self):
         # Only save if there is a sent date, otherwise its a chat message
         if self.message.sent_date and self.message.sender_id:
@@ -484,16 +470,10 @@ class MessageBuilder(object):
             # Save attachments
             if len(self.attachments):
                 self.message.attachments.all().delete()
+
             for attachment in self.attachments:
                 self.message.attachments.add(attachment)
 
-            # Save inline attachments
-            if self.inline_attachments:
-                for attachment in self.inline_attachments.itervalues():
-                    self.message.attachments.add(attachment)
-                self._place_inline_attachments()
-                # We've changed the body_html, lets save message one more time
-                self.message.save()
         else:
             logger.debug('No emailmessage, storing empty ID')
             NoEmailMessageId.objects.get_or_create(

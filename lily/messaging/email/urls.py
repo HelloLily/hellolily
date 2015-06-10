@@ -18,8 +18,6 @@ urlpatterns = patterns(
     url(r'^accounts/share/(?P<pk>[\d-]+)$', EmailAccountShareView.as_view(), name='messaging_email_account_share'),
     url(r'^accounts/update/(?P<pk>[\d-]+)$', EmailAccountUpdateView.as_view(), name='messaging_email_account_update'),
 
-    url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
-
     # Email templates
     url(r'^templates/$', EmailTemplateListView.as_view(), name='messaging_email_template_list'),
     url(r'^templates/create/$', CreateEmailTemplateView.as_view(), name='messaging_email_template_create'),

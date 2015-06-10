@@ -4,6 +4,7 @@ import traceback
 from celery.task import task
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from taskmonitor.decorators import monitor_task
 from taskmonitor.utils import lock_task
 
@@ -327,9 +328,17 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 outbox_attachment = EmailOutboxAttachment()
                 outbox_attachment.email_outbox_message = email_outbox_message
                 outbox_attachment.tenant_id = original_attachment.message.tenant_id
-                file = ContentFile(original_attachment.attachment.read())
+
+                file = default_storage._open(original_attachment.attachment.name)
+                file.open()
+                content = file.read()
+                file.close()
+
+                file = ContentFile(content)
                 file.name = original_attachment.attachment.name
+
                 outbox_attachment.attachment = file
+                outbox_attachment.inline = original_attachment.inline
                 outbox_attachment.size = file.size
                 outbox_attachment.save()
 

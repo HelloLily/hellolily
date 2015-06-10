@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import socket
+import mimetypes
 
 from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
@@ -15,6 +16,7 @@ from dateutil.tz import tzutc
 from django.conf import settings
 
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -25,6 +27,7 @@ from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VA
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
+
 from redis import Redis
 
 from lily.accounts.models import Account
@@ -38,7 +41,7 @@ from taskmonitor.utils import resolve_annotations
 from oauth2client.django_orm import Storage
 
 from .decorators import get_safe_template
-from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage
+from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage, EmailAttachment
 from .services import build_gmail_service
 
 
@@ -232,20 +235,151 @@ def get_attachment_filename_from_url(url):
     return unquote(url).split('/')[-1]
 
 
-def replace_cid_in_html(html, mapped_attachments):
+def render_email_body(html, mapped_attachments, request):
+    """
+    Update all the target attributes in the <a> tag.
+    After that replace the cid information in the html
+
+    Args:
+        html (string): HTML string of the email body to be sent.
+        mapped_attachments (list): List of linked attachments to the email
+        request (instance): The django request
+
+    Returns:
+        html body (string)
+    """
+    if html is None:
+        return None
+
+    email_body = replace_anchors_in_html(html)
+    email_body = replace_cid_in_html(email_body, mapped_attachments, request)
+
+    text_soup = BeautifulSoup(email_body)
+
+    # kill all script and style elements
+    for script in text_soup(["script"]):
+        script.extract()    # rip it out
+
+    return text_soup.encode_contents()
+
+
+def replace_cid_in_html(html, mapped_attachments, request):
+    """
+    Replace all the cid image information with a link to the image
+
+    Args:
+        html (string): HTML string of the email body to be sent.
+        mapped_attachments (list): List of linked attachments to the email
+        request (instance): The django request
+
+    Returns:
+        html body (string)
+    """
+    if html is None:
+        return None
+
+    soup = BeautifulSoup(html)
+    inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+    cid_done = []
+
+    protocol = 'http'
+    if request.is_secure():
+        protocol = 'https'
+    host = request.META['HTTP_HOST']
+
+    for image in inline_images:
+        image_cid = image.get('src')[4:]
+
+        for attachment in mapped_attachments:
+            if (attachment.cid[1:-1] == image_cid or attachment.cid == image_cid) and attachment.cid not in cid_done:
+                proxy_url = reverse('email_attachment_proxy_view', kwargs={'pk': attachment.pk})
+                image['src'] = '%s://%s%s' % (protocol, host, proxy_url)
+                image['cid'] = image_cid
+                cid_done.append(attachment.cid)
+
+    return soup.encode_contents()
+
+
+def replace_cid_and_change_headers(html, pk):
+    """
+    Check in the html source if there is an image tag with the attribute cid. Loop through the attachemnts that are
+    linked with the email. If there is a match replace the source of the image with the cid information.
+    After read the image information form the disk and put the data in a dummy header.
+    At least create a plain text version of the html email.
+
+    Args:
+        html (string): HTML string of the email body to be sent.
+        mapped_attachments (list): List of linked attachments to the email
+        request (instance): The django request
+
+    Returns:
+        body_html (string),
+        body_text (string),
+        dummy_headers (dict)
+    """
     if html is None:
         return None
 
     soup = BeautifulSoup(html)
 
-    inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+    inline_images = soup.findAll('img', {'cid': lambda cid: cid})
+
+    attachments = EmailAttachment.objects.filter(message_id=pk)
+    dummy_headers = []
+    cid_done = []
 
     for image in inline_images:
-        inline_attachment = mapped_attachments.get(image.get('src')[4:])
-        if inline_attachment is not None:
-            image['src'] = reverse('email_attachment_proxy_view', kwargs={'pk': inline_attachment.pk})
+        image_cid = image['cid']
 
-    return soup.encode_contents()
+        for attachment in attachments:
+            if (attachment.cid[1:-1] == image_cid or attachment.cid == image_cid) and attachment.cid not in cid_done:
+                image['src'] = "cid:%s" % image_cid
+
+                storage_file = default_storage._open(attachment.attachment.name)
+                filename = get_attachment_filename_from_url(attachment.attachment.name)
+
+                if hasattr(storage_file, 'key'):
+                    content_type = storage_file.key.content_type
+                else:
+                    content_type = mimetypes.guess_type(storage_file.file.name)[0]
+
+                storage_file.open()
+                content = storage_file.read()
+                storage_file.close()
+
+                response = {
+                    'content-type': content_type,
+                    'content-disposition': 'inline',
+                    'content-filename': filename,
+                    'content-id': attachment.cid,
+                    'x-attachment-id': image_cid,
+                    'content-transfer-encoding': 'base64',
+                    'content': content
+                }
+
+                dummy_headers.append(response)
+                cid_done.append(attachment.cid)
+                del image['cid']
+
+    body_html = soup.encode_contents()
+
+    text_soup = BeautifulSoup(html)
+
+    # kill all script and style elements
+    for script in text_soup(["script"]):
+        script.extract()    # rip it out
+
+    # get text
+    body_text = text_soup.get_text()
+
+    # break into lines and remove leading and trailing space on each
+    lines = (line.strip() for line in body_text.splitlines())
+    # break multi-headlines into a line each
+    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+    # drop blank lines
+    body_text = '\n'.join(chunk for chunk in chunks if chunk)
+
+    return body_html, body_text, dummy_headers
 
 
 def replace_anchors_in_html(html):
@@ -263,6 +397,30 @@ def replace_anchors_in_html(html):
         })
 
     return soup.encode_contents()
+
+
+def create_reply_body_header(email_message):
+    """
+    Create a body reply header with a date and name
+
+    Args:
+        object (dict): EmailMessage reference
+
+    Returns:
+        Text string
+
+    """
+    reply_string = _('On %(date)s wrote %(sender)s (%(email_address)s):') % \
+        {
+            'date': email_message.sent_date.strftime("%d %B %Y %H:%M"),
+            'sender': email_message.sender.name,
+            'email_address': email_message.sender.email_address
+        }
+    reply_header = ('<br /><br />'
+                    + reply_string +
+                    '<hr />')
+
+    return reply_header
 
 
 def smtp_connect(account, fail_silently=True):

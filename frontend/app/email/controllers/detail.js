@@ -25,6 +25,7 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
     vm.deleteMessage = deleteMessage;
     vm.toggleOverlay = toggleOverlay;
     vm.markAsUnread = markAsUnread;
+    vm.onlyPlainText = false;
 
     $scope.conf.pageTitleBig = 'Email message';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
@@ -41,6 +42,8 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
         EmailMessage.get({id: $stateParams.id}, function(result) {
             if (result.body_html) {
                 result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
+            }else{
+                vm.onlyPlainText = true;
             }
             vm.message = result;
             // It's easier to iterate through a single array, so make an array with all recipients

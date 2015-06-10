@@ -18,7 +18,7 @@ class RecipientSerializer(serializers.ModelSerializer):
 class EmailAttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailAttachment
-        fields = ('id', 'inline', 'attachment', 'size', 'message')
+        fields = ('id', 'inline', 'size', 'message', 'cid', 'name')
 
 
 class EmailMessageSerializer(serializers.ModelSerializer):

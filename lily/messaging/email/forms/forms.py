@@ -152,6 +152,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
             if self.message_type is not 'reply':
                 self.initial['attachments'] = EmailAttachment.objects.filter(
                     message_id=kwargs['initial']['draft_pk'],
+                    inline=False
                 )
 
         self.fields['template'].queryset = EmailTemplate.objects.order_by('name')

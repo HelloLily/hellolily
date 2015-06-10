@@ -20,7 +20,6 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from python_imap.utils import extract_tags_from_soup
 from oauth2client.client import OAuth2WebServerFlow
 
 from lily.accounts.models import Account
@@ -34,9 +33,11 @@ from .forms import (EmailAccountShareForm, EmailAccountCreateUpdateForm, CreateU
                     EmailTemplateFileForm, EmailTemplateSetDefaultForm, ComposeEmailForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment)
-from .utils import create_account, get_attachment_filename_from_url, get_email_parameter_choices, create_recipients
+from .utils import (create_account, get_attachment_filename_from_url, get_email_parameter_choices,
+                    create_recipients, render_email_body, replace_cid_in_html, create_reply_body_header)
 from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
                     update_draft_email_message)
+
 
 logger = logging.getLogger(__name__)
 
@@ -122,18 +123,16 @@ class EmailMessageHTMLView(LoginRequiredMixin, DetailView):
     model = EmailMessage
     template_name = 'email/emailmessage_html.html'
 
-    def get_queryset(self):
-        queryset = super(EmailMessageHTMLView, self).get_queryset()
-
-        return queryset.filter(account__tenant=self.request.user.tenant)
+    def get_context_data(self, **kwargs):
+        context = super(EmailMessageHTMLView, self).get_context_data(**kwargs)
+        context['body_html'] = render_email_body(self.object.body_html, self.object.attachments.all(), self.request)
+        return context
 
 
 class EmailAttachmentProxy(View):
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-
         try:
-            attachment = EmailAttachment.objects.get(pk=pk, message__account__tenant_id=self.request.user.tenant.id)
+            attachment = EmailAttachment.objects.get(pk=self.kwargs['pk'], message__account__tenant_id=self.request.user.tenant.id)
         except:
             raise Http404()
 
@@ -147,7 +146,11 @@ class EmailAttachmentProxy(View):
 
         response = HttpResponse(wrapper, content_type=content_type)
 
-        response['Content-Disposition'] = 'attachment; filename=%s' % get_attachment_filename_from_url(s3_file.name)
+        inline = 'attachment'
+        if attachment.inline:
+            inline = 'inline'
+
+        response['Content-Disposition'] = '%s; filename=%s' % (inline, get_attachment_filename_from_url(s3_file.name))
         response['Content-Length'] = attachment.size
         return response
 
@@ -177,6 +180,9 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                     account__tenant=request.user.tenant,
                     id=kwargs['pk'],
                 )
+
+                attachments = EmailAttachment.objects.filter(message_id=self.object.pk)
+                self.object.body_html = replace_cid_in_html(self.object.body_html, attachments, request)
             except EmailMessage.DoesNotExist:
                 pass
 
@@ -186,25 +192,9 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             - send an email message
         """
         email_draft = form.cleaned_data
-
         email_account = email_draft['send_from']
-
-        soup = BeautifulSoup(email_draft['body_html'], 'permissive')
-        soup = extract_tags_from_soup(soup, settings.BLACKLISTED_EMAIL_TAGS)
-
-        # Replace the src attribute of inline images with a Content-ID for each image
-        inline_application_url = '/messaging/email/attachment/'
-        inline_application_images = soup.findAll('img', {
-            'src': lambda src: src and src.startswith(inline_application_url)
-        })
-
-        # Mapping {attachment.pk : image element}
-        mapped_attachments = {}
-        for image in inline_application_images:
-            # Parse attachment pks from image paths
-            pk_and_path = image.get('src')[len(inline_application_url):].rstrip('/')
-            pk = int(pk_and_path.split('/')[0])
-            mapped_attachments[pk] = image
+        soup = BeautifulSoup(email_draft['body_html'])
+        mapped_attachments = soup.findAll('img', {'cid': lambda cid: cid})
 
         if 'tasks' not in self.request.session:
             self.request.session['tasks'] = {}
@@ -219,6 +209,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             headers=anyjson.dumps(self.get_email_headers()),
             mapped_attachments=len(mapped_attachments),
             template_attachment_ids=self.request.POST.get('template_attachment_ids'),
+            original_message_id=self.kwargs.get('pk')
         )
 
         original_attachment_ids = set()
@@ -583,7 +574,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
-                'body_html': mark_safe('<br /><hr />' + self.object.reply_body),
+                'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })
         return kwargs
@@ -620,7 +611,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.sender.email_address,
                 'send_to_cc': recipients,
-                'body_html': mark_safe('<br /><br /><hr />' + self.object.reply_body),
+                'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })
 

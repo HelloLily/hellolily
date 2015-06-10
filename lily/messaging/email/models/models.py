@@ -1,5 +1,6 @@
 import anyjson
 from bs4 import BeautifulSoup
+from email import Encoders
 from email.header import Header
 from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
@@ -9,19 +10,17 @@ import logging
 import mimetypes
 import os
 import textwrap
-import traceback
 
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import SafeMIMEText, SafeMIMEMultipart
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.django_orm import CredentialsField
-from python_imap.utils import convert_html_to_text
 
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
@@ -48,6 +47,14 @@ def get_template_attachment_upload_path(instance, filename):
     return settings.EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO % {
         'tenant_id': instance.tenant_id,
         'template_id': instance.template_id,
+        'filename': filename
+    }
+
+
+def get_outbox_attachment_upload_path(instance, filename):
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': instance.email_outbox_message_id,
         'filename': filename
     }
 
@@ -223,7 +230,11 @@ class EmailAttachment(models.Model):
     size = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
-        return self.attachment.name
+        return self.attachment.name.split('/')[-1]
+
+    @property
+    def name(self):
+        return self.attachment.name.split('/')[-1]
 
     class Meta:
         app_label = 'email'
@@ -344,9 +355,10 @@ class EmailOutboxMessage(TenantMixin, models.Model):
     send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
     template_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
     to = models.TextField(verbose_name=_('to'))
+    original_message_id = models.CharField(null=True, blank=True, max_length=50, db_index=True)
 
     def message(self):
-        from ..utils import EmailMultiRelated, get_attachment_filename_from_url
+        from ..utils import get_attachment_filename_from_url, replace_cid_and_change_headers
 
         to = anyjson.loads(self.to)
         cc = anyjson.loads(self.cc)
@@ -362,31 +374,35 @@ class EmailOutboxMessage(TenantMixin, models.Model):
             # Otherwise only add the email address
             from_email = self.send_from.email_address
 
-        message_data = dict(
-            subject=self.subject,
-            from_email=from_email,
-            to=to,
-            cc=cc,
-            headers=anyjson.loads(self.headers),
-            body=convert_html_to_text(self.body, keep_linebreaks=True),
-        )
+        html, text, inline_headers = replace_cid_and_change_headers(self.body, self.original_message_id)
 
-        if self.mapped_attachments != 0:
-            # Attach an HTML version as alternative to *body*
-            email_message = EmailMultiAlternatives(**message_data)
-        else:
-            # Use multipart/related when sending inline images
-            email_message = EmailMultiRelated(**message_data)
+        email_message = SafeMIMEMultipart('related')
+        email_message['Subject'] = self.subject
+        email_message['From'] = from_email
+        email_message['To'] = ','.join(list(to))
+        if cc:
+            email_message['cc'] = ','.join(list(cc))
 
-        email_message.attach_alternative(self.body, 'text/html')
+        if bcc:
+            email_message['bcc'] = ','.join(list(bcc))
 
-        attachments = self.attachments.all()
+        email_message_alternative = SafeMIMEMultipart('alternative')
+        email_message.attach(email_message_alternative)
 
-        for attachment in attachments:
+        email_message_text = SafeMIMEText(text, 'plain', 'utf-8')
+        email_message_alternative.attach(email_message_text)
+
+        email_message_html = SafeMIMEText(html, 'html', 'utf-8')
+        email_message_alternative.attach(email_message_html)
+
+        for attachment in self.attachments.all():
+            if attachment.inline:
+                continue
+
             try:
                 storage_file = default_storage._open(attachment.attachment.name)
-            except IOError, e:
-                logger.error(traceback.format_exc(e))
+            except IOError:
+                logger.exception('Couldn\'t get attachment, not sending %s' % self.id)
                 return False
 
             filename = get_attachment_filename_from_url(attachment.attachment.name)
@@ -409,33 +425,36 @@ class EmailOutboxMessage(TenantMixin, models.Model):
             else:
                 msg = MIMEBase(main_type, sub_type)
                 msg.set_payload(content)
+                Encoders.encode_base64(msg)
 
             msg.add_header('Content-Disposition', 'attachment', filename=os.path.basename(filename))
 
             email_message.attach(msg)
 
-        message = email_message.message()
+        # Add the inline attachments to email message header
+        for inline_header in inline_headers:
+            main_type, sub_type = inline_header['content-type'].split('/', 1)
+            if main_type == 'image':
+                msg = MIMEImage(
+                    inline_header['content'],
+                    _subtype=sub_type,
+                    name=os.path.basename(inline_header['content-filename'])
+                )
+                msg.add_header(
+                    'Content-Disposition',
+                    inline_header['content-disposition'],
+                    filename=os.path.basename(inline_header['content-filename'])
+                )
+                msg.add_header('Content-ID', inline_header['content-id'])
 
-        # By default Django's EmailMessage doesn't set the Bcc recipients
-        # So get the actual message
-        if bcc:
-            # If there are Bcc recipients, set them (this is how the EmailMessage does it)
-            message['Bcc'] = ', '.join(bcc)
+                email_message.attach(msg)
 
-        return message
+        return email_message
 
     class Meta:
         app_label = 'email'
         verbose_name = _('e-mail outbox message')
         verbose_name_plural = _('e-mail outbox messages')
-
-
-def get_outbox_attachment_upload_path(instance, filename):
-    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
-        'tenant_id': instance.tenant_id,
-        'message_id': instance.email_outbox_message_id,
-        'filename': filename
-    }
 
 
 class EmailOutboxAttachment(TenantMixin):

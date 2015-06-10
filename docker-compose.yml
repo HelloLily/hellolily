@@ -26,7 +26,6 @@ web:
     - beat
     - worker1
     - worker2
-    - gulp
 gulp:
   build: Dockers/gulp
   volumes:

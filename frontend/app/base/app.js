@@ -4,6 +4,7 @@
 angular.module('app', [
     'ui.router',
     'ui.bootstrap',
+    'ngAnimate',
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',
@@ -59,13 +60,14 @@ function settings ($rootScope) {
 angular.module('app').config(appConfig);
 
 appConfig.$inject = [
+    '$animateProvider',
     '$breadcrumbProvider',
     '$controllerProvider',
     '$httpProvider',
     '$resourceProvider',
     '$urlRouterProvider'
 ];
-function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
+function appConfig ($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
     // Don't strip trailing slashes from calculated URLs, because django needs them
     $breadcrumbProvider.setOptions({
         templateUrl: 'base/breadcrumbs.html',
@@ -76,6 +78,8 @@ function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $re
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $resourceProvider.defaults.stripTrailingSlashes = false;
     $urlRouterProvider.otherwise('/');
+    // prevent ng-animation on fa-spinner
+    $animateProvider.classNameFilter(/^((?!(fa-spin)).)*$/);
 }
 
 /* Init global settings and run the app */

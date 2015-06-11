@@ -13,9 +13,9 @@
         {% endfor %}
         <input type="hidden" name="success_url" value="">
         <div class="inbox-compose-btn">
-            <button type="submit" name="submit-send" class="btn blue"><i class="fa fa-check"></i> Send</button>
+            <button type="submit" name="submit-send" class="btn blue" send-checker><i class="fa fa-check"></i> Send</button>
             {% if form.message_type == 'reply' or form.message_type == 'forward' %}
-                <button type="submit" name="submit-send-archive" class="btn blue"><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
+                <button type="submit" name="submit-send-archive" class="btn blue" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
             {% endif %}
             <button type="submit" name="submit-save" class="btn">Draft</button>
             <button type="submit" name="submit-discard" class="btn inbox-discard-btn">Discard</button>
@@ -72,7 +72,7 @@
         <div class="inbox-compose-btn">
             <button type="submit" name="submit-send" class="btn blue" send-checker><i class="fa fa-check"></i> {% trans 'Send' %}</button>
             {% if form.message_type == 'reply' or form.message_type == 'forward' %}
-                <button type="submit" name="submit-send-archive" class="btn blue"><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
+                <button type="submit" name="submit-send-archive" class="btn blue" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
             {% endif %}
             <button type="submit" name="submit-save" class="btn">{% trans 'Draft' %}</button>
             <button type="button" ng-click="vm.discard()" class="btn">{% trans 'Discard' %}</button>

@@ -4,11 +4,17 @@ function SelectedEmailAccount () {
 
     var factory = {
         currentAccountId: null,
-        setCurrentAccountId: setCurrentAccountId
+        setCurrentAccountId: setCurrentAccountId,
+        currentFolderId: null,
+        setCurrentFolderId: setCurrentFolderId
     };
     return factory;
 
     function setCurrentAccountId (accountId) {
         factory.currentAccountId = accountId;
+    }
+
+    function setCurrentFolderId (folderId) {
+        factory.currentFolderId = folderId;
     }
 }

@@ -226,6 +226,17 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 }
 
 .mailbox-header strong {
-    font-weight:normal;
+    font-weight: normal;
     cursor: pointer;
+}
+
+.detail-plain-text {
+    white-space: pre;
+    word-wrap: break-word;
+}
+
+.inbox-attached {
+    border-top: 1px solid #EEE;
+    margin-top: 20px;
+    padding-top: 20px;
 }

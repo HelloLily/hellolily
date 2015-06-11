@@ -30,7 +30,7 @@ function sendCheckerDirective () {
                                 label: 'No Problem, send it anyway',
                                 className: 'btn-success',
                                 callback: function () {
-                                    angular.element('#id_subject').closest('form').submit();
+                                    HLInbox.submitForm('submit-send', element.closest('form')[0]);
                                 }
                             }
                         }

@@ -77,6 +77,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         watchTable();
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
+        SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
     }
 
     function watchTable() {

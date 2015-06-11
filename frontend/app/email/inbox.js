@@ -256,33 +256,7 @@
             }
         },
 
-        handleInboxComposeSubmit: function (inboxCompose, event) {
-            event.preventDefault();
-
-            var buttonName = $(inboxCompose).attr('name'),
-                $form = $($(inboxCompose).closest('form'));
-
-            if (buttonName == 'submit-save') {
-                var draftPk = $('#id_draft_pk').val();
-                // If we are saving a (existing) draft, change url
-                if(draftPk) {
-                    $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
-                } else {
-                    $form.attr('action', '/messaging/email/draft/');
-                }
-            }
-            else if (buttonName == 'submit-send-archive') {
-                // Send and archive was pressed, so set an extra field
-                $('<input />').attr('type', 'hidden')
-                    .attr('name', 'archive')
-                    .attr('value', true)
-                    .appendTo($form);
-            }
-            else {
-                // No valid button, so do nothing;
-                return;
-            }
-
+        submitForm: function(buttonName, $form) {
             // Remove unnecessary html
             var $containerDiv = $('<div id="email-container-div">');
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
@@ -316,6 +290,23 @@
             Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
+        },
+        handleInboxComposeSubmit: function (inboxCompose, event) {
+            event.preventDefault();
+
+            var buttonName = $(inboxCompose).attr('name'),
+                $form = $($(inboxCompose).closest('form'));
+
+            if (buttonName == 'submit-save') {
+                var draftPk = $('#id_draft_pk').val();
+                // If we are saving a (existing) draft, change url
+                if(draftPk) {
+                    $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
+                } else {
+                    $form.attr('action', '/messaging/email/draft/');
+                }
+            }
+            HLInbox.submitForm(buttonName, $form);
         },
 
         handleTagsAjaxChange: function (tagsAjax) {

@@ -75,7 +75,7 @@
                 <button type="submit" name="submit-send-archive" class="btn blue"><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
             {% endif %}
             <button type="submit" name="submit-save" class="btn">{% trans 'Draft' %}</button>
-            <button type="submit" name="submit-discard" class="btn">{% trans 'Discard' %}</button>
+            <button type="button" ng-click="vm.discard()" class="btn">{% trans 'Discard' %}</button>
         </div>
     </form>
 </div>

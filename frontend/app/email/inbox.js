@@ -262,13 +262,7 @@
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
 
-            if (buttonName == 'submit-discard') {
-                // Discarding email, remove all attachments to prevent unneeded uploading.
-                //$('[id|=id_attachments]:file').remove();
-                // Prevent discard from submitting form. This will probably be made nicer later (LILY-787)
-                window.location = '/#/email/all/INBOX';
-                return;
-            } else if (buttonName == 'submit-send') {
+            if (buttonName == 'submit-send') {
                 // Validation of fields.
                 if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
                     $('#modal_no_email_address').modal();

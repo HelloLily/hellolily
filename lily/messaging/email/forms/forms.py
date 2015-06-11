@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
 from django.db.models.fields.files import FieldFile
 from django.db.models import Q
-from django.forms import SelectMultiple
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext_lazy as _
@@ -16,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from lily.contacts.models import Contact
 
 from lily.tenant.middleware import get_current_user
-from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
@@ -43,31 +41,6 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
                     'email_address',
                     'public',
                 ],
-            }),
-        )
-
-
-class EmailAccountShareForm(HelloLilyModelForm):
-    shared_with_users = forms.ModelMultipleChoiceField(
-        queryset=LilyUser.objects,
-        label=_('Share with'),
-        required=False,
-        widget=SelectMultiple(attrs={
-            'placeholder': _('Select a user'),
-        })
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(EmailAccountShareForm, self).__init__(*args, **kwargs)
-        user = get_current_user()
-
-        self.fields['shared_with_users'].queryset = LilyUser.objects.filter(tenant=user.tenant).exclude(pk=user.pk)
-
-    class Meta:
-        model = EmailAccount
-        fieldsets = (
-            (_('Your account'), {
-                'fields': ['shared_with_users', 'public'],
             }),
         )
 

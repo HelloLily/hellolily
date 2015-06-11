@@ -461,3 +461,7 @@ ul.inbox-nav li.mailbox-header span i {
 .font-size-inherit {
     font-size: inherit !important;
 }
+
+.required {
+    font-weight: bold;
+}

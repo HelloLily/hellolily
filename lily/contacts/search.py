@@ -174,7 +174,7 @@ class ContactMapping(BaseMapping):
             } for address in obj.addresses.all()],
         }
 
-        functions = obj.functions.all()
+        functions = obj.functions.filter(account__is_deleted=False)
 
         for function in functions:
             account = {

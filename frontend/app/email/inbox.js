@@ -92,12 +92,12 @@
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
 
-                $('.inbox-compose input').on('keydown keyup keypress', function(event) {
-                    // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
-                    if (event.which == 13) {
-                        event.preventDefault();
-                    }
-                });
+            $('.inbox-compose input').on('keydown keyup keypress', function(event) {
+                // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
+                if (event.which == 13) {
+                    event.preventDefault();
+                }
+            });
         },
 
         customParser: function () {
@@ -262,14 +262,7 @@
             var buttonName = $(inboxCompose).attr('name'),
                 $form = $($(inboxCompose).closest('form'));
 
-            if (buttonName == 'submit-send') {
-                // Validation of fields.
-                if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
-                    $('#modal_no_email_address').modal();
-                    event.preventDefault();
-                    return;
-                }
-            } else if (buttonName == 'submit-save') {
+            if (buttonName == 'submit-save') {
                 var draftPk = $('#id_draft_pk').val();
                 // If we are saving a (existing) draft, change url
                 if(draftPk) {

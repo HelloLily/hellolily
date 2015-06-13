@@ -610,6 +610,10 @@ ul.inbox-nav li.mailbox-header span i {
 .font-size-inherit {
   font-size: inherit !important;
 }
+
+.required {
+  font-weight: bold;
+}
 #case-status {
   margin-top: 15px;
   margin-bottom: 15px;
@@ -915,4 +919,21 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 }
 
 /* END Login scherm fixes */
+.slideup.ng-enter,
+.slideup.ng-leave {
+  -webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  -moz-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  -o-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+  transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.slideup.ng-enter,
+.slideup.ng-leave.ng-leave-active {
+  max-height: 0;
+}
+
+.slideup.ng-leave,
+.slideup.ng-enter.ng-enter-active {
+  max-height: 1000px;
+}
 /*# sourceMappingURL=app.css.map */

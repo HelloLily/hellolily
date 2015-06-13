@@ -107,7 +107,9 @@ angular.module('app.preferences', [
 })(angular);
 (function(angular){
 'use strict';
-angular.module('app.utils', []);
+angular.module('app.utils', [
+    'ngAnimate'
+]);
 
 })(angular);
 (function(angular){
@@ -228,6 +230,7 @@ ga('create', 'UA-60721851-1', 'auto');
 angular.module('app', [
     'ui.router',
     'ui.bootstrap',
+    'ngAnimate',
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',
@@ -283,13 +286,14 @@ function settings ($rootScope) {
 angular.module('app').config(appConfig);
 
 appConfig.$inject = [
+    '$animateProvider',
     '$breadcrumbProvider',
     '$controllerProvider',
     '$httpProvider',
     '$resourceProvider',
     '$urlRouterProvider'
 ];
-function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
+function appConfig ($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
     // Don't strip trailing slashes from calculated URLs, because django needs them
     $breadcrumbProvider.setOptions({
         templateUrl: 'base/breadcrumbs.html',
@@ -300,6 +304,8 @@ function appConfig ($breadcrumbProvider, $controllerProvider, $httpProvider, $re
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $resourceProvider.defaults.stripTrailingSlashes = false;
     $urlRouterProvider.otherwise('/');
+    // prevent ng-animation on fa-spinner
+    $animateProvider.classNameFilter(/^((?!(fa-spin)).)*$/);
 }
 
 /* Init global settings and run the app */
@@ -834,12 +840,12 @@ function addBusinessDays(date, businessDays) {
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 });
 
-                $('.inbox-compose input').on('keydown keyup keypress', function(event) {
-                    // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
-                    if (event.which == 13) {
-                        event.preventDefault();
-                    }
-                });
+            $('.inbox-compose input').on('keydown keyup keypress', function(event) {
+                // Make sure pressing enter doesn't do anything (except selecting something in a dropdown)
+                if (event.which == 13) {
+                    event.preventDefault();
+                }
+            });
         },
 
         customParser: function () {
@@ -998,46 +1004,7 @@ function addBusinessDays(date, businessDays) {
             }
         },
 
-        handleInboxComposeSubmit: function (inboxCompose, event) {
-            event.preventDefault();
-
-            var buttonName = $(inboxCompose).attr('name'),
-                $form = $($(inboxCompose).closest('form'));
-
-            if (buttonName == 'submit-discard') {
-                // Discarding email, remove all attachments to prevent unneeded uploading.
-                //$('[id|=id_attachments]:file').remove();
-                // Prevent discard from submitting form. This will probably be made nicer later (LILY-787)
-                window.location = '/#/email/all/INBOX';
-                return;
-            } else if (buttonName == 'submit-send') {
-                // Validation of fields.
-                if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
-                    $('#modal_no_email_address').modal();
-                    event.preventDefault();
-                    return;
-                }
-            } else if (buttonName == 'submit-save') {
-                var draftPk = $('#id_draft_pk').val();
-                // If we are saving a (existing) draft, change url
-                if(draftPk) {
-                    $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
-                } else {
-                    $form.attr('action', '/messaging/email/draft/');
-                }
-            }
-            else if (buttonName == 'submit-send-archive') {
-                // Send and archive was pressed, so set an extra field
-                $('<input />').attr('type', 'hidden')
-                    .attr('name', 'archive')
-                    .attr('value', true)
-                    .appendTo($form);
-            }
-            else {
-                // No valid button, so do nothing;
-                return;
-            }
-
+        submitForm: function(buttonName, $form) {
             // Remove unnecessary html
             var $containerDiv = $('<div id="email-container-div">');
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
@@ -1071,6 +1038,23 @@ function addBusinessDays(date, businessDays) {
             Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
+        },
+        handleInboxComposeSubmit: function (inboxCompose, event) {
+            event.preventDefault();
+
+            var buttonName = $(inboxCompose).attr('name'),
+                $form = $($(inboxCompose).closest('form'));
+
+            if (buttonName == 'submit-save') {
+                var draftPk = $('#id_draft_pk').val();
+                // If we are saving a (existing) draft, change url
+                if(draftPk) {
+                    $form.attr('action', '/messaging/email/draft/' + draftPk + '/');
+                } else {
+                    $form.attr('action', '/messaging/email/draft/');
+                }
+            }
+            HLInbox.submitForm(buttonName, $form);
         },
 
         handleTagsAjaxChange: function (tagsAjax) {
@@ -1869,7 +1853,7 @@ $body.on('blur', 'input[name^="phone"]', function() {
 
     phone = phone
         .replace("(0)","")
-        .replace(/[\s\(\-\)\.\\\/\–x:\*]/g, "")
+        .replace(/\s|\(|\-|\)|\.|\\|\/|\–|x|:|\*/g, "")
         .replace(/^00/,"+");
 
     if (phone.length == 0) {
@@ -5952,11 +5936,14 @@ function emailConfig ($stateProvider) {
 
 angular.module('app.email').controller('EmailComposeController', EmailComposeController);
 
-EmailComposeController.$inject = ['$scope', '$stateParams', '$templateCache', '$q', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
-function EmailComposeController ($scope, $stateParams, $templateCache, $q, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
+function EmailComposeController ($scope, $state, $stateParams, $templateCache, $q, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+    var vm = this;
 
     $scope.conf.pageTitleBig = 'Send email';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
+
+    vm.discard = discard;
 
     activate();
 
@@ -6056,6 +6043,14 @@ function EmailComposeController ($scope, $stateParams, $templateCache, $q, Conta
             }
         });
     }
+
+    function discard () {
+        if ($scope.previousState) {
+            window.location = $scope.previousState;
+        } else {
+            $state.go('base.email');
+        }
+    }
 }
 
 })(angular);
@@ -6088,6 +6083,7 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
     vm.deleteMessage = deleteMessage;
     vm.toggleOverlay = toggleOverlay;
     vm.markAsUnread = markAsUnread;
+    vm.onlyPlainText = false;
 
     $scope.conf.pageTitleBig = 'Email message';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
@@ -6104,6 +6100,8 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
         EmailMessage.get({id: $stateParams.id}, function(result) {
             if (result.body_html) {
                 result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
+            }else{
+                vm.onlyPlainText = true;
             }
             vm.message = result;
             // It's easier to iterate through a single array, so make an array with all recipients
@@ -6238,6 +6236,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         watchTable();
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
+        SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
     }
 
     function watchTable() {
@@ -6607,6 +6606,77 @@ function contactIcon ($http) {
 })(angular);
 (function(angular){
 'use strict';
+angular.module('app.email.directives').directive('sendAndArchive', SendAndArchiveDirective);
+
+SendAndArchiveDirective.$inject = ['SelectedEmailAccount'];
+function SendAndArchiveDirective (SelectedEmailAccount) {
+    return {
+        restrict: 'A',
+        link: function (scope, element) {
+            element.on('click', function () {
+                $('<input />').attr('type', 'hidden')
+                    .attr('name', 'archive')
+                    .attr('value', true)
+                    .appendTo(element.closest('form'));
+                if (SelectedEmailAccount.currentAccountId && SelectedEmailAccount.currentFolderId) {
+                    $("input[name='success_url']").val('#/email/account/' + SelectedEmailAccount.currentAccountId + '/' + SelectedEmailAccount.currentFolderId);
+                }
+            });
+        }
+    }
+}
+
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.email.directives').directive('sendChecker', sendCheckerDirective);
+
+function sendCheckerDirective () {
+    return {
+        restrict: 'A',
+        link: function (scope, element) {
+            element.on('click', function (event) {
+                // check recipients
+                if (!$('#id_send_to_normal').val() && !$('#id_send_to_cc').val() && !$('#id_send_to_bcc').val()) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    bootbox.alert('I couldn\'t find a recipient, could you please fill in where I need to send this mail.');
+                    return;
+                }
+
+                // check subject
+                var subject = angular.element('#id_subject').val();
+                if (subject == "") {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    bootbox.dialog({
+                        message: 'Are you sure you want to send this email without a subject?',
+                        title: 'No Subject',
+                        buttons: {
+                            danger: {
+                                label: 'Oops, I\'ll fix it',
+                                className: 'btn-danger'
+                            },
+                            success: {
+                                label: 'No Problem, send it anyway',
+                                className: 'btn-success',
+                                callback: function () {
+                                    HLInbox.submitForm('submit-send', element.closest('form')[0]);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+}
+
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.email.services').factory('EmailAccount', EmailAccount);
 
 EmailAccount.$inject = ['$resource'];
@@ -6813,12 +6883,18 @@ function SelectedEmailAccount () {
 
     var factory = {
         currentAccountId: null,
-        setCurrentAccountId: setCurrentAccountId
+        setCurrentAccountId: setCurrentAccountId,
+        currentFolderId: null,
+        setCurrentFolderId: setCurrentFolderId
     };
     return factory;
 
     function setCurrentAccountId (accountId) {
         factory.currentAccountId = accountId;
+    }
+
+    function setCurrentFolderId (folderId) {
+        factory.currentFolderId = folderId;
     }
 }
 
@@ -6880,65 +6956,6 @@ function NoteDetail ($resource) {
             }
         }
     );
-}
-
-})(angular);
-(function(angular){
-'use strict';
- angular.module('app.users.filters').filter('fullName', fullName);
-
- function fullName () {
-    return function(user) {
-        return [user.first_name, user.preposition, user.last_name].join(' ');
-    };
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.users.services').factory('User', User);
-
-User.$inject = ['$resource'];
-function User ($resource) {
-    return $resource('/api/users/user/', null, {
-        me: {
-            method: 'GET',
-            url: '/api/users/user/me/',
-            isArray: false
-        },
-        update: {
-            method: 'PUT',
-            url: '/api/users/user/:id/'
-        },
-        token: {
-            method: 'GET',
-            url: '/api/users/user/token/'
-        },
-        deleteToken: {
-            method: 'DELETE',
-            url: '/api/users/user/token/'
-        },
-        generateToken: {
-            method: 'POST',
-            url: '/api/users/user/token/'
-        }
-    });
-}
-
-})(angular);
-(function(angular){
-'use strict';
-angular.module('app.users.services').factory('UserTeams', UserTeams);
-
-UserTeams.$inject = ['$resource'];
-function UserTeams ($resource) {
-    return $resource('/api/users/team/', null, {
-        mine: {
-            method: 'GET',
-            url: '/api/users/team/mine/',
-            isArray: true
-        }
-    });
 }
 
 })(angular);
@@ -7463,6 +7480,65 @@ function PreferencesUserProfileController () {}
 })(angular);
 (function(angular){
 'use strict';
+ angular.module('app.users.filters').filter('fullName', fullName);
+
+ function fullName () {
+    return function(user) {
+        return [user.first_name, user.preposition, user.last_name].join(' ');
+    };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.users.services').factory('User', User);
+
+User.$inject = ['$resource'];
+function User ($resource) {
+    return $resource('/api/users/user/', null, {
+        me: {
+            method: 'GET',
+            url: '/api/users/user/me/',
+            isArray: false
+        },
+        update: {
+            method: 'PUT',
+            url: '/api/users/user/:id/'
+        },
+        token: {
+            method: 'GET',
+            url: '/api/users/user/token/'
+        },
+        deleteToken: {
+            method: 'DELETE',
+            url: '/api/users/user/token/'
+        },
+        generateToken: {
+            method: 'POST',
+            url: '/api/users/user/token/'
+        }
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.users.services').factory('UserTeams', UserTeams);
+
+UserTeams.$inject = ['$resource'];
+function UserTeams ($resource) {
+    return $resource('/api/users/team/', null, {
+        mine: {
+            method: 'GET',
+            url: '/api/users/team/mine/',
+            isArray: true
+        }
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
 angular.module('app.utils').controller('EditNoteModalController', EditNoteModalController);
 
 EditNoteModalController.$inject = ['$http', '$modalInstance', '$scope', 'note'];
@@ -7483,6 +7559,104 @@ function EditNoteModalController($http, $modalInstance, $scope, note) {
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.utils.directives').directive('collapsable', CollapsableDirective);
+
+CollapsableDirective.$inject = [];
+function CollapsableDirective () {
+    return {
+        restrict: 'E',
+        transclude: true,
+        templateUrl: 'utils/directives/collapsable.html',
+        controller: CollapsableController,
+        controllerAs: 'cl',
+        bindToController: true,
+        scope: {
+            name: '@'
+        }
+    }
+}
+
+CollapsableController.$inject = ['$scope', 'Cookie'];
+function CollapsableController ($scope, Cookie) {
+    var vm = this;
+
+    var cookie = Cookie('collapseDirective-' + vm.name);
+    vm.folded = cookie.get('folded', false);
+
+    vm.toggleFolded = toggleFolded;
+
+    function toggleFolded () {
+        vm.folded = !vm.folded;
+        cookie.put('folded', vm.folded);
+        $scope.$broadcast('foldedToggle', vm.folded);
+    }
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.utils.directives').directive('collapsableButton', CollapsableButtonDirective);
+
+CollapsableButtonDirective.$inject = [];
+function CollapsableButtonDirective () {
+    return {
+        restrict: 'E',
+        require: '^collapsable',
+        templateUrl: 'utils/directives/collapsable_button.html',
+        link: function(scope, element, attrs, collapsableCtrl) {
+            element.on('click', function () {
+                collapsableCtrl.toggleFolded();
+            });
+        },
+        controller: CollapsableButtonController,
+        controllerAs: 'vm'
+    }
+}
+
+CollapsableButtonController.$inject = ['$scope'];
+function CollapsableButtonController ($scope) {
+    var vm = this;
+    // Don't know why, but this controller is instantiated without the parent directive sometimes, somewhere...
+    vm.folded = $scope.$parent.cl ? $scope.$parent.cl.folded : false;
+
+    $scope.$on('foldedToggle', function (event, folded) {
+        vm.folded = folded;
+        $scope.$apply();
+    });
+}
+
+})(angular);
+(function(angular){
+'use strict';
+angular.module('app.utils.directives').directive('collapsableContent', CollapsableContentDirective);
+
+CollapsableContentDirective.$inject = [];
+function CollapsableContentDirective () {
+    return {
+        restrict: 'E',
+        templateUrl: 'utils/directives/collapsable_content.html',
+        transclude: true,
+        require: '^collapsable',
+        controller: CollapsableContentController,
+        controllerAs: 'vm'
+    }
+}
+
+CollapsableContentController.$inject = ['$scope'];
+function CollapsableContentController ($scope) {
+    var vm = this;
+    // Don't know why, but this controller is instantiated without the parent directive sometimes, somewhere...
+    vm.folded = $scope.$parent.cl ? $scope.$parent.cl.folded : false;
+
+    $scope.$on('foldedToggle', function (event, folded) {
+        vm.folded = folded;
+        $scope.$apply();
+    });
 }
 
 })(angular);

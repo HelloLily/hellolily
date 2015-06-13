@@ -26507,6 +26507,992 @@ var minlengthDirective = function() {
 
 	module.exports = autosize;
 });
+/**
+ * bootbox.js [v4.4.0]
+ *
+ * http://bootboxjs.com/license.txt
+ */
+
+// @see https://github.com/makeusabrew/bootbox/issues/180
+// @see https://github.com/makeusabrew/bootbox/issues/186
+(function (root, factory) {
+
+  "use strict";
+  if (typeof define === "function" && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(["jquery"], factory);
+  } else if (typeof exports === "object") {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory(require("jquery"));
+  } else {
+    // Browser globals (root is window)
+    root.bootbox = factory(root.jQuery);
+  }
+
+}(this, function init($, undefined) {
+
+  "use strict";
+
+  // the base DOM structure needed to create a modal
+  var templates = {
+    dialog:
+      "<div class='bootbox modal' tabindex='-1' role='dialog'>" +
+        "<div class='modal-dialog'>" +
+          "<div class='modal-content'>" +
+            "<div class='modal-body'><div class='bootbox-body'></div></div>" +
+          "</div>" +
+        "</div>" +
+      "</div>",
+    header:
+      "<div class='modal-header'>" +
+        "<h4 class='modal-title'></h4>" +
+      "</div>",
+    footer:
+      "<div class='modal-footer'></div>",
+    closeButton:
+      "<button type='button' class='bootbox-close-button close' data-dismiss='modal' aria-hidden='true'>&times;</button>",
+    form:
+      "<form class='bootbox-form'></form>",
+    inputs: {
+      text:
+        "<input class='bootbox-input bootbox-input-text form-control' autocomplete=off type=text />",
+      textarea:
+        "<textarea class='bootbox-input bootbox-input-textarea form-control'></textarea>",
+      email:
+        "<input class='bootbox-input bootbox-input-email form-control' autocomplete='off' type='email' />",
+      select:
+        "<select class='bootbox-input bootbox-input-select form-control'></select>",
+      checkbox:
+        "<div class='checkbox'><label><input class='bootbox-input bootbox-input-checkbox' type='checkbox' /></label></div>",
+      date:
+        "<input class='bootbox-input bootbox-input-date form-control' autocomplete=off type='date' />",
+      time:
+        "<input class='bootbox-input bootbox-input-time form-control' autocomplete=off type='time' />",
+      number:
+        "<input class='bootbox-input bootbox-input-number form-control' autocomplete=off type='number' />",
+      password:
+        "<input class='bootbox-input bootbox-input-password form-control' autocomplete='off' type='password' />"
+    }
+  };
+
+  var defaults = {
+    // default language
+    locale: "en",
+    // show backdrop or not. Default to static so user has to interact with dialog
+    backdrop: "static",
+    // animate the modal in/out
+    animate: true,
+    // additional class string applied to the top level dialog
+    className: null,
+    // whether or not to include a close button
+    closeButton: true,
+    // show the dialog immediately by default
+    show: true,
+    // dialog container
+    container: "body"
+  };
+
+  // our public object; augmented after our private API
+  var exports = {};
+
+  /**
+   * @private
+   */
+  function _t(key) {
+    var locale = locales[defaults.locale];
+    return locale ? locale[key] : locales.en[key];
+  }
+
+  function processCallback(e, dialog, callback) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    // by default we assume a callback will get rid of the dialog,
+    // although it is given the opportunity to override this
+
+    // so, if the callback can be invoked and it *explicitly returns false*
+    // then we'll set a flag to keep the dialog active...
+    var preserveDialog = $.isFunction(callback) && callback.call(dialog, e) === false;
+
+    // ... otherwise we'll bin it
+    if (!preserveDialog) {
+      dialog.modal("hide");
+    }
+  }
+
+  function getKeyLength(obj) {
+    // @TODO defer to Object.keys(x).length if available?
+    var k, t = 0;
+    for (k in obj) {
+      t ++;
+    }
+    return t;
+  }
+
+  function each(collection, iterator) {
+    var index = 0;
+    $.each(collection, function(key, value) {
+      iterator(key, value, index++);
+    });
+  }
+
+  function sanitize(options) {
+    var buttons;
+    var total;
+
+    if (typeof options !== "object") {
+      throw new Error("Please supply an object of options");
+    }
+
+    if (!options.message) {
+      throw new Error("Please specify a message");
+    }
+
+    // make sure any supplied options take precedence over defaults
+    options = $.extend({}, defaults, options);
+
+    if (!options.buttons) {
+      options.buttons = {};
+    }
+
+    buttons = options.buttons;
+
+    total = getKeyLength(buttons);
+
+    each(buttons, function(key, button, index) {
+
+      if ($.isFunction(button)) {
+        // short form, assume value is our callback. Since button
+        // isn't an object it isn't a reference either so re-assign it
+        button = buttons[key] = {
+          callback: button
+        };
+      }
+
+      // before any further checks make sure by now button is the correct type
+      if ($.type(button) !== "object") {
+        throw new Error("button with key " + key + " must be an object");
+      }
+
+      if (!button.label) {
+        // the lack of an explicit label means we'll assume the key is good enough
+        button.label = key;
+      }
+
+      if (!button.className) {
+        if (total <= 2 && index === total-1) {
+          // always add a primary to the main option in a two-button dialog
+          button.className = "btn-primary";
+        } else {
+          button.className = "btn-default";
+        }
+      }
+    });
+
+    return options;
+  }
+
+  /**
+   * map a flexible set of arguments into a single returned object
+   * if args.length is already one just return it, otherwise
+   * use the properties argument to map the unnamed args to
+   * object properties
+   * so in the latter case:
+   * mapArguments(["foo", $.noop], ["message", "callback"])
+   * -> { message: "foo", callback: $.noop }
+   */
+  function mapArguments(args, properties) {
+    var argn = args.length;
+    var options = {};
+
+    if (argn < 1 || argn > 2) {
+      throw new Error("Invalid argument length");
+    }
+
+    if (argn === 2 || typeof args[0] === "string") {
+      options[properties[0]] = args[0];
+      options[properties[1]] = args[1];
+    } else {
+      options = args[0];
+    }
+
+    return options;
+  }
+
+  /**
+   * merge a set of default dialog options with user supplied arguments
+   */
+  function mergeArguments(defaults, args, properties) {
+    return $.extend(
+      // deep merge
+      true,
+      // ensure the target is an empty, unreferenced object
+      {},
+      // the base options object for this type of dialog (often just buttons)
+      defaults,
+      // args could be an object or array; if it's an array properties will
+      // map it to a proper options object
+      mapArguments(
+        args,
+        properties
+      )
+    );
+  }
+
+  /**
+   * this entry-level method makes heavy use of composition to take a simple
+   * range of inputs and return valid options suitable for passing to bootbox.dialog
+   */
+  function mergeDialogOptions(className, labels, properties, args) {
+    //  build up a base set of dialog properties
+    var baseOptions = {
+      className: "bootbox-" + className,
+      buttons: createLabels.apply(null, labels)
+    };
+
+    // ensure the buttons properties generated, *after* merging
+    // with user args are still valid against the supplied labels
+    return validateButtons(
+      // merge the generated base properties with user supplied arguments
+      mergeArguments(
+        baseOptions,
+        args,
+        // if args.length > 1, properties specify how each arg maps to an object key
+        properties
+      ),
+      labels
+    );
+  }
+
+  /**
+   * from a given list of arguments return a suitable object of button labels
+   * all this does is normalise the given labels and translate them where possible
+   * e.g. "ok", "confirm" -> { ok: "OK, cancel: "Annuleren" }
+   */
+  function createLabels() {
+    var buttons = {};
+
+    for (var i = 0, j = arguments.length; i < j; i++) {
+      var argument = arguments[i];
+      var key = argument.toLowerCase();
+      var value = argument.toUpperCase();
+
+      buttons[key] = {
+        label: _t(value)
+      };
+    }
+
+    return buttons;
+  }
+
+  function validateButtons(options, buttons) {
+    var allowedButtons = {};
+    each(buttons, function(key, value) {
+      allowedButtons[value] = true;
+    });
+
+    each(options.buttons, function(key) {
+      if (allowedButtons[key] === undefined) {
+        throw new Error("button key " + key + " is not allowed (options are " + buttons.join("\n") + ")");
+      }
+    });
+
+    return options;
+  }
+
+  exports.alert = function() {
+    var options;
+
+    options = mergeDialogOptions("alert", ["ok"], ["message", "callback"], arguments);
+
+    if (options.callback && !$.isFunction(options.callback)) {
+      throw new Error("alert requires callback property to be a function when provided");
+    }
+
+    /**
+     * overrides
+     */
+    options.buttons.ok.callback = options.onEscape = function() {
+      if ($.isFunction(options.callback)) {
+        return options.callback.call(this);
+      }
+      return true;
+    };
+
+    return exports.dialog(options);
+  };
+
+  exports.confirm = function() {
+    var options;
+
+    options = mergeDialogOptions("confirm", ["cancel", "confirm"], ["message", "callback"], arguments);
+
+    /**
+     * overrides; undo anything the user tried to set they shouldn't have
+     */
+    options.buttons.cancel.callback = options.onEscape = function() {
+      return options.callback.call(this, false);
+    };
+
+    options.buttons.confirm.callback = function() {
+      return options.callback.call(this, true);
+    };
+
+    // confirm specific validation
+    if (!$.isFunction(options.callback)) {
+      throw new Error("confirm requires a callback");
+    }
+
+    return exports.dialog(options);
+  };
+
+  exports.prompt = function() {
+    var options;
+    var defaults;
+    var dialog;
+    var form;
+    var input;
+    var shouldShow;
+    var inputOptions;
+
+    // we have to create our form first otherwise
+    // its value is undefined when gearing up our options
+    // @TODO this could be solved by allowing message to
+    // be a function instead...
+    form = $(templates.form);
+
+    // prompt defaults are more complex than others in that
+    // users can override more defaults
+    // @TODO I don't like that prompt has to do a lot of heavy
+    // lifting which mergeDialogOptions can *almost* support already
+    // just because of 'value' and 'inputType' - can we refactor?
+    defaults = {
+      className: "bootbox-prompt",
+      buttons: createLabels("cancel", "confirm"),
+      value: "",
+      inputType: "text"
+    };
+
+    options = validateButtons(
+      mergeArguments(defaults, arguments, ["title", "callback"]),
+      ["cancel", "confirm"]
+    );
+
+    // capture the user's show value; we always set this to false before
+    // spawning the dialog to give us a chance to attach some handlers to
+    // it, but we need to make sure we respect a preference not to show it
+    shouldShow = (options.show === undefined) ? true : options.show;
+
+    /**
+     * overrides; undo anything the user tried to set they shouldn't have
+     */
+    options.message = form;
+
+    options.buttons.cancel.callback = options.onEscape = function() {
+      return options.callback.call(this, null);
+    };
+
+    options.buttons.confirm.callback = function() {
+      var value;
+
+      switch (options.inputType) {
+        case "text":
+        case "textarea":
+        case "email":
+        case "select":
+        case "date":
+        case "time":
+        case "number":
+        case "password":
+          value = input.val();
+          break;
+
+        case "checkbox":
+          var checkedItems = input.find("input:checked");
+
+          // we assume that checkboxes are always multiple,
+          // hence we default to an empty array
+          value = [];
+
+          each(checkedItems, function(_, item) {
+            value.push($(item).val());
+          });
+          break;
+      }
+
+      return options.callback.call(this, value);
+    };
+
+    options.show = false;
+
+    // prompt specific validation
+    if (!options.title) {
+      throw new Error("prompt requires a title");
+    }
+
+    if (!$.isFunction(options.callback)) {
+      throw new Error("prompt requires a callback");
+    }
+
+    if (!templates.inputs[options.inputType]) {
+      throw new Error("invalid prompt type");
+    }
+
+    // create the input based on the supplied type
+    input = $(templates.inputs[options.inputType]);
+
+    switch (options.inputType) {
+      case "text":
+      case "textarea":
+      case "email":
+      case "date":
+      case "time":
+      case "number":
+      case "password":
+        input.val(options.value);
+        break;
+
+      case "select":
+        var groups = {};
+        inputOptions = options.inputOptions || [];
+
+        if (!$.isArray(inputOptions)) {
+          throw new Error("Please pass an array of input options");
+        }
+
+        if (!inputOptions.length) {
+          throw new Error("prompt with select requires options");
+        }
+
+        each(inputOptions, function(_, option) {
+
+          // assume the element to attach to is the input...
+          var elem = input;
+
+          if (option.value === undefined || option.text === undefined) {
+            throw new Error("given options in wrong format");
+          }
+
+          // ... but override that element if this option sits in a group
+
+          if (option.group) {
+            // initialise group if necessary
+            if (!groups[option.group]) {
+              groups[option.group] = $("<optgroup/>").attr("label", option.group);
+            }
+
+            elem = groups[option.group];
+          }
+
+          elem.append("<option value='" + option.value + "'>" + option.text + "</option>");
+        });
+
+        each(groups, function(_, group) {
+          input.append(group);
+        });
+
+        // safe to set a select's value as per a normal input
+        input.val(options.value);
+        break;
+
+      case "checkbox":
+        var values   = $.isArray(options.value) ? options.value : [options.value];
+        inputOptions = options.inputOptions || [];
+
+        if (!inputOptions.length) {
+          throw new Error("prompt with checkbox requires options");
+        }
+
+        if (!inputOptions[0].value || !inputOptions[0].text) {
+          throw new Error("given options in wrong format");
+        }
+
+        // checkboxes have to nest within a containing element, so
+        // they break the rules a bit and we end up re-assigning
+        // our 'input' element to this container instead
+        input = $("<div/>");
+
+        each(inputOptions, function(_, option) {
+          var checkbox = $(templates.inputs[options.inputType]);
+
+          checkbox.find("input").attr("value", option.value);
+          checkbox.find("label").append(option.text);
+
+          // we've ensured values is an array so we can always iterate over it
+          each(values, function(_, value) {
+            if (value === option.value) {
+              checkbox.find("input").prop("checked", true);
+            }
+          });
+
+          input.append(checkbox);
+        });
+        break;
+    }
+
+    // @TODO provide an attributes option instead
+    // and simply map that as keys: vals
+    if (options.placeholder) {
+      input.attr("placeholder", options.placeholder);
+    }
+
+    if (options.pattern) {
+      input.attr("pattern", options.pattern);
+    }
+
+    if (options.maxlength) {
+      input.attr("maxlength", options.maxlength);
+    }
+
+    // now place it in our form
+    form.append(input);
+
+    form.on("submit", function(e) {
+      e.preventDefault();
+      // Fix for SammyJS (or similar JS routing library) hijacking the form post.
+      e.stopPropagation();
+      // @TODO can we actually click *the* button object instead?
+      // e.g. buttons.confirm.click() or similar
+      dialog.find(".btn-primary").click();
+    });
+
+    dialog = exports.dialog(options);
+
+    // clear the existing handler focusing the submit button...
+    dialog.off("shown.bs.modal");
+
+    // ...and replace it with one focusing our input, if possible
+    dialog.on("shown.bs.modal", function() {
+      // need the closure here since input isn't
+      // an object otherwise
+      input.focus();
+    });
+
+    if (shouldShow === true) {
+      dialog.modal("show");
+    }
+
+    return dialog;
+  };
+
+  exports.dialog = function(options) {
+    options = sanitize(options);
+
+    var dialog = $(templates.dialog);
+    var innerDialog = dialog.find(".modal-dialog");
+    var body = dialog.find(".modal-body");
+    var buttons = options.buttons;
+    var buttonStr = "";
+    var callbacks = {
+      onEscape: options.onEscape
+    };
+
+    if ($.fn.modal === undefined) {
+      throw new Error(
+        "$.fn.modal is not defined; please double check you have included " +
+        "the Bootstrap JavaScript library. See http://getbootstrap.com/javascript/ " +
+        "for more details."
+      );
+    }
+
+    each(buttons, function(key, button) {
+
+      // @TODO I don't like this string appending to itself; bit dirty. Needs reworking
+      // can we just build up button elements instead? slower but neater. Then button
+      // can just become a template too
+      buttonStr += "<button data-bb-handler='" + key + "' type='button' class='btn " + button.className + "'>" + button.label + "</button>";
+      callbacks[key] = button.callback;
+    });
+
+    body.find(".bootbox-body").html(options.message);
+
+    if (options.animate === true) {
+      dialog.addClass("fade");
+    }
+
+    if (options.className) {
+      dialog.addClass(options.className);
+    }
+
+    if (options.size === "large") {
+      innerDialog.addClass("modal-lg");
+    } else if (options.size === "small") {
+      innerDialog.addClass("modal-sm");
+    }
+
+    if (options.title) {
+      body.before(templates.header);
+    }
+
+    if (options.closeButton) {
+      var closeButton = $(templates.closeButton);
+
+      if (options.title) {
+        dialog.find(".modal-header").prepend(closeButton);
+      } else {
+        closeButton.css("margin-top", "-10px").prependTo(body);
+      }
+    }
+
+    if (options.title) {
+      dialog.find(".modal-title").html(options.title);
+    }
+
+    if (buttonStr.length) {
+      body.after(templates.footer);
+      dialog.find(".modal-footer").html(buttonStr);
+    }
+
+
+    /**
+     * Bootstrap event listeners; used handle extra
+     * setup & teardown required after the underlying
+     * modal has performed certain actions
+     */
+
+    dialog.on("hidden.bs.modal", function(e) {
+      // ensure we don't accidentally intercept hidden events triggered
+      // by children of the current dialog. We shouldn't anymore now BS
+      // namespaces its events; but still worth doing
+      if (e.target === this) {
+        dialog.remove();
+      }
+    });
+
+    /*
+    dialog.on("show.bs.modal", function() {
+      // sadly this doesn't work; show is called *just* before
+      // the backdrop is added so we'd need a setTimeout hack or
+      // otherwise... leaving in as would be nice
+      if (options.backdrop) {
+        dialog.next(".modal-backdrop").addClass("bootbox-backdrop");
+      }
+    });
+    */
+
+    dialog.on("shown.bs.modal", function() {
+      dialog.find(".btn-primary:first").focus();
+    });
+
+    /**
+     * Bootbox event listeners; experimental and may not last
+     * just an attempt to decouple some behaviours from their
+     * respective triggers
+     */
+
+    if (options.backdrop !== "static") {
+      // A boolean true/false according to the Bootstrap docs
+      // should show a dialog the user can dismiss by clicking on
+      // the background.
+      // We always only ever pass static/false to the actual
+      // $.modal function because with `true` we can't trap
+      // this event (the .modal-backdrop swallows it)
+      // However, we still want to sort of respect true
+      // and invoke the escape mechanism instead
+      dialog.on("click.dismiss.bs.modal", function(e) {
+        // @NOTE: the target varies in >= 3.3.x releases since the modal backdrop
+        // moved *inside* the outer dialog rather than *alongside* it
+        if (dialog.children(".modal-backdrop").length) {
+          e.currentTarget = dialog.children(".modal-backdrop").get(0);
+        }
+
+        if (e.target !== e.currentTarget) {
+          return;
+        }
+
+        dialog.trigger("escape.close.bb");
+      });
+    }
+
+    dialog.on("escape.close.bb", function(e) {
+      if (callbacks.onEscape) {
+        processCallback(e, dialog, callbacks.onEscape);
+      }
+    });
+
+    /**
+     * Standard jQuery event listeners; used to handle user
+     * interaction with our dialog
+     */
+
+    dialog.on("click", ".modal-footer button", function(e) {
+      var callbackKey = $(this).data("bb-handler");
+
+      processCallback(e, dialog, callbacks[callbackKey]);
+    });
+
+    dialog.on("click", ".bootbox-close-button", function(e) {
+      // onEscape might be falsy but that's fine; the fact is
+      // if the user has managed to click the close button we
+      // have to close the dialog, callback or not
+      processCallback(e, dialog, callbacks.onEscape);
+    });
+
+    dialog.on("keyup", function(e) {
+      if (e.which === 27) {
+        dialog.trigger("escape.close.bb");
+      }
+    });
+
+    // the remainder of this method simply deals with adding our
+    // dialogent to the DOM, augmenting it with Bootstrap's modal
+    // functionality and then giving the resulting object back
+    // to our caller
+
+    $(options.container).append(dialog);
+
+    dialog.modal({
+      backdrop: options.backdrop ? "static": false,
+      keyboard: false,
+      show: false
+    });
+
+    if (options.show) {
+      dialog.modal("show");
+    }
+
+    // @TODO should we return the raw element here or should
+    // we wrap it in an object on which we can expose some neater
+    // methods, e.g. var d = bootbox.alert(); d.hide(); instead
+    // of d.modal("hide");
+
+   /*
+    function BBDialog(elem) {
+      this.elem = elem;
+    }
+
+    BBDialog.prototype = {
+      hide: function() {
+        return this.elem.modal("hide");
+      },
+      show: function() {
+        return this.elem.modal("show");
+      }
+    };
+    */
+
+    return dialog;
+
+  };
+
+  exports.setDefaults = function() {
+    var values = {};
+
+    if (arguments.length === 2) {
+      // allow passing of single key/value...
+      values[arguments[0]] = arguments[1];
+    } else {
+      // ... and as an object too
+      values = arguments[0];
+    }
+
+    $.extend(defaults, values);
+  };
+
+  exports.hideAll = function() {
+    $(".bootbox").modal("hide");
+
+    return exports;
+  };
+
+
+  /**
+   * standard locales. Please add more according to ISO 639-1 standard. Multiple language variants are
+   * unlikely to be required. If this gets too large it can be split out into separate JS files.
+   */
+  var locales = {
+    bg_BG : {
+      OK      : "Ок",
+      CANCEL  : "Отказ",
+      CONFIRM : "Потвърждавам"
+    },
+    br : {
+      OK      : "OK",
+      CANCEL  : "Cancelar",
+      CONFIRM : "Sim"
+    },
+    cs : {
+      OK      : "OK",
+      CANCEL  : "Zrušit",
+      CONFIRM : "Potvrdit"
+    },
+    da : {
+      OK      : "OK",
+      CANCEL  : "Annuller",
+      CONFIRM : "Accepter"
+    },
+    de : {
+      OK      : "OK",
+      CANCEL  : "Abbrechen",
+      CONFIRM : "Akzeptieren"
+    },
+    el : {
+      OK      : "Εντάξει",
+      CANCEL  : "Ακύρωση",
+      CONFIRM : "Επιβεβαίωση"
+    },
+    en : {
+      OK      : "OK",
+      CANCEL  : "Cancel",
+      CONFIRM : "OK"
+    },
+    es : {
+      OK      : "OK",
+      CANCEL  : "Cancelar",
+      CONFIRM : "Aceptar"
+    },
+    et : {
+      OK      : "OK",
+      CANCEL  : "Katkesta",
+      CONFIRM : "OK"
+    },
+    fa : {
+      OK      : "قبول",
+      CANCEL  : "لغو",
+      CONFIRM : "تایید"
+    },
+    fi : {
+      OK      : "OK",
+      CANCEL  : "Peruuta",
+      CONFIRM : "OK"
+    },
+    fr : {
+      OK      : "OK",
+      CANCEL  : "Annuler",
+      CONFIRM : "D'accord"
+    },
+    he : {
+      OK      : "אישור",
+      CANCEL  : "ביטול",
+      CONFIRM : "אישור"
+    },
+    hu : {
+      OK      : "OK",
+      CANCEL  : "Mégsem",
+      CONFIRM : "Megerősít"
+    },
+    hr : {
+      OK      : "OK",
+      CANCEL  : "Odustani",
+      CONFIRM : "Potvrdi"
+    },
+    id : {
+      OK      : "OK",
+      CANCEL  : "Batal",
+      CONFIRM : "OK"
+    },
+    it : {
+      OK      : "OK",
+      CANCEL  : "Annulla",
+      CONFIRM : "Conferma"
+    },
+    ja : {
+      OK      : "OK",
+      CANCEL  : "キャンセル",
+      CONFIRM : "確認"
+    },
+    lt : {
+      OK      : "Gerai",
+      CANCEL  : "Atšaukti",
+      CONFIRM : "Patvirtinti"
+    },
+    lv : {
+      OK      : "Labi",
+      CANCEL  : "Atcelt",
+      CONFIRM : "Apstiprināt"
+    },
+    nl : {
+      OK      : "OK",
+      CANCEL  : "Annuleren",
+      CONFIRM : "Accepteren"
+    },
+    no : {
+      OK      : "OK",
+      CANCEL  : "Avbryt",
+      CONFIRM : "OK"
+    },
+    pl : {
+      OK      : "OK",
+      CANCEL  : "Anuluj",
+      CONFIRM : "Potwierdź"
+    },
+    pt : {
+      OK      : "OK",
+      CANCEL  : "Cancelar",
+      CONFIRM : "Confirmar"
+    },
+    ru : {
+      OK      : "OK",
+      CANCEL  : "Отмена",
+      CONFIRM : "Применить"
+    },
+    sq : {
+      OK : "OK",
+      CANCEL : "Anulo",
+      CONFIRM : "Prano"
+    },
+    sv : {
+      OK      : "OK",
+      CANCEL  : "Avbryt",
+      CONFIRM : "OK"
+    },
+    th : {
+      OK      : "ตกลง",
+      CANCEL  : "ยกเลิก",
+      CONFIRM : "ยืนยัน"
+    },
+    tr : {
+      OK      : "Tamam",
+      CANCEL  : "İptal",
+      CONFIRM : "Onayla"
+    },
+    zh_CN : {
+      OK      : "OK",
+      CANCEL  : "取消",
+      CONFIRM : "确认"
+    },
+    zh_TW : {
+      OK      : "OK",
+      CANCEL  : "取消",
+      CONFIRM : "確認"
+    }
+  };
+
+  exports.addLocale = function(name, values) {
+    $.each(["OK", "CANCEL", "CONFIRM"], function(_, v) {
+      if (!values[v]) {
+        throw new Error("Please supply a translation for '" + v + "'");
+      }
+    });
+
+    locales[name] = {
+      OK: values.OK,
+      CANCEL: values.CANCEL,
+      CONFIRM: values.CONFIRM
+    };
+
+    return exports;
+  };
+
+  exports.removeLocale = function(name) {
+    delete locales[name];
+
+    return exports;
+  };
+
+  exports.setLocale = function(name) {
+    return exports.setDefaults("locale", name);
+  };
+
+  exports.init = function(_$) {
+    return init(_$ || $);
+  };
+
+  return exports;
+}));
+
 /*!
  * Chart.js
  * http://chartjs.org/
@@ -30549,6 +31535,32 @@ var minlengthDirective = function() {
   }
 })(this);
 
+/*! jQuery Migrate v1.2.1 | (c) 2005, 2013 jQuery Foundation, Inc. and other contributors | jquery.org/license */
+jQuery.migrateMute===void 0&&(jQuery.migrateMute=!0),function(e,t,n){function r(n){var r=t.console;i[n]||(i[n]=!0,e.migrateWarnings.push(n),r&&r.warn&&!e.migrateMute&&(r.warn("JQMIGRATE: "+n),e.migrateTrace&&r.trace&&r.trace()))}function a(t,a,i,o){if(Object.defineProperty)try{return Object.defineProperty(t,a,{configurable:!0,enumerable:!0,get:function(){return r(o),i},set:function(e){r(o),i=e}}),n}catch(s){}e._definePropertyBroken=!0,t[a]=i}var i={};e.migrateWarnings=[],!e.migrateMute&&t.console&&t.console.log&&t.console.log("JQMIGRATE: Logging is active"),e.migrateTrace===n&&(e.migrateTrace=!0),e.migrateReset=function(){i={},e.migrateWarnings.length=0},"BackCompat"===document.compatMode&&r("jQuery is not compatible with Quirks Mode");var o=e("<input/>",{size:1}).attr("size")&&e.attrFn,s=e.attr,u=e.attrHooks.value&&e.attrHooks.value.get||function(){return null},c=e.attrHooks.value&&e.attrHooks.value.set||function(){return n},l=/^(?:input|button)$/i,d=/^[238]$/,p=/^(?:autofocus|autoplay|async|checked|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped|selected)$/i,f=/^(?:checked|selected)$/i;a(e,"attrFn",o||{},"jQuery.attrFn is deprecated"),e.attr=function(t,a,i,u){var c=a.toLowerCase(),g=t&&t.nodeType;return u&&(4>s.length&&r("jQuery.fn.attr( props, pass ) is deprecated"),t&&!d.test(g)&&(o?a in o:e.isFunction(e.fn[a])))?e(t)[a](i):("type"===a&&i!==n&&l.test(t.nodeName)&&t.parentNode&&r("Can't change the 'type' of an input or button in IE 6/7/8"),!e.attrHooks[c]&&p.test(c)&&(e.attrHooks[c]={get:function(t,r){var a,i=e.prop(t,r);return i===!0||"boolean"!=typeof i&&(a=t.getAttributeNode(r))&&a.nodeValue!==!1?r.toLowerCase():n},set:function(t,n,r){var a;return n===!1?e.removeAttr(t,r):(a=e.propFix[r]||r,a in t&&(t[a]=!0),t.setAttribute(r,r.toLowerCase())),r}},f.test(c)&&r("jQuery.fn.attr('"+c+"') may use property instead of attribute")),s.call(e,t,a,i))},e.attrHooks.value={get:function(e,t){var n=(e.nodeName||"").toLowerCase();return"button"===n?u.apply(this,arguments):("input"!==n&&"option"!==n&&r("jQuery.fn.attr('value') no longer gets properties"),t in e?e.value:null)},set:function(e,t){var a=(e.nodeName||"").toLowerCase();return"button"===a?c.apply(this,arguments):("input"!==a&&"option"!==a&&r("jQuery.fn.attr('value', val) no longer sets properties"),e.value=t,n)}};var g,h,v=e.fn.init,m=e.parseJSON,y=/^([^<]*)(<[\w\W]+>)([^>]*)$/;e.fn.init=function(t,n,a){var i;return t&&"string"==typeof t&&!e.isPlainObject(n)&&(i=y.exec(e.trim(t)))&&i[0]&&("<"!==t.charAt(0)&&r("$(html) HTML strings must start with '<' character"),i[3]&&r("$(html) HTML text after last tag is ignored"),"#"===i[0].charAt(0)&&(r("HTML string cannot start with a '#' character"),e.error("JQMIGRATE: Invalid selector string (XSS)")),n&&n.context&&(n=n.context),e.parseHTML)?v.call(this,e.parseHTML(i[2],n,!0),n,a):v.apply(this,arguments)},e.fn.init.prototype=e.fn,e.parseJSON=function(e){return e||null===e?m.apply(this,arguments):(r("jQuery.parseJSON requires a valid JSON string"),null)},e.uaMatch=function(e){e=e.toLowerCase();var t=/(chrome)[ \/]([\w.]+)/.exec(e)||/(webkit)[ \/]([\w.]+)/.exec(e)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(e)||/(msie) ([\w.]+)/.exec(e)||0>e.indexOf("compatible")&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(e)||[];return{browser:t[1]||"",version:t[2]||"0"}},e.browser||(g=e.uaMatch(navigator.userAgent),h={},g.browser&&(h[g.browser]=!0,h.version=g.version),h.chrome?h.webkit=!0:h.webkit&&(h.safari=!0),e.browser=h),a(e,"browser",e.browser,"jQuery.browser is deprecated"),e.sub=function(){function t(e,n){return new t.fn.init(e,n)}e.extend(!0,t,this),t.superclass=this,t.fn=t.prototype=this(),t.fn.constructor=t,t.sub=this.sub,t.fn.init=function(r,a){return a&&a instanceof e&&!(a instanceof t)&&(a=t(a)),e.fn.init.call(this,r,a,n)},t.fn.init.prototype=t.fn;var n=t(document);return r("jQuery.sub() is deprecated"),t},e.ajaxSetup({converters:{"text json":e.parseJSON}});var b=e.fn.data;e.fn.data=function(t){var a,i,o=this[0];return!o||"events"!==t||1!==arguments.length||(a=e.data(o,t),i=e._data(o,t),a!==n&&a!==i||i===n)?b.apply(this,arguments):(r("Use of jQuery.fn.data('events') is deprecated"),i)};var j=/\/(java|ecma)script/i,w=e.fn.andSelf||e.fn.addBack;e.fn.andSelf=function(){return r("jQuery.fn.andSelf() replaced by jQuery.fn.addBack()"),w.apply(this,arguments)},e.clean||(e.clean=function(t,a,i,o){a=a||document,a=!a.nodeType&&a[0]||a,a=a.ownerDocument||a,r("jQuery.clean() is deprecated");var s,u,c,l,d=[];if(e.merge(d,e.buildFragment(t,a).childNodes),i)for(c=function(e){return!e.type||j.test(e.type)?o?o.push(e.parentNode?e.parentNode.removeChild(e):e):i.appendChild(e):n},s=0;null!=(u=d[s]);s++)e.nodeName(u,"script")&&c(u)||(i.appendChild(u),u.getElementsByTagName!==n&&(l=e.grep(e.merge([],u.getElementsByTagName("script")),c),d.splice.apply(d,[s+1,0].concat(l)),s+=l.length));return d});var Q=e.event.add,x=e.event.remove,k=e.event.trigger,N=e.fn.toggle,T=e.fn.live,M=e.fn.die,S="ajaxStart|ajaxStop|ajaxSend|ajaxComplete|ajaxError|ajaxSuccess",C=RegExp("\\b(?:"+S+")\\b"),H=/(?:^|\s)hover(\.\S+|)\b/,A=function(t){return"string"!=typeof t||e.event.special.hover?t:(H.test(t)&&r("'hover' pseudo-event is deprecated, use 'mouseenter mouseleave'"),t&&t.replace(H,"mouseenter$1 mouseleave$1"))};e.event.props&&"attrChange"!==e.event.props[0]&&e.event.props.unshift("attrChange","attrName","relatedNode","srcElement"),e.event.dispatch&&a(e.event,"handle",e.event.dispatch,"jQuery.event.handle is undocumented and deprecated"),e.event.add=function(e,t,n,a,i){e!==document&&C.test(t)&&r("AJAX events should be attached to document: "+t),Q.call(this,e,A(t||""),n,a,i)},e.event.remove=function(e,t,n,r,a){x.call(this,e,A(t)||"",n,r,a)},e.fn.error=function(){var e=Array.prototype.slice.call(arguments,0);return r("jQuery.fn.error() is deprecated"),e.splice(0,0,"error"),arguments.length?this.bind.apply(this,e):(this.triggerHandler.apply(this,e),this)},e.fn.toggle=function(t,n){if(!e.isFunction(t)||!e.isFunction(n))return N.apply(this,arguments);r("jQuery.fn.toggle(handler, handler...) is deprecated");var a=arguments,i=t.guid||e.guid++,o=0,s=function(n){var r=(e._data(this,"lastToggle"+t.guid)||0)%o;return e._data(this,"lastToggle"+t.guid,r+1),n.preventDefault(),a[r].apply(this,arguments)||!1};for(s.guid=i;a.length>o;)a[o++].guid=i;return this.click(s)},e.fn.live=function(t,n,a){return r("jQuery.fn.live() is deprecated"),T?T.apply(this,arguments):(e(this.context).on(t,this.selector,n,a),this)},e.fn.die=function(t,n){return r("jQuery.fn.die() is deprecated"),M?M.apply(this,arguments):(e(this.context).off(t,this.selector||"**",n),this)},e.event.trigger=function(e,t,n,a){return n||C.test(e)||r("Global events are undocumented and deprecated"),k.call(this,e,t,n||document,a)},e.each(S.split("|"),function(t,n){e.event.special[n]={setup:function(){var t=this;return t!==document&&(e.event.add(document,n+"."+e.guid,function(){e.event.trigger(n,null,t,!0)}),e._data(this,n,e.guid++)),!1},teardown:function(){return this!==document&&e.event.remove(document,n+"."+e._data(this,n)),!1}}})}(jQuery,window);
+/*!
+ * jQuery blockUI plugin
+ * Version 2.66.0-2013.10.09
+ * Requires jQuery v1.7 or later
+ *
+ * Examples at: http://malsup.com/jquery/block/
+ * Copyright (c) 2007-2013 M. Alsup
+ * Dual licensed under the MIT and GPL licenses:
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://www.gnu.org/licenses/gpl.html
+ *
+ * Thanks to Amir-Hossein Sobhi for some excellent contributions!
+ */
+
+!function(){"use strict";function e(e){function t(t,n){var s,h,k=t==window,y=n&&void 0!==n.message?n.message:void 0;if(n=e.extend({},e.blockUI.defaults,n||{}),!n.ignoreIfBlocked||!e(t).data("blockUI.isBlocked")){if(n.overlayCSS=e.extend({},e.blockUI.defaults.overlayCSS,n.overlayCSS||{}),s=e.extend({},e.blockUI.defaults.css,n.css||{}),n.onOverlayClick&&(n.overlayCSS.cursor="pointer"),h=e.extend({},e.blockUI.defaults.themedCSS,n.themedCSS||{}),y=void 0===y?n.message:y,k&&p&&o(window,{fadeOut:0}),y&&"string"!=typeof y&&(y.parentNode||y.jquery)){var m=y.jquery?y[0]:y,v={};e(t).data("blockUI.history",v),v.el=m,v.parent=m.parentNode,v.display=m.style.display,v.position=m.style.position,v.parent&&v.parent.removeChild(m)}e(t).data("blockUI.onUnblock",n.onUnblock);var g,I,w,U,x=n.baseZ;g=r||n.forceIframe?e('<iframe class="blockUI" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="'+n.iframeSrc+'"></iframe>'):e('<div class="blockUI" style="display:none"></div>'),I=n.theme?e('<div class="blockUI blockOverlay ui-widget-overlay" style="z-index:'+x++ +';display:none"></div>'):e('<div class="blockUI blockOverlay" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>'),n.theme&&k?(U='<div class="blockUI '+n.blockMsgClass+' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:fixed">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):n.theme?(U='<div class="blockUI '+n.blockMsgClass+' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:absolute">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):U=k?'<div class="blockUI '+n.blockMsgClass+' blockPage" style="z-index:'+(x+10)+';display:none;position:fixed"></div>':'<div class="blockUI '+n.blockMsgClass+' blockElement" style="z-index:'+(x+10)+';display:none;position:absolute"></div>',w=e(U),y&&(n.theme?(w.css(h),w.addClass("ui-widget-content")):w.css(s)),n.theme||I.css(n.overlayCSS),I.css("position",k?"fixed":"absolute"),(r||n.forceIframe)&&g.css("opacity",0);var C=[g,I,w],S=k?e("body"):e(t);e.each(C,function(){this.appendTo(S)}),n.theme&&n.draggable&&e.fn.draggable&&w.draggable({handle:".ui-dialog-titlebar",cancel:"li"});var O=f&&(!e.support.boxModel||e("object,embed",k?null:t).length>0);if(u||O){if(k&&n.allowBodyStretch&&e.support.boxModel&&e("html,body").css("height","100%"),(u||!e.support.boxModel)&&!k)var E=d(t,"borderTopWidth"),T=d(t,"borderLeftWidth"),M=E?"(0 - "+E+")":0,B=T?"(0 - "+T+")":0;e.each(C,function(e,t){var o=t[0].style;if(o.position="absolute",2>e)k?o.setExpression("height","Math.max(document.body.scrollHeight, document.body.offsetHeight) - (jQuery.support.boxModel?0:"+n.quirksmodeOffsetHack+') + "px"'):o.setExpression("height",'this.parentNode.offsetHeight + "px"'),k?o.setExpression("width",'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"'):o.setExpression("width",'this.parentNode.offsetWidth + "px"'),B&&o.setExpression("left",B),M&&o.setExpression("top",M);else if(n.centerY)k&&o.setExpression("top",'(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"'),o.marginTop=0;else if(!n.centerY&&k){var i=n.css&&n.css.top?parseInt(n.css.top,10):0,s="((document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "+i+') + "px"';o.setExpression("top",s)}})}if(y&&(n.theme?w.find(".ui-widget-content").append(y):w.append(y),(y.jquery||y.nodeType)&&e(y).show()),(r||n.forceIframe)&&n.showOverlay&&g.show(),n.fadeIn){var j=n.onBlock?n.onBlock:c,H=n.showOverlay&&!y?j:c,z=y?j:c;n.showOverlay&&I._fadeIn(n.fadeIn,H),y&&w._fadeIn(n.fadeIn,z)}else n.showOverlay&&I.show(),y&&w.show(),n.onBlock&&n.onBlock();if(i(1,t,n),k?(p=w[0],b=e(n.focusableElements,p),n.focusInput&&setTimeout(l,20)):a(w[0],n.centerX,n.centerY),n.timeout){var W=setTimeout(function(){k?e.unblockUI(n):e(t).unblock(n)},n.timeout);e(t).data("blockUI.timeout",W)}}}function o(t,o){var s,l=t==window,a=e(t),d=a.data("blockUI.history"),c=a.data("blockUI.timeout");c&&(clearTimeout(c),a.removeData("blockUI.timeout")),o=e.extend({},e.blockUI.defaults,o||{}),i(0,t,o),null===o.onUnblock&&(o.onUnblock=a.data("blockUI.onUnblock"),a.removeData("blockUI.onUnblock"));var r;r=l?e("body").children().filter(".blockUI").add("body > .blockUI"):a.find(">.blockUI"),o.cursorReset&&(r.length>1&&(r[1].style.cursor=o.cursorReset),r.length>2&&(r[2].style.cursor=o.cursorReset)),l&&(p=b=null),o.fadeOut?(s=r.length,r.stop().fadeOut(o.fadeOut,function(){0===--s&&n(r,d,o,t)})):n(r,d,o,t)}function n(t,o,n,i){var s=e(i);if(!s.data("blockUI.isBlocked")){t.each(function(){this.parentNode&&this.parentNode.removeChild(this)}),o&&o.el&&(o.el.style.display=o.display,o.el.style.position=o.position,o.parent&&o.parent.appendChild(o.el),s.removeData("blockUI.history")),s.data("blockUI.static")&&s.css("position","static"),"function"==typeof n.onUnblock&&n.onUnblock(i,n);var l=e(document.body),a=l.width(),d=l[0].style.width;l.width(a-1).width(a),l[0].style.width=d}}function i(t,o,n){var i=o==window,l=e(o);if((t||(!i||p)&&(i||l.data("blockUI.isBlocked")))&&(l.data("blockUI.isBlocked",t),i&&n.bindEvents&&(!t||n.showOverlay))){var a="mousedown mouseup keydown keypress keyup touchstart touchend touchmove";t?e(document).bind(a,n,s):e(document).unbind(a,s)}}function s(t){if("keydown"===t.type&&t.keyCode&&9==t.keyCode&&p&&t.data.constrainTabKey){var o=b,n=!t.shiftKey&&t.target===o[o.length-1],i=t.shiftKey&&t.target===o[0];if(n||i)return setTimeout(function(){l(i)},10),!1}var s=t.data,a=e(t.target);return a.hasClass("blockOverlay")&&s.onOverlayClick&&s.onOverlayClick(t),a.parents("div."+s.blockMsgClass).length>0?!0:0===a.parents().children().filter("div.blockUI").length}function l(e){if(b){var t=b[e===!0?b.length-1:0];t&&t.focus()}}function a(e,t,o){var n=e.parentNode,i=e.style,s=(n.offsetWidth-e.offsetWidth)/2-d(n,"borderLeftWidth"),l=(n.offsetHeight-e.offsetHeight)/2-d(n,"borderTopWidth");t&&(i.left=s>0?s+"px":"0"),o&&(i.top=l>0?l+"px":"0")}function d(t,o){return parseInt(e.css(t,o),10)||0}e.fn._fadeIn=e.fn.fadeIn;var c=e.noop||function(){},r=/MSIE/.test(navigator.userAgent),u=/MSIE 6.0/.test(navigator.userAgent)&&!/MSIE 8.0/.test(navigator.userAgent),f=(document.documentMode||0,e.isFunction(document.createElement("div").style.setExpression));e.blockUI=function(e){t(window,e)},e.unblockUI=function(e){o(window,e)},e.growlUI=function(t,o,n,i){var s=e('<div class="growlUI"></div>');t&&s.append("<h1>"+t+"</h1>"),o&&s.append("<h2>"+o+"</h2>"),void 0===n&&(n=3e3);var l=function(t){t=t||{},e.blockUI({message:s,fadeIn:"undefined"!=typeof t.fadeIn?t.fadeIn:700,fadeOut:"undefined"!=typeof t.fadeOut?t.fadeOut:1e3,timeout:"undefined"!=typeof t.timeout?t.timeout:n,centerY:!1,showOverlay:!1,onUnblock:i,css:e.blockUI.defaults.growlCSS})};l();s.css("opacity");s.mouseover(function(){l({fadeIn:0,timeout:3e4});var t=e(".blockMsg");t.stop(),t.fadeTo(300,1)}).mouseout(function(){e(".blockMsg").fadeOut(1e3)})},e.fn.block=function(o){if(this[0]===window)return e.blockUI(o),this;var n=e.extend({},e.blockUI.defaults,o||{});return this.each(function(){var t=e(this);n.ignoreIfBlocked&&t.data("blockUI.isBlocked")||t.unblock({fadeOut:0})}),this.each(function(){"static"==e.css(this,"position")&&(this.style.position="relative",e(this).data("blockUI.static",!0)),this.style.zoom=1,t(this,o)})},e.fn.unblock=function(t){return this[0]===window?(e.unblockUI(t),this):this.each(function(){o(this,t)})},e.blockUI.version=2.66,e.blockUI.defaults={message:"<h1>Please wait...</h1>",title:null,draggable:!0,theme:!1,css:{padding:0,margin:0,width:"30%",top:"40%",left:"35%",textAlign:"center",color:"#000",border:"3px solid #aaa",backgroundColor:"#fff",cursor:"wait"},themedCSS:{width:"30%",top:"40%",left:"35%"},overlayCSS:{backgroundColor:"#000",opacity:.6,cursor:"wait"},cursorReset:"default",growlCSS:{width:"350px",top:"10px",left:"",right:"10px",border:"none",padding:"5px",opacity:.6,cursor:"default",color:"#fff",backgroundColor:"#000","-webkit-border-radius":"10px","-moz-border-radius":"10px","border-radius":"10px"},iframeSrc:/^https/i.test(window.location.href||"")?"javascript:false":"about:blank",forceIframe:!1,baseZ:1e3,centerX:!0,centerY:!0,allowBodyStretch:!0,bindEvents:!0,constrainTabKey:!0,fadeIn:200,fadeOut:400,timeout:0,showOverlay:!0,focusInput:!0,focusableElements:":input:enabled:visible",onBlock:null,onUnblock:null,onOverlayClick:null,quirksmodeOffsetHack:4,blockMsgClass:"blockMsg",ignoreIfBlocked:!1};var p=null,b=[]}"function"==typeof define&&define.amd&&define.amd.jQuery?define(["jquery"],e):e(jQuery)}();
+/*!
+ * jQuery Cookie Plugin v1.3.1
+ * https://github.com/carhartl/jquery-cookie
+ * Plugin file name changed to jquery.cokie.min to prevent blocking by ModSecurity module
+ *
+ * Copyright 2013 Klaus Hartl
+ * Released under the MIT license
+ */
+(function(a){if(typeof define==="function"&&define.amd){define(["jquery"],a)}else{a(jQuery)}}(function(e){var a=/\+/g;function d(g){return g}function b(g){return decodeURIComponent(g.replace(a," "))}function f(g){if(g.indexOf('"')===0){g=g.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\")}try{return c.json?JSON.parse(g):g}catch(h){}}var c=e.cookie=function(p,o,u){if(o!==undefined){u=e.extend({},c.defaults,u);if(typeof u.expires==="number"){var q=u.expires,s=u.expires=new Date();s.setDate(s.getDate()+q)}o=c.json?JSON.stringify(o):String(o);return(document.cookie=[c.raw?p:encodeURIComponent(p),"=",c.raw?o:encodeURIComponent(o),u.expires?"; expires="+u.expires.toUTCString():"",u.path?"; path="+u.path:"",u.domain?"; domain="+u.domain:"",u.secure?"; secure":""].join(""))}var g=c.raw?d:b;var r=document.cookie.split("; ");var v=p?undefined:{};for(var n=0,k=r.length;n<k;n++){var m=r[n].split("=");var h=g(m.shift());var j=g(m.join("="));if(p&&p===h){v=f(j);break}if(!p){v[h]=f(j)}}return v};c.defaults={};e.removeCookie=function(h,g){if(e.cookie(h)!==undefined){e.cookie(h,"",e.extend({},g,{expires:-1}));return true}return false}}));
 /**
  * @license wysihtml v0.5.0-beta10
  * https://github.com/Voog/wysihtml
@@ -46693,32 +47705,6 @@ wysihtml5.views.View = Base.extend(
   });
 })(wysihtml5);
 
-/*! jQuery Migrate v1.2.1 | (c) 2005, 2013 jQuery Foundation, Inc. and other contributors | jquery.org/license */
-jQuery.migrateMute===void 0&&(jQuery.migrateMute=!0),function(e,t,n){function r(n){var r=t.console;i[n]||(i[n]=!0,e.migrateWarnings.push(n),r&&r.warn&&!e.migrateMute&&(r.warn("JQMIGRATE: "+n),e.migrateTrace&&r.trace&&r.trace()))}function a(t,a,i,o){if(Object.defineProperty)try{return Object.defineProperty(t,a,{configurable:!0,enumerable:!0,get:function(){return r(o),i},set:function(e){r(o),i=e}}),n}catch(s){}e._definePropertyBroken=!0,t[a]=i}var i={};e.migrateWarnings=[],!e.migrateMute&&t.console&&t.console.log&&t.console.log("JQMIGRATE: Logging is active"),e.migrateTrace===n&&(e.migrateTrace=!0),e.migrateReset=function(){i={},e.migrateWarnings.length=0},"BackCompat"===document.compatMode&&r("jQuery is not compatible with Quirks Mode");var o=e("<input/>",{size:1}).attr("size")&&e.attrFn,s=e.attr,u=e.attrHooks.value&&e.attrHooks.value.get||function(){return null},c=e.attrHooks.value&&e.attrHooks.value.set||function(){return n},l=/^(?:input|button)$/i,d=/^[238]$/,p=/^(?:autofocus|autoplay|async|checked|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped|selected)$/i,f=/^(?:checked|selected)$/i;a(e,"attrFn",o||{},"jQuery.attrFn is deprecated"),e.attr=function(t,a,i,u){var c=a.toLowerCase(),g=t&&t.nodeType;return u&&(4>s.length&&r("jQuery.fn.attr( props, pass ) is deprecated"),t&&!d.test(g)&&(o?a in o:e.isFunction(e.fn[a])))?e(t)[a](i):("type"===a&&i!==n&&l.test(t.nodeName)&&t.parentNode&&r("Can't change the 'type' of an input or button in IE 6/7/8"),!e.attrHooks[c]&&p.test(c)&&(e.attrHooks[c]={get:function(t,r){var a,i=e.prop(t,r);return i===!0||"boolean"!=typeof i&&(a=t.getAttributeNode(r))&&a.nodeValue!==!1?r.toLowerCase():n},set:function(t,n,r){var a;return n===!1?e.removeAttr(t,r):(a=e.propFix[r]||r,a in t&&(t[a]=!0),t.setAttribute(r,r.toLowerCase())),r}},f.test(c)&&r("jQuery.fn.attr('"+c+"') may use property instead of attribute")),s.call(e,t,a,i))},e.attrHooks.value={get:function(e,t){var n=(e.nodeName||"").toLowerCase();return"button"===n?u.apply(this,arguments):("input"!==n&&"option"!==n&&r("jQuery.fn.attr('value') no longer gets properties"),t in e?e.value:null)},set:function(e,t){var a=(e.nodeName||"").toLowerCase();return"button"===a?c.apply(this,arguments):("input"!==a&&"option"!==a&&r("jQuery.fn.attr('value', val) no longer sets properties"),e.value=t,n)}};var g,h,v=e.fn.init,m=e.parseJSON,y=/^([^<]*)(<[\w\W]+>)([^>]*)$/;e.fn.init=function(t,n,a){var i;return t&&"string"==typeof t&&!e.isPlainObject(n)&&(i=y.exec(e.trim(t)))&&i[0]&&("<"!==t.charAt(0)&&r("$(html) HTML strings must start with '<' character"),i[3]&&r("$(html) HTML text after last tag is ignored"),"#"===i[0].charAt(0)&&(r("HTML string cannot start with a '#' character"),e.error("JQMIGRATE: Invalid selector string (XSS)")),n&&n.context&&(n=n.context),e.parseHTML)?v.call(this,e.parseHTML(i[2],n,!0),n,a):v.apply(this,arguments)},e.fn.init.prototype=e.fn,e.parseJSON=function(e){return e||null===e?m.apply(this,arguments):(r("jQuery.parseJSON requires a valid JSON string"),null)},e.uaMatch=function(e){e=e.toLowerCase();var t=/(chrome)[ \/]([\w.]+)/.exec(e)||/(webkit)[ \/]([\w.]+)/.exec(e)||/(opera)(?:.*version|)[ \/]([\w.]+)/.exec(e)||/(msie) ([\w.]+)/.exec(e)||0>e.indexOf("compatible")&&/(mozilla)(?:.*? rv:([\w.]+)|)/.exec(e)||[];return{browser:t[1]||"",version:t[2]||"0"}},e.browser||(g=e.uaMatch(navigator.userAgent),h={},g.browser&&(h[g.browser]=!0,h.version=g.version),h.chrome?h.webkit=!0:h.webkit&&(h.safari=!0),e.browser=h),a(e,"browser",e.browser,"jQuery.browser is deprecated"),e.sub=function(){function t(e,n){return new t.fn.init(e,n)}e.extend(!0,t,this),t.superclass=this,t.fn=t.prototype=this(),t.fn.constructor=t,t.sub=this.sub,t.fn.init=function(r,a){return a&&a instanceof e&&!(a instanceof t)&&(a=t(a)),e.fn.init.call(this,r,a,n)},t.fn.init.prototype=t.fn;var n=t(document);return r("jQuery.sub() is deprecated"),t},e.ajaxSetup({converters:{"text json":e.parseJSON}});var b=e.fn.data;e.fn.data=function(t){var a,i,o=this[0];return!o||"events"!==t||1!==arguments.length||(a=e.data(o,t),i=e._data(o,t),a!==n&&a!==i||i===n)?b.apply(this,arguments):(r("Use of jQuery.fn.data('events') is deprecated"),i)};var j=/\/(java|ecma)script/i,w=e.fn.andSelf||e.fn.addBack;e.fn.andSelf=function(){return r("jQuery.fn.andSelf() replaced by jQuery.fn.addBack()"),w.apply(this,arguments)},e.clean||(e.clean=function(t,a,i,o){a=a||document,a=!a.nodeType&&a[0]||a,a=a.ownerDocument||a,r("jQuery.clean() is deprecated");var s,u,c,l,d=[];if(e.merge(d,e.buildFragment(t,a).childNodes),i)for(c=function(e){return!e.type||j.test(e.type)?o?o.push(e.parentNode?e.parentNode.removeChild(e):e):i.appendChild(e):n},s=0;null!=(u=d[s]);s++)e.nodeName(u,"script")&&c(u)||(i.appendChild(u),u.getElementsByTagName!==n&&(l=e.grep(e.merge([],u.getElementsByTagName("script")),c),d.splice.apply(d,[s+1,0].concat(l)),s+=l.length));return d});var Q=e.event.add,x=e.event.remove,k=e.event.trigger,N=e.fn.toggle,T=e.fn.live,M=e.fn.die,S="ajaxStart|ajaxStop|ajaxSend|ajaxComplete|ajaxError|ajaxSuccess",C=RegExp("\\b(?:"+S+")\\b"),H=/(?:^|\s)hover(\.\S+|)\b/,A=function(t){return"string"!=typeof t||e.event.special.hover?t:(H.test(t)&&r("'hover' pseudo-event is deprecated, use 'mouseenter mouseleave'"),t&&t.replace(H,"mouseenter$1 mouseleave$1"))};e.event.props&&"attrChange"!==e.event.props[0]&&e.event.props.unshift("attrChange","attrName","relatedNode","srcElement"),e.event.dispatch&&a(e.event,"handle",e.event.dispatch,"jQuery.event.handle is undocumented and deprecated"),e.event.add=function(e,t,n,a,i){e!==document&&C.test(t)&&r("AJAX events should be attached to document: "+t),Q.call(this,e,A(t||""),n,a,i)},e.event.remove=function(e,t,n,r,a){x.call(this,e,A(t)||"",n,r,a)},e.fn.error=function(){var e=Array.prototype.slice.call(arguments,0);return r("jQuery.fn.error() is deprecated"),e.splice(0,0,"error"),arguments.length?this.bind.apply(this,e):(this.triggerHandler.apply(this,e),this)},e.fn.toggle=function(t,n){if(!e.isFunction(t)||!e.isFunction(n))return N.apply(this,arguments);r("jQuery.fn.toggle(handler, handler...) is deprecated");var a=arguments,i=t.guid||e.guid++,o=0,s=function(n){var r=(e._data(this,"lastToggle"+t.guid)||0)%o;return e._data(this,"lastToggle"+t.guid,r+1),n.preventDefault(),a[r].apply(this,arguments)||!1};for(s.guid=i;a.length>o;)a[o++].guid=i;return this.click(s)},e.fn.live=function(t,n,a){return r("jQuery.fn.live() is deprecated"),T?T.apply(this,arguments):(e(this.context).on(t,this.selector,n,a),this)},e.fn.die=function(t,n){return r("jQuery.fn.die() is deprecated"),M?M.apply(this,arguments):(e(this.context).off(t,this.selector||"**",n),this)},e.event.trigger=function(e,t,n,a){return n||C.test(e)||r("Global events are undocumented and deprecated"),k.call(this,e,t,n||document,a)},e.each(S.split("|"),function(t,n){e.event.special[n]={setup:function(){var t=this;return t!==document&&(e.event.add(document,n+"."+e.guid,function(){e.event.trigger(n,null,t,!0)}),e._data(this,n,e.guid++)),!1},teardown:function(){return this!==document&&e.event.remove(document,n+"."+e._data(this,n)),!1}}})}(jQuery,window);
-/*!
- * jQuery blockUI plugin
- * Version 2.66.0-2013.10.09
- * Requires jQuery v1.7 or later
- *
- * Examples at: http://malsup.com/jquery/block/
- * Copyright (c) 2007-2013 M. Alsup
- * Dual licensed under the MIT and GPL licenses:
- * http://www.opensource.org/licenses/mit-license.php
- * http://www.gnu.org/licenses/gpl.html
- *
- * Thanks to Amir-Hossein Sobhi for some excellent contributions!
- */
-
-!function(){"use strict";function e(e){function t(t,n){var s,h,k=t==window,y=n&&void 0!==n.message?n.message:void 0;if(n=e.extend({},e.blockUI.defaults,n||{}),!n.ignoreIfBlocked||!e(t).data("blockUI.isBlocked")){if(n.overlayCSS=e.extend({},e.blockUI.defaults.overlayCSS,n.overlayCSS||{}),s=e.extend({},e.blockUI.defaults.css,n.css||{}),n.onOverlayClick&&(n.overlayCSS.cursor="pointer"),h=e.extend({},e.blockUI.defaults.themedCSS,n.themedCSS||{}),y=void 0===y?n.message:y,k&&p&&o(window,{fadeOut:0}),y&&"string"!=typeof y&&(y.parentNode||y.jquery)){var m=y.jquery?y[0]:y,v={};e(t).data("blockUI.history",v),v.el=m,v.parent=m.parentNode,v.display=m.style.display,v.position=m.style.position,v.parent&&v.parent.removeChild(m)}e(t).data("blockUI.onUnblock",n.onUnblock);var g,I,w,U,x=n.baseZ;g=r||n.forceIframe?e('<iframe class="blockUI" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="'+n.iframeSrc+'"></iframe>'):e('<div class="blockUI" style="display:none"></div>'),I=n.theme?e('<div class="blockUI blockOverlay ui-widget-overlay" style="z-index:'+x++ +';display:none"></div>'):e('<div class="blockUI blockOverlay" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>'),n.theme&&k?(U='<div class="blockUI '+n.blockMsgClass+' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:fixed">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):n.theme?(U='<div class="blockUI '+n.blockMsgClass+' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:absolute">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):U=k?'<div class="blockUI '+n.blockMsgClass+' blockPage" style="z-index:'+(x+10)+';display:none;position:fixed"></div>':'<div class="blockUI '+n.blockMsgClass+' blockElement" style="z-index:'+(x+10)+';display:none;position:absolute"></div>',w=e(U),y&&(n.theme?(w.css(h),w.addClass("ui-widget-content")):w.css(s)),n.theme||I.css(n.overlayCSS),I.css("position",k?"fixed":"absolute"),(r||n.forceIframe)&&g.css("opacity",0);var C=[g,I,w],S=k?e("body"):e(t);e.each(C,function(){this.appendTo(S)}),n.theme&&n.draggable&&e.fn.draggable&&w.draggable({handle:".ui-dialog-titlebar",cancel:"li"});var O=f&&(!e.support.boxModel||e("object,embed",k?null:t).length>0);if(u||O){if(k&&n.allowBodyStretch&&e.support.boxModel&&e("html,body").css("height","100%"),(u||!e.support.boxModel)&&!k)var E=d(t,"borderTopWidth"),T=d(t,"borderLeftWidth"),M=E?"(0 - "+E+")":0,B=T?"(0 - "+T+")":0;e.each(C,function(e,t){var o=t[0].style;if(o.position="absolute",2>e)k?o.setExpression("height","Math.max(document.body.scrollHeight, document.body.offsetHeight) - (jQuery.support.boxModel?0:"+n.quirksmodeOffsetHack+') + "px"'):o.setExpression("height",'this.parentNode.offsetHeight + "px"'),k?o.setExpression("width",'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"'):o.setExpression("width",'this.parentNode.offsetWidth + "px"'),B&&o.setExpression("left",B),M&&o.setExpression("top",M);else if(n.centerY)k&&o.setExpression("top",'(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"'),o.marginTop=0;else if(!n.centerY&&k){var i=n.css&&n.css.top?parseInt(n.css.top,10):0,s="((document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "+i+') + "px"';o.setExpression("top",s)}})}if(y&&(n.theme?w.find(".ui-widget-content").append(y):w.append(y),(y.jquery||y.nodeType)&&e(y).show()),(r||n.forceIframe)&&n.showOverlay&&g.show(),n.fadeIn){var j=n.onBlock?n.onBlock:c,H=n.showOverlay&&!y?j:c,z=y?j:c;n.showOverlay&&I._fadeIn(n.fadeIn,H),y&&w._fadeIn(n.fadeIn,z)}else n.showOverlay&&I.show(),y&&w.show(),n.onBlock&&n.onBlock();if(i(1,t,n),k?(p=w[0],b=e(n.focusableElements,p),n.focusInput&&setTimeout(l,20)):a(w[0],n.centerX,n.centerY),n.timeout){var W=setTimeout(function(){k?e.unblockUI(n):e(t).unblock(n)},n.timeout);e(t).data("blockUI.timeout",W)}}}function o(t,o){var s,l=t==window,a=e(t),d=a.data("blockUI.history"),c=a.data("blockUI.timeout");c&&(clearTimeout(c),a.removeData("blockUI.timeout")),o=e.extend({},e.blockUI.defaults,o||{}),i(0,t,o),null===o.onUnblock&&(o.onUnblock=a.data("blockUI.onUnblock"),a.removeData("blockUI.onUnblock"));var r;r=l?e("body").children().filter(".blockUI").add("body > .blockUI"):a.find(">.blockUI"),o.cursorReset&&(r.length>1&&(r[1].style.cursor=o.cursorReset),r.length>2&&(r[2].style.cursor=o.cursorReset)),l&&(p=b=null),o.fadeOut?(s=r.length,r.stop().fadeOut(o.fadeOut,function(){0===--s&&n(r,d,o,t)})):n(r,d,o,t)}function n(t,o,n,i){var s=e(i);if(!s.data("blockUI.isBlocked")){t.each(function(){this.parentNode&&this.parentNode.removeChild(this)}),o&&o.el&&(o.el.style.display=o.display,o.el.style.position=o.position,o.parent&&o.parent.appendChild(o.el),s.removeData("blockUI.history")),s.data("blockUI.static")&&s.css("position","static"),"function"==typeof n.onUnblock&&n.onUnblock(i,n);var l=e(document.body),a=l.width(),d=l[0].style.width;l.width(a-1).width(a),l[0].style.width=d}}function i(t,o,n){var i=o==window,l=e(o);if((t||(!i||p)&&(i||l.data("blockUI.isBlocked")))&&(l.data("blockUI.isBlocked",t),i&&n.bindEvents&&(!t||n.showOverlay))){var a="mousedown mouseup keydown keypress keyup touchstart touchend touchmove";t?e(document).bind(a,n,s):e(document).unbind(a,s)}}function s(t){if("keydown"===t.type&&t.keyCode&&9==t.keyCode&&p&&t.data.constrainTabKey){var o=b,n=!t.shiftKey&&t.target===o[o.length-1],i=t.shiftKey&&t.target===o[0];if(n||i)return setTimeout(function(){l(i)},10),!1}var s=t.data,a=e(t.target);return a.hasClass("blockOverlay")&&s.onOverlayClick&&s.onOverlayClick(t),a.parents("div."+s.blockMsgClass).length>0?!0:0===a.parents().children().filter("div.blockUI").length}function l(e){if(b){var t=b[e===!0?b.length-1:0];t&&t.focus()}}function a(e,t,o){var n=e.parentNode,i=e.style,s=(n.offsetWidth-e.offsetWidth)/2-d(n,"borderLeftWidth"),l=(n.offsetHeight-e.offsetHeight)/2-d(n,"borderTopWidth");t&&(i.left=s>0?s+"px":"0"),o&&(i.top=l>0?l+"px":"0")}function d(t,o){return parseInt(e.css(t,o),10)||0}e.fn._fadeIn=e.fn.fadeIn;var c=e.noop||function(){},r=/MSIE/.test(navigator.userAgent),u=/MSIE 6.0/.test(navigator.userAgent)&&!/MSIE 8.0/.test(navigator.userAgent),f=(document.documentMode||0,e.isFunction(document.createElement("div").style.setExpression));e.blockUI=function(e){t(window,e)},e.unblockUI=function(e){o(window,e)},e.growlUI=function(t,o,n,i){var s=e('<div class="growlUI"></div>');t&&s.append("<h1>"+t+"</h1>"),o&&s.append("<h2>"+o+"</h2>"),void 0===n&&(n=3e3);var l=function(t){t=t||{},e.blockUI({message:s,fadeIn:"undefined"!=typeof t.fadeIn?t.fadeIn:700,fadeOut:"undefined"!=typeof t.fadeOut?t.fadeOut:1e3,timeout:"undefined"!=typeof t.timeout?t.timeout:n,centerY:!1,showOverlay:!1,onUnblock:i,css:e.blockUI.defaults.growlCSS})};l();s.css("opacity");s.mouseover(function(){l({fadeIn:0,timeout:3e4});var t=e(".blockMsg");t.stop(),t.fadeTo(300,1)}).mouseout(function(){e(".blockMsg").fadeOut(1e3)})},e.fn.block=function(o){if(this[0]===window)return e.blockUI(o),this;var n=e.extend({},e.blockUI.defaults,o||{});return this.each(function(){var t=e(this);n.ignoreIfBlocked&&t.data("blockUI.isBlocked")||t.unblock({fadeOut:0})}),this.each(function(){"static"==e.css(this,"position")&&(this.style.position="relative",e(this).data("blockUI.static",!0)),this.style.zoom=1,t(this,o)})},e.fn.unblock=function(t){return this[0]===window?(e.unblockUI(t),this):this.each(function(){o(this,t)})},e.blockUI.version=2.66,e.blockUI.defaults={message:"<h1>Please wait...</h1>",title:null,draggable:!0,theme:!1,css:{padding:0,margin:0,width:"30%",top:"40%",left:"35%",textAlign:"center",color:"#000",border:"3px solid #aaa",backgroundColor:"#fff",cursor:"wait"},themedCSS:{width:"30%",top:"40%",left:"35%"},overlayCSS:{backgroundColor:"#000",opacity:.6,cursor:"wait"},cursorReset:"default",growlCSS:{width:"350px",top:"10px",left:"",right:"10px",border:"none",padding:"5px",opacity:.6,cursor:"default",color:"#fff",backgroundColor:"#000","-webkit-border-radius":"10px","-moz-border-radius":"10px","border-radius":"10px"},iframeSrc:/^https/i.test(window.location.href||"")?"javascript:false":"about:blank",forceIframe:!1,baseZ:1e3,centerX:!0,centerY:!0,allowBodyStretch:!0,bindEvents:!0,constrainTabKey:!0,fadeIn:200,fadeOut:400,timeout:0,showOverlay:!0,focusInput:!0,focusableElements:":input:enabled:visible",onBlock:null,onUnblock:null,onOverlayClick:null,quirksmodeOffsetHack:4,blockMsgClass:"blockMsg",ignoreIfBlocked:!1};var p=null,b=[]}"function"==typeof define&&define.amd&&define.amd.jQuery?define(["jquery"],e):e(jQuery)}();
-/*!
- * jQuery Cookie Plugin v1.3.1
- * https://github.com/carhartl/jquery-cookie
- * Plugin file name changed to jquery.cokie.min to prevent blocking by ModSecurity module
- *
- * Copyright 2013 Klaus Hartl
- * Released under the MIT license
- */
-(function(a){if(typeof define==="function"&&define.amd){define(["jquery"],a)}else{a(jQuery)}}(function(e){var a=/\+/g;function d(g){return g}function b(g){return decodeURIComponent(g.replace(a," "))}function f(g){if(g.indexOf('"')===0){g=g.slice(1,-1).replace(/\\"/g,'"').replace(/\\\\/g,"\\")}try{return c.json?JSON.parse(g):g}catch(h){}}var c=e.cookie=function(p,o,u){if(o!==undefined){u=e.extend({},c.defaults,u);if(typeof u.expires==="number"){var q=u.expires,s=u.expires=new Date();s.setDate(s.getDate()+q)}o=c.json?JSON.stringify(o):String(o);return(document.cookie=[c.raw?p:encodeURIComponent(p),"=",c.raw?o:encodeURIComponent(o),u.expires?"; expires="+u.expires.toUTCString():"",u.path?"; path="+u.path:"",u.domain?"; domain="+u.domain:"",u.secure?"; secure":""].join(""))}var g=c.raw?d:b;var r=document.cookie.split("; ");var v=p?undefined:{};for(var n=0,k=r.length;n<k;n++){var m=r[n].split("=");var h=g(m.shift());var j=g(m.join("="));if(p&&p===h){v=f(j);break}if(!p){v[h]=f(j)}}return v};c.defaults={};e.removeCookie=function(h,g){if(e.cookie(h)!==undefined){e.cookie(h,"",e.extend({},g,{expires:-1}));return true}return false}}));
 /**
  * @license Angulartics v0.17.2
  * (c) 2013 Luis Farzati http://luisfarzati.github.io/angulartics
@@ -52695,57 +53681,6 @@ mod.directive('infiniteScroll', [
 })(window, window.angular);
 
 /**
- * Source: https://github.com/ziscloud/angular-slimscroll
- */
-angular.module('ui.slimscroll', []).directive('slimscroll', function () {
-  'use strict';
-
-  return {
-    restrict: 'A',
-    link: function ($scope, $elem, $attr) {
-      var off = [];
-      var option = {};
-
-      var refresh = function () {
-        if ($attr.slimscroll) {
-          option = $scope.$eval($attr.slimscroll);
-        } else if ($attr.slimscrollOption) {
-          option = $scope.$eval($attr.slimscrollOption);
-        }
-        $($elem).slimScroll({ destroy: true });
-        $($elem).slimScroll(option);
-      };
-
-      var init = function () {
-        refresh();
-
-        if ($attr.slimscroll && !option.noWatch) {
-          off.push($scope.$watchCollection($attr.slimscroll, refresh));
-        }
-
-        if ($attr.slimscrollWatch) {
-          off.push($scope.$watchCollection($attr.slimscrollWatch, refresh));
-        }
-
-        if ($attr.slimscrolllistento) {
-          off.push($scope.$on($attr.slimscrolllistento, refresh));
-        }
-      };
-
-      var destructor = function () {
-        off.forEach(function (unbind) {
-          unbind();
-        });
-        off = null;
-      };
-
-      off.push($scope.$on('$destroy', destructor));
-      init();
-    }
-  };
-});
-
-/**
  * State-based routing for AngularJS
  * @version v0.2.15
  * @link http://angular-ui.github.com/
@@ -57116,6 +58051,57 @@ angular.module('ui.router.state')
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
 
+/**
+ * Source: https://github.com/ziscloud/angular-slimscroll
+ */
+angular.module('ui.slimscroll', []).directive('slimscroll', function () {
+  'use strict';
+
+  return {
+    restrict: 'A',
+    link: function ($scope, $elem, $attr) {
+      var off = [];
+      var option = {};
+
+      var refresh = function () {
+        if ($attr.slimscroll) {
+          option = $scope.$eval($attr.slimscroll);
+        } else if ($attr.slimscrollOption) {
+          option = $scope.$eval($attr.slimscrollOption);
+        }
+        $($elem).slimScroll({ destroy: true });
+        $($elem).slimScroll(option);
+      };
+
+      var init = function () {
+        refresh();
+
+        if ($attr.slimscroll && !option.noWatch) {
+          off.push($scope.$watchCollection($attr.slimscroll, refresh));
+        }
+
+        if ($attr.slimscrollWatch) {
+          off.push($scope.$watchCollection($attr.slimscrollWatch, refresh));
+        }
+
+        if ($attr.slimscrolllistento) {
+          off.push($scope.$on($attr.slimscrolllistento, refresh));
+        }
+      };
+
+      var destructor = function () {
+        off.forEach(function (unbind) {
+          unbind();
+        });
+        off = null;
+      };
+
+      off.push($scope.$on('$destroy', destructor));
+      init();
+    }
+  };
+});
+
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
@@ -58862,6 +59848,2146 @@ $templateCache.put("select2/select.tpl.html","<div class=\"ui-select-container s
 $templateCache.put("selectize/choices.tpl.html","<div ng-show=\"$select.open\" class=\"ui-select-choices selectize-dropdown single\"><div class=\"ui-select-choices-content selectize-dropdown-content\"><div class=\"ui-select-choices-group optgroup\" role=\"listbox\"><div ng-show=\"$select.isGrouped\" class=\"ui-select-choices-group-label optgroup-header\" ng-bind=\"$group.name\"></div><div role=\"option\" class=\"ui-select-choices-row\" ng-class=\"{active: $select.isActive(this), disabled: $select.isDisabled(this)}\"><div class=\"option ui-select-choices-row-inner\" data-selectable=\"\"></div></div></div></div></div>");
 $templateCache.put("selectize/match.tpl.html","<div ng-hide=\"($select.open || $select.isEmpty())\" class=\"ui-select-match\" ng-transclude=\"\"></div>");
 $templateCache.put("selectize/select.tpl.html","<div class=\"ui-select-container selectize-control single\" ng-class=\"{\'open\': $select.open}\"><div class=\"selectize-input\" ng-class=\"{\'focus\': $select.open, \'disabled\': $select.disabled, \'selectize-focus\' : $select.focus}\" ng-click=\"$select.activate()\"><div class=\"ui-select-match\"></div><input type=\"text\" autocomplete=\"off\" tabindex=\"-1\" class=\"ui-select-search ui-select-toggle\" ng-click=\"$select.toggle($event)\" placeholder=\"{{$select.placeholder}}\" ng-model=\"$select.search\" ng-hide=\"!$select.searchEnabled || ($select.selected && !$select.open)\" ng-disabled=\"$select.disabled\" aria-label=\"{{ $select.baseTitle }}\"></div><div class=\"ui-select-choices\"></div></div>");}]);
+/**
+ * @license AngularJS v1.3.16
+ * (c) 2010-2014 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular, undefined) {'use strict';
+
+/* jshint maxlen: false */
+
+/**
+ * @ngdoc module
+ * @name ngAnimate
+ * @description
+ *
+ * The `ngAnimate` module provides support for JavaScript, CSS3 transition and CSS3 keyframe animation hooks within existing core and custom directives.
+ *
+ * <div doc-module-components="ngAnimate"></div>
+ *
+ * # Usage
+ *
+ * To see animations in action, all that is required is to define the appropriate CSS classes
+ * or to register a JavaScript animation via the `myModule.animation()` function. The directives that support animation automatically are:
+ * `ngRepeat`, `ngInclude`, `ngIf`, `ngSwitch`, `ngShow`, `ngHide`, `ngView` and `ngClass`. Custom directives can take advantage of animation
+ * by using the `$animate` service.
+ *
+ * Below is a more detailed breakdown of the supported animation events provided by pre-existing ng directives:
+ *
+ * | Directive                                                                                                | Supported Animations                                                     |
+ * |----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+ * | {@link ng.directive:ngRepeat#animations ngRepeat}                                                        | enter, leave and move                                                    |
+ * | {@link ngRoute.directive:ngView#animations ngView}                                                       | enter and leave                                                          |
+ * | {@link ng.directive:ngInclude#animations ngInclude}                                                      | enter and leave                                                          |
+ * | {@link ng.directive:ngSwitch#animations ngSwitch}                                                        | enter and leave                                                          |
+ * | {@link ng.directive:ngIf#animations ngIf}                                                                | enter and leave                                                          |
+ * | {@link ng.directive:ngClass#animations ngClass}                                                          | add and remove (the CSS class(es) present)                               |
+ * | {@link ng.directive:ngShow#animations ngShow} & {@link ng.directive:ngHide#animations ngHide}            | add and remove (the ng-hide class value)                                 |
+ * | {@link ng.directive:form#animation-hooks form} & {@link ng.directive:ngModel#animation-hooks ngModel}    | add and remove (dirty, pristine, valid, invalid & all other validations) |
+ * | {@link module:ngMessages#animations ngMessages}                                                          | add and remove (ng-active & ng-inactive)                                 |
+ * | {@link module:ngMessages#animations ngMessage}                                                           | enter and leave                                                          |
+ *
+ * You can find out more information about animations upon visiting each directive page.
+ *
+ * Below is an example of how to apply animations to a directive that supports animation hooks:
+ *
+ * ```html
+ * <style type="text/css">
+ * .slide.ng-enter, .slide.ng-leave {
+ *   -webkit-transition:0.5s linear all;
+ *   transition:0.5s linear all;
+ * }
+ *
+ * .slide.ng-enter { }        /&#42; starting animations for enter &#42;/
+ * .slide.ng-enter.ng-enter-active { } /&#42; terminal animations for enter &#42;/
+ * .slide.ng-leave { }        /&#42; starting animations for leave &#42;/
+ * .slide.ng-leave.ng-leave-active { } /&#42; terminal animations for leave &#42;/
+ * </style>
+ *
+ * <!--
+ * the animate service will automatically add .ng-enter and .ng-leave to the element
+ * to trigger the CSS transition/animations
+ * -->
+ * <ANY class="slide" ng-include="..."></ANY>
+ * ```
+ *
+ * Keep in mind that, by default, if an animation is running, any child elements cannot be animated
+ * until the parent element's animation has completed. This blocking feature can be overridden by
+ * placing the `ng-animate-children` attribute on a parent container tag.
+ *
+ * ```html
+ * <div class="slide-animation" ng-if="on" ng-animate-children>
+ *   <div class="fade-animation" ng-if="on">
+ *     <div class="explode-animation" ng-if="on">
+ *        ...
+ *     </div>
+ *   </div>
+ * </div>
+ * ```
+ *
+ * When the `on` expression value changes and an animation is triggered then each of the elements within
+ * will all animate without the block being applied to child elements.
+ *
+ * ## Are animations run when the application starts?
+ * No they are not. When an application is bootstrapped Angular will disable animations from running to avoid
+ * a frenzy of animations from being triggered as soon as the browser has rendered the screen. For this to work,
+ * Angular will wait for two digest cycles until enabling animations. From there on, any animation-triggering
+ * layout changes in the application will trigger animations as normal.
+ *
+ * In addition, upon bootstrap, if the routing system or any directives or load remote data (via $http) then Angular
+ * will automatically extend the wait time to enable animations once **all** of the outbound HTTP requests
+ * are complete.
+ *
+ * ## CSS-defined Animations
+ * The animate service will automatically apply two CSS classes to the animated element and these two CSS classes
+ * are designed to contain the start and end CSS styling. Both CSS transitions and keyframe animations are supported
+ * and can be used to play along with this naming structure.
+ *
+ * The following code below demonstrates how to perform animations using **CSS transitions** with Angular:
+ *
+ * ```html
+ * <style type="text/css">
+ * /&#42;
+ *  The animate class is apart of the element and the ng-enter class
+ *  is attached to the element once the enter animation event is triggered
+ * &#42;/
+ * .reveal-animation.ng-enter {
+ *  -webkit-transition: 1s linear all; /&#42; Safari/Chrome &#42;/
+ *  transition: 1s linear all; /&#42; All other modern browsers and IE10+ &#42;/
+ *
+ *  /&#42; The animation preparation code &#42;/
+ *  opacity: 0;
+ * }
+ *
+ * /&#42;
+ *  Keep in mind that you want to combine both CSS
+ *  classes together to avoid any CSS-specificity
+ *  conflicts
+ * &#42;/
+ * .reveal-animation.ng-enter.ng-enter-active {
+ *  /&#42; The animation code itself &#42;/
+ *  opacity: 1;
+ * }
+ * </style>
+ *
+ * <div class="view-container">
+ *   <div ng-view class="reveal-animation"></div>
+ * </div>
+ * ```
+ *
+ * The following code below demonstrates how to perform animations using **CSS animations** with Angular:
+ *
+ * ```html
+ * <style type="text/css">
+ * .reveal-animation.ng-enter {
+ *   -webkit-animation: enter_sequence 1s linear; /&#42; Safari/Chrome &#42;/
+ *   animation: enter_sequence 1s linear; /&#42; IE10+ and Future Browsers &#42;/
+ * }
+ * @-webkit-keyframes enter_sequence {
+ *   from { opacity:0; }
+ *   to { opacity:1; }
+ * }
+ * @keyframes enter_sequence {
+ *   from { opacity:0; }
+ *   to { opacity:1; }
+ * }
+ * </style>
+ *
+ * <div class="view-container">
+ *   <div ng-view class="reveal-animation"></div>
+ * </div>
+ * ```
+ *
+ * Both CSS3 animations and transitions can be used together and the animate service will figure out the correct duration and delay timing.
+ *
+ * Upon DOM mutation, the event class is added first (something like `ng-enter`), then the browser prepares itself to add
+ * the active class (in this case `ng-enter-active`) which then triggers the animation. The animation module will automatically
+ * detect the CSS code to determine when the animation ends. Once the animation is over then both CSS classes will be
+ * removed from the DOM. If a browser does not support CSS transitions or CSS animations then the animation will start and end
+ * immediately resulting in a DOM element that is at its final state. This final state is when the DOM element
+ * has no CSS transition/animation classes applied to it.
+ *
+ * ### Structural transition animations
+ *
+ * Structural transitions (such as enter, leave and move) will always apply a `0s none` transition
+ * value to force the browser into rendering the styles defined in the setup (`.ng-enter`, `.ng-leave`
+ * or `.ng-move`) class. This means that any active transition animations operating on the element
+ * will be cut off to make way for the enter, leave or move animation.
+ *
+ * ### Class-based transition animations
+ *
+ * Class-based transitions refer to transition animations that are triggered when a CSS class is
+ * added to or removed from the element (via `$animate.addClass`, `$animate.removeClass`,
+ * `$animate.setClass`, or by directives such as `ngClass`, `ngModel` and `form`).
+ * They are different when compared to structural animations since they **do not cancel existing
+ * animations** nor do they **block successive transitions** from rendering on the same element.
+ * This distinction allows for **multiple class-based transitions** to be performed on the same element.
+ *
+ * In addition to ngAnimate supporting the default (natural) functionality of class-based transition
+ * animations, ngAnimate also decorates the element with starting and ending CSS classes to aid the
+ * developer in further styling the element throughout the transition animation. Earlier versions
+ * of ngAnimate may have caused natural CSS transitions to break and not render properly due to
+ * $animate temporarily blocking transitions using `0s none` in order to allow the setup CSS class
+ * (the `-add` or `-remove` class) to be applied without triggering an animation. However, as of
+ * **version 1.3**, this workaround has been removed with ngAnimate and all non-ngAnimate CSS
+ * class transitions are compatible with ngAnimate.
+ *
+ * There is, however, one special case when dealing with class-based transitions in ngAnimate.
+ * When rendering class-based transitions that make use of the setup and active CSS classes
+ * (e.g. `.fade-add` and `.fade-add-active` for when `.fade` is added) be sure to define
+ * the transition value **on the active CSS class** and not the setup class.
+ *
+ * ```css
+ * .fade-add {
+ *   /&#42; remember to place a 0s transition here
+ *      to ensure that the styles are applied instantly
+ *      even if the element already has a transition style &#42;/
+ *   transition:0s linear all;
+ *
+ *   /&#42; starting CSS styles &#42;/
+ *   opacity:1;
+ * }
+ * .fade-add.fade-add-active {
+ *   /&#42; this will be the length of the animation &#42;/
+ *   transition:1s linear all;
+ *   opacity:0;
+ * }
+ * ```
+ *
+ * The setup CSS class (in this case `.fade-add`) also has a transition style property, however, it
+ * has a duration of zero. This may not be required, however, incase the browser is unable to render
+ * the styling present in this CSS class instantly then it could be that the browser is attempting
+ * to perform an unnecessary transition.
+ *
+ * This workaround, however, does not apply to  standard class-based transitions that are rendered
+ * when a CSS class containing a transition is applied to an element:
+ *
+ * ```css
+ * /&#42; this works as expected &#42;/
+ * .fade {
+ *   transition:1s linear all;
+ *   opacity:0;
+ * }
+ * ```
+ *
+ * Please keep this in mind when coding the CSS markup that will be used within class-based transitions.
+ * Also, try not to mix the two class-based animation flavors together since the CSS code may become
+ * overly complex.
+ *
+ *
+ * ### Preventing Collisions With Third Party Libraries
+ *
+ * Some third-party frameworks place animation duration defaults across many element or className
+ * selectors in order to make their code small and reuseable. This can lead to issues with ngAnimate, which
+ * is expecting actual animations on these elements and has to wait for their completion.
+ *
+ * You can prevent this unwanted behavior by using a prefix on all your animation classes:
+ *
+ * ```css
+ * /&#42; prefixed with animate- &#42;/
+ * .animate-fade-add.animate-fade-add-active {
+ *   transition:1s linear all;
+ *   opacity:0;
+ * }
+ * ```
+ *
+ * You then configure `$animate` to enforce this prefix:
+ *
+ * ```js
+ * $animateProvider.classNameFilter(/animate-/);
+ * ```
+ * </div>
+ *
+ * ### CSS Staggering Animations
+ * A Staggering animation is a collection of animations that are issued with a slight delay in between each successive operation resulting in a
+ * curtain-like effect. The ngAnimate module (versions >=1.2) supports staggering animations and the stagger effect can be
+ * performed by creating a **ng-EVENT-stagger** CSS class and attaching that class to the base CSS class used for
+ * the animation. The style property expected within the stagger class can either be a **transition-delay** or an
+ * **animation-delay** property (or both if your animation contains both transitions and keyframe animations).
+ *
+ * ```css
+ * .my-animation.ng-enter {
+ *   /&#42; standard transition code &#42;/
+ *   -webkit-transition: 1s linear all;
+ *   transition: 1s linear all;
+ *   opacity:0;
+ * }
+ * .my-animation.ng-enter-stagger {
+ *   /&#42; this will have a 100ms delay between each successive leave animation &#42;/
+ *   -webkit-transition-delay: 0.1s;
+ *   transition-delay: 0.1s;
+ *
+ *   /&#42; in case the stagger doesn't work then these two values
+ *    must be set to 0 to avoid an accidental CSS inheritance &#42;/
+ *   -webkit-transition-duration: 0s;
+ *   transition-duration: 0s;
+ * }
+ * .my-animation.ng-enter.ng-enter-active {
+ *   /&#42; standard transition styles &#42;/
+ *   opacity:1;
+ * }
+ * ```
+ *
+ * Staggering animations work by default in ngRepeat (so long as the CSS class is defined). Outside of ngRepeat, to use staggering animations
+ * on your own, they can be triggered by firing multiple calls to the same event on $animate. However, the restrictions surrounding this
+ * are that each of the elements must have the same CSS className value as well as the same parent element. A stagger operation
+ * will also be reset if more than 10ms has passed after the last animation has been fired.
+ *
+ * The following code will issue the **ng-leave-stagger** event on the element provided:
+ *
+ * ```js
+ * var kids = parent.children();
+ *
+ * $animate.leave(kids[0]); //stagger index=0
+ * $animate.leave(kids[1]); //stagger index=1
+ * $animate.leave(kids[2]); //stagger index=2
+ * $animate.leave(kids[3]); //stagger index=3
+ * $animate.leave(kids[4]); //stagger index=4
+ *
+ * $timeout(function() {
+ *   //stagger has reset itself
+ *   $animate.leave(kids[5]); //stagger index=0
+ *   $animate.leave(kids[6]); //stagger index=1
+ * }, 100, false);
+ * ```
+ *
+ * Stagger animations are currently only supported within CSS-defined animations.
+ *
+ * ## JavaScript-defined Animations
+ * In the event that you do not want to use CSS3 transitions or CSS3 animations or if you wish to offer animations on browsers that do not
+ * yet support CSS transitions/animations, then you can make use of JavaScript animations defined inside of your AngularJS module.
+ *
+ * ```js
+ * //!annotate="YourApp" Your AngularJS Module|Replace this or ngModule with the module that you used to define your application.
+ * var ngModule = angular.module('YourApp', ['ngAnimate']);
+ * ngModule.animation('.my-crazy-animation', function() {
+ *   return {
+ *     enter: function(element, done) {
+ *       //run the animation here and call done when the animation is complete
+ *       return function(cancelled) {
+ *         //this (optional) function will be called when the animation
+ *         //completes or when the animation is cancelled (the cancelled
+ *         //flag will be set to true if cancelled).
+ *       };
+ *     },
+ *     leave: function(element, done) { },
+ *     move: function(element, done) { },
+ *
+ *     //animation that can be triggered before the class is added
+ *     beforeAddClass: function(element, className, done) { },
+ *
+ *     //animation that can be triggered after the class is added
+ *     addClass: function(element, className, done) { },
+ *
+ *     //animation that can be triggered before the class is removed
+ *     beforeRemoveClass: function(element, className, done) { },
+ *
+ *     //animation that can be triggered after the class is removed
+ *     removeClass: function(element, className, done) { }
+ *   };
+ * });
+ * ```
+ *
+ * JavaScript-defined animations are created with a CSS-like class selector and a collection of events which are set to run
+ * a javascript callback function. When an animation is triggered, $animate will look for a matching animation which fits
+ * the element's CSS class attribute value and then run the matching animation event function (if found).
+ * In other words, if the CSS classes present on the animated element match any of the JavaScript animations then the callback function will
+ * be executed. It should be also noted that only simple, single class selectors are allowed (compound class selectors are not supported).
+ *
+ * Within a JavaScript animation, an object containing various event callback animation functions is expected to be returned.
+ * As explained above, these callbacks are triggered based on the animation event. Therefore if an enter animation is run,
+ * and the JavaScript animation is found, then the enter callback will handle that animation (in addition to the CSS keyframe animation
+ * or transition code that is defined via a stylesheet).
+ *
+ *
+ * ### Applying Directive-specific Styles to an Animation
+ * In some cases a directive or service may want to provide `$animate` with extra details that the animation will
+ * include into its animation. Let's say for example we wanted to render an animation that animates an element
+ * towards the mouse coordinates as to where the user clicked last. By collecting the X/Y coordinates of the click
+ * (via the event parameter) we can set the `top` and `left` styles into an object and pass that into our function
+ * call to `$animate.addClass`.
+ *
+ * ```js
+ * canvas.on('click', function(e) {
+ *   $animate.addClass(element, 'on', {
+ *     to: {
+ *       left : e.client.x + 'px',
+ *       top : e.client.y + 'px'
+ *     }
+ *   }):
+ * });
+ * ```
+ *
+ * Now when the animation runs, and a transition or keyframe animation is picked up, then the animation itself will
+ * also include and transition the styling of the `left` and `top` properties into its running animation. If we want
+ * to provide some starting animation values then we can do so by placing the starting animations styles into an object
+ * called `from` in the same object as the `to` animations.
+ *
+ * ```js
+ * canvas.on('click', function(e) {
+ *   $animate.addClass(element, 'on', {
+ *     from: {
+ *        position: 'absolute',
+ *        left: '0px',
+ *        top: '0px'
+ *     },
+ *     to: {
+ *       left : e.client.x + 'px',
+ *       top : e.client.y + 'px'
+ *     }
+ *   }):
+ * });
+ * ```
+ *
+ * Once the animation is complete or cancelled then the union of both the before and after styles are applied to the
+ * element. If `ngAnimate` is not present then the styles will be applied immediately.
+ *
+ */
+
+angular.module('ngAnimate', ['ng'])
+
+  /**
+   * @ngdoc provider
+   * @name $animateProvider
+   * @description
+   *
+   * The `$animateProvider` allows developers to register JavaScript animation event handlers directly inside of a module.
+   * When an animation is triggered, the $animate service will query the $animate service to find any animations that match
+   * the provided name value.
+   *
+   * Requires the {@link ngAnimate `ngAnimate`} module to be installed.
+   *
+   * Please visit the {@link ngAnimate `ngAnimate`} module overview page learn more about how to use animations in your application.
+   *
+   */
+  .directive('ngAnimateChildren', function() {
+    var NG_ANIMATE_CHILDREN = '$$ngAnimateChildren';
+    return function(scope, element, attrs) {
+      var val = attrs.ngAnimateChildren;
+      if (angular.isString(val) && val.length === 0) { //empty attribute
+        element.data(NG_ANIMATE_CHILDREN, true);
+      } else {
+        scope.$watch(val, function(value) {
+          element.data(NG_ANIMATE_CHILDREN, !!value);
+        });
+      }
+    };
+  })
+
+  //this private service is only used within CSS-enabled animations
+  //IE8 + IE9 do not support rAF natively, but that is fine since they
+  //also don't support transitions and keyframes which means that the code
+  //below will never be used by the two browsers.
+  .factory('$$animateReflow', ['$$rAF', '$document', function($$rAF, $document) {
+    var bod = $document[0].body;
+    return function(fn) {
+      //the returned function acts as the cancellation function
+      return $$rAF(function() {
+        //the line below will force the browser to perform a repaint
+        //so that all the animated elements within the animation frame
+        //will be properly updated and drawn on screen. This is
+        //required to perform multi-class CSS based animations with
+        //Firefox. DO NOT REMOVE THIS LINE. DO NOT OPTIMIZE THIS LINE.
+        //THE MINIFIER WILL REMOVE IT OTHERWISE WHICH WILL RESULT IN AN
+        //UNPREDICTABLE BUG THAT IS VERY HARD TO TRACK DOWN AND WILL
+        //TAKE YEARS AWAY FROM YOUR LIFE!
+        fn(bod.offsetWidth);
+      });
+    };
+  }])
+
+  .config(['$provide', '$animateProvider', function($provide, $animateProvider) {
+    var noop = angular.noop;
+    var forEach = angular.forEach;
+    var selectors = $animateProvider.$$selectors;
+    var isArray = angular.isArray;
+    var isString = angular.isString;
+    var isObject = angular.isObject;
+
+    var ELEMENT_NODE = 1;
+    var NG_ANIMATE_STATE = '$$ngAnimateState';
+    var NG_ANIMATE_CHILDREN = '$$ngAnimateChildren';
+    var NG_ANIMATE_CLASS_NAME = 'ng-animate';
+    var rootAnimateState = {running: true};
+
+    function extractElementNode(element) {
+      for (var i = 0; i < element.length; i++) {
+        var elm = element[i];
+        if (elm.nodeType == ELEMENT_NODE) {
+          return elm;
+        }
+      }
+    }
+
+    function prepareElement(element) {
+      return element && angular.element(element);
+    }
+
+    function stripCommentsFromElement(element) {
+      return angular.element(extractElementNode(element));
+    }
+
+    function isMatchingElement(elm1, elm2) {
+      return extractElementNode(elm1) == extractElementNode(elm2);
+    }
+    var $$jqLite;
+    $provide.decorator('$animate',
+        ['$delegate', '$$q', '$injector', '$sniffer', '$rootElement', '$$asyncCallback', '$rootScope', '$document', '$templateRequest', '$$jqLite',
+ function($delegate,   $$q,   $injector,   $sniffer,   $rootElement,   $$asyncCallback,   $rootScope,   $document,   $templateRequest,   $$$jqLite) {
+
+      $$jqLite = $$$jqLite;
+      $rootElement.data(NG_ANIMATE_STATE, rootAnimateState);
+
+      // Wait until all directive and route-related templates are downloaded and
+      // compiled. The $templateRequest.totalPendingRequests variable keeps track of
+      // all of the remote templates being currently downloaded. If there are no
+      // templates currently downloading then the watcher will still fire anyway.
+      var deregisterWatch = $rootScope.$watch(
+        function() { return $templateRequest.totalPendingRequests; },
+        function(val, oldVal) {
+          if (val !== 0) return;
+          deregisterWatch();
+
+          // Now that all templates have been downloaded, $animate will wait until
+          // the post digest queue is empty before enabling animations. By having two
+          // calls to $postDigest calls we can ensure that the flag is enabled at the
+          // very end of the post digest queue. Since all of the animations in $animate
+          // use $postDigest, it's important that the code below executes at the end.
+          // This basically means that the page is fully downloaded and compiled before
+          // any animations are triggered.
+          $rootScope.$$postDigest(function() {
+            $rootScope.$$postDigest(function() {
+              rootAnimateState.running = false;
+            });
+          });
+        }
+      );
+
+      var globalAnimationCounter = 0;
+      var classNameFilter = $animateProvider.classNameFilter();
+      var isAnimatableClassName = !classNameFilter
+              ? function() { return true; }
+              : function(className) {
+                return classNameFilter.test(className);
+              };
+
+      function classBasedAnimationsBlocked(element, setter) {
+        var data = element.data(NG_ANIMATE_STATE) || {};
+        if (setter) {
+          data.running = true;
+          data.structural = true;
+          element.data(NG_ANIMATE_STATE, data);
+        }
+        return data.disabled || (data.running && data.structural);
+      }
+
+      function runAnimationPostDigest(fn) {
+        var cancelFn, defer = $$q.defer();
+        defer.promise.$$cancelFn = function() {
+          cancelFn && cancelFn();
+        };
+        $rootScope.$$postDigest(function() {
+          cancelFn = fn(function() {
+            defer.resolve();
+          });
+        });
+        return defer.promise;
+      }
+
+      function parseAnimateOptions(options) {
+        // some plugin code may still be passing in the callback
+        // function as the last param for the $animate methods so
+        // it's best to only allow string or array values for now
+        if (isObject(options)) {
+          if (options.tempClasses && isString(options.tempClasses)) {
+            options.tempClasses = options.tempClasses.split(/\s+/);
+          }
+          return options;
+        }
+      }
+
+      function resolveElementClasses(element, cache, runningAnimations) {
+        runningAnimations = runningAnimations || {};
+
+        var lookup = {};
+        forEach(runningAnimations, function(data, selector) {
+          forEach(selector.split(' '), function(s) {
+            lookup[s]=data;
+          });
+        });
+
+        var hasClasses = Object.create(null);
+        forEach((element.attr('class') || '').split(/\s+/), function(className) {
+          hasClasses[className] = true;
+        });
+
+        var toAdd = [], toRemove = [];
+        forEach((cache && cache.classes) || [], function(status, className) {
+          var hasClass = hasClasses[className];
+          var matchingAnimation = lookup[className] || {};
+
+          // When addClass and removeClass is called then $animate will check to
+          // see if addClass and removeClass cancel each other out. When there are
+          // more calls to removeClass than addClass then the count falls below 0
+          // and then the removeClass animation will be allowed. Otherwise if the
+          // count is above 0 then that means an addClass animation will commence.
+          // Once an animation is allowed then the code will also check to see if
+          // there exists any on-going animation that is already adding or remvoing
+          // the matching CSS class.
+          if (status === false) {
+            //does it have the class or will it have the class
+            if (hasClass || matchingAnimation.event == 'addClass') {
+              toRemove.push(className);
+            }
+          } else if (status === true) {
+            //is the class missing or will it be removed?
+            if (!hasClass || matchingAnimation.event == 'removeClass') {
+              toAdd.push(className);
+            }
+          }
+        });
+
+        return (toAdd.length + toRemove.length) > 0 && [toAdd.join(' '), toRemove.join(' ')];
+      }
+
+      function lookup(name) {
+        if (name) {
+          var matches = [],
+              flagMap = {},
+              classes = name.substr(1).split('.');
+
+          //the empty string value is the default animation
+          //operation which performs CSS transition and keyframe
+          //animations sniffing. This is always included for each
+          //element animation procedure if the browser supports
+          //transitions and/or keyframe animations. The default
+          //animation is added to the top of the list to prevent
+          //any previous animations from affecting the element styling
+          //prior to the element being animated.
+          if ($sniffer.transitions || $sniffer.animations) {
+            matches.push($injector.get(selectors['']));
+          }
+
+          for (var i=0; i < classes.length; i++) {
+            var klass = classes[i],
+                selectorFactoryName = selectors[klass];
+            if (selectorFactoryName && !flagMap[klass]) {
+              matches.push($injector.get(selectorFactoryName));
+              flagMap[klass] = true;
+            }
+          }
+          return matches;
+        }
+      }
+
+      function animationRunner(element, animationEvent, className, options) {
+        //transcluded directives may sometimes fire an animation using only comment nodes
+        //best to catch this early on to prevent any animation operations from occurring
+        var node = element[0];
+        if (!node) {
+          return;
+        }
+
+        if (options) {
+          options.to = options.to || {};
+          options.from = options.from || {};
+        }
+
+        var classNameAdd;
+        var classNameRemove;
+        if (isArray(className)) {
+          classNameAdd = className[0];
+          classNameRemove = className[1];
+          if (!classNameAdd) {
+            className = classNameRemove;
+            animationEvent = 'removeClass';
+          } else if (!classNameRemove) {
+            className = classNameAdd;
+            animationEvent = 'addClass';
+          } else {
+            className = classNameAdd + ' ' + classNameRemove;
+          }
+        }
+
+        var isSetClassOperation = animationEvent == 'setClass';
+        var isClassBased = isSetClassOperation
+                           || animationEvent == 'addClass'
+                           || animationEvent == 'removeClass'
+                           || animationEvent == 'animate';
+
+        var currentClassName = element.attr('class');
+        var classes = currentClassName + ' ' + className;
+        if (!isAnimatableClassName(classes)) {
+          return;
+        }
+
+        var beforeComplete = noop,
+            beforeCancel = [],
+            before = [],
+            afterComplete = noop,
+            afterCancel = [],
+            after = [];
+
+        var animationLookup = (' ' + classes).replace(/\s+/g,'.');
+        forEach(lookup(animationLookup), function(animationFactory) {
+          var created = registerAnimation(animationFactory, animationEvent);
+          if (!created && isSetClassOperation) {
+            registerAnimation(animationFactory, 'addClass');
+            registerAnimation(animationFactory, 'removeClass');
+          }
+        });
+
+        function registerAnimation(animationFactory, event) {
+          var afterFn = animationFactory[event];
+          var beforeFn = animationFactory['before' + event.charAt(0).toUpperCase() + event.substr(1)];
+          if (afterFn || beforeFn) {
+            if (event == 'leave') {
+              beforeFn = afterFn;
+              //when set as null then animation knows to skip this phase
+              afterFn = null;
+            }
+            after.push({
+              event: event, fn: afterFn
+            });
+            before.push({
+              event: event, fn: beforeFn
+            });
+            return true;
+          }
+        }
+
+        function run(fns, cancellations, allCompleteFn) {
+          var animations = [];
+          forEach(fns, function(animation) {
+            animation.fn && animations.push(animation);
+          });
+
+          var count = 0;
+          function afterAnimationComplete(index) {
+            if (cancellations) {
+              (cancellations[index] || noop)();
+              if (++count < animations.length) return;
+              cancellations = null;
+            }
+            allCompleteFn();
+          }
+
+          //The code below adds directly to the array in order to work with
+          //both sync and async animations. Sync animations are when the done()
+          //operation is called right away. DO NOT REFACTOR!
+          forEach(animations, function(animation, index) {
+            var progress = function() {
+              afterAnimationComplete(index);
+            };
+            switch (animation.event) {
+              case 'setClass':
+                cancellations.push(animation.fn(element, classNameAdd, classNameRemove, progress, options));
+                break;
+              case 'animate':
+                cancellations.push(animation.fn(element, className, options.from, options.to, progress));
+                break;
+              case 'addClass':
+                cancellations.push(animation.fn(element, classNameAdd || className,     progress, options));
+                break;
+              case 'removeClass':
+                cancellations.push(animation.fn(element, classNameRemove || className,  progress, options));
+                break;
+              default:
+                cancellations.push(animation.fn(element, progress, options));
+                break;
+            }
+          });
+
+          if (cancellations && cancellations.length === 0) {
+            allCompleteFn();
+          }
+        }
+
+        return {
+          node: node,
+          event: animationEvent,
+          className: className,
+          isClassBased: isClassBased,
+          isSetClassOperation: isSetClassOperation,
+          applyStyles: function() {
+            if (options) {
+              element.css(angular.extend(options.from || {}, options.to || {}));
+            }
+          },
+          before: function(allCompleteFn) {
+            beforeComplete = allCompleteFn;
+            run(before, beforeCancel, function() {
+              beforeComplete = noop;
+              allCompleteFn();
+            });
+          },
+          after: function(allCompleteFn) {
+            afterComplete = allCompleteFn;
+            run(after, afterCancel, function() {
+              afterComplete = noop;
+              allCompleteFn();
+            });
+          },
+          cancel: function() {
+            if (beforeCancel) {
+              forEach(beforeCancel, function(cancelFn) {
+                (cancelFn || noop)(true);
+              });
+              beforeComplete(true);
+            }
+            if (afterCancel) {
+              forEach(afterCancel, function(cancelFn) {
+                (cancelFn || noop)(true);
+              });
+              afterComplete(true);
+            }
+          }
+        };
+      }
+
+      /**
+       * @ngdoc service
+       * @name $animate
+       * @kind object
+       *
+       * @description
+       * The `$animate` service provides animation detection support while performing DOM operations (enter, leave and move) as well as during addClass and removeClass operations.
+       * When any of these operations are run, the $animate service
+       * will examine any JavaScript-defined animations (which are defined by using the $animateProvider provider object)
+       * as well as any CSS-defined animations against the CSS classes present on the element once the DOM operation is run.
+       *
+       * The `$animate` service is used behind the scenes with pre-existing directives and animation with these directives
+       * will work out of the box without any extra configuration.
+       *
+       * Requires the {@link ngAnimate `ngAnimate`} module to be installed.
+       *
+       * Please visit the {@link ngAnimate `ngAnimate`} module overview page learn more about how to use animations in your application.
+       * ## Callback Promises
+       * With AngularJS 1.3, each of the animation methods, on the `$animate` service, return a promise when called. The
+       * promise itself is then resolved once the animation has completed itself, has been cancelled or has been
+       * skipped due to animations being disabled. (Note that even if the animation is cancelled it will still
+       * call the resolve function of the animation.)
+       *
+       * ```js
+       * $animate.enter(element, container).then(function() {
+       *   //...this is called once the animation is complete...
+       * });
+       * ```
+       *
+       * Also note that, due to the nature of the callback promise, if any Angular-specific code (like changing the scope,
+       * location of the page, etc...) is executed within the callback promise then be sure to wrap the code using
+       * `$scope.$apply(...)`;
+       *
+       * ```js
+       * $animate.leave(element).then(function() {
+       *   $scope.$apply(function() {
+       *     $location.path('/new-page');
+       *   });
+       * });
+       * ```
+       *
+       * An animation can also be cancelled by calling the `$animate.cancel(promise)` method with the provided
+       * promise that was returned when the animation was started.
+       *
+       * ```js
+       * var promise = $animate.addClass(element, 'super-long-animation');
+       * promise.then(function() {
+       *   //this will still be called even if cancelled
+       * });
+       *
+       * element.on('click', function() {
+       *   //tooo lazy to wait for the animation to end
+       *   $animate.cancel(promise);
+       * });
+       * ```
+       *
+       * (Keep in mind that the promise cancellation is unique to `$animate` since promises in
+       * general cannot be cancelled.)
+       *
+       */
+      return {
+        /**
+         * @ngdoc method
+         * @name $animate#animate
+         * @kind function
+         *
+         * @description
+         * Performs an inline animation on the element which applies the provided `to` and `from` CSS styles to the element.
+         * If any detected CSS transition, keyframe or JavaScript matches the provided `className` value then the animation
+         * will take on the provided styles. For example, if a transition animation is set for the given className then the
+         * provided `from` and `to` styles will be applied alongside the given transition. If a JavaScript animation is
+         * detected then the provided styles will be given in as function paramters.
+         *
+         * ```js
+         * ngModule.animation('.my-inline-animation', function() {
+         *   return {
+         *     animate : function(element, className, from, to, done) {
+         *       //styles
+         *     }
+         *   }
+         * });
+         * ```
+         *
+         * Below is a breakdown of each step that occurs during the `animate` animation:
+         *
+         * | Animation Step                                                                                                        | What the element class attribute looks like                  |
+         * |-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+         * | 1. `$animate.animate(...)` is called                                                                                  | `class="my-animation"`                                       |
+         * | 2. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                            |
+         * | 3. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                            |
+         * | 4. the `className` class value is added to the element                                                                | `class="my-animation ng-animate className"`                  |
+         * | 5. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate className"`                  |
+         * | 6. `$animate` blocks all CSS transitions on the element to ensure the `.className` class styling is applied right away| `class="my-animation ng-animate className"`                  |
+         * | 7. `$animate` applies the provided collection of `from` CSS styles to the element                                     | `class="my-animation ng-animate className"`                  |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate className"`                  |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate className"`                  |
+         * | 10. the `className-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate className className-active"` |
+         * | 11. `$animate` applies the collection of `to` CSS styles to the element which are then handled by the transition      | `class="my-animation ng-animate className className-active"` |
+         * | 12. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate className className-active"` |
+         * | 13. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                       |
+         * | 14. The returned promise is resolved.                                                                                 | `class="my-animation"`                                       |
+         *
+         * @param {DOMElement} element the element that will be the focus of the enter animation
+         * @param {object} from a collection of CSS styles that will be applied to the element at the start of the animation
+         * @param {object} to a collection of CSS styles that the element will animate towards
+         * @param {string=} className an optional CSS class that will be added to the element for the duration of the animation (the default class is `ng-inline-animate`)
+         * @param {object=} options an optional collection of options that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        animate: function(element, from, to, className, options) {
+          className = className || 'ng-inline-animate';
+          options = parseAnimateOptions(options) || {};
+          options.from = to ? from : null;
+          options.to   = to ? to : from;
+
+          return runAnimationPostDigest(function(done) {
+            return performAnimation('animate', className, stripCommentsFromElement(element), null, null, noop, options, done);
+          });
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#enter
+         * @kind function
+         *
+         * @description
+         * Appends the element to the parentElement element that resides in the document and then runs the enter animation. Once
+         * the animation is started, the following CSS classes will be present on the element for the duration of the animation:
+         *
+         * Below is a breakdown of each step that occurs during enter animation:
+         *
+         * | Animation Step                                                                                                        | What the element class attribute looks like                |
+         * |-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+         * | 1. `$animate.enter(...)` is called                                                                                    | `class="my-animation"`                                     |
+         * | 2. element is inserted into the `parentElement` element or beside the `afterElement` element                          | `class="my-animation"`                                     |
+         * | 3. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                          |
+         * | 4. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                          |
+         * | 5. the `.ng-enter` class is added to the element                                                                      | `class="my-animation ng-animate ng-enter"`                 |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate ng-enter"`                 |
+         * | 7. `$animate` blocks all CSS transitions on the element to ensure the `.ng-enter` class styling is applied right away | `class="my-animation ng-animate ng-enter"`                 |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate ng-enter"`                 |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate ng-enter"`                 |
+         * | 10. the `.ng-enter-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate ng-enter ng-enter-active"` |
+         * | 11. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate ng-enter ng-enter-active"` |
+         * | 12. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                     |
+         * | 13. The returned promise is resolved.                                                                                 | `class="my-animation"`                                     |
+         *
+         * @param {DOMElement} element the element that will be the focus of the enter animation
+         * @param {DOMElement} parentElement the parent element of the element that will be the focus of the enter animation
+         * @param {DOMElement} afterElement the sibling element (which is the previous element) of the element that will be the focus of the enter animation
+         * @param {object=} options an optional collection of options that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        enter: function(element, parentElement, afterElement, options) {
+          options = parseAnimateOptions(options);
+          element = angular.element(element);
+          parentElement = prepareElement(parentElement);
+          afterElement = prepareElement(afterElement);
+
+          classBasedAnimationsBlocked(element, true);
+          $delegate.enter(element, parentElement, afterElement);
+          return runAnimationPostDigest(function(done) {
+            return performAnimation('enter', 'ng-enter', stripCommentsFromElement(element), parentElement, afterElement, noop, options, done);
+          });
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#leave
+         * @kind function
+         *
+         * @description
+         * Runs the leave animation operation and, upon completion, removes the element from the DOM. Once
+         * the animation is started, the following CSS classes will be added for the duration of the animation:
+         *
+         * Below is a breakdown of each step that occurs during leave animation:
+         *
+         * | Animation Step                                                                                                        | What the element class attribute looks like                |
+         * |-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+         * | 1. `$animate.leave(...)` is called                                                                                    | `class="my-animation"`                                     |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                          | `class="my-animation ng-animate"`                          |
+         * | 3. `$animate` waits for the next digest to start the animation                                                        | `class="my-animation ng-animate"`                          |
+         * | 4. the `.ng-leave` class is added to the element                                                                      | `class="my-animation ng-animate ng-leave"`                 |
+         * | 5. `$animate` scans the element styles to get the CSS transition/animation duration and delay                         | `class="my-animation ng-animate ng-leave"`                 |
+         * | 6. `$animate` blocks all CSS transitions on the element to ensure the `.ng-leave` class styling is applied right away | `class="my-animation ng-animate ng-leave"`                 |
+         * | 7. `$animate` waits for a single animation frame (this performs a reflow)                                             | `class="my-animation ng-animate ng-leave"`                 |
+         * | 8. `$animate` removes the CSS transition block placed on the element                                                  | `class="my-animation ng-animate ng-leave"`                 |
+         * | 9. the `.ng-leave-active` class is added (this triggers the CSS transition/animation)                                 | `class="my-animation ng-animate ng-leave ng-leave-active"` |
+         * | 10. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate ng-leave ng-leave-active"` |
+         * | 11. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                     |
+         * | 12. The element is removed from the DOM                                                                               | ...                                                        |
+         * | 13. The returned promise is resolved.                                                                                 | ...                                                        |
+         *
+         * @param {DOMElement} element the element that will be the focus of the leave animation
+         * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        leave: function(element, options) {
+          options = parseAnimateOptions(options);
+          element = angular.element(element);
+
+          cancelChildAnimations(element);
+          classBasedAnimationsBlocked(element, true);
+          return runAnimationPostDigest(function(done) {
+            return performAnimation('leave', 'ng-leave', stripCommentsFromElement(element), null, null, function() {
+              $delegate.leave(element);
+            }, options, done);
+          });
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#move
+         * @kind function
+         *
+         * @description
+         * Fires the move DOM operation. Just before the animation starts, the animate service will either append it into the parentElement container or
+         * add the element directly after the afterElement element if present. Then the move animation will be run. Once
+         * the animation is started, the following CSS classes will be added for the duration of the animation:
+         *
+         * Below is a breakdown of each step that occurs during move animation:
+         *
+         * | Animation Step                                                                                                       | What the element class attribute looks like              |
+         * |----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+         * | 1. `$animate.move(...)` is called                                                                                    | `class="my-animation"`                                   |
+         * | 2. element is moved into the parentElement element or beside the afterElement element                                | `class="my-animation"`                                   |
+         * | 3. `$animate` waits for the next digest to start the animation                                                       | `class="my-animation ng-animate"`                        |
+         * | 4. `$animate` runs the JavaScript-defined animations detected on the element                                         | `class="my-animation ng-animate"`                        |
+         * | 5. the `.ng-move` class is added to the element                                                                      | `class="my-animation ng-animate ng-move"`                |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                        | `class="my-animation ng-animate ng-move"`                |
+         * | 7. `$animate` blocks all CSS transitions on the element to ensure the `.ng-move` class styling is applied right away | `class="my-animation ng-animate ng-move"`                |
+         * | 8. `$animate` waits for a single animation frame (this performs a reflow)                                            | `class="my-animation ng-animate ng-move"`                |
+         * | 9. `$animate` removes the CSS transition block placed on the element                                                 | `class="my-animation ng-animate ng-move"`                |
+         * | 10. the `.ng-move-active` class is added (this triggers the CSS transition/animation)                                | `class="my-animation ng-animate ng-move ng-move-active"` |
+         * | 11. `$animate` waits for the animation to complete (via events and timeout)                                          | `class="my-animation ng-animate ng-move ng-move-active"` |
+         * | 12. The animation ends and all generated CSS classes are removed from the element                                    | `class="my-animation"`                                   |
+         * | 13. The returned promise is resolved.                                                                                | `class="my-animation"`                                   |
+         *
+         * @param {DOMElement} element the element that will be the focus of the move animation
+         * @param {DOMElement} parentElement the parentElement element of the element that will be the focus of the move animation
+         * @param {DOMElement} afterElement the sibling element (which is the previous element) of the element that will be the focus of the move animation
+         * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        move: function(element, parentElement, afterElement, options) {
+          options = parseAnimateOptions(options);
+          element = angular.element(element);
+          parentElement = prepareElement(parentElement);
+          afterElement = prepareElement(afterElement);
+
+          cancelChildAnimations(element);
+          classBasedAnimationsBlocked(element, true);
+          $delegate.move(element, parentElement, afterElement);
+          return runAnimationPostDigest(function(done) {
+            return performAnimation('move', 'ng-move', stripCommentsFromElement(element), parentElement, afterElement, noop, options, done);
+          });
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#addClass
+         *
+         * @description
+         * Triggers a custom animation event based off the className variable and then attaches the className value to the element as a CSS class.
+         * Unlike the other animation methods, the animate service will suffix the className value with {@type -add} in order to provide
+         * the animate service the setup and active CSS classes in order to trigger the animation (this will be skipped if no CSS transitions
+         * or keyframes are defined on the -add-active or base CSS class).
+         *
+         * Below is a breakdown of each step that occurs during addClass animation:
+         *
+         * | Animation Step                                                                                         | What the element class attribute looks like                        |
+         * |--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+         * | 1. `$animate.addClass(element, 'super')` is called                                                     | `class="my-animation"`                                             |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                           | `class="my-animation ng-animate"`                                  |
+         * | 3. the `.super-add` class is added to the element                                                      | `class="my-animation ng-animate super-add"`                        |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                              | `class="my-animation ng-animate super-add"`                        |
+         * | 5. the `.super` and `.super-add-active` classes are added (this triggers the CSS transition/animation) | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay          | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                             | `class="my-animation ng-animate super super-add super-add-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                       | `class="my-animation super"`                                       |
+         * | 9. The super class is kept on the element                                                              | `class="my-animation super"`                                       |
+         * | 10. The returned promise is resolved.                                                                  | `class="my-animation super"`                                       |
+         *
+         * @param {DOMElement} element the element that will be animated
+         * @param {string} className the CSS class that will be added to the element and then animated
+         * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        addClass: function(element, className, options) {
+          return this.setClass(element, className, [], options);
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#removeClass
+         *
+         * @description
+         * Triggers a custom animation event based off the className variable and then removes the CSS class provided by the className value
+         * from the element. Unlike the other animation methods, the animate service will suffix the className value with {@type -remove} in
+         * order to provide the animate service the setup and active CSS classes in order to trigger the animation (this will be skipped if
+         * no CSS transitions or keyframes are defined on the -remove or base CSS classes).
+         *
+         * Below is a breakdown of each step that occurs during removeClass animation:
+         *
+         * | Animation Step                                                                                                       | What the element class attribute looks like                        |
+         * |----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+         * | 1. `$animate.removeClass(element, 'super')` is called                                                                | `class="my-animation super"`                                       |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                         | `class="my-animation super ng-animate"`                            |
+         * | 3. the `.super-remove` class is added to the element                                                                 | `class="my-animation super ng-animate super-remove"`               |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                                            | `class="my-animation super ng-animate super-remove"`               |
+         * | 5. the `.super-remove-active` classes are added and `.super` is removed (this triggers the CSS transition/animation) | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                        | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                                           | `class="my-animation ng-animate super-remove super-remove-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                                     | `class="my-animation"`                                             |
+         * | 9. The returned promise is resolved.                                                                                 | `class="my-animation"`                                             |
+         *
+         *
+         * @param {DOMElement} element the element that will be animated
+         * @param {string} className the CSS class that will be animated and then removed from the element
+         * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+        */
+        removeClass: function(element, className, options) {
+          return this.setClass(element, [], className, options);
+        },
+
+        /**
+         *
+         * @ngdoc method
+         * @name $animate#setClass
+         *
+         * @description Adds and/or removes the given CSS classes to and from the element.
+         * Once complete, the `done()` callback will be fired (if provided).
+         *
+         * | Animation Step                                                                                                                               | What the element class attribute looks like                                            |
+         * |----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+         * | 1. `$animate.setClass(element, 'on', 'off')` is called                                                                                       | `class="my-animation off"`                                                             |
+         * | 2. `$animate` runs the JavaScript-defined animations detected on the element                                                                 | `class="my-animation ng-animate off"`                                                  |
+         * | 3. the `.on-add` and `.off-remove` classes are added to the element                                                                          | `class="my-animation ng-animate on-add off-remove off"`                                |
+         * | 4. `$animate` waits for a single animation frame (this performs a reflow)                                                                    | `class="my-animation ng-animate on-add off-remove off"`                                |
+         * | 5. the `.on`, `.on-add-active` and `.off-remove-active` classes are added and `.off` is removed (this triggers the CSS transition/animation) | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 6. `$animate` scans the element styles to get the CSS transition/animation duration and delay                                                | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 7. `$animate` waits for the animation to complete (via events and timeout)                                                                   | `class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active"` |
+         * | 8. The animation ends and all generated CSS classes are removed from the element                                                             | `class="my-animation on"`                                                              |
+         * | 9. The returned promise is resolved.                                                                                                         | `class="my-animation on"`                                                              |
+         *
+         * @param {DOMElement} element the element which will have its CSS classes changed
+         *   removed from it
+         * @param {string} add the CSS classes which will be added to the element
+         * @param {string} remove the CSS class which will be removed from the element
+         *   CSS classes have been set on the element
+         * @param {object=} options an optional collection of styles that will be picked up by the CSS transition/animation
+         * @return {Promise} the animation callback promise
+         */
+        setClass: function(element, add, remove, options) {
+          options = parseAnimateOptions(options);
+
+          var STORAGE_KEY = '$$animateClasses';
+          element = angular.element(element);
+          element = stripCommentsFromElement(element);
+
+          if (classBasedAnimationsBlocked(element)) {
+            return $delegate.$$setClassImmediately(element, add, remove, options);
+          }
+
+          // we're using a combined array for both the add and remove
+          // operations since the ORDER OF addClass and removeClass matters
+          var classes, cache = element.data(STORAGE_KEY);
+          var hasCache = !!cache;
+          if (!cache) {
+            cache = {};
+            cache.classes = {};
+          }
+          classes = cache.classes;
+
+          add = isArray(add) ? add : add.split(' ');
+          forEach(add, function(c) {
+            if (c && c.length) {
+              classes[c] = true;
+            }
+          });
+
+          remove = isArray(remove) ? remove : remove.split(' ');
+          forEach(remove, function(c) {
+            if (c && c.length) {
+              classes[c] = false;
+            }
+          });
+
+          if (hasCache) {
+            if (options && cache.options) {
+              cache.options = angular.extend(cache.options || {}, options);
+            }
+
+            //the digest cycle will combine all the animations into one function
+            return cache.promise;
+          } else {
+            element.data(STORAGE_KEY, cache = {
+              classes: classes,
+              options: options
+            });
+          }
+
+          return cache.promise = runAnimationPostDigest(function(done) {
+            var parentElement = element.parent();
+            var elementNode = extractElementNode(element);
+            var parentNode = elementNode.parentNode;
+            // TODO(matsko): move this code into the animationsDisabled() function once #8092 is fixed
+            if (!parentNode || parentNode['$$NG_REMOVED'] || elementNode['$$NG_REMOVED']) {
+              done();
+              return;
+            }
+
+            var cache = element.data(STORAGE_KEY);
+            element.removeData(STORAGE_KEY);
+
+            var state = element.data(NG_ANIMATE_STATE) || {};
+            var classes = resolveElementClasses(element, cache, state.active);
+            return !classes
+              ? done()
+              : performAnimation('setClass', classes, element, parentElement, null, function() {
+                  if (classes[0]) $delegate.$$addClassImmediately(element, classes[0]);
+                  if (classes[1]) $delegate.$$removeClassImmediately(element, classes[1]);
+                }, cache.options, done);
+          });
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#cancel
+         * @kind function
+         *
+         * @param {Promise} animationPromise The animation promise that is returned when an animation is started.
+         *
+         * @description
+         * Cancels the provided animation.
+        */
+        cancel: function(promise) {
+          promise.$$cancelFn();
+        },
+
+        /**
+         * @ngdoc method
+         * @name $animate#enabled
+         * @kind function
+         *
+         * @param {boolean=} value If provided then set the animation on or off.
+         * @param {DOMElement=} element If provided then the element will be used to represent the enable/disable operation
+         * @return {boolean} Current animation state.
+         *
+         * @description
+         * Globally enables/disables animations.
+         *
+        */
+        enabled: function(value, element) {
+          switch (arguments.length) {
+            case 2:
+              if (value) {
+                cleanup(element);
+              } else {
+                var data = element.data(NG_ANIMATE_STATE) || {};
+                data.disabled = true;
+                element.data(NG_ANIMATE_STATE, data);
+              }
+            break;
+
+            case 1:
+              rootAnimateState.disabled = !value;
+            break;
+
+            default:
+              value = !rootAnimateState.disabled;
+            break;
+          }
+          return !!value;
+         }
+      };
+
+      /*
+        all animations call this shared animation triggering function internally.
+        The animationEvent variable refers to the JavaScript animation event that will be triggered
+        and the className value is the name of the animation that will be applied within the
+        CSS code. Element, `parentElement` and `afterElement` are provided DOM elements for the animation
+        and the onComplete callback will be fired once the animation is fully complete.
+      */
+      function performAnimation(animationEvent, className, element, parentElement, afterElement, domOperation, options, doneCallback) {
+        var noopCancel = noop;
+        var runner = animationRunner(element, animationEvent, className, options);
+        if (!runner) {
+          fireDOMOperation();
+          fireBeforeCallbackAsync();
+          fireAfterCallbackAsync();
+          closeAnimation();
+          return noopCancel;
+        }
+
+        animationEvent = runner.event;
+        className = runner.className;
+        var elementEvents = angular.element._data(runner.node);
+        elementEvents = elementEvents && elementEvents.events;
+
+        if (!parentElement) {
+          parentElement = afterElement ? afterElement.parent() : element.parent();
+        }
+
+        //skip the animation if animations are disabled, a parent is already being animated,
+        //the element is not currently attached to the document body or then completely close
+        //the animation if any matching animations are not found at all.
+        //NOTE: IE8 + IE9 should close properly (run closeAnimation()) in case an animation was found.
+        if (animationsDisabled(element, parentElement)) {
+          fireDOMOperation();
+          fireBeforeCallbackAsync();
+          fireAfterCallbackAsync();
+          closeAnimation();
+          return noopCancel;
+        }
+
+        var ngAnimateState  = element.data(NG_ANIMATE_STATE) || {};
+        var runningAnimations     = ngAnimateState.active || {};
+        var totalActiveAnimations = ngAnimateState.totalActive || 0;
+        var lastAnimation         = ngAnimateState.last;
+        var skipAnimation = false;
+
+        if (totalActiveAnimations > 0) {
+          var animationsToCancel = [];
+          if (!runner.isClassBased) {
+            if (animationEvent == 'leave' && runningAnimations['ng-leave']) {
+              skipAnimation = true;
+            } else {
+              //cancel all animations when a structural animation takes place
+              for (var klass in runningAnimations) {
+                animationsToCancel.push(runningAnimations[klass]);
+              }
+              ngAnimateState = {};
+              cleanup(element, true);
+            }
+          } else if (lastAnimation.event == 'setClass') {
+            animationsToCancel.push(lastAnimation);
+            cleanup(element, className);
+          } else if (runningAnimations[className]) {
+            var current = runningAnimations[className];
+            if (current.event == animationEvent) {
+              skipAnimation = true;
+            } else {
+              animationsToCancel.push(current);
+              cleanup(element, className);
+            }
+          }
+
+          if (animationsToCancel.length > 0) {
+            forEach(animationsToCancel, function(operation) {
+              operation.cancel();
+            });
+          }
+        }
+
+        if (runner.isClassBased
+            && !runner.isSetClassOperation
+            && animationEvent != 'animate'
+            && !skipAnimation) {
+          skipAnimation = (animationEvent == 'addClass') == element.hasClass(className); //opposite of XOR
+        }
+
+        if (skipAnimation) {
+          fireDOMOperation();
+          fireBeforeCallbackAsync();
+          fireAfterCallbackAsync();
+          fireDoneCallbackAsync();
+          return noopCancel;
+        }
+
+        runningAnimations     = ngAnimateState.active || {};
+        totalActiveAnimations = ngAnimateState.totalActive || 0;
+
+        if (animationEvent == 'leave') {
+          //there's no need to ever remove the listener since the element
+          //will be removed (destroyed) after the leave animation ends or
+          //is cancelled midway
+          element.one('$destroy', function(e) {
+            var element = angular.element(this);
+            var state = element.data(NG_ANIMATE_STATE);
+            if (state) {
+              var activeLeaveAnimation = state.active['ng-leave'];
+              if (activeLeaveAnimation) {
+                activeLeaveAnimation.cancel();
+                cleanup(element, 'ng-leave');
+              }
+            }
+          });
+        }
+
+        //the ng-animate class does nothing, but it's here to allow for
+        //parent animations to find and cancel child animations when needed
+        $$jqLite.addClass(element, NG_ANIMATE_CLASS_NAME);
+        if (options && options.tempClasses) {
+          forEach(options.tempClasses, function(className) {
+            $$jqLite.addClass(element, className);
+          });
+        }
+
+        var localAnimationCount = globalAnimationCounter++;
+        totalActiveAnimations++;
+        runningAnimations[className] = runner;
+
+        element.data(NG_ANIMATE_STATE, {
+          last: runner,
+          active: runningAnimations,
+          index: localAnimationCount,
+          totalActive: totalActiveAnimations
+        });
+
+        //first we run the before animations and when all of those are complete
+        //then we perform the DOM operation and run the next set of animations
+        fireBeforeCallbackAsync();
+        runner.before(function(cancelled) {
+          var data = element.data(NG_ANIMATE_STATE);
+          cancelled = cancelled ||
+                        !data || !data.active[className] ||
+                        (runner.isClassBased && data.active[className].event != animationEvent);
+
+          fireDOMOperation();
+          if (cancelled === true) {
+            closeAnimation();
+          } else {
+            fireAfterCallbackAsync();
+            runner.after(closeAnimation);
+          }
+        });
+
+        return runner.cancel;
+
+        function fireDOMCallback(animationPhase) {
+          var eventName = '$animate:' + animationPhase;
+          if (elementEvents && elementEvents[eventName] && elementEvents[eventName].length > 0) {
+            $$asyncCallback(function() {
+              element.triggerHandler(eventName, {
+                event: animationEvent,
+                className: className
+              });
+            });
+          }
+        }
+
+        function fireBeforeCallbackAsync() {
+          fireDOMCallback('before');
+        }
+
+        function fireAfterCallbackAsync() {
+          fireDOMCallback('after');
+        }
+
+        function fireDoneCallbackAsync() {
+          fireDOMCallback('close');
+          doneCallback();
+        }
+
+        //it is less complicated to use a flag than managing and canceling
+        //timeouts containing multiple callbacks.
+        function fireDOMOperation() {
+          if (!fireDOMOperation.hasBeenRun) {
+            fireDOMOperation.hasBeenRun = true;
+            domOperation();
+          }
+        }
+
+        function closeAnimation() {
+          if (!closeAnimation.hasBeenRun) {
+            if (runner) { //the runner doesn't exist if it fails to instantiate
+              runner.applyStyles();
+            }
+
+            closeAnimation.hasBeenRun = true;
+            if (options && options.tempClasses) {
+              forEach(options.tempClasses, function(className) {
+                $$jqLite.removeClass(element, className);
+              });
+            }
+
+            var data = element.data(NG_ANIMATE_STATE);
+            if (data) {
+
+              /* only structural animations wait for reflow before removing an
+                 animation, but class-based animations don't. An example of this
+                 failing would be when a parent HTML tag has a ng-class attribute
+                 causing ALL directives below to skip animations during the digest */
+              if (runner && runner.isClassBased) {
+                cleanup(element, className);
+              } else {
+                $$asyncCallback(function() {
+                  var data = element.data(NG_ANIMATE_STATE) || {};
+                  if (localAnimationCount == data.index) {
+                    cleanup(element, className, animationEvent);
+                  }
+                });
+                element.data(NG_ANIMATE_STATE, data);
+              }
+            }
+            fireDoneCallbackAsync();
+          }
+        }
+      }
+
+      function cancelChildAnimations(element) {
+        var node = extractElementNode(element);
+        if (node) {
+          var nodes = angular.isFunction(node.getElementsByClassName) ?
+            node.getElementsByClassName(NG_ANIMATE_CLASS_NAME) :
+            node.querySelectorAll('.' + NG_ANIMATE_CLASS_NAME);
+          forEach(nodes, function(element) {
+            element = angular.element(element);
+            var data = element.data(NG_ANIMATE_STATE);
+            if (data && data.active) {
+              forEach(data.active, function(runner) {
+                runner.cancel();
+              });
+            }
+          });
+        }
+      }
+
+      function cleanup(element, className) {
+        if (isMatchingElement(element, $rootElement)) {
+          if (!rootAnimateState.disabled) {
+            rootAnimateState.running = false;
+            rootAnimateState.structural = false;
+          }
+        } else if (className) {
+          var data = element.data(NG_ANIMATE_STATE) || {};
+
+          var removeAnimations = className === true;
+          if (!removeAnimations && data.active && data.active[className]) {
+            data.totalActive--;
+            delete data.active[className];
+          }
+
+          if (removeAnimations || !data.totalActive) {
+            $$jqLite.removeClass(element, NG_ANIMATE_CLASS_NAME);
+            element.removeData(NG_ANIMATE_STATE);
+          }
+        }
+      }
+
+      function animationsDisabled(element, parentElement) {
+        if (rootAnimateState.disabled) {
+          return true;
+        }
+
+        if (isMatchingElement(element, $rootElement)) {
+          return rootAnimateState.running;
+        }
+
+        var allowChildAnimations, parentRunningAnimation, hasParent;
+        do {
+          //the element did not reach the root element which means that it
+          //is not apart of the DOM. Therefore there is no reason to do
+          //any animations on it
+          if (parentElement.length === 0) break;
+
+          var isRoot = isMatchingElement(parentElement, $rootElement);
+          var state = isRoot ? rootAnimateState : (parentElement.data(NG_ANIMATE_STATE) || {});
+          if (state.disabled) {
+            return true;
+          }
+
+          //no matter what, for an animation to work it must reach the root element
+          //this implies that the element is attached to the DOM when the animation is run
+          if (isRoot) {
+            hasParent = true;
+          }
+
+          //once a flag is found that is strictly false then everything before
+          //it will be discarded and all child animations will be restricted
+          if (allowChildAnimations !== false) {
+            var animateChildrenFlag = parentElement.data(NG_ANIMATE_CHILDREN);
+            if (angular.isDefined(animateChildrenFlag)) {
+              allowChildAnimations = animateChildrenFlag;
+            }
+          }
+
+          parentRunningAnimation = parentRunningAnimation ||
+                                   state.running ||
+                                   (state.last && !state.last.isClassBased);
+        }
+        while (parentElement = parentElement.parent());
+
+        return !hasParent || (!allowChildAnimations && parentRunningAnimation);
+      }
+    }]);
+
+    $animateProvider.register('', ['$window', '$sniffer', '$timeout', '$$animateReflow',
+                           function($window,   $sniffer,   $timeout,   $$animateReflow) {
+      // Detect proper transitionend/animationend event names.
+      var CSS_PREFIX = '', TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT;
+
+      // If unprefixed events are not supported but webkit-prefixed are, use the latter.
+      // Otherwise, just use W3C names, browsers not supporting them at all will just ignore them.
+      // Note: Chrome implements `window.onwebkitanimationend` and doesn't implement `window.onanimationend`
+      // but at the same time dispatches the `animationend` event and not `webkitAnimationEnd`.
+      // Register both events in case `window.onanimationend` is not supported because of that,
+      // do the same for `transitionend` as Safari is likely to exhibit similar behavior.
+      // Also, the only modern browser that uses vendor prefixes for transitions/keyframes is webkit
+      // therefore there is no reason to test anymore for other vendor prefixes: http://caniuse.com/#search=transition
+      if (window.ontransitionend === undefined && window.onwebkittransitionend !== undefined) {
+        CSS_PREFIX = '-webkit-';
+        TRANSITION_PROP = 'WebkitTransition';
+        TRANSITIONEND_EVENT = 'webkitTransitionEnd transitionend';
+      } else {
+        TRANSITION_PROP = 'transition';
+        TRANSITIONEND_EVENT = 'transitionend';
+      }
+
+      if (window.onanimationend === undefined && window.onwebkitanimationend !== undefined) {
+        CSS_PREFIX = '-webkit-';
+        ANIMATION_PROP = 'WebkitAnimation';
+        ANIMATIONEND_EVENT = 'webkitAnimationEnd animationend';
+      } else {
+        ANIMATION_PROP = 'animation';
+        ANIMATIONEND_EVENT = 'animationend';
+      }
+
+      var DURATION_KEY = 'Duration';
+      var PROPERTY_KEY = 'Property';
+      var DELAY_KEY = 'Delay';
+      var ANIMATION_ITERATION_COUNT_KEY = 'IterationCount';
+      var ANIMATION_PLAYSTATE_KEY = 'PlayState';
+      var NG_ANIMATE_PARENT_KEY = '$$ngAnimateKey';
+      var NG_ANIMATE_CSS_DATA_KEY = '$$ngAnimateCSS3Data';
+      var ELAPSED_TIME_MAX_DECIMAL_PLACES = 3;
+      var CLOSING_TIME_BUFFER = 1.5;
+      var ONE_SECOND = 1000;
+
+      var lookupCache = {};
+      var parentCounter = 0;
+      var animationReflowQueue = [];
+      var cancelAnimationReflow;
+      function clearCacheAfterReflow() {
+        if (!cancelAnimationReflow) {
+          cancelAnimationReflow = $$animateReflow(function() {
+            animationReflowQueue = [];
+            cancelAnimationReflow = null;
+            lookupCache = {};
+          });
+        }
+      }
+
+      function afterReflow(element, callback) {
+        if (cancelAnimationReflow) {
+          cancelAnimationReflow();
+        }
+        animationReflowQueue.push(callback);
+        cancelAnimationReflow = $$animateReflow(function() {
+          forEach(animationReflowQueue, function(fn) {
+            fn();
+          });
+
+          animationReflowQueue = [];
+          cancelAnimationReflow = null;
+          lookupCache = {};
+        });
+      }
+
+      var closingTimer = null;
+      var closingTimestamp = 0;
+      var animationElementQueue = [];
+      function animationCloseHandler(element, totalTime) {
+        var node = extractElementNode(element);
+        element = angular.element(node);
+
+        //this item will be garbage collected by the closing
+        //animation timeout
+        animationElementQueue.push(element);
+
+        //but it may not need to cancel out the existing timeout
+        //if the timestamp is less than the previous one
+        var futureTimestamp = Date.now() + totalTime;
+        if (futureTimestamp <= closingTimestamp) {
+          return;
+        }
+
+        $timeout.cancel(closingTimer);
+
+        closingTimestamp = futureTimestamp;
+        closingTimer = $timeout(function() {
+          closeAllAnimations(animationElementQueue);
+          animationElementQueue = [];
+        }, totalTime, false);
+      }
+
+      function closeAllAnimations(elements) {
+        forEach(elements, function(element) {
+          var elementData = element.data(NG_ANIMATE_CSS_DATA_KEY);
+          if (elementData) {
+            forEach(elementData.closeAnimationFns, function(fn) {
+              fn();
+            });
+          }
+        });
+      }
+
+      function getElementAnimationDetails(element, cacheKey) {
+        var data = cacheKey ? lookupCache[cacheKey] : null;
+        if (!data) {
+          var transitionDuration = 0;
+          var transitionDelay = 0;
+          var animationDuration = 0;
+          var animationDelay = 0;
+
+          //we want all the styles defined before and after
+          forEach(element, function(element) {
+            if (element.nodeType == ELEMENT_NODE) {
+              var elementStyles = $window.getComputedStyle(element) || {};
+
+              var transitionDurationStyle = elementStyles[TRANSITION_PROP + DURATION_KEY];
+              transitionDuration = Math.max(parseMaxTime(transitionDurationStyle), transitionDuration);
+
+              var transitionDelayStyle = elementStyles[TRANSITION_PROP + DELAY_KEY];
+              transitionDelay  = Math.max(parseMaxTime(transitionDelayStyle), transitionDelay);
+
+              var animationDelayStyle = elementStyles[ANIMATION_PROP + DELAY_KEY];
+              animationDelay   = Math.max(parseMaxTime(elementStyles[ANIMATION_PROP + DELAY_KEY]), animationDelay);
+
+              var aDuration  = parseMaxTime(elementStyles[ANIMATION_PROP + DURATION_KEY]);
+
+              if (aDuration > 0) {
+                aDuration *= parseInt(elementStyles[ANIMATION_PROP + ANIMATION_ITERATION_COUNT_KEY], 10) || 1;
+              }
+              animationDuration = Math.max(aDuration, animationDuration);
+            }
+          });
+          data = {
+            total: 0,
+            transitionDelay: transitionDelay,
+            transitionDuration: transitionDuration,
+            animationDelay: animationDelay,
+            animationDuration: animationDuration
+          };
+          if (cacheKey) {
+            lookupCache[cacheKey] = data;
+          }
+        }
+        return data;
+      }
+
+      function parseMaxTime(str) {
+        var maxValue = 0;
+        var values = isString(str) ?
+          str.split(/\s*,\s*/) :
+          [];
+        forEach(values, function(value) {
+          maxValue = Math.max(parseFloat(value) || 0, maxValue);
+        });
+        return maxValue;
+      }
+
+      function getCacheKey(element) {
+        var parentElement = element.parent();
+        var parentID = parentElement.data(NG_ANIMATE_PARENT_KEY);
+        if (!parentID) {
+          parentElement.data(NG_ANIMATE_PARENT_KEY, ++parentCounter);
+          parentID = parentCounter;
+        }
+        return parentID + '-' + extractElementNode(element).getAttribute('class');
+      }
+
+      function animateSetup(animationEvent, element, className, styles) {
+        var structural = ['ng-enter','ng-leave','ng-move'].indexOf(className) >= 0;
+
+        var cacheKey = getCacheKey(element);
+        var eventCacheKey = cacheKey + ' ' + className;
+        var itemIndex = lookupCache[eventCacheKey] ? ++lookupCache[eventCacheKey].total : 0;
+
+        var stagger = {};
+        if (itemIndex > 0) {
+          var staggerClassName = className + '-stagger';
+          var staggerCacheKey = cacheKey + ' ' + staggerClassName;
+          var applyClasses = !lookupCache[staggerCacheKey];
+
+          applyClasses && $$jqLite.addClass(element, staggerClassName);
+
+          stagger = getElementAnimationDetails(element, staggerCacheKey);
+
+          applyClasses && $$jqLite.removeClass(element, staggerClassName);
+        }
+
+        $$jqLite.addClass(element, className);
+
+        var formerData = element.data(NG_ANIMATE_CSS_DATA_KEY) || {};
+        var timings = getElementAnimationDetails(element, eventCacheKey);
+        var transitionDuration = timings.transitionDuration;
+        var animationDuration = timings.animationDuration;
+
+        if (structural && transitionDuration === 0 && animationDuration === 0) {
+          $$jqLite.removeClass(element, className);
+          return false;
+        }
+
+        var blockTransition = styles || (structural && transitionDuration > 0);
+        var blockAnimation = animationDuration > 0 &&
+                             stagger.animationDelay > 0 &&
+                             stagger.animationDuration === 0;
+
+        var closeAnimationFns = formerData.closeAnimationFns || [];
+        element.data(NG_ANIMATE_CSS_DATA_KEY, {
+          stagger: stagger,
+          cacheKey: eventCacheKey,
+          running: formerData.running || 0,
+          itemIndex: itemIndex,
+          blockTransition: blockTransition,
+          closeAnimationFns: closeAnimationFns
+        });
+
+        var node = extractElementNode(element);
+
+        if (blockTransition) {
+          blockTransitions(node, true);
+          if (styles) {
+            element.css(styles);
+          }
+        }
+
+        if (blockAnimation) {
+          blockAnimations(node, true);
+        }
+
+        return true;
+      }
+
+      function animateRun(animationEvent, element, className, activeAnimationComplete, styles) {
+        var node = extractElementNode(element);
+        var elementData = element.data(NG_ANIMATE_CSS_DATA_KEY);
+        if (node.getAttribute('class').indexOf(className) == -1 || !elementData) {
+          activeAnimationComplete();
+          return;
+        }
+
+        var activeClassName = '';
+        var pendingClassName = '';
+        forEach(className.split(' '), function(klass, i) {
+          var prefix = (i > 0 ? ' ' : '') + klass;
+          activeClassName += prefix + '-active';
+          pendingClassName += prefix + '-pending';
+        });
+
+        var style = '';
+        var appliedStyles = [];
+        var itemIndex = elementData.itemIndex;
+        var stagger = elementData.stagger;
+        var staggerTime = 0;
+        if (itemIndex > 0) {
+          var transitionStaggerDelay = 0;
+          if (stagger.transitionDelay > 0 && stagger.transitionDuration === 0) {
+            transitionStaggerDelay = stagger.transitionDelay * itemIndex;
+          }
+
+          var animationStaggerDelay = 0;
+          if (stagger.animationDelay > 0 && stagger.animationDuration === 0) {
+            animationStaggerDelay = stagger.animationDelay * itemIndex;
+            appliedStyles.push(CSS_PREFIX + 'animation-play-state');
+          }
+
+          staggerTime = Math.round(Math.max(transitionStaggerDelay, animationStaggerDelay) * 100) / 100;
+        }
+
+        if (!staggerTime) {
+          $$jqLite.addClass(element, activeClassName);
+          if (elementData.blockTransition) {
+            blockTransitions(node, false);
+          }
+        }
+
+        var eventCacheKey = elementData.cacheKey + ' ' + activeClassName;
+        var timings = getElementAnimationDetails(element, eventCacheKey);
+        var maxDuration = Math.max(timings.transitionDuration, timings.animationDuration);
+        if (maxDuration === 0) {
+          $$jqLite.removeClass(element, activeClassName);
+          animateClose(element, className);
+          activeAnimationComplete();
+          return;
+        }
+
+        if (!staggerTime && styles && Object.keys(styles).length > 0) {
+          if (!timings.transitionDuration) {
+            element.css('transition', timings.animationDuration + 's linear all');
+            appliedStyles.push('transition');
+          }
+          element.css(styles);
+        }
+
+        var maxDelay = Math.max(timings.transitionDelay, timings.animationDelay);
+        var maxDelayTime = maxDelay * ONE_SECOND;
+
+        if (appliedStyles.length > 0) {
+          //the element being animated may sometimes contain comment nodes in
+          //the jqLite object, so we're safe to use a single variable to house
+          //the styles since there is always only one element being animated
+          var oldStyle = node.getAttribute('style') || '';
+          if (oldStyle.charAt(oldStyle.length - 1) !== ';') {
+            oldStyle += ';';
+          }
+          node.setAttribute('style', oldStyle + ' ' + style);
+        }
+
+        var startTime = Date.now();
+        var css3AnimationEvents = ANIMATIONEND_EVENT + ' ' + TRANSITIONEND_EVENT;
+        var animationTime     = (maxDelay + maxDuration) * CLOSING_TIME_BUFFER;
+        var totalTime         = (staggerTime + animationTime) * ONE_SECOND;
+
+        var staggerTimeout;
+        if (staggerTime > 0) {
+          $$jqLite.addClass(element, pendingClassName);
+          staggerTimeout = $timeout(function() {
+            staggerTimeout = null;
+
+            if (timings.transitionDuration > 0) {
+              blockTransitions(node, false);
+            }
+            if (timings.animationDuration > 0) {
+              blockAnimations(node, false);
+            }
+
+            $$jqLite.addClass(element, activeClassName);
+            $$jqLite.removeClass(element, pendingClassName);
+
+            if (styles) {
+              if (timings.transitionDuration === 0) {
+                element.css('transition', timings.animationDuration + 's linear all');
+              }
+              element.css(styles);
+              appliedStyles.push('transition');
+            }
+          }, staggerTime * ONE_SECOND, false);
+        }
+
+        element.on(css3AnimationEvents, onAnimationProgress);
+        elementData.closeAnimationFns.push(function() {
+          onEnd();
+          activeAnimationComplete();
+        });
+
+        elementData.running++;
+        animationCloseHandler(element, totalTime);
+        return onEnd;
+
+        // This will automatically be called by $animate so
+        // there is no need to attach this internally to the
+        // timeout done method.
+        function onEnd() {
+          element.off(css3AnimationEvents, onAnimationProgress);
+          $$jqLite.removeClass(element, activeClassName);
+          $$jqLite.removeClass(element, pendingClassName);
+          if (staggerTimeout) {
+            $timeout.cancel(staggerTimeout);
+          }
+          animateClose(element, className);
+          var node = extractElementNode(element);
+          for (var i in appliedStyles) {
+            node.style.removeProperty(appliedStyles[i]);
+          }
+        }
+
+        function onAnimationProgress(event) {
+          event.stopPropagation();
+          var ev = event.originalEvent || event;
+          var timeStamp = ev.$manualTimeStamp || ev.timeStamp || Date.now();
+
+          /* Firefox (or possibly just Gecko) likes to not round values up
+           * when a ms measurement is used for the animation */
+          var elapsedTime = parseFloat(ev.elapsedTime.toFixed(ELAPSED_TIME_MAX_DECIMAL_PLACES));
+
+          /* $manualTimeStamp is a mocked timeStamp value which is set
+           * within browserTrigger(). This is only here so that tests can
+           * mock animations properly. Real events fallback to event.timeStamp,
+           * or, if they don't, then a timeStamp is automatically created for them.
+           * We're checking to see if the timeStamp surpasses the expected delay,
+           * but we're using elapsedTime instead of the timeStamp on the 2nd
+           * pre-condition since animations sometimes close off early */
+          if (Math.max(timeStamp - startTime, 0) >= maxDelayTime && elapsedTime >= maxDuration) {
+            activeAnimationComplete();
+          }
+        }
+      }
+
+      function blockTransitions(node, bool) {
+        node.style[TRANSITION_PROP + PROPERTY_KEY] = bool ? 'none' : '';
+      }
+
+      function blockAnimations(node, bool) {
+        node.style[ANIMATION_PROP + ANIMATION_PLAYSTATE_KEY] = bool ? 'paused' : '';
+      }
+
+      function animateBefore(animationEvent, element, className, styles) {
+        if (animateSetup(animationEvent, element, className, styles)) {
+          return function(cancelled) {
+            cancelled && animateClose(element, className);
+          };
+        }
+      }
+
+      function animateAfter(animationEvent, element, className, afterAnimationComplete, styles) {
+        if (element.data(NG_ANIMATE_CSS_DATA_KEY)) {
+          return animateRun(animationEvent, element, className, afterAnimationComplete, styles);
+        } else {
+          animateClose(element, className);
+          afterAnimationComplete();
+        }
+      }
+
+      function animate(animationEvent, element, className, animationComplete, options) {
+        //If the animateSetup function doesn't bother returning a
+        //cancellation function then it means that there is no animation
+        //to perform at all
+        var preReflowCancellation = animateBefore(animationEvent, element, className, options.from);
+        if (!preReflowCancellation) {
+          clearCacheAfterReflow();
+          animationComplete();
+          return;
+        }
+
+        //There are two cancellation functions: one is before the first
+        //reflow animation and the second is during the active state
+        //animation. The first function will take care of removing the
+        //data from the element which will not make the 2nd animation
+        //happen in the first place
+        var cancel = preReflowCancellation;
+        afterReflow(element, function() {
+          //once the reflow is complete then we point cancel to
+          //the new cancellation function which will remove all of the
+          //animation properties from the active animation
+          cancel = animateAfter(animationEvent, element, className, animationComplete, options.to);
+        });
+
+        return function(cancelled) {
+          (cancel || noop)(cancelled);
+        };
+      }
+
+      function animateClose(element, className) {
+        $$jqLite.removeClass(element, className);
+        var data = element.data(NG_ANIMATE_CSS_DATA_KEY);
+        if (data) {
+          if (data.running) {
+            data.running--;
+          }
+          if (!data.running || data.running === 0) {
+            element.removeData(NG_ANIMATE_CSS_DATA_KEY);
+          }
+        }
+      }
+
+      return {
+        animate: function(element, className, from, to, animationCompleted, options) {
+          options = options || {};
+          options.from = from;
+          options.to = to;
+          return animate('animate', element, className, animationCompleted, options);
+        },
+
+        enter: function(element, animationCompleted, options) {
+          options = options || {};
+          return animate('enter', element, 'ng-enter', animationCompleted, options);
+        },
+
+        leave: function(element, animationCompleted, options) {
+          options = options || {};
+          return animate('leave', element, 'ng-leave', animationCompleted, options);
+        },
+
+        move: function(element, animationCompleted, options) {
+          options = options || {};
+          return animate('move', element, 'ng-move', animationCompleted, options);
+        },
+
+        beforeSetClass: function(element, add, remove, animationCompleted, options) {
+          options = options || {};
+          var className = suffixClasses(remove, '-remove') + ' ' +
+                          suffixClasses(add, '-add');
+          var cancellationMethod = animateBefore('setClass', element, className, options.from);
+          if (cancellationMethod) {
+            afterReflow(element, animationCompleted);
+            return cancellationMethod;
+          }
+          clearCacheAfterReflow();
+          animationCompleted();
+        },
+
+        beforeAddClass: function(element, className, animationCompleted, options) {
+          options = options || {};
+          var cancellationMethod = animateBefore('addClass', element, suffixClasses(className, '-add'), options.from);
+          if (cancellationMethod) {
+            afterReflow(element, animationCompleted);
+            return cancellationMethod;
+          }
+          clearCacheAfterReflow();
+          animationCompleted();
+        },
+
+        beforeRemoveClass: function(element, className, animationCompleted, options) {
+          options = options || {};
+          var cancellationMethod = animateBefore('removeClass', element, suffixClasses(className, '-remove'), options.from);
+          if (cancellationMethod) {
+            afterReflow(element, animationCompleted);
+            return cancellationMethod;
+          }
+          clearCacheAfterReflow();
+          animationCompleted();
+        },
+
+        setClass: function(element, add, remove, animationCompleted, options) {
+          options = options || {};
+          remove = suffixClasses(remove, '-remove');
+          add = suffixClasses(add, '-add');
+          var className = remove + ' ' + add;
+          return animateAfter('setClass', element, className, animationCompleted, options.to);
+        },
+
+        addClass: function(element, className, animationCompleted, options) {
+          options = options || {};
+          return animateAfter('addClass', element, suffixClasses(className, '-add'), animationCompleted, options.to);
+        },
+
+        removeClass: function(element, className, animationCompleted, options) {
+          options = options || {};
+          return animateAfter('removeClass', element, suffixClasses(className, '-remove'), animationCompleted, options.to);
+        }
+      };
+
+      function suffixClasses(classes, suffix) {
+        var className = '';
+        classes = isArray(classes) ? classes : classes.split(/\s+/);
+        forEach(classes, function(klass, i) {
+          if (klass && klass.length > 0) {
+            className += (i > 0 ? ' ' : '') + klass + suffix;
+          }
+        });
+        return className;
+      }
+    }]);
+  }]);
+
+
+})(window, window.angular);
+
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -61142,6 +64268,494 @@ var Metronic = function() {
             };
 
             return sizes[size] ? sizes[size] : 0; 
+        }
+    };
+
+}();
+
+/**
+Core script to handle the entire theme and core functions
+**/
+var Layout = function() {
+
+    var layoutImgPath = 'admin/layout4/img/';
+
+    var layoutCssPath = 'admin/layout4/css/';
+
+    var resBreakpointMd = Metronic.getResponsiveBreakpoint('md');
+
+    //* BEGIN:CORE HANDLERS *//
+    // this function handles responsive layout on screen size resize or mobile device rotate.
+
+
+    // Handle sidebar menu links
+    var handleSidebarMenuActiveLink = function(mode, el) {
+        var url = location.hash.toLowerCase();    
+
+        var menu = $('.page-sidebar-menu');
+
+        if (mode === 'click' || mode === 'set') {
+            el = $(el);
+        } else if (mode === 'match') {
+            menu.find("li > a").each(function() {
+                var path = $(this).attr("href").toLowerCase();       
+                // url match condition         
+                if (path.length > 1 && url.substr(1, path.length - 1) == path.substr(1)) {
+                    el = $(this);
+                    return; 
+                }
+            });
+        }
+
+        if (!el || el.size() == 0) {
+            return;
+        }
+
+        if (el.attr('href').toLowerCase() === 'javascript:;' || el.attr('href').toLowerCase() === '#') {
+            return;
+        }        
+
+        var slideSpeed = parseInt(menu.data("slide-speed"));
+        var keepExpand = menu.data("keep-expanded");
+
+        // disable active states
+        menu.find('li.active').removeClass('active');
+        menu.find('li > a > .selected').remove();
+
+        if (menu.hasClass('page-sidebar-menu-hover-submenu') === false) {
+            menu.find('li.open').each(function(){
+                if ($(this).children('.sub-menu').size() === 0) {
+                    $(this).removeClass('open');
+                    $(this).find('> a > .arrow.open').removeClass('open');
+                }                             
+            }); 
+        } else {
+             menu.find('li.open').removeClass('open');
+        }
+
+        el.parents('li').each(function () {
+            $(this).addClass('active');
+            $(this).find('> a > span.arrow').addClass('open');
+
+            if ($(this).parent('ul.page-sidebar-menu').size() === 1) {
+                $(this).find('> a').append('<span class="selected"></span>');
+            }
+            
+            if ($(this).children('ul.sub-menu').size() === 1) {
+                $(this).addClass('open');
+            }
+        });
+
+        if (mode === 'click') {
+            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
+                $('.page-header .responsive-toggler').click();
+            }
+        }
+    };
+
+    // Handle sidebar menu
+    var handleSidebarMenu = function() {
+        $('.page-sidebar').on('click', 'li > a', function(e) {
+
+            if (Metronic.getViewPort().width >= resBreakpointMd && $(this).parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
+                return;
+            }
+
+            if ($(this).next().hasClass('sub-menu') === false) {
+                if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
+                    $('.page-header .responsive-toggler').click();
+                }
+                return;
+            }
+
+            if ($(this).next().hasClass('sub-menu always-open')) {
+                return;
+            }
+
+            var parent = $(this).parent().parent();
+            var the = $(this);
+            var menu = $('.page-sidebar-menu');
+            var sub = $(this).next();
+
+            var autoScroll = menu.data("auto-scroll");
+            var slideSpeed = parseInt(menu.data("slide-speed"));
+            var keepExpand = menu.data("keep-expanded");
+
+            if (keepExpand !== true) {
+                parent.children('li.open').children('a').children('.arrow').removeClass('open');
+                parent.children('li.open').children('.sub-menu:not(.always-open)').slideUp(slideSpeed);
+                parent.children('li.open').removeClass('open');
+            }
+
+            var slideOffeset = -200;
+
+            if (sub.is(":visible")) {
+                $('.arrow', $(this)).removeClass("open");
+                $(this).parent().removeClass("open");
+                sub.slideUp(slideSpeed, function() {
+                    if (autoScroll === true && $('body').hasClass('page-sidebar-closed') === false) {
+                        if ($('body').hasClass('page-sidebar-fixed')) {
+                            menu.slimScroll({
+                                'scrollTo': (the.position()).top
+                            });
+                        } else {
+                            Metronic.scrollTo(the, slideOffeset);
+                        }
+                    }
+                });
+            } else {
+                $('.arrow', $(this)).addClass("open");
+                $(this).parent().addClass("open");
+                sub.slideDown(slideSpeed, function() {
+                    if (autoScroll === true && $('body').hasClass('page-sidebar-closed') === false) {
+                        if ($('body').hasClass('page-sidebar-fixed')) {
+                            menu.slimScroll({
+                                'scrollTo': (the.position()).top
+                            });
+                        } else {
+                            Metronic.scrollTo(the, slideOffeset);
+                        }
+                    }
+                });
+            }
+
+            e.preventDefault();
+        });
+
+        // handle ajax links within sidebar menu
+        $('.page-sidebar').on('click', ' li > a.ajaxify', function(e) {
+            e.preventDefault();
+            Metronic.scrollTop();
+
+            var url = $(this).attr("href");
+            var menuContainer = $('.page-sidebar ul');
+            var pageContent = $('.page-content');
+            var pageContentBody = $('.page-content .page-content-body');
+
+            menuContainer.children('li.active').removeClass('active');
+            menuContainer.children('arrow.open').removeClass('open');
+
+            $(this).parents('li').each(function() {
+                $(this).addClass('active');
+                $(this).children('a > span.arrow').addClass('open');
+            });
+            $(this).parents('li').addClass('active');
+
+            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
+                $('.page-header .responsive-toggler').click();
+            }
+
+            Metronic.startPageLoading();
+
+            var the = $(this);
+
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: url,
+                dataType: "html",
+                success: function(res) {
+
+                    if (the.parents('li.open').size() === 0) {
+                        $('.page-sidebar-menu > li.open > a').click();
+                    }
+
+                    Metronic.stopPageLoading();
+                    pageContentBody.html(res);
+                    Layout.fixContentHeight(); // fix content height
+                    Metronic.initAjax(); // initialize core stuff
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    Metronic.stopPageLoading();
+                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
+                }
+            });
+        });
+
+        // handle ajax link within main content
+        $('.page-content').on('click', '.ajaxify', function(e) {
+            e.preventDefault();
+            Metronic.scrollTop();
+
+            var url = $(this).attr("href");
+            var pageContent = $('.page-content');
+            var pageContentBody = $('.page-content .page-content-body');
+
+            Metronic.startPageLoading();
+
+            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
+                $('.page-header .responsive-toggler').click();
+            }
+
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: url,
+                dataType: "html",
+                success: function(res) {
+                    Metronic.stopPageLoading();
+                    pageContentBody.html(res);
+                    Layout.fixContentHeight(); // fix content height
+                    Metronic.initAjax(); // initialize core stuff
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
+                    Metronic.stopPageLoading();
+                }
+            });
+        });
+
+        // handle scrolling to top on responsive menu toggler click when header is fixed for mobile view
+        $(document).on('click', '.page-header-fixed-mobile .responsive-toggler', function(){
+            Metronic.scrollTop();
+        });      
+    };
+
+    // Helper function to calculate sidebar height for fixed sidebar layout.
+    var _calculateFixedSidebarViewportHeight = function() {
+        var sidebarHeight = Metronic.getViewPort().height - $('.page-header').outerHeight() - 30;
+        if ($('body').hasClass("page-footer-fixed")) {
+            sidebarHeight = sidebarHeight - $('.page-footer').outerHeight();
+        }
+
+        return sidebarHeight;
+    };
+
+    // Handles fixed sidebar
+    var handleFixedSidebar = function() {
+        var menu = $('.page-sidebar-menu');
+
+        Metronic.destroySlimScroll(menu);
+
+        if ($('.page-sidebar-fixed').size() === 0) {
+            return;
+        }
+
+        if (Metronic.getViewPort().width >= resBreakpointMd) {
+            menu.attr("data-height", _calculateFixedSidebarViewportHeight());
+            Metronic.initSlimScroll(menu);
+        }
+    };
+
+    // Handles sidebar toggler to close/hide the sidebar.
+    var handleFixedSidebarHoverEffect = function () {
+        var body = $('body');
+        if (body.hasClass('page-sidebar-fixed')) {
+            $('.page-sidebar').on('mouseenter', function () {
+                if (body.hasClass('page-sidebar-closed')) {
+                    $(this).find('.page-sidebar-menu').removeClass('page-sidebar-menu-closed');
+                }
+            }).on('mouseleave', function () {
+                if (body.hasClass('page-sidebar-closed')) {
+                    $(this).find('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
+                }
+            });
+        }
+    };
+
+    // Hanles sidebar toggler
+    var handleSidebarToggler = function() {
+        var body = $('body');
+        if ($.cookie && $.cookie('sidebar_closed') === '1' && Metronic.getViewPort().width >= resBreakpointMd) {
+            $('body').addClass('page-sidebar-closed');
+            $('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
+        }
+
+        // handle sidebar show/hide
+        $('body').on('click', '.sidebar-toggler', function(e) {
+            var sidebar = $('.page-sidebar');
+            var sidebarMenu = $('.page-sidebar-menu');
+            $(".sidebar-search", sidebar).removeClass("open");
+
+            if (body.hasClass("page-sidebar-closed")) {
+                body.removeClass("page-sidebar-closed");
+                sidebarMenu.removeClass("page-sidebar-menu-closed");
+                if ($.cookie) {
+                    $.cookie('sidebar_closed', '0');
+                }
+            } else {
+                body.addClass("page-sidebar-closed");
+                sidebarMenu.addClass("page-sidebar-menu-closed");
+                if (body.hasClass("page-sidebar-fixed")) {
+                    sidebarMenu.trigger("mouseleave");
+                }
+                if ($.cookie) {
+                    $.cookie('sidebar_closed', '1');
+                }
+            }
+
+            $(window).trigger('resize');
+        });
+
+        handleFixedSidebarHoverEffect();
+
+        // handle the search bar close
+        $('.page-sidebar').on('click', '.sidebar-search .remove', function(e) {
+            e.preventDefault();
+            $('.sidebar-search').removeClass("open");
+        });
+
+        // handle the search query submit on enter press
+        $('.page-sidebar .sidebar-search').on('keypress', 'input.form-control', function(e) {
+            if (e.which == 13) {
+                $('.sidebar-search').submit();
+                return false; //<---- Add this line
+            }
+        });
+
+        // handle the search submit(for sidebar search and responsive mode of the header search)
+        $('.sidebar-search .submit').on('click', function(e) {
+            e.preventDefault();
+            if ($('body').hasClass("page-sidebar-closed")) {
+                if ($('.sidebar-search').hasClass('open') === false) {
+                    if ($('.page-sidebar-fixed').size() === 1) {
+                        $('.page-sidebar .sidebar-toggler').click(); //trigger sidebar toggle button
+                    }
+                    $('.sidebar-search').addClass("open");
+                } else {
+                    $('.sidebar-search').submit();
+                }
+            } else {
+                $('.sidebar-search').submit();
+            }
+        });
+
+        // handle close on body click
+        if ($('.sidebar-search').size() !== 0) {
+            $('.sidebar-search .input-group').on('click', function(e) {
+                e.stopPropagation();
+            });
+
+            $('body').on('click', function() {
+                if ($('.sidebar-search').hasClass('open')) {
+                    $('.sidebar-search').removeClass("open");
+                }
+            });
+        }
+    };
+
+    // Handles the horizontal menu
+    var handleHeader = function() {
+        // handle search box expand/collapse        
+        $('.page-header').on('click', '.search-form', function(e) {
+            $(this).addClass("open");
+            $(this).find('.form-control').focus();
+
+            $('.page-header .search-form .form-control').on('blur', function(e) {
+                $(this).closest('.search-form').removeClass("open");
+                $(this).unbind("blur");
+            });
+        });
+
+        // handle hor menu search form on enter press
+        $('.page-header').on('keypress', '.hor-menu .search-form .form-control', function(e) {
+            if (e.which == 13) {
+                $(this).closest('.search-form').submit();
+                return false;
+            }
+        });
+
+        // handle header search button click
+        $('.page-header').on('mousedown', '.search-form.open .submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).closest('.search-form').submit();
+        });
+    };
+
+    // Handles the go to top button at the footer
+    var handleGoTop = function() {
+        var offset = 300;
+        var duration = 500;
+
+        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) { // ios supported
+            $(window).bind("touchend touchcancel touchleave", function(e) {
+                if ($(this).scrollTop() > offset) {
+                    $('.scroll-to-top').fadeIn(duration);
+                } else {
+                    $('.scroll-to-top').fadeOut(duration);
+                }
+            });
+        } else { // general 
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > offset) {
+                    $('.scroll-to-top').fadeIn(duration);
+                } else {
+                    $('.scroll-to-top').fadeOut(duration);
+                }
+            });
+        }
+
+        $('.scroll-to-top').click(function(e) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: 0
+            }, duration);
+            return false;
+        });
+    };
+    //* END:CORE HANDLERS *//
+
+    return {
+
+        // Main init methods to initialize the layout
+        // IMPORTANT!!!: Do not modify the core handlers call order.
+
+        initHeader: function() {
+            handleHeader(); // handles horizontal menu    
+        },
+
+        setSidebarMenuActiveLink: function(mode, el) {
+            handleSidebarMenuActiveLink(mode, el);
+        },
+
+        initSidebar: function() {
+            //layout handlers
+            //handleFixedSidebar(); // handles fixed sidebar menu
+            handleSidebarMenu(); // handles main menu
+            handleSidebarToggler(); // handles sidebar hide/show
+
+            if (Metronic.isAngularJsApp()) {      
+                handleSidebarMenuActiveLink('match'); // init sidebar active links 
+            }
+
+            //Metronic.addResizeHandler(handleFixedSidebar); // reinitialize fixed sidebar on window resize
+        },
+
+        initContent: function() {
+            return; 
+        },
+
+        initFooter: function() {
+            handleGoTop(); //handles scroll to top functionality in the footer
+        },
+
+        init: function () {            
+            this.initHeader();
+            this.initSidebar();
+            this.initContent();
+            this.initFooter();
+        },
+
+        //public function to fix the sidebar and content height accordingly
+        fixContentHeight: function() {
+            return;
+        },
+
+        initFixedSidebarHoverEffect: function() {
+            handleFixedSidebarHoverEffect();
+        },
+
+        initFixedSidebar: function() {
+            handleFixedSidebar();
+        },
+
+        getLayoutImgPath: function() {
+            return Metronic.getAssetsPath() + layoutImgPath;
+        },
+
+        getLayoutCssPath: function() {
+            return Metronic.getAssetsPath() + layoutCssPath;
         }
     };
 
@@ -67329,2088 +70943,6 @@ the specific language governing permissions and limitations under the Apache Lic
 
 }(jQuery));
 
-/**
-Core script to handle the entire theme and core functions
-**/
-var Layout = function() {
-
-    var layoutImgPath = 'admin/layout4/img/';
-
-    var layoutCssPath = 'admin/layout4/css/';
-
-    var resBreakpointMd = Metronic.getResponsiveBreakpoint('md');
-
-    //* BEGIN:CORE HANDLERS *//
-    // this function handles responsive layout on screen size resize or mobile device rotate.
-
-
-    // Handle sidebar menu links
-    var handleSidebarMenuActiveLink = function(mode, el) {
-        var url = location.hash.toLowerCase();    
-
-        var menu = $('.page-sidebar-menu');
-
-        if (mode === 'click' || mode === 'set') {
-            el = $(el);
-        } else if (mode === 'match') {
-            menu.find("li > a").each(function() {
-                var path = $(this).attr("href").toLowerCase();       
-                // url match condition         
-                if (path.length > 1 && url.substr(1, path.length - 1) == path.substr(1)) {
-                    el = $(this);
-                    return; 
-                }
-            });
-        }
-
-        if (!el || el.size() == 0) {
-            return;
-        }
-
-        if (el.attr('href').toLowerCase() === 'javascript:;' || el.attr('href').toLowerCase() === '#') {
-            return;
-        }        
-
-        var slideSpeed = parseInt(menu.data("slide-speed"));
-        var keepExpand = menu.data("keep-expanded");
-
-        // disable active states
-        menu.find('li.active').removeClass('active');
-        menu.find('li > a > .selected').remove();
-
-        if (menu.hasClass('page-sidebar-menu-hover-submenu') === false) {
-            menu.find('li.open').each(function(){
-                if ($(this).children('.sub-menu').size() === 0) {
-                    $(this).removeClass('open');
-                    $(this).find('> a > .arrow.open').removeClass('open');
-                }                             
-            }); 
-        } else {
-             menu.find('li.open').removeClass('open');
-        }
-
-        el.parents('li').each(function () {
-            $(this).addClass('active');
-            $(this).find('> a > span.arrow').addClass('open');
-
-            if ($(this).parent('ul.page-sidebar-menu').size() === 1) {
-                $(this).find('> a').append('<span class="selected"></span>');
-            }
-            
-            if ($(this).children('ul.sub-menu').size() === 1) {
-                $(this).addClass('open');
-            }
-        });
-
-        if (mode === 'click') {
-            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.page-header .responsive-toggler').click();
-            }
-        }
-    };
-
-    // Handle sidebar menu
-    var handleSidebarMenu = function() {
-        $('.page-sidebar').on('click', 'li > a', function(e) {
-
-            if (Metronic.getViewPort().width >= resBreakpointMd && $(this).parents('.page-sidebar-menu-hover-submenu').size() === 1) { // exit of hover sidebar menu
-                return;
-            }
-
-            if ($(this).next().hasClass('sub-menu') === false) {
-                if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
-                    $('.page-header .responsive-toggler').click();
-                }
-                return;
-            }
-
-            if ($(this).next().hasClass('sub-menu always-open')) {
-                return;
-            }
-
-            var parent = $(this).parent().parent();
-            var the = $(this);
-            var menu = $('.page-sidebar-menu');
-            var sub = $(this).next();
-
-            var autoScroll = menu.data("auto-scroll");
-            var slideSpeed = parseInt(menu.data("slide-speed"));
-            var keepExpand = menu.data("keep-expanded");
-
-            if (keepExpand !== true) {
-                parent.children('li.open').children('a').children('.arrow').removeClass('open');
-                parent.children('li.open').children('.sub-menu:not(.always-open)').slideUp(slideSpeed);
-                parent.children('li.open').removeClass('open');
-            }
-
-            var slideOffeset = -200;
-
-            if (sub.is(":visible")) {
-                $('.arrow', $(this)).removeClass("open");
-                $(this).parent().removeClass("open");
-                sub.slideUp(slideSpeed, function() {
-                    if (autoScroll === true && $('body').hasClass('page-sidebar-closed') === false) {
-                        if ($('body').hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            Metronic.scrollTo(the, slideOffeset);
-                        }
-                    }
-                });
-            } else {
-                $('.arrow', $(this)).addClass("open");
-                $(this).parent().addClass("open");
-                sub.slideDown(slideSpeed, function() {
-                    if (autoScroll === true && $('body').hasClass('page-sidebar-closed') === false) {
-                        if ($('body').hasClass('page-sidebar-fixed')) {
-                            menu.slimScroll({
-                                'scrollTo': (the.position()).top
-                            });
-                        } else {
-                            Metronic.scrollTo(the, slideOffeset);
-                        }
-                    }
-                });
-            }
-
-            e.preventDefault();
-        });
-
-        // handle ajax links within sidebar menu
-        $('.page-sidebar').on('click', ' li > a.ajaxify', function(e) {
-            e.preventDefault();
-            Metronic.scrollTop();
-
-            var url = $(this).attr("href");
-            var menuContainer = $('.page-sidebar ul');
-            var pageContent = $('.page-content');
-            var pageContentBody = $('.page-content .page-content-body');
-
-            menuContainer.children('li.active').removeClass('active');
-            menuContainer.children('arrow.open').removeClass('open');
-
-            $(this).parents('li').each(function() {
-                $(this).addClass('active');
-                $(this).children('a > span.arrow').addClass('open');
-            });
-            $(this).parents('li').addClass('active');
-
-            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.page-header .responsive-toggler').click();
-            }
-
-            Metronic.startPageLoading();
-
-            var the = $(this);
-
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: url,
-                dataType: "html",
-                success: function(res) {
-
-                    if (the.parents('li.open').size() === 0) {
-                        $('.page-sidebar-menu > li.open > a').click();
-                    }
-
-                    Metronic.stopPageLoading();
-                    pageContentBody.html(res);
-                    Layout.fixContentHeight(); // fix content height
-                    Metronic.initAjax(); // initialize core stuff
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    Metronic.stopPageLoading();
-                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
-                }
-            });
-        });
-
-        // handle ajax link within main content
-        $('.page-content').on('click', '.ajaxify', function(e) {
-            e.preventDefault();
-            Metronic.scrollTop();
-
-            var url = $(this).attr("href");
-            var pageContent = $('.page-content');
-            var pageContentBody = $('.page-content .page-content-body');
-
-            Metronic.startPageLoading();
-
-            if (Metronic.getViewPort().width < resBreakpointMd && $('.page-sidebar').hasClass("in")) { // close the menu on mobile view while laoding a page 
-                $('.page-header .responsive-toggler').click();
-            }
-
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: url,
-                dataType: "html",
-                success: function(res) {
-                    Metronic.stopPageLoading();
-                    pageContentBody.html(res);
-                    Layout.fixContentHeight(); // fix content height
-                    Metronic.initAjax(); // initialize core stuff
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    pageContentBody.html('<h4>Could not load the requested content.</h4>');
-                    Metronic.stopPageLoading();
-                }
-            });
-        });
-
-        // handle scrolling to top on responsive menu toggler click when header is fixed for mobile view
-        $(document).on('click', '.page-header-fixed-mobile .responsive-toggler', function(){
-            Metronic.scrollTop();
-        });      
-    };
-
-    // Helper function to calculate sidebar height for fixed sidebar layout.
-    var _calculateFixedSidebarViewportHeight = function() {
-        var sidebarHeight = Metronic.getViewPort().height - $('.page-header').outerHeight() - 30;
-        if ($('body').hasClass("page-footer-fixed")) {
-            sidebarHeight = sidebarHeight - $('.page-footer').outerHeight();
-        }
-
-        return sidebarHeight;
-    };
-
-    // Handles fixed sidebar
-    var handleFixedSidebar = function() {
-        var menu = $('.page-sidebar-menu');
-
-        Metronic.destroySlimScroll(menu);
-
-        if ($('.page-sidebar-fixed').size() === 0) {
-            return;
-        }
-
-        if (Metronic.getViewPort().width >= resBreakpointMd) {
-            menu.attr("data-height", _calculateFixedSidebarViewportHeight());
-            Metronic.initSlimScroll(menu);
-        }
-    };
-
-    // Handles sidebar toggler to close/hide the sidebar.
-    var handleFixedSidebarHoverEffect = function () {
-        var body = $('body');
-        if (body.hasClass('page-sidebar-fixed')) {
-            $('.page-sidebar').on('mouseenter', function () {
-                if (body.hasClass('page-sidebar-closed')) {
-                    $(this).find('.page-sidebar-menu').removeClass('page-sidebar-menu-closed');
-                }
-            }).on('mouseleave', function () {
-                if (body.hasClass('page-sidebar-closed')) {
-                    $(this).find('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
-                }
-            });
-        }
-    };
-
-    // Hanles sidebar toggler
-    var handleSidebarToggler = function() {
-        var body = $('body');
-        if ($.cookie && $.cookie('sidebar_closed') === '1' && Metronic.getViewPort().width >= resBreakpointMd) {
-            $('body').addClass('page-sidebar-closed');
-            $('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
-        }
-
-        // handle sidebar show/hide
-        $('body').on('click', '.sidebar-toggler', function(e) {
-            var sidebar = $('.page-sidebar');
-            var sidebarMenu = $('.page-sidebar-menu');
-            $(".sidebar-search", sidebar).removeClass("open");
-
-            if (body.hasClass("page-sidebar-closed")) {
-                body.removeClass("page-sidebar-closed");
-                sidebarMenu.removeClass("page-sidebar-menu-closed");
-                if ($.cookie) {
-                    $.cookie('sidebar_closed', '0');
-                }
-            } else {
-                body.addClass("page-sidebar-closed");
-                sidebarMenu.addClass("page-sidebar-menu-closed");
-                if (body.hasClass("page-sidebar-fixed")) {
-                    sidebarMenu.trigger("mouseleave");
-                }
-                if ($.cookie) {
-                    $.cookie('sidebar_closed', '1');
-                }
-            }
-
-            $(window).trigger('resize');
-        });
-
-        handleFixedSidebarHoverEffect();
-
-        // handle the search bar close
-        $('.page-sidebar').on('click', '.sidebar-search .remove', function(e) {
-            e.preventDefault();
-            $('.sidebar-search').removeClass("open");
-        });
-
-        // handle the search query submit on enter press
-        $('.page-sidebar .sidebar-search').on('keypress', 'input.form-control', function(e) {
-            if (e.which == 13) {
-                $('.sidebar-search').submit();
-                return false; //<---- Add this line
-            }
-        });
-
-        // handle the search submit(for sidebar search and responsive mode of the header search)
-        $('.sidebar-search .submit').on('click', function(e) {
-            e.preventDefault();
-            if ($('body').hasClass("page-sidebar-closed")) {
-                if ($('.sidebar-search').hasClass('open') === false) {
-                    if ($('.page-sidebar-fixed').size() === 1) {
-                        $('.page-sidebar .sidebar-toggler').click(); //trigger sidebar toggle button
-                    }
-                    $('.sidebar-search').addClass("open");
-                } else {
-                    $('.sidebar-search').submit();
-                }
-            } else {
-                $('.sidebar-search').submit();
-            }
-        });
-
-        // handle close on body click
-        if ($('.sidebar-search').size() !== 0) {
-            $('.sidebar-search .input-group').on('click', function(e) {
-                e.stopPropagation();
-            });
-
-            $('body').on('click', function() {
-                if ($('.sidebar-search').hasClass('open')) {
-                    $('.sidebar-search').removeClass("open");
-                }
-            });
-        }
-    };
-
-    // Handles the horizontal menu
-    var handleHeader = function() {
-        // handle search box expand/collapse        
-        $('.page-header').on('click', '.search-form', function(e) {
-            $(this).addClass("open");
-            $(this).find('.form-control').focus();
-
-            $('.page-header .search-form .form-control').on('blur', function(e) {
-                $(this).closest('.search-form').removeClass("open");
-                $(this).unbind("blur");
-            });
-        });
-
-        // handle hor menu search form on enter press
-        $('.page-header').on('keypress', '.hor-menu .search-form .form-control', function(e) {
-            if (e.which == 13) {
-                $(this).closest('.search-form').submit();
-                return false;
-            }
-        });
-
-        // handle header search button click
-        $('.page-header').on('mousedown', '.search-form.open .submit', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $(this).closest('.search-form').submit();
-        });
-    };
-
-    // Handles the go to top button at the footer
-    var handleGoTop = function() {
-        var offset = 300;
-        var duration = 500;
-
-        if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) { // ios supported
-            $(window).bind("touchend touchcancel touchleave", function(e) {
-                if ($(this).scrollTop() > offset) {
-                    $('.scroll-to-top').fadeIn(duration);
-                } else {
-                    $('.scroll-to-top').fadeOut(duration);
-                }
-            });
-        } else { // general 
-            $(window).scroll(function() {
-                if ($(this).scrollTop() > offset) {
-                    $('.scroll-to-top').fadeIn(duration);
-                } else {
-                    $('.scroll-to-top').fadeOut(duration);
-                }
-            });
-        }
-
-        $('.scroll-to-top').click(function(e) {
-            e.preventDefault();
-            $('html, body').animate({
-                scrollTop: 0
-            }, duration);
-            return false;
-        });
-    };
-    //* END:CORE HANDLERS *//
-
-    return {
-
-        // Main init methods to initialize the layout
-        // IMPORTANT!!!: Do not modify the core handlers call order.
-
-        initHeader: function() {
-            handleHeader(); // handles horizontal menu    
-        },
-
-        setSidebarMenuActiveLink: function(mode, el) {
-            handleSidebarMenuActiveLink(mode, el);
-        },
-
-        initSidebar: function() {
-            //layout handlers
-            //handleFixedSidebar(); // handles fixed sidebar menu
-            handleSidebarMenu(); // handles main menu
-            handleSidebarToggler(); // handles sidebar hide/show
-
-            if (Metronic.isAngularJsApp()) {      
-                handleSidebarMenuActiveLink('match'); // init sidebar active links 
-            }
-
-            //Metronic.addResizeHandler(handleFixedSidebar); // reinitialize fixed sidebar on window resize
-        },
-
-        initContent: function() {
-            return; 
-        },
-
-        initFooter: function() {
-            handleGoTop(); //handles scroll to top functionality in the footer
-        },
-
-        init: function () {            
-            this.initHeader();
-            this.initSidebar();
-            this.initContent();
-            this.initFooter();
-        },
-
-        //public function to fix the sidebar and content height accordingly
-        fixContentHeight: function() {
-            return;
-        },
-
-        initFixedSidebarHoverEffect: function() {
-            handleFixedSidebarHoverEffect();
-        },
-
-        initFixedSidebar: function() {
-            handleFixedSidebar();
-        },
-
-        getLayoutImgPath: function() {
-            return Metronic.getAssetsPath() + layoutImgPath;
-        },
-
-        getLayoutCssPath: function() {
-            return Metronic.getAssetsPath() + layoutCssPath;
-        }
-    };
-
-}();
-
-/* =========================================================
- * bootstrap-datetimepicker.js
- * =========================================================
- * Copyright 2012 Stefan Petre
- * Improvements by Andrew Rowls
- * Improvements by Sébastien Malot
- * Improvements by Yun Lai
- * Improved by Keenthemes for Bootstrap 3.0 Support
-
- * Project URL : http://www.malot.fr/bootstrap-datetimepicker
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================= */
-
-!function( $ ) {
-
-	function UTCDate(){
-		return new Date(Date.UTC.apply(Date, arguments));
-	}
-	function UTCToday(){
-		var today = new Date();
-		return UTCDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), today.getUTCHours(), today.getUTCMinutes(), today.getUTCSeconds(), 0);
-	}
-
-	// Picker object
-
-	var Datetimepicker = function(element, options) {
-		var that = this;
-
-		this.element = $(element);
-		this.language = options.language || this.element.data('date-language') || "en";
-		this.language = this.language in dates ? this.language : "en";
-		this.isRTL = dates[this.language].rtl || ($('body').css("direction") == 'rtl');
-		this.formatType = options.formatType || this.element.data('format-type') || 'standard';
-		this.format = DPGlobal.parseFormat(options.format || this.element.data('date-format') || dates[this.language].format || DPGlobal.getDefaultFormat(this.formatType, 'input'), this.formatType);
-		this.isInline = false;
-		this.isVisible = false;
-		this.isInput = this.element.is('input');
-		this.component = this.element.is('.date') ? this.element.find('.date-set').parent() : false;
-		this.componentReset = this.element.is('.date') ? this.element.find('.date-reset').parent() : false;
-		this.hasInput = this.component && this.element.find('input').length;
-		if (this.component && this.component.length === 0) {
-			this.component = false;
-		}
-		this.linkField = options.linkField || this.element.data('link-field') || false;
-		this.linkFormat = DPGlobal.parseFormat(options.linkFormat || this.element.data('link-format') || DPGlobal.getDefaultFormat(this.formatType, 'link'), this.formatType);
-		this.minuteStep = options.minuteStep || this.element.data('minute-step') || 5;
-		this.pickerPosition = options.pickerPosition || this.element.data('picker-position') || 'bottom-right';
-				this.showMeridian = options.showMeridian || this.element.data('show-meridian') || false;
-				this.initialDate = options.initialDate || new Date();
-
-		this._attachEvents();
-		
-			this.formatViewType = "datetime";
-			if ('formatViewType' in options) {
-					this.formatViewType = options.formatViewType;
-			} else if ('formatViewType' in this.element.data()) {
-					this.formatViewType = this.element.data('formatViewType');
-			}
-
-		this.minView = 0;
-		if ('minView' in options) {
-			this.minView = options.minView;
-		} else if ('minView' in this.element.data()) {
-			this.minView = this.element.data('min-view');
-		}
-		this.minView = DPGlobal.convertViewMode(this.minView);
-
-		this.maxView = DPGlobal.modes.length-1;
-		if ('maxView' in options) {
-			this.maxView = options.maxView;
-		} else if ('maxView' in this.element.data()) {
-			this.maxView = this.element.data('max-view');
-		}
-		this.maxView = DPGlobal.convertViewMode(this.maxView);
-
-        this.wheelViewModeNavigation = false;
-        if('wheelViewModeNavigation' in options){
-            this.wheelViewModeNavigation = options.wheelViewModeNavigation;
-        }else if('wheelViewModeNavigation' in this.element.data()){
-            this.wheelViewModeNavigation = this.element.data('view-mode-wheel-navigation');
-        }
-
-        this.wheelViewModeNavigationInverseDirection = false;
-
-        if('wheelViewModeNavigationInverseDirection' in options){
-            this.wheelViewModeNavigationInverseDirection = options.wheelViewModeNavigationInverseDirection;
-        }else if('wheelViewModeNavigationInverseDirection' in this.element.data()){
-            this.wheelViewModeNavigationInverseDirection = this.element.data('view-mode-wheel-navigation-inverse-dir');
-        }
-
-        this.wheelViewModeNavigationDelay = 100;
-        if('wheelViewModeNavigationDelay' in options){
-            this.wheelViewModeNavigationDelay = options.wheelViewModeNavigationDelay;
-        }else if('wheelViewModeNavigationDelay' in this.element.data()){
-            this.wheelViewModeNavigationDelay = this.element.data('view-mode-wheel-navigation-delay');
-        }
-
-		this.startViewMode = 2;
-		if ('startView' in options) {
-			this.startViewMode = options.startView;
-		} else if ('startView' in this.element.data()) {
-			this.startViewMode = this.element.data('start-view');
-		}
-		this.startViewMode = DPGlobal.convertViewMode(this.startViewMode);
-		this.viewMode = this.startViewMode;
-
-				this.viewSelect = this.minView;
-				if ('viewSelect' in options) {
-						this.viewSelect = options.viewSelect;
-				} else if ('viewSelect' in this.element.data()) {
-						this.viewSelect = this.element.data('view-select');
-				}
-				this.viewSelect = DPGlobal.convertViewMode(this.viewSelect);
-
-		this.forceParse = true;
-		if ('forceParse' in options) {
-			this.forceParse = options.forceParse;
-		} else if ('dateForceParse' in this.element.data()) {
-			this.forceParse = this.element.data('date-force-parse');
-		}
-
-		this.picker = $(DPGlobal.template)
-							.appendTo(this.isInline ? this.element : 'body')
-							.on({
-								click: $.proxy(this.click, this),
-								mousedown: $.proxy(this.mousedown, this)
-							});
-
-        if(this.wheelViewModeNavigation)
-        {
-            if($.fn.mousewheel)
-            {
-                this.picker.on({mousewheel: $.proxy(this.mousewheel,this)});
-            }else
-            {
-                console.log("Mouse Wheel event is not supported. Please include the jQuery Mouse Wheel plugin before enabling this option");
-            }
-        }
-
-		if (this.isInline) {
-			this.picker.addClass('datetimepicker-inline');
-		} else {
-			this.picker.addClass('datetimepicker-dropdown-' + this.pickerPosition + ' dropdown-menu');
-		}
-		if (this.isRTL){
-			this.picker.addClass('datetimepicker-rtl');
-			this.picker.find('.prev i, .next i')
-						.toggleClass('fa-arrow-left fa-arrow-right');
-		}
-		$(document).on('mousedown', function (e) {
-			// Clicked outside the datetimepicker, hide it
-			if ($(e.target).closest('.datetimepicker').length === 0) {
-				that.hide();
-			}
-		});
-
-		this.autoclose = false;
-		if ('autoclose' in options) {
-			this.autoclose = options.autoclose;
-		} else if ('dateAutoclose' in this.element.data()) {
-			this.autoclose = this.element.data('date-autoclose');
-		}
-
-		this.keyboardNavigation = true;
-		if ('keyboardNavigation' in options) {
-			this.keyboardNavigation = options.keyboardNavigation;
-		} else if ('dateKeyboardNavigation' in this.element.data()) {
-			this.keyboardNavigation = this.element.data('date-keyboard-navigation');
-		}
-
-		this.todayBtn = (options.todayBtn || this.element.data('date-today-btn') || false);
-		this.todayHighlight = (options.todayHighlight || this.element.data('date-today-highlight') || false);
-
-		this.weekStart = ((options.weekStart || this.element.data('date-weekstart') || dates[this.language].weekStart || 0) % 7);
-		this.weekEnd = ((this.weekStart + 6) % 7);
-		this.startDate = -Infinity;
-		this.endDate = Infinity;
-		this.daysOfWeekDisabled = [];
-		this.setStartDate(options.startDate || this.element.data('date-startdate'));
-		this.setEndDate(options.endDate || this.element.data('date-enddate'));
-		this.setDaysOfWeekDisabled(options.daysOfWeekDisabled || this.element.data('date-days-of-week-disabled'));
-		this.fillDow();
-		this.fillMonths();
-		this.update();
-		this.showMode();
-
-		if(this.isInline) {
-			this.show();
-		}
-	};
-
-	Datetimepicker.prototype = {
-		constructor: Datetimepicker,
-
-		_events: [],
-		_attachEvents: function(){
-			this._detachEvents();
-			if (this.isInput) { // single input
-				this._events = [
-					[this.element, {
-						focus: $.proxy(this.show, this),
-						keyup: $.proxy(this.update, this),
-						keydown: $.proxy(this.keydown, this)
-					}]
-				];
-			}
-			else if (this.component && this.hasInput){ // component: input + button
-				this._events = [
-					// For components that are not readonly, allow keyboard nav
-					[this.element.find('input'), {
-						focus: $.proxy(this.show, this),
-						keyup: $.proxy(this.update, this),
-						keydown: $.proxy(this.keydown, this)
-					}],
-					[this.component, {
-						click: $.proxy(this.show, this)
-					}]
-				];
-				if (this.componentReset) {
-					this._events.push([
-						this.componentReset,
-						{click: $.proxy(this.reset, this)}
-					]);
-				}
-			}
-			else if (this.element.is('div')) {  // inline datetimepicker
-				this.isInline = true;
-			}
-			else {
-				this._events = [
-					[this.element, {
-						click: $.proxy(this.show, this)
-					}]
-				];
-			}
-			for (var i=0, el, ev; i<this._events.length; i++){
-				el = this._events[i][0];
-				ev = this._events[i][1];
-				el.on(ev);
-			}
-		},
-		
-		_detachEvents: function(){
-			for (var i=0, el, ev; i<this._events.length; i++){
-				el = this._events[i][0];
-				ev = this._events[i][1];
-				el.off(ev);
-			}
-			this._events = [];
-		},
-
-		show: function(e) {
-			this.picker.show();
-			this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
-			if (this.forceParse) {
-				this.update();
-			}
-			this.place();
-			$(window).on('resize', $.proxy(this.place, this));
-			if (e) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-			this.isVisible = true;
-			this.element.trigger({
-				type: 'show',
-				date: this.date
-			});
-		},
-
-		hide: function(e){
-			if(!this.isVisible) return;
-			if(this.isInline) return;
-			this.picker.hide();
-			$(window).off('resize', this.place);
-			this.viewMode = this.startViewMode;
-			this.showMode();
-			if (!this.isInput) {
-				$(document).off('mousedown', this.hide);
-			}
-
-			if (
-				this.forceParse &&
-				(
-					this.isInput && this.element.val()  || 
-					this.hasInput && this.element.find('input').val()
-				)
-			)
-				this.setValue();
-			this.isVisible = false;
-			this.element.trigger({
-				type: 'hide',
-				date: this.date
-			});
-		},
-
-		remove: function() {
-			this._detachEvents();
-			this.picker.remove();
-			delete this.picker;
-			delete this.element.data().datetimepicker;
-		},
-
-		getDate: function() {
-			var d = this.getUTCDate();
-			return new Date(d.getTime() + (d.getTimezoneOffset()*60000));
-		},
-
-		getUTCDate: function() {
-			return this.date;
-		},
-
-		setDate: function(d) {
-			this.setUTCDate(new Date(d.getTime() - (d.getTimezoneOffset()*60000)));
-		},
-
-		setUTCDate: function(d) {
-			if (d >= this.startDate && d <= this.endDate) {
-				this.date = d;
-				this.setValue();
-				this.viewDate = this.date;
-				this.fill();
-			} else {
-				this.element.trigger({
-					type: 'outOfRange',
-					date: d,
-					startDate: this.startDate,
-					endDate: this.endDate
-				});
-			}
-		},
-
-        setFormat: function(format) {
-            this.format = DPGlobal.parseFormat(format, this.formatType);
-            var element;
-            if (this.isInput) {
-                element = this.element;
-            } else if (this.component){
-                element = this.element.find('input');
-            }
-            if (element && element.val()) {
-                this.setValue();
-            }
-        },
-
-		setValue: function() {
-			var formatted = this.getFormattedDate();
-			if (!this.isInput) {
-				if (this.component){
-					this.element.find('input').val(formatted);
-				}
-				this.element.data('date', formatted);
-			} else {
-				this.element.val(formatted);
-			}
-			if (this.linkField) {
-				$('#' + this.linkField).val(this.getFormattedDate(this.linkFormat));
-			}
-		},
-
-		getFormattedDate: function(format) {
-			if(format == undefined) format = this.format;
-			return DPGlobal.formatDate(this.date, format, this.language, this.formatType);
-		},
-
-		setStartDate: function(startDate){
-			this.startDate = startDate || -Infinity;
-			if (this.startDate !== -Infinity) {
-				this.startDate = DPGlobal.parseDate(this.startDate, this.format, this.language, this.formatType);
-			}
-			this.update();
-			this.updateNavArrows();
-		},
-
-		setEndDate: function(endDate){
-			this.endDate = endDate || Infinity;
-			if (this.endDate !== Infinity) {
-				this.endDate = DPGlobal.parseDate(this.endDate, this.format, this.language, this.formatType);
-			}
-			this.update();
-			this.updateNavArrows();
-		},
-
-		setDaysOfWeekDisabled: function(daysOfWeekDisabled){
-			this.daysOfWeekDisabled = daysOfWeekDisabled || [];
-			if (!$.isArray(this.daysOfWeekDisabled)) {
-				this.daysOfWeekDisabled = this.daysOfWeekDisabled.split(/,\s*/);
-			}
-			this.daysOfWeekDisabled = $.map(this.daysOfWeekDisabled, function (d) {
-				return parseInt(d, 10);
-			});
-			this.update();
-			this.updateNavArrows();
-		},
-
-		place: function(){
-			if(this.isInline) return;
-			var zIndex = parseInt(this.element.parents().filter(function() {
-				return $(this).css('z-index') != 'auto';
-			}).first().css('z-index'))+10;
-			var offset, top, left;
-			if (this.component) {
-				offset = this.component.offset();
-				left = offset.left;
-				if (this.pickerPosition == 'bottom-left' || this.pickerPosition == 'top-left') {
-					left += this.component.outerWidth() - this.picker.outerWidth();
-				}
-			} else {
-				offset = this.element.offset();
-				left = offset.left;
-			}
-			if (this.pickerPosition == 'top-left' || this.pickerPosition == 'top-right') {
-				top = offset.top - this.picker.outerHeight();
-			} else {
-				top = offset.top + this.height;
-			}
-			this.picker.css({
-				top: top,
-				left: left,
-				zIndex: zIndex
-			});
-		},
-
-		update: function(){
-			var date, fromArgs = false;
-			if(arguments && arguments.length && (typeof arguments[0] === 'string' || arguments[0] instanceof Date)) {
-				date = arguments[0];
-				fromArgs = true;
-			} else {
-                date = this.element.data('date') || (this.isInput ? this.element.val() : this.element.find('input').val()) || this.initialDate;
-			}
-
-			if (!date) {
-				date = new Date();
-				fromArgs = false;
-			}
-
-			this.date = DPGlobal.parseDate(date, this.format, this.language, this.formatType);
-
-			if (fromArgs) this.setValue();
-
-			if (this.date < this.startDate) {
-				this.viewDate = new Date(this.startDate);
-			} else if (this.date > this.endDate) {
-				this.viewDate = new Date(this.endDate);
-			} else {
-				this.viewDate = new Date(this.date);
-			}
-			this.fill();
-		},
-
-		fillDow: function(){
-			var dowCnt = this.weekStart,
-			html = '<tr>';
-			while (dowCnt < this.weekStart + 7) {
-				html += '<th class="dow">'+dates[this.language].daysMin[(dowCnt++)%7]+'</th>';
-			}
-			html += '</tr>';
-			this.picker.find('.datetimepicker-days thead').append(html);
-		},
-
-		fillMonths: function(){
-			var html = '',
-			i = 0;
-			while (i < 12) {
-				html += '<span class="month">'+dates[this.language].monthsShort[i++]+'</span>';
-			}
-			this.picker.find('.datetimepicker-months td').html(html);
-		},
-
-		fill: function() {
-			if (this.date == null || this.viewDate == null) {
-				return;
-			}
-			var d = new Date(this.viewDate),
-				year = d.getUTCFullYear(),
-				month = d.getUTCMonth(),
-				dayMonth = d.getUTCDate(),
-				hours = d.getUTCHours(),
-				minutes = d.getUTCMinutes(),
-				startYear = this.startDate !== -Infinity ? this.startDate.getUTCFullYear() : -Infinity,
-				startMonth = this.startDate !== -Infinity ? this.startDate.getUTCMonth() : -Infinity,
-				endYear = this.endDate !== Infinity ? this.endDate.getUTCFullYear() : Infinity,
-				endMonth = this.endDate !== Infinity ? this.endDate.getUTCMonth() : Infinity,
-				currentDate = (new UTCDate(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate())).valueOf(),
-				today = new Date();
-			this.picker.find('.datetimepicker-days thead th:eq(1)')
-						.text(dates[this.language].months[month]+' '+year);
-				if (this.formatViewType == "time") {
-						var hourConverted = hours % 12 ? hours % 12 : 12;
-						var hoursDisplay = (hourConverted < 10 ? '0' : '') + hourConverted;
-						var minutesDisplay = (minutes < 10 ? '0' : '') + minutes;
-						var meridianDisplay = dates[this.language].meridiem[hours < 12 ? 0 : 1];
-						this.picker.find('.datetimepicker-hours thead th:eq(1)')
-								.text(hoursDisplay + ':' + minutesDisplay + ' ' + meridianDisplay.toUpperCase());
-						this.picker.find('.datetimepicker-minutes thead th:eq(1)')
-								.text(hoursDisplay + ':' + minutesDisplay + ' ' + meridianDisplay.toUpperCase());
-				} else {
-						this.picker.find('.datetimepicker-hours thead th:eq(1)')
-								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);
-						this.picker.find('.datetimepicker-minutes thead th:eq(1)')
-								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);		        
-				}
-				this.picker.find('tfoot th.today')
-						.text(dates[this.language].today)
-						.toggle(this.todayBtn !== false);
-			this.updateNavArrows();
-			this.fillMonths();
-			/*var prevMonth = UTCDate(year, month, 0,0,0,0,0);
-			prevMonth.setUTCDate(prevMonth.getDate() - (prevMonth.getUTCDay() - this.weekStart + 7)%7);*/
-			var prevMonth = UTCDate(year, month-1, 28,0,0,0,0),
-								day = DPGlobal.getDaysInMonth(prevMonth.getUTCFullYear(), prevMonth.getUTCMonth());
-				prevMonth.setUTCDate(day);
-					prevMonth.setUTCDate(day - (prevMonth.getUTCDay() - this.weekStart + 7)%7);
-			var nextMonth = new Date(prevMonth);
-			nextMonth.setUTCDate(nextMonth.getUTCDate() + 42);
-			nextMonth = nextMonth.valueOf();
-			var html = [];
-			var clsName;
-			while(prevMonth.valueOf() < nextMonth) {
-				if (prevMonth.getUTCDay() == this.weekStart) {
-					html.push('<tr>');
-				}
-				clsName = '';
-				if (prevMonth.getUTCFullYear() < year || (prevMonth.getUTCFullYear() == year && prevMonth.getUTCMonth() < month)) {
-					clsName += ' old';
-				} else if (prevMonth.getUTCFullYear() > year || (prevMonth.getUTCFullYear() == year && prevMonth.getUTCMonth() > month)) {
-					clsName += ' new';
-				}
-				// Compare internal UTC date with local today, not UTC today
-				if (this.todayHighlight &&
-					prevMonth.getUTCFullYear() == today.getFullYear() &&
-					prevMonth.getUTCMonth() == today.getMonth() &&
-					prevMonth.getUTCDate() == today.getDate()) {
-					clsName += ' today';
-				}
-				if (prevMonth.valueOf() == currentDate) {
-					clsName += ' active';
-				}
-				if ((prevMonth.valueOf() + 86400000) <= this.startDate || prevMonth.valueOf() > this.endDate ||
-					$.inArray(prevMonth.getUTCDay(), this.daysOfWeekDisabled) !== -1) {
-					clsName += ' disabled';
-				}
-				html.push('<td class="day'+clsName+'">'+prevMonth.getUTCDate() + '</td>');
-				if (prevMonth.getUTCDay() == this.weekEnd) {
-					html.push('</tr>');
-				}
-				prevMonth.setUTCDate(prevMonth.getUTCDate()+1);
-			}
-			this.picker.find('.datetimepicker-days tbody').empty().append(html.join(''));
-
-			html = [];
-						var txt = '', meridian = '', meridianOld = '';
-			for (var i=0;i<24;i++) {
-				var actual = UTCDate(year, month, dayMonth, i);
-				clsName = '';
-				// We want the previous hour for the startDate
-				if ((actual.valueOf() + 3600000) <= this.startDate || actual.valueOf() > this.endDate) {
-					clsName += ' disabled';
-				} else if (hours == i) {
-					clsName += ' active';
-				}
-								if (this.showMeridian && dates[this.language].meridiem.length == 2) {
-										meridian = (i<12?dates[this.language].meridiem[0]:dates[this.language].meridiem[1]);
-										if (meridian != meridianOld) {
-												if (meridianOld != '') {
-														html.push('</fieldset>');
-												}
-												html.push('<fieldset class="hour"><legend>'+meridian.toUpperCase()+'</legend>');
-										}
-										meridianOld = meridian;
-										txt = (i%12?i%12:12);
-										html.push('<span class="hour'+clsName+' hour_'+(i<12?'am':'pm')+'">'+txt+'</span>');
-										if (i == 23) {
-												html.push('</fieldset>');
-										}
-								} else {
-										txt = i+':00';
-										html.push('<span class="hour'+clsName+'">'+txt+'</span>');
-								}
-			}
-			this.picker.find('.datetimepicker-hours td').html(html.join(''));
-
-			html = [];
-						txt = '', meridian = '', meridianOld = '';
-			for(var i=0;i<60;i+=this.minuteStep) {
-				var actual = UTCDate(year, month, dayMonth, hours, i, 0);
-				clsName = '';
-				if (actual.valueOf() < this.startDate || actual.valueOf() > this.endDate) {
-					clsName += ' disabled';
-				} else if (Math.floor(minutes/this.minuteStep) == Math.floor(i/this.minuteStep)) {
-					clsName += ' active';
-				}
-								if (this.showMeridian && dates[this.language].meridiem.length == 2) {
-										meridian = (hours<12?dates[this.language].meridiem[0]:dates[this.language].meridiem[1]);
-										if (meridian != meridianOld) {
-												if (meridianOld != '') {
-														html.push('</fieldset>');
-												}
-												html.push('<fieldset class="minute"><legend>'+meridian.toUpperCase()+'</legend>');
-										}
-										meridianOld = meridian;
-										txt = (hours%12?hours%12:12);
-										//html.push('<span class="minute'+clsName+' minute_'+(hours<12?'am':'pm')+'">'+txt+'</span>');
-										html.push('<span class="minute'+clsName+'">'+txt+':'+(i<10?'0'+i:i)+'</span>');
-										if (i == 59) {
-												html.push('</fieldset>');
-										}
-								} else {
-										txt = i+':00';
-										//html.push('<span class="hour'+clsName+'">'+txt+'</span>');
-										html.push('<span class="minute'+clsName+'">'+hours+':'+(i<10?'0'+i:i)+'</span>');
-								}
-			}
-			this.picker.find('.datetimepicker-minutes td').html(html.join(''));
-
-			var currentYear = this.date.getUTCFullYear();
-			var months = this.picker.find('.datetimepicker-months')
-						.find('th:eq(1)')
-						.text(year)
-						.end()
-						.find('span').removeClass('active');
-			if (currentYear == year) {
-				months.eq(this.date.getUTCMonth()).addClass('active');
-			}
-			if (year < startYear || year > endYear) {
-				months.addClass('disabled');
-			}
-			if (year == startYear) {
-				months.slice(0, startMonth).addClass('disabled');
-			}
-			if (year == endYear) {
-				months.slice(endMonth+1).addClass('disabled');
-			}
-
-			html = '';
-			year = parseInt(year/10, 10) * 10;
-			var yearCont = this.picker.find('.datetimepicker-years')
-								.find('th:eq(1)')
-								.text(year + '-' + (year + 9))
-								.end()
-								.find('td');
-			year -= 1;
-			for (var i = -1; i < 11; i++) {
-				html += '<span class="year'+(i == -1 || i == 10 ? ' old' : '')+(currentYear == year ? ' active' : '')+(year < startYear || year > endYear ? ' disabled' : '')+'">'+year+'</span>';
-				year += 1;
-			}
-			yearCont.html(html);
-			this.place();
-		},
-
-		updateNavArrows: function() {
-			var d = new Date(this.viewDate),
-				year = d.getUTCFullYear(),
-				month = d.getUTCMonth(),
-				day = d.getUTCDate(),
-				hour = d.getUTCHours();
-			switch (this.viewMode) {
-				case 0:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
-													 && month <= this.startDate.getUTCMonth()
-													 && day <= this.startDate.getUTCDate()
-													 && hour <= this.startDate.getUTCHours()) {
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
-													&& month >= this.endDate.getUTCMonth()
-													&& day >= this.endDate.getUTCDate()
-													&& hour >= this.endDate.getUTCHours()) {
-						this.picker.find('.next').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-				case 1:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
-													 && month <= this.startDate.getUTCMonth()
-													 && day <= this.startDate.getUTCDate()) {
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
-													&& month >= this.endDate.getUTCMonth()
-													&& day >= this.endDate.getUTCDate()) {
-						this.picker.find('.next').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-				case 2:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
-													 && month <= this.startDate.getUTCMonth()) {
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
-													&& month >= this.endDate.getUTCMonth()) {
-						this.picker.find('.next').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-				case 3:
-				case 4:
-					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear()) {
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear()) {
-						this.picker.find('.next').css({visibility: 'hidden'});
-					} else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-			}
-		},
-
-        mousewheel: function(e){
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            if(this.wheelPause)
-            {
-                return;
-            }
-
-            this.wheelPause = true;
-
-            var originalEvent = e.originalEvent;
-
-            var delta = originalEvent.wheelDelta;
-
-            var mode = delta > 0 ? 1:(delta === 0)?0:-1;
-
-            if(this.wheelViewModeNavigationInverseDirection)
-            {
-                mode = -mode;
-            }
-
-            this.showMode(mode);
-
-            setTimeout($.proxy(function(){
-
-                this.wheelPause = false
-
-            },this),this.wheelViewModeNavigationDelay);
-
-
-
-        },
-
-		click: function(e) {
-			e.stopPropagation();
-			e.preventDefault();
-			var target = $(e.target).closest('span, td, th, legend');
-			if (target.length == 1) {
-				if (target.is('.disabled')) {
-					this.element.trigger({
-						type: 'outOfRange',
-						date: this.viewDate,
-						startDate: this.startDate,
-						endDate: this.endDate
-					});
-					return;
-				}
-				switch(target[0].nodeName.toLowerCase()) {
-					case 'th':
-						switch(target[0].className) {
-							case 'switch':
-								this.showMode(1);
-								break;
-							case 'prev':
-							case 'next':
-								var dir = DPGlobal.modes[this.viewMode].navStep * (target[0].className == 'prev' ? -1 : 1);
-								switch(this.viewMode){
-									case 0:
-										this.viewDate = this.moveHour(this.viewDate, dir);
-										break;
-									case 1:
-										this.viewDate = this.moveDate(this.viewDate, dir);
-										break;
-									case 2:
-										this.viewDate = this.moveMonth(this.viewDate, dir);
-										break;
-									case 3:
-									case 4:
-										this.viewDate = this.moveYear(this.viewDate, dir);
-										break;
-								}
-								this.fill();
-								break;
-							case 'today':
-								var date = new Date();
-								date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), 0);
-
-								this.viewMode = this.startViewMode;
-								this.showMode(0);
-								this._setDate(date);
-								this.fill();
-								if (this.autoclose) {
-									this.hide();
-								}
-								break;
-						}
-						break;
-					case 'span':
-						if (!target.is('.disabled')) {
-														var year    = this.viewDate.getUTCFullYear(),
-																month   = this.viewDate.getUTCMonth(),
-																day     = this.viewDate.getUTCDate(),
-																hours   = this.viewDate.getUTCHours(),
-																minutes = this.viewDate.getUTCMinutes(),
-																seconds = this.viewDate.getUTCSeconds();
-
-							if (target.is('.month')) {
-								this.viewDate.setUTCDate(1);
-								month = target.parent().find('span').index(target);
-																day   = this.viewDate.getUTCDate();
-								this.viewDate.setUTCMonth(month);
-								this.element.trigger({
-									type: 'changeMonth',
-									date: this.viewDate
-								});
-																if (this.viewSelect >= 3) {
-										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
-																}
-							} else if (target.is('.year')) {
-								this.viewDate.setUTCDate(1);
-								year = parseInt(target.text(), 10) || 0;
-								this.viewDate.setUTCFullYear(year);
-								this.element.trigger({
-									type: 'changeYear',
-									date: this.viewDate
-								});
-																if (this.viewSelect >= 4) {
-																		this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
-																}
-							} else if (target.is('.hour')){
-								hours = parseInt(target.text(), 10) || 0;
-																if (target.hasClass('hour_am') || target.hasClass('hour_pm')) {
-																		if (hours == 12 && target.hasClass('hour_am')) {
-																				hours = 0;
-																		} else if (hours != 12 && target.hasClass('hour_pm')) {
-																				hours += 12;
-																		}
-																}
-																this.viewDate.setUTCHours(hours);
-								this.element.trigger({
-									type: 'changeHour',
-									date: this.viewDate
-								});
-																if (this.viewSelect >= 1) {
-										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
-																}
-							} else if (target.is('.minute')){
-								minutes = parseInt(target.text().substr(target.text().indexOf(':')+1), 10) || 0;
-																this.viewDate.setUTCMinutes(minutes);
-								this.element.trigger({
-									type: 'changeMinute',
-									date: this.viewDate
-								});
-																if (this.viewSelect >= 0) {
-										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
-																}
-							}
-							if (this.viewMode != 0) {
-								var oldViewMode = this.viewMode;
-								this.showMode(-1);
-								this.fill();
-								if (oldViewMode == this.viewMode && this.autoclose) {
-									this.hide();
-								}
-							} else {
-								this.fill();
-								if (this.autoclose) {
-									this.hide();
-								}
-							}
-						}
-						break;
-					case 'td':
-						if (target.is('.day') && !target.is('.disabled')){
-							var day = parseInt(target.text(), 10) || 1;
-							var year = this.viewDate.getUTCFullYear(),
-								month = this.viewDate.getUTCMonth(),
-								hours = this.viewDate.getUTCHours(),
-								minutes = this.viewDate.getUTCMinutes(),
-								seconds = this.viewDate.getUTCSeconds();
-							if (target.is('.old')) {
-								if (month === 0) {
-									month = 11;
-									year -= 1;
-								} else {
-									month -= 1;
-								}
-							} else if (target.is('.new')) {
-								if (month == 11) {
-									month = 0;
-									year += 1;
-								} else {
-									month += 1;
-								}
-							}
-														this.viewDate.setUTCFullYear(year);
-														this.viewDate.setUTCMonth(month);
-														this.viewDate.setUTCDate(day);
-														this.element.trigger({
-																type: 'changeDay',
-																date: this.viewDate
-														});
-														if (this.viewSelect >= 2) {
-									this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
-														}
-						}
-						var oldViewMode = this.viewMode;
-						this.showMode(-1);
-						this.fill();
-						if (oldViewMode == this.viewMode && this.autoclose) {
-							this.hide();
-						}
-						break;
-				}
-			}
-		},
-
-		_setDate: function(date, which){
-			if (!which || which == 'date')
-				this.date = date;
-			if (!which || which  == 'view')
-				this.viewDate = date;
-			this.fill();
-			this.setValue();
-			var element;
-			if (this.isInput) {
-				element = this.element;
-			} else if (this.component){
-				element = this.element.find('input');
-			}
-			if (element) {
-				element.change();
-				if (this.autoclose && (!which || which == 'date')) {
-					//this.hide();
-				}
-			}
-			this.element.trigger({
-				type: 'changeDate',
-				date: this.date
-			});
-		},
-
-		moveMinute: function(date, dir){
-			if (!dir) return date;
-			var new_date = new Date(date.valueOf());
-			//dir = dir > 0 ? 1 : -1;
-			new_date.setUTCMinutes(new_date.getUTCMinutes() + (dir * this.minuteStep));
-			return new_date;
-		},
-
-		moveHour: function(date, dir){
-			if (!dir) return date;
-			var new_date = new Date(date.valueOf());
-			//dir = dir > 0 ? 1 : -1;
-			new_date.setUTCHours(new_date.getUTCHours() + dir);
-			return new_date;
-		},
-
-		moveDate: function(date, dir){
-			if (!dir) return date;
-			var new_date = new Date(date.valueOf());
-			//dir = dir > 0 ? 1 : -1;
-			new_date.setUTCDate(new_date.getUTCDate() + dir);
-			return new_date;
-		},
-
-		moveMonth: function(date, dir){
-			if (!dir) return date;
-			var new_date = new Date(date.valueOf()),
-				day = new_date.getUTCDate(),
-				month = new_date.getUTCMonth(),
-				mag = Math.abs(dir),
-				new_month, test;
-			dir = dir > 0 ? 1 : -1;
-			if (mag == 1){
-				test = dir == -1
-					// If going back one month, make sure month is not current month
-					// (eg, Mar 31 -> Feb 31 == Feb 28, not Mar 02)
-					? function(){ return new_date.getUTCMonth() == month; }
-					// If going forward one month, make sure month is as expected
-					// (eg, Jan 31 -> Feb 31 == Feb 28, not Mar 02)
-					: function(){ return new_date.getUTCMonth() != new_month; };
-				new_month = month + dir;
-				new_date.setUTCMonth(new_month);
-				// Dec -> Jan (12) or Jan -> Dec (-1) -- limit expected date to 0-11
-				if (new_month < 0 || new_month > 11)
-					new_month = (new_month + 12) % 12;
-			} else {
-				// For magnitudes >1, move one month at a time...
-				for (var i=0; i<mag; i++)
-					// ...which might decrease the day (eg, Jan 31 to Feb 28, etc)...
-					new_date = this.moveMonth(new_date, dir);
-				// ...then reset the day, keeping it in the new month
-				new_month = new_date.getUTCMonth();
-				new_date.setUTCDate(day);
-				test = function(){ return new_month != new_date.getUTCMonth(); };
-			}
-			// Common date-resetting loop -- if date is beyond end of month, make it
-			// end of month
-			while (test()){
-				new_date.setUTCDate(--day);
-				new_date.setUTCMonth(new_month);
-			}
-			return new_date;
-		},
-
-		moveYear: function(date, dir){
-			return this.moveMonth(date, dir*12);
-		},
-
-		dateWithinRange: function(date){
-			return date >= this.startDate && date <= this.endDate;
-		},
-
-		keydown: function(e){
-			if (this.picker.is(':not(:visible)')){
-				if (e.keyCode == 27) // allow escape to hide and re-show picker
-					this.show();
-				return;
-			}
-			var dateChanged = false,
-				dir, day, month,
-				newDate, newViewDate;
-			switch(e.keyCode){
-				case 27: // escape
-					this.hide();
-					e.preventDefault();
-					break;
-				case 37: // left
-				case 39: // right
-					if (!this.keyboardNavigation) break;
-					dir = e.keyCode == 37 ? -1 : 1;
-										viewMode = this.viewMode;
-										if (e.ctrlKey) {
-												viewMode += 2;
-										} else if (e.shiftKey) {
-												viewMode += 1;
-										}
-										if (viewMode == 4) {
-						newDate = this.moveYear(this.date, dir);
-						newViewDate = this.moveYear(this.viewDate, dir);
-										} else if (viewMode == 3) {
-						newDate = this.moveMonth(this.date, dir);
-						newViewDate = this.moveMonth(this.viewDate, dir);
-										} else if (viewMode == 2) {
-						newDate = this.moveDate(this.date, dir);
-						newViewDate = this.moveDate(this.viewDate, dir);
-										} else if (viewMode == 1) {
-						newDate = this.moveHour(this.date, dir);
-						newViewDate = this.moveHour(this.viewDate, dir);
-										} else if (viewMode == 0) {
-						newDate = this.moveMinute(this.date, dir);
-						newViewDate = this.moveMinute(this.viewDate, dir);
-										}
-					if (this.dateWithinRange(newDate)){
-						this.date = newDate;
-						this.viewDate = newViewDate;
-						this.setValue();
-						this.update();
-						e.preventDefault();
-						dateChanged = true;
-					}
-					break;
-				case 38: // up
-				case 40: // down
-					if (!this.keyboardNavigation) break;
-					dir = e.keyCode == 38 ? -1 : 1;
-										viewMode = this.viewMode;
-										if (e.ctrlKey) {
-												viewMode += 2;
-										} else if (e.shiftKey) {
-												viewMode += 1;
-										}
-										if (viewMode == 4) {
-						newDate = this.moveYear(this.date, dir);
-						newViewDate = this.moveYear(this.viewDate, dir);
-										} else if (viewMode == 3) {
-						newDate = this.moveMonth(this.date, dir);
-						newViewDate = this.moveMonth(this.viewDate, dir);
-										} else if (viewMode == 2) {
-						newDate = this.moveDate(this.date, dir * 7);
-						newViewDate = this.moveDate(this.viewDate, dir * 7);
-										} else if (viewMode == 1) {
-												if (this.showMeridian) {
-														newDate = this.moveHour(this.date, dir * 6);
-														newViewDate = this.moveHour(this.viewDate, dir * 6);
-												} else {
-														newDate = this.moveHour(this.date, dir * 4);
-														newViewDate = this.moveHour(this.viewDate, dir * 4);
-												}
-										} else if (viewMode == 0) {
-						newDate = this.moveMinute(this.date, dir * 4);
-						newViewDate = this.moveMinute(this.viewDate, dir * 4);
-										}
-					if (this.dateWithinRange(newDate)){
-						this.date = newDate;
-						this.viewDate = newViewDate;
-						this.setValue();
-						this.update();
-						e.preventDefault();
-						dateChanged = true;
-					}
-					break;
-				case 13: // enter
-										if (this.viewMode != 0) {
-												var oldViewMode = this.viewMode;
-												this.showMode(-1);
-												this.fill();
-												if (oldViewMode == this.viewMode && this.autoclose) {
-														this.hide();
-												}
-										} else {
-												this.fill();
-												if (this.autoclose) {
-									this.hide();
-												}
-										}
-					e.preventDefault();
-					break;
-				case 9: // tab
-					this.hide();
-					break;
-			}
-			if (dateChanged){
-				var element;
-				if (this.isInput) {
-					element = this.element;
-				} else if (this.component){
-					element = this.element.find('input');
-				}
-				if (element) {
-					element.change();
-				}
-				this.element.trigger({
-					type: 'changeDate',
-					date: this.date
-				});
-			}
-		},
-
-		showMode: function(dir) {
-			if (dir) {
-				var newViewMode = Math.max(0, Math.min(DPGlobal.modes.length - 1, this.viewMode + dir));
-				if (newViewMode >= this.minView && newViewMode <= this.maxView) {
-					this.element.trigger({
-						type: 'changeMode',
-						date: this.viewDate,
-						oldViewMode: this.viewMode,
-						newViewMode: newViewMode
-					});
-
-					this.viewMode = newViewMode;
-				}
-			}
-			/*
-				vitalets: fixing bug of very special conditions:
-				jquery 1.7.1 + webkit + show inline datetimepicker in bootstrap popover.
-				Method show() does not set display css correctly and datetimepicker is not shown.
-				Changed to .css('display', 'block') solve the problem.
-				See https://github.com/vitalets/x-editable/issues/37
-
-				In jquery 1.7.2+ everything works fine.
-			*/
-			//this.picker.find('>div').hide().filter('.datetimepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
-			this.picker.find('>div').hide().filter('.datetimepicker-'+DPGlobal.modes[this.viewMode].clsName).css('display', 'block');
-			this.updateNavArrows();
-		},
-		
-		reset: function(e) {
-			this._setDate(null, 'date');
-		}
-	};
-
-	$.fn.datetimepicker = function ( option ) {
-		var args = Array.apply(null, arguments);
-		args.shift();
-		return this.each(function () {
-			var $this = $(this),
-				data = $this.data('datetimepicker'),
-				options = typeof option == 'object' && option;
-			if (!data) {
-				$this.data('datetimepicker', (data = new Datetimepicker(this, $.extend({}, $.fn.datetimepicker.defaults,options))));
-			}
-			if (typeof option == 'string' && typeof data[option] == 'function') {
-				data[option].apply(data, args);
-			}
-		});
-	};
-
-	$.fn.datetimepicker.defaults = {
-	};
-	$.fn.datetimepicker.Constructor = Datetimepicker;
-	var dates = $.fn.datetimepicker.dates = {
-		en: {
-			days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-			daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-			daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
-			months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-			monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-			meridiem: ["am", "pm"],
-			suffix: ["st", "nd", "rd", "th"],
-			today: "Today"
-		}
-	};
-
-	var DPGlobal = {
-		modes: [
-			{
-				clsName: 'minutes',
-				navFnc: 'Hours',
-				navStep: 1
-			},
-			{
-				clsName: 'hours',
-				navFnc: 'Date',
-				navStep: 1
-			},
-			{
-				clsName: 'days',
-				navFnc: 'Month',
-				navStep: 1
-			},
-			{
-				clsName: 'months',
-				navFnc: 'FullYear',
-				navStep: 1
-			},
-			{
-				clsName: 'years',
-				navFnc: 'FullYear',
-				navStep: 10
-		}],
-		isLeapYear: function (year) {
-			return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0))
-		},
-		getDaysInMonth: function (year, month) {
-			return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
-		},
-		getDefaultFormat: function (type, field) {
-			if (type == "standard") {
-				if (field == 'input')
-					return 'yyyy-mm-dd hh:ii';
-				else
-					return 'yyyy-mm-dd hh:ii:ss';
-			} else if (type == "php") {
-				if (field == 'input')
-					return 'Y-m-d H:i';
-				else
-					return 'Y-m-d H:i:s';
-			} else {
-				throw new Error("Invalid format type.");
-			}
-		},
-		validParts: function (type) {
-			if (type == "standard") {
-				return /hh?|HH?|p|P|ii?|ss?|dd?|DD?|mm?|MM?|yy(?:yy)?/g;
-			} else if (type == "php") {
-				return /[dDjlNwzFmMnStyYaABgGhHis]/g;
-			} else {
-				throw new Error("Invalid format type.");
-			}
-		},
-		nonpunctuation: /[^ -\/:-@\[-`{-~\t\n\rTZ]+/g,
-		parseFormat: function(format, type){
-			// IE treats \0 as a string end in inputs (truncating the value),
-			// so it's a bad format delimiter, anyway
-			var separators = format.replace(this.validParts(type), '\0').split('\0'),
-				parts = format.match(this.validParts(type));
-			if (!separators || !separators.length || !parts || parts.length == 0){
-				throw new Error("Invalid date format.");
-			}
-			return {separators: separators, parts: parts};
-		},
-		parseDate: function(date, format, language, type) {
-			if (date instanceof Date) {
-				var dateUTC = new Date(date.valueOf() - date.getTimezoneOffset() * 60000);
-								dateUTC.setMilliseconds(0);
-				return dateUTC;
-			}
-			if (/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(date)) {
-				format = this.parseFormat('yyyy-mm-dd', type);
-			}
-			if (/^\d{4}\-\d{1,2}\-\d{1,2}[T ]\d{1,2}\:\d{1,2}$/.test(date)) {
-				format = this.parseFormat('yyyy-mm-dd hh:ii', type);
-			}
-			if (/^\d{4}\-\d{1,2}\-\d{1,2}[T ]\d{1,2}\:\d{1,2}\:\d{1,2}[Z]{0,1}$/.test(date)) {
-				format = this.parseFormat('yyyy-mm-dd hh:ii:ss', type);
-			}
-			if (/^[-+]\d+[dmwy]([\s,]+[-+]\d+[dmwy])*$/.test(date)) {
-				var part_re = /([-+]\d+)([dmwy])/,
-					parts = date.match(/([-+]\d+)([dmwy])/g),
-					part, dir;
-				date = new Date();
-				for (var i=0; i<parts.length; i++) {
-					part = part_re.exec(parts[i]);
-					dir = parseInt(part[1]);
-					switch(part[2]){
-						case 'd':
-							date.setUTCDate(date.getUTCDate() + dir);
-							break;
-						case 'm':
-							date = Datetimepicker.prototype.moveMonth.call(Datetimepicker.prototype, date, dir);
-							break;
-						case 'w':
-							date.setUTCDate(date.getUTCDate() + dir * 7);
-							break;
-						case 'y':
-							date = Datetimepicker.prototype.moveYear.call(Datetimepicker.prototype, date, dir);
-							break;
-					}
-				}
-				return UTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), 0);
-			}
-			var parts = date && date.match(this.nonpunctuation) || [],
-				date = new Date(0, 0, 0, 0, 0, 0, 0),
-				parsed = {},
-				setters_order = ['hh', 'h', 'ii', 'i', 'ss', 's', 'yyyy', 'yy', 'M', 'MM', 'm', 'mm', 'D', 'DD', 'd', 'dd', 'H', 'HH', 'p', 'P'],
-				setters_map = {
-					hh: function(d,v){ return d.setUTCHours(v); },
-					h:  function(d,v){ return d.setUTCHours(v); },
-					HH: function(d,v){ return d.setUTCHours(v==12?0:v); },
-					H:  function(d,v){ return d.setUTCHours(v==12?0:v); },
-					ii: function(d,v){ return d.setUTCMinutes(v); },
-					i:  function(d,v){ return d.setUTCMinutes(v); },
-					ss: function(d,v){ return d.setUTCSeconds(v); },
-					s:  function(d,v){ return d.setUTCSeconds(v); },
-					yyyy: function(d,v){ return d.setUTCFullYear(v); },
-					yy: function(d,v){ return d.setUTCFullYear(2000+v); },
-					m: function(d,v){
-						v -= 1;
-						while (v<0) v += 12;
-						v %= 12;
-						d.setUTCMonth(v);
-						while (d.getUTCMonth() != v)
-							d.setUTCDate(d.getUTCDate()-1);
-						return d;
-					},
-					d: function(d,v){ return d.setUTCDate(v); },
-					p: function(d,v){ return d.setUTCHours(v==1?d.getUTCHours()+12:d.getUTCHours()); }
-				},
-				val, filtered, part;
-			setters_map['M'] = setters_map['MM'] = setters_map['mm'] = setters_map['m'];
-			setters_map['dd'] = setters_map['d'];
-					setters_map['P'] = setters_map['p'];
-			date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
-			if (parts.length == format.parts.length) {
-				for (var i=0, cnt = format.parts.length; i < cnt; i++) {
-					val = parseInt(parts[i], 10);
-					part = format.parts[i];
-					if (isNaN(val)) {
-						switch(part) {
-							case 'MM':
-								filtered = $(dates[language].months).filter(function(){
-									var m = this.slice(0, parts[i].length),
-										p = parts[i].slice(0, m.length);
-									return m == p;
-								});
-								val = $.inArray(filtered[0], dates[language].months) + 1;
-								break;
-							case 'M':
-								filtered = $(dates[language].monthsShort).filter(function(){
-									var m = this.slice(0, parts[i].length),
-										p = parts[i].slice(0, m.length);
-									return m == p;
-								});
-								val = $.inArray(filtered[0], dates[language].monthsShort) + 1;
-								break;
-								case 'p':
-								case 'P':
-										val = $.inArray(parts[i].toLowerCase(), dates[language].meridiem);
-										break;
-						}
-					}
-					parsed[part] = val;
-				}
-				for (var i=0, s; i<setters_order.length; i++){
-					s = setters_order[i];
-					if (s in parsed && !isNaN(parsed[s]))
-						setters_map[s](date, parsed[s])
-				}
-			}
-			return date;
-		},
-		formatDate: function(date, format, language, type){
-			if (date == null) {
-				return '';
-			}
-			var val;
-			if (type == 'standard') {
-				val = {
-					// year
-					yy: date.getUTCFullYear().toString().substring(2),
-					yyyy: date.getUTCFullYear(),
-					// month
-					m: date.getUTCMonth() + 1,
-					M: dates[language].monthsShort[date.getUTCMonth()],
-					MM: dates[language].months[date.getUTCMonth()],
-					// day
-					d: date.getUTCDate(),
-					D: dates[language].daysShort[date.getUTCDay()],
-					DD: dates[language].days[date.getUTCDay()],
-					p: (dates[language].meridiem.length==2?dates[language].meridiem[date.getUTCHours()<12?0:1]:''),
-					// hour
-					h: date.getUTCHours(),
-					// minute
-					i: date.getUTCMinutes(),
-					// second
-					s: date.getUTCSeconds()
-				};
-								val.H  = (val.h%12==0? 12 : val.h%12);
-								val.HH = (val.H < 10 ? '0' : '') + val.H;
-								val.P  = val.p.toUpperCase();
-				val.hh = (val.h < 10 ? '0' : '') + val.h;
-				val.ii = (val.i < 10 ? '0' : '') + val.i;
-				val.ss = (val.s < 10 ? '0' : '') + val.s;
-				val.dd = (val.d < 10 ? '0' : '') + val.d;
-				val.mm = (val.m < 10 ? '0' : '') + val.m;
-			} else if (type == 'php') {
-				// php format
-				val = {
-					// year
-					y: date.getUTCFullYear().toString().substring(2),
-					Y: date.getUTCFullYear(),
-					// month
-					F: dates[language].months[date.getUTCMonth()],
-					M: dates[language].monthsShort[date.getUTCMonth()],
-					n: date.getUTCMonth() + 1,
-					t: DPGlobal.getDaysInMonth(date.getUTCFullYear(), date.getUTCMonth()),
-					// day
-					j: date.getUTCDate(),
-					l: dates[language].days[date.getUTCDay()],
-					D: dates[language].daysShort[date.getUTCDay()],
-					w: date.getUTCDay(), // 0 -> 6
-					N: (date.getUTCDay()==0?7:date.getUTCDay()),       // 1 -> 7
-					S: (date.getUTCDate()%10<=dates[language].suffix.length?dates[language].suffix[date.getUTCDate()%10-1]:''),
-					// hour
-					a: (dates[language].meridiem.length==2?dates[language].meridiem[date.getUTCHours()<12?0:1]:''),
-					g: (date.getUTCHours()%12==0?12:date.getUTCHours()%12),
-					G: date.getUTCHours(),
-					// minute
-					i: date.getUTCMinutes(),
-					// second
-					s: date.getUTCSeconds()
-				};
-				val.m = (val.n < 10 ? '0' : '') + val.n;
-				val.d = (val.j < 10 ? '0' : '') + val.j;
-				val.A = val.a.toString().toUpperCase();
-				val.h = (val.g < 10 ? '0' : '') + val.g;
-				val.H = (val.G < 10 ? '0' : '') + val.G;
-				val.i = (val.i < 10 ? '0' : '') + val.i;
-				val.s = (val.s < 10 ? '0' : '') + val.s;
-			} else {
-				throw new Error("Invalid format type.");
-			}
-			var date = [],
-				seps = $.extend([], format.separators);
-			for (var i=0, cnt = format.parts.length; i < cnt; i++) {
-				if (seps.length)
-					date.push(seps.shift())
-				date.push(val[format.parts[i]]);
-			}
-			return date.join('');
-		},
-		convertViewMode: function(viewMode){
-			switch (viewMode) {
-				case 4:
-				case 'decade':
-					viewMode = 4;
-					break;
-				case 3:
-				case 'year':
-					viewMode = 3;
-					break;
-				case 2:
-				case 'month':
-					viewMode = 2;
-					break;
-				case 1:
-				case 'day':
-					viewMode = 1;
-					break;
-				case 0:
-				case 'hour':
-					viewMode = 0;
-					break;
-			}
-
-			return viewMode;
-		},
-		headTemplate: '<thead>'+
-							'<tr>'+
-								'<th class="prev"><i class="fa fa-angle-left"/></th>'+
-								'<th colspan="5" class="switch"></th>'+
-								'<th class="next"><i class="fa fa-angle-right"/></th>'+
-							'</tr>'+
-						'</thead>',
-		contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>',
-		footTemplate: '<tfoot><tr><th colspan="7" class="today"></th></tr></tfoot>'
-	};
-	DPGlobal.template = '<div class="datetimepicker">'+
-							'<div class="datetimepicker-minutes">'+
-								'<table class=" table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datetimepicker-hours">'+
-								'<table class=" table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datetimepicker-days">'+
-								'<table class=" table-condensed">'+
-									DPGlobal.headTemplate+
-									'<tbody></tbody>'+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datetimepicker-months">'+
-								'<table class="table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datetimepicker-years">'+
-								'<table class="table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-						'</div>';
-
-	$.fn.datetimepicker.DPGlobal = DPGlobal;
-
-
-	/* DATETIMEPICKER NO CONFLICT
-	* =================== */
-
-	$.fn.datetimepicker.noConflict = function () {
-	    $.fn.datetimepicker = old;
-	    return this;
-	};
-
-
-	/* DATETIMEPICKER DATA-API
-	* ================== */
-
-	$(document).on(
-		'focus.datetimepicker.data-api click.datetimepicker.data-api',
-		'[data-provide="datetimepicker"]',
-		function (e) {
-		    var $this = $(this);
-		    if ($this.data('datetimepicker')) return;
-		    e.preventDefault();
-		    // component click requires us to explicitly show it
-		    $this.datetimepicker('show');
-		}
-	);
-	$(function () {
-	    $('[data-provide="datetimepicker-inline"]').datetimepicker();
-	});
-
-}( window.jQuery );
-
 /* =========================================================
  * bootstrap-datepicker.js
  * Repo: https://github.com/eternicode/bootstrap-datepicker/
@@ -71084,6 +72616,1600 @@ var Layout = function() {
 	});
 
 }(window.jQuery));
+
+/* =========================================================
+ * bootstrap-datetimepicker.js
+ * =========================================================
+ * Copyright 2012 Stefan Petre
+ * Improvements by Andrew Rowls
+ * Improvements by Sébastien Malot
+ * Improvements by Yun Lai
+ * Improved by Keenthemes for Bootstrap 3.0 Support
+
+ * Project URL : http://www.malot.fr/bootstrap-datetimepicker
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================= */
+
+!function( $ ) {
+
+	function UTCDate(){
+		return new Date(Date.UTC.apply(Date, arguments));
+	}
+	function UTCToday(){
+		var today = new Date();
+		return UTCDate(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), today.getUTCHours(), today.getUTCMinutes(), today.getUTCSeconds(), 0);
+	}
+
+	// Picker object
+
+	var Datetimepicker = function(element, options) {
+		var that = this;
+
+		this.element = $(element);
+		this.language = options.language || this.element.data('date-language') || "en";
+		this.language = this.language in dates ? this.language : "en";
+		this.isRTL = dates[this.language].rtl || ($('body').css("direction") == 'rtl');
+		this.formatType = options.formatType || this.element.data('format-type') || 'standard';
+		this.format = DPGlobal.parseFormat(options.format || this.element.data('date-format') || dates[this.language].format || DPGlobal.getDefaultFormat(this.formatType, 'input'), this.formatType);
+		this.isInline = false;
+		this.isVisible = false;
+		this.isInput = this.element.is('input');
+		this.component = this.element.is('.date') ? this.element.find('.date-set').parent() : false;
+		this.componentReset = this.element.is('.date') ? this.element.find('.date-reset').parent() : false;
+		this.hasInput = this.component && this.element.find('input').length;
+		if (this.component && this.component.length === 0) {
+			this.component = false;
+		}
+		this.linkField = options.linkField || this.element.data('link-field') || false;
+		this.linkFormat = DPGlobal.parseFormat(options.linkFormat || this.element.data('link-format') || DPGlobal.getDefaultFormat(this.formatType, 'link'), this.formatType);
+		this.minuteStep = options.minuteStep || this.element.data('minute-step') || 5;
+		this.pickerPosition = options.pickerPosition || this.element.data('picker-position') || 'bottom-right';
+				this.showMeridian = options.showMeridian || this.element.data('show-meridian') || false;
+				this.initialDate = options.initialDate || new Date();
+
+		this._attachEvents();
+		
+			this.formatViewType = "datetime";
+			if ('formatViewType' in options) {
+					this.formatViewType = options.formatViewType;
+			} else if ('formatViewType' in this.element.data()) {
+					this.formatViewType = this.element.data('formatViewType');
+			}
+
+		this.minView = 0;
+		if ('minView' in options) {
+			this.minView = options.minView;
+		} else if ('minView' in this.element.data()) {
+			this.minView = this.element.data('min-view');
+		}
+		this.minView = DPGlobal.convertViewMode(this.minView);
+
+		this.maxView = DPGlobal.modes.length-1;
+		if ('maxView' in options) {
+			this.maxView = options.maxView;
+		} else if ('maxView' in this.element.data()) {
+			this.maxView = this.element.data('max-view');
+		}
+		this.maxView = DPGlobal.convertViewMode(this.maxView);
+
+        this.wheelViewModeNavigation = false;
+        if('wheelViewModeNavigation' in options){
+            this.wheelViewModeNavigation = options.wheelViewModeNavigation;
+        }else if('wheelViewModeNavigation' in this.element.data()){
+            this.wheelViewModeNavigation = this.element.data('view-mode-wheel-navigation');
+        }
+
+        this.wheelViewModeNavigationInverseDirection = false;
+
+        if('wheelViewModeNavigationInverseDirection' in options){
+            this.wheelViewModeNavigationInverseDirection = options.wheelViewModeNavigationInverseDirection;
+        }else if('wheelViewModeNavigationInverseDirection' in this.element.data()){
+            this.wheelViewModeNavigationInverseDirection = this.element.data('view-mode-wheel-navigation-inverse-dir');
+        }
+
+        this.wheelViewModeNavigationDelay = 100;
+        if('wheelViewModeNavigationDelay' in options){
+            this.wheelViewModeNavigationDelay = options.wheelViewModeNavigationDelay;
+        }else if('wheelViewModeNavigationDelay' in this.element.data()){
+            this.wheelViewModeNavigationDelay = this.element.data('view-mode-wheel-navigation-delay');
+        }
+
+		this.startViewMode = 2;
+		if ('startView' in options) {
+			this.startViewMode = options.startView;
+		} else if ('startView' in this.element.data()) {
+			this.startViewMode = this.element.data('start-view');
+		}
+		this.startViewMode = DPGlobal.convertViewMode(this.startViewMode);
+		this.viewMode = this.startViewMode;
+
+				this.viewSelect = this.minView;
+				if ('viewSelect' in options) {
+						this.viewSelect = options.viewSelect;
+				} else if ('viewSelect' in this.element.data()) {
+						this.viewSelect = this.element.data('view-select');
+				}
+				this.viewSelect = DPGlobal.convertViewMode(this.viewSelect);
+
+		this.forceParse = true;
+		if ('forceParse' in options) {
+			this.forceParse = options.forceParse;
+		} else if ('dateForceParse' in this.element.data()) {
+			this.forceParse = this.element.data('date-force-parse');
+		}
+
+		this.picker = $(DPGlobal.template)
+							.appendTo(this.isInline ? this.element : 'body')
+							.on({
+								click: $.proxy(this.click, this),
+								mousedown: $.proxy(this.mousedown, this)
+							});
+
+        if(this.wheelViewModeNavigation)
+        {
+            if($.fn.mousewheel)
+            {
+                this.picker.on({mousewheel: $.proxy(this.mousewheel,this)});
+            }else
+            {
+                console.log("Mouse Wheel event is not supported. Please include the jQuery Mouse Wheel plugin before enabling this option");
+            }
+        }
+
+		if (this.isInline) {
+			this.picker.addClass('datetimepicker-inline');
+		} else {
+			this.picker.addClass('datetimepicker-dropdown-' + this.pickerPosition + ' dropdown-menu');
+		}
+		if (this.isRTL){
+			this.picker.addClass('datetimepicker-rtl');
+			this.picker.find('.prev i, .next i')
+						.toggleClass('fa-arrow-left fa-arrow-right');
+		}
+		$(document).on('mousedown', function (e) {
+			// Clicked outside the datetimepicker, hide it
+			if ($(e.target).closest('.datetimepicker').length === 0) {
+				that.hide();
+			}
+		});
+
+		this.autoclose = false;
+		if ('autoclose' in options) {
+			this.autoclose = options.autoclose;
+		} else if ('dateAutoclose' in this.element.data()) {
+			this.autoclose = this.element.data('date-autoclose');
+		}
+
+		this.keyboardNavigation = true;
+		if ('keyboardNavigation' in options) {
+			this.keyboardNavigation = options.keyboardNavigation;
+		} else if ('dateKeyboardNavigation' in this.element.data()) {
+			this.keyboardNavigation = this.element.data('date-keyboard-navigation');
+		}
+
+		this.todayBtn = (options.todayBtn || this.element.data('date-today-btn') || false);
+		this.todayHighlight = (options.todayHighlight || this.element.data('date-today-highlight') || false);
+
+		this.weekStart = ((options.weekStart || this.element.data('date-weekstart') || dates[this.language].weekStart || 0) % 7);
+		this.weekEnd = ((this.weekStart + 6) % 7);
+		this.startDate = -Infinity;
+		this.endDate = Infinity;
+		this.daysOfWeekDisabled = [];
+		this.setStartDate(options.startDate || this.element.data('date-startdate'));
+		this.setEndDate(options.endDate || this.element.data('date-enddate'));
+		this.setDaysOfWeekDisabled(options.daysOfWeekDisabled || this.element.data('date-days-of-week-disabled'));
+		this.fillDow();
+		this.fillMonths();
+		this.update();
+		this.showMode();
+
+		if(this.isInline) {
+			this.show();
+		}
+	};
+
+	Datetimepicker.prototype = {
+		constructor: Datetimepicker,
+
+		_events: [],
+		_attachEvents: function(){
+			this._detachEvents();
+			if (this.isInput) { // single input
+				this._events = [
+					[this.element, {
+						focus: $.proxy(this.show, this),
+						keyup: $.proxy(this.update, this),
+						keydown: $.proxy(this.keydown, this)
+					}]
+				];
+			}
+			else if (this.component && this.hasInput){ // component: input + button
+				this._events = [
+					// For components that are not readonly, allow keyboard nav
+					[this.element.find('input'), {
+						focus: $.proxy(this.show, this),
+						keyup: $.proxy(this.update, this),
+						keydown: $.proxy(this.keydown, this)
+					}],
+					[this.component, {
+						click: $.proxy(this.show, this)
+					}]
+				];
+				if (this.componentReset) {
+					this._events.push([
+						this.componentReset,
+						{click: $.proxy(this.reset, this)}
+					]);
+				}
+			}
+			else if (this.element.is('div')) {  // inline datetimepicker
+				this.isInline = true;
+			}
+			else {
+				this._events = [
+					[this.element, {
+						click: $.proxy(this.show, this)
+					}]
+				];
+			}
+			for (var i=0, el, ev; i<this._events.length; i++){
+				el = this._events[i][0];
+				ev = this._events[i][1];
+				el.on(ev);
+			}
+		},
+		
+		_detachEvents: function(){
+			for (var i=0, el, ev; i<this._events.length; i++){
+				el = this._events[i][0];
+				ev = this._events[i][1];
+				el.off(ev);
+			}
+			this._events = [];
+		},
+
+		show: function(e) {
+			this.picker.show();
+			this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
+			if (this.forceParse) {
+				this.update();
+			}
+			this.place();
+			$(window).on('resize', $.proxy(this.place, this));
+			if (e) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+			this.isVisible = true;
+			this.element.trigger({
+				type: 'show',
+				date: this.date
+			});
+		},
+
+		hide: function(e){
+			if(!this.isVisible) return;
+			if(this.isInline) return;
+			this.picker.hide();
+			$(window).off('resize', this.place);
+			this.viewMode = this.startViewMode;
+			this.showMode();
+			if (!this.isInput) {
+				$(document).off('mousedown', this.hide);
+			}
+
+			if (
+				this.forceParse &&
+				(
+					this.isInput && this.element.val()  || 
+					this.hasInput && this.element.find('input').val()
+				)
+			)
+				this.setValue();
+			this.isVisible = false;
+			this.element.trigger({
+				type: 'hide',
+				date: this.date
+			});
+		},
+
+		remove: function() {
+			this._detachEvents();
+			this.picker.remove();
+			delete this.picker;
+			delete this.element.data().datetimepicker;
+		},
+
+		getDate: function() {
+			var d = this.getUTCDate();
+			return new Date(d.getTime() + (d.getTimezoneOffset()*60000));
+		},
+
+		getUTCDate: function() {
+			return this.date;
+		},
+
+		setDate: function(d) {
+			this.setUTCDate(new Date(d.getTime() - (d.getTimezoneOffset()*60000)));
+		},
+
+		setUTCDate: function(d) {
+			if (d >= this.startDate && d <= this.endDate) {
+				this.date = d;
+				this.setValue();
+				this.viewDate = this.date;
+				this.fill();
+			} else {
+				this.element.trigger({
+					type: 'outOfRange',
+					date: d,
+					startDate: this.startDate,
+					endDate: this.endDate
+				});
+			}
+		},
+
+        setFormat: function(format) {
+            this.format = DPGlobal.parseFormat(format, this.formatType);
+            var element;
+            if (this.isInput) {
+                element = this.element;
+            } else if (this.component){
+                element = this.element.find('input');
+            }
+            if (element && element.val()) {
+                this.setValue();
+            }
+        },
+
+		setValue: function() {
+			var formatted = this.getFormattedDate();
+			if (!this.isInput) {
+				if (this.component){
+					this.element.find('input').val(formatted);
+				}
+				this.element.data('date', formatted);
+			} else {
+				this.element.val(formatted);
+			}
+			if (this.linkField) {
+				$('#' + this.linkField).val(this.getFormattedDate(this.linkFormat));
+			}
+		},
+
+		getFormattedDate: function(format) {
+			if(format == undefined) format = this.format;
+			return DPGlobal.formatDate(this.date, format, this.language, this.formatType);
+		},
+
+		setStartDate: function(startDate){
+			this.startDate = startDate || -Infinity;
+			if (this.startDate !== -Infinity) {
+				this.startDate = DPGlobal.parseDate(this.startDate, this.format, this.language, this.formatType);
+			}
+			this.update();
+			this.updateNavArrows();
+		},
+
+		setEndDate: function(endDate){
+			this.endDate = endDate || Infinity;
+			if (this.endDate !== Infinity) {
+				this.endDate = DPGlobal.parseDate(this.endDate, this.format, this.language, this.formatType);
+			}
+			this.update();
+			this.updateNavArrows();
+		},
+
+		setDaysOfWeekDisabled: function(daysOfWeekDisabled){
+			this.daysOfWeekDisabled = daysOfWeekDisabled || [];
+			if (!$.isArray(this.daysOfWeekDisabled)) {
+				this.daysOfWeekDisabled = this.daysOfWeekDisabled.split(/,\s*/);
+			}
+			this.daysOfWeekDisabled = $.map(this.daysOfWeekDisabled, function (d) {
+				return parseInt(d, 10);
+			});
+			this.update();
+			this.updateNavArrows();
+		},
+
+		place: function(){
+			if(this.isInline) return;
+			var zIndex = parseInt(this.element.parents().filter(function() {
+				return $(this).css('z-index') != 'auto';
+			}).first().css('z-index'))+10;
+			var offset, top, left;
+			if (this.component) {
+				offset = this.component.offset();
+				left = offset.left;
+				if (this.pickerPosition == 'bottom-left' || this.pickerPosition == 'top-left') {
+					left += this.component.outerWidth() - this.picker.outerWidth();
+				}
+			} else {
+				offset = this.element.offset();
+				left = offset.left;
+			}
+			if (this.pickerPosition == 'top-left' || this.pickerPosition == 'top-right') {
+				top = offset.top - this.picker.outerHeight();
+			} else {
+				top = offset.top + this.height;
+			}
+			this.picker.css({
+				top: top,
+				left: left,
+				zIndex: zIndex
+			});
+		},
+
+		update: function(){
+			var date, fromArgs = false;
+			if(arguments && arguments.length && (typeof arguments[0] === 'string' || arguments[0] instanceof Date)) {
+				date = arguments[0];
+				fromArgs = true;
+			} else {
+                date = this.element.data('date') || (this.isInput ? this.element.val() : this.element.find('input').val()) || this.initialDate;
+			}
+
+			if (!date) {
+				date = new Date();
+				fromArgs = false;
+			}
+
+			this.date = DPGlobal.parseDate(date, this.format, this.language, this.formatType);
+
+			if (fromArgs) this.setValue();
+
+			if (this.date < this.startDate) {
+				this.viewDate = new Date(this.startDate);
+			} else if (this.date > this.endDate) {
+				this.viewDate = new Date(this.endDate);
+			} else {
+				this.viewDate = new Date(this.date);
+			}
+			this.fill();
+		},
+
+		fillDow: function(){
+			var dowCnt = this.weekStart,
+			html = '<tr>';
+			while (dowCnt < this.weekStart + 7) {
+				html += '<th class="dow">'+dates[this.language].daysMin[(dowCnt++)%7]+'</th>';
+			}
+			html += '</tr>';
+			this.picker.find('.datetimepicker-days thead').append(html);
+		},
+
+		fillMonths: function(){
+			var html = '',
+			i = 0;
+			while (i < 12) {
+				html += '<span class="month">'+dates[this.language].monthsShort[i++]+'</span>';
+			}
+			this.picker.find('.datetimepicker-months td').html(html);
+		},
+
+		fill: function() {
+			if (this.date == null || this.viewDate == null) {
+				return;
+			}
+			var d = new Date(this.viewDate),
+				year = d.getUTCFullYear(),
+				month = d.getUTCMonth(),
+				dayMonth = d.getUTCDate(),
+				hours = d.getUTCHours(),
+				minutes = d.getUTCMinutes(),
+				startYear = this.startDate !== -Infinity ? this.startDate.getUTCFullYear() : -Infinity,
+				startMonth = this.startDate !== -Infinity ? this.startDate.getUTCMonth() : -Infinity,
+				endYear = this.endDate !== Infinity ? this.endDate.getUTCFullYear() : Infinity,
+				endMonth = this.endDate !== Infinity ? this.endDate.getUTCMonth() : Infinity,
+				currentDate = (new UTCDate(this.date.getUTCFullYear(), this.date.getUTCMonth(), this.date.getUTCDate())).valueOf(),
+				today = new Date();
+			this.picker.find('.datetimepicker-days thead th:eq(1)')
+						.text(dates[this.language].months[month]+' '+year);
+				if (this.formatViewType == "time") {
+						var hourConverted = hours % 12 ? hours % 12 : 12;
+						var hoursDisplay = (hourConverted < 10 ? '0' : '') + hourConverted;
+						var minutesDisplay = (minutes < 10 ? '0' : '') + minutes;
+						var meridianDisplay = dates[this.language].meridiem[hours < 12 ? 0 : 1];
+						this.picker.find('.datetimepicker-hours thead th:eq(1)')
+								.text(hoursDisplay + ':' + minutesDisplay + ' ' + meridianDisplay.toUpperCase());
+						this.picker.find('.datetimepicker-minutes thead th:eq(1)')
+								.text(hoursDisplay + ':' + minutesDisplay + ' ' + meridianDisplay.toUpperCase());
+				} else {
+						this.picker.find('.datetimepicker-hours thead th:eq(1)')
+								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);
+						this.picker.find('.datetimepicker-minutes thead th:eq(1)')
+								.text(dayMonth + ' ' + dates[this.language].months[month] + ' ' + year);		        
+				}
+				this.picker.find('tfoot th.today')
+						.text(dates[this.language].today)
+						.toggle(this.todayBtn !== false);
+			this.updateNavArrows();
+			this.fillMonths();
+			/*var prevMonth = UTCDate(year, month, 0,0,0,0,0);
+			prevMonth.setUTCDate(prevMonth.getDate() - (prevMonth.getUTCDay() - this.weekStart + 7)%7);*/
+			var prevMonth = UTCDate(year, month-1, 28,0,0,0,0),
+								day = DPGlobal.getDaysInMonth(prevMonth.getUTCFullYear(), prevMonth.getUTCMonth());
+				prevMonth.setUTCDate(day);
+					prevMonth.setUTCDate(day - (prevMonth.getUTCDay() - this.weekStart + 7)%7);
+			var nextMonth = new Date(prevMonth);
+			nextMonth.setUTCDate(nextMonth.getUTCDate() + 42);
+			nextMonth = nextMonth.valueOf();
+			var html = [];
+			var clsName;
+			while(prevMonth.valueOf() < nextMonth) {
+				if (prevMonth.getUTCDay() == this.weekStart) {
+					html.push('<tr>');
+				}
+				clsName = '';
+				if (prevMonth.getUTCFullYear() < year || (prevMonth.getUTCFullYear() == year && prevMonth.getUTCMonth() < month)) {
+					clsName += ' old';
+				} else if (prevMonth.getUTCFullYear() > year || (prevMonth.getUTCFullYear() == year && prevMonth.getUTCMonth() > month)) {
+					clsName += ' new';
+				}
+				// Compare internal UTC date with local today, not UTC today
+				if (this.todayHighlight &&
+					prevMonth.getUTCFullYear() == today.getFullYear() &&
+					prevMonth.getUTCMonth() == today.getMonth() &&
+					prevMonth.getUTCDate() == today.getDate()) {
+					clsName += ' today';
+				}
+				if (prevMonth.valueOf() == currentDate) {
+					clsName += ' active';
+				}
+				if ((prevMonth.valueOf() + 86400000) <= this.startDate || prevMonth.valueOf() > this.endDate ||
+					$.inArray(prevMonth.getUTCDay(), this.daysOfWeekDisabled) !== -1) {
+					clsName += ' disabled';
+				}
+				html.push('<td class="day'+clsName+'">'+prevMonth.getUTCDate() + '</td>');
+				if (prevMonth.getUTCDay() == this.weekEnd) {
+					html.push('</tr>');
+				}
+				prevMonth.setUTCDate(prevMonth.getUTCDate()+1);
+			}
+			this.picker.find('.datetimepicker-days tbody').empty().append(html.join(''));
+
+			html = [];
+						var txt = '', meridian = '', meridianOld = '';
+			for (var i=0;i<24;i++) {
+				var actual = UTCDate(year, month, dayMonth, i);
+				clsName = '';
+				// We want the previous hour for the startDate
+				if ((actual.valueOf() + 3600000) <= this.startDate || actual.valueOf() > this.endDate) {
+					clsName += ' disabled';
+				} else if (hours == i) {
+					clsName += ' active';
+				}
+								if (this.showMeridian && dates[this.language].meridiem.length == 2) {
+										meridian = (i<12?dates[this.language].meridiem[0]:dates[this.language].meridiem[1]);
+										if (meridian != meridianOld) {
+												if (meridianOld != '') {
+														html.push('</fieldset>');
+												}
+												html.push('<fieldset class="hour"><legend>'+meridian.toUpperCase()+'</legend>');
+										}
+										meridianOld = meridian;
+										txt = (i%12?i%12:12);
+										html.push('<span class="hour'+clsName+' hour_'+(i<12?'am':'pm')+'">'+txt+'</span>');
+										if (i == 23) {
+												html.push('</fieldset>');
+										}
+								} else {
+										txt = i+':00';
+										html.push('<span class="hour'+clsName+'">'+txt+'</span>');
+								}
+			}
+			this.picker.find('.datetimepicker-hours td').html(html.join(''));
+
+			html = [];
+						txt = '', meridian = '', meridianOld = '';
+			for(var i=0;i<60;i+=this.minuteStep) {
+				var actual = UTCDate(year, month, dayMonth, hours, i, 0);
+				clsName = '';
+				if (actual.valueOf() < this.startDate || actual.valueOf() > this.endDate) {
+					clsName += ' disabled';
+				} else if (Math.floor(minutes/this.minuteStep) == Math.floor(i/this.minuteStep)) {
+					clsName += ' active';
+				}
+								if (this.showMeridian && dates[this.language].meridiem.length == 2) {
+										meridian = (hours<12?dates[this.language].meridiem[0]:dates[this.language].meridiem[1]);
+										if (meridian != meridianOld) {
+												if (meridianOld != '') {
+														html.push('</fieldset>');
+												}
+												html.push('<fieldset class="minute"><legend>'+meridian.toUpperCase()+'</legend>');
+										}
+										meridianOld = meridian;
+										txt = (hours%12?hours%12:12);
+										//html.push('<span class="minute'+clsName+' minute_'+(hours<12?'am':'pm')+'">'+txt+'</span>');
+										html.push('<span class="minute'+clsName+'">'+txt+':'+(i<10?'0'+i:i)+'</span>');
+										if (i == 59) {
+												html.push('</fieldset>');
+										}
+								} else {
+										txt = i+':00';
+										//html.push('<span class="hour'+clsName+'">'+txt+'</span>');
+										html.push('<span class="minute'+clsName+'">'+hours+':'+(i<10?'0'+i:i)+'</span>');
+								}
+			}
+			this.picker.find('.datetimepicker-minutes td').html(html.join(''));
+
+			var currentYear = this.date.getUTCFullYear();
+			var months = this.picker.find('.datetimepicker-months')
+						.find('th:eq(1)')
+						.text(year)
+						.end()
+						.find('span').removeClass('active');
+			if (currentYear == year) {
+				months.eq(this.date.getUTCMonth()).addClass('active');
+			}
+			if (year < startYear || year > endYear) {
+				months.addClass('disabled');
+			}
+			if (year == startYear) {
+				months.slice(0, startMonth).addClass('disabled');
+			}
+			if (year == endYear) {
+				months.slice(endMonth+1).addClass('disabled');
+			}
+
+			html = '';
+			year = parseInt(year/10, 10) * 10;
+			var yearCont = this.picker.find('.datetimepicker-years')
+								.find('th:eq(1)')
+								.text(year + '-' + (year + 9))
+								.end()
+								.find('td');
+			year -= 1;
+			for (var i = -1; i < 11; i++) {
+				html += '<span class="year'+(i == -1 || i == 10 ? ' old' : '')+(currentYear == year ? ' active' : '')+(year < startYear || year > endYear ? ' disabled' : '')+'">'+year+'</span>';
+				year += 1;
+			}
+			yearCont.html(html);
+			this.place();
+		},
+
+		updateNavArrows: function() {
+			var d = new Date(this.viewDate),
+				year = d.getUTCFullYear(),
+				month = d.getUTCMonth(),
+				day = d.getUTCDate(),
+				hour = d.getUTCHours();
+			switch (this.viewMode) {
+				case 0:
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+													 && month <= this.startDate.getUTCMonth()
+													 && day <= this.startDate.getUTCDate()
+													 && hour <= this.startDate.getUTCHours()) {
+						this.picker.find('.prev').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.prev').css({visibility: 'visible'});
+					}
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+													&& month >= this.endDate.getUTCMonth()
+													&& day >= this.endDate.getUTCDate()
+													&& hour >= this.endDate.getUTCHours()) {
+						this.picker.find('.next').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.next').css({visibility: 'visible'});
+					}
+					break;
+				case 1:
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+													 && month <= this.startDate.getUTCMonth()
+													 && day <= this.startDate.getUTCDate()) {
+						this.picker.find('.prev').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.prev').css({visibility: 'visible'});
+					}
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+													&& month >= this.endDate.getUTCMonth()
+													&& day >= this.endDate.getUTCDate()) {
+						this.picker.find('.next').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.next').css({visibility: 'visible'});
+					}
+					break;
+				case 2:
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear() 
+													 && month <= this.startDate.getUTCMonth()) {
+						this.picker.find('.prev').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.prev').css({visibility: 'visible'});
+					}
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear() 
+													&& month >= this.endDate.getUTCMonth()) {
+						this.picker.find('.next').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.next').css({visibility: 'visible'});
+					}
+					break;
+				case 3:
+				case 4:
+					if (this.startDate !== -Infinity && year <= this.startDate.getUTCFullYear()) {
+						this.picker.find('.prev').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.prev').css({visibility: 'visible'});
+					}
+					if (this.endDate !== Infinity && year >= this.endDate.getUTCFullYear()) {
+						this.picker.find('.next').css({visibility: 'hidden'});
+					} else {
+						this.picker.find('.next').css({visibility: 'visible'});
+					}
+					break;
+			}
+		},
+
+        mousewheel: function(e){
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if(this.wheelPause)
+            {
+                return;
+            }
+
+            this.wheelPause = true;
+
+            var originalEvent = e.originalEvent;
+
+            var delta = originalEvent.wheelDelta;
+
+            var mode = delta > 0 ? 1:(delta === 0)?0:-1;
+
+            if(this.wheelViewModeNavigationInverseDirection)
+            {
+                mode = -mode;
+            }
+
+            this.showMode(mode);
+
+            setTimeout($.proxy(function(){
+
+                this.wheelPause = false
+
+            },this),this.wheelViewModeNavigationDelay);
+
+
+
+        },
+
+		click: function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			var target = $(e.target).closest('span, td, th, legend');
+			if (target.length == 1) {
+				if (target.is('.disabled')) {
+					this.element.trigger({
+						type: 'outOfRange',
+						date: this.viewDate,
+						startDate: this.startDate,
+						endDate: this.endDate
+					});
+					return;
+				}
+				switch(target[0].nodeName.toLowerCase()) {
+					case 'th':
+						switch(target[0].className) {
+							case 'switch':
+								this.showMode(1);
+								break;
+							case 'prev':
+							case 'next':
+								var dir = DPGlobal.modes[this.viewMode].navStep * (target[0].className == 'prev' ? -1 : 1);
+								switch(this.viewMode){
+									case 0:
+										this.viewDate = this.moveHour(this.viewDate, dir);
+										break;
+									case 1:
+										this.viewDate = this.moveDate(this.viewDate, dir);
+										break;
+									case 2:
+										this.viewDate = this.moveMonth(this.viewDate, dir);
+										break;
+									case 3:
+									case 4:
+										this.viewDate = this.moveYear(this.viewDate, dir);
+										break;
+								}
+								this.fill();
+								break;
+							case 'today':
+								var date = new Date();
+								date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), 0);
+
+								this.viewMode = this.startViewMode;
+								this.showMode(0);
+								this._setDate(date);
+								this.fill();
+								if (this.autoclose) {
+									this.hide();
+								}
+								break;
+						}
+						break;
+					case 'span':
+						if (!target.is('.disabled')) {
+														var year    = this.viewDate.getUTCFullYear(),
+																month   = this.viewDate.getUTCMonth(),
+																day     = this.viewDate.getUTCDate(),
+																hours   = this.viewDate.getUTCHours(),
+																minutes = this.viewDate.getUTCMinutes(),
+																seconds = this.viewDate.getUTCSeconds();
+
+							if (target.is('.month')) {
+								this.viewDate.setUTCDate(1);
+								month = target.parent().find('span').index(target);
+																day   = this.viewDate.getUTCDate();
+								this.viewDate.setUTCMonth(month);
+								this.element.trigger({
+									type: 'changeMonth',
+									date: this.viewDate
+								});
+																if (this.viewSelect >= 3) {
+										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
+																}
+							} else if (target.is('.year')) {
+								this.viewDate.setUTCDate(1);
+								year = parseInt(target.text(), 10) || 0;
+								this.viewDate.setUTCFullYear(year);
+								this.element.trigger({
+									type: 'changeYear',
+									date: this.viewDate
+								});
+																if (this.viewSelect >= 4) {
+																		this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
+																}
+							} else if (target.is('.hour')){
+								hours = parseInt(target.text(), 10) || 0;
+																if (target.hasClass('hour_am') || target.hasClass('hour_pm')) {
+																		if (hours == 12 && target.hasClass('hour_am')) {
+																				hours = 0;
+																		} else if (hours != 12 && target.hasClass('hour_pm')) {
+																				hours += 12;
+																		}
+																}
+																this.viewDate.setUTCHours(hours);
+								this.element.trigger({
+									type: 'changeHour',
+									date: this.viewDate
+								});
+																if (this.viewSelect >= 1) {
+										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
+																}
+							} else if (target.is('.minute')){
+								minutes = parseInt(target.text().substr(target.text().indexOf(':')+1), 10) || 0;
+																this.viewDate.setUTCMinutes(minutes);
+								this.element.trigger({
+									type: 'changeMinute',
+									date: this.viewDate
+								});
+																if (this.viewSelect >= 0) {
+										this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
+																}
+							}
+							if (this.viewMode != 0) {
+								var oldViewMode = this.viewMode;
+								this.showMode(-1);
+								this.fill();
+								if (oldViewMode == this.viewMode && this.autoclose) {
+									this.hide();
+								}
+							} else {
+								this.fill();
+								if (this.autoclose) {
+									this.hide();
+								}
+							}
+						}
+						break;
+					case 'td':
+						if (target.is('.day') && !target.is('.disabled')){
+							var day = parseInt(target.text(), 10) || 1;
+							var year = this.viewDate.getUTCFullYear(),
+								month = this.viewDate.getUTCMonth(),
+								hours = this.viewDate.getUTCHours(),
+								minutes = this.viewDate.getUTCMinutes(),
+								seconds = this.viewDate.getUTCSeconds();
+							if (target.is('.old')) {
+								if (month === 0) {
+									month = 11;
+									year -= 1;
+								} else {
+									month -= 1;
+								}
+							} else if (target.is('.new')) {
+								if (month == 11) {
+									month = 0;
+									year += 1;
+								} else {
+									month += 1;
+								}
+							}
+														this.viewDate.setUTCFullYear(year);
+														this.viewDate.setUTCMonth(month);
+														this.viewDate.setUTCDate(day);
+														this.element.trigger({
+																type: 'changeDay',
+																date: this.viewDate
+														});
+														if (this.viewSelect >= 2) {
+									this._setDate(UTCDate(year, month, day, hours, minutes, seconds, 0));
+														}
+						}
+						var oldViewMode = this.viewMode;
+						this.showMode(-1);
+						this.fill();
+						if (oldViewMode == this.viewMode && this.autoclose) {
+							this.hide();
+						}
+						break;
+				}
+			}
+		},
+
+		_setDate: function(date, which){
+			if (!which || which == 'date')
+				this.date = date;
+			if (!which || which  == 'view')
+				this.viewDate = date;
+			this.fill();
+			this.setValue();
+			var element;
+			if (this.isInput) {
+				element = this.element;
+			} else if (this.component){
+				element = this.element.find('input');
+			}
+			if (element) {
+				element.change();
+				if (this.autoclose && (!which || which == 'date')) {
+					//this.hide();
+				}
+			}
+			this.element.trigger({
+				type: 'changeDate',
+				date: this.date
+			});
+		},
+
+		moveMinute: function(date, dir){
+			if (!dir) return date;
+			var new_date = new Date(date.valueOf());
+			//dir = dir > 0 ? 1 : -1;
+			new_date.setUTCMinutes(new_date.getUTCMinutes() + (dir * this.minuteStep));
+			return new_date;
+		},
+
+		moveHour: function(date, dir){
+			if (!dir) return date;
+			var new_date = new Date(date.valueOf());
+			//dir = dir > 0 ? 1 : -1;
+			new_date.setUTCHours(new_date.getUTCHours() + dir);
+			return new_date;
+		},
+
+		moveDate: function(date, dir){
+			if (!dir) return date;
+			var new_date = new Date(date.valueOf());
+			//dir = dir > 0 ? 1 : -1;
+			new_date.setUTCDate(new_date.getUTCDate() + dir);
+			return new_date;
+		},
+
+		moveMonth: function(date, dir){
+			if (!dir) return date;
+			var new_date = new Date(date.valueOf()),
+				day = new_date.getUTCDate(),
+				month = new_date.getUTCMonth(),
+				mag = Math.abs(dir),
+				new_month, test;
+			dir = dir > 0 ? 1 : -1;
+			if (mag == 1){
+				test = dir == -1
+					// If going back one month, make sure month is not current month
+					// (eg, Mar 31 -> Feb 31 == Feb 28, not Mar 02)
+					? function(){ return new_date.getUTCMonth() == month; }
+					// If going forward one month, make sure month is as expected
+					// (eg, Jan 31 -> Feb 31 == Feb 28, not Mar 02)
+					: function(){ return new_date.getUTCMonth() != new_month; };
+				new_month = month + dir;
+				new_date.setUTCMonth(new_month);
+				// Dec -> Jan (12) or Jan -> Dec (-1) -- limit expected date to 0-11
+				if (new_month < 0 || new_month > 11)
+					new_month = (new_month + 12) % 12;
+			} else {
+				// For magnitudes >1, move one month at a time...
+				for (var i=0; i<mag; i++)
+					// ...which might decrease the day (eg, Jan 31 to Feb 28, etc)...
+					new_date = this.moveMonth(new_date, dir);
+				// ...then reset the day, keeping it in the new month
+				new_month = new_date.getUTCMonth();
+				new_date.setUTCDate(day);
+				test = function(){ return new_month != new_date.getUTCMonth(); };
+			}
+			// Common date-resetting loop -- if date is beyond end of month, make it
+			// end of month
+			while (test()){
+				new_date.setUTCDate(--day);
+				new_date.setUTCMonth(new_month);
+			}
+			return new_date;
+		},
+
+		moveYear: function(date, dir){
+			return this.moveMonth(date, dir*12);
+		},
+
+		dateWithinRange: function(date){
+			return date >= this.startDate && date <= this.endDate;
+		},
+
+		keydown: function(e){
+			if (this.picker.is(':not(:visible)')){
+				if (e.keyCode == 27) // allow escape to hide and re-show picker
+					this.show();
+				return;
+			}
+			var dateChanged = false,
+				dir, day, month,
+				newDate, newViewDate;
+			switch(e.keyCode){
+				case 27: // escape
+					this.hide();
+					e.preventDefault();
+					break;
+				case 37: // left
+				case 39: // right
+					if (!this.keyboardNavigation) break;
+					dir = e.keyCode == 37 ? -1 : 1;
+										viewMode = this.viewMode;
+										if (e.ctrlKey) {
+												viewMode += 2;
+										} else if (e.shiftKey) {
+												viewMode += 1;
+										}
+										if (viewMode == 4) {
+						newDate = this.moveYear(this.date, dir);
+						newViewDate = this.moveYear(this.viewDate, dir);
+										} else if (viewMode == 3) {
+						newDate = this.moveMonth(this.date, dir);
+						newViewDate = this.moveMonth(this.viewDate, dir);
+										} else if (viewMode == 2) {
+						newDate = this.moveDate(this.date, dir);
+						newViewDate = this.moveDate(this.viewDate, dir);
+										} else if (viewMode == 1) {
+						newDate = this.moveHour(this.date, dir);
+						newViewDate = this.moveHour(this.viewDate, dir);
+										} else if (viewMode == 0) {
+						newDate = this.moveMinute(this.date, dir);
+						newViewDate = this.moveMinute(this.viewDate, dir);
+										}
+					if (this.dateWithinRange(newDate)){
+						this.date = newDate;
+						this.viewDate = newViewDate;
+						this.setValue();
+						this.update();
+						e.preventDefault();
+						dateChanged = true;
+					}
+					break;
+				case 38: // up
+				case 40: // down
+					if (!this.keyboardNavigation) break;
+					dir = e.keyCode == 38 ? -1 : 1;
+										viewMode = this.viewMode;
+										if (e.ctrlKey) {
+												viewMode += 2;
+										} else if (e.shiftKey) {
+												viewMode += 1;
+										}
+										if (viewMode == 4) {
+						newDate = this.moveYear(this.date, dir);
+						newViewDate = this.moveYear(this.viewDate, dir);
+										} else if (viewMode == 3) {
+						newDate = this.moveMonth(this.date, dir);
+						newViewDate = this.moveMonth(this.viewDate, dir);
+										} else if (viewMode == 2) {
+						newDate = this.moveDate(this.date, dir * 7);
+						newViewDate = this.moveDate(this.viewDate, dir * 7);
+										} else if (viewMode == 1) {
+												if (this.showMeridian) {
+														newDate = this.moveHour(this.date, dir * 6);
+														newViewDate = this.moveHour(this.viewDate, dir * 6);
+												} else {
+														newDate = this.moveHour(this.date, dir * 4);
+														newViewDate = this.moveHour(this.viewDate, dir * 4);
+												}
+										} else if (viewMode == 0) {
+						newDate = this.moveMinute(this.date, dir * 4);
+						newViewDate = this.moveMinute(this.viewDate, dir * 4);
+										}
+					if (this.dateWithinRange(newDate)){
+						this.date = newDate;
+						this.viewDate = newViewDate;
+						this.setValue();
+						this.update();
+						e.preventDefault();
+						dateChanged = true;
+					}
+					break;
+				case 13: // enter
+										if (this.viewMode != 0) {
+												var oldViewMode = this.viewMode;
+												this.showMode(-1);
+												this.fill();
+												if (oldViewMode == this.viewMode && this.autoclose) {
+														this.hide();
+												}
+										} else {
+												this.fill();
+												if (this.autoclose) {
+									this.hide();
+												}
+										}
+					e.preventDefault();
+					break;
+				case 9: // tab
+					this.hide();
+					break;
+			}
+			if (dateChanged){
+				var element;
+				if (this.isInput) {
+					element = this.element;
+				} else if (this.component){
+					element = this.element.find('input');
+				}
+				if (element) {
+					element.change();
+				}
+				this.element.trigger({
+					type: 'changeDate',
+					date: this.date
+				});
+			}
+		},
+
+		showMode: function(dir) {
+			if (dir) {
+				var newViewMode = Math.max(0, Math.min(DPGlobal.modes.length - 1, this.viewMode + dir));
+				if (newViewMode >= this.minView && newViewMode <= this.maxView) {
+					this.element.trigger({
+						type: 'changeMode',
+						date: this.viewDate,
+						oldViewMode: this.viewMode,
+						newViewMode: newViewMode
+					});
+
+					this.viewMode = newViewMode;
+				}
+			}
+			/*
+				vitalets: fixing bug of very special conditions:
+				jquery 1.7.1 + webkit + show inline datetimepicker in bootstrap popover.
+				Method show() does not set display css correctly and datetimepicker is not shown.
+				Changed to .css('display', 'block') solve the problem.
+				See https://github.com/vitalets/x-editable/issues/37
+
+				In jquery 1.7.2+ everything works fine.
+			*/
+			//this.picker.find('>div').hide().filter('.datetimepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
+			this.picker.find('>div').hide().filter('.datetimepicker-'+DPGlobal.modes[this.viewMode].clsName).css('display', 'block');
+			this.updateNavArrows();
+		},
+		
+		reset: function(e) {
+			this._setDate(null, 'date');
+		}
+	};
+
+	$.fn.datetimepicker = function ( option ) {
+		var args = Array.apply(null, arguments);
+		args.shift();
+		return this.each(function () {
+			var $this = $(this),
+				data = $this.data('datetimepicker'),
+				options = typeof option == 'object' && option;
+			if (!data) {
+				$this.data('datetimepicker', (data = new Datetimepicker(this, $.extend({}, $.fn.datetimepicker.defaults,options))));
+			}
+			if (typeof option == 'string' && typeof data[option] == 'function') {
+				data[option].apply(data, args);
+			}
+		});
+	};
+
+	$.fn.datetimepicker.defaults = {
+	};
+	$.fn.datetimepicker.Constructor = Datetimepicker;
+	var dates = $.fn.datetimepicker.dates = {
+		en: {
+			days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+			daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+			daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+			months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+			meridiem: ["am", "pm"],
+			suffix: ["st", "nd", "rd", "th"],
+			today: "Today"
+		}
+	};
+
+	var DPGlobal = {
+		modes: [
+			{
+				clsName: 'minutes',
+				navFnc: 'Hours',
+				navStep: 1
+			},
+			{
+				clsName: 'hours',
+				navFnc: 'Date',
+				navStep: 1
+			},
+			{
+				clsName: 'days',
+				navFnc: 'Month',
+				navStep: 1
+			},
+			{
+				clsName: 'months',
+				navFnc: 'FullYear',
+				navStep: 1
+			},
+			{
+				clsName: 'years',
+				navFnc: 'FullYear',
+				navStep: 10
+		}],
+		isLeapYear: function (year) {
+			return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0))
+		},
+		getDaysInMonth: function (year, month) {
+			return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
+		},
+		getDefaultFormat: function (type, field) {
+			if (type == "standard") {
+				if (field == 'input')
+					return 'yyyy-mm-dd hh:ii';
+				else
+					return 'yyyy-mm-dd hh:ii:ss';
+			} else if (type == "php") {
+				if (field == 'input')
+					return 'Y-m-d H:i';
+				else
+					return 'Y-m-d H:i:s';
+			} else {
+				throw new Error("Invalid format type.");
+			}
+		},
+		validParts: function (type) {
+			if (type == "standard") {
+				return /hh?|HH?|p|P|ii?|ss?|dd?|DD?|mm?|MM?|yy(?:yy)?/g;
+			} else if (type == "php") {
+				return /[dDjlNwzFmMnStyYaABgGhHis]/g;
+			} else {
+				throw new Error("Invalid format type.");
+			}
+		},
+		nonpunctuation: /[^ -\/:-@\[-`{-~\t\n\rTZ]+/g,
+		parseFormat: function(format, type){
+			// IE treats \0 as a string end in inputs (truncating the value),
+			// so it's a bad format delimiter, anyway
+			var separators = format.replace(this.validParts(type), '\0').split('\0'),
+				parts = format.match(this.validParts(type));
+			if (!separators || !separators.length || !parts || parts.length == 0){
+				throw new Error("Invalid date format.");
+			}
+			return {separators: separators, parts: parts};
+		},
+		parseDate: function(date, format, language, type) {
+			if (date instanceof Date) {
+				var dateUTC = new Date(date.valueOf() - date.getTimezoneOffset() * 60000);
+								dateUTC.setMilliseconds(0);
+				return dateUTC;
+			}
+			if (/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(date)) {
+				format = this.parseFormat('yyyy-mm-dd', type);
+			}
+			if (/^\d{4}\-\d{1,2}\-\d{1,2}[T ]\d{1,2}\:\d{1,2}$/.test(date)) {
+				format = this.parseFormat('yyyy-mm-dd hh:ii', type);
+			}
+			if (/^\d{4}\-\d{1,2}\-\d{1,2}[T ]\d{1,2}\:\d{1,2}\:\d{1,2}[Z]{0,1}$/.test(date)) {
+				format = this.parseFormat('yyyy-mm-dd hh:ii:ss', type);
+			}
+			if (/^[-+]\d+[dmwy]([\s,]+[-+]\d+[dmwy])*$/.test(date)) {
+				var part_re = /([-+]\d+)([dmwy])/,
+					parts = date.match(/([-+]\d+)([dmwy])/g),
+					part, dir;
+				date = new Date();
+				for (var i=0; i<parts.length; i++) {
+					part = part_re.exec(parts[i]);
+					dir = parseInt(part[1]);
+					switch(part[2]){
+						case 'd':
+							date.setUTCDate(date.getUTCDate() + dir);
+							break;
+						case 'm':
+							date = Datetimepicker.prototype.moveMonth.call(Datetimepicker.prototype, date, dir);
+							break;
+						case 'w':
+							date.setUTCDate(date.getUTCDate() + dir * 7);
+							break;
+						case 'y':
+							date = Datetimepicker.prototype.moveYear.call(Datetimepicker.prototype, date, dir);
+							break;
+					}
+				}
+				return UTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), 0);
+			}
+			var parts = date && date.match(this.nonpunctuation) || [],
+				date = new Date(0, 0, 0, 0, 0, 0, 0),
+				parsed = {},
+				setters_order = ['hh', 'h', 'ii', 'i', 'ss', 's', 'yyyy', 'yy', 'M', 'MM', 'm', 'mm', 'D', 'DD', 'd', 'dd', 'H', 'HH', 'p', 'P'],
+				setters_map = {
+					hh: function(d,v){ return d.setUTCHours(v); },
+					h:  function(d,v){ return d.setUTCHours(v); },
+					HH: function(d,v){ return d.setUTCHours(v==12?0:v); },
+					H:  function(d,v){ return d.setUTCHours(v==12?0:v); },
+					ii: function(d,v){ return d.setUTCMinutes(v); },
+					i:  function(d,v){ return d.setUTCMinutes(v); },
+					ss: function(d,v){ return d.setUTCSeconds(v); },
+					s:  function(d,v){ return d.setUTCSeconds(v); },
+					yyyy: function(d,v){ return d.setUTCFullYear(v); },
+					yy: function(d,v){ return d.setUTCFullYear(2000+v); },
+					m: function(d,v){
+						v -= 1;
+						while (v<0) v += 12;
+						v %= 12;
+						d.setUTCMonth(v);
+						while (d.getUTCMonth() != v)
+							d.setUTCDate(d.getUTCDate()-1);
+						return d;
+					},
+					d: function(d,v){ return d.setUTCDate(v); },
+					p: function(d,v){ return d.setUTCHours(v==1?d.getUTCHours()+12:d.getUTCHours()); }
+				},
+				val, filtered, part;
+			setters_map['M'] = setters_map['MM'] = setters_map['mm'] = setters_map['m'];
+			setters_map['dd'] = setters_map['d'];
+					setters_map['P'] = setters_map['p'];
+			date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+			if (parts.length == format.parts.length) {
+				for (var i=0, cnt = format.parts.length; i < cnt; i++) {
+					val = parseInt(parts[i], 10);
+					part = format.parts[i];
+					if (isNaN(val)) {
+						switch(part) {
+							case 'MM':
+								filtered = $(dates[language].months).filter(function(){
+									var m = this.slice(0, parts[i].length),
+										p = parts[i].slice(0, m.length);
+									return m == p;
+								});
+								val = $.inArray(filtered[0], dates[language].months) + 1;
+								break;
+							case 'M':
+								filtered = $(dates[language].monthsShort).filter(function(){
+									var m = this.slice(0, parts[i].length),
+										p = parts[i].slice(0, m.length);
+									return m == p;
+								});
+								val = $.inArray(filtered[0], dates[language].monthsShort) + 1;
+								break;
+								case 'p':
+								case 'P':
+										val = $.inArray(parts[i].toLowerCase(), dates[language].meridiem);
+										break;
+						}
+					}
+					parsed[part] = val;
+				}
+				for (var i=0, s; i<setters_order.length; i++){
+					s = setters_order[i];
+					if (s in parsed && !isNaN(parsed[s]))
+						setters_map[s](date, parsed[s])
+				}
+			}
+			return date;
+		},
+		formatDate: function(date, format, language, type){
+			if (date == null) {
+				return '';
+			}
+			var val;
+			if (type == 'standard') {
+				val = {
+					// year
+					yy: date.getUTCFullYear().toString().substring(2),
+					yyyy: date.getUTCFullYear(),
+					// month
+					m: date.getUTCMonth() + 1,
+					M: dates[language].monthsShort[date.getUTCMonth()],
+					MM: dates[language].months[date.getUTCMonth()],
+					// day
+					d: date.getUTCDate(),
+					D: dates[language].daysShort[date.getUTCDay()],
+					DD: dates[language].days[date.getUTCDay()],
+					p: (dates[language].meridiem.length==2?dates[language].meridiem[date.getUTCHours()<12?0:1]:''),
+					// hour
+					h: date.getUTCHours(),
+					// minute
+					i: date.getUTCMinutes(),
+					// second
+					s: date.getUTCSeconds()
+				};
+								val.H  = (val.h%12==0? 12 : val.h%12);
+								val.HH = (val.H < 10 ? '0' : '') + val.H;
+								val.P  = val.p.toUpperCase();
+				val.hh = (val.h < 10 ? '0' : '') + val.h;
+				val.ii = (val.i < 10 ? '0' : '') + val.i;
+				val.ss = (val.s < 10 ? '0' : '') + val.s;
+				val.dd = (val.d < 10 ? '0' : '') + val.d;
+				val.mm = (val.m < 10 ? '0' : '') + val.m;
+			} else if (type == 'php') {
+				// php format
+				val = {
+					// year
+					y: date.getUTCFullYear().toString().substring(2),
+					Y: date.getUTCFullYear(),
+					// month
+					F: dates[language].months[date.getUTCMonth()],
+					M: dates[language].monthsShort[date.getUTCMonth()],
+					n: date.getUTCMonth() + 1,
+					t: DPGlobal.getDaysInMonth(date.getUTCFullYear(), date.getUTCMonth()),
+					// day
+					j: date.getUTCDate(),
+					l: dates[language].days[date.getUTCDay()],
+					D: dates[language].daysShort[date.getUTCDay()],
+					w: date.getUTCDay(), // 0 -> 6
+					N: (date.getUTCDay()==0?7:date.getUTCDay()),       // 1 -> 7
+					S: (date.getUTCDate()%10<=dates[language].suffix.length?dates[language].suffix[date.getUTCDate()%10-1]:''),
+					// hour
+					a: (dates[language].meridiem.length==2?dates[language].meridiem[date.getUTCHours()<12?0:1]:''),
+					g: (date.getUTCHours()%12==0?12:date.getUTCHours()%12),
+					G: date.getUTCHours(),
+					// minute
+					i: date.getUTCMinutes(),
+					// second
+					s: date.getUTCSeconds()
+				};
+				val.m = (val.n < 10 ? '0' : '') + val.n;
+				val.d = (val.j < 10 ? '0' : '') + val.j;
+				val.A = val.a.toString().toUpperCase();
+				val.h = (val.g < 10 ? '0' : '') + val.g;
+				val.H = (val.G < 10 ? '0' : '') + val.G;
+				val.i = (val.i < 10 ? '0' : '') + val.i;
+				val.s = (val.s < 10 ? '0' : '') + val.s;
+			} else {
+				throw new Error("Invalid format type.");
+			}
+			var date = [],
+				seps = $.extend([], format.separators);
+			for (var i=0, cnt = format.parts.length; i < cnt; i++) {
+				if (seps.length)
+					date.push(seps.shift())
+				date.push(val[format.parts[i]]);
+			}
+			return date.join('');
+		},
+		convertViewMode: function(viewMode){
+			switch (viewMode) {
+				case 4:
+				case 'decade':
+					viewMode = 4;
+					break;
+				case 3:
+				case 'year':
+					viewMode = 3;
+					break;
+				case 2:
+				case 'month':
+					viewMode = 2;
+					break;
+				case 1:
+				case 'day':
+					viewMode = 1;
+					break;
+				case 0:
+				case 'hour':
+					viewMode = 0;
+					break;
+			}
+
+			return viewMode;
+		},
+		headTemplate: '<thead>'+
+							'<tr>'+
+								'<th class="prev"><i class="fa fa-angle-left"/></th>'+
+								'<th colspan="5" class="switch"></th>'+
+								'<th class="next"><i class="fa fa-angle-right"/></th>'+
+							'</tr>'+
+						'</thead>',
+		contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>',
+		footTemplate: '<tfoot><tr><th colspan="7" class="today"></th></tr></tfoot>'
+	};
+	DPGlobal.template = '<div class="datetimepicker">'+
+							'<div class="datetimepicker-minutes">'+
+								'<table class=" table-condensed">'+
+									DPGlobal.headTemplate+
+									DPGlobal.contTemplate+
+									DPGlobal.footTemplate+
+								'</table>'+
+							'</div>'+
+							'<div class="datetimepicker-hours">'+
+								'<table class=" table-condensed">'+
+									DPGlobal.headTemplate+
+									DPGlobal.contTemplate+
+									DPGlobal.footTemplate+
+								'</table>'+
+							'</div>'+
+							'<div class="datetimepicker-days">'+
+								'<table class=" table-condensed">'+
+									DPGlobal.headTemplate+
+									'<tbody></tbody>'+
+									DPGlobal.footTemplate+
+								'</table>'+
+							'</div>'+
+							'<div class="datetimepicker-months">'+
+								'<table class="table-condensed">'+
+									DPGlobal.headTemplate+
+									DPGlobal.contTemplate+
+									DPGlobal.footTemplate+
+								'</table>'+
+							'</div>'+
+							'<div class="datetimepicker-years">'+
+								'<table class="table-condensed">'+
+									DPGlobal.headTemplate+
+									DPGlobal.contTemplate+
+									DPGlobal.footTemplate+
+								'</table>'+
+							'</div>'+
+						'</div>';
+
+	$.fn.datetimepicker.DPGlobal = DPGlobal;
+
+
+	/* DATETIMEPICKER NO CONFLICT
+	* =================== */
+
+	$.fn.datetimepicker.noConflict = function () {
+	    $.fn.datetimepicker = old;
+	    return this;
+	};
+
+
+	/* DATETIMEPICKER DATA-API
+	* ================== */
+
+	$(document).on(
+		'focus.datetimepicker.data-api click.datetimepicker.data-api',
+		'[data-provide="datetimepicker"]',
+		function (e) {
+		    var $this = $(this);
+		    if ($this.data('datetimepicker')) return;
+		    e.preventDefault();
+		    // component click requires us to explicitly show it
+		    $this.datetimepicker('show');
+		}
+	);
+	$(function () {
+	    $('[data-provide="datetimepicker-inline"]').datetimepicker();
+	});
+
+}( window.jQuery );
 
 /* ========================================================================
  * bootstrap-switch - v3.0.2

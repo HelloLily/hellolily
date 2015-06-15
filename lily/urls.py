@@ -6,26 +6,13 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 from lily.api.urls import router, accounts_router
-from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList, CaseViewSet
-from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList, DealViewSet
-from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
-                                            EmailTemplateViewSet)
-from lily.users.api.views import LilyUserViewSet, TeamViewSet
+from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList
+from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList
 from lily.utils.views import BaseView
 from lily.utils.api.views import CallerName, Notifications, Queues
 
+
 admin.autodiscover()
-
-
-# Routers provide an easy way of automatically determining the URL conf.
-router.register(r'cases/case', CaseViewSet)
-router.register(r'deals/deal', DealViewSet)
-router.register(r'messaging/email/label', EmailLabelViewSet)
-router.register(r'messaging/email/account', EmailAccountViewSet)
-router.register(r'messaging/email/email', EmailMessageViewSet)
-router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
-router.register(r'users/user', LilyUserViewSet)
-router.register(r'users/team', TeamViewSet)
 
 urlpatterns = patterns(
     '',

@@ -2,7 +2,7 @@ angular.module('app.email.services').factory('EmailAccount', EmailAccount);
 
 EmailAccount.$inject = ['$resource'];
 function EmailAccount ($resource) {
-    return $resource('/api/messaging/email/account/:id/', null,
+    var EmailAccount = $resource('/api/messaging/email/account/:id/', null,
         {
             'update': { method: 'PUT' },
             'shareWith': {
@@ -16,4 +16,5 @@ function EmailAccount ($resource) {
             }
         }
     );
+    return EmailAccount;
 }

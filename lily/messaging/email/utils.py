@@ -278,7 +278,7 @@ def replace_cid_in_html(html, mapped_attachments, request):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'xml')
     inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
     cid_done = []
 
@@ -297,7 +297,7 @@ def replace_cid_in_html(html, mapped_attachments, request):
                 image['cid'] = image_cid
                 cid_done.append(attachment.cid)
 
-    return soup.encode_contents()
+    return soup.prettify()
 
 
 def replace_cid_and_change_headers(html, pk):

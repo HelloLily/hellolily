@@ -257,6 +257,7 @@
         },
 
         submitForm: function(buttonName, $form) {
+            var self = this;
             // Remove unnecessary html
             var $containerDiv = $('<div id="email-container-div">');
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
@@ -284,7 +285,7 @@
 
             // No validation needed, remove attachments to prevent unneeded uploading.
             $('[id|=id_attachments]:file').filter(function () {
-                return $(inboxCompose).data('formset-disabled') == true;
+                return $(this).data('formset-disabled') == true;
             }).remove();
 
             Metronic.blockUI($('.inbox-content'), false, '');

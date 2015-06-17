@@ -1,18 +1,27 @@
 angular.module('app.email').controller('LabelListController', LabelListController);
 
-LabelListController.$inject = ['$filter', '$interval', '$scope', 'EmailAccount', 'primaryEmailAccountId'];
-function LabelListController ($filter, $interval, $scope, EmailAccount, primaryEmailAccountId) {
+LabelListController.$inject = ['$filter', '$interval', '$scope', '$state', 'EmailAccount', 'primaryEmailAccountId'];
+function LabelListController ($filter, $interval, $scope, $state, EmailAccount, primaryEmailAccountId) {
     var vm = this;
     vm.accountList = [];
     vm.primaryEmailAccountId = primaryEmailAccountId;
     vm.labelCount = 0;
+
     vm.hasUnreadLabel = hasUnreadLabel;
     vm.unreadCountForLabel = unreadCountForLabel;
+    vm.clickYou = clickYou;
 
     activate();
 
     //////////
 
+    function clickYou(account) {
+        if (!account) {
+            $state.go('base.email.list', {labelId:'INBOX'});
+        } else {
+            $state.go('base.email.accountList', {labelId:'INBOX', accountId: account.id});
+        }
+    }
     function activate() {
         _startIntervalAccountInfo();
     }

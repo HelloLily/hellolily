@@ -11,26 +11,6 @@ td .label-sm {
     display: block;
 }
 
-.label-danger {
-    /* Critical priority */
-    background-color: #00008b;
-}
-
-.label-warning {
-    /* High priority */
-    background-color: #0000ff;
-}
-
-.label-info {
-    /* Medium priority */
-    background-color: #32bbed;
-}
-
-.label-success {
-    /* Low priority */
-    background-color: #afe4F5;
-}
-
 .assign-me-btn {
     float: right;
 }

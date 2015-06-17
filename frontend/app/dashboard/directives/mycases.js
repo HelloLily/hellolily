@@ -14,6 +14,7 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
     var cookie = Cookie('myCasesWidget');
 
     var vm = this;
+    vm.highPrioCases = 0;
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
@@ -38,6 +39,12 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
             vm.table.order.ascending
         ).then(function (data) {
             vm.table.items = data;
+            vm.highPrioCases = 0;
+            for (var i in data) {
+                if (data[i].priority == 3) {
+                    vm.highPrioCases++;
+                }
+            }
         });
     }
 

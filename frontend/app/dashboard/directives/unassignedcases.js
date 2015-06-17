@@ -16,7 +16,7 @@ UnassignedCasesController.$inject = ['$http', '$scope', 'Case', 'Cookie'];
 function UnassignedCasesController ($http, $scope, Case, Cookie) {
     var vm = this;
     var cookie = Cookie('unassignedCasesForTeam' + vm.team.id + 'Widget');
-
+    vm.highPrioCases = 0;
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
@@ -42,6 +42,12 @@ function UnassignedCasesController ($http, $scope, Case, Cookie) {
             vm.table.order.ascending
         ).then(function(cases) {
             vm.table.items = cases;
+            vm.highPrioCases = 0;
+            for (var i in cases) {
+                if (cases[i].priority == 3) {
+                    vm.highPrioCases++;
+                }
+            }
         });
     }
 

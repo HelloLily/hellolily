@@ -12,7 +12,7 @@ function CollapsableButtonDirective () {
             });
         },
         controller: CollapsableButtonController,
-        controllerAs: 'vm'
+        controllerAs: 'cl'
     }
 }
 

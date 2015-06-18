@@ -216,28 +216,6 @@ function CaseListController ($http, $location, $modal, $scope, $state, Case, Coo
         HLFilters.clearFilters($scope);
     };
 
-    /**
-     * Deletes the case in django and updates the angular view
-     */
-    $scope.delete = function(id, subject, cases) {
-        var req = {
-            method: 'POST',
-            url: '/cases/delete/' + id + '/',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        if(confirm('Are you sure you want to delete case ' + subject + '?')){
-            $http(req).
-                success(function(data, status, headers, config) {
-                    var index = $scope.table.items.indexOf(cases);
-                    $scope.table.items.splice(index, 1);
-                }).
-                error(function(data, status, headers, config) {
-                    // Request failed proper error?
-                });
-        }
-    };
-
     $scope.assignTo = function(myCase) {
         var modalInstance = $modal.open({
             templateUrl: 'cases/controllers/assignto.html',

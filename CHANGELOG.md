@@ -1,8 +1,8 @@
-<a name"next-release"></a>
-## Next Release
+<a name"latest-release"></a>
+## Latest Release
 
 <a name"0.4.24"></a>
-### 0.4.24 ()
+### 0.4.24 (2015-06-18)
 
 #### Features
 

@@ -204,26 +204,4 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFi
     $scope.clearFilters = function() {
         HLFilters.clearFilters($scope);
     };
-
-    /**
-     * Deletes the deal in django and updates the angular view
-     */
-    $scope.delete = function(id, name, deal) {
-        var req = {
-            method: 'POST',
-            url: '/deals/delete/' + id + '/',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        if(confirm("Are you sure you want to delete deal " + name + "?")){
-            $http(req).
-                success(function(data, status, headers, config) {
-                    var index = $scope.table.items.indexOf(deal);
-                    $scope.table.items.splice(index, 1);
-                }).
-                error(function(data, status, headers, config) {
-                    // Request failed propper error?
-                });
-        }
-    };
 }

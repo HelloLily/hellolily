@@ -4,6 +4,7 @@
             <i class="fa fa-suitcase"></i>
             <span class="caption-subject bold uppercase"> {{vm.team.name | uppercase}} CASES</span>
             <span class="caption-helper">({{ vm.table.items.length }})</span>
+            <span class="label label-sm label-danger" ng-if="vm.highPrioCases">{{ vm.highPrioCases }}</span>
         </div>
         <div class="tools">
             <a href="" class="collapse" data-original-title="" title=""></a>

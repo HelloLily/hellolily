@@ -3,7 +3,9 @@
 </div>
 <div class="timeline-panel">
     <div class='timeline-heading'>
-        <h4 class='timeline-title'>{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span>
+        <h4 class='timeline-title'>
+            <span ng-if="item.subject">{{ ::item.subject | limitTo:45 }}<span ng-if="::item.subject.length >= 45">...</span></span>
+            <span ng-if="!item.subject"><i>No Subject</i></span>
             <div class="btn-group pull-right">
                 <a class="text-white" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-angle-down"></i>
@@ -41,6 +43,7 @@
                     {{ ::item.sender_email }}
                 </small>
             </li>
+            <li><small><thread-info message-id="item.id"></thread-info></small></li>
         </ul>
     </div>
 </div>

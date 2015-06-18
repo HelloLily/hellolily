@@ -8,7 +8,7 @@ function CollapsableContentDirective () {
         transclude: true,
         require: '^collapsable',
         controller: CollapsableContentController,
-        controllerAs: 'vm'
+        controllerAs: 'cl'
     }
 }
 

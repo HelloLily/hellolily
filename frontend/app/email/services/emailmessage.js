@@ -57,6 +57,13 @@ function EmailMessage ($resource, $q) {
                     sort: '-sent_date',
                     size: 20
                 }
+            },
+            history: {
+                method: 'GET',
+                params: {
+                    id: '@id',
+                    actions: 'history'
+                }
             }
         }
     );
@@ -85,5 +92,6 @@ function EmailMessage ($resource, $q) {
         });
         return deferred.promise;
     }
+
     return EmailMessage
 }

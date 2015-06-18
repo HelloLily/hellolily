@@ -2,22 +2,6 @@
 
 {% load i18n %}
 
-{% block head-title %}
-{% if object.pk %}
-    {% trans 'Edit case' %}
-{% else %}
-    {% trans 'Create case' %}
-{% endif %}
-{% endblock %}
-
-{% block form-title %}
-{% if object.pk %}
-    {% trans 'Edit case' %}
-{% else %}
-    {% trans 'Create case' %}
-{% endif %}
-{% endblock %}
-
 {% block form-buttons %}
     <button type="submit" class="btn btn-primary" name="submit" data-loading-text="Saving...">
         <i class="icon-ok"></i> {% trans 'Save' %}
@@ -31,7 +15,3 @@
         {% trans 'Back' %}
     </a>
 {% endblock %}
-
-<script>
-    HLCases.addAssignToMeButton();
-</script>

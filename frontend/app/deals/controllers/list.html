@@ -4,7 +4,7 @@
             <div class="btn-group">
                 <button class="btn dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-angle-down"></i>
-                    Columns
+                    Columns&nbsp;
                     <i class="fa fa-columns"></i>
                 </button>
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes">
@@ -52,11 +52,7 @@
     <div class="portlet-body flip-scroll">
         <table class="table table-bordered table-striped flip-content">
             <thead class="flip-content">
-                <th class="list-actions" width="75px">
-                    <span class="text-nowrap">
-                        Options
-                    </span>
-                </th>
+                <th>Edit</th>
                 <th ng-show="table.visibility.account" class="width-10">Account</th>
                 <th ng-show="table.visibility.stage" sort-column="stage" table="table">Stage</th>
                 <th ng-show="table.visibility.created" sort-column="created" table="table" class="width-10">Created</th>
@@ -75,9 +71,6 @@
                         <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="btn btn-xs default" title="Edit">
                             <i class="fa fa-edit"></i>
                         </a>
-                        <button type="button" class="btn btn-xs default" title="Delete" ng-click="delete(deal.id, deal.name, deal)">
-                            <i class="fa fa-trash"></i>
-                        </button>
                     </td>
                     <td ng-show="table.visibility.account">
                         <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
@@ -108,8 +101,11 @@
                         <span ng-if="!deal.new_business">No</span>
                     </td>
                     <td ng-show="table.visibility.feedbackFormSent">
-                        <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"> Done</i></span>
-                        <span ng-if="!deal.feedback_form_sent"><i class="fa fa-remove text-warning font-size-inherit"> Not yet</i></span>
+                        <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"></i></span>
+                        <span ng-if="deal.feedback_form_sent" class="text-success">Done :)</span>
+
+                        <span ng-if="!deal.feedback_form_sent"><i class="fa fa-remove text-warning"></i></span>
+                        <span ng-if="!deal.feedback_form_sent" class="text-warning">Not yet</span>
                     </td>
                     <td ng-show="table.visibility.tags">
                         <span ng-repeat="tag in deal.tag">

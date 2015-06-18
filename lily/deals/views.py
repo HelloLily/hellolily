@@ -114,7 +114,6 @@ class CreateUpdateDealMixin(LoginRequiredMixin):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        # return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
         return '/#/deals'
 
 
@@ -163,14 +162,9 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
 
         if is_ajax(self.request):
             # Reload when user is in the deal list
-            redirect_url = None
-            parse_result = urlparse(self.request.META['HTTP_REFERER'])
-            if parse_result.path == reverse('deal_list'):
-                redirect_url = '%s?order_by=8&sort_order=desc' % reverse('deal_list')
-
             response = anyjson.serialize({
                 'error': False,
-                'redirect_url': redirect_url
+                'redirect_url': self.get_success_url()^M
             })
             return HttpResponse(response, content_type='application/json')
 
@@ -213,7 +207,6 @@ class UpdateDealView(CreateUpdateDealMixin, UpdateView):
         """
         Get the url to redirect to after this form has succesfully been submitted.
         """
-        # return '%s?order_by=8&sort_order=desc' % (reverse('deal_list'))
         return '/#/deals'
 
 
@@ -275,7 +268,7 @@ class DeleteDealView(LoginRequiredMixin, DeleteView):
         return HttpResponse(response, content_type='application/json')
 
     def get_success_url(self):
-        return reverse('deal_list')
+        return '/#/deals'
 
 
 class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):

@@ -3,6 +3,8 @@ from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+
+from lily.search.lily_search import LilySearch
 from lily.users.models import LilyUser
 
 from .serializers import EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer, EmailTemplateSerializer
@@ -155,6 +157,60 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             add_labels=request.data['data'].get('add_labels', []),
         )
         return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def history(self, request, pk):
+        """
+        Returns what happend to an email
+        """
+        email = self.get_object()
+
+        account_email = email.account.email_address
+        sent_from_account = (account_email == email.sender.email_address)
+
+        search = LilySearch(
+            request.user.tenant_id,
+            model_type='email_emailmessage',
+            sort='sent_date',
+        )
+
+        search.filter_query('thread_id:%s' % email.thread_id)
+        history, total, took = search.do_search([
+            'message_id',
+            'received_by_email',
+            'received_by_cc_email',
+            'sender_email',
+            'sender_name',
+            'sent_date',
+        ])
+
+        index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
+        messages_after = history[index + 1:]
+
+        results = {
+            'history': history,
+            'history_size': total,
+        }
+        if messages_after:
+            if sent_from_account:
+                next_messages = [item for item in messages_after if item['sender_email'] != account_email]
+                if len(next_messages):
+                    next_message = next_messages[0]
+                    email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+                    if email_addresses.count(email.account.email_address):
+                        results['replied_with'] = next_message
+            else:
+                # If the message was received, we want to know if we did something with it
+                next_messages = [item for item in messages_after if item['sender_email'] == account_email]
+                if len(next_messages):
+                    next_message = next_messages[0]
+                    email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+                    if email_addresses.count(email.sender.email_address):
+                        results['replied_with'] = next_message
+                    else:
+                        results['forwarded_with'] = next_message
+
+        return Response(results)
 
 
 class EmailTemplateViewSet(mixins.DestroyModelMixin,

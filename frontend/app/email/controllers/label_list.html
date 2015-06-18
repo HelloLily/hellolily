@@ -8,7 +8,9 @@
     <collapsable name="all-accounts">
         <li class="mailbox-header">
             <span>
-                All Mailboxes
+                <strong ng-click="vm.clickYou()">
+                    All Mailboxes
+                </strong>
                 <collapsable-button></collapsable-button>
             </span>
         </li>
@@ -47,9 +49,11 @@
 <collapsable name="account-{{ account.id }}" ng-repeat="account in vm.accountList">
     <ul class="inbox-nav margin-bottom-10">
         <li class="mailbox-header">
-        <span>
-            <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" tooltip="Primary account"></i>
-            {{ account.label }}
+            <span>
+                <strong ng-click="vm.clickYou(account)">
+                <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" tooltip="Primary account"></i>
+                {{ account.label }}
+                </strong>
             <collapsable-button></collapsable-button>
         </span>
         </li>

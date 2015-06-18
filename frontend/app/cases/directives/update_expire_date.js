@@ -1,8 +1,9 @@
 angular.module('app.cases.directives').directive('updateCaseExpireDate', updateCaseExpireDate);
 
-function updateCaseExpireDate () {
+updateCaseExpireDate.$inject = ['HLDate'];
+function updateCaseExpireDate (HLDate) {
     return {
-        restrict: "A",
+        restrict: 'A',
         link: function(scope, element, attrs) {
 
             var select = $('#id_priority');
@@ -13,7 +14,7 @@ function updateCaseExpireDate () {
                 if(isNaN(select.val())){
                     priority = 3;
                 }
-                var due = addBusinessDays(new Date(), daysToAdd[priority]);
+                var due = HLDate.addBusinessDays(new Date(), daysToAdd[priority]);
                 var month = due.getMonth() + 1;
                 if(month < 10){
                     month = '0' + month;

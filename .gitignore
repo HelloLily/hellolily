@@ -17,5 +17,6 @@ celeryev.pid
 
 lily/files/
 lily/static/i18n/
+lily/static/build/
 node_modules/
 Procfile.local

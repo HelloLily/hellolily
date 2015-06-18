@@ -261,5 +261,6 @@ gulp.task('watch', ['default'], function() {
     gulp.watch(config.vendorAssets.src, ['vendor:assets']);
 });
 
-gulp.task('default', ['app:js', 'app:css', 'app:templates', 'vendor:js', 'vendor:assets', 'vendor:css'], function() {});
+gulp.task('build', ['app:js', 'app:css', 'app:templates', 'vendor:js', 'vendor:assets', 'vendor:css'], function() {});
+gulp.task('default', ['build'], function() {});
 gulp.task('minify', ['app:minify:js', 'app:minify:css', 'vendor:minify:js', 'vendor:minify:css'], function () {});

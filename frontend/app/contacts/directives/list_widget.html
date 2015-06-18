@@ -17,30 +17,37 @@
     </div>
     <div class="portlet-body">
         <div class="scroll-body" slimscroll="{height: height || 250}">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>E-mail address</th>
-                    <th>Phone number</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="contact in list" ng-show="list.length">
-                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
-                    <td>
+            <div ng-show="list.length">
+                <div class="row">
+                    <!-- Removing some right padding to make the gutters smaller -->
+                    <div class="header col-xs-4 no-pad-right">
+                        Name
+                    </div>
+                    <div class="header col-xs-5 no-pad-right">
+                        Email
+                    </div>
+                    <div class="header col-xs-3">
+                        Phone
+                    </div>
+                </div>
+                <div class="row" ng-repeat="contact in list">
+                    <div class="col-xs-4 no-pad-right break">
+                        <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
+                    </div>
+                    <div class="col-xs-5 no-pad-right break">
                         <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
                             {{ contact.email_addresses[0].email_address }}
                         </a>
-                        <span ng-hide="contact.email_addresses[0]">No email</span>
-                    </td>
-                    <td>{{ contact.phones[0] || 'No phone' }}</td>
-                </tr>
-                <tr ng-hide="list.length">
-                    <td colspan="4">No contacts</td>
-                </tr>
-                </tbody>
-            </table>
+                        <span ng-hide="contact.email_addresses[0]">-</span>
+                    </div>
+                    <div class="col-xs-3 break">
+                        {{ contact.phones[0] || '-' }}
+                    </div>
+                </div>
+            </div>
+            <div ng-hide="list.length">
+                No contacts
+            </div>
         </div>
     </div>
 </div>

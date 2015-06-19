@@ -478,3 +478,15 @@ ul.inbox-nav li.mailbox-header span i {
 .required {
     font-weight: bold;
 }
+
+.no-pad-right {
+    padding-right: 0;
+}
+
+.break {
+    word-wrap: break-word;
+}
+
+.header {
+    font-weight: bold;
+}

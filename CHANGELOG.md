@@ -1,3 +1,17 @@
+<a name"next-release"></a>
+## Next Release
+
+<a name"0.4.25"></a>
+### 0.4.25 ()
+
+#### Features
+
+* 
+
+#### Bug Fixes
+
+*
+
 <a name"latest-release"></a>
 ## Latest Release
 

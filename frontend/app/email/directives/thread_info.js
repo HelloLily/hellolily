@@ -27,14 +27,18 @@ function ThreadInfoController ($state, EmailMessage) {
 
     function activate () {
         EmailMessage.history({id: vm.messageId}, function(history) {
+            vm.action = 'nothing';
             if (history.replied_with) {
                 vm.action = _getEmailAddresses(history.replied_with).length == 1 ? 'reply' : 'reply-all';
                 vm.nextMessage = history.replied_with;
             } else if(history.forwarded_with) {
-                vm.action = 'forward';
+                if(_getEmailAddresses(history.replied_with).length == 1) {
+                    vm.action = 'forward';
+                } else {
+                    // hack, there is no forward all
+                    vm.action = 'reply-all fa-flip-horizontal';
+                }
                 vm.nextMessage = history.forwarded_with;
-            } else {
-                vm.action = 'nothing';
             }
         });
     }

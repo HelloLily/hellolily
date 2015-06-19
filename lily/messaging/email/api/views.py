@@ -1,3 +1,4 @@
+import logging
 from django.db.models import Q
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
@@ -12,6 +13,8 @@ from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplat
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message)
 
+
+logger = logging.getLogger(__name__)
 
 class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = EmailLabel.objects.all()
@@ -184,13 +187,15 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             'sent_date',
         ])
 
-        if not history:
+        try:
+            index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
+        except StopIteration:
+            logger.exception('No history for message %s\nhistory:\n%s' % (email.id, history))
             results = {
                 'history_size': 0,
             }
             return Response(results)
 
-        index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
         messages_after = history[index + 1:]
 
         results = {

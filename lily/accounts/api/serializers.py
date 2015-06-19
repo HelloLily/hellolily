@@ -156,8 +156,6 @@ class AccountCreateSerializer(serializers.ModelSerializer):
                 del phone_number_data['is_deleted']
                 account.phone_numbers.add(PhoneNumber.objects.create(**phone_number_data))
 
-        account.save()
-
         return account
 
     def update(self, instance, validated_data):

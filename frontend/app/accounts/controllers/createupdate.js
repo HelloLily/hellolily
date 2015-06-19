@@ -82,7 +82,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 $scope.conf.pageTitleBig = vm.account.name;
             });
         } else {
-            $scope.conf.pageTitleBig = 'New accounts';
+            $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
         }
     }

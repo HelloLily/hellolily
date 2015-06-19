@@ -225,4 +225,3 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
         }
     }
 }
-

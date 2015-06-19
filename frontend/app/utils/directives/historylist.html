@@ -45,7 +45,7 @@
                     </div>
                 </li>
                 <li class="mix mix_all test history-{{ item.historyType }}" ng-class="{'timeline-inverted': item.historyType != 'email' || item.right}" ng-repeat="item in history.list" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
-                    <history-list-item item="item" history="history"></history-list-item>
+                    <history-list-item item="item" history="history" object="object"></history-list-item>
                 </li>
             </ul>
         </div>

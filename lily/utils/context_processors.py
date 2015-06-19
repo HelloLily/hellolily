@@ -1,22 +1,6 @@
 from django.contrib.sites.models import Site
 
-from lily.accounts.forms import AddAccountQuickbuttonForm
-from lily.cases.forms import CreateCaseQuickbuttonForm
-from lily.contacts.forms import AddContactQuickbuttonForm
-from lily.deals.forms import CreateDealQuickbuttonForm
-
 from .functions import is_ajax
-
-
-def quickbutton_forms(request):
-    return {
-        'quickbutton_formsets': {
-            'account': AddAccountQuickbuttonForm,
-            'contact': AddContactQuickbuttonForm,
-            'deal': CreateDealQuickbuttonForm,
-            'case': CreateCaseQuickbuttonForm,
-        }
-    }
 
 
 def current_site(request):

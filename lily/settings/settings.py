@@ -224,8 +224,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # 'django.core.context_processors.tz',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
-    'lily.messaging.email.context_processors.email',
-    'lily.utils.context_processors.quickbutton_forms',
     'lily.utils.context_processors.current_site',
 )
 

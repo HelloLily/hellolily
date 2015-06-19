@@ -184,6 +184,12 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             'sent_date',
         ])
 
+        if not history:
+            results = {
+                'history_size': 0,
+            }
+            return Response(results)
+
         index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
         messages_after = history[index + 1:]
 

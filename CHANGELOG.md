@@ -15,6 +15,15 @@
 <a name"latest-release"></a>
 ## Latest Release
 
+<a name"0.4.24.1"></a>
+### Hotfix 0.4.24.1 (2015-06-19)
+
+#### Bug Fixes
+
+* Sometimes there is no history for a message returned with Elastic search, so return empty history
+
+## Previous Releases
+
 <a name"0.4.24"></a>
 ### 0.4.24 (2015-06-18)
 
@@ -30,8 +39,6 @@
 #### Bug Fixes
 
 Geen
-
-## Previous Releases
 
 <a name"0.4.23"></a>
 ### 0.4.23 (2015-06-11)

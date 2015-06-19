@@ -6,7 +6,10 @@
 
 #### Features
 
-* 
+* Changed account form to Angular
+* Changing an email address to 'Primary' in account form now changes the rest to 'Other'
+* Changed account API so it can deal with related fields
+*
 
 #### Bug Fixes
 

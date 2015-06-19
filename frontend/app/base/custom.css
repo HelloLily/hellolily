@@ -1,11 +1,24 @@
 /*  GENERIC STUFF */
 .no-round-right {
-    -webkit-border-top-right-radius: 0px !important;
-    -webkit-border-bottom-right-radius: 0px !important;
-    -moz-border-radius-topright: 0px !important;
-    -moz-border-radius-bottomright: 0px !important;
-    border-top-right-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
+    -webkit-border-top-right-radius: 0 !important;
+    -webkit-border-bottom-right-radius: 0 !important;
+    -moz-border-radius-topright: 0 !important;
+    -moz-border-radius-bottomright: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn.blue {
+    background-color: #5B9BD1;
+}
+
+.btn.blue:hover {
+    background-color: #3175AF;
+}
+
+.btn.blue:active,
+.btn.blue:focus {
+    background-color: #3071A9;
 }
 
 .list-justified {

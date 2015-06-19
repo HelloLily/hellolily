@@ -1,12 +1,18 @@
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from rest_framework import serializers
 
 from .models import Account
 
 
-def duplicate_account_name(name):
-    if Account.objects.filter(name=name, is_deleted=False).exists():
-        raise ValidationError(
-            _('Company name already in use.'),
-            code='invalid',
-        )
+class DuplicateAccountName(object):
+    instance = None
+
+    def __call__(self, name):
+        queryset = Account.objects.filter(name=name, is_deleted=False)
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+        if queryset.exists():
+            raise serializers.ValidationError(_('Company name already in use.'))
+
+    def set_context(self, serializer_field):
+        self.instance = serializer_field.parent.instance

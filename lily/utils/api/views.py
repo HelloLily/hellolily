@@ -10,7 +10,9 @@ from rest_framework.views import APIView
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from .serializers import AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer
+from lily.tags.models import Tag
+
+from .serializers import AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer, TagSerializer
 from ..models.models import Address, EmailAddress, PhoneNumber
 
 
@@ -122,7 +124,6 @@ class RelatedModelViewSet(viewsets.ModelViewSet):
 
 
 class PhoneNumberViewSet(RelatedModelViewSet):
-
     queryset = PhoneNumber.objects
     serializer_class = PhoneNumberSerializer
 
@@ -131,7 +132,6 @@ class PhoneNumberViewSet(RelatedModelViewSet):
 
 
 class EmailAddressViewSet(RelatedModelViewSet):
-
     queryset = EmailAddress.objects
     serializer_class = EmailAddressSerializer
 
@@ -140,9 +140,18 @@ class EmailAddressViewSet(RelatedModelViewSet):
 
 
 class AddressViewSet(RelatedModelViewSet):
-
     queryset = Address.objects
     serializer_class = AddressSerializer
 
     def _get_related_queryset(self, object_pk):
         return self._get_related_object(object_pk).addresses
+
+
+class TagViewSet(RelatedModelViewSet):
+    queryset = Tag.objects
+    serializer_class = TagSerializer
+    related_model = None
+
+    def _get_related_queryset(self, object_pk):
+        return self._get_related_object(object_pk).tags
+

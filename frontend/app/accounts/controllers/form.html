@@ -1,0 +1,120 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-body form">
+                <form novalidate class="form-horizontal" name="accountForm">
+                    <div class="form-body">
+                        <form-portlet title="Who was it?">
+                            <form-portlet-body>
+                                <form-group label-title="Primary website" label-id="primary_website" field="accountForm.primaryWebsite">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <input class="form-control"
+                                                   id="primary_website"
+                                                   name="primaryWebsite"
+                                                   maxlength="255"
+                                                   placeholder="Enter primary website"
+                                                   type="text"
+                                                   value="http://"
+                                                   ng-model="vm.account.primaryWebsite">
+                                                <span class="input-group-btn">
+                                                    <button autocomplete="off"
+                                                            class="btn default"
+                                                            type="button"
+                                                            ng-click="vm.loadDataproviderData(accountForm)"
+                                                            ng-disabled="!accountForm.primaryWebsite.$valid">
+                                                        <i class="fa fa-magic"></i>
+                                                    </button>
+                                                </span>
+                                        </div>
+                                    </div>
+                                </form-group>
+                                <form-group label-title="Company name" label-id="id_name" field="accountForm.name">
+                                    <div class="col-md-4">
+                                        <input class="form-control"
+                                               id="id_name"
+                                               maxlength="255"
+                                               name="name"
+                                               placeholder="Company name"
+                                               type="text"
+                                               ng-model="vm.account.name">
+                                    </div>
+                                </form-group>
+                                <form-group label-title="Description" label-id="id_description" field="accountForm.description">
+                                    <div class="col-md-4">
+                                        <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.account.description"></textarea>
+                                    </div>
+                                </form-group>
+                                <form-group label-title="Customer ID" label-id="id_customer_id" field="costumer_id">
+                                    <div class="col-md-4">
+                                        <input class="form-control" id="id_customer_id" maxlength="32" name="customer_id" name="costumer_id" placeholder="Customer ID" type="text" ng-model="vm.account.customer_id">
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Who is handling the account?">
+                            <form-portlet-body>
+                                <form-group label-title="Assigned to" label-id="id_assigned_to" field="accountForm.assigned_to">
+                                    <div class="col-md-4">
+                                        <ui-select ng-model="vm.account.assigned_to" theme="bootstrap" name="assigned_to">
+                                            <ui-select-match placeholder="Assign to...">{{ [$select.selected.first_name, $select.selected.preposition, $select.selected.last_name].join(' ') }}</ui-select-match>
+                                            <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {first_name: $select.search, preposition: $select.search, last_name: $select.search}">
+                                                <div ng-bind-html="[person.first_name, person.preposition, person.last_name].join(' ') | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Contact information">
+                            <form-portlet-body>
+                                <form-email-addresses email-addresses="vm.account.email_addresses"
+                                                      add-related-field="vm.addRelatedField(field)"
+                                                      remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-email-addresses>
+                                <form-phone-numbers phone-numbers="vm.account.phone_numbers"
+                                                    add-related-field="vm.addRelatedField(field)"
+                                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-phone-numbers>
+                                <form-addresses addresses="vm.account.addresses"
+                                                add-related-field="vm.addRelatedField(field)"
+                                                remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-addresses>
+                                <form-websites websites="vm.account.websites"
+                                               add-related-field="vm.addRelatedField(field)"
+                                               remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-websites>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Tags">
+                            <form-portlet-body>
+                                <form-group label-title="Tags" label-id="id_tags" field="accountForm.tags">
+                                    <div class="col-md-4">
+                                        <ui-select multiple tagging ng-model="account.tags" theme="select2" tagging-label="(new tag)" style="width: 100%;">
+                                            <ui-select-match placeholder="Add tags...">{{ $item }}</ui-select-match>
+                                            <ui-select-choices repeat="tag in vm.tags | filter:$select.search">
+                                                {{ tag }}
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                    </div>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button class="btn blue" ng-click="vm.saveAccount()">
+                                    <i class="fa fa-check"></i> Save
+                                </button>
+                                <a ng-href="/#/accounts" class="btn default">
+                                    Back
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,8 +2,8 @@ from rest_framework import viewsets
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import MultiSerializerViewSetMixin
-from lily.tags.api.views import TagViewSet
-from lily.utils.api.views import AddressViewSet, EmailAddressViewSet, PhoneNumberViewSet, RelatedModelViewSet
+from lily.utils.api.views import (AddressViewSet, EmailAddressViewSet, PhoneNumberViewSet, RelatedModelViewSet,
+                                  TagViewSet)
 from .serializers import AccountSerializer, AccountCreateSerializer, WebsiteSerializer
 from ..models import Account, Website
 
@@ -11,7 +11,6 @@ from ..models import Account, Website
 class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     """
     Returns a list of all **active** accounts in the system.
-
 
     #Search#
     Searching is enabled on this API.
@@ -26,6 +25,8 @@ class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     serializer_class = AccountSerializer
     serializer_action_classes = {
         'create': AccountCreateSerializer,
+        'update': AccountCreateSerializer,
+        'partial_update': AccountCreateSerializer,
         'options': AccountCreateSerializer,
     }
     filter_backends = (ElasticSearchFilter,)

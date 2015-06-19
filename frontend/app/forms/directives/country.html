@@ -1,0 +1,10 @@
+<ui-select ng-model="address.country" theme="bootstrap" ng-disabled="address.is_deleted">
+    <ui-select-match placeholder="Select or search a country in the list...">
+        {{ $select.selected.display_name }}
+    </ui-select-match>
+    <ui-select-choices repeat="country.value as country in countries | filter: $select.search"
+                       infinite-scroll="addMoreItems()"
+                       infinite-scroll-distance="2">
+        <span ng-bind-html="country.display_name | highlight: $select.search"></span>
+    </ui-select-choices>
+</ui-select>

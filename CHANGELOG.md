@@ -13,6 +13,7 @@
 
 #### Bug Fixes
 
+* Historylist `show more` button works now with only one history type
 *
 
 <a name"latest-release"></a>

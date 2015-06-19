@@ -77,7 +77,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                     }
                 });
                 if (!vm.account.primaryWebsite || vm.account.primaryWebsite == '') {
-                    vm.account.primaryWebsite = 'http://';
+                    vm.account.primaryWebsite = '';
                 }
                 $scope.conf.pageTitleBig = vm.account.name;
             });
@@ -108,19 +108,17 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         var primaryWebsite = vm.account.primaryWebsite;
 
         // Make sure it's not an empty website being added
-        if (primaryWebsite != 'http://' && primaryWebsite != 'https://') {
-            if (primaryWebsite) {
-                var exists = false;
-                for (var i in vm.account.websites) {
-                    if (vm.account.websites[i].website == primaryWebsite) {
-                        exists = true;
-                        vm.account.websites[i].is_primary = true;
-                        break;
-                    }
+        if (primaryWebsite && primaryWebsite != 'http://' && primaryWebsite != 'https://') {
+            var exists = false;
+            for (var i in vm.account.websites) {
+                if (vm.account.websites[i].website == primaryWebsite) {
+                    exists = true;
+                    vm.account.websites[i].is_primary = true;
+                    break;
                 }
-                if (!exists) {
-                    vm.account.websites.push({website: primaryWebsite, is_primary: true})
-                }
+            }
+            if (!exists) {
+                vm.account.websites.push({website: primaryWebsite, is_primary: true})
             }
         }
 

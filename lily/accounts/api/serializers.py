@@ -16,6 +16,7 @@ from ..validators import DuplicateAccountName
 
 class WebsiteSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
+    website = serializers.CharField(required=True, max_length=255)
 
     class Meta:
         model = Website

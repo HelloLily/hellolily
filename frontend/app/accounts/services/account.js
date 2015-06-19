@@ -88,7 +88,7 @@ function Account($http, $q, $resource) {
     function create() {
         return new Account({
             name: '',
-            primaryWebsite: 'http://',
+            primaryWebsite: '',
             email_addresses: [],
             phone_numbers: [],
             addresses: [],
@@ -153,7 +153,7 @@ function Account($http, $q, $resource) {
                 account.addresses.push({type: 'visiting'});
                 break;
             case 'website':
-                account.websites.push({website: 'http://', is_primary: false});
+                account.websites.push({website: '', is_primary: false});
                 break;
             default:
                 break;
@@ -186,17 +186,15 @@ function Account($http, $q, $resource) {
 
     Account.prototype._storeDataproviderInfo = function (data) {
         var account = this;
-        account.name = data.name;
-        account.description = data.description;
+        angular.forEach(data, function (value, key) {
 
-        // hidden fields
-        account.bic = data.bic;
-        account.iban = data.iban;
-        account.bankaccountnumber = data.bankaccountnumber;
-        account.taxnumber = data.taxnumber;
-        account.legalentity = data.legalentity;
-        account.cocnumber = data.cocnumber;
+            // Only if value is defined & is not an array (than it is an related field)
+            if (value && !(value instanceof Array)) {
+                account[key] = value;
+            }
+        });
 
+        // Add related fields
         account._addEmailAddresses(data);
         account._addPhoneNumbers(data);
         account._addAddresses(data);

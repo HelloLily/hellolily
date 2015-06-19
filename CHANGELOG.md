@@ -9,7 +9,7 @@
 * Changed account form to Angular
 * Changing an email address to 'Primary' in account form now changes the rest to 'Other'
 * Changed account API so it can deal with related fields
-*
+* Placeholders for email are simplified, `http://` is no longer required
 
 #### Bug Fixes
 

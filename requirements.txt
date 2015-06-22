@@ -93,6 +93,7 @@ kombu==3.0.24  # Old version is: 3.0.14
 IMAPClient==0.11
 beautifulsoup4==4.3.2
 bleach==1.4.1
+html2text==2015.6.21
 lxml==3.4.1  # Old version is: 3.2.3, on max install with: STATIC_DEPS=true pip install lxml, because they can't code properly
 google-api-python-client==1.3.1
 

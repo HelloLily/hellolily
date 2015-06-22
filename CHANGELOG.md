@@ -1,13 +1,19 @@
 <a name"newest-release"></a>
 ## Newest Release
 
+#### Features
+
+
+#### Bug Fixes
+* Restore layout of the fields on Add/Edit Account
+* Fix for showing and sending emails correctly
+* No more enter key to save the account form
+
 <a name"latest-release"></a>
 ## Latest Release
 
 <a name"0.4.25"></a>
 ### 0.4.25 (2015-06-22)
-
-* Restore layout of the fields on Add/Edit Account
 
 #### Features
 

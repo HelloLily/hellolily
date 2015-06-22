@@ -170,19 +170,26 @@ class EmailMessage(models.Model):
 
     @property
     def reply_body(self):
+        from ..utils import create_a_beautiful_soup_object
         """
         Return an version of the body which is used for replies or forwards.
         This is preferably the html part, but in case that doesn't exist we use the text part
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
-            soup = BeautifulSoup(self.body_html, 'xml')
-            if soup.html is None:
+            soup = create_a_beautiful_soup_object(self.body_html)
+            if not soup.html:
                 # haven't figured out yet how to do this elegantly..
-                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)
-            soup.html.unwrap()
-            html = sanitize_html_email(soup.decode())
+                html = '<html>%s</html>' % self.body_html
+                soup = create_a_beautiful_soup_object(html)
 
+            if not soup or soup.get_text == "":
+                html = self.body_html
+            else:
+                soup.html.unwrap()
+                html = soup.decode()
+
+            html = sanitize_html_email(html)
             return html
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
@@ -383,10 +390,11 @@ class EmailOutboxMessage(TenantMixin, models.Model):
         email_message = SafeMIMEMultipart('related')
         email_message['Subject'] = self.subject
         email_message['From'] = from_email
-        email_message['To'] = ','.join(list(to))
+
+        if to:
+            email_message['To'] = ','.join(list(to))
         if cc:
             email_message['cc'] = ','.join(list(cc))
-
         if bcc:
             email_message['bcc'] = ','.join(list(bcc))
 

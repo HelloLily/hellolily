@@ -163,6 +163,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 )
 
                 attachments = EmailAttachment.objects.filter(message_id=self.object.pk)
+
                 self.object.body_html = replace_cid_in_html(self.object.body_html, attachments, request)
             except EmailMessage.DoesNotExist:
                 pass
@@ -195,7 +196,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
 
         original_attachment_ids = set()
         for attachment_form in form.cleaned_data.get('attachments'):
-            if not attachment_form.cleaned_data['DELETE']:
+            if attachment_form.cleaned_data and not attachment_form.cleaned_data['DELETE']:
                 form_attachment = attachment_form.cleaned_data
                 if form_attachment['id']:
                     # Only store attachment id for now

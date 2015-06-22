@@ -11,7 +11,8 @@
 * Changed account API so it can deal with related fields
 * Placeholders for email are simplified, `http://` is no longer required
 * When replying in the historylist, if the email is flagged inactive under account/contact, it tries to find another emailaddress to reply to
-* 
+* Add buttons in header are spaced (whoehoe!)
+* Assign case modal uses smart select searchbox
 
 #### Bug Fixes
 

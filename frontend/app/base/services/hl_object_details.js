@@ -21,7 +21,7 @@ function HLObjectDetails () {
     this.getEmailAddresses = function (object) {
         var email_addresses = object.email_addresses;
 
-        if (email_addresses.length > 1) {
+        if (email_addresses && email_addresses.length > 1) {
             // Copy the email address array and loop over it
             angular.forEach(email_addresses.slice(), function (email_address, index) {
                 // Check if email address has the status 'Primary'

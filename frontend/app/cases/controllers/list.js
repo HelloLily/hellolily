@@ -7,7 +7,8 @@ function caseConfig ($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'cases/controllers/list.html',
-                controller: CaseListController
+                controller: CaseListController,
+                controllerAs: 'vm'
             }
         },
         ncyBreadcrumb: {
@@ -18,34 +19,22 @@ function caseConfig ($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$http', '$location', '$modal', '$scope', '$state', 'Case', 'Cookie', 'HLDate', 'HLFilters'];
-function CaseListController ($http, $location, $modal, $scope, $state, Case, Cookie, HLDate, HLFilters) {
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', 'Case', 'Cookie', 'HLDate', 'HLFilters'];
+function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HLDate, HLFilters) {
     var cookie = Cookie('caseList');
+    var vm = this;
 
     $scope.conf.pageTitleBig = 'Cases';
     $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 
-    // Setup search query
-    var searchQuery = '';
-
-    // Check if filter is set as query parameter
-    var search = $location.search().search;
-    if (search != undefined) {
-        searchQuery = search;
-    } else {
-        // Get searchQuery from cookie
-        searchQuery = cookie.get('searchQuery', '');
-    }
-
     /**
      * table object: stores all the information to correctly display the table
      */
-    $scope.table = {
+    vm.table = {
         page: 1,  // current page of pagination: 1-index
         pageSize: 60,  // number of items per page
         totalItems: 0, // total number of items
-        searchQuery: searchQuery,  // search query
-        archived: cookie.get('archived', false),
+        searchQuery: '',  // search query
         order: cookie.get('order', {
             ascending: true,
             column: 'expires'  // string: current sorted column
@@ -63,20 +52,61 @@ function CaseListController ($http, $location, $modal, $scope, $state, Case, Coo
             tags: true
         })
     };
+    vm.displayFilterClear = false;
+    vm.filterList = [];
 
-    $scope.displayFilterClear = false;
+    vm.updateFilterQuery = updateFilterQuery;
+    vm.setSearchQuery = setSearchQuery;
+    vm.clearFilters = clearFilters;
+    vm.assignTo = assignTo;
 
-    getFilterList();
+    activate();
+
+    //////
+
+    function activate() {
+        _setSearchQuery();
+        _getFilterList();
+        _setupWatchers();
+    }
+
+
+    function _setSearchQuery () {
+        // Setup search query
+        var searchQuery = '';
+
+        // Check if filter is set as query parameter
+        var search = $location.search().search;
+        if (search != undefined) {
+            searchQuery = search;
+        } else {
+            // Get searchQuery from cookie
+            searchQuery = cookie.get('searchQuery', '');
+        }
+        vm.table.searchQuery = searchQuery;
+    }
+
+    /**
+     * setSearchQuery() sets the search query of the table
+     *
+     * @param queryString string: string that will be set as the new search query on the table
+     */
+    function setSearchQuery (queryString) {
+        vm.table.searchQuery = queryString;
+    }
 
     /**
      * Gets the filter list. Is either the value in the cookie or a new list
      *
      * @returns filterList (object): object containing the filter list
      */
-    function getFilterList() {
+    function _getFilterList() {
         var filterListCookie = cookie.get('filterList', null);
 
-        if (!filterListCookie) {
+        if (filterListCookie) {
+            // Cookie is set, so use it as the filterList
+            vm.filterList = filterListCookie;
+        } else {
             var filterList = [
                 {
                     name: 'Assigned to me',
@@ -107,7 +137,7 @@ function CaseListController ($http, $location, $modal, $scope, $state, Case, Coo
             ];
 
             // Update filterList for now
-            $scope.filterList = filterList;
+            vm.filterList = filterList;
 
             Case.getCaseTypes().then(function (cases) {
                 for (var key in cases) {
@@ -121,102 +151,88 @@ function CaseListController ($http, $location, $modal, $scope, $state, Case, Coo
                 }
 
                 // Update filterList once AJAX call is done
-                $scope.filterList = filterList;
-                // Watch doesn't get triggered here, so manually call updateTableSettings
-                updateTableSettings();
+                vm.filterList = filterList;
+                // Watch doesn't get triggered here, so manually call _updateTableSettings
+                _updateTableSettings();
             });
-        } else {
-            // Cookie is set, so use it as the filterList
-            $scope.filterList = filterListCookie;
         }
     }
 
     /**
-     * updateTableSettings() sets scope variables to the cookie
+     * _updateTableSettings() sets scope variables to the cookie
      */
-    function updateTableSettings() {
-        cookie.put('searchQuery', $scope.table.searchQuery);
-        cookie.put('archived', $scope.table.archived);
-        cookie.put('order', $scope.table.order);
-        cookie.put('visibility', $scope.table.visibility);
-        cookie.put('filterList', $scope.filterList);
+    function _updateTableSettings() {
+        cookie.put('searchQuery', vm.table.searchQuery);
+        cookie.put('archived', vm.table.archived);
+        cookie.put('order', vm.table.order);
+        cookie.put('visibility', vm.table.visibility);
+        cookie.put('filterList', vm.filterList);
     }
 
     /**
-     * updateCases() reloads the cases through a service
+     * _updateCases() reloads the cases through a service
      *
      * Updates table.items and table.totalItems
      */
-    function updateCases() {
+    function _updateCases() {
         Case.getCases(
-            $scope.table.searchQuery,
-            $scope.table.page,
-            $scope.table.pageSize,
-            $scope.table.order.column,
-            $scope.table.order.ascending,
-            $scope.table.archived,
-            $scope.table.filterQuery
+            vm.table.searchQuery,
+            vm.table.page,
+            vm.table.pageSize,
+            vm.table.order.column,
+            vm.table.order.ascending,
+            vm.table.archived,
+            vm.table.filterQuery
         ).then(function (data) {
-                $scope.table.items = data.cases;
-                $scope.table.totalItems = data.total;
+                vm.table.items = data.cases;
+                vm.table.totalItems = data.total;
             }
         );
     }
 
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs a new set of cases
-     */
-    $scope.$watchGroup([
-        'table.page',
-        'table.order.column',
-        'table.order.ascending',
-        'table.searchQuery',
-        'table.archived',
-        'table.filterQuery'
-    ], function () {
-        updateTableSettings();
-        updateCases();
-    });
+    function _setupWatchers() {
+        /**
+         * Watches the model info from the table that, when changed,
+         * needs a new set of cases
+         */
+        $scope.$watchGroup([
+            'vm.table.page',
+            'vm.table.order.column',
+            'vm.table.order.ascending',
+            'vm.table.searchQuery',
+            'vm.table.archived',
+            'vm.table.filterQuery'
+        ], function () {
+            _updateTableSettings();
+            _updateCases();
+        });
 
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs to store the info to the cache
-     */
-    $scope.$watchCollection('table.visibility', function () {
-        updateTableSettings();
-    });
+        /**
+         * Watches the model info from the table that, when changed,
+         * needs to store the info to the cache
+         */
+        $scope.$watchCollection('vm.table.visibility', function () {
+            _updateTableSettings();
+        });
 
-    /**
-     * Watches the filters so when the cookie is loaded,
-     * the filterQuery changes and a new set of deals is fetched
-     */
-    $scope.$watchCollection('filterList', function () {
-        $scope.updateFilterQuery();
-    });
+        /**
+         * Watches the filters so when the cookie is loaded,
+         * the filterQuery changes and a new set of deals is fetched
+         */
+        $scope.$watchCollection('vm.filterList', function () {
+            updateFilterQuery();
+        });
+    }
 
-    /**
-     * setSearchQuery() sets the search query of the table
-     *
-     * @param queryString string: string that will be set as the new search query on the table
-     */
-    $scope.setSearchQuery = function (queryString) {
-        $scope.table.searchQuery = queryString;
-    };
+    function updateFilterQuery () {
+        HLFilters.updateFilterQuery(vm);
+    }
 
-    $scope.toggleArchived = function () {
-        $scope.table.archived = !$scope.table.archived;
-    };
+    function clearFilters  () {
+        HLFilters.clearFilters(vm);
+    }
 
-    $scope.updateFilterQuery = function () {
-        HLFilters.updateFilterQuery($scope);
-    };
-
-    $scope.clearFilters = function () {
-        HLFilters.clearFilters($scope);
-    };
-
-    $scope.assignTo = function(myCase) {
+    function assignTo (myCase) {
         var modalInstance = $modal.open({
             templateUrl: 'cases/controllers/assignto.html',
             controller: 'CaseAssignModal',
@@ -232,5 +248,5 @@ function CaseListController ($http, $location, $modal, $scope, $state, Case, Coo
         modalInstance.result.then(function() {
             $state.go($state.current, {}, {reload: true});
         });
-    };
+    }
 }

@@ -26,7 +26,7 @@ function CaseAssignModal ($modalInstance, myCase, Case, User) {
 
     function ok () {
         // Update the assigned_to of the case and close the modal
-        Case.update({id: vm.myCase.id, assigned_to: vm.currentAssigneeId}).$promise.then(function () {
+        Case.update({id: vm.myCase.id, assigned_to: vm.assignee.id}).$promise.then(function () {
             $modalInstance.close();
         });
     }

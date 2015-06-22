@@ -23,7 +23,7 @@ function FormEmailAddressesController() {
 
     function setPrimaryEmailAddress (emailAddress) {
         // Check if the status of an email address is 'Primary'
-        if (emailAddress.status == 0) {
+        if (emailAddress.status == 2) {
             angular.forEach(vm.emailAddresses, function(email) {
                 // Set the status of the other email addresses to 'Other'
                 if (emailAddress != email) {

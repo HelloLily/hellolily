@@ -26,7 +26,7 @@ function HLDate () {
                 day += 2;
             }
             days++;
-            dy -= 6;
+            day -= 6;
         }
         if (day === 0 && days < 1) {
             if (days === 0) {

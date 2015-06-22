@@ -1,6 +1,6 @@
 <div class="form-group" ng-class="{'has-error': field.$invalid}">
     <label class="col-xs-1 control-label" for="{{ labelId }}"
-    ng-class="{'with-icon':(labelIcon || labelChar)}">
+    ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
         <div class="text-center">
 
             <i title="{{ labelTitle }}" ng-if="labelIcon" class="label-icon" ng-class="'fa fa-' + labelIcon"></i>

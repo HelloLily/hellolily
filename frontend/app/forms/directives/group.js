@@ -8,7 +8,8 @@ function formGroup() {
             labelTitle: '@',
             labelIcon: '@',
             labelChar: '@',
-            field: '='
+            field: '=',
+            required: '@'
         },
         transclude: true,
         templateUrl: 'forms/directives/group.html'

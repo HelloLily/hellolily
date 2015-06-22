@@ -8,9 +8,8 @@ from django.views.generic import RedirectView
 from lily.api.urls import router, accounts_router
 from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList
 from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList
-from lily.utils.views import BaseView
 from lily.utils.api.views import CallerName, Notifications, Queues
-
+from lily.utils.views import BaseView
 
 admin.autodiscover()
 

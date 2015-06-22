@@ -2,9 +2,7 @@
     <ui-select-match placeholder="Select or search a country...">
         {{ $select.selected.display_name }}
     </ui-select-match>
-    <ui-select-choices repeat="country.value as country in countries | filter: $select.search"
-                       infinite-scroll="addMoreItems()"
-                       infinite-scroll-distance="2">
+    <ui-select-choices repeat="country.value as country in countries | filter: $select.search">
         <span ng-bind-html="country.display_name | highlight: $select.search"></span>
     </ui-select-choices>
 </ui-select>

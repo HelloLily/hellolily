@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from rest_framework import exceptions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
@@ -155,3 +156,13 @@ class TagViewSet(RelatedModelViewSet):
     def _get_related_queryset(self, object_pk):
         return self._get_related_object(object_pk).tags
 
+class CountryViewSet(ModelViewSet):
+    """
+    List all countries for a tenant.
+    """
+    queryset = Address.objects
+    allowed_methods = ['OPTIONS', 'POST']
+    serializer_class = AddressSerializer
+
+    def create(self, request, *args, **kwargs):
+        raise exceptions.PermissionDenied

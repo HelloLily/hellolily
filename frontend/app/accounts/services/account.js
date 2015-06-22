@@ -16,10 +16,7 @@ function Account($http, $q, $resource) {
                 method: 'DELETE'
             },
             addressOptions: {
-                url: '/api/accounts/account/:id/addresses/',
-                params: {
-                    id: '@id'
-                },
+                url: '/api/utils/countries/',
                 method: 'OPTIONS'
             }
         });

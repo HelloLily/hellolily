@@ -274,7 +274,7 @@ def replace_cid_in_html(html, mapped_attachments, request):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html, 'xml')
+    soup = BeautifulSoup(html, 'lxml')
     inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
     cid_done = []
 

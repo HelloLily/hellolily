@@ -37,11 +37,11 @@
             </div>
         </div>
         <div class="tools col-xs-12 col-md-6">
-            <form class="form-inline pull-right" action="index.html">
+            <form class="form-inline pull-right">
                 <div class="input-group">
                     <input type="text" class="form-control" ng-model="table.searchQuery" placeholder="Search..">
                     <span class="input-group-btn">
-                        <button class="btn red-pink" ng-click="setSearchQuery('')" ng-disabled="!table.searchQuery">
+                        <button type="button" class="btn red-pink" ng-click="setSearchQuery('')" ng-disabled="!table.searchQuery">
                             <i class="fa fa-times"></i>
                         </button>
                     </span>

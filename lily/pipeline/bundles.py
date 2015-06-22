@@ -55,7 +55,6 @@ PIPELINE_JS = {
     },
     'global': {
         'source_filenames': (
-
             'users/js/angular/services.js',
             'users/js/angular/filters.js',
 

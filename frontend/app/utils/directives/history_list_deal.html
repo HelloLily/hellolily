@@ -4,54 +4,54 @@
 <div class="timeline-panel">
     <div class='timeline-heading'>
         <h4 class='timeline-title'>
-            {{ ::item.name }}
+            {{ ::vm.item.name }}
             <div class="btn-group pull-right">
                 <a class="text-white" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-angle-down"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a ui-sref="base.deals.detail({ id: item.id })"><i class="fa fa-eye"></i>View</a></li>
-                    <li><a ui-sref="base.deals.detail.edit({ id: item.id })"><i class="fa fa-edit"></i>Edit</a></li>
+                    <li><a ui-sref="base.deals.detail({ id: vm.item.id })"><i class="fa fa-eye"></i>View</a></li>
+                    <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })"><i class="fa fa-edit"></i>Edit</a></li>
                     <li class='divider'></li>
-                    <li><a ng-href="/deals/delete/{{ ::item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
+                    <li><a ng-href="/deals/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
                 </ul>
             </div>
         </h4>
     </div>
     <div class="timeline-body first">
-        <em style="white-space: pre-wrap;">{{ ::item.body }}</em>
+        <em style="white-space: pre-wrap;">{{ ::vm.item.body }}</em>
         <div class="timeline-footer">
-            Last changed: {{ ::item.modified | date:'dd MMMM yy HH:mm' }}<br/>
-            Closing: {{ ::item.closing_date | date:'dd MMMM yy HH:mm' }}<br/>
-            {{ ::item.new_business ? 'New business' : 'Existing business'}}<br/>
-            {{ ::item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
-            Stage: {{ ::item.stage_name}} ({{ ::item.archived ? 'archived' : 'active'}})<br/>
-            Amount once: &euro; {{ ::item.amount_once }}<br/>
-            Amount recurring: &euro; {{ ::item.amount_recurring}}<br/><br/>
+            Last changed: {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}<br/>
+            Closing: {{ ::vm.item.closing_date | date:'dd MMMM yy HH:mm' }}<br/>
+            {{ ::vm.item.new_business ? 'New business' : 'Existing business'}}<br/>
+            {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
+            Stage: {{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})<br/>
+            Amount once: &euro; {{ ::vm.item.amount_once }}<br/>
+            Amount recurring: &euro; {{ ::vm.item.amount_recurring}}<br/><br/>
         </div>
         <ul class="list-inline list-justified">
             <li>
-                <small class="text-muted" tooltip="Created on {{ ::item.created| date:'dd MMMM yy' }} at {{ ::item.created| date:'HH:mm' }}">
+                <small class="text-muted" tooltip="Created on {{ ::vm.item.created| date:'dd MMMM yy' }} at {{ ::vm.item.created| date:'HH:mm' }}">
                     <i class="fa fa-calendar"></i>
-                    {{ ::item.created | date:'dd MMM yy HH:mm' }}
+                    {{ ::vm.item.created | date:'dd MMM yy HH:mm' }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Assigned to: {{ ::item.assigned_to_name }}">
+                <small class="text-muted" tooltip="Assigned to: {{ ::vm.item.assigned_to_name }}">
                     <i class="fa fa-child"></i>
-                    {{ ::item.assigned_to_name || "Nobody" }}
+                    {{ ::vm.item.assigned_to_name || "Nobody" }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Created by: {{ ::item.created_by }}">
+                <small class="text-muted" tooltip="Created by: {{ ::vm.item.created_by }}">
                     <i class="fa fa-user"></i>
-                    {{ ::item.created_by || "Nobody" }}
+                    {{ ::vm.item.created_by || "Nobody" }}
                 </small>
             </li>
         </ul>
     </div>
-    <history-add-note item="item"></history-add-note>
-    <div class='timeline-body next' ng-repeat="note in ::item.notes">
+    <history-add-note item="vm.item"></history-add-note>
+    <div class='timeline-body next' ng-repeat="note in ::vm.item.notes">
         <p class='inline-header'><i class="fa fa-file-text-o"></i> Note</p>
         <div class="inline-body">
             <p>{{ ::note.content }}</p>

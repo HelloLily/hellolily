@@ -1,11 +1,24 @@
 /*  GENERIC STUFF */
 .no-round-right {
-    -webkit-border-top-right-radius: 0px !important;
-    -webkit-border-bottom-right-radius: 0px !important;
-    -moz-border-radius-topright: 0px !important;
-    -moz-border-radius-bottomright: 0px !important;
-    border-top-right-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
+    -webkit-border-top-right-radius: 0 !important;
+    -webkit-border-bottom-right-radius: 0 !important;
+    -moz-border-radius-topright: 0 !important;
+    -moz-border-radius-bottomright: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn.blue {
+    background-color: #5B9BD1;
+}
+
+.btn.blue:hover {
+    background-color: #3175AF;
+}
+
+.btn.blue:active,
+.btn.blue:focus {
+    background-color: #3071A9;
 }
 
 .list-justified {
@@ -464,4 +477,30 @@ ul.inbox-nav li.mailbox-header span i {
 
 .required {
     font-weight: bold;
+}
+
+.no-pad-right {
+    padding-right: 0;
+}
+
+.break {
+    word-wrap: break-word;
+}
+
+.header {
+    font-weight: bold;
+}
+
+.form-horizontal .control-label.with-icon {
+    padding: 0;
+    margin: 0;
+    line-height: 1em;
+}
+
+.label-icon {
+    font-size: 20px;
+}
+
+.label-text {
+    font-size: 10px;
 }

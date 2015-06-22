@@ -59,13 +59,23 @@
                 <i class="fa" ng-class="{true: 'fa-caret-square-o-up', false: 'fa-caret-square-o-down'}[vm.displayAllRecipients]"></i>
             </button>
         </div>
+
+        <div class="pull-right">
+            <a class="pull-right" ng-show="!vm.onlyPlainText && vm.message.bodyHTMLUrl && vm.message.body_text" ng-click="vm.toggleEmailVariant()">Give me the plain text version</a>
+            <a class="pull-right" ng-show="vm.onlyPlainText && vm.message.bodyHTMLUrl" ng-click="vm.toggleEmailVariant()">Show me the nicely formatted email</a>
+        </div>
+
     </div>
 </div>
-<div class="inbox-view" ng-show="vm.message.body_html" id="ifrm_container">
+
+<div class="inbox-view" ng-hide="vm.onlyPlainText" id="ifrm_container">
     <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden" frameBorder="0"></iframe>
 </div>
-<div class="inbox-view" ng-if="vm.onlyPlainText" ng-bind-html="vm.message.body_text | nl2br"></div>
-<hr>
+
+<div class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
+    {{ vm.message.body_text }}
+</div>
+
 <div class="inbox-attached" ng-show="vm.message.attachments.length">
     <div class="margin-bottom-25" ng-repeat="attachment in vm.message.attachments | filter: {inline: false}">
         <div>

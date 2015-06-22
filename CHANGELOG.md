@@ -1,6 +1,27 @@
 <a name"latest-release"></a>
 ## Latest Release
 
+<a name"0.4.25"></a>
+### 0.4.25 (2015-06-22)
+
+#### Features
+
+* Changed account form to Angular
+* Changing an email address to 'Primary' in account form now changes the rest to 'Other'
+* Changed account API so it can deal with related fields
+* Placeholders for email are simplified, `http://` is no longer required
+* When replying in the historylist, if the email is flagged inactive under account/contact, it tries to find another emailaddress to reply to
+* Add buttons in header are spaced (woohoo!)
+* Assign case modal uses smart select searchbox
+* Email addresses marked as primary will now appear at the top of the list of email addresses in various detail widgets
+* Email addresses marked as inactive will no longer be displayed in detail widgets
+* Search filters in listviews will no longer be cleared on hitting enter
+
+#### Bug Fixes
+
+* Historylist `show more` button works now with only one history type
+* XSS fix in email detail view
+
 <a name"0.4.24.1"></a>
 ### Hotfix 0.4.24.1 (2015-06-19)
 

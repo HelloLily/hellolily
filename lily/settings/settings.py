@@ -198,7 +198,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'pipeline.middleware.MinifyHTMLMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
 )
 
@@ -224,8 +223,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # 'django.core.context_processors.tz',
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
-    'lily.messaging.email.context_processors.email',
-    'lily.utils.context_processors.quickbutton_forms',
     'lily.utils.context_processors.current_site',
 )
 
@@ -595,7 +592,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'lily.utils.authentication.TokenGETAuthentication',
-    )
+    ),
 }
 
 #######################################################################################################################

@@ -19,7 +19,7 @@ function accountConfig ($stateProvider) {
         resolve: {
             account: ['AccountDetail', '$stateParams', function(AccountDetail, $stateParams) {
                 var accountId = $stateParams.id;
-                return AccountDetail.get({id: accountId}).$promise
+                return AccountDetail.get({id: accountId}).$promise;
             }]
         }
     })

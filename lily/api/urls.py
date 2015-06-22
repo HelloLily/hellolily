@@ -6,11 +6,11 @@ from lily.deals.api.views import DealViewSet
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet)
 from lily.notes.api.views import NoteViewSet
-from lily.users.api.views import LilyUserViewSet
-from lily.users.api.views import TeamViewSet
+from lily.users.api.views import LilyUserViewSet, TeamViewSet
 
 from .routers import SimpleRouter, NestedSimpleRouter
 
+# Routers provide an easy way of automatically determining the URL conf.
 router = SimpleRouter()
 
 router.register(r'accounts/account', AccountViewSet)
@@ -30,9 +30,7 @@ router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
 router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
 
-router.register(r'notes', NoteViewSet)
-
-
 router.register(r'users/user', LilyUserViewSet)
 router.register(r'users/team', TeamViewSet)
 
+router.register(r'notes', NoteViewSet)

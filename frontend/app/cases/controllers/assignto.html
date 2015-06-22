@@ -4,7 +4,12 @@
 <div class="modal-body">
     <div class="row">
         <div class="col-md-12">
-            <select ng-options="user.id as user.full_name for user in vm.users" ng-model="vm.currentAssigneeId"></select>
+            <ui-select ng-model="vm.assignee" theme="select2" style="width: 100%">
+                <ui-select-match placeholder="Select user">{{$select.selected.full_name}}</ui-select-match>
+                <ui-select-choices repeat="user in vm.users | filter: $select.search">
+                    <div ng-bind-html="user.full_name | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
         </div>
     </div>
 </div>

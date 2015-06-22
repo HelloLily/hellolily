@@ -26,6 +26,7 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
     vm.toggleOverlay = toggleOverlay;
     vm.markAsUnread = markAsUnread;
     vm.onlyPlainText = false;
+    vm.toggleEmailVariant = toggleEmailVariant;
 
     $scope.conf.pageTitleBig = 'Email message';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
@@ -75,6 +76,10 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
         EmailMessage.delete({id: vm.message.id}).$promise.then(function () {
             $state.go('base.email.list', { 'labelId': 'INBOX' });
         });
+    }
+
+    function toggleEmailVariant(){
+        vm.onlyPlainText = !vm.onlyPlainText;
     }
 
     function toggleOverlay () {

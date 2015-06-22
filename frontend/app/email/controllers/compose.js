@@ -62,6 +62,21 @@ function emailConfig ($stateProvider) {
             }
         }
     });
+    $stateProvider.state('base.email.replyOtherEmail', {
+        url: '/reply/{id:[0-9]{1,}}/{email}',
+        params: {
+            messageType: 'reply'
+        },
+        views: {
+            '@base.email': {
+                templateUrl: function(elem, attr) {
+                    return '/messaging/email/reply/' + elem.id + '/';
+                },
+                controller: EmailComposeController,
+                controllerAs: 'vm'
+            }
+        }
+    });
     $stateProvider.state('base.email.replyAll', {
         // TODO: This should probably be redone so the url is nicer.
         // Maybe we can save the action in the scope?
@@ -156,7 +171,7 @@ function EmailComposeController ($scope, $state, $stateParams, $templateCache, $
                 var contact = results[0][0];
                 templates = results[1];
 
-                if (emailMessage) {
+                if (emailMessage && !email) {
                     email = emailMessage.sender.email_address;
                 }
 

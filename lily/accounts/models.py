@@ -22,14 +22,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     Account model, this is a company's profile. May have relations with contacts.
     """
     STATUS_CHOICES = (
-        # TODO: translate statuses (nl->en)
-        # # ooit contact mee geweest | contacted
-        # # actief offerte traject | being billed
-        # # offerte gehad | billed
-        # # actieve klant | active customer
-        # # klant met betalingsachterstand | arrears
-        # # failliet | bankrupt
-        # # oud klant | previous customer.
         ('inactive', _('Inactive')),
         ('active', _('Active')),
         ('pending', _('Pending')),

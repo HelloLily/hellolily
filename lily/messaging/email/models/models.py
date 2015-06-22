@@ -26,6 +26,8 @@ from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
 from lily.utils.models.mixins import DeletedMixin
 
+from ..sanitize import sanitize_html_email
+
 
 logger = logging.getLogger(__name__)
 
@@ -174,12 +176,14 @@ class EmailMessage(models.Model):
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
-            soup = BeautifulSoup(self.body_html)
+            soup = BeautifulSoup(self.body_html, 'xml')
             if soup.html is None:
-                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)  # haven't figured out yet how to do this elegantly..
-
+                # haven't figured out yet how to do this elegantly..
+                soup = BeautifulSoup("""<html>%s</html>""" % self.body_html)
             soup.html.unwrap()
-            return soup.decode()
+            html = sanitize_html_email(soup.decode())
+
+            return html
         elif self.body_text:
             # In case of plain text, prepend '>' to every line of body.
             reply_body = []

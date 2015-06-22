@@ -69,10 +69,11 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 var promises = [];
                 page += 1;
                 var neededLength = page * pageSize;
+                var requestLength = neededLength + 1;
 
                 // Check if we need to fetch notes
                 if (noteTargets.indexOf(scope.target) != -1) {
-                    var notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: neededLength }).$promise;
+                    var notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
                     promises.push(notePromise);  // Add promise to list of all promises for later handling
 
                     notePromise.then(function(results) {
@@ -84,7 +85,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                 // Check if we need to fetch cases
                 if (caseTargets.indexOf(scope.target) != -1) {
-                    var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: neededLength}).$promise;
+                    var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
                     casePromise.then(function(results) {
@@ -100,7 +101,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                 // Check if we need to fetch deals
                 if (dealTargets.indexOf(scope.target) != -1) {
-                    var dealPromise = DealDetail.query({filterquery: scope.target + ':' + obj.id, size: neededLength}).$promise;
+                    var dealPromise = DealDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
                     promises.push(dealPromise);  // Add promise to list of all promises for later handling
 
                     dealPromise.then(function(results) {
@@ -123,9 +124,9 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                     var emailPromise;
                     if (scope.target == 'account') {
-                        emailPromise = EmailDetail.query({account_related: obj.id, size: neededLength}).$promise;
+                        emailPromise = EmailDetail.query({account_related: obj.id, size: requestLength}).$promise;
                     } else {
-                        emailPromise = EmailDetail.query({contact_related: obj.id, size: neededLength}).$promise;
+                        emailPromise = EmailDetail.query({contact_related: obj.id, size: requestLength}).$promise;
                     }
                     promises.push(emailPromise);  // Add promise to list of all promises for later handling
 
@@ -224,4 +225,3 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
         }
     }
 }
-

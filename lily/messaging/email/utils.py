@@ -13,8 +13,8 @@ from bs4 import BeautifulSoup
 from celery import signature
 from celery.states import PENDING
 from dateutil.tz import tzutc
-from django.conf import settings
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
@@ -43,10 +43,12 @@ from oauth2client.django_orm import Storage
 from .decorators import get_safe_template
 from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage, EmailAttachment
 from .services import build_gmail_service
+from .sanitize import sanitize_html_email
 
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
+
 logger = logging.getLogger(__name__)
 
 
@@ -254,13 +256,7 @@ def render_email_body(html, mapped_attachments, request):
     email_body = replace_anchors_in_html(html)
     email_body = replace_cid_in_html(email_body, mapped_attachments, request)
 
-    text_soup = BeautifulSoup(email_body)
-
-    # kill all script and style elements
-    for script in text_soup(["script"]):
-        script.extract()    # rip it out
-
-    return text_soup.encode_contents()
+    return email_body
 
 
 def replace_cid_in_html(html, mapped_attachments, request):
@@ -297,7 +293,10 @@ def replace_cid_in_html(html, mapped_attachments, request):
                 image['cid'] = image_cid
                 cid_done.append(attachment.cid)
 
-    return soup.prettify()
+    html = soup.prettify()
+    html = sanitize_html_email(html)
+
+    return html
 
 
 def replace_cid_and_change_headers(html, pk):
@@ -320,7 +319,7 @@ def replace_cid_and_change_headers(html, pk):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'xml')
 
     inline_images = soup.findAll('img', {'cid': lambda cid: cid})
 
@@ -410,7 +409,7 @@ def create_reply_body_header(email_message):
         Text string
 
     """
-    reply_string = _('On %(date)s wrote %(sender)s (%(email_address)s):') % \
+    reply_string = _('%(sender)s (%(email_address)s) wrote on %(date)s:') % \
         {
             'date': email_message.sent_date.strftime("%d %B %Y %H:%M"),
             'sender': email_message.sender.name,

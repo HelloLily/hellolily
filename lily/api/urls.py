@@ -7,6 +7,7 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
                                             EmailTemplateViewSet)
 from lily.notes.api.views import NoteViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
+from lily.utils.api.views import CountryViewSet
 
 from .routers import SimpleRouter, NestedSimpleRouter
 
@@ -34,3 +35,4 @@ router.register(r'users/user', LilyUserViewSet)
 router.register(r'users/team', TeamViewSet)
 
 router.register(r'notes', NoteViewSet)
+router.register(r'utils/countries', CountryViewSet)

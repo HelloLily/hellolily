@@ -22,11 +22,9 @@ function Country($q, Account) {
             deferred.resolve(list);
         } else {
             // Fetch the country choices from Address model
-            Account.query().$promise.then(function (accounts) {
-                Account.addressOptions({id: accounts[0].id}, function (data) {
-                    list = data.actions.POST.country.choices;
-                    deferred.resolve(list);
-                });
+            Account.addressOptions(function (data) {
+                list = data.actions.POST.country.choices;
+                deferred.resolve(list);
             });
         }
 

@@ -1,8 +1,8 @@
-<a name"next-release"></a>
-## Next Release
+<a name"latest-release"></a>
+## Latest Release
 
 <a name"0.4.25"></a>
-### 0.4.25 ()
+### 0.4.25 (2015-06-22)
 
 #### Features
 
@@ -16,15 +16,11 @@
 * Email addresses marked as primary will now appear at the top of the list of email addresses in various detail widgets
 * Email addresses marked as inactive will no longer be displayed in detail widgets
 * Search filters in listviews will no longer be cleared on hitting enter
-*
 
 #### Bug Fixes
 
 * Historylist `show more` button works now with only one history type
-*
-
-<a name"latest-release"></a>
-## Latest Release
+* XSS fix in email detail view
 
 <a name"0.4.24.1"></a>
 ### Hotfix 0.4.24.1 (2015-06-19)

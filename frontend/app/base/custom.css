@@ -490,3 +490,17 @@ ul.inbox-nav li.mailbox-header span i {
 .header {
     font-weight: bold;
 }
+
+.form-horizontal .control-label.with-icon {
+    padding: 0;
+    margin: 0;
+    line-height: 1em;
+}
+
+.label-icon {
+    font-size: 20px;
+}
+
+.label-text {
+    font-size: 10px;
+}

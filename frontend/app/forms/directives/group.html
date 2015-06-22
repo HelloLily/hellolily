@@ -1,4 +1,18 @@
 <div class="form-group" ng-class="{'has-error': field.$invalid}">
-    <label class="col-md-2 control-label" for="{{ labelId }}">{{ labelTitle }}</label>
+    <label class="col-xs-1 control-label" for="{{ labelId }}"
+    ng-class="{'with-icon':(labelIcon || labelChar)}">
+        <div class="text-center">
+
+            <i title="{{ labelTitle }}" ng-if="labelIcon" class="label-icon" ng-class="'fa fa-' + labelIcon"></i>
+
+            <span title="{{ labelTitle }}" ng-if="labelChar" class="label-icon"><strong>{{ labelChar }}</strong></span>
+
+            <br/>
+            <span class="hidden-xs label-text">{{ labelTitle }}</span>
+        </div>
+        <span ng-if="!(labelIcon || labelChar)">
+            {{ labelTitle }}
+        </span>
+    </label>
     <ng-transclude></ng-transclude>
 </div>

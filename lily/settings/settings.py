@@ -198,7 +198,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'pipeline.middleware.MinifyHTMLMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
 )
 

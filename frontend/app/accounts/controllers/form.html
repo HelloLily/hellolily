@@ -6,8 +6,8 @@
                     <div class="form-body">
                         <form-portlet title="Who was it?">
                             <form-portlet-body>
-                                <form-group label-title="Primary website" label-id="primary_website" field="accountForm.primaryWebsite">
-                                    <div class="col-md-4">
+                                <form-group label-title="Primary Website" label-icon="globe" label-id="primary_website" field="accountForm.primaryWebsite">
+                                    <div class="col-xs-10">
                                         <div class="input-group">
                                             <input class="form-control"
                                                    id="primary_website"
@@ -28,8 +28,8 @@
                                         </div>
                                     </div>
                                 </form-group>
-                                <form-group label-title="Company name" label-id="id_name" field="accountForm.name">
-                                    <div class="col-md-4">
+                                <form-group label-title="Company Name" label-icon="building-o" label-id="id_name" field="accountForm.name">
+                                    <div class="col-xs-10">
                                         <input class="form-control"
                                                id="id_name"
                                                maxlength="255"
@@ -39,13 +39,13 @@
                                                ng-model="vm.account.name">
                                     </div>
                                 </form-group>
-                                <form-group label-title="Description" label-id="id_description" field="accountForm.description">
-                                    <div class="col-md-4">
+                                <form-group label-title="Description" label-icon="info" label-id="id_description" field="accountForm.description">
+                                    <div class="col-xs-10">
                                         <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.account.description"></textarea>
                                     </div>
                                 </form-group>
-                                <form-group label-title="Customer ID" label-id="id_customer_id" field="costumer_id">
-                                    <div class="col-md-4">
+                                <form-group label-title="Customer ID" label-char="#" label-id="id_customer_id" field="costumer_id">
+                                    <div class="col-xs-10">
                                         <input class="form-control" id="id_customer_id" maxlength="32" name="customer_id" name="costumer_id" placeholder="Customer ID" type="text" ng-model="vm.account.customer_id">
                                     </div>
                                 </form-group>
@@ -53,8 +53,8 @@
                         </form-portlet>
                         <form-portlet title="Who is handling the account?">
                             <form-portlet-body>
-                                <form-group label-title="Assigned to" label-id="id_assigned_to" field="accountForm.assigned_to">
-                                    <div class="col-md-4">
+                                <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="accountForm.assigned_to">
+                                    <div class="col-xs-10">
                                         <ui-select ng-model="vm.account.assigned_to" theme="bootstrap" name="assigned_to">
                                             <ui-select-match placeholder="Assign to...">{{ [$select.selected.first_name, $select.selected.preposition, $select.selected.last_name].join(' ') }}</ui-select-match>
                                             <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {first_name: $select.search, preposition: $select.search, last_name: $select.search}">
@@ -87,8 +87,8 @@
                         </form-portlet>
                         <form-portlet title="Tags">
                             <form-portlet-body>
-                                <form-group label-title="Tags" label-id="id_tags" field="accountForm.tags">
-                                    <div class="col-md-4">
+                                <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="accountForm.tags">
+                                    <div class="col-xs-10">
                                         <ui-select multiple tagging ng-model="account.tags" theme="select2" tagging-label="(new tag)" style="width: 100%;">
                                             <ui-select-match placeholder="Add tags...">{{ $item }}</ui-select-match>
                                             <ui-select-choices repeat="tag in vm.tags | filter:$select.search">

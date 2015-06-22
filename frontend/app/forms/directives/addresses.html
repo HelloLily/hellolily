@@ -1,8 +1,13 @@
 <div ng-repeat="address in vm.addresses">
     <div class="form-group">
         <div class="form-group-inline">
-            <label class="col-md-2 control-label" for="id_addresses-street-{{ $index }}" ng-show="$first">Addresses</label>
-            <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+            <label for="id_addresses-street-{{ $index }}" class="col-xs-1 control-label with-icon" ng-show="$first">
+                <div class="text-center">
+                    <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-map-marker label-icon"></i><br/>
+                    <span class="label-text hidden-xs">Address</span>
+                </div>
+            </label>
+            <div class="col-xs-5" ng-class="{ 'col-xs-offset-1': !$first }">
                 <input class="form-control"
                        id="id_addresses-street-{{ $index }}"
                        maxlength="255"
@@ -15,12 +20,12 @@
         </div>
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-number-{{ $index }}">Street number</label>
-            <div class="col-md-2 field_wrapper">
+            <div class="col-xs-2 field_wrapper">
                 <input class="form-control"
                        id="id_addresses-number-{{ $index }}"
                        maxlength="255"
                        name="addresses-number-{{ $index }}"
-                       placeholder="Street number"
+                       placeholder="Street Number"
                        type="text"
                        ng-model="address.street_number"
                        ng-readonly="address.is_deleted">
@@ -28,12 +33,12 @@
         </div>
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-complement-{{ $index }}">Complement</label>
-            <div class="col-md-2 field_wrapper">
+            <div class="col-xs-2 field_wrapper">
                 <input class="form-control"
                        id="id_addresses-complement-{{ $index }}"
                        maxlength="255"
                        name="addresses-complement-{{ $index }}"
-                       placeholder="Street complement"
+                       placeholder="Complement"
                        type="text"
                        ng-model="address.complement"
                        ng-readonly="address.is_deleted">
@@ -43,7 +48,7 @@
     <div class="form-group">
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal Code</label>
-            <div class="col-md-4 col-md-offset-2 field_wrapper">
+            <div class="col-xs-3 col-xs-offset-1 field_wrapper">
                 <input class="form-control"
                        id="id_addresses-postal_code-{{ $index }}"
                        maxlength="255"
@@ -56,7 +61,7 @@
         </div>
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
-            <div class="col-md-4 field_wrapper">
+            <div class="col-xs-6 field_wrapper">
                 <input class="form-control"
                        id="id_addresses-city-{{ $index }}"
                        maxlength="255"
@@ -71,13 +76,13 @@
     <div class="form-group">
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
-            <div class="col-md-4 col-md-offset-2">
+            <div class="col-xs-6 col-xs-offset-1">
                 <country-selector address="address"></country-selector>
             </div>
         </div>
         <div class="form-group-inline">
             <label class="hidden control-label" for="id_addresses-type-{{ $index }}">Type</label>
-            <div class="col-md-4">
+            <div class="col-xs-3">
                 <select class="form-control"
                         id="id_addresses-type-{{ $index }}"
                         name="addresses-type-{{ $index }}"
@@ -87,8 +92,8 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="col-md-1">
+        <div class="col-xs-2">
+            <div class="col-xs-1">
                 <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="address.is_deleted">
                     <i class="fa fa-undo"></i>
                 </a>
@@ -100,8 +105,13 @@
     </div>
 </div>
 <div class="form-group">
-    <label class="col-md-2 control-label" ng-hide="vm.addresses.length">Addresses</label>
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.addresses.length }">
+    <label class="col-xs-1 control-label with-icon" ng-hide="vm.addresses.length">
+        <div class="text-center">
+            <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-map-marker label-icon"></i><br/>
+            <span class="label-text hidden-xs">Address</span>
+        </div>
+    </label>
+    <div class="col-xs-11" ng-class="{ 'col-xs-offset-1': vm.addresses.length }">
         <a ng-click="vm.addRelatedField({field: 'address'})" class="btn btn-default btn-sm">Add an address</a>
     </div>
 </div>

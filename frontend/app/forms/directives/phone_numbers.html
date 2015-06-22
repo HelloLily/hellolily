@@ -1,31 +1,32 @@
 <div class="form-group" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <div class="form-group-inline">
-        <label class="col-md-2 control-label" for="id_phone_numbers-phone_number-{{ $index }}" ng-show="$first">Phone Numbers</label>
-        <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
-            <input class="form-control"
-                   id="id_phone_numbers-phone_number-{{ $index }}"
-                   maxlength="255"
-                   name="phone_numbers-phone_number-{{ $index }}"
-                   placeholder="Phone Number"
-                   type="text"
-                   ng-model="phoneNumber.raw_input"
-                   ng-readonly="phoneNumber.is_deleted">
+    <label for="id_phone_numbers-type-{{ $index }}" class="col-xs-1 control-label with-icon" ng-show="$first">
+        <div class="text-center">
+            <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i><br/>
+            <span class="label-text hidden-xs">Phone Number</span>
         </div>
+    </label>
+    <div class="col-xs-6" ng-class="{ 'col-xs-offset-1': !$first }">
+        <input class="form-control"
+               id="id_phone_numbers-phone_number-{{ $index }}"
+               maxlength="255"
+               name="phone_numbers-phone_number-{{ $index }}"
+               placeholder="Phone Number"
+               type="text"
+               ng-model="phoneNumber.raw_input"
+               ng-readonly="phoneNumber.is_deleted">
     </div>
-    <div class="form-group-inline">
-        <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone Number Type</label>
-        <div class="col-md-2">
-            <select class="form-control"
-                    id="id_phone_numbers-type-{{ $index }}"
-                    name="phone_numbers-type-{{ $index }}"
-                    ng-model="phoneNumber.type"
-                    ng-options="labelType.key as labelType.value for labelType in vm.telephoneTypes"
-                    ng-readonly="phoneNumber.is_deleted">
-            </select>
-        </div>
+    <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone Number Type</label>
+    <div class="col-xs-3">
+        <select class="form-control"
+                id="id_phone_numbers-type-{{ $index }}"
+                name="phone_numbers-type-{{ $index }}"
+                ng-model="phoneNumber.type"
+                ng-options="labelType.key as labelType.value for labelType in vm.telephoneTypes"
+                ng-readonly="phoneNumber.is_deleted">
+        </select>
     </div>
-    <div class="col-md-2">
-        <div class="col-md-1">
+    <div class="col-xs-2">
+        <div class="col-xs-1">
             <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="phoneNumber.is_deleted">
                 <i class="fa fa-undo"></i>
             </a>
@@ -36,8 +37,13 @@
     </div>
 </div>
 <div class="form-group">
-    <label class="col-md-2 control-label" ng-hide="vm.phoneNumbers.length">Phone Numbers</label>
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.phoneNumbers.length }">
+    <label class="col-xs-1 control-label with-icon" ng-hide="vm.phoneNumbers.length">
+        <div class="text-center">
+            <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i><br/>
+            <span class="label-text hidden-xs">Phone Number</span>
+        </div>
+    </label>
+    <div class="col-xs-11" ng-class="{ 'col-xs-offset-1': vm.phoneNumbers.length }">
         <a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="btn btn-default btn-sm">Add a phone number</a>
     </div>
 </div>

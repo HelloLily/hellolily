@@ -76,7 +76,7 @@ function Account($http, $q, $resource) {
     function getEmailAddress() {
         var account = this;
 
-        var primaryEmails = $filter('filter')(account.email_addresses, {status: 2});
+        var primaryEmails = $filter('filter')(account.email_addresses, {status: 0});
 
         if (primaryEmails.length) {
             return primaryEmails[0];
@@ -140,7 +140,7 @@ function Account($http, $q, $resource) {
 
                 if (account.email_addresses.length == 0) {
                     // No email addresses added yet, so first one is primary
-                    status = 0;
+                    status = 2;
                     isPrimary = true;
                 }
 

@@ -11,8 +11,10 @@
 * Changed account API so it can deal with related fields
 * Placeholders for email are simplified, `http://` is no longer required
 * When replying in the historylist, if the email is flagged inactive under account/contact, it tries to find another emailaddress to reply to
-* Add buttons in header are spaced (whoehoe!)
+* Add buttons in header are spaced (woohoo!)
 * Assign case modal uses smart select searchbox
+* Email addresses marked as primary will now appear at the top of the list of email addresses in various detail widgets
+* Email addresses marked as inactive will no longer be displayed in detail widgets
 
 #### Bug Fixes
 

@@ -45,12 +45,18 @@ function ThreadInfoController ($state, EmailMessage) {
 
     function _getEmailAddresses (message) {
         var emailAddresses = [];
-        if (message.received_by_email) {
-            emailAddresses = emailAddresses.concat(message.received_by_email);
+
+        // TODO: LILY-982: Fix empty messages being sent
+        if (message) {
+            if (message.received_by_email) {
+                emailAddresses = emailAddresses.concat(message.received_by_email);
+            }
+
+            if (message.received_by_cc_email) {
+                emailAddresses = emailAddresses.concat(message.received_by_cc_email);
+            }
         }
-        if (message.received_by_cc_email) {
-            emailAddresses = emailAddresses.concat(message.received_by_email);
-        }
+
         return emailAddresses;
     }
 

@@ -15,6 +15,8 @@
 * Assign case modal uses smart select searchbox
 * Email addresses marked as primary will now appear at the top of the list of email addresses in various detail widgets
 * Email addresses marked as inactive will no longer be displayed in detail widgets
+* Search filters in listviews will no longer be cleared on hitting enter
+*
 
 #### Bug Fixes
 

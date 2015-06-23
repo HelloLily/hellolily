@@ -1,11 +1,12 @@
 <div class="form-group" ng-repeat="emailAddress in vm.emailAddresses">
-    <label for="id_email_address-email_addres-{{ $index }}" class="col-xs-1 control-label with-icon" ng-show="$first">
+    <label for="id_email_address-email_addres-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Company Email</label>
+    <!-- <label for="id_email_address-email_addres-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
         <div class="text-center">
-            <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-globe label-icon"></i><br/>
-            <span class="label-text hidden-xs">Company Email</span>
+            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
+            <div class="label-text">Company Email</div>
         </div>
-    </label>
-    <div class="col-xs-6" ng-class="{ 'col-xs-offset-1': !$first }">
+    </label> -->
+    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
         <input class="form-control"
                id="id_email_address-email_addres-{{ $index }}"
                maxlength="255"
@@ -16,7 +17,7 @@
                ng-readonly="emailAddress.is_deleted">
     </div>
     <label class="hidden control-label" for="id_email_address-is_primary-{{ $index }}">Primary email</label>
-    <div class="col-xs-3">
+    <div class="col-md-4">
         <select class="form-control"
                 id="id_email_address-is_primary-{{ $index }}"
                 name="email_address-is_primary-{{ $index }}"
@@ -26,8 +27,8 @@
                 ng-change="vm.setPrimaryEmailAddress(emailAddress)">
         </select>
     </div>
-    <div class="col-xs-2">
-        <div class="col-xs-1">
+    <div class="col-md-2">
+        <div class="col-md-1">
             <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="emailAddress.is_deleted">
                 <i class="fa fa-undo"></i>
             </a>
@@ -38,13 +39,14 @@
     </div>
 </div>
 <div class="form-group">
-    <label class="col-xs-1 control-label with-icon" ng-hide="vm.emailAddresses.length">
+    <label ng-hide="vm.emailAddresses.length" class="col-md-2 control-label">Company Email</label>
+    <!-- <label class="visible-xs-block col-md-2 control-label with-icon" ng-hide="vm.emailAddresses.length">
         <div class="text-center">
-            <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-globe label-icon"></i><br/>
-            <span class="label-text hidden-xs">Company Email</span>
+            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
+            <div class="label-text">Company Email</div>
         </div>
-    </label>
-    <div class="col-xs-11" ng-class="{ 'col-xs-offset-1': vm.emailAddresses.length }">
+    </label> -->
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length }">
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="btn btn-default btn-sm">Add an email address</a>
     </div>
 </div>

@@ -30,7 +30,7 @@
                 <button class="btn red-pink" ng-click="vm.clearFilters()" ng-show="vm.displayFilterClear"><i class="fa fa-remove"></i></button>
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
                     <div ng-repeat="filter in vm.filterList">
-                        <checkbox model="filter.selected" ng-click="updateFilterQuery()">{{filter.name}}</checkbox>
+                        <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
                     </div>
                 </div>
             </div>

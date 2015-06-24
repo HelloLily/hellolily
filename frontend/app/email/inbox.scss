@@ -1,0 +1,229 @@
+.inbox {
+  .emailmessage-list td i.icon-paper-clip {
+    color: #777;
+  }
+  .emailmessage-detail {
+    .inbox-loading {
+      display: block;
+    }
+    .inbox-view {
+      display: none;
+      iframe {
+        border: none;
+      }
+    }
+    .inbox-header small {
+      font-weight: 300;
+    }
+  }
+  .emailmessage-list .inbox-header small {
+    font-weight: 300;
+  }
+}
+
+.inbox-form-group {
+  &.has-error {
+    border: 1px solid #B94A48;
+  }
+  .form-control {
+    border: none;
+  }
+}
+
+.compose-btn .btn {
+  text-align: left;
+  padding: 7px 14px;
+}
+
+.btn-group.btn-group-spaced .btn:not(:first-child):not(.dropdown-toggle) {
+  margin-left: 5px;
+}
+
+.email-detail-extra-btn {
+  top: 2px;
+  padding-left: 17px !important;
+  padding-right: 17px !important;
+}
+
+.btn.email-list-extra-btn {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.mail-actions .mail-checkbox {
+  pointer-events: all;
+}
+
+.inbox-content {
+  .select2-container .select2-choice, .select2-container-multi .select2-choices {
+    border: 0;
+    padding: 4px 0 0 8px;
+  }
+}
+
+.no-spacing-right {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.dropdown-menu.labels a {
+  text-align: left !important;
+}
+
+.email-template-body {
+  border: solid 1px #eee;
+  .inbox-form-group {
+    margin-bottom: 0;
+    position: relative;
+    border-bottom: solid 1px #eee;
+  }
+  .wysihtml5 {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+  .wysihtml5-sandbox {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    border: 0 !important;
+    margin-top: 5px;
+    width: 100% !important;
+    border-left: none;
+    border-right: none;
+    border-color: #eee;
+  }
+  .wysihtml5-toolbar {
+    border: 0;
+    border-bottom: 1px solid #eee;
+    > li {
+      height: 34px;
+      margin-right: 0;
+      margin-bottom: 0;
+      > {
+        a, div > a {
+          background: #fff;
+        }
+      }
+    }
+    .dropdown.open .dropdown-toggle {
+      background: #eee !important;
+    }
+  }
+}
+
+ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
+  background: #eee !important;
+}
+
+.inbox-compose #attachments input, .email-template-attachments #attachments input {
+  width: 100%;
+}
+
+.inbox-form-group.email-template-attachments {
+  border: 1px solid #EEE;
+  padding-top: 10px;
+}
+
+.template-attachment-name {
+  padding: 1px 3px;
+  &.mark-deleted {
+    background-color: #F9F9F9 !important;
+  }
+}
+
+.inbox-compose-btn .btn {
+  padding: 4px 10px;
+}
+
+.email-recipients {
+  height: 1.30em;
+  -webkit-transition: height 0.5s;
+  -moz-transition: height 0.5s;
+  -o-transition: height 0.5s;
+  -ms-transition: height 0.5s;
+  transition: height 0.5s;
+}
+
+.inbox-view-info {
+  .inbox-info-btn .btn {
+    top: 2px;
+    font-size: 13px;
+    padding: 3px 10px;
+  }
+  .row {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+  .email-info-top {
+    span {
+      vertical-align: middle;
+    }
+    height: 29px;
+  }
+  .email-recipients-wrapper {
+    max-width: 85%;
+  }
+  .email-recipients {
+    color: #a5a5a5;
+    width: 95%;
+    display: inline-block;
+    overflow: hidden;
+  }
+}
+
+.email-info-top .inbox-info-btn {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.inbox-compose #attachments input, .email-template-attachments #attachments input {
+  width: 100%;
+}
+
+.inbox-form-group.email-template-attachments {
+  border: 1px solid #EEE;
+  padding-top: 10px;
+}
+
+.template-attachment-name {
+  padding: 1px 3px;
+  &.mark-deleted {
+    background-color: #F9F9F9 !important;
+  }
+}
+
+.email-template-attachments .add-link {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.inbox ul.inbox-nav li.active span {
+  color: #F9F9F9;
+}
+
+.show-more-recipients {
+  background: none !important;
+  &:hover {
+    color: #545B5E !important;
+  }
+  &:active, &:focus {
+    color: #94A4AB !important;
+  }
+}
+
+.mailbox-header strong {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.detail-plain-text {
+  white-space: pre;
+  word-wrap: break-word;
+}
+
+.inbox-attached {
+  border-top: 1px solid #EEE;
+  margin-top: 20px;
+  padding-top: 20px;
+}

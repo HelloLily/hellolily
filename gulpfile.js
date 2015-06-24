@@ -1,266 +1,328 @@
 'use strict';
 
 // Imports
+var cdnizer = require('gulp-cdnizer'); // Prepend CDN url to resources
 var cleanhtml = require('gulp-cleanhtml');  // strip whitespace eg.
 var concat = require('gulp-concat');  // merge file stream to one file
 var del = require('del');  // remove files/dirs
 var gulp = require('gulp');  // base module
+var fs = require('fs');  // File system
 var livereload = require('gulp-livereload');  // live reload server (needs plugin install in Chrome)
-var rebaseUrls = require('gulp-css-rebase-urls'); // get css url links and rewrites them
+var merge = require('merge-stream');  // Merge multiple gulp streams together
+var path = require('path');  // File path helpers
 var rename = require('gulp-rename');  // rename current file stream
+var runSequence = require('run-sequence'); // Run tasks in sequence
+var sass = require('gulp-sass');  // Sass compilation
 var sourcemaps = require('gulp-sourcemaps');  // create sourcemaps from original files and create a .map file
 var templateCache = require('gulp-angular-templatecache');  // create out of html files Angular templates in one js file/stream
 var uglify = require('gulp-uglify');  // minify javascript file
 var uglifyCss = require('gulp-uglifycss');  // minify css file
+var watch = require('gulp-watch');
 var wrap = require('gulp-wrap');  // surround current file(s) with other content (IIFE eg.)
+
 
 /**
  * Config for Gulp
  */
 var config = {
-    buildDir: 'lily/static/build/',
-    templates: {
-        src: 'frontend/app/**/*.html',
-        module: 'app.templates',
-        fileName: 'templates.js'
+    app: {
+        buildDir: 'lily/static/',
+        js: {
+            modules: {
+                basepath: 'frontend/app/',
+                buildDir: 'lily/static/modules/',
+                src: [
+                    '**/module.js',
+                    '**/*.js'
+                ]
+            },
+            src: [
+                'lily/static/modules/*.js'  // Should match build dir of modules
+            ],
+            fileName: 'app.js'
+        },
+        sass: {
+            src: 'frontend/app/app.scss',
+            fileName: 'app.css'
+        },
+        templates: {
+            src: [
+                'frontend/app/**/*.html'
+            ],
+            fileName: 'templates.js',
+            module: 'app.templates'
+        },
+        assets: {
+            src: [
+                'frontend/app/**/*.*',
+                '!frontend/app/**/*.css',
+                '!frontend/app/**/*.scss',
+                '!frontend/app/**/*.js',
+                '!frontend/app/**/*.html'
+            ]
+        }
     },
-    appJs: {
-        src: [
-            'frontend/app/**/module.js',
-            'frontend/app/**/*.js'
-        ],
-        minifiedFileName: 'app.min.js',
-        devFileName: 'app.js'
+    vendor: {
+        buildDir: 'lily/static/vendor/',
+        js: {
+            src: [
+                'frontend/vendor/**/*jquery.min.js',
+                'frontend/vendor/**/*angular.js',
+                'frontend/vendor/**/*.js'
+            ],
+            fileName: 'vendor.js'
+        },
+        css: {
+            src: [
+                'frontend/vendor/metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
+                'frontend/vendor/metronic/assets/global/plugins/select2/select2.css',
+                'frontend/vendor/metronic/assets/global/plugins/select2/select2-bootstrap.css',
+                'frontend/vendor/**/*.css'
+            ],
+            fileName: 'vendor.css'
+        },
+        assets: {
+            src: [
+                'frontend/vendor/**/*.*',
+                '!frontend/vendor/**/*.css',
+                '!frontend/vendor/**/*.scss',
+                '!frontend/vendor/**/*.js',
+                '!frontend/vendor/**/*.html'
+            ]
+        }
     },
-    vendorJs: {
-        src: [
-            'frontend/vendor/**/*jquery.min.js',
-            'frontend/vendor/**/*angular.js',
-            'frontend/vendor/**/*.js'
-        ],
-        minifiedFileName: 'vendor.min.js',
-        devFileName: 'vendor.js'
-    },
-    appCss: {
-        src: 'frontend/app/**/*.css',
-        root: 'frontend',
-        minifiedFileName: 'app.min.css',
-        devFileName: 'app.css'
-    },
-    vendorCss: {
-        src: [
-            'frontend/vendor/metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
-            'frontend/vendor/metronic/assets/global/plugins/select2/select2.css',
-            'frontend/vendor/metronic/assets/global/plugins/select2/select2-bootstrap.css',
-            'frontend/vendor/**/*.css'
-        ],
-        root: 'frontend',
-        minifiedFileName: 'vendor.min.css',
-        devFileName: 'vendor.css'
-    },
-    vendorAssets: {
-        src: [
-            'frontend/vendor/**/*.*',
-            '!frontend/vendor/**/*.css',
-            '!frontend/vendor/**/*.js'
-        ],
-        buildDir: 'lily/static/build/vendor'
+    cdn: {
+        defaultBase: "/static/",  // static for local cloudfront url for live.
+        src: {
+            imgs: '**/*.{gif,png,jpg,jpeg,svg,ico}',  // Images/graphics
+            fonts: '**/*.{eot,otf,ttf,woff,woff2}',  // Fonts
+            files: '**/*.{css,js}'  // Files
+        }
     }
 };
 
 /**
- * Create a file of app Javascript files
- *
- * Call:
- *      gulp app:js
- *
- * Actions:
- *      - get js files
- *      - create a sourcemap from original files
- *      - wraps all files in IIFE
- *      - concat all files to one file
- *
- * Outcome:
- *      - production file
- *      - sourcemap file
- *      - livereload call
+ * Helper functions for gulp
  */
-gulp.task('app:js', function () {
-    return gulp.src(config.appJs.src)
-        .pipe(sourcemaps.init())
-        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
-        .pipe(concat(config.appJs.devFileName))
-        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(config.buildDir))
-        .pipe(livereload());
-});
+function getFolders(dir) {
+    return fs.readdirSync(dir).filter(function(file) {
+        return fs.statSync(path.join(dir, file)).isDirectory();
+    });
+}
 
-gulp.task('app:minify:js', function() {
-    return gulp.src(config.buildDir + config.appJs.devFileName)
-        .pipe(rename(config.appJs.minifiedFileName))
+function getJsModuleSrc(folder) {
+    var moduleSrc = [];
+    folder = (folder !== "undefined") ? folder : '';
+    for (var i in config.app.js.modules.src) {
+        moduleSrc.push(path.join(config.app.js.modules.basepath, folder, config.app.js.modules.src[i]));
+    }
+    return moduleSrc;
+}
+
+function buildJsModule(folder) {
+    // make array with filepaths (module.js first)
+    var moduleSrc = getJsModuleSrc(folder);
+
+    return gulp.src(moduleSrc)
+        // Create source map
+        .pipe(sourcemaps.init())
+        // Wrap in IIFE
+        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
+        // Concatenate into foldername.min.js
+        .pipe(concat(folder + '.js'))
+        // Minify
         .pipe(uglify())
-        .pipe(gulp.dest(config.buildDir))
-});
-
-/**
- * Create a file of Angular Template files
- *
- * Call:
- *      gulp app:templates
- *
- * Actions:
- *      - clean html
- *      - create js file from angular templates
- *      - wraps file in IIFE
- *
- * Outcome:
- *      - production file
- *      - livereload call
- */
-gulp.task('app:templates', function () {
-    return gulp.src(config.templates.src)
-        // clean whitespace
-        .pipe(cleanhtml())
-        // Turn into Angular templates
-        .pipe(templateCache(config.templates.fileName, {module: config.templates.module, standalone:true}))
-        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
-        .pipe(gulp.dest(config.buildDir))
-        .pipe(livereload());
-});
-
-/**
- * Create a file of vendor Javascript files
- *
- * Call:
- *      gulp vendor:js
- *
- * Actions:
- *      - create a sourcemap from original files
- *      - concat all files to one file
- *
- * Outcome:
- *      - production file
- *      - sourcemap file§
- *      - livereload call
- */
-gulp.task('vendor:js', function () {
-    return gulp.src(config.vendorJs.src)
-        .pipe(sourcemaps.init())
-        .pipe(concat(config.vendorJs.devFileName))
+        // Write to output (both the source and sourcemap)
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(config.buildDir))
-        .pipe(livereload());
-});
-
-gulp.task('vendor:minify:js', function() {
-    return gulp.src(config.buildDir + config.vendorJs.devFileName)
-        .pipe(rename(config.vendorJs.minifiedFileName))
-        .pipe(uglify())
-        .pipe(gulp.dest(config.buildDir))
-});
-
-/**
- * Create a file of app css files
- *
- * Call:
- *      gulp app:css
- *
- * Actions:
- *      - create a sourcemap from original files
- *      - rebase src urls in file to correct path
- *      - concat all files to one file
- *
- * Outcome:
- *      - production file
- *      - sourcemap file
- *      - livereload call
- */
-gulp.task('app:css', function () {
-    return gulp.src(config.appCss.src)
-        .pipe(sourcemaps.init())
-        .pipe(rebaseUrls({root: config.appCss.root}))
-        .pipe(concat(config.appCss.devFileName))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(config.buildDir))
-        .pipe(livereload());
-});
-
-gulp.task('app:minify:css', function() {
-    return gulp.src(config.buildDir + config.appCss.devFileName)
-        .pipe(rename(config.appCss.minifiedFileName))
-        .pipe(uglifyCss())
-        .pipe(gulp.dest(config.buildDir))
-});
-
-/**
- * Create a file of vendor css files
- *
- * Call:
- *      gulp vendor:css
- *
- * Actions:
- *      - create a sourcemap from original files
- *      - rebase src urls in file to correct path
- *      - concat all files to one file
- *
- * Outcome:
- *      - production file
- *      - sourcemap file
- *      - livereload call
- */
-gulp.task('vendor:css', function () {
-    return gulp.src(config.vendorCss.src)
-        .pipe(sourcemaps.init())
-        .pipe(rebaseUrls({root: config.vendorCss.root}))
-        .pipe(concat(config.vendorCss.devFileName))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(config.buildDir))
-        .pipe(livereload());
-});
-
-gulp.task('vendor:minify:css', function() {
-    return gulp.src(config.buildDir + config.vendorCss.devFileName)
-        .pipe(rename(config.vendorCss.minifiedFileName))
-        .pipe(uglifyCss())
-        .pipe(gulp.dest(config.buildDir))
-});
-
-/**
- * Move non js or css vendor files to build dir
- *
- * Call:
- *      gulp vendor:assets
- *
- * Outcome:
- *      - files moved
- */
-gulp.task('vendor:assets', function () {
-   return gulp.src(config.vendorAssets.src)
-       .pipe(gulp.dest(config.vendorAssets.buildDir))
-       .pipe(livereload());
-});
+        .pipe(gulp.dest(config.app.js.modules.buildDir));
+}
 
 /**
  * Clean build dir
  */
-gulp.task('clean', function() {
-    return del([config.buildDir]);
+gulp.task('clean', [], function() {
+    return del([
+        'lily/static/'
+    ]);
 });
 
 /**
- * Watch relevant dirs for rebuilding & livereload
+ * Concatenate and minify all app js per module (folder)
  */
-gulp.task('watch', ['default'], function() {
-    livereload.listen();
-    gulp.watch(config.templates.src, ['app:templates']);
-    gulp.watch(config.appJs.src, ['app:js']);
-    gulp.watch(config.appCss.src, ['app:css']);
-    gulp.watch(config.vendorJs.src, ['vendor:js']);
-    gulp.watch(config.vendorCss.src, ['vendor:css']);
-    gulp.watch(config.vendorAssets.src, ['vendor:assets']);
+gulp.task('app-js-modules', [], function() {
+    var folders = getFolders(config.app.js.modules.basepath);
+
+    var modules = folders.map(function(folder) {
+        return buildJsModule(folder);
+    });
+
+    return merge(modules);
 });
 
-gulp.task('build', ['app:js', 'app:css', 'app:templates', 'vendor:js', 'vendor:assets', 'vendor:css'], function() {});
-gulp.task('default', ['build'], function() {});
-gulp.task('minify', ['app:minify:js', 'app:minify:css', 'vendor:minify:js', 'vendor:minify:css'], function () {});
+/**
+ * Concatenate all modules into a single app js
+ */
+gulp.task('app-js', [], function() {
+    return gulp.src(config.app.js.src)
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(concat(config.app.js.fileName))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(livereload());
+});
+
+gulp.task('app-css', [], function() {
+    return gulp.src(config.app.sass.src)
+        .pipe(sass().on('error', sass.logError))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: [
+                config.cdn.src.imgs,
+                config.cdn.src.fonts
+            ]
+        }))
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(uglifyCss())
+        .pipe(rename(config.app.sass.fileName))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(livereload());
+});
+
+/**
+ * App templates
+ */
+gulp.task('app-templates', [], function() {
+    return gulp.src(config.app.templates.src)
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: [
+                config.cdn.src.imgs,
+                config.cdn.src.files
+            ]
+        }))
+        .pipe(cleanhtml())
+        .pipe(templateCache(config.app.templates.fileName, {module: config.app.templates.module, standalone:true}))
+        .pipe(wrap('(function(angular){\n\'use strict\';\n<%= contents %>\n})(angular);'))
+        .pipe(uglify())
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(livereload());
+});
+
+gulp.task('app-assets', [], function(){
+    return gulp.src(config.app.assets.src)
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(livereload());
+});
+
+/**
+ * Concatenate and minify all vendor static
+ */
+gulp.task('vendor-js', [], function() {
+    return gulp.src(config.vendor.js.src)
+        .pipe(sourcemaps.init())
+        .pipe(concat(config.vendor.js.fileName))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(config.vendor.buildDir))
+        .pipe(livereload());
+});
+
+gulp.task('vendor-css', [], function() {
+    return gulp.src(config.vendor.css.src)
+        .pipe(sourcemaps.init())
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: [
+                config.cdn.src.fonts,
+                config.cdn.src.imgs,
+                config.cdn.src.files
+            ],
+            relativeRoot: 'vendor/'
+        }))
+        .pipe(concat(config.vendor.css.fileName))
+        .pipe(uglifyCss())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(config.vendor.buildDir))
+        .pipe(livereload());
+});
+
+gulp.task('vendor-assets', [], function() {
+    return gulp.src(config.vendor.assets.src)
+        .pipe(gulp.dest(config.vendor.buildDir))
+        .pipe(livereload());
+});
+
+/**
+ * Concatenate, minify and make source maps of all js and css
+ */
+gulp.task('build', [], function() {
+    runSequence(
+        'app-js-modules',  // Because of app-js this needs to run first
+        ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets']
+    );
+});
+
+/**
+ * Watch for changes
+ */
+gulp.task('watch', [], function() {
+    // Watch for js module changes
+    watch(config.app.js.modules.basepath + '**/*.js', function(vinyl) {
+        var modules = vinyl.history.map(function(path) {
+            var basepath = config.app.js.modules.basepath;
+
+            var folder = path.slice(path.search(basepath) + basepath.length);
+            folder = folder.slice(0, folder.search('/'));
+
+            console.log('Recompiling ' + folder + '.js');
+
+            return buildJsModule(folder)
+        });
+
+        console.log('Done recompiling');
+
+        return merge(modules)
+    });
+
+    // Watch for js changes in any of the modules
+    watch(config.app.js.modules.buildDir + '**/*.js', function() {
+        gulp.start('app-js');
+    });
+
+    // Watch for changes in sass files
+    watch('frontend/app/**/*.scss', function() {
+        gulp.start('app-css')
+    });
+
+    // Make our app templates
+    watch(config.app.templates.src, function() {
+        gulp.start('app-templates');
+    });
+
+    // Gather all other static from the app
+    watch(config.app.assets.src, function() {
+        gulp.start('app-assets');
+    });
+
+    // Recompile all vendor js
+    watch(config.vendor.js.src, function() {
+        gulp.start('vendor-js');
+    });
+
+    // Recompile all vendor css
+    watch(config.vendor.css.src, function() {
+        gulp.start('vendor-css');
+    });
+
+    // Gather all other static from vendor
+    watch(config.vendor.assets.src, function(){
+        gulp.start('vendor-assets');
+    });
+});
+
+/**
+ * Set the default command to run
+ */
+gulp.task('default', ['build'], function() {
+
+});

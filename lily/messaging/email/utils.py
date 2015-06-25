@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 from celery import signature
 from celery.states import PENDING
 from dateutil.tz import tzutc
+import html2text
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -274,9 +275,16 @@ def replace_cid_in_html(html, mapped_attachments, request):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html, 'lxml')
-    inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+    soup = create_a_beautiful_soup_object(html)
     cid_done = []
+    inline_images = []
+
+    if soup and mapped_attachments:
+        inline_images = soup.findAll('img', {'src': lambda src: src and src.startswith('cid:')})
+
+    if (not soup or soup.get_text() == '') and not inline_images:
+        html = sanitize_html_email(html)
+        return html
 
     protocol = 'http'
     if request.is_secure():
@@ -293,7 +301,7 @@ def replace_cid_in_html(html, mapped_attachments, request):
                 image['cid'] = image_cid
                 cid_done.append(attachment.cid)
 
-    html = soup.prettify()
+    html = soup.encode_contents()
     html = sanitize_html_email(html)
 
     return html
@@ -319,66 +327,91 @@ def replace_cid_and_change_headers(html, pk):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html, 'xml')
-
-    inline_images = soup.findAll('img', {'cid': lambda cid: cid})
-
-    attachments = EmailAttachment.objects.filter(message_id=pk)
     dummy_headers = []
-    cid_done = []
+    inline_images = []
+    soup = create_a_beautiful_soup_object(html)
+    attachments = EmailAttachment.objects.filter(message_id=pk)
 
-    for image in inline_images:
-        image_cid = image['cid']
+    if soup and attachments:
+        inline_images = soup.findAll('img', {'cid': lambda cid: cid})
 
-        for attachment in attachments:
-            if (attachment.cid[1:-1] == image_cid or attachment.cid == image_cid) and attachment.cid not in cid_done:
-                image['src'] = "cid:%s" % image_cid
+    if (not soup or soup.get_text() == '') and not inline_images:
+        body_html = html
+    else:
+        cid_done = []
 
-                storage_file = default_storage._open(attachment.attachment.name)
-                filename = get_attachment_filename_from_url(attachment.attachment.name)
+        for image in inline_images:
+            image_cid = image['cid']
 
-                if hasattr(storage_file, 'key'):
-                    content_type = storage_file.key.content_type
-                else:
-                    content_type = mimetypes.guess_type(storage_file.file.name)[0]
+            for attachment in attachments:
+                if (attachment.cid[1:-1] == image_cid or attachment.cid == image_cid) and attachment.cid not in cid_done:
+                    image['src'] = "cid:%s" % image_cid
 
-                storage_file.open()
-                content = storage_file.read()
-                storage_file.close()
+                    storage_file = default_storage._open(attachment.attachment.name)
+                    filename = get_attachment_filename_from_url(attachment.attachment.name)
 
-                response = {
-                    'content-type': content_type,
-                    'content-disposition': 'inline',
-                    'content-filename': filename,
-                    'content-id': attachment.cid,
-                    'x-attachment-id': image_cid,
-                    'content-transfer-encoding': 'base64',
-                    'content': content
-                }
+                    if hasattr(storage_file, 'key'):
+                        content_type = storage_file.key.content_type
+                    else:
+                        content_type = mimetypes.guess_type(storage_file.file.name)[0]
 
-                dummy_headers.append(response)
-                cid_done.append(attachment.cid)
-                del image['cid']
+                    storage_file.open()
+                    content = storage_file.read()
+                    storage_file.close()
 
-    body_html = soup.encode_contents()
+                    response = {
+                        'content-type': content_type,
+                        'content-disposition': 'inline',
+                        'content-filename': filename,
+                        'content-id': attachment.cid,
+                        'x-attachment-id': image_cid,
+                        'content-transfer-encoding': 'base64',
+                        'content': content
+                    }
 
-    text_soup = BeautifulSoup(html)
+                    dummy_headers.append(response)
+                    cid_done.append(attachment.cid)
+                    del image['cid']
 
-    # kill all script and style elements
-    for script in text_soup(["script"]):
-        script.extract()    # rip it out
+        body_html = soup.encode_contents()
 
-    # get text
-    body_text = text_soup.get_text()
-
-    # break into lines and remove leading and trailing space on each
-    lines = (line.strip() for line in body_text.splitlines())
-    # break multi-headlines into a line each
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    # drop blank lines
-    body_text = '\n'.join(chunk for chunk in chunks if chunk)
+    body_text_handler = html2text.HTML2Text()
+    body_text_handler.ignore_links = True
+    body_text_handler.body_width = 0
+    body_text = body_text_handler.handle(html)
 
     return body_html, body_text, dummy_headers
+
+
+def create_a_beautiful_soup_object(html):
+    """
+    Try to create a BeautifulSoup object that has not an empty body
+    If so try a different HTML parser.
+
+    Args:
+        html (string): HTML string of the email body to be sent.
+
+    Returns:
+        soup (BeautifulSoup object or None)
+    """
+    if not html:
+        return None
+
+    soup = BeautifulSoup(html, 'lxml', from_encoding='utf-8')
+
+    if soup.get_text() == '':
+        soup = BeautifulSoup(html, 'html.parser', from_encoding='utf-8')
+
+        if soup.get_text() == '':
+            soup = BeautifulSoup(html, 'html5lib', from_encoding='utf-8')
+
+            if soup.get_text() == '':
+                soup = BeautifulSoup(html, 'xml', from_encoding='utf-8')
+
+                if soup.get_text == '':
+                    soup = None
+
+    return soup
 
 
 def replace_anchors_in_html(html):
@@ -388,7 +421,10 @@ def replace_anchors_in_html(html):
     if html is None:
         return None
 
-    soup = BeautifulSoup(html)
+    soup = create_a_beautiful_soup_object(html)
+
+    if not soup or soup.get_text == '':
+        return html
 
     for anchor in soup.findAll('a'):
         anchor.attrs.update({

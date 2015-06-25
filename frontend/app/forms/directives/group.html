@@ -1,18 +1,23 @@
 <div class="form-group" ng-class="{'has-error': field.$invalid}">
-    <label class="col-xs-1 control-label" for="{{ labelId }}"
+
+    <!-- <label class="visible-xs-block col-md-2 control-label" for="{{ labelId }}"
     ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
         <div class="text-center">
 
-            <i title="{{ labelTitle }}" ng-if="labelIcon" class="label-icon" ng-class="'fa fa-' + labelIcon"></i>
+            <div>
+                <i title="{{ labelTitle }}" ng-if="labelIcon" class="label-icon" ng-class="'fa fa-' + labelIcon"></i>
+            </div>
 
-            <span title="{{ labelTitle }}" ng-if="labelChar" class="label-icon"><strong>{{ labelChar }}</strong></span>
+            <div title="{{ labelTitle }}" ng-if="labelChar" class="label-icon"><strong>{{ labelChar }}</strong></div>
 
-            <br/>
-            <span class="hidden-xs label-text">{{ labelTitle }}</span>
+            <div class="label-text">{{ labelTitle }}</div>
         </div>
-        <span ng-if="!(labelIcon || labelChar)">
+        <div ng-if="!(labelIcon || labelChar)">
             {{ labelTitle }}
-        </span>
+        </div>
+    </label> -->
+    <label class="col-md-2 control-label" for="{{ labelId }}" ng-class="{'required':required}">
+        {{ labelTitle }}
     </label>
     <ng-transclude></ng-transclude>
 </div>

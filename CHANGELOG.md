@@ -1,3 +1,14 @@
+<a name"newest-release"></a>
+## Newest Release
+
+#### Features
+
+
+#### Bug Fixes
+* Restore layout of the fields on Add/Edit Account
+* Fix for showing and sending emails correctly
+* No more enter key to save the account form
+
 <a name"latest-release"></a>
 ## Latest Release
 
@@ -36,8 +47,8 @@
 
 #### Features
 
-* Critical cases aantal staan nu op de widgets 
-* Klik op email account label brengt je naar die inbox, ook als die ingeklapt is. 
+* Critical cases aantal staan nu op de widgets
+* Klik op email account label brengt je naar die inbox, ook als die ingeklapt is.
 * Nieuwe iconen voor email account inklappen en uitklappen
 * Reply & forward iconen bij mailtjes in Email & historylist
 * Check of case geassigned is aan persoon of team & of case gekoppeld is aan account of contact

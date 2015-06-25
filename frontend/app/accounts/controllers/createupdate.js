@@ -9,7 +9,7 @@ function accountConfig($stateProvider) {
         url: '/create',
         views: {
             '@': {
-                templateUrl: 'accounts/controllers/form.html',
+                templateUrl: 'accounts/controllers/form_outer.html',
                 controller: AccountCreateController,
                 controllerAs: 'vm'
             }
@@ -23,7 +23,7 @@ function accountConfig($stateProvider) {
         url: '/edit',
         views: {
             '@': {
-                templateUrl: 'accounts/controllers/form.html',
+                templateUrl: 'accounts/controllers/form_outer.html',
                 controller: AccountCreateController,
                 controllerAs: 'vm'
             }

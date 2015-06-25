@@ -7,6 +7,8 @@
 <a name"0.4.25"></a>
 ### 0.4.25 (2015-06-22)
 
+* Restore layout of the fields on Add/Edit Account
+
 #### Features
 
 * Changed account form to Angular
@@ -39,8 +41,8 @@
 
 #### Features
 
-* Critical cases aantal staan nu op de widgets 
-* Klik op email account label brengt je naar die inbox, ook als die ingeklapt is. 
+* Critical cases aantal staan nu op de widgets
+* Klik op email account label brengt je naar die inbox, ook als die ingeklapt is.
 * Nieuwe iconen voor email account inklappen en uitklappen
 * Reply & forward iconen bij mailtjes in Email & historylist
 * Check of case geassigned is aan persoon of team & of case gekoppeld is aan account of contact

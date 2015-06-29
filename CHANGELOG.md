@@ -1,6 +1,14 @@
 <a name"newest-release"></a>
 ## Newest Release
 
+#### Bug Fixes
+* Account edit/create fix so it works
+
+<a name"latest-release"></a>
+## Latest Release
+
+<a name"0.4.26"></a>
+### 0.4.26 (2015-06-26)
 #### Features
 
 
@@ -9,8 +17,6 @@
 * Fix for showing and sending emails correctly
 * No more enter key to save the account form
 
-<a name"latest-release"></a>
-## Latest Release
 
 <a name"0.4.25"></a>
 ### 0.4.25 (2015-06-22)

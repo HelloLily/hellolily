@@ -132,7 +132,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
         // If the account is edited and the assigned to isn't changed, it's an object
         // So if that's the case get the id and set 'assigned_to' to that value
-        if (typeof vm.account.assigned_to === 'object' && vm.account.assigned_to.id) {
+        if (typeof vm.account.assigned_to === 'object' && vm.account.assigned_to && vm.account.assigned_to.id) {
             vm.account.assigned_to = vm.account.assigned_to.id;
         }
 

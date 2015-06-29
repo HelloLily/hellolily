@@ -79,6 +79,15 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 if (!vm.account.primaryWebsite || vm.account.primaryWebsite == '') {
                     vm.account.primaryWebsite = '';
                 }
+
+                if(vm.account.tags.length){
+                    var tags = []
+                    angular.forEach(account.tags, function(tag){
+                        tags.push(tag.name)
+                    });
+                    vm.account.tags = tags;
+                }
+
                 $scope.conf.pageTitleBig = vm.account.name;
             });
         } else {
@@ -106,7 +115,6 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
     function saveAccount() {
         var primaryWebsite = vm.account.primaryWebsite;
-
         // Make sure it's not an empty website being added
         if (primaryWebsite && primaryWebsite != 'http://' && primaryWebsite != 'https://') {
             var exists = false;
@@ -124,8 +132,20 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
         // If the account is edited and the assigned to isn't changed, it's an object
         // So if that's the case get the id and set 'assigned_to' to that value
-        if (typeof vm.account.assigned_to === 'object') {
+        if (typeof vm.account.assigned_to === 'object' && vm.account.assigned_to && vm.account.assigned_to.id) {
             vm.account.assigned_to = vm.account.assigned_to.id;
+        }
+
+        if (vm.account.tags && vm.account.tags.length) {
+            var tags = [];
+            angular.forEach(vm.account.tags, function (tag) {
+                if (tag) {
+                    tags.push({name: (tag.name) ? tag.name : tag});
+
+                }
+
+                vm.account.tags = tags;
+            });
         }
 
         if (vm.account.id) {

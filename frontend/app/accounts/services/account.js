@@ -200,10 +200,13 @@ function Account($http, $q, $resource) {
     Account.prototype._addEmailAddresses = function (data) {
         var account = this;
         var newEmailAddresses = data.email_addresses;
+        var primaryExists = false;
+
         if (data.primary_email) {
-            var primaryExists = true;
+            primaryExists = true;
             newEmailAddresses.unshift(data.primary_email);
         }
+
         for (var i in newEmailAddresses) {
             var isPrimary = primaryExists && i == 0;
             var add = true;
@@ -213,6 +216,7 @@ function Account($http, $q, $resource) {
                     break;
                 }
             }
+
             if (add) {
                 account.email_addresses.push({email_address: newEmailAddresses[i], is_primary: isPrimary});
             }

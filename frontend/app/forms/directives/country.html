@@ -1,4 +1,4 @@
-<ui-select ng-model="address.country" theme="bootstrap" ng-disabled="address.is_deleted">
+<ui-select ng-model="address.country" theme="select2" ng-disabled="address.is_deleted" class="form-control">
     <ui-select-match placeholder="Select or search a country...">
         {{ $select.selected.display_name }}
     </ui-select-match>

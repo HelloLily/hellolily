@@ -8,9 +8,9 @@
     </label> -->
     <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
         <input class="form-control"
-               id="id_email_address-email_addres-{{ $index }}"
+               id="id_email_address-email_address-{{ $index }}"
                maxlength="255"
-               name="email_address-email_addres-{{ $index }}"
+               name="email_address-email_address-{{ $index }}"
                placeholder="Email address"
                type="email"
                ng-model="emailAddress.email_address"
@@ -47,6 +47,6 @@
         </div>
     </label> -->
     <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length }">
-        <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="btn btn-default btn-sm">Add an email address</a>
+        <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>
 </div>

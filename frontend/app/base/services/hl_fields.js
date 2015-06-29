@@ -14,19 +14,32 @@ function HLFields () {
             var cleanedValues = [];
 
             // We only want to clean the related fields, so check if the value is an array
-            if (fieldValues instanceof Array) {
+            if (fieldValues instanceof Array && field != 'tags') {
                 // Loop through each array element
                 angular.forEach(fieldValues, function (fieldValue) {
                     if (!fieldValue.hasOwnProperty('is_deleted')) {
-                        // Field wasn't deleted, so add it to the new values
-                        cleanedValues.push(fieldValue);
+                        if (fieldValue.email_address) {
+                            cleanedValues.push(fieldValue);
+                        }
+
+                        if (fieldValue.raw_input) {
+                            cleanedValues.push(fieldValue);
+                        }
+
+                        if (fieldValue.city || fieldValue.postal_code ||
+                                fieldValue.street || fieldValue.street_number) {
+                            cleanedValues.push(fieldValue);
+                        }
+
+                        if (fieldValue.website) {
+                            cleanedValues.push(fieldValue);
+                        }
                     }
                 });
-            }
 
-            if (cleanedValues.length) {
                 object[field] = cleanedValues;
             }
+
         });
 
         return object;

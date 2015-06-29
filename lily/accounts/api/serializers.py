@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
 
 from lily.api.fields import LilyPrimaryKeyRelatedField
 from lily.api.serializers import ContentTypeSerializer
@@ -9,6 +11,7 @@ from lily.users.models import LilyUser
 from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer,
                                         RelatedModelSerializer, RelatedFieldSerializer, TagSerializer)
 from lily.utils.models.models import Address, EmailAddress, PhoneNumber
+from lily.tags.models import Tag
 
 from ..models import Account, Website
 from ..validators import DuplicateAccountName
@@ -98,7 +101,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     Serializer for the creating and updating an account.
     """
     addresses = AddressSerializer(many=True, required=False)
-    assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects, required=False)
+    # assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects, required=False)
     email_addresses = EmailAddressSerializer(many=True, required=False)
     name = serializers.CharField(validators=[DuplicateAccountName()])
     phone_numbers = PhoneNumberSerializer(many=True, required=False)
@@ -156,6 +159,14 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             if not phone_number_data['is_deleted']:
                 del phone_number_data['is_deleted']
                 account.phone_numbers.add(PhoneNumber.objects.create(**phone_number_data))
+
+        for tag in tags_data:
+            # Create relationship with Tag if it's a new tag
+            tag_object, created = Tag.objects.get_or_create(
+                name=tag['name'],
+                object_id=account.pk,
+                content_type_id=ContentType.objects.get_for_model(account.__class__).id
+            )
 
         return account
 
@@ -263,6 +274,16 @@ class AccountCreateSerializer(serializers.ModelSerializer):
                     phone_number.update(**phone_number_data_dict)
             else:
                 instance.phone_numbers.add(PhoneNumber.objects.create(**phone_number_data_dict))
+
+        tags_to_remove = Tag.objects.filter(object_id=instance.pk)
+        tags_to_remove.delete()
+
+        for tag in tags_data:
+            tag_object, created = Tag.objects.get_or_create(
+                name=tag['name'],
+                object_id=instance.pk,
+                content_type_id=ContentType.objects.get_for_model(instance.__class__).id
+            )
 
         instance.save()
 

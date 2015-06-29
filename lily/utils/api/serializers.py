@@ -35,6 +35,14 @@ class RelatedFieldSerializer(serializers.ModelSerializer):
         return obj
 
 
+class TagFieldSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        obj = super(TagFieldSerializer, self).to_internal_value(data)
+        obj = dict(data)
+
+        return obj
+
+
 class PhoneNumberSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
     status_name = serializers.CharField(source='get_status_display', read_only=True)
@@ -72,7 +80,7 @@ class EmailAddressSerializer(RelatedFieldSerializer):
         fields = ('id', 'status_name', 'email_address', 'status',)
 
 
-class TagSerializer(RelatedFieldSerializer):
+class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name',)

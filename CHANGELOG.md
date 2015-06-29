@@ -1,11 +1,14 @@
 <a name"newest-release"></a>
 ## Newest Release
+#### Features
+#### Bug Fixes
+
+<a name"0.4.27"></a>
+### 0.4.27 (2015-06-29)
+#### Features
 
 #### Bug Fixes
 * Account edit/create fix so it works
-
-<a name"latest-release"></a>
-## Latest Release
 
 <a name"0.4.26"></a>
 ### 0.4.26 (2015-06-26)

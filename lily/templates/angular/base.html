@@ -1,4 +1,4 @@
-{% load compressed statici18n i18n static %}
+{% load i18n static %}
 
 {% verbatim %}
 <!DOCTYPE html>
@@ -25,7 +25,7 @@
 
         {% verbatim %}
         <!-- END GLOBAL STYLES -->
-        {% endverbatim %}<link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />{% verbatim %}
+        {% endverbatim %}<link rel="shortcut icon" href="{% static 'images/core/favicon.ico' %}" />{% verbatim %}
     </head>
     <!-- END HEAD -->
     <!-- BEGIN BODY -->
@@ -87,13 +87,13 @@
 
         <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
         <!--[if lt IE 9]>
-        {% endverbatim %}{% compressed_js 'global-ie' %}{% verbatim %}
+        <script type="text/javascript" src="{% static 'vendor/ie-fixes.js' %}" charset="utf-8"></script>
         <![endif]-->
         {% endverbatim %}
         <script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
-        {% compressed_js 'global' %}
         <script type="text/javascript" src="{% static 'templates.js' %}" charset="utf-8"></script>
         <script type="text/javascript" src="{% static 'app.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'analytics.js' %}" charset="utf-8"></script>
         <script>
             var currentUser = {
                 id: '{{ user.id }}',

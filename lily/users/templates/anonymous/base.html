@@ -1,4 +1,4 @@
-{% load compressed statici18n i18n static %}
+{% load i18n static %}
 
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
@@ -16,8 +16,11 @@
         <meta content="" name="description"/>
         <meta content="" name="author"/>
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&amp;subset=all" rel="stylesheet" type="text/css">
-        {% compressed_css 'anonymous' %}
-        <link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />
+
+        <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'app.css' %}" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="{% static 'images/core/favicon.ico' %}" />
     </head>
 
     <body class="page-header-fixed">
@@ -57,9 +60,10 @@
 
         <!-- BEGIN JAVASCRIPTS (Load javascripts at bottom, this will reduce page load time) -->
         <!--[if lt IE 9]>
-        {% compressed_js 'global-ie' %}
+        <script type="text/javascript" src="{% static 'vendor/ie-fixes.js' %}" charset="utf-8"></script>
         <![endif]-->
-        {% compressed_js 'anonymous' %}
+        <script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'analytics.js' %}" charset="utf-8"></script>
         {% if messages %}
             <script>
                 $( document ).ready(function() {

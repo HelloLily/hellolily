@@ -138,11 +138,13 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         Trash will happen async
         """
         email = self.get_object()
+        trashed = email.is_removed
         # Make sure emails are removed instantly from the email list
         email.is_removed = True
         email.save()
         serializer = self.get_serializer(email, partial=True)
-        trash_email_message.apply_async(args=(email.id,))
+        if trashed is False:
+            trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
 
     @detail_route(methods=['put'])

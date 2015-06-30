@@ -16,6 +16,11 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Create'
+        },
+        resolve: {
+            user: ['User', function (User) {
+                return User.me().$promise;
+            }]
         }
     });
 
@@ -30,6 +35,11 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit'
+        },
+        resolve: {
+            user: ['User', function (User) {
+                return User.me().$promise;
+            }]
         }
     });
 }
@@ -39,8 +49,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'user'];
+function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, user) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -53,6 +63,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
     vm.saveAccount = saveAccount;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
+    vm.currentUser = user;
 
     activate();
 
@@ -92,7 +103,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 if(vm.account.tags.length){
                     var tags = [];
                     angular.forEach(account.tags, function (tag){
-                        tags.push(tag.name)
+                        tags.push(tag.name);
                     });
                     vm.account.tags = tags;
                 }
@@ -102,6 +113,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         } else {
             $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
+            vm.account.assigned_to = vm.currentUser.id;
         }
     }
 

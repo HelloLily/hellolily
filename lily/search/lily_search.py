@@ -227,6 +227,9 @@ class LilySearch(object):
             Q(shared_with_users__id=user.pk)
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
+        # Hide when we do not want to follow a email_account.
+        email_accounts = email_accounts.exclude(sharedemailconfig__is_hidden=True)
+
         if not email_accounts:
             # Disable results if no email at all for account.
             self.raw_filters.append({

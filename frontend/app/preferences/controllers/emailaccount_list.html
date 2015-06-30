@@ -44,6 +44,14 @@
                     <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" tooltip="Primary account"></i>
                     <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
+                    <span class="pull-right">
+                        <div class="btn-group">
+                            <!-- By comparing with the == operator, we can have a "third" state when the
+                            boolean is not yet set at all. (And it is still being loaded by angular). -->
+                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==false}" ng-click="vm.followShared(account)"><i class="fa fa-eye"></i> Follow</button>
+                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==true}" ng-click="vm.hideShared(account)"><i class="fa fa-eye-slash"></i> Hide</button>
+                        </div>
+                    </span>
                 </li>
                 <li class="list-group-item"  ng-hide="vm.sharedAccounts.length">
                     No email accounts shared with you.
@@ -61,6 +69,14 @@
                     <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" tooltip="Primary account"></i>
                     <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
+                    <span class="pull-right">
+                        <div class="btn-group">
+                            <!-- By comparing with the == operator, we can have a "third" state when the
+                            boolean is not yet set at all. (And it is still being loaded by angular). -->
+                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==false}" ng-click="vm.followShared(account)"><i class="fa fa-eye"></i> Follow</button>
+                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==true}" ng-click="vm.hideShared(account)"><i class="fa fa-eye-slash"></i> Hide</button>
+                        </div>
+                    </span>
                 </li>
                 <li class="list-group-item" ng-hide="vm.publicAccounts.length">
                     No company wide email accounts.

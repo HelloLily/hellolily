@@ -15,15 +15,6 @@ function emailPreferencesStates($stateProvider) {
             label: 'Email Account'
         },
         resolve: {
-            ownedAccounts: ['EmailAccount', function (EmailAccount) {
-                return EmailAccount.query({owner: currentUser.id}).$promise;
-            }],
-            sharedAccounts: ['EmailAccount', function (EmailAccount) {
-                return EmailAccount.query({shared_with_users__id: currentUser.id}).$promise;
-            }],
-            publicAccounts: ['EmailAccount', function (EmailAccount) {
-                return EmailAccount.query({public: "True"}).$promise;
-            }],
             user: ['User', function (User) {
                 return User.me().$promise;
             }]
@@ -33,15 +24,17 @@ function emailPreferencesStates($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
-PreferencesEmailAccountList.$inject =['$modal', 'EmailAccount', 'User', 'ownedAccounts', 'sharedAccounts', 'publicAccounts', 'user'];
-function PreferencesEmailAccountList($modal, EmailAccount, User, ownedAccounts, sharedAccounts, publicAccounts, user) {
+PreferencesEmailAccountList.$inject =['$modal', 'EmailAccount', 'User', 'user', '$http'];
+function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
 
     var vm = this;
-    vm.ownedAccounts = ownedAccounts;
-    vm.sharedAccounts = sharedAccounts;
-    vm.publicAccounts = publicAccounts;
+    vm.ownedAccounts = [];
+    vm.sharedAccounts = [];
+    vm.publicAccounts = [];
     vm.currentUser = user;
     vm.activate = activate;
+    vm.followShared = followShared;
+    vm.hideShared = hideShared;
     vm.deleteAccount = deleteAccount;
     vm.openShareAccountModal = openShareAccountModal;
     vm.makePrimaryAccount = makePrimaryAccount;
@@ -50,7 +43,9 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, ownedAccounts, 
 
     ////////
 
-    function activate() {}
+    function activate() {
+        loadAccounts();
+    }
 
     // Get relevant accounts
     function loadAccounts() {
@@ -59,15 +54,53 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, ownedAccounts, 
             vm.ownedAccounts = data;
         });
 
+        function checkHiddenState(account) {
+            $http.get('/api/messaging/email/shared_email_config/?email_account=' + account.id).success(function(d) {
+                var is_hidden = false;
+                if (d.length) {
+                    if (d[0].is_hidden) {
+                        is_hidden = true;
+                    }
+                }
+                account.hidden = is_hidden;
+            });
+        }
+
         // Accounts shared with user
         EmailAccount.query({shared_with_users__id: vm.currentUser.id}, function(data) {
             vm.sharedAccounts = data;
+            data.forEach(function(account) {
+                data.forEach(function(account) {
+                    checkHiddenState(account);
+                });
+            });
         });
 
         // Accounts public
         EmailAccount.query({public: "True"}, function(data) {
             vm.publicAccounts = data;
+            data.forEach(function(account) {
+                checkHiddenState(account);
+            });
         });
+    }
+
+    function updateSharedEmailSetting(account_id, is_hidden) {
+        var body = { email_account: account_id }
+        if (is_hidden) {
+            body.is_hidden = true;
+        }
+        $http.post('/api/messaging/email/shared_email_config/', body);
+    }
+
+    function followShared(account) {
+        account.hidden = false;
+        updateSharedEmailSetting(account.id, false);
+    }
+
+    function hideShared(account) {
+        account.hidden = true;
+        updateSharedEmailSetting(account.id, true);
     }
 
     function deleteAccount (accountId) {

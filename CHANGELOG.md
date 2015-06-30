@@ -2,6 +2,8 @@
 ## Newest Release
 #### Features
 #### Bug Fixes
+* Discard button doesn't sent the email anyways
+* Fix for the possibility to delete emails twice
 
 <a name"0.4.27"></a>
 ### 0.4.27 (2015-06-29)

@@ -59,7 +59,16 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
     ////
 
     function activate() {
-        vm.people = User.query();
+        User.query().$promise.then(function (userList) {
+            angular.forEach(userList, function (user) {
+                vm.people.push({
+                    id: user.id,
+                    // $.grep removes values that are empty so the .join doesn't have double spaces
+                    name: $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ')
+                });
+            });
+        });
+
         $scope.conf.pageTitleSmall = 'change is natural';
 
         _getAccount();
@@ -81,8 +90,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 }
 
                 if(vm.account.tags.length){
-                    var tags = []
-                    angular.forEach(account.tags, function(tag){
+                    var tags = [];
+                    angular.forEach(account.tags, function (tag){
                         tags.push(tag.name)
                     });
                     vm.account.tags = tags;

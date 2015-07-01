@@ -50,7 +50,7 @@
                     }
                     $this.select2({
                         tags: tags,
-                        tokenSeparators: [',', ' '],
+                        tokenSeparators: [','],
                         width: '100%'
                     });
                 }
@@ -179,7 +179,7 @@
 
                     if ($this.hasClass(cf.tagsAjaxClass)) {
                         options.tags = true;
-                        options.tokenSeparators = [',', ' '];
+                        options.tokenSeparators = [','];
                         // Create a new tag if there were no results
                         options.createSearchChoice = function (term, data) {
                             if ($(data).filter(function () {

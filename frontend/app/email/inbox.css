@@ -225,11 +225,6 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     color: #94A4AB !important;
 }
 
-.mailbox-header strong {
-    font-weight: normal;
-    cursor: pointer;
-}
-
 .detail-plain-text {
     white-space: pre;
     word-wrap: break-word;

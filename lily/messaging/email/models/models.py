@@ -93,6 +93,19 @@ class EmailAccount(TenantMixin, DeletedMixin):
         app_label = 'email'
 
 
+class SharedEmailConfig(TenantMixin):
+    """
+    Settings that a user can set on email accounts shared with this user.
+    """
+    email_account = models.ForeignKey(EmailAccount)
+    user = models.ForeignKey(LilyUser)
+    is_hidden = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = 'email'
+        unique_together = ('tenant', 'email_account', 'user')
+
+
 class GmailCredentialsModel(models.Model):
     """
     OAuth2 credentials for gmail api

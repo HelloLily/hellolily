@@ -1,6 +1,13 @@
 from rest_framework import serializers
 
-from ..models.models import EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate
+from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
+                             SharedEmailConfig)
+
+
+class SharedEmailConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharedEmailConfig
+        fields = ('id', 'email_account', 'is_hidden')
 
 
 class EmailLabelSerializer(serializers.ModelSerializer):
@@ -79,4 +86,3 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             'body_html',
             'default_for',
         )
-

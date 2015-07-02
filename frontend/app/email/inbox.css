@@ -235,3 +235,24 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     margin-top: 20px;
     padding-top: 20px;
 }
+
+.mailbox-header-title {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.mailbox-header {
+    color: #fff;
+    text-shadow: none;
+    background: #a6aaae;
+    display: block;
+    font-size: 15px;
+    border-left: none;
+    text-align: left;
+    padding: 8px 14px;
+    margin-right: 0;
+}
+
+.mailbox-header i {
+    background: none !important;
+}

@@ -431,24 +431,6 @@ li.case .inline-header {
     color: #595959;
 }
 
-/* END EMAIL ICON STUFF */
-
-ul.inbox-nav li.mailbox-header {
-    color: #fff;
-    text-shadow: none;
-    background: #a6aaae;
-    display: block;
-    font-size: 15px;
-    border-left: none;
-    text-align: left;
-    padding: 8px 14px;
-    margin-right: 0;
-}
-
-ul.inbox-nav li.mailbox-header i {
-    background: none !important;
-}
-
 /* FIX z-index of topnav */
 .page-header.navbar.navbar-fixed-top {
     z-index: 3;

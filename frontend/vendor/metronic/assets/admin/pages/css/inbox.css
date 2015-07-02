@@ -172,10 +172,6 @@ Inbox Page
   margin-bottom: 0;
 }
 
-.inbox ul.inbox-nav li {
-  padding: 0;
-}
-
 .inbox ul.inbox-nav li span {
   color: #828f97;
   font-size: 12px;

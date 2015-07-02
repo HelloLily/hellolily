@@ -433,7 +433,7 @@ li.case .inline-header {
 
 /* END EMAIL ICON STUFF */
 
-ul.inbox-nav li.mailbox-header span {
+ul.inbox-nav li.mailbox-header {
     color: #fff;
     text-shadow: none;
     background: #a6aaae;
@@ -445,7 +445,7 @@ ul.inbox-nav li.mailbox-header span {
     margin-right: 0;
 }
 
-ul.inbox-nav li.mailbox-header span i {
+ul.inbox-nav li.mailbox-header i {
     background: none !important;
 }
 

@@ -1,6 +1,8 @@
 <a name"newest-release"></a>
 ## Newest Release
 #### Features
+* Add option to unfollow shared email addressed, both public and specifically shared
+
 #### Bug Fixes
 * Discard button doesn't sent the email anyways
 * Fix for the possibility to delete emails twice

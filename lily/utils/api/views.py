@@ -156,6 +156,7 @@ class TagViewSet(RelatedModelViewSet):
     def _get_related_queryset(self, object_pk):
         return self._get_related_object(object_pk).tags
 
+
 class CountryViewSet(ModelViewSet):
     """
     List all countries for a tenant.

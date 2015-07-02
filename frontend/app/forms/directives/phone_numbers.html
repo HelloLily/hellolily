@@ -1,5 +1,5 @@
 <div class="form-group" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Phone Number</label>
+    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Phone number</label>
     <!-- <label for="id_phone_numbers-type-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
         <div class="text-center">
             <div class="pre">
@@ -18,7 +18,7 @@
                ng-model="phoneNumber.raw_input"
                ng-readonly="phoneNumber.is_deleted">
     </div>
-    <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone Number Type</label>
+    <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone number type</label>
     <div class="col-md-4">
         <select class="form-control"
                 id="id_phone_numbers-type-{{ $index }}"

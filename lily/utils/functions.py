@@ -6,7 +6,6 @@ from itertools import chain
 from django import forms
 from django.contrib import messages
 from django.db.models import Q
-from python_imap.folder import ALLMAIL, SENT, INBOX, IMPORTANT
 
 
 def autostrip(cls):

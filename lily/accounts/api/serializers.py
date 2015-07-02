@@ -8,6 +8,7 @@ from lily.contacts.models import Contact
 from lily.socialmedia.api.serializers import SocialMediaSerializer
 from lily.users.api.serializers import LilyUserSerializer
 from lily.users.models import LilyUser
+from lily.utils.api.functions import update_related_fields, create_related_fields
 from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer,
                                         RelatedModelSerializer, RelatedFieldSerializer, TagSerializer)
 from lily.utils.models.models import Address, EmailAddress, PhoneNumber
@@ -108,6 +109,14 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     websites = WebsiteSerializer(many=True, required=False)
 
+    # Dict used when creating/updating the related fields of the account
+    related_fields = [
+        {'data_string': 'websites', 'model': 'Website'},
+        {'data_string': 'email_addresses', 'model': 'EmailAddress'},
+        {'data_string': 'addresses', 'model': 'Address'},
+        {'data_string': 'phone_numbers', 'model': 'PhoneNumber'},
+    ]
+
     class Meta:
         model = Account
         fields = (
@@ -130,35 +139,21 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        websites_data = validated_data.pop('websites')
-        email_addresses_data = validated_data.pop('email_addresses')
-        addresses_data = validated_data.pop('addresses')
-        phone_numbers_data = validated_data.pop('phone_numbers')
         tags_data = validated_data.pop('tags')
+
+        related_fields_data = {
+            'websites': validated_data.pop('websites'),
+            'email_addresses': validated_data.pop('email_addresses'),
+            'addresses': validated_data.pop('addresses'),
+            'phone_numbers': validated_data.pop('phone_numbers'),
+        }
 
         # TODO: Make sure that errors in related fields raise an error and don't save the account
         account = Account(**validated_data)
         account.save()
 
-        for website_data in websites_data:
-            if not website_data['is_deleted']:
-                del website_data['is_deleted']
-                Website.objects.create(account=account, **website_data)
-
-        for email_address_data in email_addresses_data:
-            if not email_address_data['is_deleted']:
-                del email_address_data['is_deleted']
-                account.email_addresses.add(EmailAddress.objects.create(**email_address_data))
-
-        for address_data in addresses_data:
-            if not address_data['is_deleted']:
-                del address_data['is_deleted']
-                account.addresses.add(Address.objects.create(**address_data))
-
-        for phone_number_data in phone_numbers_data:
-            if not phone_number_data['is_deleted']:
-                del phone_number_data['is_deleted']
-                account.phone_numbers.add(PhoneNumber.objects.create(**phone_number_data))
+        # Create related fields
+        create_related_fields(account, self.related_fields, related_fields_data)
 
         for tag in tags_data:
             # Create relationship with Tag if it's a new tag
@@ -171,11 +166,10 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         return account
 
     def update(self, instance, validated_data):
-        websites_data = validated_data.pop('websites')
-        email_addresses_data = validated_data.pop('email_addresses')
-        addresses_data = validated_data.pop('addresses')
-        phone_numbers_data = validated_data.pop('phone_numbers')
         tags_data = validated_data.pop('tags')
+
+        # Create/update/delete related fields
+        update_related_fields(instance, self.related_fields, validated_data)
 
         # TODO: Test if changing ID's of existing objects does something
         # Example: Account has website with ID 1
@@ -184,96 +178,6 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
-
-        # Do the following for the related fields:
-        # 1. Convert from OrderedDict to regular dict
-        # 2. Either update an existing object or create a new one
-        # 3. update_or_create returns (object, created), where created is whether it's a new object or not
-        # 4. If true (object[1]), add the object to the set of objects
-
-        # TODO: LILY-964: Make generic function for this bit
-
-        for website_data in websites_data:
-            if not website_data:
-                continue
-
-            website_data_dict = dict(website_data)
-            is_deleted = website_data_dict['is_deleted']
-
-            del website_data_dict['is_deleted']
-
-            if 'id' in website_data_dict:
-                website = instance.websites.filter(pk=website_data_dict.get('id'))
-
-                if is_deleted:
-                    website.delete()
-                else:
-                    website.update(**website_data_dict)
-            else:
-                # Websites aren't added to a set, but are given an account
-                website_data_dict.update({
-                    'account': instance
-                })
-                Website.objects.create(**website_data_dict)
-
-        for email_address_data in email_addresses_data:
-            if not email_address_data:
-                continue
-
-            email_address_data_dict = dict(email_address_data)
-            is_deleted = email_address_data_dict['is_deleted']
-
-            del email_address_data_dict['is_deleted']
-
-            if 'id' in email_address_data_dict:
-                email_address = instance.email_addresses.filter(pk=email_address_data_dict['id'])
-
-                if is_deleted:
-                    email_address.delete()
-                else:
-                    email_address.update(**email_address_data_dict)
-            else:
-                instance.email_addresses.add(EmailAddress.objects.create(**email_address_data_dict))
-
-        for address_data in addresses_data:
-            if not address_data:
-                continue
-
-            address_data_dict = dict(address_data)
-
-            is_deleted = address_data_dict['is_deleted']
-
-            del address_data_dict['is_deleted']
-
-            if 'id' in address_data_dict:
-                address = instance.addresses.filter(pk=address_data_dict['id'])
-
-                if is_deleted:
-                    address.delete()
-                else:
-                    address.update(**address_data_dict)
-            else:
-                instance.addresses.add(Address.objects.create(**address_data_dict))
-
-        for phone_number_data in phone_numbers_data:
-            if not phone_number_data:
-                continue
-
-            phone_number_data_dict = dict(phone_number_data)
-
-            is_deleted = phone_number_data_dict['is_deleted']
-
-            del phone_number_data_dict['is_deleted']
-
-            if 'id' in phone_number_data_dict:
-                phone_number = instance.phone_numbers.filter(pk=phone_number_data_dict['id'])
-
-                if is_deleted:
-                    phone_number.delete()
-                else:
-                    phone_number.update(**phone_number_data_dict)
-            else:
-                instance.phone_numbers.add(PhoneNumber.objects.create(**phone_number_data_dict))
 
         tags_to_remove = Tag.objects.filter(object_id=instance.pk)
         tags_to_remove.delete()

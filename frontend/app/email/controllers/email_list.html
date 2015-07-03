@@ -127,5 +127,22 @@
             </td>
         </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <div class="pagination-control pull-right">
+                        <span class="pagination-info">
+                            {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
+                        </span>
+                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
+                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
+                            <i class="fa fa-angle-right"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>

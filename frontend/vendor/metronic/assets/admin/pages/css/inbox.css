@@ -172,26 +172,10 @@ Inbox Page
   margin-bottom: 0;
 }
 
-.inbox ul.inbox-nav li {
-  padding: 0;
-}
-
 .inbox ul.inbox-nav li span {
   color: #828f97;
   font-size: 12px;
   margin-right: 10px;
-}
-
-.inbox ul.inbox-nav i {
-  color: #fff;
-  padding: 1px 0;
-  font-size: 15px;
-  cursor: pointer;
-  background: #d0dde4 !important;
-}
-
-.inbox ul.inbox-nav i:hover {
-  background: #169ef4 !important;
 }
 
 .inbox td.text-right {

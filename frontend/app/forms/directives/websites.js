@@ -20,6 +20,10 @@ function formWebsites() {
     }
 }
 
-function FormWebsitesController() {
+FormWebsitesController.$inject = ['$rootScope'];
+function FormWebsitesController($rootScope) {
     var vm = this;
+
+    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
+
 }

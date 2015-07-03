@@ -1,5 +1,5 @@
-<div class="portlet">
-    <div class="portlet-title">
+<div class="portlet" ng-class="{'portlet-no-bottom-margin': vm.sideBar}">
+    <div ng-class="{'hidden': vm.sideBar, 'portlet-title': !vm.sideBar}">
         <div class="caption">
             {{ title }}
         </div>

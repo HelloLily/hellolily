@@ -1,3 +1,4 @@
+{{ account }}
 <div class="portlet light">
     <div class="portlet-title">
         <div class="caption">
@@ -14,7 +15,11 @@
             </span>
         </div>
         <div ng-hide="$parent.contact" class="actions">
-            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
+            <a ui-sref="{{ addLink|| 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="accountId">
+                <i class="fa fa-plus"></i>
+                Add
+            </a>
+            <a ui-sref="base.contacts.create.fromAccount({id: accountId})" class="btn btn-circle btn-default" ng-show="accountId">
                 <i class="fa fa-plus"></i>
                 Add
             </a>

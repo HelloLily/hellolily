@@ -1,6 +1,25 @@
 
 <div ng-if="vm.message.id" class="inbox-header inbox-view-header">
     <h1 class="pull-left">{{ vm.message.subject}}</h1>
+    <div class="pull-right" ng-if="emailSettings.sideBar">
+        <button class="btn btn-sm blue"
+                ng-show="emailSettings.sideBar == 'hasNoAccount' || emailSettings.sideBar == 'createAccount'"
+                ng-click="vm.showCreateAccountSidebar()">
+            <i class="fa fa-plus"></i> Account
+        </button>
+
+        <button class="btn btn-sm blue"
+                ng-show="emailSettings.sideBar == 'hasAccount'"
+                ng-click="vm.showCreateAccountSidebar()">
+            <i class="fa fa-eye"></i> Account
+        </button>
+
+        <button class="btn btn-sm blue"
+                ng-show="emailSettings.sideBar == 'showAccount'"
+                ng-click="vm.showCreateAccountSidebar()">
+            <i class="fa fa-eye"></i> Account
+        </button>
+    </div>
 </div>
 <div class="inbox-view-info">
     <div ng-if="!vm.message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
@@ -38,8 +57,8 @@
                         </ul>
                     </div>
                     <div class="btn-group">
-                        <a class="btn blue" ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </a>
-                        <a class="btn blue" ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</a>
+                        <button class="btn blue" ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </button>
+                        <button class="btn blue" ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</button>
                     </div>
                 </div>
             </div>

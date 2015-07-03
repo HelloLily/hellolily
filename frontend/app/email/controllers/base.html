@@ -1,8 +1,34 @@
-<div class="portlet light">
-    <div class="portlet-body">
-        <div class="row inbox">
-            <div class="col-md-2" ui-view="labelList"></div>
-            <div class="col-md-10" ui-view></div>
+<div class="row">
+    <div style="padding: 12px 20px 15px 20px;"
+         ng-class="{'col-md-9': emailSettings.sideBar == 'createAccount' || emailSettings.sideBar == 'showAccount',
+                    'col-md-12': !emailSettings.sideBar}">
+        <div class="portlet light">
+            <div class="portlet-body">
+                <div class="row inbox">
+                    <div class="col-md-2" ui-view="labelList"></div>
+                    <div class="col-md-10" ui-view></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3" style="padding: 12px 20px 15px 0;" ng-if="emailSettings.sideBar == 'createAccount'">
+        <div class="portlet light">
+            <div class="portlet-body">
+                <div class="row inbox">
+                    <div class="col-md-12">
+                        <div class="inbox-header inbox-view-header ng-scope">
+                            <h1 class="pull-left ng-binding">Add account</h1>
+                        </div>
+                        <div ui-view="createaccount"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3" style="padding: 12px 20px 15px 0;" ng-if="emailSettings.sideBar == 'showAccount'">
+        <div ui-view="showaccount">
+            <account-detail-widget account="account" height="300"></account-detail-widget>
+            <contact-list-widget title="{{ account.name }}" list="contactList" height="300" account-id="{{ account.id }}"></contact-list-widget>
         </div>
     </div>
 </div>

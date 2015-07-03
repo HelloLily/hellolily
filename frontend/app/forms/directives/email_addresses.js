@@ -20,9 +20,11 @@ function formEmailAddresses() {
     }
 }
 
-function FormEmailAddressesController() {
+FormEmailAddressesController.$inject = ['$rootScope'];
+function FormEmailAddressesController($rootScope) {
     var vm = this;
     vm.setPrimaryEmailAddress = setPrimaryEmailAddress;
+    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
 
     /////
 

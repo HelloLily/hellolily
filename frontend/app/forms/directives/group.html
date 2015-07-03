@@ -1,6 +1,11 @@
 <div class="form-group" ng-class="{'has-error': field.$invalid}">
-    <!-- <label class="visible-xs-block col-md-2 control-label" for="{{ labelId }}"
-    ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
+    <label for="{{ labelId }}"
+           ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar, 'required':required}">
+        {{ labelTitle }}
+    </label>
+    <!--
+    <label ng-if="vm.sideBar" class="col-md-2 control-label icons-text" for="{{ labelId }}"
+           ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
         <div class="text-center">
 
             <div>
@@ -14,10 +19,8 @@
         <div ng-if="!(labelIcon || labelChar)">
             {{ labelTitle }}
         </div>
-    </label> -->
-    <label class="col-md-2 control-label" for="{{ labelId }}" ng-class="{'required':required}">
-        {{ labelTitle }}
     </label>
+    -->
     <ng-transclude></ng-transclude>
-    <span class="help-block" ng-show="field.$error.message">{{ field.$error.message }}</span>
+    <span class="help-block" ng-show="field.$error.message" ng-class="{'col-xs-12': vm.sideBar}">{{ field.$error.message }}</span>
 </div>

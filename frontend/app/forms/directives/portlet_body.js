@@ -5,6 +5,14 @@ function formPortletBody() {
         restrict: 'E',
         scope: {},
         transclude: true,
-        templateUrl: 'forms/directives/portlet_body.html'
+        templateUrl: 'forms/directives/portlet_body.html',
+        controller: FormBodyPortletController,
+        controllerAs: 'vm'
     }
+}
+
+FormBodyPortletController.$inject = ['$rootScope'];
+function FormBodyPortletController($rootScope) {
+    var vm = this;
+    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
 }

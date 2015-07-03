@@ -35,8 +35,8 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$location', '$scope', '$state', '$stateParams', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
-function EmailListController ($location, $scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
+EmailListController.$inject = ['$location', '$scope', '$rootScope', '$state', '$stateParams', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
+function EmailListController ($location, $scope, $rootScope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
     var vm = this;
     vm.emailMessages = [];
     // Check if filter is set as query parameter
@@ -78,6 +78,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
+        $scope.conf.sideBar = false;
     }
 
     function watchTable() {

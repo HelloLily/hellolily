@@ -20,7 +20,8 @@ function formAddresses() {
     }
 }
 
-function FormAddressesController() {
+FormAddressesController.$inject = ['$rootScope'];
+function FormAddressesController($rootScope) {
     var vm = this;
     vm.addressTypes = [
         {key: 'visiting', value: 'Visiting address'},
@@ -29,5 +30,7 @@ function FormAddressesController() {
         {key: 'home', value: 'Home address'},
         {key: 'other', value: 'Other'}
     ];
+
+    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
 
 }

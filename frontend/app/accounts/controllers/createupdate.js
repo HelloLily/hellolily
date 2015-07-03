@@ -16,11 +16,6 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Create'
-        },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
         }
     });
 
@@ -35,11 +30,6 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit'
-        },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
         }
     });
 }
@@ -49,8 +39,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms', 'user'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms, user) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms'];
+function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -61,9 +51,10 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
     vm.loadDataproviderData = loadDataproviderData;
     vm.saveAccount = saveAccount;
+    vm.doNotSaveAccount = doNotSaveAccount;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
-    vm.currentUser = user;
+    vm.sideBar = $scope.emailSettings.sideBar;
 
     activate();
 
@@ -108,6 +99,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                     vm.account.tags = tags;
                 }
 
+                vm.account.assigned_to = vm.account.assigned_to.id;
+
                 $scope.conf.pageTitleBig = vm.account.name;
 
                 if (vm.account.assigned_to) {
@@ -118,7 +111,31 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         } else {
             $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
-            vm.account.assigned_to = vm.currentUser.id;
+            User.me().$promise.then(function (user) {
+                vm.account.assigned_to = user.id;
+            });
+
+            if ($scope.emailSettings) {
+                if ($scope.emailSettings.company) {
+                    vm.account.name = $scope.emailSettings.company.charAt(0).toUpperCase() +
+                        $scope.emailSettings.company.slice(1);
+                }
+
+                if ($scope.emailSettings.emailAddress) {
+                    vm.account.email_addresses.push({
+                        email_address: $scope.emailSettings.emailAddress,
+                        status: 2
+                    });
+                }
+
+                if ($scope.emailSettings.website) {
+                    vm.account.primaryWebsite = $scope.emailSettings.website;
+                }
+
+                if($scope.emailSettings.website) {
+                    vm.account.primaryWebsite = $scope.emailSettings.website;
+                }
+            }
         }
     }
 
@@ -142,6 +159,14 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
     function removeRelatedField(field, index, remove) {
         HLFields.removeRelatedField(vm.account, field, index, remove);
+    }
+
+    function doNotSaveAccount() {
+        if($scope.emailSettings.sideBar == 'createAccount'){
+            $scope.emailSettings.sideBar = 'hasNoAccount';
+        }else{
+            $state.go('base.accounts');
+        }
     }
 
     function saveAccount(form) {
@@ -175,7 +200,6 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 if (tag) {
                     tags.push({name: (tag.name) ? tag.name : tag});
                 }
-
                 vm.account.tags = tags;
             });
         }
@@ -194,7 +218,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             // If there's an ID set it means we're dealing with an existing account, so update it
             vm.account.$update(function () {
                 toastr.success('I\'ve updated the account for you!', 'Done');
-                $state.go('base.accounts.detail', {id: vm.account.id}, {reload:true});
+                $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
             }, function (response) {
                 _handleBadResponse(response, form);
             })
@@ -202,7 +226,12 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         else {
             vm.account.$save(function () {
                 toastr.success('I\'ve saved the account for you!', 'Yay');
-                $state.go('base.accounts.detail', {id: vm.account.id});
+                if ($scope.emailSettings.sideBar == 'createAccount') {
+                    $scope.emailSettings.sideBar = 'showAccount';
+                    $scope.emailSettings.accountId = vm.account.id;
+                } else {
+                    $state.go('base.accounts.detail', {id: vm.account.id});
+                }
             }, function (response) {
                 _handleBadResponse(response, form);
             });

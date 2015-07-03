@@ -21,6 +21,11 @@ function BaseController ($scope, $state, Notifications) {
         pageTitleSmall: 'welcome to my humble abode!'
     };
 
+    $scope.emailSettings = {
+        sideBar: false,
+        accountId: false
+    };
+
     $scope.loadNotifications = loadNotifications;
 
     activate();
@@ -56,5 +61,11 @@ function BaseController ($scope, $state, Notifications) {
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
         $scope.previousState = $state.href(fromState, fromParams);
+        if ($scope.emailSettings.sideBar && fromState && fromState.name == 'base.email.detail') {
+            $scope.emailSettings.sideBar = false;
+            $scope.emailSettings.accountId = false;
+
+            $scope.$$phase || $scope.apply();
+        }
     }
 }

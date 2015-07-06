@@ -1,7 +1,7 @@
 angular.module('app.email.directives').directive('sendAndArchive', SendAndArchiveDirective);
 
-SendAndArchiveDirective.$inject = ['SelectedEmailAccount'];
-function SendAndArchiveDirective (SelectedEmailAccount) {
+SendAndArchiveDirective.$inject = [];
+function SendAndArchiveDirective () {
     return {
         restrict: 'A',
         link: function (scope, element) {
@@ -10,11 +10,7 @@ function SendAndArchiveDirective (SelectedEmailAccount) {
                     .attr('name', 'archive')
                     .attr('value', true)
                     .appendTo(element.closest('form'));
-                if (SelectedEmailAccount.currentAccountId && SelectedEmailAccount.currentFolderId) {
-                    $("input[name='success_url']").val('#/email/account/' + SelectedEmailAccount.currentAccountId + '/' + SelectedEmailAccount.currentFolderId);
-                }
             });
         }
     }
 }
-

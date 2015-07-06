@@ -61,7 +61,7 @@
                 <th ng-show="table.visibility.amountRecurring" sort-column="amount_recurring" table="table">Recurring costs</th>
                 <th ng-show="table.visibility.assignedTo" sort-column="assigned_to_name" table="table">Assigned to</th>
                 <th ng-show="table.visibility.closingDate" sort-column="closing_date" table="table" class="width-10">Closing date</th>
-                <th ng-show="table.visibility.newBusiness" sort-column="new_business" table="table">New business</th>
+                <th ng-show="table.visibility.newBusiness" sort-column="new_business" table="table">Business</th>
                 <th ng-show="table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="table">Feedback form sent</th>
                 <th ng-show="table.visibility.tags">Tags</th>
             </thead>
@@ -97,8 +97,8 @@
                         {{ deal.closing_date | relativeDate }}
                     </td>
                     <td ng-show="table.visibility.newBusiness">
-                        <span ng-if="deal.new_business">Yes</span>
-                        <span ng-if="!deal.new_business">No</span>
+                        <span ng-if="deal.new_business">New</span>
+                        <span ng-if="!deal.new_business">Existing</span>
                     </td>
                     <td ng-show="table.visibility.feedbackFormSent">
                         <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"></i></span>

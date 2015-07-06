@@ -1,11 +1,20 @@
 <a name"newest-release"></a>
 ## Newest Release
+#### Features
+* Make 'website' searchable in account.
+* Add option to unfollow shared email addressed, both public and specifically shared
+
+#### Bug Fixes
+* Discard button doesn't sent the email anyways
+* Fix for the possibility to delete emails twice
+* Email address of an email account is readonly
+
+<a name"0.4.27"></a>
+### 0.4.27 (2015-06-29)
+#### Features
 
 #### Bug Fixes
 * Account edit/create fix so it works
-
-<a name"latest-release"></a>
-## Latest Release
 
 <a name"0.4.26"></a>
 ### 0.4.26 (2015-06-26)

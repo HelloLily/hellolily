@@ -43,6 +43,9 @@ class EmailAccountCreateUpdateForm(HelloLilyModelForm):
                 ],
             }),
         )
+        widgets = {
+            'email_address': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
 
 
 class AttachmentBaseForm(HelloLilyModelForm):

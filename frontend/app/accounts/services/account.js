@@ -226,9 +226,11 @@ function Account($http, $q, $resource) {
     Account.prototype._addPhoneNumbers = function (data) {
         var account = this;
         var newPhoneNumbers = data.phone_numbers;
+
         if (data.phone_number) {
             newPhoneNumbers.unshift(data.phone_number);
         }
+        
         for (var i in newPhoneNumbers) {
             var add = true;
             for (var j in account.phone_numbers) {

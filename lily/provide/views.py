@@ -160,8 +160,10 @@ class DataproviderView(ProvideBaseView):
 
         # Get primary phone number and convert to a nicer representation
         phone_number = result.get('phonenumber')
+
         if phone_number:
-            phone_numbers.append(parse_phone_number(phone_number))
+            phone_number = parse_phone_number(phone_number)
+            phone_numbers.append(phone_number)
 
         # Get phone numbers and convert to list if needed
         raw_phone_numbers = result.get('phonenumbers', []) or []

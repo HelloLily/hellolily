@@ -4,7 +4,7 @@ from lily.cases.api.views import CaseViewSet
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import DealViewSet
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
-                                            EmailTemplateViewSet)
+                                            EmailTemplateViewSet, SharedEmailConfigViewSet)
 from lily.notes.api.views import NoteViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
 from lily.utils.api.views import CountryViewSet
@@ -30,6 +30,7 @@ router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
 router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
+router.register(r'messaging/email/shared_email_config', SharedEmailConfigViewSet)
 
 router.register(r'users/user', LilyUserViewSet)
 router.register(r'users/team', TeamViewSet)

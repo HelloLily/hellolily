@@ -33,6 +33,14 @@ def get_analyzers():
                     'tokenizer': 'email_tokenizer',
                     'filter': ['lowercase', 'my_ascii'],
                 },
+                # Websites will be tokenized on component hierarchy, i.e.
+                # www.example.org will hit on the following search terms:
+                # 'org', 'example.org' and 'www.example.org'
+                'website_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'website_tokenizer',
+                    'filter': ['lowercase', 'my_ascii'],
+                },
                 # The analyzer used for searching across all fields.
                 # It is a union of the indexing tokenizers.
                 'cross_analyzer': {
@@ -61,6 +69,11 @@ def get_analyzers():
                 'email_tokenizer': {
                     'type': 'pattern',
                     'pattern': '@|\\.',
+                },
+                'website_tokenizer': {
+                    'type': 'path_hierarchy',
+                    'delimiter': '.',
+                    'reverse': True,
                 },
                 'cross_tokenizer': {
                     'type': 'pattern',

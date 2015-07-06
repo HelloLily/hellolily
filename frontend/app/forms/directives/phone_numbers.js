@@ -18,10 +18,10 @@ function formPhoneNumbers() {
 function FormPhoneNumbersController() {
     var vm = this;
     vm.telephoneTypes = [
-        {key: 'work', value:'Work'},
-        {key: 'mobile', value:'Mobile'},
-        {key: 'home', value:'Home'},
-        {key: 'fax', value:'Fax'},
-        {key: 'other', value:'Other'}
+        {key: 'work', value: 'Work'},
+        {key: 'mobile', value: 'Mobile'},
+        {key: 'home', value: 'Home'},
+        {key: 'fax', value: 'Fax'},
+        {key: 'other', value: 'Other'}
     ];
 }

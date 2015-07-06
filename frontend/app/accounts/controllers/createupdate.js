@@ -16,6 +16,11 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Create'
+        },
+        resolve: {
+            user: ['User', function (User) {
+                return User.me().$promise;
+            }]
         }
     });
 
@@ -30,6 +35,11 @@ function accountConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit'
+        },
+        resolve: {
+            user: ['User', function (User) {
+                return User.me().$promise;
+            }]
         }
     });
 }
@@ -39,8 +49,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'user'];
+function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, user) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -53,13 +63,23 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
     vm.saveAccount = saveAccount;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
+    vm.currentUser = user;
 
     activate();
 
     ////
 
     function activate() {
-        vm.people = User.query();
+        User.query().$promise.then(function (userList) {
+            angular.forEach(userList, function (user) {
+                vm.people.push({
+                    id: user.id,
+                    // $.grep removes values that are empty so the .join doesn't have double spaces
+                    name: $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ')
+                });
+            });
+        });
+
         $scope.conf.pageTitleSmall = 'change is natural';
 
         _getAccount();
@@ -81,9 +101,9 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 }
 
                 if(vm.account.tags.length){
-                    var tags = []
-                    angular.forEach(account.tags, function(tag){
-                        tags.push(tag.name)
+                    var tags = [];
+                    angular.forEach(account.tags, function (tag){
+                        tags.push(tag.name);
                     });
                     vm.account.tags = tags;
                 }
@@ -93,6 +113,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         } else {
             $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
+            vm.account.assigned_to = vm.currentUser.id;
         }
     }
 

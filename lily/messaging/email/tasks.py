@@ -254,15 +254,21 @@ def delete_email_message(email_id):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        email_message.is_deleted = True
+        removed = email_message.is_removed
+        in_trash = False
+        for label in email_message.labels.all():
+            if label.name == 'TRASH':
+                in_trash = True
+                break
+        email_message.is_removed = True
         email_message.save()
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
         manager = GmailManager(email_message.account)
         try:
-            logger.debug('Deleting: %s', email_message)
-            manager.delete_email_message(email_message)
+            if removed is False or in_trash is True:
+                manager.delete_email_message(email_message)
         except Exception, e:
             logger.exception('Failed deleting %s' % email_message)
         finally:

@@ -2,7 +2,7 @@
     <div class="form-body">
         <form-portlet title="Who was it?">
             <form-portlet-body>
-                <form-group label-title="Primary Website" label-icon="globe" label-id="primary_website" field="accountForm.primaryWebsite">
+                <form-group label-title="Primary website" label-icon="globe" label-id="primary_website" field="accountForm.primaryWebsite">
                     <div class="col-md-4">
                         <div class="input-group">
                             <input class="form-control"
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                 </form-group>
-                <form-group label-title="Company Name" label-icon="building-o" label-id="id_name" field="accountForm.name" required="true">
+                <form-group label-title="Company name" label-icon="building-o" label-id="id_name" field="accountForm.name" required="true">
                     <div class="col-md-4">
                         <input class="form-control"
                                id="id_name"
@@ -53,8 +53,8 @@
                     <div class="col-md-4">
                         <ui-select ng-model="vm.account.assigned_to" theme="select2" class="form-control" name="assigned_to">
                             <ui-select-match placeholder="Assign to...">{{ [$select.selected.first_name, $select.selected.preposition, $select.selected.last_name].join(' ') }}</ui-select-match>
-                            <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {first_name: $select.search, preposition: $select.search, last_name: $select.search}">
-                                <div ng-bind-html="[person.first_name, person.preposition, person.last_name].join(' ') | highlight: $select.search"></div>
+                            <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {name: $select.search}">
+                                <div ng-bind-html="person.name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
                     </div>

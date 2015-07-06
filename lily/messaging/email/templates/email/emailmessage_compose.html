@@ -18,7 +18,7 @@
                 <button type="submit" name="submit-send-archive" class="btn blue" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
             {% endif %}
             <button type="submit" name="submit-save" class="btn">Draft</button>
-            <button type="submit" name="submit-discard" class="btn inbox-discard-btn">Discard</button>
+            <button type="button" ng-click="vm.discard()" name="submit-discard" class="btn inbox-discard-btn">Discard</button>
         </div>
         <div class="inbox-form-group mail-from">
             <label class="control-label">{% trans 'From' %}:</label>

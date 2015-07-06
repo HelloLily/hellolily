@@ -72,7 +72,7 @@ class AccountMapping(BaseMapping):
             },
             'website': {
                 'type': 'string',
-                'index': 'no',
+                'index_analyzer': 'website_analyzer',
             },
             'address_full': {
                 'type': 'string',

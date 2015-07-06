@@ -1,6 +1,7 @@
 <a name"newest-release"></a>
 ## Newest Release
 #### Features
+* Make 'website' searchable in account.
 * Add option to unfollow shared email addressed, both public and specifically shared
 
 #### Bug Fixes

@@ -10,6 +10,10 @@ redis:
   image: redis:2.8
   ports:
     - 6373:6379
+selenium:
+  image: selenium/standalone-chrome
+  ports:
+    - 4444:4444
 web:
   build: .
   command: python manage.py runserver 0:8000
@@ -17,6 +21,7 @@ web:
     - .:/home/docker/hellolily
   ports:
     - 8003:8000
+    - 8004:8081
   links:
     # Define all containers for easy running of development setup.
     - db
@@ -26,6 +31,7 @@ web:
     - beat
     - worker1
     - worker2
+    - selenium
 gulp:
   build: Dockers/gulp
   volumes:

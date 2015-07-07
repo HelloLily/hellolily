@@ -5,6 +5,7 @@
 angular.module('app.accounts', [
     'ngCookies',
     'ui.bootstrap',
+    'ui.router',
     'ui.slimscroll',
     'ui.select',
 

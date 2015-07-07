@@ -1,5 +1,6 @@
-import os
 from datetime import datetime, timedelta
+import os
+import sys
 from urlparse import urlparse, uses_netloc
 
 from django.conf import global_settings
@@ -201,6 +202,9 @@ MIDDLEWARE_CLASSES = (
     'lily.tenant.middleware.TenantMiddleware',
 )
 
+if 'test' in sys.argv:
+    SSLIFY_DISABLE = True
+
 if DEBUG:
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -272,6 +276,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'collectfast',
     'pipeline',
+    'protractor',
     'templated_email',
     'storages',
     'taskmonitor',
@@ -600,6 +605,7 @@ REST_FRAMEWORK = {
 #######################################################################################################################
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture']
+TEST_SITE_URL = os.environ.get('TEST_SITE_URL', 'http://192.168.59.103:8004/')
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #

@@ -2,9 +2,10 @@
 ### Newest Release
 #### Features
 * Make possible to limit search in api
+* improved deal form so that choices are more obvious
+* e2e & frontend testing
 
-
-<a name"newest-release"></a>
+<a name"0.4.28"></a>
 ### 0.4.28 (2015-07-06)
 #### Features
 * Make 'website' searchable in account.

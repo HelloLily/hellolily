@@ -1,8 +1,8 @@
-# HelloLily #
+# HelloLily
 
 HelloLily, an open source CRM project built on Django and Elasticsearch.
 
-## Prerequisites ##
+## Prerequisites
 
 - [Docker](https://www.docker.com/)
 - [Docker-Compose](https://docs.docker.com/compose/)
@@ -13,7 +13,7 @@ That's it! As long as you are able to run Docker, you can work on HelloLily. Ver
 
 (The first run may take a while as it pulls in Docker images).
 
-## Setup ##
+## Setup
 
 After checking out the project, build the Docker images.
 

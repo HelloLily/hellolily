@@ -1,5 +1,11 @@
 <a name"newest-release"></a>
-## Newest Release
+### Newest Release
+#### Features
+* Make possible to limit search in api
+
+
+<a name"newest-release"></a>
+### 0.4.28 (2015-07-06)
 #### Features
 * Make 'website' searchable in account.
 * Add option to unfollow shared email addressed, both public and specifically shared

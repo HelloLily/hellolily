@@ -206,9 +206,9 @@ if 'test' in sys.argv:
     SSLIFY_DISABLE = True
 
 if DEBUG:
+    SSLIFY_DISABLE = True
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
-        # 'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
     )
 
 #######################################################################################################################
@@ -272,20 +272,18 @@ INSTALLED_APPS = (
     'activelink',
     'bootstrap3',
     'django_extensions',
-    'djangoformsetjs',
-    'easy_thumbnails',
     'collectfast',
     'pipeline',
     'protractor',
     'templated_email',
     'storages',
     'taskmonitor',
-    'injector',
     'elasticutils',
     'statici18n',
     'timezone_field',
     'django_nose',
     'django_password_strength',
+    'djangoformsetjs',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -626,10 +624,6 @@ INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] + (['192.168.%d.%d' % (i, j) for i 
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
-
-# easy-thumbnails
-THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
-THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [

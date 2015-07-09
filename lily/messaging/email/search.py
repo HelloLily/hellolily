@@ -150,6 +150,6 @@ class EmailMessageMapping(BaseMapping):
 
     @classmethod
     def body_html_parsed(cls, obj):
-        soup = BeautifulSoup(obj.body_html)
+        soup = BeautifulSoup(obj.body_html, 'lxml', from_encoding='utf-8')
         soup = convert_br_to_newline(soup)
         return soup.get_text()

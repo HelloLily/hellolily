@@ -1,0 +1,11 @@
+.contact-list-link {
+    text-decoration: none;
+}
+
+.contact-list-link:hover {
+    text-decoration: none;
+}
+
+.contact-list-link:hover > .contact-list-link-name {
+    text-decoration: underline;
+}

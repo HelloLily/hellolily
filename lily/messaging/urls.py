@@ -1,15 +1,8 @@
 from django.conf.urls import patterns, url, include
 from django.conf import settings
 
-from .views import DashboardView
 
-
-urlpatterns = patterns('',
-    url(r'^$', DashboardView.as_view(), name='messaging_dashboard'),
-#     url(r'^sent/$', dashboard_view, name='messaging_sent'),
-#     url(r'^drafts/$', dashboard_view, name='messaging_drafts'),
-#     url(r'^archived/$', dashboard_view, name='messaging_archived'),
-)
+urlpatterns = patterns('',)
 
 for app in settings.MESSAGE_APPS:
     name = app.rpartition('.')[2]

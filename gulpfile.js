@@ -27,7 +27,8 @@ var config = {
     appJs: {
         src: [
             'frontend/app/**/module.js',
-            'frontend/app/**/*.js'
+            'frontend/app/**/*.js',
+            '!frontend/app/**/*Spec.js'
         ],
         minifiedFileName: 'app.min.js',
         devFileName: 'app.js'
@@ -36,6 +37,7 @@ var config = {
         src: [
             'frontend/vendor/**/*jquery.min.js',
             'frontend/vendor/**/*angular.js',
+            '!frontend/vendor/**/angular-mocks.js',
             'frontend/vendor/**/*.js'
         ],
         minifiedFileName: 'vendor.min.js',

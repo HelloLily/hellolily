@@ -83,8 +83,9 @@
                         </button>
                     </td>
                     <td ng-show="table.visibility.name">
-                        <a ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.name }}">
-                            {{ ::contact.name }}
+                        <a class="contact-list-link" ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.name }}">
+                            <i class="fa fa-user"></i>
+                            <span class="contact-list-link-name">{{ ::contact.name }}</span>
                         </a>
                     </td>
                     <td ng-show="table.visibility.contactInformation">

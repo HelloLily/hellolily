@@ -52,7 +52,7 @@
                 <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="accountForm.assigned_to">
                     <div class="col-md-4">
                         <ui-select ng-model="vm.account.assigned_to" theme="select2" class="form-control" name="assigned_to">
-                            <ui-select-match placeholder="Assign to...">{{ [$select.selected.first_name, $select.selected.preposition, $select.selected.last_name].join(' ') }}</ui-select-match>
+                            <ui-select-match placeholder="Assign to...">{{ $select.selected.name }}</ui-select-match>
                             <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {name: $select.search}">
                                 <div ng-bind-html="person.name | highlight: $select.search"></div>
                             </ui-select-choices>

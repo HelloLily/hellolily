@@ -10,6 +10,8 @@
 .settings/
 .DS_Store
 .idea/
+.tags
+.tags1
 dist-packages/
 
 celerybeat-schedule

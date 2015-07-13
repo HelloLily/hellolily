@@ -1,5 +1,4 @@
 import anyjson
-from bs4 import BeautifulSoup
 from email import Encoders
 from email.header import Header
 from email.mime.audio import MIMEAudio

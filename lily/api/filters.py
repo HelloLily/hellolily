@@ -28,10 +28,19 @@ class ElasticSearchFilter(BaseFilterBackend):
         if not search_terms:
             return queryset
 
-        search = LilySearch(
-            tenant_id=request.user.tenant_id,
-            model_type=model_type,
-        )
+        if 'limit' in request.query_params:
+            limit = request.query_params['limit']
+
+            search = LilySearch(
+                tenant_id=request.user.tenant_id,
+                model_type=model_type,
+                size=int(limit),
+            )
+        else:
+            search = LilySearch(
+                tenant_id=request.user.tenant_id,
+                model_type=model_type,
+            )
 
         search.filter_query(' AND '.join(search_terms))
         ids = [result['id'] for result in search.do_search(['id'])[0]]

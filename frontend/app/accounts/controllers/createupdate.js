@@ -74,8 +74,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             angular.forEach(userList, function (user) {
                 vm.people.push({
                     id: user.id,
-                    // $.grep removes values that are empty so the .join doesn't have double spaces
-                    name: $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ')
+                    // Convert to single string so searching with spaces becomes possible
+                    name: _getFullName(user)
                 });
             });
         });
@@ -109,12 +109,22 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 }
 
                 $scope.conf.pageTitleBig = vm.account.name;
+
+                if (vm.account.assigned_to) {
+                    // .name is used in the template, so set that property
+                    vm.account.assigned_to.name = _getFullName(vm.account.assigned_to);
+                }
             });
         } else {
             $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
             vm.account.assigned_to = vm.currentUser.id;
         }
+    }
+
+    function _getFullName(user) {
+        // $.grep removes values that are empty so the .join doesn't have double spaces
+        return $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ');
     }
 
     function loadDataproviderData(form) {

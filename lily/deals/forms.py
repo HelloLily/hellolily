@@ -117,6 +117,10 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'data-skip-uniform': 'true',
                 'data-uniformed': 'true',
             }),
+            'is_checked': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
         }
 
 

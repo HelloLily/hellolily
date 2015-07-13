@@ -39,6 +39,16 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (True, _('Yes')),
     )
 
+    BUSINESS_CHOICES = (
+        (False, _('Existing')),
+        (True, _('New')),
+    )
+
+    FEEDBACK_CHOICES = (
+        (False, _('Not yet')),
+        (True, _('Done')),
+    )
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=False)
@@ -52,8 +62,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
     notes = GenericRelation('notes.Note', content_type_field='content_type',
                             object_id_field='object_id', verbose_name='list of notes')
-    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=NO_YES_CHOICES)
-    new_business = models.BooleanField(default=False, verbose_name=_('new business'), choices=NO_YES_CHOICES)
+    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=FEEDBACK_CHOICES)
+    new_business = models.BooleanField(default=False, verbose_name=_('business'), choices=BUSINESS_CHOICES)
     is_checked = models.BooleanField(default=False, choices=NO_YES_CHOICES)
     quote_id = models.CharField(max_length=255, verbose_name=_('Freedom quote id'), blank=True)
 

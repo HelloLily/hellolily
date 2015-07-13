@@ -1,9 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER HelloLily
 
-RUN apt-get update
-
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     python2.7-dev \
     python-pip \
     postgresql \
@@ -11,12 +9,18 @@ RUN apt-get install -y \
     libxml2-dev \
     libxslt1-dev \
     libncurses5-dev \
-    rsync
+    rsync \
+    nodejs \
+    npm
 
 RUN useradd docker
 RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 WORKDIR /home/docker
 ENV HOME /home/docker
+
+# For our e2e tests we need protractor
+RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN npm install -g protractor
 
 ADD requirements.txt $HOME/requirements.txt
 RUN pip install -r $HOME/requirements.txt

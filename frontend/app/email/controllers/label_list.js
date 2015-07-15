@@ -9,21 +9,22 @@ function LabelListController ($filter, $interval, $scope, $state, EmailAccount, 
 
     vm.hasUnreadLabel = hasUnreadLabel;
     vm.unreadCountForLabel = unreadCountForLabel;
-    vm.clickYou = clickYou;
+    vm.clickAccountHeader = clickAccountHeader;
 
     activate();
 
     //////////
 
-    function clickYou(account) {
+    function activate() {
+        _startIntervalAccountInfo();
+    }
+
+    function clickAccountHeader(account) {
         if (!account) {
             $state.go('base.email.list', {labelId:'INBOX'});
         } else {
             $state.go('base.email.accountList', {labelId:'INBOX', accountId: account.id});
         }
-    }
-    function activate() {
-        _startIntervalAccountInfo();
     }
 
     function _startIntervalAccountInfo() {

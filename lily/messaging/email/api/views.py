@@ -83,8 +83,11 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
             Q(shared_with_users__id=request.user.pk)
         ).filter(is_deleted=False).distinct('id')
 
-        # Hide when we do not want to follow a email_account.
-        email_account_list = email_account_list.exclude(sharedemailconfig__is_hidden=True)
+        # Hide when we do not want to follow an email_account.
+        email_account_list = email_account_list.exclude(
+            sharedemailconfig__is_hidden=True,
+            sharedemailconfig__user=request.user,
+        )
 
         serializer = self.get_serializer(email_account_list, many=True)
 

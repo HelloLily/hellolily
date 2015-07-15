@@ -8,15 +8,16 @@
             <div class="label-text">Extra Website</div>
         </div>
     </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['websites-website-{{ $index }}'].$invalid }">
         <input class="form-control"
                id="id_website-{{ $index }}"
                maxlength="255"
-               name="website-{{ $index }}"
+               name="websites-website-{{ $index }}"
                placeholder="www.example.com"
                type="text"
                ng-model="website.website"
                ng-readonly="website.is_deleted">
+        <field-error form="form" field="websites-website" index="$index"></field-error>
     </div>
     <div class="col-md-2">
         <div class="col-md-1">

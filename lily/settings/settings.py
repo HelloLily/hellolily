@@ -554,7 +554,7 @@ GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
 
 #######################################################################################################################
-## Django rest settings                                                                                              ##
+# Django rest settings                                                                                                #
 #######################################################################################################################
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

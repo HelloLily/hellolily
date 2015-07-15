@@ -1,4 +1,6 @@
+import re
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 from lily.tags.models import Tag
 
@@ -48,6 +50,19 @@ class PhoneNumberSerializer(RelatedFieldSerializer):
     status_name = serializers.CharField(source='get_status_display', read_only=True)
     number = serializers.CharField(read_only=True)
 
+    def validate_raw_input(self, value):
+        phone_number = value
+
+        if phone_number:
+            phone_number = re.sub('[\+\(\)]', '', phone_number)
+
+            if not phone_number.isdigit():
+                raise ValidationError('Phone number may not contain any letters.')
+        else:
+            raise ValidationError('Phone number must be filled in.')
+
+        return value
+
     class Meta:
         model = PhoneNumber
         fields = ('id', 'status_name', 'number', 'raw_input', 'type', 'other_type', 'status',)
@@ -55,6 +70,8 @@ class PhoneNumberSerializer(RelatedFieldSerializer):
 
 class AddressSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
+    street = serializers.CharField(required=True)
+    street_number = serializers.IntegerField(required=True, error_messages={'invalid': 'Please enter a number.'})
 
     class Meta:
         model = Address

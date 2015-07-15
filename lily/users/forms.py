@@ -175,7 +175,6 @@ class RegistrationForm(HelloLilyForm):
         widget=PasswordConfirmationInput(confirm_with='password'),
     )
 
-
     first_name = forms.CharField(label=_('First name'), max_length=255)
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)

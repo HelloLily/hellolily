@@ -1,26 +1,26 @@
 <div class="form-group" ng-repeat="emailAddress in vm.emailAddresses">
-    <label for="id_email_address-email_addres-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Company email</label>
-    <!-- <label for="id_email_address-email_addres-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
+    <label for="id_email_addresses-email_addres-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Company email</label>
+    <!-- <label for="id_email_addresses-email_addres-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
         <div class="text-center">
             <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
             <div class="label-text">Company Email</div>
         </div>
     </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['email_addresses-email_address-{{ $index }}'].$invalid }">
         <input class="form-control"
-               id="id_email_address-email_address-{{ $index }}"
+               id="id_email_addresses-email_address-{{ $index }}"
                maxlength="255"
-               name="email_address-email_address-{{ $index }}"
+               name="email_addresses-email_address-{{ $index }}"
                placeholder="Email address"
-               type="email"
                ng-model="emailAddress.email_address"
                ng-readonly="emailAddress.is_deleted">
+        <field-error form="form" field="email_addresses-email_address" index="$index"></field-error>
     </div>
-    <label class="hidden control-label" for="id_email_address-is_primary-{{ $index }}">Primary email</label>
+    <label class="hidden control-label" for="id_email_addresses-is_primary-{{ $index }}">Primary email</label>
     <div class="col-md-4">
         <select class="form-control"
-                id="id_email_address-is_primary-{{ $index }}"
-                name="email_address-is_primary-{{ $index }}"
+                id="id_email_addresses-is_primary-{{ $index }}"
+                name="email_addresses-is_primary-{{ $index }}"
                 ng-model="emailAddress.status"
                 ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
                 ng-readonly="emailAddress.is_deleted"

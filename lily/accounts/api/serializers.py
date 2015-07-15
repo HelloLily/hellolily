@@ -1,17 +1,14 @@
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.query_utils import Q
+from lily.accounts.api.validators import HostnameValidator
 
-from lily.api.fields import LilyPrimaryKeyRelatedField
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.models import Contact
 from lily.socialmedia.api.serializers import SocialMediaSerializer
 from lily.users.api.serializers import LilyUserSerializer
-from lily.users.models import LilyUser
-from lily.utils.api.functions import update_related_fields, create_related_fields
+from lily.utils.api.utils import update_related_fields, create_related_fields
 from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer,
                                         RelatedModelSerializer, RelatedFieldSerializer, TagSerializer)
-from lily.utils.models.models import Address, EmailAddress, PhoneNumber
 from lily.tags.models import Tag
 
 from ..models import Account, Website
@@ -20,7 +17,7 @@ from ..validators import DuplicateAccountName
 
 class WebsiteSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
-    website = serializers.CharField(required=True, max_length=255)
+    website = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
 
     class Meta:
         model = Website
@@ -106,7 +103,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     email_addresses = EmailAddressSerializer(many=True, required=False)
     name = serializers.CharField(validators=[DuplicateAccountName()])
     phone_numbers = PhoneNumberSerializer(many=True, required=False)
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, required=False)
     websites = WebsiteSerializer(many=True, required=False)
 
     # Dict used when creating/updating the related fields of the account
@@ -139,13 +136,14 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        tags_data = validated_data.pop('tags')
+        tags_data = validated_data.pop('tags', {})
 
+        # We need to pop the related fields otherwise Account's __init__ won't accept it
         related_fields_data = {
-            'websites': validated_data.pop('websites'),
-            'email_addresses': validated_data.pop('email_addresses'),
-            'addresses': validated_data.pop('addresses'),
-            'phone_numbers': validated_data.pop('phone_numbers'),
+            'websites': validated_data.pop('websites', {}),
+            'email_addresses': validated_data.pop('email_addresses', {}),
+            'addresses': validated_data.pop('addresses', {}),
+            'phone_numbers': validated_data.pop('phone_numbers', {}),
         }
 
         # TODO: Make sure that errors in related fields raise an error and don't save the account
@@ -166,7 +164,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         return account
 
     def update(self, instance, validated_data):
-        tags_data = validated_data.pop('tags')
+        tags_data = validated_data.pop('tags', {})
 
         # Create/update/delete related fields
         update_related_fields(instance, self.related_fields, validated_data)

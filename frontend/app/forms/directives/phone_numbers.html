@@ -8,15 +8,16 @@
             <div class="label-text">Phone Number</div>
         </div>
     </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['phone_numbers-raw_input-{{ $index }}'].$invalid }">
         <input class="form-control"
-               id="id_phone_numbers-phone_number-{{ $index }}"
+               id="id_phone_numbers-raw_input-{{ $index }}"
                maxlength="255"
-               name="phone_numbers-phone_number-{{ $index }}"
+               name="phone_numbers-raw_input-{{ $index }}"
                placeholder="Phone number"
                type="text"
                ng-model="phoneNumber.raw_input"
                ng-readonly="phoneNumber.is_deleted">
+        <field-error form="form" field="phone_numbers-raw_input" index="$index"></field-error>
     </div>
     <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone number type</label>
     <div class="col-md-4">

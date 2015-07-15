@@ -3,6 +3,7 @@ angular.module('app.forms.directives').directive('formPhoneNumbers', formPhoneNu
 function formPhoneNumbers() {
     return {
         restrict: 'E',
+        require: '^form',
         scope: {
             phoneNumbers: '=',
             addRelatedField: '&',
@@ -11,7 +12,11 @@ function formPhoneNumbers() {
         templateUrl: 'forms/directives/phone_numbers.html',
         controller: FormPhoneNumbersController,
         controllerAs: 'vm',
-        bindToController: true
+        bindToController: true,
+        link: function (scope, element, attrs, form) {
+            // Set parent form on the scope
+            scope.form = form;
+        }
     }
 }
 

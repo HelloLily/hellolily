@@ -479,7 +479,7 @@
             $(cf.templateAttachmentIds).val(newAttachmentIds);
         },
 
-        setSuccesURL: function(previousState){
+        setSuccesURL: function(previousState) {
             if(previousState != null){
                 $("input[name='success_url']").val(previousState);
             }

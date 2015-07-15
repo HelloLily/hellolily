@@ -97,7 +97,6 @@ class CallerName(APIView):
 
 
 class RelatedModelViewSet(viewsets.ModelViewSet):
-
     related_model = None
 
     def list(self, request, object_pk=None):

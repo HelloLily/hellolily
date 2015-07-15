@@ -62,19 +62,34 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
 
     function archiveMessage() {
         EmailMessage.archive({id: vm.message.id}).$promise.then(function () {
-            window.location = $scope.previousState;
+            if ($scope.previousState) {
+                window.location = $scope.previousState;
+            }
+            else {
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
+            }
         });
     }
 
     function trashMessage() {
         EmailMessage.trash({id: vm.message.id}).$promise.then(function () {
-            window.location = $scope.previousState;
+            if ($scope.previousState) {
+                window.location = $scope.previousState;
+            }
+            else {
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
+            }
         });
     }
 
     function deleteMessage () {
         EmailMessage.delete({id: vm.message.id}).$promise.then(function () {
-            window.location = $scope.previousState;
+            if ($scope.previousState) {
+                window.location = $scope.previousState;
+            }
+            else {
+                $state.go('base.email.list', { 'labelId': 'INBOX' });
+            }
         });
     }
 

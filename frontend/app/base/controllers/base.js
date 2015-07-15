@@ -53,7 +53,7 @@ function BaseController ($scope, $state, Notifications) {
         $scope.loadNotifications();
     }
 
-    function _setPreviousState(event, toState, toParams, fromState, fromParams){
+    function _setPreviousState(event, toState, toParams, fromState, fromParams) {
         $scope.previousState = $state.href(fromState, fromParams);
     }
 }

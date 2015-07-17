@@ -1,0 +1,33 @@
+/* BEGIN Login screen fixes */
+@media (min-width: 992px) {
+    .page-header-fixed .container {
+        margin-top: 100px;
+    }
+}
+
+@media (max-width: 991px) {
+    .page-header-fixed .container {
+        margin-top: 25px;
+    }
+}
+
+.text-inline-block {
+    display: inline-block;
+}
+
+.no-padding-left {
+    padding-left: 0;
+}
+
+.display-inline-block {
+    display: inline-block;
+}
+
+.margin-bottom-15 {
+    margin-bottom: 15px;
+}
+
+#login-form .form-group ~ .form-group {
+    display: inline-block;
+}
+/* END Login scherm fixes */

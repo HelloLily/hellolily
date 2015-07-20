@@ -1,0 +1,19 @@
+#case-status {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.label-sm {
+    padding: 4px 6px !important;
+}
+
+td .label-sm {
+    display: block;
+}
+
+.assign-me-btn {
+    float: right;
+    &:focus, &:hover {
+        text-decoration: none;
+    }
+}

@@ -18,7 +18,6 @@ celerybeat-schedule
 celeryev.pid
 
 lily/files/
-lily/static/i18n/
-lily/static/build/
+lily/static/
 node_modules/
 Procfile.local

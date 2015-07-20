@@ -1,0 +1,13 @@
+.list-link {
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+    > .list-link-name {
+      text-decoration: underline;
+    }
+  }
+}
+
+.fa + .list-link-name {
+  margin-left: 5px;
+}

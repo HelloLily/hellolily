@@ -27,7 +27,7 @@ class MediaFilesStorage(S3BotoStorage):
         super(MediaFilesStorage, self).__init__(*args, **kwargs)
 
 
-class StaticFilesStorage(PipelineMixin, CachedFilesMixin, S3BotoStorage):
+class StaticFilesStorage(CachedFilesMixin, S3BotoStorage):
     """
     The storage class used to concatenate, minify and  upload files to the static bucket on amazon.
     """

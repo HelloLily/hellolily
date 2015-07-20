@@ -1,4 +1,4 @@
-{% load compressed statici18n i18n static %}
+{% load i18n static %}
 
 {% verbatim %}
 <!DOCTYPE html>
@@ -19,11 +19,13 @@
         <!-- BEGIN GLOBAL MANDATORY STYLES -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css">
         {% endverbatim %}
-        {% compressed_css 'vendor' %}
-        {% compressed_css 'app' %}
+
+        <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'app.css' %}" rel="stylesheet" type="text/css">
+
         {% verbatim %}
         <!-- END GLOBAL STYLES -->
-        {% endverbatim %}<link rel="shortcut icon" href="{% static 'lily/images/core/favicon.ico' %}" />{% verbatim %}
+        {% endverbatim %}<link rel="shortcut icon" href="{% static 'images/core/favicon.ico' %}" />{% verbatim %}
     </head>
     <!-- END HEAD -->
     <!-- BEGIN BODY -->
@@ -85,16 +87,13 @@
 
         <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
         <!--[if lt IE 9]>
-        {% endverbatim %}{% compressed_js 'global-ie' %}{% verbatim %}
+        <script type="text/javascript" src="{% static 'vendor/ie-fixes.js' %}" charset="utf-8"></script>
         <![endif]-->
         {% endverbatim %}
-        {% compressed_js 'vendor' %}
-        {% compressed_js 'global' %}
-        {% compressed_js 'templates' %}
-        {% compressed_js 'app' %}
-        {% if DEBUG %}
-            <script src="http://localhost:35729/livereload.js?snipver=1"></script>
-        {% endif %}
+        <script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'templates.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'analytics.js' %}" charset="utf-8"></script>
         <script>
             var currentUser = {
                 id: '{{ user.id }}',

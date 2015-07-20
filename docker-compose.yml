@@ -32,13 +32,6 @@ web:
     - worker1
     - worker2
     - selenium
-gulp:
-  build: Dockers/gulp
-  volumes:
-    - .:/home/docker/hellolily
-  working_dir: /home/docker/hellolily
-  ports:
-    - 35723:35729
 rabbit:
   build: Dockers/rabbit
 beat:

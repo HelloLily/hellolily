@@ -53,7 +53,7 @@ urlpatterns = patterns(
 
     (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 
-    (r'^favicon\.ico$', RedirectView.as_view(url=settings.STATIC_URL + 'lily/images/core/favicon.ico')),
+    (r'^favicon\.ico$', RedirectView.as_view(url=settings.STATIC_URL + 'images/core/favicon.ico')),
 )
 
 if settings.DEBUG:

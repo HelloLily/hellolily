@@ -101,7 +101,7 @@ if DEBUG:
     JQUERY_URL = ''  # Debug toolbar
     COLLECTFAST_ENABLED = False
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 else:
     DEFAULT_FILE_STORAGE = 'lily.pipeline.filestorages.MediaFilesStorage'
@@ -130,9 +130,6 @@ STATICFILES_DIRS = (
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'pipeline.finders.PipelineFinder',
-    'pipeline.finders.CachedFileFinder',
 )
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -149,27 +146,7 @@ AWS_HEADERS = {
     'Expires': expires,
 }
 
-PIPELINE_CSS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
-PIPELINE_YUI_BINARY = 'yuicompressor'
-
-PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.closure.ClosureCompressor'
-PIPELINE_CLOSURE_BINARY = 'closure'
-PIPELINE_CLOSURE_ARGUMENTS = '--language_in ECMASCRIPT5'
-
-PIPELINE_DISABLE_WRAPPER = True
-
-PIPELINE_COMPILERS = (
-    'pipeline.compilers.sass.SASSCompiler',
-)
-PIPELINE_SASS_BINARY = '/usr/bin/env sassc'
-PIPELINE_SASS_ARGUMENTS = '--output-style=expanded'
-
 COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
-
-try:
-    from lily.pipeline.bundles import *
-except ImportError:
-    raise Exception("Missing pipeline bundles: define your static bundles in pipeline/bundles.py")
 
 #######################################################################################################################
 # LOGIN SETTINGS                                                                                                      #
@@ -275,12 +252,10 @@ INSTALLED_APPS = (
     'djangoformsetjs',
     'easy_thumbnails',
     'collectfast',
-    'pipeline',
     'protractor',
     'templated_email',
     'storages',
     'taskmonitor',
-    'injector',
     'elasticutils',
     'statici18n',
     'timezone_field',

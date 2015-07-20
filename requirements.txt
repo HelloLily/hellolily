@@ -68,9 +68,9 @@ django-storages==1.1.8
 Pillow==2.7.0  # Old version is: 2.6.1
 easy-thumbnails==2.2  # Old version is: 1.5
 
+django-pipeline==1.5.2
 collectfast==0.2.1
 
-django-js-variable-injector==1.1.1
 django-statici18n==1.1.1  # Old version is: 1.1
 
 django-jquery-js==2.0.3

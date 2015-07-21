@@ -1,6 +1,18 @@
 <a name"newest-release"></a>
 ### Newest Release
 #### Features
+* 
+
+<a name"0.4.30"></a>
+### 0.4.30 (2015-07-21)
+* Gulp improvements
+
+#### Bug Fixes
+* Inbox is not longer hidden if someone hides it
+
+<a name"0.4.29"></a>
+### 0.4.29 (2015-07-13)
+#### Features
 * Make possible to limit search in api
 * improved deal form so that choices are more obvious
 * e2e & frontend testing

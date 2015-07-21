@@ -16,6 +16,7 @@
     "gulp-concat": "^2.5.2",
     "gulp-imagemin": "^2.3.0",
     "gulp-livereload": "^3.8.0",
+    "gulp-css-rebase-urls": "^0.0.5",
     "gulp-remember": "^0.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.1",

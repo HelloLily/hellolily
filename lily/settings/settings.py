@@ -303,7 +303,6 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
-EMAIL_CONFIRM_TIMEOUT_DAYS = os.environ.get('EMAIL_CONFIRM_TIMEOUT_DAYS', 7)
 
 BLACKLISTED_EMAIL_TAGS = [
     'audio',

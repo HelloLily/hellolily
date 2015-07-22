@@ -1,19 +1,14 @@
-import anyjson
 from django.contrib import messages
-from django.db.models.query_utils import Q
-from django.http import HttpResponse
-from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView
 
 from lily.accounts.models import Account
 from lily.search.lily_search import LilySearch
-from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
 
 from .forms import CreateUpdateContactForm
-from .models import Contact, Function
+from .models import Contact
 
 
 class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
@@ -192,39 +187,3 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
         """
         # return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
         return '/#/contacts/%s' % self.object.pk
-
-
-class DeleteContactView(LoginRequiredMixin, DeleteView):
-    """
-    Delete an instance and all instances of m2m relationships.
-    """
-    model = Contact
-    success_url = '/#/contacts'
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Overloading super().delete to remove the related models and the instance itself.
-        """
-        self.object = self.get_object()
-        self.object.email_addresses.remove()
-        self.object.addresses.remove()
-        self.object.phone_numbers.remove()
-        self.object.tags.remove()
-
-        functions = Function.objects.filter(contact=self.object)
-        functions.delete()
-
-        # Show delete message
-        messages.success(self.request, _('%s (Contact) has been deleted.') % self.object.full_name())
-
-        self.object.delete()
-
-        redirect_url = self.get_success_url()
-        if is_ajax(request):
-            response = anyjson.serialize({
-                'error': False,
-                'redirect_url': redirect_url
-            })
-            return HttpResponse(response, content_type='application/json')
-
-        return redirect(redirect_url)

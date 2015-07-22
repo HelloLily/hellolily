@@ -65,7 +65,7 @@ def convert_html_to_text(html, keep_linebreaks=False):
         return ''
 
     html = html.replace('&nbsp;', ' ')
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'lxml')
 
     # replace links with plain text, so that no info get lost
     soup = convert_links_to_text(soup)

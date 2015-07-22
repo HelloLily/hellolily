@@ -28,7 +28,7 @@ psycopg2==2.6.1
 #######################################################
 
 django-activelink==0.4
-django-redis-cache==1.1.0
+django-redis-cache==1.5.2
 django-templated-email==0.4.9
 hiredis==0.2.0
 Markdown==2.6.2 # markdown for inline docstrings on API
@@ -41,7 +41,7 @@ redis==2.10.3  # Old version is: 2.9.1
 
 django-bootstrap3==6.1.0
 django-bootstrap3-datetimepicker==2.2.3
-django-braces==1.8.0
+django-braces==1.8.1
 django-extra-views==0.7.1
 django-form-utils==1.0.2  # Old version is: 0.2.0  # various form tools, we use it for fieldsets
 django-formset-js==0.4.3
@@ -102,4 +102,4 @@ pycrypto==2.6.1  # Old version is: 2.6
 Pympler==0.4.1
 requests==2.7.0
 unicodecsv==0.13.0
-urllib3==1.10.4
+urllib3==1.11

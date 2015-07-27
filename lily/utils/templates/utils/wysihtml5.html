@@ -42,7 +42,7 @@
         </div>
     </div>
 
-    <div class="col-md-12" style="padding-top: 10px; padding-bottom: 10px;">
+    <div style="padding: 10px;">
         <textarea {% for key, value in attrs.items %} {{ key }}="{{ value }}"{% endfor %}>{{ value|default:"" }}</textarea>
     </div>
 </div>

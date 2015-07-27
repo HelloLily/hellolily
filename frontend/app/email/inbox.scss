@@ -120,6 +120,14 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
   width: 100%;
 }
 
+.inbox-compose .inbox-form-group>label {
+  width: 126px;
+}
+
+.inbox-compose .controls {
+  margin-left: 148px;
+}
+
 .inbox-form-group.email-template-attachments {
   border: 1px solid #EEE;
   padding-top: 10px;
@@ -266,4 +274,8 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     top: 50%;
     padding: 10px;
   }
+}
+
+#attachments .form-group {
+  margin-bottom: 0;
 }

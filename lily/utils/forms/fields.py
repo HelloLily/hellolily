@@ -1,7 +1,6 @@
 from django.forms import Field, CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from .validators import HostnameValidator
 from .widgets import TagInput, FormSetWidget
 
 
@@ -78,10 +77,3 @@ class FormSetField(Field):
         formset.related_name = self.related_name or attname
         formset.related_instance = instance
         formset.save()
-
-
-class HostnameField(CharField):
-    """
-    A field which has the same validation as a URLField, but doesn't require a scheme (eg. 'http://')
-    """
-    default_validators = [HostnameValidator()]

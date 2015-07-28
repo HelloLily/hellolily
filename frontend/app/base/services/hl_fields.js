@@ -26,13 +26,14 @@ function HLFields () {
                             cleanedValues.push(fieldValue);
                         }
 
-                        if (fieldValue.city || fieldValue.postal_code ||
-                                fieldValue.street || fieldValue.street_number) {
+                        if (fieldValue.city || fieldValue.postal_code || fieldValue.street || fieldValue.street_number) {
                             cleanedValues.push(fieldValue);
                         }
 
                         if (fieldValue.website) {
-                            cleanedValues.push(fieldValue);
+                            if (!fieldValue.is_primary || (fieldValue.is_primary && object.primaryWebsite)) {
+                                cleanedValues.push(fieldValue);
+                            }
                         }
                     }
                 });

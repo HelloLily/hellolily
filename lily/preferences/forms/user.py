@@ -156,22 +156,22 @@ class UserProfileForm(HelloLilyModelForm):
                     'first_name',
                     'preposition',
                     'last_name',
-                    ],
-                }),
+                ],
+            }),
             (_('Contact information'), {
                 'fields': [
                     'phone_number',
                     'twitter',
                     'linkedin',
-                    ],
-                }),
+                ],
+            }),
             (_('Language and time'), {
                 'fields': [
                     'language',
                     'timezone',
-                    ],
-                }),
-            ]
+                ],
+            }),
+        ]
 
 
 class UserAccountForm(HelloLilyModelForm):

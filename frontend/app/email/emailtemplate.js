@@ -11,7 +11,10 @@
             attachmentUndoDeleteButton: '.email-template-attachments [data-formset-undo-delete]',
             templateAttachmentName: '.template-attachment-name',
             wysiHtmlToolbar: '#wysihtml5-toolbar',
-            submitButton: 'button[type="submit"]'
+            submitButton: 'button[type="submit"]',
+            parameterChoices: {},
+            variablePreviewButton: '#variable_preview_button',
+            customVariablePreviewText: ''
         },
 
         init: function (config) {
@@ -23,6 +26,32 @@
             }
 
             self.initListeners();
+
+            $.get('api/messaging/email/templatevariable', function (data) {
+                if (!jQuery.isEmptyObject(data.default)) {
+                    self.config.parameterChoices = data['default'];
+                    self.config.parameterChoices['Custom variables'] = {};
+
+                    if (data.custom.length) {
+                        for (var i = 0; i < data.custom.length; i++) {
+                            if (data.custom[i].is_public) {
+                                var customVariableName = ['custom', data.custom[i].name.toLowerCase(), 'public'].join('.');
+                                self.config.parameterChoices['Custom variables'][customVariableName] = {
+                                    nameDisplay: data.custom[i].name + ' (public)',
+                                    previewValue: data.custom[i].text
+                                };
+                            } else {
+                                var customVariableName = ['custom', data.custom[i].name.toLowerCase()].join('.');
+                                self.config.parameterChoices['Custom variables'][customVariableName] = {
+                                    nameDisplay: data.custom[i].name,
+                                    previewValue: data.custom[i].text
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+
             self.updateVariableOptions();
         },
 
@@ -33,6 +62,7 @@
             $('body')
                 .on('click', cf.insertButton, function (event) {
                     var templateVariable = $(cf.templateVariableField).html();
+
                     HLInbox.getEditor().focus();
                     HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
 
@@ -61,6 +91,10 @@
                 })
                 .on('click', cf.submitButton, function (event) {
                     self.handleFormSubmit(this, event);
+                })
+                .on('click', cf.variablePreviewButton, function (event) {
+                    event.preventDefault();
+                    bootbox.alert(cf.customVariablePreviewText);
                 });
 
             // Set heading properly after change
@@ -73,60 +107,52 @@
         },
 
         updateVariableOptions: function () {
+            var self = this;
             var valueSelect = $(this.config.valuesField);
             var category = $(this.config.variablesField).val();
 
             valueSelect.find('option').not('option[value=""]').remove();
             valueSelect.change();
 
-            // TODO: LILY-953: Change this to API endpoint
-            var parameterChoices = {
-                "Contact": {
-                    "contact.full_name": "Full name",
-                    "contact.work_phone": "Work phone",
-                    "contact.last_name": "Last name",
-                    "contact.twitter": "Twitter",
-                    "contact.mobile_phone": "Mobile phone",
-                    "contact.first_name": "First name",
-                    "contact.linkedin": "Linkedin",
-                    "contact.preposition": "Preposition",
-                    "contact.primary_email": "Primary email",
-                    "contact.account_city": "Account city"
-                },
-                "User": {
-                    "user.full_name": "Full name",
-                    "user.first_name": "First name",
-                    "user.phone_number": "Phone number",
-                    "user.preposition": "Preposition",
-                    "user.linkedin": "Linkedin",
-                    "user.twitter": "Twitter",
-                    "user.current_email_address": "Current email address",
-                    "user.last_name": "Last name",
-                    "user.user_group": "User group"
-                },
-                "Account": {
-                    "account.work_phone": "Work phone",
-                    "account.name": "Name",
-                    "account.any_email_address": "Any email address"
-                }
-            };
-
             if (category !== '') {
-                $.each(parameterChoices[category], function(parameter, label) {
-                    valueSelect.append($("<option>", {
-                        value: parameter,
-                        text: label
-                    }));
-                });
+                if (category == 'Custom variables') {
+                    $.each(self.config.parameterChoices[category], function (parameter, variableValues) {
+                        valueSelect.append($('<option>', {
+                            value: parameter,
+                            text: variableValues.nameDisplay
+                        }));
+                    });
+                } else {
+                    $.each(self.config.parameterChoices[category], function (parameter, label) {
+                        valueSelect.append($('<option>', {
+                            value: parameter,
+                            text: label
+                        }));
+                    });
+                }
             }
         },
 
         handleValueChange: function (valuesField) {
-            var templateVariableField = $(this.config.templateVariableField);
-            var templateVariable = $(valuesField).val();
+            var cf = this.config;
 
-            if (templateVariable !== ''){
-                templateVariableField.html(this.config.openVariable + ' ' + templateVariable + ' ' + this.config.closeVariable)
+            var templateVariableField = $(cf.templateVariableField);
+            var templateVariable = $(valuesField).val();
+            var category = $(this.config.variablesField).val();
+
+            if (templateVariable !== '') {
+                if (category != 'Custom variables') {
+                    $(cf.variablePreviewButton).hide();
+
+                    templateVariableField.html(cf.openVariable + ' ' + templateVariable + ' ' + cf.closeVariable);
+                }
+                else {
+                    $(cf.variablePreviewButton).show();
+
+                    this.config.customVariablePreviewText = cf.parameterChoices['Custom variables'][templateVariable].previewValue;
+
+                    templateVariableField.html(cf.openVariable + ' ' + templateVariable + ' ' + cf.closeVariable);
+                }
             } else {
                 templateVariableField.html('');
             }
@@ -195,7 +221,7 @@
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            $('#id_body_html').val($containerDiv[0].innerHTML);
+            $('#' + HLInbox.config.textEditorId).val($containerDiv[0].innerHTML);
 
             var $form = $($(submitButton).closest('form'));
 

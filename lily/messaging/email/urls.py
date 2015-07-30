@@ -4,7 +4,8 @@ from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailT
                     EmailTemplateGetDefaultView, EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView,
                     CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView,
                     EmailTemplateDeleteView, DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView,
-                    EmailMessageForwardView, EmailMessageReplyAllView)
+                    EmailMessageForwardView, EmailMessageReplyAllView, CreateTemplateVariableView,
+                    UpdateTemplateVariableView)
 
 
 urlpatterns = patterns(
@@ -28,6 +29,8 @@ urlpatterns = patterns(
     url(r'^templates/get-default/$', EmailTemplateGetDefaultView.as_view(), name='messaging_email_template_get_default'),
     url(r'^templates/detail/(?P<template_id>[\d-]+)/$', DetailEmailTemplateView.as_view(), name='messaging_email_get_template'),
     url(r'^templates/detail/$', DetailEmailTemplateView.as_view(), name='messaging_email_get_template'),
+    url(r'^templatevariables/create/$', CreateTemplateVariableView.as_view(), name='messaging_email_template_variables_create'),
+    url(r'^templatevariables/update/(?P<pk>[\d-]+)/$', UpdateTemplateVariableView.as_view(), name='messaging_email_template_variables_update'),
 
     # Compose views (create draft, reply, forward, preview)
     url(r'^compose/$', EmailMessageSendView.as_view(), name='messaging_email_compose'),

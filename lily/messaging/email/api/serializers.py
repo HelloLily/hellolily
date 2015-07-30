@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
-                             SharedEmailConfig)
+                             SharedEmailConfig, TemplateVariable)
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
@@ -86,3 +86,18 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             'body_html',
             'default_for',
         )
+
+
+class TemplateVariableSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TemplateVariable
+
+        fields = (
+            'id',
+            'name',
+            'text',
+            'is_public',
+            'owner',
+        )
+

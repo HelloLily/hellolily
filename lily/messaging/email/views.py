@@ -1,4 +1,5 @@
 from itertools import chain
+import re
 import anyjson
 import logging
 import mimetypes
@@ -14,6 +15,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
+from django.template.defaultfilters import linebreaksbr
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
@@ -30,9 +32,9 @@ from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
 from .forms import (EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm, EmailTemplateFileForm,
-                    EmailTemplateSetDefaultForm, ComposeEmailForm)
+                    EmailTemplateSetDefaultForm, ComposeEmailForm, CreateUpdateTemplateVariableForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
-                            EmailOutboxMessage, EmailOutboxAttachment)
+                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable)
 from .utils import (create_account, get_attachment_filename_from_url, get_email_parameter_choices,
                     create_recipients, render_email_body, replace_cid_in_html, create_reply_body_header)
 from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
@@ -753,7 +755,7 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
         return message
 
     def get_success_url(self):
-        return '/#/settings/emailtemplates'
+        return '/#/preferences/emailtemplates'
 
 
 class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
@@ -818,6 +820,34 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             else:
                 lookup.get('user').current_email_address = emailaccount.email_address
 
+        # Setup regex to find custom variables
+        search_regex = '\[\[ custom\.(.*?) \]\]'
+        # Find all occurences
+        search_result = re.findall(search_regex, template.body_html)
+
+        if search_result:
+            for custom_variable in search_result:
+                public = None
+
+                try:
+                    # Try to split to see if it's a public variable
+                    variable, public = custom_variable.split('.')
+                except ValueError:
+                    # Not a public variable, so .split raises an error
+                    variable = custom_variable
+
+                if public:
+                    template_variable = TemplateVariable.objects.filter(name__iexact=variable, is_public=True)
+                else:
+                    template_variable = TemplateVariable.objects.filter(name__iexact=variable, owner=get_current_user())
+
+                if template_variable:
+                    # find = '\[\[ custom.' + custom_variable + '(\s)?\]\]'
+                    find = re.compile('\[\[ custom\.' + custom_variable + ' \]\]')
+                    replace = template_variable.first().text
+
+                    template.body_html = re.sub(find, replace, template.body_html, 1)
+
         # Ugly hack to make parsing of new template brackets style work
         parsed_template = Template(template.body_html.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
         parsed_subject = Template(template.subject.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
@@ -838,3 +868,59 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             'template_subject': parsed_subject,
             'attachments': attachments,
         }), content_type='application/json')
+
+
+class CreateUpdateTemplateVariableMixin(LoginRequiredMixin):
+    form_class = CreateUpdateTemplateVariableForm
+    model = TemplateVariable
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(CreateUpdateTemplateVariableMixin, self).get_context_data(**kwargs)
+        kwargs.update({
+            'parameter_choices': anyjson.serialize(get_email_parameter_choices()),
+            'back_url': self.get_success_url(),
+        })
+        return kwargs
+
+    def get_success_url(self):
+        """
+        Return to template variable list after creating or updating a template variable.
+        """
+        return '/#/preferences/templatevariables'
+
+
+class CreateTemplateVariableView(CreateUpdateTemplateVariableMixin, CreateView):
+    def form_valid(self, form):
+        # Saves instance
+        response = super(CreateTemplateVariableView, self).form_valid(form)
+
+        # Show save messages
+        message = _('%s has been created') % self.object.name
+        messages.success(self.request, message)
+
+        return response
+
+
+class UpdateTemplateVariableView(CreateUpdateTemplateVariableMixin, UpdateView):
+    def get_object(self, queryset=None):
+        """
+        A user is only able to edit accounts he owns.
+        """
+        template_variable = super(UpdateTemplateVariableView, self).get_object(queryset=queryset)
+        if not template_variable.owner == self.request.user and not template_variable.is_public:
+            raise Http404()
+
+        return template_variable
+
+    def form_valid(self, form):
+        # Saves instance
+        response = super(UpdateTemplateVariableView, self).form_valid(form)
+
+        # Show save messages
+        message = _('%s has been updated') % self.object.name
+        messages.success(self.request, message)
+
+        return response

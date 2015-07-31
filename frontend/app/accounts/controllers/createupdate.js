@@ -190,7 +190,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             // If there's an ID set it means we're dealing with an existing account, so update it
             vm.account.$update(function () {
                 toastr.success('I\'ve updated the account for you!', 'Done');
-                $state.go('base.accounts.detail', {id: vm.account.id});
+                $state.go('base.accounts.detail', {id: vm.account.id}, {reload:true});
             }, function (response) {
                 _handleBadResponse(response, form);
             })

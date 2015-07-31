@@ -13,7 +13,7 @@
                         <label>Case name:</label> {{ ::vm.case.subject }}
                     </li>
                     <li>
-                        <label>Created:</label> {{ ::vm.case.created | date:"d MMM y H:ss" }}
+                        <label>Created:</label> {{ ::vm.case.created | date:"dd MMMM y H:mm" }}
                     </li>
                     <li ng-show="::vm.case.expires">
                         <label>Expires:</label><a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!"> {{ vm.case.expires | date:"d MMM y" }} <i class="fa fa-history"></i></a>

@@ -122,7 +122,7 @@
             <td class="view-message" ng-if="vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
                 {{ message.subject }}
             </td>
-            <td class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
+            <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
                 {{ message.sent_date | relativeDate }}
             </td>
         </tr>

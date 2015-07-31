@@ -26,8 +26,9 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             url=reverse_lazy('search_view'),
             filter_on=AccountMapping.get_mapping_type_name(),
             model=Account,
-            attrs= {
-                'class': 'select2ajax'
+            attrs={
+                'class': 'select2ajax',
+                'placeholder': _('Select one or more account(s)'),
             }
         )
     )

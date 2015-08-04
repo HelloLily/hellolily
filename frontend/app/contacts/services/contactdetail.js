@@ -35,6 +35,7 @@ function ContactDetail ($resource, HLObjectDetails) {
                             contacts.push(contact);
                         });
                     }
+
                     return contacts;
                 }
             }

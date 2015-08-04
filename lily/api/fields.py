@@ -1,4 +1,3 @@
-from django.db.models.query import QuerySet
 from django.utils import six
 from rest_framework import serializers
 from rest_framework.compat import OrderedDict

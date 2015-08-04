@@ -1,5 +1,5 @@
 <div class="form-group" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Phone Number</label>
+    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Phone number</label>
     <!-- <label for="id_phone_numbers-type-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
         <div class="text-center">
             <div class="pre">
@@ -8,17 +8,18 @@
             <div class="label-text">Phone Number</div>
         </div>
     </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first }">
+    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['phone_numbers-raw_input-{{ $index }}'].$invalid }">
         <input class="form-control"
-               id="id_phone_numbers-phone_number-{{ $index }}"
+               id="id_phone_numbers-raw_input-{{ $index }}"
                maxlength="255"
-               name="phone_numbers-phone_number-{{ $index }}"
+               name="phone_numbers-raw_input-{{ $index }}"
                placeholder="Phone number"
                type="text"
                ng-model="phoneNumber.raw_input"
                ng-readonly="phoneNumber.is_deleted">
+        <field-error form="form" field="phone_numbers-raw_input" index="$index"></field-error>
     </div>
-    <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone Number Type</label>
+    <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone number type</label>
     <div class="col-md-4">
         <select class="form-control"
                 id="id_phone_numbers-type-{{ $index }}"

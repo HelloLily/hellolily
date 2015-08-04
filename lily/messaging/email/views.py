@@ -61,7 +61,7 @@ class SetupEmailAuth(LoginRequiredMixin, View):
 
 class OAuth2Callback(LoginRequiredMixin, View):
     def get(self, request):
-        if not validate_token(settings.SECRET_KEY, request.GET.get('state'), request.user.pk):
+        if not validate_token(settings.SECRET_KEY, str(request.GET.get('state')), request.user.pk):
             return HttpResponseBadRequest()
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
@@ -175,7 +175,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         email_draft = form.cleaned_data
         email_account = email_draft['send_from']
-        soup = BeautifulSoup(email_draft['body_html'])
+        soup = BeautifulSoup(email_draft['body_html'], 'lxml', from_encoding='utf-8')
         mapped_attachments = soup.findAll('img', {'cid': lambda cid: cid})
 
         if 'tasks' not in self.request.session:

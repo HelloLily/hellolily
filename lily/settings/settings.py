@@ -130,6 +130,7 @@ STATICFILES_DIRS = (
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -183,9 +184,9 @@ if 'test' in sys.argv:
     SSLIFY_DISABLE = True
 
 if DEBUG:
+    SSLIFY_DISABLE = True
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
-        # 'lily.utils.middleware.PrettifyMiddleware', # Nice for debugging html source, but places whitespace in textareas
     )
 
 #######################################################################################################################
@@ -249,8 +250,6 @@ INSTALLED_APPS = (
     'activelink',
     'bootstrap3',
     'django_extensions',
-    'djangoformsetjs',
-    'easy_thumbnails',
     'collectfast',
     'protractor',
     'templated_email',
@@ -261,6 +260,7 @@ INSTALLED_APPS = (
     'timezone_field',
     'django_nose',
     'django_password_strength',
+    'djangoformsetjs',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -304,7 +304,6 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
-EMAIL_CONFIRM_TIMEOUT_DAYS = os.environ.get('EMAIL_CONFIRM_TIMEOUT_DAYS', 7)
 
 BLACKLISTED_EMAIL_TAGS = [
     'audio',
@@ -556,7 +555,7 @@ GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
 
 #######################################################################################################################
-## Django rest settings                                                                                              ##
+# Django rest settings                                                                                                #
 #######################################################################################################################
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -601,10 +600,6 @@ INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] + (['192.168.%d.%d' % (i, j) for i 
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
-
-# easy-thumbnails
-THUMBNAIL_DEBUG = boolean(os.environ.get('THUMBNAIL_DEBUG', 0))
-THUMBNAIL_QUALITY = os.environ.get('THUMBNAIL_QUALITY', 85)
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [

@@ -8,13 +8,13 @@
 ### Development                                     ###
 #######################################################
 
-django-debug-toolbar==1.2.2  # Old version is: 0.9.4
+django-debug-toolbar==1.3.2  # Old version is: 0.9.4
 django-template-debug==0.3.5  # Old version is: 0.3.3
 django-debug-toolbar-template-timings==0.6.4
 
-ipython==2.3.1  # Old version is: 2.0.0
-ipdb==0.8
+ipython==3.2.0  # Old version is: 2.0.0
+ipdb==0.8.1
 readline==6.2.4.1
 gnureadline==6.3.3
-werkzeug==0.9.6
+werkzeug==0.10.4
 flake8==2.4.1

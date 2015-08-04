@@ -49,8 +49,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'user'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, user) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms', 'user'];
+function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms, user) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -144,7 +144,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         vm.account.removeRelatedField(field, index, remove);
     }
 
-    function saveAccount() {
+    function saveAccount(form) {
         var primaryWebsite = vm.account.primaryWebsite;
         // Make sure it's not an empty website being added
         if (primaryWebsite && primaryWebsite != 'http://' && primaryWebsite != 'https://') {
@@ -172,19 +172,27 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             angular.forEach(vm.account.tags, function (tag) {
                 if (tag) {
                     tags.push({name: (tag.name) ? tag.name : tag});
-
                 }
 
                 vm.account.tags = tags;
             });
         }
 
+        // Clear all errors of the form (in case of new errors)
+        angular.forEach(form, function(value, key) {
+            if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
+                form[key].$error = {};
+                form[key].$setValidity(key, true);
+            }
+        });
+
         if (vm.account.id) {
+            // If there's an ID set it means we're dealing with an existing account, so update it
             vm.account.$update(function () {
                 toastr.success('I\'ve updated the account for you!', 'Done');
-                $state.go('base.accounts.detail', {id: vm.account.id});
+                $state.go('base.accounts.detail', {id: vm.account.id}, {reload:true});
             }, function (response) {
-                toastr.error('Uh oh, there seems to be a problem' + getErrors(response.data), 'Error');
+                _handleBadResponse(response, form);
             })
         }
         else {
@@ -194,34 +202,19 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 toastr.success('Yup, I\'ve got it', 'Saved');
                 $state.go('base.accounts.detail', {id: vm.account.id});
             }, function (response) {
-                toastr.error('Uh oh, there seems to be a problem' + getErrors(response.data), 'Error');
-            })
+                _handleBadResponse(response, form);
+            });
+        }
+    }
+
+    function _handleBadResponse(response, form) {
+        // Set error of the first website as the primary website error
+        if (vm.account.primaryWebsite && response.data['websites'].length) {
+            response.data['primaryWebsite'] = response.data['websites'].shift()['website'];
         }
 
-        function getErrors(data) {
-            // TODO: Simple error display for now, fix in LILY-951
-            var errors = '<br><br> The following fields returned an error:';
+        HLForms.setErrors(form, response.data);
 
-            for (var field in data) {
-                var field_name = field.charAt(0).toUpperCase() + field.slice(1);
-                field_name = field_name.replace('_', ' ');
-                var error_field_string = '<br><strong>' + field_name + '</strong>: ';
-
-                if (data[field] instanceof Array) {
-                    data[field].forEach(function (field_value) {
-                        if (typeof field_value === 'object') {
-                            for (var key in field_value) {
-                                errors += error_field_string + field_value[key][0];
-                            }
-                        }
-                        else {
-                            errors += error_field_string + data[field][0];
-                        }
-                    });
-                }
-            }
-
-            return errors
-        }
+        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 }

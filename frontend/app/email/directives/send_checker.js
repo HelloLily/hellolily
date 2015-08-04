@@ -20,16 +20,11 @@ function sendCheckerDirective (EmailAddress) {
                     return;
                 }
 
-                if (recipients_to)
-                    all_recipients.push(recipients_to);
+                if (recipients_to) all_recipients.push(recipients_to);
+                if (recipients_cc) all_recipients.push(recipients_cc);
+                if (recipients_bcc) all_recipients.push(recipients_bcc);
 
-                if (recipients_cc)
-                    all_recipients.push(recipients_cc);
-
-                if (recipients_bcc)
-                    all_recipients.push(recipients_bcc);
-
-                if(all_recipients){
+                if(all_recipients) {
                     all_recipients = all_recipients.join(',');
 
                     var invalid_addresses = EmailAddress.checkValidityOfEmailList(all_recipients);
@@ -61,7 +56,7 @@ function sendCheckerDirective (EmailAddress) {
                 }
 
                 // check subject
-                if (subject == "") {
+                if (subject == '') {
                     event.stopPropagation();
                     event.preventDefault();
                     bootbox.dialog({
@@ -81,6 +76,7 @@ function sendCheckerDirective (EmailAddress) {
                             }
                         }
                     });
+
                     return;
                 }
             });

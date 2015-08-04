@@ -18,12 +18,6 @@ class ConvertHTMLToTextTestCase(TestCase):
 
         self.assertEqual(convert_html_to_text(html, keep_linebreaks=False), result)
 
-    def test_br_to_space(self):
-        html = 'Hello VoipGRID,<br><br>This is a test'
-        result = 'Hello VoipGRID,  This is a test'
-
-        self.assertEqual(convert_html_to_text(html, keep_linebreaks=False), result)
-
     def test_remove_different_source_of_tags(self):
         html = 'Hello VoipGRID,<br><br><i>This is a test</i><br><br><b><i>dsfg</i></b><br><b>dsfg</b><br><b>ds</b>'
 

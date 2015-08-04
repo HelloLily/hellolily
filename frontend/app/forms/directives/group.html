@@ -1,5 +1,4 @@
 <div class="form-group" ng-class="{'has-error': field.$invalid}">
-
     <!-- <label class="visible-xs-block col-md-2 control-label" for="{{ labelId }}"
     ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
         <div class="text-center">
@@ -20,4 +19,5 @@
         {{ labelTitle }}
     </label>
     <ng-transclude></ng-transclude>
+    <span class="help-block" ng-show="field.$error.message">{{ field.$error.message }}</span>
 </div>

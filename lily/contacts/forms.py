@@ -1,7 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
-from django.core.validators import validate_email
 from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
@@ -10,99 +9,8 @@ from lily.contacts.models import Contact, Function
 from lily.socialmedia.connectors import Twitter, LinkedIn
 from lily.socialmedia.models import SocialMedia
 from lily.tags.forms import TagsFormMixin
-from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.fields import TagsField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import ShowHideWidget, BootstrapRadioFieldRenderer, AddonTextInput, AjaxSelect2Widget
-from lily.utils.models.models import EmailAddress
-
-
-class AddContactQuickbuttonForm(HelloLilyModelForm):
-    """
-    Form to add an account with the absolute minimum of information.
-    """
-    account = forms.ModelChoiceField(
-        label=_('Works at'),
-        required=False,
-        queryset=Account.objects,
-        empty_label=_('Select an account'),
-        widget=AjaxSelect2Widget(
-            url=reverse_lazy('search_view'),
-            filter_on=AccountMapping.get_mapping_type_name(),
-            model=Account,
-        ),
-    )
-    emails = TagsField(
-        label=_('E-mail addresses'),
-        required=False,
-    )
-
-    phone = forms.CharField(label=_('Phone number'), max_length=40, required=False)
-
-    def __init__(self, *args, **kwargs):
-        """
-        Overload super().__init__ to change auto_id to prevent clashing form field id's with
-        other forms.
-        """
-        kwargs.update({
-            'auto_id': 'id_contact_quickbutton_%s'
-        })
-
-        super(AddContactQuickbuttonForm, self).__init__(*args, **kwargs)
-
-        # Provide filtered query set
-        self.fields['account'].queryset = Account.objects.all()
-
-    def clean_emails(self):
-        """
-        Prevent multiple contacts with the same email address when adding
-        """
-        for email in self.cleaned_data['emails']:
-            # Check if input is a real email address
-            if email:
-                validate_email(email)
-                # Check if email address already exists under different account
-                if Contact.objects.filter(email_addresses__email_address__iexact=email).exists():
-                    raise ValidationError(
-                        _('E-mail address already in use.'),
-                        code='invalid',
-                    )
-        return self.cleaned_data['emails']
-
-    def clean(self):
-        """
-        Form validation: all fields should be unique.
-        """
-        cleaned_data = super(AddContactQuickbuttonForm, self).clean()
-
-        # Check if at least first or last name has been provided.
-        if not cleaned_data.get('first_name') and not cleaned_data.get('last_name'):
-            self._errors['first_name'] = self._errors['last_name'] = self.error_class([_('Name can\'t be empty')])
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        """
-        Save Many2Many email addresses to instance.
-        """
-        instance = super(AddContactQuickbuttonForm, self).save(commit=commit)
-
-        if commit:
-            status = EmailAddress.PRIMARY_STATUS
-            for email in self.cleaned_data['emails']:
-                email_address = EmailAddress.objects.create(
-                    email_address=email,
-                    status=status,
-                    tenant=instance.tenant
-                )
-                instance.email_addresses.add(email_address)
-                status = EmailAddress.OTHER_STATUS
-
-        return instance
-
-    class Meta:
-        model = Contact
-        fields = ('first_name', 'preposition', 'last_name', 'account', 'emails', 'phone')
 
 
 class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
@@ -118,8 +26,9 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             url=reverse_lazy('search_view'),
             filter_on=AccountMapping.get_mapping_type_name(),
             model=Account,
-            attrs= {
-                'class': 'select2ajax'
+            attrs={
+                'class': 'select2ajax',
+                'placeholder': _('Select one or more account(s)'),
             }
         )
     )
@@ -314,8 +223,18 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
 
     class Meta:
         model = Contact
-        fields = ('salutation', 'gender', 'first_name', 'preposition', 'last_name', 'account', 'description',
-                  'email_addresses', 'phone_numbers', 'addresses', )
+        fields = (
+            'salutation',
+            'gender',
+            'first_name',
+            'preposition',
+            'last_name',
+            'account',
+            'description',
+            'email_addresses',
+            'phone_numbers',
+            'addresses',
+        )
         widgets = {
             'description': ShowHideWidget(forms.Textarea(attrs={
                 'rows': 3,

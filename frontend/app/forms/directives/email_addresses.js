@@ -3,6 +3,7 @@ angular.module('app.forms.directives').directive('formEmailAddresses', formEmail
 function formEmailAddresses() {
     return {
         restrict: 'E',
+        require: '^form',
         scope: {
             emailAddresses: '=',
             addRelatedField: '&',
@@ -11,7 +12,11 @@ function formEmailAddresses() {
         templateUrl: 'forms/directives/email_addresses.html',
         controller: FormEmailAddressesController,
         controllerAs: 'vm',
-        bindToController: true
+        bindToController: true,
+        link: function (scope, element, attrs, form) {
+            // Set parent form on the scope
+            scope.form = form;
+        }
     }
 }
 

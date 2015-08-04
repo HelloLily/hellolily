@@ -27,6 +27,8 @@
 * Discard button doesn't sent the email anyways
 * Fix for the possibility to delete emails twice
 * Email address of an email account is readonly
+* Searching users in the assigned to in the account form now works with spaces
+* Dataprovider lookup no longer returns unparsed phone numbers
 
 <a name"0.4.27"></a>
 ### 0.4.27 (2015-06-29)

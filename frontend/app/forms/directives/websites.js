@@ -25,5 +25,4 @@ function FormWebsitesController($rootScope) {
     var vm = this;
 
     vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
-
 }

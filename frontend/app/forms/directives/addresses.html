@@ -4,16 +4,7 @@
             <label for="id_addresses-street-{{ $index }}"
                    ng-show="$first"
                    ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Address</label>
-            <!-- <label ng-if="vm.sideBar" for="id_addresses-street-{{ $index }}" class="col-md-2 control-label with-icon icons-text" ng-show="$first">
-                <div class="text-center">
-                    <div class="pre">
-                        <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-map-marker label-icon"></i><br/>
-                    </div>
-                    <div class="label-text">Address</div>
-                </div>
-            </label>
-            -->
-            <div ng-class="{'col-xs-12 ': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['addresses-street-{{ $index }}'].$invalid }">
+            <div ng-class="{'col-xs-12 ': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['addresses-street-' + $index].$invalid }">
                 <input class="form-control"
                        id="id_addresses-street-{{ $index }}"
                        maxlength="255"
@@ -112,16 +103,6 @@
 <div class="form-group">
     <label ng-hide="vm.addresses.length"
            ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Address</label>
-
-    <!--<label ng-if="vm.sideBar" class="col-md-2 control-label with-icon icons-text" ng-hide="vm.addresses.length">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-map-marker label-icon"></i><br/>
-            </div>
-            <div class="label-text">Address</div>
-        </div>
-    </label>
-    -->
     <div class="col-md-9" ng-class="{ 'col-md-offset-2': vm.addresses.length && !vm.sideBar}">
         <a ng-click="vm.addRelatedField({field: 'address'})" class="form-control-static">Add an address</a>
     </div>

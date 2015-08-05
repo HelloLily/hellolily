@@ -2,15 +2,7 @@
     <label for="id_email_addresses-email_address-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Company email</label>
            ng-show="$first"
            ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Company email</label>
-    <!--
-    <label ng-if="vm.sideBar"  for="id_email_address-email_addres-{{ $index }}" ng-show="$first" class="col-md-2 control-label with-icon">
-        <div class="text-center">
-            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
-            <div class="label-text">Company Email</div>
-        </div>
-    </label>
-    -->
-    <div ng-class="{'col-xs-12': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['email_addresses-email_address-{{ $index }}'].$invalid }">
+    <div ng-class="{'col-xs-12': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['email_addresses-email_address-' + $index].$invalid }">
         <input class="form-control"
                id="id_email_addresses-email_address-{{ $index }}"
                maxlength="255"
@@ -44,14 +36,7 @@
 </div>
 <div class="form-group">
     <label ng-hide="vm.emailAddresses.length"
-           ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Company email</label>    <!--
-    <label ng-if="vm.sideBar"class="col-md-2 control-label with-icon" ng-hide="vm.emailAddresses.length">
-        <div class="text-center">
-            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
-            <div class="label-text">Company email</div>
-        </div>
-    </label>
-    -->
+           ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Company email</label>
     <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length && !vm.sideBar }">
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>

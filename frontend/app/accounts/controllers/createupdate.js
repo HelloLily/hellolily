@@ -184,7 +184,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 }
             }
             if (!exists) {
-                vm.account.websites.push({website: primaryWebsite, is_primary: true})
+                vm.account.websites.unshift({website: primaryWebsite, is_primary: true})
             }
         }
 

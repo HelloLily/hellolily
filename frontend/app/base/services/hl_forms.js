@@ -16,6 +16,8 @@ function HLForms () {
         if (typeof data === 'object') {
 
             for (var field in data) {
+            if (!data[field]) continue;
+
                 // Errors are always in the <field>: Array format, so iterate over the array
                 for (var i = 0; i < data[field].length; i++) {
                     // Related fields are always an object, so check for that

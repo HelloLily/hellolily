@@ -1,17 +1,7 @@
 <div class="form-group" ng-repeat="phoneNumber in vm.phoneNumbers">
     <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first"
            ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Phone number</label>
-
-    <!-- <label ng-if="vm.sideBar" for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label with-icon">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i>
-            </div>
-            <div class="label-text">Phone Number</div>
-        </div>
-    </label>
-    -->
-    <div ng-class="{'col-xs-12 padding-top-15': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['phone_numbers-raw_input-{{ $index }}'].$invalid }">
+    <div ng-class="{'col-xs-12 padding-top-15': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['phone_numbers-raw_input-' + $index].$invalid }">
         <input class="form-control"
                id="id_phone_numbers-raw_input-{{ $index }}"
                maxlength="255"
@@ -45,15 +35,6 @@
 <div class="form-group">
     <label ng-hide="vm.phoneNumbers.length"
            ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Phone number</label>
-    <!--<label ng-if="vm.sideBar" class="col-md-2 control-label with-icon" ng-hide="vm.phoneNumbers.length">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i>
-            </div>
-            <div class="label-text">Phone Number</div>
-        </div>
-    </label>
-    -->
     <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.phoneNumbers.length && !vm.sideBar }">
         <a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="form-control-static">Add a phone number</a>
     </div>

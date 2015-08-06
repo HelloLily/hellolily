@@ -18,10 +18,10 @@ from lily.tenant.middleware import get_current_user
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget
+from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment, EmailOutboxAttachment, DefaultEmailTemplate,
-                             EmailTemplateAttachment)
+                             EmailTemplateAttachment, TemplateVariable)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -274,10 +274,22 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
 
         email_parameter_choices = get_email_parameter_choices()
         self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
+        self.fields['variables'].choices.append(['Custom variables', 'Custom variables'])
 
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
                 self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+
+        # Add custom variables to choices
+        queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=get_current_user()))
+
+        for template_variable in queryset:
+            custom_variable_name = 'custom.' + template_variable.name.lower()
+
+            if template_variable.is_public:
+                custom_variable_name += '.public'
+
+            self.fields['values'].choices += [[custom_variable_name, template_variable.name], ]
 
         if self.instance and self.instance.pk:
             self.fields['id'].widget.attrs['readonly'] = True
@@ -471,3 +483,68 @@ class EmailTemplateFileForm(HelloLilyForm):
             self._errors['body_file'] = self.default_error_messages.get('invalid') % self.accepted_content_types
 
         return cleaned_data
+
+
+class CreateUpdateTemplateVariableForm(HelloLilyModelForm):
+    """
+    Form used for creating and updating template variables.
+    """
+    variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
+    values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(CreateUpdateTemplateVariableForm, self).__init__(*args, **kwargs)
+
+        email_parameter_choices = get_email_parameter_choices()
+        self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
+
+        for value in email_parameter_choices:
+            for val in email_parameter_choices[value]:
+                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+
+    def clean(self):
+        cleaned_data = super(CreateUpdateTemplateVariableForm, self).clean()
+
+        queryset = TemplateVariable.objects.filter(name__iexact=cleaned_data.get('name'), owner=get_current_user())
+
+        # Check if variable already exists, but only when creating a new one
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+        if queryset.exists():
+            self._errors['name'] = ['Template variable with that name already exists for this user']
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super(CreateUpdateTemplateVariableForm, self).save(False)
+
+        # Convert \n to <br>
+        instance.text = linebreaksbr(instance.text.strip())
+
+        instance.owner = get_current_user()
+
+        if commit:
+            instance.save()
+
+        return instance
+
+    class Meta:
+        model = TemplateVariable
+        fields = (
+            'id',
+            'name',
+            'text',
+            'is_public',
+        )
+        widgets = {
+            'values': forms.Select(attrs={
+                'disabled': 'disabled',
+            }),
+            'text': Wysihtml5Input(attrs={
+                'container_class': 'email-template-body'
+            }),
+            'is_public': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
+        }

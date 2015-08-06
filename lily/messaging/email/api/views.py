@@ -4,13 +4,15 @@ from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from lily.messaging.email.utils import get_email_parameter_api_dict
 
 from lily.search.lily_search import LilySearch
 from lily.users.models import LilyUser
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
-                          EmailTemplateSerializer, SharedEmailConfigSerializer)
-from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig
+                          EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
+from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig, \
+    TemplateVariable
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message)
 
@@ -271,3 +273,30 @@ class EmailTemplateViewSet(mixins.DestroyModelMixin,
     serializer_class = EmailTemplateSerializer
     filter_backends = (filters.OrderingFilter,)
     ordering = ('name', )
+
+
+class TemplateVariableViewSet(mixins.DestroyModelMixin,
+                              mixins.RetrieveModelMixin,
+                              GenericViewSet):
+    """
+    TemplateVariable API.
+    """
+    queryset = TemplateVariable.objects
+    serializer_class = TemplateVariableSerializer
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('name', )
+
+    def list(self, request):
+        queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=request.user))
+        serializer = TemplateVariableSerializer(queryset, many=True)
+
+        default_variables = get_email_parameter_api_dict()
+
+        template_variables = {
+            'default': default_variables,
+            'custom': serializer.data
+        }
+
+        return Response(template_variables)
+
+

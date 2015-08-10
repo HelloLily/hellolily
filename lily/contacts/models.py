@@ -201,7 +201,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
                                  'work_phone', 'mobile_phone', 'primary_email', 'account_city']
 
     class Meta:
-        ordering = ['last_name', 'first_name']
+        # ordering = ['last_name', 'first_name']
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
 

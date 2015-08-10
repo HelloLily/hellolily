@@ -1,6 +1,7 @@
-import factory
+from factory import post_generation
 from factory.declarations import (LazyAttribute, SubFactory, RelatedFactory, SelfAttribute)
 from factory.django import DjangoModelFactory
+from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
@@ -10,20 +11,24 @@ from lily.utils.models.factories import EmailAddressFactory
 from .models import Contact, Function
 
 
-faker = Factory.create()
+faker = Factory.create('nl_NL')
 
 
 class ContactFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     first_name = LazyAttribute(lambda o: faker.first_name())
     last_name = LazyAttribute(lambda o: faker.last_name())
+    gender = FuzzyChoice(dict(Contact.CONTACT_GENDER_CHOICES).keys())
+    title = LazyAttribute(lambda o: faker.word())
+    description = LazyAttribute(lambda o: faker.text())
+    salutation = FuzzyChoice(dict(Contact.SALUTATION_CHOICES).keys())
 
     class Meta:
         model = Contact
 
 
 class ContactWithEmailFactory(ContactFactory):
-    @factory.post_generation
+    @post_generation
     def email_addresses(self, create, extracted, **kwargs):
         if create:
             email_str = '%s.%s@%s' % (
@@ -36,18 +41,16 @@ class ContactWithEmailFactory(ContactFactory):
             self.email_addresses.add(email_address)
 
 
-def function_factory(tenant):
-    # This factory is method wrapped, because Function itself does not accept tenant.
-    # (Otherwise we could just pass the factory a tenant kwarg).
-    class FunctionFactory(DjangoModelFactory):
-        contact = SubFactory(ContactFactory, tenant=tenant)
-        account = SubFactory(AccountFactory, tenant=tenant)
+class FunctionFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+    contact = SubFactory(ContactFactory, tenant=SelfAttribute('..tenant'))
+    account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
 
-        class Meta:
-            model = Function
-
-    return FunctionFactory
+    class Meta:
+        model = Function
+        exclude = ('tenant',)
+        django_get_or_create = ('contact', 'account', )
 
 
 class ContactWithAccountFactory(ContactWithEmailFactory):
-    function = RelatedFactory(function_factory(SelfAttribute('..contact.tenant')), 'contact')
+    function = RelatedFactory(FunctionFactory, 'contact')

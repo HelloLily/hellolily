@@ -1,23 +1,38 @@
+from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from lily.accounts.api.serializers import AccountSerializer
+
+from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.serializers import ContentTypeSerializer
-from ..models import Contact
+from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
+from lily.utils.api.related.mixins import RelatedSerializerMixin
+from lily.utils.api.related.serializers import WritableNestedSerializer
+from lily.utils.api.serializers import RelatedPhoneNumberSerializer, RelatedAddressSerializer, RelatedEmailAddressSerializer, RelatedTagSerializer
+from ..models import Contact, Function
 
 
-class ContactSerializer(serializers.ModelSerializer):
+class ContactSerializer(WritableNestedSerializer):
     """
     Serializer for the contact model.
     """
+    # Set non mutable fields
+    created = serializers.DateTimeField(read_only=True)
+    modified = serializers.DateTimeField(read_only=True)
+    full_name = serializers.CharField(read_only=True)
+
+    # Related fields
+    phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
+    addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
+    email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
+    social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
+    accounts = RelatedAccountSerializer(many=True, required=False)
+    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
+    content_type = ContentTypeSerializer()
+
     # Show string versions of fields
-    gender = serializers.CharField(source='get_gender_display')
-    phone_numbers = serializers.StringRelatedField(many=True, read_only=True)
-    social_media = serializers.StringRelatedField(many=True, read_only=True)
-    addresses = serializers.StringRelatedField(many=True, read_only=True)
-    email_addresses = serializers.StringRelatedField(many=True, read_only=True)
-    salutation = serializers.CharField(source='get_salutation_display')
-    accounts = AccountSerializer(many=True, read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
+    gender_display = serializers.CharField(source='get_gender_display', read_only=True)
+    salutation_display = serializers.CharField(source='get_salutation_display', read_only=True)
 
     class Meta:
         model = Contact
@@ -30,13 +45,71 @@ class ContactSerializer(serializers.ModelSerializer):
             'last_name',
             'full_name',
             'gender',
+            'gender_display',
             'title',
             'description',
+            'salutation',
+            'salutation_display',
             'phone_numbers',
             'social_media',
             'addresses',
             'email_addresses',
-            'salutation',
             'accounts',
+            'tags',
             'content_type',
         )
+
+    def validate(self, data):
+        if not any([data.get('first_name', None), data.get('preposition', None), data.get('last_name', None)]):
+            raise serializers.ValidationError({'last_name': _('Please enter a valid name.')})
+
+        return super(ContactSerializer, self).validate(data)
+
+    def _handle_accounts(self, instance, account_list, update=False):
+        # Create new accounts
+        account_instances = self.fields['accounts'].create([a for a in account_list if not a.get('id')])
+        # Update and link existing accounts
+        account_instances += self.fields['accounts'].update(instance, [a for a in account_list if a.get('id')])
+
+        function_list = []
+        for ai in account_instances:
+            # ai is the account instance passed in the request.
+            if ai not in instance.accounts.all():
+                # The account instance is new, so we append a new function to the list to relate it to the contact.
+                function_list.append(Function.objects.create(account=ai, contact=instance))
+            else:
+                # The account instance is existing, so we retrieve and add to the function list.
+                function_list.append(Function.objects.get(account=ai, contact=instance))
+
+        if update and not self.root.partial:
+            instance.functions.exclude(id__in=[function.id for function in function_list]).delete()
+
+        instance.functions.add(*function_list)
+
+    def create(self, validated_data):
+        account_list = validated_data.pop('accounts', None)
+
+        with transaction.atomic():
+            instance = super(ContactSerializer, self).create(validated_data)
+
+            if account_list:
+                self._handle_accounts(instance, account_list)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        account_list = validated_data.pop('accounts', None)
+
+        with transaction.atomic():
+            instance = super(ContactSerializer, self).update(instance, validated_data)
+
+            if account_list:
+                self._handle_accounts(instance, account_list, update=True)
+            elif not self.root.partial:
+                self._handle_accounts(instance, [], update=True)
+
+        return instance
+
+
+class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
+    pass

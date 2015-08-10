@@ -298,6 +298,24 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
         verbose_name_plural = _('e-mail templates')
 
 
+class TemplateVariable(TenantMixin):
+    NO_YES_CHOICES = (
+        (False, _('No')),
+        (True, _('Yes')),
+    )
+
+    name = models.CharField(verbose_name=_('variable name'), max_length=255)
+    text = models.TextField(verbose_name='variable text')
+    owner = models.ForeignKey(LilyUser, related_name='template_variable')
+    is_public = models.BooleanField(default=False, choices=NO_YES_CHOICES,
+                                    help_text='A public template variable is available to everyone in your organisation')
+
+    class Meta:
+        app_label = 'email'
+        verbose_name = _('e-mail template variable')
+        verbose_name_plural = _('e-mail template variables')
+
+
 class DefaultEmailTemplate(models.Model):
     """
     Define a default template for a user.

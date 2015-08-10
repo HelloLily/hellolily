@@ -10,6 +10,7 @@
             templateField: '#id_template',
             inboxComposeSubmit: '.inbox-compose [type="submit"]',
             wysiHtmlToolbar: '#wysihtml5-toolbar',
+            textEditorId: 'id_body_html',
             replyButton: '.reply-btn',
             tagsAjaxSelector: '.tags-ajax',
             emailAccountInput: '#id_send_from',
@@ -163,7 +164,7 @@
         initWysihtml5: function () {
             var self = this;
 
-            editor = new wysihtml5.Editor('id_body_html', {
+            editor = new wysihtml5.Editor(self.config.textEditorId, {
                 toolbar: 'wysihtml5-toolbar',
                 parser: self.customParser(),
                 handleTables: false
@@ -278,7 +279,7 @@
              * would work to set the value of the textarea.
              * Sadly they don't, which is why .val is used
              */
-            $('#id_body_html').val(templateContent + '<br>' + $containerDiv[0].innerHTML);
+            $('#' + self.config.textEditorId).val(templateContent + '<br>' + $containerDiv[0].innerHTML);
 
             // Make sure both buttons of the same name are set to the loading state
             $('button[name="' + buttonName + '"]').button('loading');

@@ -48,6 +48,7 @@ from .sanitize import sanitize_html_email
 
 
 _EMAIL_PARAMETER_DICT = {}
+_EMAIL_PARAMETER_API_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
 
 logger = logging.getLogger(__name__)
@@ -110,6 +111,25 @@ def get_email_parameter_dict():
                         }
                     })
     return _EMAIL_PARAMETER_DICT
+
+
+def get_email_parameter_api_dict():
+    """
+    If there is no e-mail parameter dict yet, construct it and return it.
+    The e-mail parameter dict consists of all posible variables for e-mail templates.
+
+    This function returns parameters organized by variable name for easy parsing.
+    """
+    if not _EMAIL_PARAMETER_API_DICT:
+        for model in models.get_models():
+            if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
+                for field in model.EMAIL_TEMPLATE_PARAMETERS:
+                    field_name, field_verbose_name = get_field_names(field)
+
+                    _EMAIL_PARAMETER_API_DICT.setdefault(model._meta.verbose_name.capitalize(), {}).update({
+                        '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize()
+                    })
+    return _EMAIL_PARAMETER_API_DICT
 
 
 def get_email_parameter_choices():

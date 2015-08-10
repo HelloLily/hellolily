@@ -540,7 +540,7 @@ ES_MAXSIZE = os.environ.get('ES_MAXSIZE', 2)  # Default is 10
 ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
 
 #######################################################################################################################
-## Gmail api settings                                                                                                ##
+# Gmail API settings                                                                                                  #
 #######################################################################################################################
 GA_CLIENT_ID = os.environ.get('GA_CLIENT_ID', '')
 GA_CLIENT_SECRET = os.environ.get('GA_CLIENT_SECRET', '')
@@ -623,5 +623,12 @@ DEBUG_TOOLBAR_PANELS = [
 # IronMQ
 IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
 IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
+
+# Django Bootstrap
+# TODO: These settings can be removed once all forms are converted to Angular
+BOOTSTRAP3 = {
+    'horizontal_label_class': 'col-md-2',
+    'horizontal_field_class': 'col-md-4',
+}
 
 from .celeryconfig import *

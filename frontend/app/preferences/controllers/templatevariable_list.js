@@ -29,7 +29,6 @@ function PreferencesEmailTemplatesList ($modal, $scope, TemplateVariable) {
         $scope.publicTemplateVariables = [];
 
         angular.forEach(data.custom, function (variable) {
-            //
             if (variable.is_public && variable.owner != currentUser.id) {
                 $scope.publicTemplateVariables.push(variable);
             } else {

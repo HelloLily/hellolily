@@ -100,7 +100,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                     vm.account.primaryWebsite = '';
                 }
 
-                if(vm.account.tags.length){
+                if(vm.account.tags.length) {
                     var tags = [];
                     angular.forEach(account.tags, function (tag){
                         tags.push(tag.name);
@@ -137,11 +137,11 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
     }
 
     function addRelatedField(field) {
-        vm.account.addRelatedField(field);
+        HLFields.addRelatedField(vm.account, field);
     }
 
     function removeRelatedField(field, index, remove) {
-        vm.account.removeRelatedField(field, index, remove);
+        HLFields.removeRelatedField(vm.account, field, index, remove);
     }
 
     function saveAccount(form) {
@@ -188,6 +188,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             }
         });
 
+        vm.account = HLFields.cleanRelatedFields(vm.account);
+
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it
             vm.account.$update(function () {
@@ -198,10 +200,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             })
         }
         else {
-            vm.account = HLFields.cleanRelatedFields(vm.account);
-
             vm.account.$save(function () {
-                toastr.success('Yup, I\'ve got it', 'Saved');
+                toastr.success('I\'ve saved the account for you!', 'Yay');
                 $state.go('base.accounts.detail', {id: vm.account.id});
             }, function (response) {
                 _handleBadResponse(response, form);

@@ -1,0 +1,17 @@
+<form-group label-title="{{ vm.labelTitle }}" label-id="{{ vm.labelId }}" required="{{ vm.required }}">
+    <div class="form-group" ng-class="{'has-error': field.$invalid}">
+        <div class="col-md-4">
+            <div class="btn-group radio-btns" data-toggle="buttons">
+                <label ng-repeat="option in vm.options"
+                       class="btn btn-primary"
+                       ng-class="{'active': vm.field == $index}"
+                       ng-click="vm.setValue($index)">
+                    <input id="id_{{ vm.inputName }}-{{ $index }}"
+                        type="radio"
+                        ng-value="$index">
+                    {{ option }}
+                </label>
+            </div>
+        </div>
+    </div>
+</form-group>

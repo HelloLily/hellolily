@@ -10,11 +10,13 @@ function HLFields () {
      * @returns (object): returns the object with the related fields cleaned
      */
     this.cleanRelatedFields = function (object) {
+        var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
+
         angular.forEach(object, function (fieldValues, field) {
             var cleanedValues = [];
 
-            // We only want to clean the related fields, so check if the value is an array
-            if (fieldValues instanceof Array && field != 'tags') {
+            // We only want to clean the related fields, so check if the field is a related field
+            if (relatedFields.indexOf(field) > -1) {
                 // Loop through each array element
                 angular.forEach(fieldValues, function (fieldValue) {
                     if (!fieldValue.hasOwnProperty('is_deleted')) {
@@ -45,4 +47,55 @@ function HLFields () {
 
         return object;
     };
+
+    this.addRelatedField = function (object, field) {
+        switch (field) {
+            case 'emailAddress':
+                // Default status is 'Other'
+                var status = 1;
+                var isPrimary = false;
+
+                if (object.email_addresses.length == 0) {
+                    // No email addresses added yet, so first one is primary
+                    status = 2;
+                    isPrimary = true;
+                }
+
+                object.email_addresses.push({is_primary: isPrimary, status: status});
+                break;
+            case 'phoneNumber':
+                object.phone_numbers.push({type: 'work'});
+                break;
+            case 'address':
+                object.addresses.push({type: 'visiting'});
+                break;
+            case 'website':
+                object.websites.push({website: '', is_primary: false});
+                break;
+            default:
+                break;
+        }
+    };
+
+    this.removeRelatedField = function (object, field, index, remove) {
+        switch (field) {
+            case 'emailAddress':
+                object.email_addresses[index].is_deleted = remove;
+                break;
+            case 'phoneNumber':
+                object.phone_numbers[index].is_deleted = remove;
+                break;
+            case 'address':
+                object.addresses[index].is_deleted = remove;
+                break;
+            case 'website':
+                index = object.websites.indexOf(index);
+                if (index != -1) {
+                    object.websites[index].is_deleted = remove;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }

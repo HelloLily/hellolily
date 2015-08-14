@@ -79,6 +79,18 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
     success_message = _('%(label)s has been updated.')
     static_context = {'form_prevent_autofill': True}
 
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(EmailAccountUpdateView, self).get_context_data(**kwargs)
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
+
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         if not is_ajax(request):
             self.template_name = 'form.html'

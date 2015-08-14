@@ -6,13 +6,13 @@
                 Colleagues at
                 <a ui-sref="base.accounts.detail({id: accountId })">{{ title }}</a>
             </span>
-            <span ng-hide="accountId">{{ title }}</span>
-        </div>
-        <div class="actions">
-            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
-                <i class="fa fa-plus"></i>
-                Add
-            </a>
+            <span ng-hide="accountId">
+                <span ng-show="$parent.contact">
+                    <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account</span>
+                </span>
+                <span ng-hide="$parent.contact">
+                    <span ng-hide="accountId">{{ title }}</span>
+                </span>
         </div>
     </div>
     <div class="portlet-body">

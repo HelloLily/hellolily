@@ -4,8 +4,8 @@ from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from lily.messaging.email.utils import get_email_parameter_api_dict
 
+from lily.messaging.email.utils import get_email_parameter_api_dict
 from lily.search.lily_search import LilySearch
 from lily.users.models import LilyUser
 

@@ -1,8 +1,8 @@
 from itertools import chain
-import re
 import anyjson
 import logging
 import mimetypes
+import re
 
 from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
@@ -15,7 +15,6 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
-from django.template.defaultfilters import linebreaksbr
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
@@ -31,8 +30,8 @@ from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
-from .forms import (EmailAccountCreateUpdateForm, CreateUpdateEmailTemplateForm, EmailTemplateFileForm,
-                    EmailTemplateSetDefaultForm, ComposeEmailForm, CreateUpdateTemplateVariableForm)
+from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
+                    EmailAccountCreateUpdateForm, EmailTemplateFileForm, EmailTemplateSetDefaultForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable)
 from .utils import (create_account, get_attachment_filename_from_url, get_email_parameter_choices,
@@ -78,6 +77,18 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
     form_class = EmailAccountCreateUpdateForm
     success_message = _('%(label)s has been updated.')
     static_context = {'form_prevent_autofill': True}
+
+    def get_context_data(self, **kwargs):
+        """
+        Provide an url to go back to.
+        """
+        kwargs = super(EmailAccountUpdateView, self).get_context_data(**kwargs)
+        if not is_ajax(self.request):
+            kwargs.update({
+                'back_url': self.get_success_url(),
+            })
+
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         if not is_ajax(request):

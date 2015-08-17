@@ -4,21 +4,21 @@
     </div>
     <div class="portlet-body">
         <ul class="list-group">
-            <li class="list-group-item" ng-repeat="variable in templateVariables">
+            <li class="list-group-item" ng-repeat="variable in vm.templateVariables">
                 {{ variable.name }}
                 <span class="pull-right">
-                    <a ng-click="previewTemplateVariable(variable)" class="btn btn-xs default">
+                    <a ng-click="vm.previewTemplateVariable(variable)" class="btn btn-xs default">
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>
                     <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="btn btn-xs default">
                         <span><i class="fa fa-edit"></i> Edit</span>
                     </a>
-                    <a class="btn btn-xs default" ng-click="deleteTemplateVariable(variable)">
+                    <a class="btn btn-xs default" ng-click="vm.deleteTemplateVariable(variable)">
                         <span><i class="fa fa-trash"></i> Delete</span>
                     </a>
                 </span>
             </li>
-            <li class="list-group-item" ng-hide="templateVariables.length">
+            <li class="list-group-item" ng-hide="vm.templateVariables.length">
                 No template variables yet. You should create one!
             </li>
             <li class="list-group-item">
@@ -34,15 +34,15 @@
     </div>
     <div class="portlet-body">
         <ul class="list-group">
-            <li class="list-group-item" ng-repeat="variable in publicTemplateVariables">
+            <li class="list-group-item" ng-repeat="variable in vm.publicTemplateVariables">
                 {{ variable.name }}
                 <span class="pull-right">
-                    <a ng-click="previewTemplateVariable(variable)" class="btn btn-xs default">
+                    <a ng-click="vm.previewTemplateVariable(variable)" class="btn btn-xs default">
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>
                 </span>
             </li>
-            <li class="list-group-item" ng-hide="publicTemplateVariables.length">
+            <li class="list-group-item" ng-hide="vm.publicTemplateVariables.length">
                 No public template variables yet.
             </li>
         </ul>

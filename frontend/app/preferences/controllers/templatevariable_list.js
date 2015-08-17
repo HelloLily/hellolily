@@ -7,52 +7,70 @@ function preferencesConfig($stateProvider) {
         views: {
             '@base.preferences': {
                 templateUrl: 'preferences/controllers/templatevariable_list.html',
-                controller: PreferencesEmailTemplatesList
+                controller: PreferencesEmailTemplatesList,
+                controllerAs: 'vm'
             }
         },
         ncyBreadcrumb: {
             label: 'Template variables'
+        },
+        resolve: {
+            user: ['User', function (User) {
+                return User.me().$promise;
+            }]
         }
     });
 }
 
 angular.module('app.preferences').controller('PreferencesTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$modal', '$scope', 'TemplateVariable'];
-function PreferencesEmailTemplatesList ($modal, $scope, TemplateVariable) {
-    //$scope.conf.pageTitleBig = 'EmailTemplate settings';
-    //$scope.conf.pageTitleSmall = 'the devil is in the details';
+PreferencesEmailTemplatesList.$inject = ['$scope', 'TemplateVariable', 'user'];
+function PreferencesEmailTemplatesList($scope, TemplateVariable, user) {
+    var vm = this;
 
-    TemplateVariable.query({}, function(data) {
-        // Split custom variables into separate arrays so it's easier to process in the template
-        $scope.templateVariables = [];
-        $scope.publicTemplateVariables = [];
+    vm.templateVariables = [];
+    vm.publicTemplateVariables = [];
 
-        angular.forEach(data.custom, function (variable) {
-            if (variable.is_public && variable.owner != currentUser.id) {
-                $scope.publicTemplateVariables.push(variable);
-            } else {
-                $scope.templateVariables.push(variable);
-            }
+    vm.deleteTemplateVariable = deleteTemplateVariable;
+    vm.previewTemplateVariable = previewTemplateVariable;
+    vm.currentUser = user;
+
+    activate();
+
+    ////
+
+    function activate() {
+        _getTemplateVariables();
+    }
+
+    function _getTemplateVariables() {
+        TemplateVariable.query({}, function (data) {
+            // Split custom variables into separate arrays so it's easier to process in the template
+
+            angular.forEach(data.custom, function (variable) {
+                if (variable.is_public && variable.owner != vm.currentUser.id) {
+                    vm.publicTemplateVariables.push(variable);
+                } else {
+                    vm.templateVariables.push(variable);
+                }
+            });
         });
+    }
 
-        $scope.currentUser = currentUser;
-    });
-
-    $scope.deleteTemplateVariable = function (templateVariable) {
+    function deleteTemplateVariable(templateVariable) {
         if (confirm('Are you sure?')) {
             TemplateVariable.delete({
                 id: templateVariable.id
             }, function () {  // On success
-                var index = $scope.templateVariables.indexOf(templateVariable);
-                $scope.templateVariables.splice(index, 1);
+                var index = vm.templateVariables.indexOf(templateVariable);
+                vm.templateVariables.splice(index, 1);
             }, function (error) {  // On error
                 alert('Something went wrong.')
             })
         }
-    };
+    }
 
-    $scope.previewTemplateVariable = function (templateVariable) {
+    function previewTemplateVariable(templateVariable) {
         bootbox.alert(templateVariable.text);
-    };
+    }
 }

@@ -8,11 +8,16 @@
             </span>
             <span ng-hide="accountId">
                 <span ng-show="$parent.contact">
-                    <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account</span>
+                    <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account
                 </span>
-                <span ng-hide="$parent.contact">
-                    <span ng-hide="accountId">{{ title }}</span>
-                </span>
+                <span ng-show="!$parent.contact">{{ title }}</span>
+            </span>
+        </div>
+        <div ng-hide="$parent.contact" class="actions">
+            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
+                <i class="fa fa-plus"></i>
+                Add
+            </a>
         </div>
     </div>
     <div class="portlet-body">

@@ -14,6 +14,7 @@ class NoteViewSet(mixins.CreateModelMixin,
     """
     This viewset contains all possible ways to manipulate a Note.
     """
+    model = Note
     queryset = Note.objects  # Without .all() this filters on the tenant
     serializer_class = NoteSerializer
 

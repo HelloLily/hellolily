@@ -116,7 +116,7 @@ class DealViewSet(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   GenericViewSet):
     """
-    List all cases for a tenant.
+    List all deals for a tenant.
     """
     model = Deal
     serializer_class = DealSerializer

@@ -116,6 +116,11 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=user.tenant)
         self.fields['expires'].initial = datetime.today()
 
+        # Pre-select users team if possible
+        groups = user.lily_groups.all()
+        if len(groups) == 1:
+            self.fields['assigned_to_groups'].initial = groups
+
         # Setup parcel initial values
         self.fields['parcel_provider'].initial = Parcel.DPD
         self.fields['status'].initial = CaseStatus.objects.first()

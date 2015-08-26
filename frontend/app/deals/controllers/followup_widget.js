@@ -19,11 +19,11 @@ function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStage
 
     activate();
 
-    function activate(){
+    function activate() {
         _getDealStages();
     }
 
-    function _getDealStages(){
+    function _getDealStages() {
         DealStages.query({}, function(data){
             vm.dealStages = [];
             for(var i = 0; i < data.length; i++){
@@ -32,7 +32,7 @@ function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStage
         });
     }
 
-    function saveModal(){
+    function saveModal() {
         var newDate = $filter('date')(vm.closingDate, 'yyyy-MM-dd');
         var newStage = vm.selectedStage.id;
         Deal.update({id: followUp.id}, {stage: newStage, expected_closing_date: newDate}, function() {
@@ -40,13 +40,13 @@ function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStage
         });
     }
 
-    function openDatePicker($event){
+    function openDatePicker($event) {
         $event.preventDefault();
         $event.stopPropagation();
         vm.pickerIsOpen = true;
     }
 
-    function closeModal(){
+    function closeModal() {
         $modalInstance.close();
     }
 }

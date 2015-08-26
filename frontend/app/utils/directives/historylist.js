@@ -33,6 +33,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.editNote = editNote;
+            scope.history.pinNote = pinNote;
             scope.history.deleteNote = deleteNote;
 
             scope.note = {};
@@ -154,8 +155,20 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         // We have on of these items so we need to be able to filter on it
                         scope.history.types[item.historyType].visible = true;
 
-                        // Push our item to our ordered list
-                        orderedHistoryList.push(item);
+                        var addNormal = true;
+
+                        if (item.historyType == 'note') {
+                            // Pinned notes should always be first in the list
+                            if (item.is_pinned) {
+                                orderedHistoryList.unshift(item);
+                                addNormal = false;
+                            }
+                        }
+
+                        if (addNormal) {
+                            // Push our item to our ordered list
+                            orderedHistoryList.push(item);
+                        }
                     });
                     if (!orderedHistoryList) {
                         // Make sure the max size of the list doesn't grow each click
@@ -199,13 +212,19 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                     controller: 'EditNoteModalController',
                     size: 'lg',
                     resolve: {
-                        note: function() {
+                        note: function () {
                             return note;
                         }
                     }
                 });
 
-                modalInstance.result.then(function() {
+                modalInstance.result.then(function () {
+                    $state.go($state.current, {}, {reload: true});
+                });
+            }
+
+            function pinNote(note, isPinned) {
+                Note.update({id: note.id}, {is_pinned: isPinned}, function() {
                     $state.go($state.current, {}, {reload: true});
                 });
             }
@@ -213,7 +232,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             function deleteNote(note) {
                 if (confirm('Are you sure?')) {
                     Note.delete({
-                        id:note.id
+                        id: note.id
                     }, function() {  // On success
                         var index = scope.history.list.indexOf(note);
                         scope.history.list.splice(index, 1);

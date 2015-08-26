@@ -1,5 +1,8 @@
 <div class="timeline-badge">
-    <i ng-if="vm.item.type == 0" class="fa fa-file-o"></i>
+    <span ng-if="vm.item.type == 0">
+        <i ng-if="!vm.item.is_pinned" class="fa fa-file-o"></i>
+        <i ng-if="vm.item.is_pinned" class="fa fa-thumb-tack"></i>
+    </span>
     <i ng-if="vm.item.type == 1" class="fa fa-phone"></i>
     <i ng-if="vm.item.type == 2" class="fa fa-calendar"></i>
 </div>
@@ -13,6 +16,8 @@
                 </a>
                 <ul class="dropdown-menu pull-right">
                     <li><a ng-click="vm.history.editNote(vm.item)"><i class="fa fa-edit"></i>Edit</a></li>
+                    <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="fa fa-thumb-tack"></i>Pin note</a></li>
+                    <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
                     <li class='divider'></li>
                     <li><a ng-click="vm.history.deleteNote(vm.item)"><i class="fa fa-trash"></i>Delete</a></li>
                 </ul>

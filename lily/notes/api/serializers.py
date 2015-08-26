@@ -22,4 +22,5 @@ class NoteSerializer(serializers.ModelSerializer):
             'author',
             'content_type',
             'object_id',
+            'is_pinned',
         )

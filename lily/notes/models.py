@@ -26,14 +26,15 @@ class Note(HistoryListItem, DeletedMixin):
     author = models.ForeignKey(LilyUser, verbose_name=_('author'))
 
     type = models.SmallIntegerField(
-            max_length=2,
-            choices=NOTE_TYPE_CHOICES,
-            default=TYPE_NOTE,
-            verbose_name=_('type')
-        )
+        max_length=2,
+        choices=NOTE_TYPE_CHOICES,
+        default=TYPE_NOTE,
+        verbose_name=_('type')
+    )
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     subject = GenericForeignKey('content_type', 'object_id')
+    is_pinned = models.BooleanField(default=False)
 
     def get_list_item_template(self):
         """

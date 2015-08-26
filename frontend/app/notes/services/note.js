@@ -2,5 +2,19 @@ angular.module('app.notes').factory('Note', Note);
 
 Note.$inject = ['$resource'];
 function Note ($resource) {
-    return $resource('/api/notes/:id/');
+    var Note = $resource('/api/notes/:id/',
+        null,
+        {
+            update: {
+                method: 'PATCH',
+                params: {
+                    id: '@id'
+                }
+            }
+        }
+    );
+
+    /////
+
+    return Note;
 }

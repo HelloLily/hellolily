@@ -38,6 +38,9 @@ class NoteMapping(BaseMapping):
             'date': {
                 'type': 'date',
             },
+            'is_pinned': {
+                'type': 'boolean',
+            },
         })
         return mapping
 
@@ -70,4 +73,5 @@ class NoteMapping(BaseMapping):
             'object_id': obj.object_id,
             'subject_repr': str(obj.subject),
             'date': obj.sort_by_date,
+            'is_pinned': obj.is_pinned,
         }

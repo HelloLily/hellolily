@@ -209,7 +209,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
     function _handleBadResponse(response, form) {
         // Set error of the first website as the primary website error
-        if (vm.account.primaryWebsite && response.data['websites'].length) {
+        if (vm.account.primaryWebsite && response.data['websites'] && response.data['websites'].length) {
             response.data['primaryWebsite'] = response.data['websites'].shift()['website'];
         }
 

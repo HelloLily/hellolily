@@ -145,6 +145,8 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
     }
 
     function saveAccount(form) {
+        HLForms.blockUI();
+
         var primaryWebsite = vm.account.primaryWebsite;
         // Make sure it's not an empty website being added
         if (primaryWebsite && primaryWebsite != 'http://' && primaryWebsite != 'https://') {

@@ -74,11 +74,32 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                 // Check if we need to fetch notes
                 if (noteTargets.indexOf(scope.target) != -1) {
-                    var notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
+                    var notePromise;
+
+                    if (scope.target == 'account') {
+                        var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
+
+                        // Show all notes of contacts linked to the account
+                        for (var i = 0; i < obj.contact.length; i++) {
+                            filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
+                        }
+
+                        notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength }).$promise;
+                    }
+                    else {
+                        notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
+                    }
+
                     promises.push(notePromise);  // Add promise to list of all promises for later handling
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // If it's a contact's note, add extra attribute to the note
+                            // so we can identify it in the template
+                            if (scope.target == 'account' && note.content_type == 'contact') {
+                                note.showContact = true;
+                            }
+
                             history.push(note);
                         });
                     });

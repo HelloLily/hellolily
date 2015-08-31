@@ -33,6 +33,12 @@
                     {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
                 </small>
             </li>
+            <li ng-if="vm.item.showContact">
+                <small class="text-muted" tooltip="Note linked to {{ ::vm.item.subject_repr }}">
+                    <i class="fa fa-user"></i>
+                    <a ui-sref="base.contacts.detail({id: vm.item.object_id})" class="link-no-decoration">{{ ::vm.item.subject_repr }}</a>
+                </small>
+            </li>
             <li>
                 <small class="text-muted" tooltip="Created by: {{ ::vm.item.author }}">
                     <i class="fa fa-user"></i>

@@ -45,10 +45,11 @@
                     </th>
                     <td>
                         <div ng-repeat="address in contact.addresses">
-                            {{ address.street }} {{ address.street_number }}{{ address.complement }}, {{ address.postal_code }}
+                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
                             <br />
-                            {{ address.city }}, {{ address.country }}
+                            {{ address.postal_code }}, {{ address.city }}
                             <br />
+                            {{ address.country }}
                         </div>
                     </td>
                 </tr>

@@ -4,7 +4,7 @@
 <div class="timeline-panel">
     <div class='timeline-heading'>
         <h4 class='timeline-title'>
-            {{ ::vm.item.subject }}
+            <a class="link-no-decoration" ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
             <div class="btn-group pull-right">
                 <a class="text-white" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-angle-down"></i>

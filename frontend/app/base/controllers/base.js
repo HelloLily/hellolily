@@ -27,7 +27,7 @@ function BaseController ($scope, $state, Notifications) {
 
     //////////
 
-    function activate(){
+    function activate() {
         $scope.$on('$stateChangeSuccess', _setPreviousState);
         $scope.$on('$viewContentLoaded', _contentLoadedActions);
     }
@@ -38,12 +38,13 @@ function BaseController ($scope, $state, Notifications) {
                 toastr[message.level](message.message);
             });
         }, function(error) {  // On error
-            console.log('error!');
+            console.log('An error occurred!');
             console.log(error);
         })
     }
 
     function _contentLoadedActions() {
+        Metronic.unblockUI();
         Metronic.initComponents(); // init core components
         HLSelect2.init();
         HLFormsets.init();

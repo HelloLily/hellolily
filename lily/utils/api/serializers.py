@@ -54,7 +54,8 @@ class PhoneNumberSerializer(RelatedFieldSerializer):
         phone_number = value
 
         if phone_number:
-            phone_number = re.sub('[\+\(\)]', '', phone_number)
+            # Strip plus sign, parentheses and whitespace
+            phone_number = re.sub('[\+\(\)\s]', '', phone_number)
 
             if not phone_number.isdigit():
                 raise ValidationError('Phone number may not contain any letters.')

@@ -4,7 +4,9 @@
 <div class="timeline-panel">
     <div class='timeline-heading'>
         <h4 class='timeline-title'>
-            <span ng-if="vm.item.subject">{{ ::vm.item.subject | limitTo:45 }}<span ng-if="::vm.item.subject.length >= 45">...</span></span>
+            <span ng-if="vm.item.subject">
+                <a class="link-no-decoration" ui-sref="base.email.detail({ id: vm.item.id })">{{ ::vm.item.subject | limitTo:50 }}</a><span ng-if="::vm.item.subject.length >= 45">...</span>
+            </span>
             <span ng-if="!vm.item.subject"><i>No Subject</i></span>
             <div class="btn-group pull-right">
                 <a class="text-white" data-toggle="dropdown" aria-expanded="false">

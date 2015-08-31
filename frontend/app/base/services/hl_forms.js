@@ -8,7 +8,10 @@ function HLForms () {
      * @param data (object): object containing all the errors
      *
      */
-    this.setErrors = function (form, data) {
+    this.setErrors = function(form, data) {
+        // Unblock the UI so user can retry filling in the form
+        Metronic.unblockUI();
+
         for (var field in data) {
             // Errors are always in the <field>: Array format, so iterate over the array
             for (var i = 0; i < data[field].length; i++) {
@@ -30,4 +33,12 @@ function HLForms () {
             }
         }
     };
+
+    /**
+     * Block the UI, giving the user feedback about te form.
+     */
+    this.blockUI = function() {
+        // animate shows a CSS animation instead of the standard 'Loading' text
+        Metronic.blockUI({animate: true});
+    }
 }

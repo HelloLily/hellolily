@@ -33,6 +33,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.editNote = editNote;
+            scope.history.pinNote = pinNote;
             scope.history.deleteNote = deleteNote;
 
             scope.note = {};
@@ -73,11 +74,32 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                 // Check if we need to fetch notes
                 if (noteTargets.indexOf(scope.target) != -1) {
-                    var notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
+                    var notePromise;
+
+                    if (scope.target == 'account') {
+                        var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
+
+                        // Show all notes of contacts linked to the account
+                        for (var i = 0; i < obj.contact.length; i++) {
+                            filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
+                        }
+
+                        notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength }).$promise;
+                    }
+                    else {
+                        notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
+                    }
+
                     promises.push(notePromise);  // Add promise to list of all promises for later handling
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // If it's a contact's note, add extra attribute to the note
+                            // so we can identify it in the template
+                            if (scope.target == 'account' && note.content_type == 'contact') {
+                                note.showContact = true;
+                            }
+
                             history.push(note);
                         });
                     });
@@ -154,8 +176,20 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         // We have on of these items so we need to be able to filter on it
                         scope.history.types[item.historyType].visible = true;
 
-                        // Push our item to our ordered list
-                        orderedHistoryList.push(item);
+                        var addNormal = true;
+
+                        if (item.historyType == 'note') {
+                            // Pinned notes should always be first in the list
+                            if (item.is_pinned) {
+                                orderedHistoryList.unshift(item);
+                                addNormal = false;
+                            }
+                        }
+
+                        if (addNormal) {
+                            // Push our item to our ordered list
+                            orderedHistoryList.push(item);
+                        }
                     });
                     if (!orderedHistoryList) {
                         // Make sure the max size of the list doesn't grow each click
@@ -199,13 +233,19 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                     controller: 'EditNoteModalController',
                     size: 'lg',
                     resolve: {
-                        note: function() {
+                        note: function () {
                             return note;
                         }
                     }
                 });
 
-                modalInstance.result.then(function() {
+                modalInstance.result.then(function () {
+                    $state.go($state.current, {}, {reload: true});
+                });
+            }
+
+            function pinNote(note, isPinned) {
+                Note.update({id: note.id}, {is_pinned: isPinned}, function() {
                     $state.go($state.current, {}, {reload: true});
                 });
             }
@@ -213,7 +253,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             function deleteNote(note) {
                 if (confirm('Are you sure?')) {
                     Note.delete({
-                        id:note.id
+                        id: note.id
                     }, function() {  // On success
                         var index = scope.history.list.indexOf(note);
                         scope.history.list.splice(index, 1);

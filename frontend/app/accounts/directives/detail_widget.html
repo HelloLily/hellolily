@@ -77,10 +77,11 @@
                     </th>
                     <td>
                         <div ng-repeat="address in account.address">
-                            {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}, {{ address.address_postal_code }}
+                            {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}
                             <br />
-                            {{ address.address_city }}, {{ address.address_country }}
+                            {{ address.address_postal_code }}, {{ address.address_city }}
                             <br />
+                            {{ address.address_country }}
                         </div>
                     </td>
                 </tr>

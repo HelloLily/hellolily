@@ -76,7 +76,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 if (noteTargets.indexOf(scope.target) != -1) {
                     var notePromise;
 
-                    if (scope.target == 'account') {
+                    if (scope.target == 'account' && obj.contact && obj.contact.length) {
                         var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
 
                         // Show all notes of contacts linked to the account

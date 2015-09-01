@@ -95,6 +95,8 @@ def synchronize_email_account(account_id):
                 logger.info('History page sync done for: %s', email_account)
             else:
                 # Done syncing
+                # Release the lock for this account
+                lock.release()
                 logger.info('Sync done for: %s', email_account)
 
             succes = True
@@ -103,8 +105,6 @@ def synchronize_email_account(account_id):
         except Exception:
             logger.exception('No sync for account %s' % email_account)
         finally:
-            # Release the lock for this account
-            lock.release()
             manager.cleanup()
             return succes
     else:

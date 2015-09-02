@@ -49,6 +49,21 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (True, _('Done')),
     )
 
+    QUOTE_CHECKED_CHOICES = (
+        (False, _('Almost')),
+        (True, _('Done')),
+    )
+
+    CARD_SENT_CHOICES = (
+        (False, _('Writing it now')),
+        (True, _('Done')),
+    )
+
+    TWITTER_CHECKED_CHOICES = (
+        (False, _('Nearly')),
+        (True, _('Done')),
+    )
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=False)
@@ -64,8 +79,10 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                             object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=FEEDBACK_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('business'), choices=BUSINESS_CHOICES)
-    is_checked = models.BooleanField(default=False, choices=NO_YES_CHOICES)
-    quote_id = models.CharField(max_length=255, verbose_name=_('Freedom quote id'), blank=True)
+    is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'), choices=QUOTE_CHECKED_CHOICES)
+    twitter_checked = models.BooleanField(default=False, choices=TWITTER_CHECKED_CHOICES)
+    card_sent = models.BooleanField(default=False, choices=CARD_SENT_CHOICES)
+    quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
 

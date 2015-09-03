@@ -71,6 +71,26 @@ class DealMapping(BaseMapping):
             'feedback_form_sent': {
                 'type': 'boolean',
             },
+            'twitter_checked': {
+                'type': 'boolean',
+            },
+            'card_sent': {
+                'type': 'boolean',
+            },
+            'found_through': {
+                'type': 'integer',
+            },
+            'found_through_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'contacted_by': {
+                'type': 'integer',
+            },
+            'contacted_by_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
             'quote_id': {
                 'type': 'string'
             }
@@ -121,6 +141,12 @@ class DealMapping(BaseMapping):
             'is_checked': obj.is_checked,
             'archived': obj.is_archived,
             'feedback_form_sent': obj.feedback_form_sent,
+            'twitter_checked': obj.twitter_checked,
+            'card_sent': obj.card_sent,
+            'found_through': obj.found_through,
+            'found_through_name': obj.get_found_through_display(),
+            'contacted_by': obj.contacted_by,
+            'contacted_by_name': obj.get_contacted_by_display(),
             'new_business': obj.new_business,
             'quote_id': obj.quote_id,
         }

@@ -64,6 +64,23 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (True, _('Done')),
     )
 
+    FOUND_THROUGH_CHOICES = (
+        (0, _('Search engine')),
+        (1, _('Social media')),
+        (2, _('Talk with employee')),
+        (3, _('Existing customer')),
+        (4, _('Other')),
+    )
+
+    CONTACTED_BY_CHOICES = (
+        (0, _('Quote')),
+        (1, _('Contact form')),
+        (2, _('Phone')),
+        (3, _('Web chat')),
+        (4, _('E-mail')),
+        (5, _('Other')),
+    )
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=False)
@@ -83,6 +100,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     twitter_checked = models.BooleanField(default=False, choices=TWITTER_CHECKED_CHOICES)
     card_sent = models.BooleanField(default=False, choices=CARD_SENT_CHOICES)
     quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
+    found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES, verbose_name=_('found us through'))
+    contacted_by = models.IntegerField(max_length=255, blank=True, null=True, choices=CONTACTED_BY_CHOICES, verbose_name=_('contacted us by'))
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
 

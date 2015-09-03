@@ -5,9 +5,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <label>Account:</label> <a ui-sref="base.accounts.detail({ id: deal.account })"> {{ ::deal.account_name }}</a><br/>
-                        <label>Deal Name:</label> {{ ::deal.name }}<br/>
+                        <label>Deal name:</label> {{ ::deal.name }}<br/>
+                        <span ng-if="deal.found_through_name"><label>Found us through:</label> {{ ::deal.found_through_name }}<br/></span>
+                        <span ng-if="deal.contacted_by_name"><label>Contacted us by:</label> {{ ::deal.contacted_by_name }}<br/></span>
                         <label>Created:</label> {{ deal.created | relativeDate }}<br/>
-                        <label>Closing Date:</label> <span id="closed-date" ng-show="deal.closing_date"> {{ deal.closing_date | relativeDate }}</span>
+                        <label>Closing date:</label> <span id="closed-date" ng-show="deal.closing_date"> {{ deal.closing_date | relativeDate }}</span>
                    </div>
                 </div>
             </div>
@@ -22,16 +24,30 @@
                         <label>One-time cost:</label> {{ ::deal.amount_once | currency:"€" }}<br/>
                         <label>Recurring costs:</label> {{ ::deal.amount_recurring | currency:"€" }}<br/>
                         <label>Status:</label> {{ deal.stage_name }} <span ng-show="deal.archived">- Archived</span><br/>
+                        <div>
+                            <label>Twitter checked:</label>
+                            <span ng-if="deal.twitter_checked">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!deal.twitter_checked"> -</span><br/>
+                        </div>
                         <div ng-show="deal.stage == 2">
-                            <label>Checked:</label>
-                            <span ng-show="deal.is_checked"> <i class="fa fa-checked"></i> Yes</span>
-                            <span ng-hide="deal.is_checked"> <a href="javascript:void(0);">Nope :-(</a></span><br/>
+                            <label>Quote checked:</label>
+                            <span ng-show="deal.is_checked">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-hide="deal.is_checked"> -</span><br/>
+                        </div>
+                        <div>
+                            <label>Card sent:</label>
+                            <span ng-if="deal.card_sent">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!deal.card_sent"> -</span><br/>
+                        </div>
+                        <div>
+                            <label>Feedback form sent:</label>
+                            <span ng-if="deal.feedback_form_sent">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!deal.feedback_form_sent"> -</span><br/>
                         </div>
                         <div ng-show="deal.quote_id">
                             <label>Freedom quote:</label>
                             <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank">Open in freedom</a>
                         </div>
-                        <label>Feedback form sent:</label> {{ ::deal.feedback_form_sent }}<br/>
                    </div>
                 </div>
             </div>

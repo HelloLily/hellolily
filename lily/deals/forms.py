@@ -88,8 +88,8 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         model = Deal
 
         fieldsets = (
-            (_('For who is it?'), {
-                'fields': ('account', 'is_archived', 'new_business'),
+            (_('Who is it?'), {
+                'fields': ('account', 'is_archived', 'new_business', 'found_through', 'contacted_by'),
             }),
             (_('What is it?'), {
                 'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description', 'quote_id'),

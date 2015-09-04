@@ -104,7 +104,7 @@ var config = {
         }
     },
     cdn: {
-        defaultBase: process.env.STATIC_URL,  // static url to prepend to all file paths.
+        defaultBase: (process.env.STATIC_URL || '/static/'),  // static url to prepend to all file paths.
         root: 'frontend/',
         src: [
             '**/*.{gif,png,jpg,jpeg,svg,ico}',  // Images

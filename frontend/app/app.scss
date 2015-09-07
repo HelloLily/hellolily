@@ -23,10 +23,13 @@ table {
             min-height: 38px;
         }
     }
+    th {
+        vertical-align: top !important;
+    }
 }
 
 a {
-    .link-no-decoration {
+    &.link-no-decoration {
       text-decoration: none;
       color: inherit;
     }

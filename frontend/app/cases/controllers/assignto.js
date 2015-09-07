@@ -4,11 +4,11 @@ CaseAssignModal.$inject = ['$modalInstance', 'myCase', 'Case', 'User'];
 function CaseAssignModal ($modalInstance, myCase, Case, User) {
     var vm = this;
     vm.myCase = myCase;
-    vm.currentAssigneeId = myCase.assigned_to_id;
     vm.users = [];
 
     vm.ok = ok;
     vm.cancel = cancel;
+    vm.assignToMe = assignToMe;
 
     activate();
 
@@ -22,6 +22,13 @@ function CaseAssignModal ($modalInstance, myCase, Case, User) {
         User.query({}, function(data) {
             vm.users = data;
         });
+    }
+
+    function assignToMe() {
+        vm.assignee = {
+            id: currentUser.id,
+            full_name: currentUser.fullName
+        };
     }
 
     function ok () {

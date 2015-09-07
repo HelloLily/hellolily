@@ -10,10 +10,12 @@
                     <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                 </ui-select-choices>
             </ui-select>
+
+            <button ng-click="vm.assignToMe()" class="btn btn-link assign-me-btn no-padding">Assign to me</button>
         </div>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="vm.ok()">OK</button>
-    <button class="btn btn-warning" ng-click="vm.cancel()">Cancel</button>
+    <button class="btn btn-default" ng-click="vm.cancel()">Cancel</button>
 </div>

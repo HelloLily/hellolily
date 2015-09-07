@@ -45,7 +45,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
         (CRIT_PRIO, _('Critical')),
     )
 
-    priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, verbose_name=_('priority'))
+    priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=LOW_PRIO, verbose_name=_('priority'))
     subject = models.CharField(max_length=255, verbose_name=_('subject'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     status = models.ForeignKey(CaseStatus, verbose_name=_('status'), related_name='cases')

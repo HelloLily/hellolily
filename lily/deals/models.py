@@ -49,6 +49,38 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (True, _('Done')),
     )
 
+    QUOTE_CHECKED_CHOICES = (
+        (False, _('Almost')),
+        (True, _('Done')),
+    )
+
+    CARD_SENT_CHOICES = (
+        (False, _('Writing it now')),
+        (True, _('Done')),
+    )
+
+    TWITTER_CHECKED_CHOICES = (
+        (False, _('Nearly')),
+        (True, _('Done')),
+    )
+
+    FOUND_THROUGH_CHOICES = (
+        (0, _('Search engine')),
+        (1, _('Social media')),
+        (2, _('Talk with employee')),
+        (3, _('Existing customer')),
+        (4, _('Other')),
+    )
+
+    CONTACTED_BY_CHOICES = (
+        (0, _('Quote')),
+        (1, _('Contact form')),
+        (2, _('Phone')),
+        (3, _('Web chat')),
+        (4, _('E-mail')),
+        (5, _('Other')),
+    )
+
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=False)
@@ -64,8 +96,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                             object_id_field='object_id', verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=FEEDBACK_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('business'), choices=BUSINESS_CHOICES)
-    is_checked = models.BooleanField(default=False, choices=NO_YES_CHOICES)
-    quote_id = models.CharField(max_length=255, verbose_name=_('Freedom quote id'), blank=True)
+    is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'), choices=QUOTE_CHECKED_CHOICES)
+    twitter_checked = models.BooleanField(default=False, choices=TWITTER_CHECKED_CHOICES)
+    card_sent = models.BooleanField(default=False, choices=CARD_SENT_CHOICES)
+    quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
+    found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES, verbose_name=_('found us through'))
+    contacted_by = models.IntegerField(max_length=255, blank=True, null=True, choices=CONTACTED_BY_CHOICES, verbose_name=_('contacted us by'))
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
 

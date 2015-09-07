@@ -88,14 +88,17 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         model = Deal
 
         fieldsets = (
-            (_('For who is it?'), {
-                'fields': ('account', 'is_archived', 'new_business'),
+            (_('Who is it?'), {
+                'fields': ('account', 'is_archived', 'new_business', 'found_through', 'contacted_by'),
             }),
             (_('What is it?'), {
                 'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description', 'quote_id'),
             }),
             (_('What\'s the status?'), {
-                'fields': ('stage', 'expected_closing_date', 'assigned_to', 'feedback_form_sent', 'is_checked'),
+                'fields': ('stage', 'expected_closing_date', 'assigned_to'),
+            }),
+            (_('Action checklist'), {
+                'fields': ('twitter_checked', 'is_checked', 'card_sent', 'feedback_form_sent'),
             }),
         )
 
@@ -118,6 +121,14 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'data-uniformed': 'true',
             }),
             'is_checked': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
+            'twitter_checked': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
+                'data-skip-uniform': 'true',
+                'data-uniformed': 'true',
+            }),
+            'card_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
                 'data-skip-uniform': 'true',
                 'data-uniformed': 'true',
             }),

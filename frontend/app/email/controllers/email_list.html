@@ -41,7 +41,7 @@
                 </div>
                 <div class="btn-group">
                     <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
-                        More <i class="fa fa-angle-down"></i>
+                        More&nbsp;<i class="fa fa-angle-down"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li>
@@ -70,7 +70,10 @@
                         </li>
                     </ul>
                 </div>
-                <a class="btn btn-sm red" ng-click="vm.deleteMessages()">
+                <a class="btn btn-sm blue" ng-if="vm.label.id != 'TRASH'" ng-click="vm.trashMessages()">
+                    <i class="fa fa-trash-o"></i> Delete
+                </a>
+                <a class="btn btn-sm red" ng-if="vm.label.id == 'TRASH'" ng-click="vm.deleteMessages()">
                     <i class="fa fa-trash-o"></i> Delete
                 </a>
                 <a class="btn btn-sm blue" ng-click="vm.archiveMessages()" ng-show="vm.label">

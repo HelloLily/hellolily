@@ -25,7 +25,9 @@ table {
     }
 }
 
-a.link-no-decoration {
-    text-decoration: none;
-    color: inherit;
+a {
+    .link-no-decoration {
+      text-decoration: none;
+      color: inherit;
+    }
 }

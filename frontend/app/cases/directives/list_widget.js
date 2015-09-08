@@ -1,5 +1,5 @@
 angular.module('app.cases.directives').directive('caseListWidget', CaseListWidget);
-function CaseListWidget(){
+function CaseListWidget() {
     return {
         restrict: 'E',
         replace: true,

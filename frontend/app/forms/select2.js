@@ -91,7 +91,7 @@
                                         filterquery: filterQuery,
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' //sort modified descending
+                                        sort: '-modified' // sort modified descending
                                     };
                                 }
                                 else {
@@ -100,7 +100,7 @@
                                         filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' //sort modified descending
+                                        sort: '-modified' // sort modified descending
                                     };
                                 }
 

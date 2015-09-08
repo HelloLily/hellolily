@@ -78,7 +78,7 @@
                     <td ng-show="table.visibility.stage">
                         {{ deal.stage_name }}
                     </td>
-                    <td ng-show="table.visibility.created">
+                    <td ng-show="table.visibility.created" title="{{ deal.created | date:'dd MMMM y HH:mm' }}">
                         {{ deal.created | relativeDate }}
                     </td>
                     <td ng-show="table.visibility.name">
@@ -93,7 +93,7 @@
                     <td ng-show="table.visibility.assignedTo">
                         {{ deal.assigned_to_name }}
                     </td>
-                    <td ng-show="table.visibility.closingDate">
+                    <td ng-show="table.visibility.closingDate" title="{{ deal.closing_date | date:'dd MMMM y HH:mm' }}">
                         {{ deal.closing_date | relativeDate }}
                     </td>
                     <td ng-show="table.visibility.newBusiness">

@@ -201,7 +201,7 @@ class ArchiveCasesView(LoginRequiredMixin, AjaxUpdateView):
             message = _('Case has been archived')
             messages.success(self.request, message)
 
-            return HttpResponse(anyjson.serialize({'archived': 'true'}), content_type='application/json')
+            return HttpResponse(anyjson.serialize({'status': new_status.status, 'archived': 'true'}), content_type='application/json')
 
 
 class UnarchiveCasesView(LoginRequiredMixin, AjaxUpdateView):

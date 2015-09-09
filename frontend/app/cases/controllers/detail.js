@@ -123,6 +123,7 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Case
 
         $http(req).
             success(function(data, status, headers, config) {
+                vm.case.status = data.status;
                 vm.case.archived = true;
             }).
             error(function(data, status, headers, config) {

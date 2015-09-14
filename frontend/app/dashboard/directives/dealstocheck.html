@@ -1,46 +1,37 @@
-<div class="col-md-6">
-    <div class="portlet light">
-        <div class="portlet-title">
-            <div class="caption">
-                <i class="fa fa-phone"></i>
-                <span class="caption-subject bold uppercase"> DEALS TO CHECK</span>
-                <span class="caption-helper">({{ vm.table.items.length }})</span>
-            </div>
-            <div class="tools">
-                <a href="" class="collapse" data-original-title="" title=""></a>
-                <a href="" class="remove" data-original-title="" title=""></a>
-            </div>
-            <div class="actions">
-                <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
-            </div>
-        </div>
-        <div class="portlet-body">
-            <div class="scroll-body" slimscroll="{height: 250}">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Account</th>
-                            <th>Deal</th>
-                            <th sort-column="closing_date" table="vm.table">Won date</th>
-                            <th>Quote</th>
-                            <th>Checked?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="deal in vm.table.items">
-                            <td><a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a></td>
-                            <td><a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a></td>
-                            <td>{{ deal.closing_date | relativeDate }}</td>
-                            <td><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
-                            <td><a ng-click="vm.markDealAsChecked(deal)"><i class="fa fa-check"></i> a ok!</a></td>
-                        </tr>
-                        <tr ng-hide="vm.table.items.length">
-                            <td colspan="5">No deals to check</td>
-                        </tr>
+<dashboard-widget widget-name="'Deals to check'">
+    <div name="portlet-caption">
+        <i class="fa fa-phone"></i>
+        <span class="caption-subject bold uppercase"> DEALS TO CHECK</span>
+        <span class="caption-helper">({{ vm.table.items.length }})</span>
 
-                    </tbody>
-                </table>
-            </div>
+        <div class="actions">
+            <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
         </div>
     </div>
-</div>
+    <div name="portlet-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Deal</th>
+                    <th sort-column="closing_date" table="vm.table">Won date</th>
+                    <th>Quote</th>
+                    <th>Checked?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="deal in vm.table.items">
+                    <td><a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a></td>
+                    <td><a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a></td>
+                    <td>{{ deal.closing_date | relativeDate }}</td>
+                    <td><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
+                    <td><a ng-click="vm.markDealAsChecked(deal)"><i class="fa fa-check"></i> a ok!</a></td>
+                </tr>
+                <tr ng-hide="vm.table.items.length">
+                    <td colspan="5">No deals to check</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</dashboard-widget>

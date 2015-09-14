@@ -8,6 +8,7 @@ angular.module('app', [
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',
+    'multi-transclude',
 
     // Controllers
     'app.accounts',

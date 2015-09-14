@@ -35,7 +35,6 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Case
     vm.unarchive = unarchive;
     vm.openPostponeWidget = openPostponeWidget;
 
-
     //////
 
     /**

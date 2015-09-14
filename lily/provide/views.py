@@ -8,9 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
 from lily.utils.functions import parse_address, parse_phone_number
+from lily.utils.views import LoginRequiredMixin
 
 
-class ProvideBaseView(View):
+class ProvideBaseView(LoginRequiredMixin, View):
     """
     Base view for external APIs which can provide data.
     """

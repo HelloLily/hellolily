@@ -38,12 +38,12 @@ function AccountDetailController($scope, $stateParams, CaseDetail, ContactDetail
     $scope.conf.pageTitleBig = account.name;
     $scope.conf.pageTitleSmall = 'change is natural';
 
-    $scope.caseList = CaseDetail.query({filterquery: 'account:' + id});
+    $scope.caseList = CaseDetail.query({filterquery: 'account:' + id, sort: '-created'});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });
 
-    $scope.dealList = DealDetail.query({filterquery: 'account:' + id});
+    $scope.dealList = DealDetail.query({filterquery: 'account:' + id, sort: '-created'});
     $scope.dealList.$promise.then(function(dealList) {
         $scope.dealList = dealList;
     });

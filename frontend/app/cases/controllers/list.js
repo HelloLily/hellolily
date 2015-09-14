@@ -47,6 +47,7 @@ function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HL
             type: true,
             status: true,
             expires: true,
+            created: true,
             assignedTo: true,
             createdBy: true,
             tags: true

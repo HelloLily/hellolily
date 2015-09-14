@@ -57,6 +57,36 @@
             });
         },
 
+        formatResult: function(result, container, query, escapeMarkup) {
+            var resultRow = '';
+
+            if (result.name && result.email_address) {
+                var nameMarkup = [];
+                var emailMarkup = [];
+
+                window.Select2.util.markMatch(result.name, query.term, nameMarkup, escapeMarkup);
+                window.Select2.util.markMatch(result.email_address, query.term, emailMarkup, escapeMarkup);
+
+                resultRow =
+                '<div>' +
+                    '<div>' + nameMarkup.join('') + '</div>' +
+                    '<div class="text-muted">' + emailMarkup.join('') + '</div>' +
+                '</div>';
+            }
+            else {
+                var markup = [];
+
+                window.Select2.util.markMatch(result.text, query.term, markup, escapeMarkup);
+
+                resultRow =
+                '<div>' +
+                    '<div>' + markup.join('') + '</div>' +
+                '</div>';
+            }
+
+            return resultRow;
+        },
+
         createAjaxInputs: function() {
             // Setup inputs that needs remote link
             var self = this;
@@ -71,6 +101,7 @@
                 // Prevent Select2 from being initialized on elements that already have Select2
                 if (!_data.hasOwnProperty('select2')) {
                     var options = {
+                        formatResult: self.formatResult,
                         ajax: {
                             cache: true,
                             data: function (term, page) {
@@ -91,7 +122,7 @@
                                         filterquery: filterQuery,
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' //sort modified descending
+                                        sort: '-modified' // sort modified descending
                                     };
                                 }
                                 else {
@@ -100,7 +131,7 @@
                                         filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' //sort modified descending
+                                        sort: '-modified' // sort modified descending
                                     };
                                 }
 
@@ -145,7 +176,13 @@
                                             var displayed_text = hit.name + ' <' + hit.email_addresses[i].email_address + '>';
                                             // Select2 sends 'id' as the value, but we want to use the email
                                             // So store the actual id (hit.id) under a different name
-                                            parsed_data.push({id: used_text, text: displayed_text, object_id: hit.id});
+                                            parsed_data.push({
+                                                id: used_text,
+                                                text: displayed_text,
+                                                name: hit.name,
+                                                email_address: hit.email_addresses[i].email_address,
+                                                object_id: hit.id
+                                            });
                                         }
                                     });
 

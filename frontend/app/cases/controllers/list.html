@@ -14,6 +14,7 @@
                     <checkbox model="vm.table.visibility.priority">Priority</checkbox>
                     <checkbox model="vm.table.visibility.type">Type</checkbox>
                     <checkbox model="vm.table.visibility.status">Status</checkbox>
+                    <checkbox model="vm.table.visibility.created">Created</checkbox>
                     <checkbox model="vm.table.visibility.expires">Expires</checkbox>
                     <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
                     <checkbox model="vm.table.visibility.createdBy">Created by</checkbox>
@@ -51,17 +52,18 @@
     <div class="portlet-body flip-scroll">
         <table class="table table-bordered table-striped flip-content">
             <thead class="flip-content">
-            <th>Edit</th>
-            <th ng-show="vm.table.visibility.caseId" sort-column="id" table="vm.table" class="width-4">No.</th>
-            <th ng-show="vm.table.visibility.client" class="width-20">Client</th>
-            <th ng-show="vm.table.visibility.subject" class="width-20">Subject</th>
-            <th ng-show="vm.table.visibility.priority" sort-column="priority" table="vm.table">Priority</th>
-            <th ng-show="vm.table.visibility.type" sort-column="casetype_name" table="vm.table">Type</th>
-            <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
-            <th ng-show="vm.table.visibility.expires" sort-column="expires" table="vm.table" class="width-10">Expires</th>
-            <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
-            <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
-            <th ng-show="vm.table.visibility.tags">Tags</th>
+                <th>Edit</th>
+                <th ng-show="vm.table.visibility.caseId" sort-column="id" table="vm.table" class="width-4">No.</th>
+                <th ng-show="vm.table.visibility.client" class="width-20">Client</th>
+                <th ng-show="vm.table.visibility.subject" class="width-20">Subject</th>
+                <th ng-show="vm.table.visibility.priority" sort-column="priority" table="vm.table">Priority</th>
+                <th ng-show="vm.table.visibility.type" sort-column="casetype_name" table="vm.table">Type</th>
+                <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
+                <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
+                <th ng-show="vm.table.visibility.expires" sort-column="expires" table="vm.table" class="width-10">Expires</th>
+                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
+                <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
+                <th ng-show="vm.table.visibility.tags">Tags</th>
             </thead>
             <tbody>
             <tr ng-repeat="case in vm.table.items">
@@ -91,7 +93,10 @@
                 <td ng-show="vm.table.visibility.status">
                     {{ ::case.status }}
                 </td>
-                <td ng-show="vm.table.visibility.expires">
+                <td ng-show="vm.table.visibility.created" title="{{ case.created | date:'dd MMMM y HH:mm' }}">
+                    {{ ::case.created | relativeDate:'':true }}
+                </td>
+                <td ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
                     {{ ::case.expires | relativeDate:'':true }}
                 </td>
                 <td ng-show="vm.table.visibility.assignedTo">
@@ -102,10 +107,10 @@
                     {{ ::case.created_by }}
                 </td>
                 <td ng-show="vm.table.visibility.tags">
-                        <span ng-repeat="tag in case.tag">
-                            <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag)">{{ ::tag }}</a>
-                            <br>
-                        </span>
+                    <span ng-repeat="tag in case.tag">
+                        <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag)">{{ ::tag }}</a>
+                        <br>
+                    </span>
                 </td>
             </tr>
             </tbody>

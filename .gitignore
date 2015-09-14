@@ -12,6 +12,7 @@
 .idea/
 .tags
 .tags1
+.v8flags.*
 dist-packages/
 
 celerybeat-schedule

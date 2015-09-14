@@ -113,10 +113,10 @@
                             <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
                         </div>
                     </td>
-                    <td ng-show="table.visibility.created">
+                    <td ng-show="table.visibility.created" title="{{ contact.created | date:'dd MMMM y HH:mm' }}">
                         {{ ::contact.created | relativeDate }}
                     </td>
-                    <td ng-show="table.visibility.modified">
+                    <td ng-show="table.visibility.modified" title="{{ contact.modified | date:'dd MMMM y HH:mm' }}">
                         {{ ::contact.modified | relativeDate }}
                     </td>
                     <td ng-show="table.visibility.tags">

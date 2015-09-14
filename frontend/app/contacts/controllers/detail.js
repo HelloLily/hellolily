@@ -42,7 +42,7 @@ function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, contact)
     $scope.conf.pageTitleBig = 'Contact detail';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
 
-    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id});
+    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id, sort: '-created'});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });

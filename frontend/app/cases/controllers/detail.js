@@ -13,19 +13,25 @@ function caseConfig ($stateProvider) {
         },
         ncyBreadcrumb: {
             label: '{{ case.subject }}'
+        },
+        resolve: {
+            caseItem: ['CaseDetail', '$stateParams', function(CaseDetail, $stateParams) {
+                var id = $stateParams.id;
+                return CaseDetail.get({id: id}).$promise;
+            }]
         }
     });
 }
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$modal', '$scope', '$state', '$stateParams', 'CaseDetail', 'CaseStatuses'];
-function CaseDetailController ($http, $modal, $scope, $state, $stateParams, CaseDetail, CaseStatuses) {
+CaseDetailController.$inject = ['$http', '$modal', '$scope', '$state', '$stateParams', 'CaseStatuses', 'caseItem'];
+function CaseDetailController ($http, $modal, $scope, $state, $stateParams, CaseStatuses, caseItem) {
     var vm = this;
     $scope.conf.pageTitleBig = 'Case';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
     var id = $stateParams.id;
-    vm.case = CaseDetail.get({id: id});
+    vm.case = caseItem;
     vm.caseStatuses = CaseStatuses.query();
 
     vm.getPriorityDisplay = getPriorityDisplay;

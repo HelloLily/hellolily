@@ -229,7 +229,7 @@ function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HL
         HLFilters.updateFilterQuery(vm);
     }
 
-    function clearFilters  () {
+    function clearFilters () {
         HLFilters.clearFilters(vm);
     }
 

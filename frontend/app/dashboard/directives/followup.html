@@ -1,45 +1,34 @@
-<div class="col-md-6">
-    <div class="portlet light">
-        <div class="portlet-title">
-            <div class="caption">
-                <i class="fa fa-bell"></i>
-                <span class="caption-subject bold uppercase"> FOLLOW UP</span>
-                <span class="caption-helper">({{ vm.table.items.length }})</span>
-            </div>
-            <div class="tools">
-                <a href="" class="collapse" data-original-tile="" title=""></a>
-                <a href="" class="remove" data-original-title="" title=""></a>
-            </div>
-        </div>
-
-        <div class="portlet-body">
-            <div class="scroll-body" slimscroll="{height: 250}">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th sort-column="account" table="vm.table">Account</th>
-                            <th sort-column="name" table="vm.table">Deal</th>
-                            <th sort-column="created" table="vm.table">Date</th>
-                            <th>Monthly</th>
-                            <th sort-column="stage_name" table="vm.table">Status</th>
-                            <th>Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                         <tr ng-repeat="followUp in vm.table.items">
-                            <td><a ui-sref="base.accounts.detail({ id: followUp.account })">{{ followUp.account_name }}</a></td>
-                            <td><a ui-sref="base.deals.detail({ id: followUp.id })">{{ followUp.name }}</a></td>
-                            <td>{{ followUp.created|date }}</td>
-                            <td>{{ followUp.amount_recurring | currency:"€" }}</td>
-                            <td>{{ followUp.stage_name }}</td>
-                            <td><a ng-click="vm.openFollowUpWidgetModal(followUp)"><i class="fa fa-edit"></i> Edit</a></td>
-                        </tr>
-                        <tr ng-hide="vm.table.items.length">
-                            <td colspan="6">No follow up deals</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<dashboard-widget widget-name="'Followup'">
+    <div name="portlet-caption">
+        <i class="fa fa-bell"></i>
+        <span class="caption-subject bold uppercase"> FOLLOW UP</span>
+        <span class="caption-helper">({{ vm.table.items.length }})</span>
     </div>
-</div>
+    <div name="portlet-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th sort-column="account" table="vm.table">Account</th>
+                    <th sort-column="name" table="vm.table">Deal</th>
+                    <th sort-column="created" table="vm.table">Date</th>
+                    <th>Monthly</th>
+                    <th sort-column="stage_name" table="vm.table">Status</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr ng-repeat="followUp in vm.table.items">
+                    <td><a ui-sref="base.accounts.detail({ id: followUp.account })">{{ followUp.account_name }}</a></td>
+                    <td><a ui-sref="base.deals.detail({ id: followUp.id })">{{ followUp.name }}</a></td>
+                    <td>{{ followUp.created|date }}</td>
+                    <td>{{ followUp.amount_recurring | currency:"€" }}</td>
+                    <td>{{ followUp.stage_name }}</td>
+                    <td><a ng-click="vm.openFollowUpWidgetModal(followUp)"><i class="fa fa-edit"></i> Edit</a></td>
+                </tr>
+                <tr ng-hide="vm.table.items.length">
+                    <td colspan="6">No follow up deals</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</dashboard-widget>

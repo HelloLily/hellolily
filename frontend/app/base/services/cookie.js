@@ -16,11 +16,12 @@ function Cookie ($cookieStore) {
     }
 
     /**
-     * getCookieValue() tries to retrieve a value from the cookie, or returns default value
+     * Try to retrieve and return a value from the cookie or
+     * returns a default value if cookie doesn't exist.
      *
-     * @param field string: key to retrieve info from
-     * @param defaultValue {*}: default value when nothing set on cache
-     * @returns {*}: retrieved or default value
+     * @param field {string}: Name of the field to retrieve info from
+     * @param defaultValue {*} : Default value when cookie doesn't exist
+     * @returns {*}: Retrieved or default value
      */
     Cookie.prototype.get = function (field, defaultValue) {
         try {
@@ -33,15 +34,45 @@ function Cookie ($cookieStore) {
     };
 
     /**
-     * setCookieValue() sets value on the cookie
+     * Try to retrieve and return an object from the cookie or
+     * returns a default value if cookie doesn't exist.
      *
-     * It prefixes the field to make field unique for this controller
+     * @param field {string}: Name of the field to retrieve info from
+     * @param defaultValue {*} : Default value when cookie doesn't exist
+     * @returns {*}: Retrieved or default value
+     */
+    Cookie.prototype.getObjectValue = function (field, defaultValue) {
+        try {
+            var values = $cookieStore.get(this.prefix);
+            var value = values[field];
+
+            return (value !== undefined) ? value : defaultValue;
+        } catch (error) {
+            $cookieStore.remove(this.prefix[field]);
+            return defaultValue;
+        }
+    };
+
+    /**
+     * Creates/updates a cookie based on the given prefix + field name.
      *
-     * @param field string: the key on which to store the value
-     * @param value {*}: JSON serializable object to store
+     * @param field {string}: Name of the field to be created/updated
+     * @param value {*} : The value of the cookie
      */
     Cookie.prototype.put = function (field, value) {
         $cookieStore.put(this.prefix + field, value);
+    };
+
+    /**
+     * Stores an object as a cookie instead of creating a cookie for every option.
+     * @param field {string}: Name of the field to be created/updated
+     * @param value {*} : The value of the cookie
+     */
+    Cookie.prototype.putObjectValue = function (field, value) {
+        var values = this.get('', {});
+        values[field] = value;
+
+        $cookieStore.put(this.prefix, values);
     };
 
     return CookieFactory;

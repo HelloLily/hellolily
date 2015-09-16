@@ -1,0 +1,24 @@
+<div class="modal-header">
+    <h3 class="modal-title">Widget settings</h3>
+</div>
+<div class="modal-body form-horizontal">
+    <div class="row">
+        <div class="col-md-12">
+            <p>Check/uncheck a widget to toggle the visibility of the widget.</p>
+            <ul class="list-unstyled">
+                <li ng-repeat="(cookieName, widgetInfo) in vm.widgetSettings">
+                    <div class="checker">
+                        <span ng-class="{1: 'checked'}[widgetInfo.status]">
+                            <input id="{{ cookieName }}" type="checkbox" data-skip-uniform ng-model="widgetInfo.status" ng-false-value="0" ng-true-value="1">
+                        </span>
+                    </div>
+                    <label for="{{ cookieName }}">{{ widgetInfo.name }}</label>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn green" ng-click="vm.saveModal()">Save</button>
+    <button class="btn" ng-click="vm.closeModal()">Close</button>
+</div>

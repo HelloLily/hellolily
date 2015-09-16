@@ -1,6 +1,6 @@
 angular.module('app.dashboard.directives').directive('followUp', followUpDirective);
 
-function followUpDirective (){
+function followUpDirective () {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/followup.html',
@@ -10,11 +10,10 @@ function followUpDirective (){
 }
 
 FollowUpController.$inject = ['$modal', '$scope', 'Deal', 'Cookie'];
-function FollowUpController ($modal, $scope, Deal, Cookie){
-
+function FollowUpController ($modal, $scope, Deal, Cookie) {
     var cookie = Cookie('followupWidget');
-
     var vm = this;
+
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
@@ -29,11 +28,11 @@ function FollowUpController ($modal, $scope, Deal, Cookie){
 
     //////
 
-    function activate(){
+    function activate() {
         _watchTable();
     }
 
-    function _getFollowUp(){
+    function _getFollowUp() {
         Deal.getFollowUpWidgetData(
             vm.table.order.column,
             vm.table.order.ascending
@@ -42,7 +41,7 @@ function FollowUpController ($modal, $scope, Deal, Cookie){
         });
     }
 
-    function openFollowUpWidgetModal(followUp){
+    function openFollowUpWidgetModal(followUp) {
         var modalInstance = $modal.open({
             templateUrl: 'deals/controllers/followup_widget.html',
             controller: 'FollowUpWidgetModal',
@@ -60,7 +59,7 @@ function FollowUpController ($modal, $scope, Deal, Cookie){
         });
     }
 
-    function _watchTable(){
+    function _watchTable() {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
             _getFollowUp();
             cookie.put('order', vm.table.order);

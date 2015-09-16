@@ -1,44 +1,33 @@
-<div class="col-md-6">
-    <div class="portlet light">
-        <div class="portlet-title">
-            <div class="caption">
-                <i class="fa fa-phone"></i>
-                <span class="caption-subject bold uppercase"> FEEDBACK</span>
-                <span class="caption-helper">({{ vm.table.items.length }})</span>
-            </div>
-            <div class="tools">
-                <a href="" class="collapse" data-original-title="" title=""></a>
-                <a href="" class="remove" data-original-title="" title=""></a>
-            </div>
-        </div>
-        <div class="portlet-body">
-            <div class="scroll-body" slimscroll="{height: 250}">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Account</th>
-                            <th sort-column="closing_date" table="vm.table">Won date</th>
-                            <th>Usage</th>
-                            <th>Send feedback</th>
-                            <th>Check after send</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="deal in vm.table.items">
-                            <td><a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a></td>
-                            <td>{{ deal.closing_date | relativeDate }}</td>
-                            <td ng-show="deal.quote_id"><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
-                            <td ng-hide="deal.quote_id"><i>No quote id registered</i></td>
-                            <td><a ng-click="vm.openFeedbackForm(deal)" class="btn btn-sm btn-default"><i class="fa fa-bullhorn"></i> Feedback form</a></td>
-                            <td><a ng-click="vm.feedbackFormSentForDeal(deal)"><i class="fa fa-check"></i> a ok!</a></td>
-                        </tr>
-                        <tr ng-hide="vm.table.items.length">
-                            <td colspan="5">No deals to check</td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<dashboard-widget widget-name="'Feedback'">
+    <div name="portlet-caption">
+        <i class="fa fa-phone"></i>
+        <span class="caption-subject bold uppercase"> FEEDBACK</span>
+        <span class="caption-helper">({{ vm.table.items.length }})</span>
     </div>
-</div>
+    <div name="portlet-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th sort-column="closing_date" table="vm.table">Won date</th>
+                    <th>Usage</th>
+                    <th>Send feedback</th>
+                    <th>Check after send</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="deal in vm.table.items">
+                    <td><a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a></td>
+                    <td>{{ deal.closing_date | relativeDate }}</td>
+                    <td ng-show="deal.quote_id"><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
+                    <td ng-hide="deal.quote_id"><i>No quote id registered</i></td>
+                    <td><a ng-click="vm.openFeedbackForm(deal)" class="btn btn-sm btn-default"><i class="fa fa-bullhorn"></i> Feedback form</a></td>
+                    <td><a ng-click="vm.feedbackFormSentForDeal(deal)"><i class="fa fa-check"></i> a ok!</a></td>
+                </tr>
+                <tr ng-hide="vm.table.items.length">
+                    <td colspan="5">No deals to check</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</dashboard-widget>

@@ -58,7 +58,6 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
      *      }
      */
     function getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
-
         return $http({
             url: '/search/search/',
             method: 'GET',
@@ -99,11 +98,12 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
      */
     function getMyCasesWidget (field, sorting) {
         var deferred = $q.defer();
-        var filterQuery = 'archived:false AND NOT casetype_name:Callback';
-        filterQuery += ' AND assigned_to_id:' + currentUser.id;
+        var filterQuery = 'archived:false AND NOT casetype_name:Callback AND assigned_to_id:' + currentUser.id;
+
         Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
+            sort: _getSorting(field, sorting),
+            size: 25
         }, function (cases) {
             deferred.resolve(cases);
         });
@@ -117,10 +117,9 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
      * @returns cases with the callback case type
      */
     function getCallbackRequests (field, sorting) {
-        var filterQuery = 'archived:false AND casetype_name:Callback';
-        filterQuery += ' AND assigned_to_id:' + currentUser.id;
-
+        var filterQuery = 'archived:false AND casetype_name:Callback AND assigned_to_id:' + currentUser.id;
         var deferred = $q.defer();
+
         Case.query({
             filterquery: filterQuery,
             sort: _getSorting(field, sorting)
@@ -143,8 +142,7 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     }
 
     function getUnassignedCasesForTeam (teamId, field, sorting) {
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id';
-        filterQuery += ' AND assigned_to_groups:' + teamId;
+        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
 
         return Case.query({
             filterquery: filterQuery,

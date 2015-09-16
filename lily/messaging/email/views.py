@@ -1,5 +1,6 @@
 from itertools import chain
 import anyjson
+import HTMLParser
 import logging
 import mimetypes
 import re
@@ -862,6 +863,10 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
         # Ugly hack to make parsing of new template brackets style work
         parsed_template = Template(template.body_html.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
         parsed_subject = Template(template.subject.replace('[[', '{{').replace(']]', '}}')).render(Context(lookup))
+
+        # Make sure HTML entities are displayed correctly
+        html_parser = HTMLParser.HTMLParser()
+        parsed_subject = html_parser.unescape(parsed_subject)
 
         attachments = []
 

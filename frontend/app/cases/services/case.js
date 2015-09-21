@@ -101,9 +101,13 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     /**
      * Service to return a resource for my cases widget
      */
-    function getMyCasesWidget (field, sorting) {
+    function getMyCasesWidget (field, sorting, filter) {
         var deferred = $q.defer();
         var filterQuery = 'archived:false AND NOT casetype_name:Callback AND assigned_to_id:' + currentUser.id;
+
+        if (filter) {
+            filterQuery += ' AND ' + filter;
+        }
 
         Case.query({
             filterquery: filterQuery,

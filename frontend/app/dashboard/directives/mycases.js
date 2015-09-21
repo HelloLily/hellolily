@@ -20,7 +20,8 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
             ascending: true,
             column: 'expires'  // string: current sorted column
         }),
-        items: []
+        items: [],
+        expiresFilter: cookie.get('expiresFilter', '')
     };
 
     vm.openPostponeWidget = openPostponeWidget;
@@ -36,7 +37,8 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
     function _getMyCases() {
         Case.getMyCasesWidget(
             vm.table.order.column,
-            vm.table.order.ascending
+            vm.table.order.ascending,
+            vm.table.expiresFilter
         ).then(function (data) {
             vm.table.items = data;
             vm.highPrioCases = 0;
@@ -67,9 +69,10 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column', 'vm.table.expiresFilter'], function() {
             _getMyCases();
             cookie.put('order', vm.table.order);
-        })
+            cookie.put('expiresFilter', vm.table.expiresFilter);
+        });
     }
 }

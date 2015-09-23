@@ -1,8 +1,11 @@
-<div class="inbox-header inbox-view-header">
+
+<div ng-if="vm.message.id" class="inbox-header inbox-view-header">
     <h1 class="pull-left">{{ vm.message.subject}}</h1>
 </div>
 <div class="inbox-view-info">
-    <div class="row">
+    <div ng-if="!vm.message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+    </div>
+    <div ng-if="vm.message.id" class="row">
         <div class="email-info-top">
             <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
 
@@ -68,15 +71,15 @@
     </div>
 </div>
 
-<div class="inbox-view" ng-hide="vm.onlyPlainText" id="ifrm_container">
+<div ng-if="vm.message.id" class="inbox-view" ng-hide="vm.onlyPlainText" id="ifrm_container">
     <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden" frameBorder="0"></iframe>
 </div>
 
-<div class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
+<div ng-if="vm.message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
     {{ vm.message.body_text }}
 </div>
 
-<div class="inbox-attached" ng-show="vm.message.attachments.length">
+<div ng-if="vm.message.id" class="inbox-attached" ng-show="vm.message.attachments.length">
     <div class="margin-bottom-25" ng-repeat="attachment in vm.message.attachments | filter: {inline: false}">
         <div>
             <strong>{{ attachment.name }}</strong>

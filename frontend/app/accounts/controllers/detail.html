@@ -1,4 +1,6 @@
-<div class="row">
+<div ng-if="!account.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+</div>
+<div ng-if="account.id" class="row">
     <div class="col-md-4">
         <account-detail-widget account="account" height="300"></account-detail-widget>
     </div>
@@ -10,4 +12,4 @@
         <deal-list-widget title="Deals" list="dealList" height="91" add-link="base.deals.create.fromAccount({id: {{ account.id }}})"></deal-list-widget>
     </div>
 </div>
-<history-list target="'account'" object="account"></history-list>
+<history-list ng-if="account.id" target="'account'" object="account"></history-list>

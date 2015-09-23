@@ -572,6 +572,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'lily.utils.authentication.TokenGETAuthentication',
     ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
 }
 
 #######################################################################################################################

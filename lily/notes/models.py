@@ -8,7 +8,7 @@ from lily.utils.models.mixins import DeletedMixin
 from lily.users.models import LilyUser
 
 
-NOTABLE_MODELS = ('account', 'case', 'contact', 'deal')
+NOTABLE_MODELS = ('account', 'contact', 'deal', 'case')
 
 
 class Note(HistoryListItem, DeletedMixin):

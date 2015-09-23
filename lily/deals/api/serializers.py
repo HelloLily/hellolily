@@ -5,7 +5,7 @@ from ..models import Deal
 
 
 class DealSerializer(serializers.ModelSerializer):
-    content_type = ContentTypeSerializer(read_only=True)
+    content_type = ContentTypeSerializer()
 
     class Meta:
         model = Deal

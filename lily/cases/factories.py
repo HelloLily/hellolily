@@ -12,7 +12,7 @@ from lily.users.factories import LilyUserFactory
 
 from .models import Case, CaseStatus, CaseType
 
-faker = Factory.create()
+faker = Factory.create('nl_NL')
 
 
 class CaseTypeFactory(DjangoModelFactory):

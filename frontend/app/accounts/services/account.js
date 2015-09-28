@@ -3,11 +3,11 @@ angular.module('app.accounts.services').factory('Account', Account);
 Account.$inject = ['$http', '$q', '$resource'];
 function Account($http, $q, $resource) {
     var Account = $resource(
-        '/api/accounts/account/:id',
+        '/api/accounts/account/:id/',
         null,
         {
             update: {
-                method: 'PATCH',
+                method: 'PUT',
                 params: {
                     id: '@id'
                 }
@@ -34,10 +34,10 @@ function Account($http, $q, $resource) {
     /**
      * getAccounts() gets the accounts from the search backend through a promise
      *
-     * @param queryString string: current filter on the accountlist
-     * @param page int: current page of pagination
-     * @param pageSize int: current page size of pagination
-     * @param orderColumn string: current sorting of accounts
+     * @param queryString {string}: current filter on the accountlist
+     * @param page {int}: current page of pagination
+     * @param pageSize {int}: current page size of pagination
+     * @param orderColumn {string}: current sorting of accounts
      * @param orderedAsc {boolean}: current ordering
      *
      * @returns Promise object: when promise is completed:

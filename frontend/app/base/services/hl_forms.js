@@ -11,24 +11,28 @@ function HLForms () {
     this.setErrors = function(form, data) {
         // Unblock the UI so user can retry filling in the form
         Metronic.unblockUI();
+        
+        // We don't want to continue if the returned errors aren't properly formatted
+        if (typeof data === 'object') {
 
-        for (var field in data) {
-            // Errors are always in the <field>: Array format, so iterate over the array
-            for (var i = 0; i < data[field].length; i++) {
-                // Related fields are always an object, so check for that
-                if (typeof data[field][i] === 'object') {
-                    for (var key in data[field][i]) {
-                        var form_field = [field, key, i].join('-');
+            for (var field in data) {
+                // Errors are always in the <field>: Array format, so iterate over the array
+                for (var i = 0; i < data[field].length; i++) {
+                    // Related fields are always an object, so check for that
+                    if (typeof data[field][i] === 'object') {
+                        for (var key in data[field][i]) {
+                            var form_field = [field, key, i].join('-');
 
-                        // The error is always the first element, so get it and set as the error message
-                        form[form_field].$error = {message: data[field][i][key][0]};
-                        form[form_field].$setValidity(form_field, false);
+                            // The error is always the first element, so get it and set as the error message
+                            form[form_field].$error = {message: data[field][i][key][0]};
+                            form[form_field].$setValidity(form_field, false);
+                        }
                     }
-                }
-                else {
-                    // Not a related field, so get the error and set validity to false
-                    form[field].$error = {message: data[field][0]};
-                    form[field].$setValidity(field, false);
+                    else {
+                        // Not a related field, so get the error and set validity to false
+                        form[field].$error = {message: data[field][0]};
+                        form[field].$setValidity(field, false);
+                    }
                 }
             }
         }

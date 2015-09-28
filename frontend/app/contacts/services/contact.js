@@ -1,16 +1,38 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$http'];
-function Contact ($http) {
-    var Contact = {};
+Contact.$inject = ['$http', '$resource'];
+function Contact ($http, $resource) {
+      var Contact = $resource(
+        '/api/contacts/contact/:id/',
+        null,
+        {
+            update: {
+                method: 'PUT',
+                params: {
+                    id: '@id'
+                }
+            },
+            delete: {
+                method: 'DELETE'
+            },
+            addressOptions: {
+                url: '/api/utils/countries/',
+                method: 'OPTIONS'
+            }
+        });
+
+    Contact.getContacts = getContacts;
+    Contact.create = create;
+
+    //////
 
     /**
      * getContacts() get the contacts from the search backend through a promise
      *
-     * @param queryString string: current filter on the contactlist
-     * @param page int: current page of pagination
-     * @param pageSize int: current page size of pagination
-     * @param orderColumn string: current sorting of contacts
+     * @param queryString {string}: current filter on the contactlist
+     * @param page {int}: current page of pagination
+     * @param pageSize {int}: current page size of pagination
+     * @param orderColumn {string}: current sorting of contacts
      * @param orderedAsc {boolean}: current ordering
      *
      * @returns Promise object: when promise is completed:
@@ -19,7 +41,7 @@ function Contact ($http) {
      *          total int: total number of contact objects
      *      }
      */
-    var getContacts = function(queryString, page, pageSize, orderColumn, orderedAsc) {
+    function getContacts(queryString, page, pageSize, orderColumn, orderedAsc) {
 
         var sort = '';
         if (orderedAsc) sort += '-';
@@ -42,7 +64,7 @@ function Contact ($http) {
                     total: response.data.total
                 };
             });
-    };
+    }
 
     /**
      * query() makes it possible to query on contacts on backend search
@@ -58,6 +80,21 @@ function Contact ($http) {
     Contact.query = function(table) {
         return getContacts(table.filter, table.page, table.pageSize, table.order.column, table.order.ascending);
     };
+
+    function create() {
+        return new Contact({
+            salutation: 1, // Default salutation is 'Informal'
+            gender: 2, // Default gender is 'Unknown/Other'
+            first_name: '',
+            preposition: '',
+            last_name: '',
+            email_addresses: [],
+            phone_numbers: [],
+            addresses: [],
+            tags: [],
+            accounts: []
+        });
+    }
 
     return Contact;
 }

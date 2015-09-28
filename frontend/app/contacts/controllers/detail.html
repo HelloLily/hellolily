@@ -1,4 +1,6 @@
-<div class="row">
+<div ng-if="!contact.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+</div>
+<div ng-if="contact.id" class="row">
     <div class="col-md-4">
         <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
     </div>
@@ -16,4 +18,4 @@
     </div>
 </div>
 
-<history-list target="'contact'" object="contact"></history-list>
+<history-list ng-if="contact.id" target="'contact'" object="contact"></history-list>

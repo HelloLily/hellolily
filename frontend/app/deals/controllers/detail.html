@@ -1,4 +1,6 @@
-<div class="row">
+<div ng-if="!vm.deal.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+</div>
+<div ng-if="vm.deal.id" class="row">
     <div class="col-md-6">
       <div class="portlet light">
             <div class="portlet-body">
@@ -55,7 +57,7 @@
     </div>
 </div>
 <hr />
-<div class="row">
+<div ng-if="vm.deal.id" class="row">
     <div class="col-md-12 summary-info text-center">
         <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.deal.id }}">
                 <label ng-repeat="stage in vm.dealStages" for="stage-{{ ::stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.archived }" ng-click="vm.changeState(stage[0])">
@@ -71,10 +73,10 @@
     </div>
 </div>
 <hr />
-<div class="row no-margin" ng-show="::vm.deal.body">
+<div ng-if="vm.deal.id" class="row no-margin" ng-show="::vm.deal.body">
     <div class="well well-md">
         <h4>Description</h4>
         <p ng-bind-html="vm.deal.body | nl2br"></p>
     </div>
 </div>
-<history-list target="'deal'" object="vm.deal"></history-list>
+<history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>

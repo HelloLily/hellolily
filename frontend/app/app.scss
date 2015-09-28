@@ -34,3 +34,11 @@ a {
       color: inherit;
     }
 }
+
+.btn-group {
+    &.btn-group-devided {
+        .btn {
+            min-width: 4em;
+        }
+    }
+}

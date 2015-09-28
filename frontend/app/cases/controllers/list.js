@@ -19,8 +19,8 @@ function caseConfig ($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', 'Case', 'Cookie', 'HLDate', 'HLFilters'];
-function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HLDate, HLFilters) {
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLDate', 'HLFilters'];
+function CaseListController ($location, $modal, $scope, $state, $timeout, Case, Cookie, HLDate, HLFilters) {
     var cookie = Cookie('caseList');
     var vm = this;
 
@@ -51,7 +51,8 @@ function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HL
             assignedTo: true,
             createdBy: true,
             tags: true
-        })
+        }),
+        expiresFilter: cookie.get('expiresFilter', '')
     };
     vm.displayFilterClear = false;
     vm.filterList = [];
@@ -66,11 +67,13 @@ function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HL
     //////
 
     function activate() {
-        _setSearchQuery();
-        _getFilterList();
-        _setupWatchers();
+        // This timeout is needed because by default getting a cookie with Angular has a delay
+        $timeout(function() {
+            _setSearchQuery();
+            _getFilterList();
+            _setupWatchers();
+        }, 50);
     }
-
 
     function _setSearchQuery () {
         // Setup search query
@@ -221,6 +224,10 @@ function CaseListController ($location, $modal, $scope, $state, Case, Cookie, HL
          * the filterQuery changes and a new set of deals is fetched
          */
         $scope.$watchCollection('vm.filterList', function () {
+            updateFilterQuery();
+        });
+
+        $scope.$watch('vm.table.expiresFilter', function () {
             updateFilterQuery();
         });
     }

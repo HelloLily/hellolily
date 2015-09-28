@@ -24,6 +24,10 @@ function HLFilters () {
             }
         }
 
+        if ($scope.table.expiresFilter) {
+            filterStrings.push($scope.table.expiresFilter);
+        }
+
         $scope.table.filterQuery = filterStrings.join(' AND ');
     };
 

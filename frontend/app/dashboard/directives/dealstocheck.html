@@ -3,10 +3,9 @@
         <i class="fa fa-phone"></i>
         <span class="caption-subject bold uppercase"> DEALS TO CHECK</span>
         <span class="caption-helper">({{ vm.table.items.length }})</span>
-
-        <div class="actions">
-            <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
-        </div>
+    </div>
+    <div name="portlet-caption-extra">
+        <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
     </div>
     <div name="portlet-body">
         <table class="table table-hover">

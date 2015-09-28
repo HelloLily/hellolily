@@ -1,0 +1,61 @@
+<div class="row margin-top-10">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Klantgeluk Cases last week
+            <div class="display">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ vm.totalCasesLastWeek }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Klantgeluk Cases per status last week
+            <div class="display" ng-repeat="status in vm.perTypeCountCases">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ status.count }}</h3>
+                    <small>{{ status.type }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Klantgeluk Cases with Tags last week
+            <div class="display">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ vm.countWithTagsCases }}</h3>
+                </div>
+                <div class="icon">
+                    <i class="icon-pie-chart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Klantgeluk Cases per status last week
+            <div class="display" ng-repeat="status in vm.countPerStatus">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ status.count }}</h3>
+                    <small>{{ status.status }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row margin-top-10">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Klantgeluk Cases per status last week
+            <div class="display" ng-repeat="tag in vm.topTagsCases">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ tag.count }}</h3>
+                    <small>{{ tag.name }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

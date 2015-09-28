@@ -35,6 +35,11 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
     Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+    Case.getTotalCountLastWeek = getTotalCountLastWeek;
+    Case.getPerTypeCountLastWeek = getPerTypeCountLastWeek;
+    Case.getCountWithTagsLastWeek = getCountWithTagsLastWeek;
+    Case.getCountPerStatus = getCountPerStatus;
+    Case.getTopTags = getTopTags;
 
     return Case;
 
@@ -148,5 +153,55 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
             filterquery: filterQuery,
             sort: _getSorting(field, sorting)
         }).$promise;
+    }
+
+    function getTotalCountLastWeek (lilyGroupId) {
+
+        return $http({
+            url: '/stats/cases/total/'+ lilyGroupId + '/',
+            method: 'GET'
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    function getPerTypeCountLastWeek (lilyGroupId) {
+
+        return $http({
+            url: '/stats/cases/grouped/'+ lilyGroupId + '/',
+            method: 'GET'
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    function getCountWithTagsLastWeek (lilyGroupId) {
+
+        return $http({
+            url: '/stats/cases/withtags/'+ lilyGroupId + '/',
+            method: 'GET'
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    function getCountPerStatus (lilyGroupId) {
+
+        return $http({
+            url: '/stats/cases/countperstatus/'+ lilyGroupId + '/',
+            method: 'GET'
+        }).then(function(response) {
+            return response.data;
+        });
+    }
+
+    function getTopTags (lilyGroupId) {
+
+        return $http({
+            url: '/stats/cases/toptags/'+ lilyGroupId + '/',
+            method: 'GET'
+        }).then(function(response) {
+            return response.data;
+        });
     }
 }

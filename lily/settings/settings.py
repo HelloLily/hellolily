@@ -237,6 +237,7 @@ INSTALLED_APPS = (
     'lily.preferences',
     'lily.provide',
     'lily.search',
+    'lily.stats',
     'lily.tags',
     'lily.tenant',
     'lily.updates',

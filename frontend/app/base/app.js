@@ -19,6 +19,7 @@ angular.module('app', [
     'app.deals',
     'app.email',
     'app.preferences',
+    'app.stats',
     'app.templates',
     'app.utils',
 

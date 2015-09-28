@@ -90,7 +90,8 @@ or use an existent tenant if passed as an argument."""
         )
 
     def cases(self, size, tenant):
-        CaseFactory.create_batch(size, tenant=tenant)
+        CaseFactory.create_batch(size / 2, tenant=tenant)
+        CaseFactory.create_batch(size / 2, tenant=tenant, groups=[LilyGroupFactory(tenant=tenant)])
 
     def deals(self, size, tenant):
         DealFactory.create_batch(size, tenant=tenant)
@@ -126,4 +127,4 @@ or use an existent tenant if passed as an argument."""
         })
 
     def lilygroups(self, size, tenant):
-        LilyGroupFactory.create_batch(5, tenant=tenant)
+        LilyGroupFactory.create_batch(size, tenant=tenant)

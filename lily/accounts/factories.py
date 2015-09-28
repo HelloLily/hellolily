@@ -8,7 +8,7 @@ from lily.utils.models.factories import PhoneNumberFactory
 
 from .models import Account
 
-faker = Factory.create()
+faker = Factory.create('nl_NL')
 
 
 class AccountFactory(DjangoModelFactory):

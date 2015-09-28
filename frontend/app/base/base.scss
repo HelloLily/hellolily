@@ -424,8 +424,13 @@ li {
 
 /*  DASHBOARD STUFF */
 
-.actions select.xsm {
-  height: 26px;
+.actions {
+    display: inline-block;
+    margin-left: 10px;
+
+    select.xsm {
+        height: 26px;
+    }
 }
 
 /*  END DASHBOARD STUFF */

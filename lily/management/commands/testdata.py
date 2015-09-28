@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 from lily.accounts.factories import AccountFactory
 from lily.cases.factories import CaseFactory
-from lily.contacts.factories import ContactFactory, function_factory
+from lily.contacts.factories import ContactFactory, FunctionFactory
 from lily.deals.factories import DealFactory
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
@@ -74,16 +74,24 @@ or use an existent tenant if passed as an argument."""
         # create accounts with zero contact
         AccountFactory.create_batch(size, tenant=tenant)
         # create account with multi contacts
-        function_factory(tenant).create_batch(size, account=AccountFactory(tenant=tenant))
-        # create account with assigned_to
-        function_factory(tenant).create_batch(
+        FunctionFactory.create_batch(
             size,
-            account=AccountFactory(tenant=tenant,
-                                   assigned_to=LilyUserFactory(tenant=tenant))
+            tenant=tenant,
+            account=AccountFactory(tenant=tenant),
+        )
+        # create account with assigned_to
+        FunctionFactory.create_batch(
+            size,
+            tenant=tenant,
+            account=AccountFactory(
+                tenant=tenant,
+                assigned_to=LilyUserFactory(tenant=tenant)
+            ),
         )
 
     def cases(self, size, tenant):
-        CaseFactory.create_batch(size, tenant=tenant)
+        CaseFactory.create_batch(size / 2, tenant=tenant)
+        CaseFactory.create_batch(size / 2, tenant=tenant, groups=[LilyGroupFactory(tenant=tenant)])
 
     def deals(self, size, tenant):
         DealFactory.create_batch(size, tenant=tenant)
@@ -119,4 +127,4 @@ or use an existent tenant if passed as an argument."""
         })
 
     def lilygroups(self, size, tenant):
-        LilyGroupFactory.create_batch(5, tenant=tenant)
+        LilyGroupFactory.create_batch(size, tenant=tenant)

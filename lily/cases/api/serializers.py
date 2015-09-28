@@ -31,7 +31,7 @@ class CaseSerializer(serializers.ModelSerializer):
     status = serializers.StringRelatedField(read_only=True)
     assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects)
     assigned_to_groups = serializers.StringRelatedField(many=True, read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
+    content_type = ContentTypeSerializer()
 
     class Meta:
         model = Case

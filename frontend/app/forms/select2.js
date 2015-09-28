@@ -51,7 +51,17 @@
                     $this.select2({
                         tags: tags,
                         tokenSeparators: [','],
-                        width: '100%'
+                        width: '100%',
+                        createSearchChoice: function (term, data) {
+                            if ($(data).filter(function () {
+                                    return this.text.localeCompare(term) === 0;
+                                }).length === 0) {
+                                return {
+                                    id: term,
+                                    text: term + ' (new tag)'
+                                };
+                            }
+                        }
                     });
                 }
             });

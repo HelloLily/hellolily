@@ -237,6 +237,7 @@ INSTALLED_APPS = (
     'lily.preferences',
     'lily.provide',
     'lily.search',
+    'lily.stats',
     'lily.tags',
     'lily.tenant',
     'lily.updates',
@@ -572,6 +573,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'lily.utils.authentication.TokenGETAuthentication',
     ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
 }
 
 #######################################################################################################################

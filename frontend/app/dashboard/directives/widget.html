@@ -1,0 +1,17 @@
+<div ng-show="vm.widgetInfo.status" ng-multi-transclude-controller>
+    <div class="col-md-6">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption" ng-multi-transclude="portlet-caption"></div>
+                <div class="tools">
+                    <a ng-click="vm.toggleCollapse()" ng-class="{1: 'expand', 2:'collapse'}[vm.widgetInfo.status]" title="Collapse/Expand"></a>
+                    <a ng-click="vm.removeWidget()" class="remove"></a>
+                </div>
+                <div class="actions pull-right margin-right-10" ng-multi-transclude="portlet-caption-extra"></div>
+            </div>
+            <div class="portlet-body" ng-show="vm.widgetInfo.status == 1">
+                <div class="scroll-body" slimscroll="{height: 250}" ng-multi-transclude="portlet-body"></div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,7 +12,7 @@ from lily.tenant.factories import TenantFactory
 from .models import Deal
 
 
-faker = Factory.create()
+faker = Factory.create('nl_NL')
 
 
 class DealFactory(DjangoModelFactory):

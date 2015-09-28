@@ -9,17 +9,28 @@ function emailConfig ($stateProvider){
                 controller: EmailDetailController,
                 controllerAs: 'vm'
             }
+        },
+        resolve: {
+            message: ['EmailMessage', '$stateParams', function(EmailMessage, $stateParams) {
+                var id = $stateParams.id;
+                return EmailMessage.get({id: id}).$promise.then(function(message) {
+                    return message;
+                }, function() {
+                    // In case the email does not exist, return empty message.
+                    return {};
+                });
+            }]
         }
     });
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
 
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount'];
-function EmailDetailController ($scope, $state, $stateParams, EmailMessage, RecipientInformation, SelectedEmailAccount) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController ($scope, $state, $stateParams, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
     vm.displayAllRecipients = false;
-    vm.message = null;
+    vm.message = message;
     vm.archiveMessage = archiveMessage;
     vm.trashMessage = trashMessage;
     vm.deleteMessage = deleteMessage;
@@ -31,22 +42,17 @@ function EmailDetailController ($scope, $state, $stateParams, EmailMessage, Reci
     $scope.conf.pageTitleBig = 'Email message';
     $scope.conf.pageTitleSmall = 'sending love through the world!';
 
-    activate();
-
     //////
 
-    function activate() {
-        _getMessage();
-    }
-
-    function _getMessage() {
-        EmailMessage.get({id: $stateParams.id}, function(result) {
+    // Load email body after page resolve has finished,
+    // so we can already see email headers before the body is loaded.
+    if (message.id) {
+        message.$promise.then(function(result) {
             if (result.body_html) {
                 result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
             }else{
                 vm.onlyPlainText = true;
             }
-            vm.message = result;
             // It's easier to iterate through a single array, so make an array with all recipients
             vm.message.all_recipients = result.received_by.concat(result.received_by_cc);
             // Get contacts

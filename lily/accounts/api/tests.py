@@ -2,8 +2,9 @@ from django.contrib.auth.hashers import make_password
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
-from lily.accounts.factories import AccountFactory
 from lily.accounts.models import Account
+from lily.tenant.middleware import set_current_user
+from lily.tenant.models import Tenant
 from lily.users.factories import LilyUserFactory
 from lily.users.models import LilyUser
 
@@ -12,7 +13,7 @@ class AccountTests(APITestCase):
     """
     Class containing tests for the account API.
 
-    Note that each test remove the 'id' key from the response dict.
+    Note that each test removes the 'id' key from the response dict.
     That's because it's a hassle to compare IDs since they change when the test order is changed.
     """
 
@@ -40,14 +41,21 @@ class AccountTests(APITestCase):
         """
         Creates a user and logs it in before running the account tests.
         """
-
+        set_current_user(None)
         # Remove leftovers from previous tests
         LilyUser.objects.all().delete()
+        Tenant.objects.all().delete()
 
         cls.user = LilyUserFactory.create(is_active=True, email='user1@lily.com', password=make_password('test'))
 
         cls.client = APIClient()
         cls.client.login(email='user1@lily.com', password='test')
+
+    @classmethod
+    def tearDownClass(cls):
+        set_current_user(None)
+        LilyUser.objects.all().delete()
+        Tenant.objects.all().delete()
 
     def create_account(self, extra_data=None):
         data = {

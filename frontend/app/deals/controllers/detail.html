@@ -1,15 +1,17 @@
-<div class="row">
+<div ng-if="!vm.deal.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+</div>
+<div ng-if="vm.deal.id" class="row">
     <div class="col-md-6">
       <div class="portlet light">
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <label>Account:</label> <a ui-sref="base.accounts.detail({ id: deal.account })"> {{ ::deal.account_name }}</a><br/>
-                        <label>Deal name:</label> {{ ::deal.name }}<br/>
-                        <span ng-if="deal.found_through_name"><label>Found us through:</label> {{ ::deal.found_through_name }}<br/></span>
-                        <span ng-if="deal.contacted_by_name"><label>Contacted us by:</label> {{ ::deal.contacted_by_name }}<br/></span>
-                        <label>Created:</label> {{ deal.created | relativeDate }}<br/>
-                        <label>Closing date:</label> <span id="closed-date" ng-show="deal.closing_date"> {{ deal.closing_date | relativeDate }}</span>
+                        <label>Account:</label> <a ui-sref="base.accounts.detail({ id: vm.deal.account })"> {{ ::vm.deal.account_name }}</a><br/>
+                        <label>Deal name:</label> {{ ::vm.deal.name }}<br/>
+                        <span ng-if="vm.deal.found_through_name"><label>Found us through:</label> {{ ::vm.deal.found_through_name }}<br/></span>
+                        <span ng-if="vm.deal.contacted_by_name"><label>Contacted us by:</label> {{ ::vm.deal.contacted_by_name }}<br/></span>
+                        <label>Created:</label> {{ vm.deal.created | relativeDate }}<br/>
+                        <label>Closing date:</label> <span id="closed-date" ng-show="vm.deal.closing_date"> {{ vm.deal.closing_date | relativeDate }}</span>
                    </div>
                 </div>
             </div>
@@ -20,33 +22,33 @@
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <label>Assigned to:</label> {{ ::deal.assigned_to_name }}<br/>
-                        <label>One-time cost:</label> {{ ::deal.amount_once | currency:"€" }}<br/>
-                        <label>Recurring costs:</label> {{ ::deal.amount_recurring | currency:"€" }}<br/>
-                        <label>Status:</label> {{ deal.stage_name }} <span ng-show="deal.archived">- Archived</span><br/>
+                        <label>Assigned to:</label> {{ ::vm.deal.assigned_to_name }}<br/>
+                        <label>One-time cost:</label> {{ ::vm.deal.amount_once | currency:"€" }}<br/>
+                        <label>Recurring costs:</label> {{ ::vm.deal.amount_recurring | currency:"€" }}<br/>
+                        <label>Status:</label> {{ vm.deal.stage_name }} <span ng-show="vm.deal.archived">- Archived</span><br/>
                         <div>
                             <label>Twitter checked:</label>
-                            <span ng-if="deal.twitter_checked">&nbsp;<i class="fa fa-check"></i></span>
-                            <span ng-if="!deal.twitter_checked"> -</span><br/>
+                            <span ng-if="vm.deal.twitter_checked">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!vm.deal.twitter_checked"> -</span><br/>
                         </div>
-                        <div ng-show="deal.stage == 2">
+                        <div ng-show="vm.deal.stage == 2">
                             <label>Quote checked:</label>
-                            <span ng-show="deal.is_checked">&nbsp;<i class="fa fa-check"></i></span>
-                            <span ng-hide="deal.is_checked"> -</span><br/>
+                            <span ng-show="vm.deal.is_checked">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-hide="vm.deal.is_checked"> -</span><br/>
                         </div>
                         <div>
                             <label>Card sent:</label>
-                            <span ng-if="deal.card_sent">&nbsp;<i class="fa fa-check"></i></span>
-                            <span ng-if="!deal.card_sent"> -</span><br/>
+                            <span ng-if="vm.deal.card_sent">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!vm.deal.card_sent"> -</span><br/>
                         </div>
                         <div>
                             <label>Feedback form sent:</label>
-                            <span ng-if="deal.feedback_form_sent">&nbsp;<i class="fa fa-check"></i></span>
-                            <span ng-if="!deal.feedback_form_sent"> -</span><br/>
+                            <span ng-if="vm.deal.feedback_form_sent">&nbsp;<i class="fa fa-check"></i></span>
+                            <span ng-if="!vm.deal.feedback_form_sent"> -</span><br/>
                         </div>
-                        <div ng-show="deal.quote_id">
+                        <div ng-show="vm.deal.quote_id">
                             <label>Freedom quote:</label>
-                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank">Open in freedom</a>
+                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/" target="_blank">Open in freedom</a>
                         </div>
                    </div>
                 </div>
@@ -55,26 +57,26 @@
     </div>
 </div>
 <hr />
-<div class="row">
+<div ng-if="vm.deal.id" class="row">
     <div class="col-md-12 summary-info text-center">
-        <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ ::deal.id }}">
-                <label ng-repeat="stage in dealStages" for="stage-{{ ::stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': deal.stage == stage[0], 'btn default disabled': deal.archived }" ng-click="changeState(stage[0])">
-                    <input class="toggle" type="radio" id="stage-{{ ::stage[1] | lowercase }}" name="radio" value="{{ ::stage[0] }}" ng-checked="deal.stage == stage[0]">
+        <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.deal.id }}">
+                <label ng-repeat="stage in vm.dealStages" for="stage-{{ ::stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.archived }" ng-click="vm.changeState(stage[0])">
+                    <input class="toggle" type="radio" id="stage-{{ ::stage[1] | lowercase }}" name="radio" value="{{ ::stage[0] }}" ng-checked="vm.deal.stage == stage[0]">
                     {{ ::stage[1] }}
                 </label>
             <div class="btn-group">
-                <a ng-class="{'btn default': true}" ng-click="unarchive(deal.id)" ng-show="deal.archived">Unarchive</a>
-                <a ng-class="{'btn default': deal.archived, 'btn default': !deal.archived}" ng-click="archive(deal.id)" ng-hide="deal.archived">Archive</a>
+                <a ng-class="{'btn default': true}" ng-click="vm.unarchive(vm.deal.id)" ng-show="vm.deal.archived">Unarchive</a>
+                <a ng-class="{'btn default': vm.deal.archived, 'btn default': !vm.deal.archived}" ng-click="vm.archive(vm.deal.id)" ng-hide="vm.deal.archived">Archive</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <hr />
-<div class="row no-margin" ng-show="::deal.body">
+<div ng-if="vm.deal.id" class="row no-margin" ng-show="::vm.deal.body">
     <div class="well well-md">
         <h4>Description</h4>
-        <p ng-bind-html="deal.body | nl2br"></p>
+        <p ng-bind-html="vm.deal.body | nl2br"></p>
     </div>
 </div>
-<history-list target="'deal'" object="deal"></history-list>
+<history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>

@@ -7,46 +7,59 @@ function dealsConfig ($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'deals/controllers/detail.html',
-                controller: DealDetailController
+                controller: DealDetailController,
+                controllerAs: 'vm'
             }
         },
         ncyBreadcrumb: {
             label: '{{ deal.name }}'
+        },
+        resolve: {
+            deal: ['DealDetail', '$stateParams', function(DealDetail, $stateParams) {
+                var id = $stateParams.id;
+                return DealDetail.get({id: id}).$promise;
+            }]
         }
     });
 }
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$http', '$scope', '$stateParams', 'DealDetail', 'DealStages'];
-function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStages) {
+DealDetailController.$inject = ['$http', '$scope', '$stateParams', 'DealStages', 'deal'];
+function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
+    var vm = this;
     $scope.conf.pageTitleBig = 'Deal detail';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
-
     var id = $stateParams.id;
+    vm.deal = deal;
+    vm.dealStages = DealStages.query();
 
-    $scope.deal = DealDetail.get({id: id});
-    $scope.dealStages = DealStages.query();
+    vm.changeState = changeState;
+    vm.archive = archive;
+    vm.unarchive = unarchive;
 
+    //////
+
+    //
     /**
      * Change the state of a deal
      */
-    $scope.changeState = function(stage) {
+    function changeState(stage) {
         var newStage = stage;
 
         var req = {
             method: 'POST',
-            url: '/deals/update/stage/' + $scope.deal.id + '/',
+            url: '/deals/update/stage/' + vm.deal.id + '/',
             data: 'stage=' + stage,
             headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
         };
 
         $http(req).
             success(function(data, status, headers, config) {
-                $scope.deal.stage = newStage;
-                $scope.deal.stage_name = data.stage;
+                vm.deal.stage = newStage;
+                vm.deal.stage_name = data.stage;
                 if(data.closed_date !== undefined){
-                    $scope.deal.closing_date = data.closed_date;
+                    vm.deal.closing_date = data.closed_date;
                 }
                 $scope.loadNotifications();
             }).
@@ -58,7 +71,7 @@ function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStag
     /**
      * Archive a deal
      */
-    $scope.archive = function(id) {
+    function archive(id) {
         var req = {
             method: 'POST',
             url: '/deals/archive/',
@@ -68,7 +81,7 @@ function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStag
 
         $http(req).
             success(function(data, status, headers, config) {
-                $scope.deal.archived = true;
+                vm.deal.archived = true;
             }).
             error(function(data, status, headers, config) {
                 // Request failed propper error?
@@ -78,7 +91,7 @@ function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStag
     /**
      * Unarchive a deal
      */
-    $scope.unarchive = function(id) {
+    function unarchive(id) {
         var req = {
             method: 'POST',
             url: '/deals/unarchive/',
@@ -88,7 +101,7 @@ function DealDetailController ($http, $scope, $stateParams, DealDetail, DealStag
 
         $http(req).
             success(function(data, status, headers, config) {
-                $scope.deal.archived = false;
+                vm.deal.archived = false;
             }).
             error(function(data, status, headers, config) {
                 // Request failed propper error?

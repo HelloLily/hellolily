@@ -6,9 +6,12 @@ from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.models import Contact
 from lily.socialmedia.api.serializers import SocialMediaSerializer
 from lily.users.api.serializers import LilyUserSerializer
+from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.utils import update_related_fields, create_related_fields
 from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer,
-                                        RelatedModelSerializer, RelatedFieldSerializer, TagSerializer)
+                                        RelatedModelSerializer, RelatedFieldSerializer, TagSerializer,
+                                        OldEmailAddressSerializer, OldPhoneNumberSerializer, OldTagSerializer,
+                                        OldAddressSerializer)
 from lily.tags.models import Tag
 
 from ..models import Account, Website
@@ -51,17 +54,19 @@ class AccountSerializer(serializers.ModelSerializer):
     """
     Serializer for the account model.
     """
+    flatname = serializers.CharField(read_only=True)
+    name = serializers.CharField(validators=[DuplicateAccountName()])
+
+    # Related fields
     addresses = AddressSerializer(many=True)
     assigned_to = LilyUserSerializer()
     contacts = ContactForAccountSerializer(many=True, read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
-    email_addresses = EmailAddressSerializer(many=True)
-    flatname = serializers.CharField(read_only=True)
-    name = serializers.CharField(validators=[DuplicateAccountName()])
     phone_numbers = PhoneNumberSerializer(many=True)
     social_media = SocialMediaSerializer(many=True)
-    tags = TagSerializer(many=True)
+    email_addresses = EmailAddressSerializer(many=True)
     websites = WebsiteSerializer(many=True)
+    tags = TagSerializer(many=True)
+    content_type = ContentTypeSerializer()
 
     class Meta:
         model = Account
@@ -98,12 +103,12 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for the creating and updating an account.
     """
-    addresses = AddressSerializer(many=True, required=False)
+    addresses = OldAddressSerializer(many=True, required=False)
     # assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects, required=False)
-    email_addresses = EmailAddressSerializer(many=True, required=False)
+    email_addresses = OldEmailAddressSerializer(many=True, required=False)
     name = serializers.CharField(validators=[DuplicateAccountName()])
-    phone_numbers = PhoneNumberSerializer(many=True, required=False)
-    tags = TagSerializer(many=True, required=False)
+    phone_numbers = OldPhoneNumberSerializer(many=True, required=False)
+    tags = OldTagSerializer(many=True, required=False)
     websites = WebsiteSerializer(many=True, required=False)
 
     # Dict used when creating/updating the related fields of the account
@@ -190,3 +195,25 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class RelatedAccountSerializer(RelatedSerializerMixin, AccountCreateSerializer):
+    class Meta:
+        model = Account
+        fields = (  # No related fields in this serializer
+            'id',
+            'bankaccountnumber',
+            'bic',
+            'cocnumber',
+            'company_size',
+            'created',
+            'customer_id',
+            'description',
+            'flatname',
+            'iban',
+            'legalentity',
+            'modified',
+            'name',
+            'status',
+            'taxnumber',
+        )

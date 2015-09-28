@@ -1,4 +1,5 @@
 import datetime
+import factory
 
 from factory.declarations import (SubFactory, LazyAttribute, SelfAttribute,
                                   Sequence, Iterator)
@@ -12,7 +13,7 @@ from lily.users.factories import LilyUserFactory
 
 from .models import Case, CaseStatus, CaseType
 
-faker = Factory.create()
+faker = Factory.create('nl_NL')
 
 
 class CaseTypeFactory(DjangoModelFactory):
@@ -39,6 +40,17 @@ class CaseFactory(DjangoModelFactory):
     expires = FuzzyDate(datetime.date(2015, 1, 1), datetime.date(2016, 1, 1))
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
     type = SubFactory(CaseTypeFactory, tenant=SelfAttribute('..tenant'))
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for group in extracted:
+                self.assigned_to_groups.add(group)
 
     class Meta:
         model = Case

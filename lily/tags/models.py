@@ -6,6 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 from lily.tenant.models import TenantMixin
 
 
+TAGABLE_MODELS = ('account', 'contact', 'deal', 'case')
+
+
 class Tag(TenantMixin):
     """
     Tag model, simple char field to store a tag. Is used to describe the model it is linked to.

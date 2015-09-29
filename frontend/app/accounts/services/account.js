@@ -6,6 +6,20 @@ function Account($http, $q, $resource) {
         '/api/accounts/account/:id/',
         null,
         {
+            search: {
+                url: '/search/search/?type=accounts_account&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    var objects = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+                    return objects;
+                }
+            },
             update: {
                 method: 'PUT',
                 params: {

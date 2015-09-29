@@ -16,11 +16,6 @@ function contactConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Create'
-        },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
         }
     });
 
@@ -35,11 +30,20 @@ function contactConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit'
+        }
+    });
+
+    $stateProvider.state('base.contacts.create.fromAccount', {
+        url: '/account/{accountId:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: 'contacts/controllers/form_outer.html',
+                controller: ContactCreateUpdateController,
+                controllerAs: 'vm'
+            }
         },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
+        ncyBreadcrumb: {
+            skip: true
         }
     });
 }
@@ -49,27 +53,26 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'HLFields', 'HLForms', 'user'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Account, Contact, HLFields, HLForms, user) {
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'HLFields', 'HLForms'];
+function ContactCreateUpdateController($scope, $state, $stateParams, Account, Contact, HLFields, HLForms) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
     vm.errors = {
         name: []
     };
+    vm.accounts = [];
 
     vm.saveContact = saveContact;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
-    vm.currentUser = user;
+    vm.refreshAccounts = refreshAccounts;
 
     activate();
 
     ////
 
     function activate() {
-        vm.accounts = Account.query();
-
         $scope.conf.pageTitleSmall = 'change is natural';
 
         _getContact();
@@ -102,6 +105,11 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         } else {
             $scope.conf.pageTitleBig = 'New contact';
             vm.contact = Contact.create();
+
+            if ($stateParams.accountId) {
+                var account = Account.get({id: $stateParams.accountId});
+                vm.contact.accounts.push(account);
+            }
         }
     }
 
@@ -178,6 +186,19 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             }, function (response) {
                 _handleBadResponse(response, form);
             });
+        }
+    }
+
+    function refreshAccounts(query) {
+        if (query.length >= 2) {
+            var exclude = '';
+
+            // Exclude accounts already selected
+            angular.forEach(vm.contact.accounts, function (account) {
+                exclude += ' AND NOT id:' + account.id;
+            });
+
+            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60});
         }
     }
 

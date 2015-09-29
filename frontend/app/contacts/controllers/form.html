@@ -49,10 +49,11 @@
                     <div class="col-md-4">
                         <ui-select multiple ng-model="vm.contact.accounts" theme="select2" class="form-control" name="accounts">
                             <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                            <ui-select-choices repeat="account in vm.accounts | filter:$select.search">
+                            <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
+                        <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                     </div>
                 </form-group>
                 <form-group label-title="Description" label-icon="info" label-id="id_description" field="contactForm.description">

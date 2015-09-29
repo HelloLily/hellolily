@@ -191,7 +191,14 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
 
     function refreshAccounts(query) {
         if (query.length >= 2) {
-            vm.accounts = Account.search({filterquery: 'name:(' + query + ')', size: 60});
+            var exclude = '';
+
+            // Exclude accounts already selected
+            angular.forEach(vm.contact.accounts, function (account) {
+                exclude += ' AND NOT id:' + account.id;
+            });
+
+            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60});
         }
     }
 

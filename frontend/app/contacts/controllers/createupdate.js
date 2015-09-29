@@ -57,19 +57,19 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
     vm.errors = {
         name: []
     };
+    vm.accounts = [];
 
     vm.saveContact = saveContact;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.currentUser = user;
+    vm.refreshAccounts = refreshAccounts;
 
     activate();
 
     ////
 
     function activate() {
-        vm.accounts = Account.query();
-
         $scope.conf.pageTitleSmall = 'change is natural';
 
         _getContact();
@@ -178,6 +178,12 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             }, function (response) {
                 _handleBadResponse(response, form);
             });
+        }
+    }
+
+    function refreshAccounts(query) {
+        if (query.length > 1) {
+            vm.accounts = Account.search({filterquery: "name:(" + query + ")", size: 60});
         }
     }
 

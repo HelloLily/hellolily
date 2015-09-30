@@ -198,7 +198,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
                 exclude += ' AND NOT id:' + account.id;
             });
 
-            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60});
+            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60, sort: '-modified'});
         }
     }
 

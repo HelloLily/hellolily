@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import re
+
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -76,7 +79,7 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
         phone_number = value
 
         if phone_number:
-            phone_number = re.sub(r'[\+\(\) -]', '', phone_number)
+            phone_number = re.sub(r'[\+\(\)– -]', '', phone_number)
 
             if not phone_number.isdigit():
                 raise ValidationError('Phone number may not contain any letters.')

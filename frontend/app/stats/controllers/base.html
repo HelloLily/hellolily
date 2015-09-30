@@ -11,7 +11,7 @@
     </div>
     <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
         <div class="dashboard-stat2">
-            Klantgeluk Cases per status last week
+            Klantgeluk Cases per type last week
             <div class="display" ng-repeat="status in vm.perTypeCountCases">
                 <div class="number">
                     <h3 class="font-green-sharp">{{ status.count }}</h3>
@@ -22,13 +22,17 @@
     </div>
     <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
         <div class="dashboard-stat2">
-            Klantgeluk Cases with Tags last week
+            Klantgeluk Cases vs Tags
             <div class="display">
                 <div class="number">
                     <h3 class="font-green-sharp">{{ vm.countWithTagsCases }}</h3>
+                    <small>Cases wit tags</small>
                 </div>
-                <div class="icon">
-                    <i class="icon-pie-chart"></i>
+            </div>
+            <div class="display">
+                <div class="number">
+                    <h3 class="font-green-sharp">{{ vm.countWithoutTagsCases }}</h3>
+                    <small>Cases <strong>without</strong> tags</small>
                 </div>
             </div>
         </div>
@@ -49,7 +53,7 @@
 <div class="row margin-top-10">
     <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
         <div class="dashboard-stat2">
-            Klantgeluk Cases per status last week
+            Klantgeluk Cases top tags
             <div class="display" ng-repeat="tag in vm.topTagsCases">
                 <div class="number">
                     <h3 class="font-green-sharp">{{ tag.count }}</h3>

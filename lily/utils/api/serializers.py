@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import re
 
 from django.contrib.contenttypes.models import ContentType

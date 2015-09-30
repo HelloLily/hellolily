@@ -150,7 +150,7 @@ class CasesCountPerStatus(RawDatabaseView):
                 cases_case.type_id = cases_casetype.id AND
                 cases_case.id = cases_case_assigned_to_groups.case_id AND
                 cases_case.tenant_id = {tenant_id} AND
-                cases_case_assigned_to_groups.lilygroup_id.id = {lilygroup_id} AND
+                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
                 cases_case.is_deleted = false AND
                 cases_case.is_archived = false AND
                 cases_casestatus.status != 'Closed'

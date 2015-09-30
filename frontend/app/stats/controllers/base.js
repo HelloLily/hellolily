@@ -64,7 +64,7 @@ function StatsBaseController ($scope, Case) {
     }
 
     function _getCountperTypeCases () {
-        Case.countPerStatus(1).then(function(data) {
+        Case.getCountPerStatus(1).then(function(data) {
             vm.countPerStatus = data;
         });
     }

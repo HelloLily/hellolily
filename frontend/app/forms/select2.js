@@ -5,7 +5,7 @@
             ajaxInputs: 'input.select2ajax',
             tagsAjaxClass: 'tags-ajax',
             ajaxPageLimit: 30,
-            clearText: '-- Clear --'
+            clearText: '-- Clear --',
         },
 
         init: function( config ) {
@@ -33,7 +33,7 @@
             $('select').select2({
                 // at least this many results are needed to enable the search field
                 // (9 is the amount at which the user must scroll to see all items)
-                minimumResultsForSearch: 9
+                minimumResultsForSearch: 9,
             });
             this.createTagInputs();
             this.createAjaxInputs();
@@ -58,10 +58,10 @@
                                 }).length === 0) {
                                 return {
                                     id: term,
-                                    text: term + ' (new tag)'
+                                    text: term + ' (new tag)',
                                 };
                             }
-                        }
+                        },
                     });
                 }
             });
@@ -69,11 +69,11 @@
 
         formatResult: function(result, container, query, escapeMarkup) {
             var resultRow = '';
+            var nameMarkup = [];
+            var emailMarkup = [];
+            var markup = [];
 
             if (result.name && result.email_address) {
-                var nameMarkup = [];
-                var emailMarkup = [];
-
                 window.Select2.util.markMatch(result.name, query.term, nameMarkup, escapeMarkup);
                 window.Select2.util.markMatch(result.email_address, query.term, emailMarkup, escapeMarkup);
 
@@ -82,10 +82,7 @@
                     '<div>' + nameMarkup.join('') + '</div>' +
                     '<div class="text-muted">' + emailMarkup.join('') + '</div>' +
                 '</div>';
-            }
-            else {
-                var markup = [];
-
+            } else {
                 window.Select2.util.markMatch(result.text, query.term, markup, escapeMarkup);
 
                 resultRow =
@@ -191,7 +188,7 @@
                                                 text: displayed_text,
                                                 name: hit.name,
                                                 email_address: hit.email_addresses[i].email_address,
-                                                object_id: hit.id
+                                                object_id: hit.id,
                                             });
                                         }
                                     });
@@ -207,13 +204,13 @@
 
                                 // Add clear option, but not for multiple select2.
                                 if ((page == 1 && !$this.hasClass(cf.tagsAjaxClass)) && !_data.tags) {
-                                    data.hits.unshift({id: -1, text:cf.clearText});
+                                    data.hits.unshift({id: '', text:cf.clearText});
                                 }
                                 return {
                                     results: data.hits,
-                                    more: more
+                                    more: more,
                                 };
-                            }
+                            },
                         },
 
                         initSelection: function (item, callback) {
@@ -221,7 +218,7 @@
                             var text = item.data('selected-text');
                             var data = { id: id, text: text };
                             callback(data);
-                        }
+                        },
                     };
 
                     if ($this.hasClass(cf.tagsAjaxClass)) {
@@ -234,7 +231,7 @@
                                 }).length === 0) {
                                 return {
                                     id: term,
-                                    text: term
+                                    text: term,
                                 };
                             }
                         };
@@ -243,7 +240,7 @@
                     }
 
                     // Set select2 to multiple.
-                    if(_data.tags) {
+                    if (_data.tags) {
                         options.tags = true;
                         options.multiple = true;
                     }
@@ -251,12 +248,12 @@
 
                     $this.select2(options);
                     // Set the initial form value from a JSON encoded data attribute called data-initial
-                    if(_data.tags) {
+                    if (_data.tags) {
                         $this.select2('data', _data.initial);
                     }
                 }
             });
-        }
+        },
     };
 
 })(jQuery, window, document);

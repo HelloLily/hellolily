@@ -29,7 +29,6 @@
           "vars": "local",
           "args": "none"
         }],
-        "no-use-before-define": 2,                      // http://eslint.org/docs/rules/no-use-before-define
 
         /** Possible errors */
         "comma-dangle": [2, "always-multiline"],        // http://eslint.org/docs/rules/comma-dangle
@@ -94,11 +93,13 @@
         "yoda": 2,                                      // http://eslint.org/docs/rules/yoda
 
         /** Style */
+        "block-spacing": [2, "always"],                 // http://eslint.org/docs/rules/block-spacing
         "indent": [2, 4],                               // http://eslint.org/docs/rules/indent
         "brace-style": [2,                              // http://eslint.org/docs/rules/brace-style
           "1tbs", {
           "allowSingleLine": true
         }],
+        "no-mixed-spaces-and-tabs": [2],                // http://eslint.org/docs/rules/no-mixed-spaces-and-tabs
         "quotes": [2, "single", "avoid-escape"],        // http://eslint.org/docs/rules/quotes
         "camelcase": [2, {"properties": "never"}],      // http://eslint.org/docs/rules/camelcase
         "comma-spacing": [2, {                          // http://eslint.org/docs/rules/comma-spacing

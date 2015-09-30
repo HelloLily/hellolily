@@ -59,7 +59,7 @@ function StatsBaseController ($scope, Case) {
     function _getCountWithTagsLastWeekCases () {
         Case.getCountWithTagsLastWeek(1).then(function(data) {
             vm.countWithTagsCases = data[0].count;
-            vm.countWithTagsCases = vm.totalCasesLastWeek - vm.countWithTagsCases;
+            vm.countWithoutTagsCases = vm.totalCasesLastWeek - vm.countWithTagsCases;
         });
     }
 
@@ -71,7 +71,7 @@ function StatsBaseController ($scope, Case) {
 
     function _getTopTagsCases () {
         Case.getTopTags(1).then(function(data) {
-            vm.top15TagsCases = data;
+            vm.topTagsCases = data;
         });
     }
 

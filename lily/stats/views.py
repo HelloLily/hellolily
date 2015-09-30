@@ -109,7 +109,7 @@ class CasesWithTagsLastWeek(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-              count(*), date_trunc( 'week', now() - interval '1 week' ) as start, date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second' as end
+              count(DISTINCT(cases_case.id)), date_trunc( 'week', now() - interval '1 week' ) as start, date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second' as end
             FROM
                 cases_case,
                 cases_casestatus,
@@ -171,7 +171,7 @@ class CasesTopTags(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups
+                cases_case_assigned_to_groups,
                 tags_tag
             WHERE
                 cases_case.status_id = cases_casestatus.id AND

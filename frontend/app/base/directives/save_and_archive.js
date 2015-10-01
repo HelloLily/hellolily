@@ -1,10 +1,9 @@
 angular.module('app.directives').directive('saveAndArchive', saveAndArchiveDirective);
 
-function saveAndArchiveDirective () {
+function saveAndArchiveDirective() {
     return {
-        restrict: "A",
+        restrict: 'A',
         link: function(scope, elem, attrs) {
-
             // Setting button to right text based in archived state
             var $button = $('#archive-button');
             var $archiveField = $('#id_is_archived');
@@ -14,17 +13,19 @@ function saveAndArchiveDirective () {
                 $button.find('span').text('Save and Archive');
             }
 
-            // On button click set archived hidden field and submit form
-            elem.on('click', function () {
-                $button = $('#archive-button');
-                $archiveField = $('#id_is_archived');
-                var $form = $($button.closest('form').get(0));
+            // On button click set archived hidden field and submit form.
+            elem.on('click', function() {
+                var $form = $button.closest('form');
                 var archive = ($archiveField.val() === 'True' ? 'False' : 'True');
                 $archiveField.val(archive);
-                $button.button('loading');
+                // Native form validation passed; set the loading text on the
+                // `Save and Archive` button.
+                if ($form.get(0).checkValidity()) {
+                    $button.button('loading');
+                }
                 $form.find(':submit').click();
                 event.preventDefault();
             });
-        }
-    }
+        },
+    };
 }

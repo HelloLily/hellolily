@@ -15,20 +15,47 @@ from .models import Case, CaseStatus, CaseType
 
 faker = Factory.create('nl_NL')
 
+CASESTATUS_CHOICES = (
+    'New',
+    'Pending input',
+    'Waiting on hardware',
+    'Follow up',
+    'Client will contact us',
+    'Documentation',
+    'Closed',
+)
+
+CASETYPE_CHOICES = (
+    'Config',
+    'Support',
+    'Return Shipment',
+    'Callback',
+    'Document',
+    'Implement',
+    'Misc',
+    'Advice'
+    'Customer Happyness',
+)
+
 
 class CaseTypeFactory(DjangoModelFactory):
-    type = Iterator(['Order', 'Aftersales', 'Various'])
+    tenant = SubFactory(TenantFactory)
+    type = Iterator(CASETYPE_CHOICES)
 
     class Meta:
         model = CaseType
+        django_get_or_create = ('tenant', 'type')
 
 
 class CaseStatusFactory(DjangoModelFactory):
+
     position = Sequence(int)
-    status = LazyAttribute(lambda o: faker.word())
+    status = Iterator(CASESTATUS_CHOICES)
+    tenant = SubFactory(TenantFactory)
 
     class Meta:
         model = CaseStatus
+        django_get_or_create = ('tenant', 'status')
 
 
 class CaseFactory(DjangoModelFactory):

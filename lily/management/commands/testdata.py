@@ -13,7 +13,7 @@ from lily.users.factories import LilyGroupFactory, LilySuperUserFactory, LilyUse
 
 
 class Command(BaseCommand):
-    help = """Populate the database with test data. It will create a new tenant, \
+    help = """Populate the database with test data. It will create a new tenant,
 or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
@@ -30,7 +30,7 @@ or use an existent tenant if passed as an argument."""
         make_option('-b', '--batch-size',
                     action='store',
                     dest='batch_size',
-                    default='5',
+                    default='20',
                     help='Override the batch size.',
                     ),
         make_option('--tenant',

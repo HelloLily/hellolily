@@ -23,3 +23,4 @@ lily/static/
 .npm/
 node_modules/
 Procfile.local
+docs/source/modules

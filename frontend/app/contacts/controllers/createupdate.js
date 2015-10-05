@@ -11,11 +11,11 @@ function contactConfig($stateProvider) {
             '@': {
                 templateUrl: 'contacts/controllers/form_outer.html',
                 controller: ContactCreateUpdateController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Create'
+            label: 'Create',
         }
     });
 
@@ -25,11 +25,11 @@ function contactConfig($stateProvider) {
             '@': {
                 templateUrl: 'contacts/controllers/form_outer.html',
                 controller: ContactCreateUpdateController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Edit'
+            label: 'Edit',
         }
     });
 
@@ -59,7 +59,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
     vm.contact = {};
     vm.tags = [];
     vm.errors = {
-        name: []
+        name: [],
     };
     vm.accounts = [];
 
@@ -157,15 +157,15 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         if (vm.contact.twitter) {
             vm.contact.social_media.push({
                 name: 'twitter',
-                username: vm.contact.twitter
-            })
+                username: vm.contact.twitter,
+            });
         }
 
         if (vm.contact.linkedin) {
             vm.contact.social_media.push({
                 name: 'linkedin',
-                username: vm.contact.linkedin
-            })
+                username: vm.contact.linkedin,
+            });
         }
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact);
@@ -177,13 +177,12 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
                 $state.go('base.contacts.detail', {id: vm.contact.id}, {reload: true});
             }, function (response) {
                 _handleBadResponse(response, form);
-            })
-        }
-        else {
+            });
+        } else {
             vm.contact.$save(function () {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
                 $state.go('base.contacts.detail', {id: vm.contact.id});
-            }, function (response) {
+            }, function(response) {
                 _handleBadResponse(response, form);
             });
         }

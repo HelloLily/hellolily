@@ -1,0 +1,28 @@
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="{{ pathto(master_doc) }}">Docs</a> &raquo;</li>
+      {% for doc in parents %}
+          <li><a href="{{ doc.link|e }}">{{ doc.title }}</a> &raquo;</li>
+      {% endfor %}
+    <li>{{ title }}</li>
+        <li class="wy-breadcrumbs-aside">
+            {%- if show_source and has_source and sourcename %}
+            <ul class="this-page-menu">
+                {%- if show_srclink_url %}
+                <li><a href="{{ show_srclink_url }}" rel="nofollow" target="_blank">{{ _('Source') }}</a></li>
+                {%- endif %}
+                {%- if history_srclink_url %}
+                <li><a href="{{ history_srclink_url }}" rel="nofollow" target="_blank">{{ _('History') }}</a></li>
+                {%- endif %}
+                {%- if annotate_srclink_url %}
+                <li><a href="{{ annotate_srclink_url }}" rel="nofollow" target="_blank">{{ _('Annotate') }}</a></li>
+                {%- endif %}
+                {%- if edit_srclink_url %}
+                <li><a href="{{ edit_srclink_url }}" rel="nofollow" class="fa fa-github" target="_blank"> Edit on GitHub</a></li>
+                {%- endif %}
+            </ul>
+            {%- endif %}
+      </li>
+  </ul>
+  <hr/>
+</div>

@@ -391,4 +391,3 @@ class GetCaseTypesView(LoginRequiredMixin, View):
         return HttpResponse(anyjson.serialize({
             'casetypes': casetypes,
         }), content_type='application/json')
-

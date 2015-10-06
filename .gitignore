@@ -3,6 +3,8 @@
 *.pyc
 *.pyo
 
+.cache/
+.coverage
 .env
 .project
 .pydevproject
@@ -18,9 +20,11 @@ dist-packages/
 celerybeat-schedule
 celeryev.pid
 
+coverage.xml
 lily/files/
 lily/static/
 .npm/
 node_modules/
 Procfile.local
 docs/source/modules
+TESTS-*.xml

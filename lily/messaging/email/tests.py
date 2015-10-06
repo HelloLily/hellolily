@@ -39,63 +39,17 @@ ds"""
 
     def test_list_to_newlines(self):
 
-        html = """
-<html>
-	<head>
-		<style type="text/css">
-			body {
-				background-image: url(dolfijn.jpg);
-				background-position: right center;
-				background-repeat: no-repeat;
-				font-family: sans;
-				font-size: 36pt;
-				font-weight: bold;
-			}
-		</style>
-		<title>Dolfijnwoorden</title>
-	</head>
-	<body>
-		<h3>Dolfijnwoorden 26-02-2014</h3>
-		<ul>
-			<li>Wit</li>
-			<li>Badpak</li>
-			<li>Bedisputeren</li>
-			<li>Dolfijnwoord</li>
-			<li>Hogere wiskunde</li>
-			<li>Moeder</li>
-			<li>Pinpointen</li>
-			<li>Redetwisten</li>
-			<li>Schildpadwoord</li>
-			<li>Sukkelseks</li>
-			<li>Vakantie</li>
-			<li>Vingerpistool</li>
-			<li>Voor jouw beeldvorming</li>
-			<li>Never gonna give you up</li>
-			<li>Never gonna let you down</li>
-		</ul>
-	</body>
-</html>"""
-
-        result = """
-Dolfijnwoorden 26-02-2014
-
-Wit
-Badpak
-Bedisputeren
-Dolfijnwoord
-Hogere wiskunde
-Moeder
-Pinpointen
-Redetwisten
-Schildpadwoord
-Sukkelseks
-Vakantie
-Vingerpistool
-Voor jouw beeldvorming
-Never gonna give you up
-Never gonna let you down
-
+        html = """Hi there!
+<script>console.log('hello');</script>
+<ul><li>1</li> <li>2</li></ul>
+Bye!
 """
+        result = """Hi there!
+
+1 2
+Bye!
+"""
+
         self.assertEqual(convert_html_to_text(html, keep_linebreaks=True), result)
 
     def test_link(self):

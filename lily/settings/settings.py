@@ -121,7 +121,8 @@ FILE_UPLOAD_HANDLERS = (
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
-EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = 'messaging/email/templates/attachments/%(tenant_id)d/%(template_id)d/%(filename)s'
+EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
+                                       '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
 STATICI18N_ROOT = local_path('static/')
 STATICFILES_DIRS = (
@@ -155,7 +156,8 @@ COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
-PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)  # Also used as timeout for activation link
+# Also used as timeout for activation link.
+PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)
 USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
 AUTH_USER_MODEL = 'users.LilyUser'
 AUTHENTICATION_BACKENDS = (
@@ -182,8 +184,7 @@ MIDDLEWARE_CLASSES = (
 
 if 'test' in sys.argv:
     SSLIFY_DISABLE = True
-
-if DEBUG:
+elif DEBUG:
     SSLIFY_DISABLE = True
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -581,7 +582,6 @@ REST_FRAMEWORK = {
 #######################################################################################################################
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture']
-TEST_SITE_URL = os.environ.get('TEST_SITE_URL', 'http://192.168.59.103:8004/')
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
@@ -598,7 +598,8 @@ MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 # Settings for 3rd party apps
 
 # django debug toolbar
-INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] + (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
+INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] +
+                (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
@@ -633,4 +634,4 @@ BOOTSTRAP3 = {
     'horizontal_field_class': 'col-md-4',
 }
 
-from .celeryconfig import *
+from .celeryconfig import *  # noqa

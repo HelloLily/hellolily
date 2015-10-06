@@ -197,7 +197,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
                 'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'type',),
+                'fields': ('subject', 'description', 'type', 'tags',),
             }),
             (_('Who is going to do this?'), {
                 'fields': ('assigned_to_groups', 'assigned_to',),

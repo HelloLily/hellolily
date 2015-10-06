@@ -1,23 +1,28 @@
-
 <div ng-if="vm.message.id" class="inbox-header inbox-view-header">
     <h1 class="pull-left">{{ vm.message.subject}}</h1>
-    <div class="pull-right" ng-if="emailSettings.sideBar">
+    <div class="pull-right" ng-if="emailSettings.sidebar">
         <button class="btn btn-sm blue"
-                ng-show="emailSettings.sideBar == 'hasNoAccount' || emailSettings.sideBar == 'createAccount'"
-                ng-click="vm.showCreateAccountSidebar()">
+                ng-show="!emailSettings.accountId"
+                ng-click="vm.toggleAccountSidebar()">
             <i class="fa fa-plus"></i> Account
         </button>
 
         <button class="btn btn-sm blue"
-                ng-show="emailSettings.sideBar == 'hasAccount'"
-                ng-click="vm.showCreateAccountSidebar()">
+                ng-show="emailSettings.accountId"
+                ng-click="vm.toggleAccountSidebar()">
             <i class="fa fa-eye"></i> Account
+        </button>
+        
+        <button class="btn btn-sm blue"
+                ng-show="!emailSettings.contactId"
+                ng-click="vm.toggleContactSidebar()">
+            <i class="fa fa-plus"></i> Contact
         </button>
 
         <button class="btn btn-sm blue"
-                ng-show="emailSettings.sideBar == 'showAccount'"
-                ng-click="vm.showCreateAccountSidebar()">
-            <i class="fa fa-eye"></i> Account
+                ng-show="emailSettings.contactId"
+                ng-click="vm.toggleContactSidebar()">
+            <i class="fa fa-eye"></i> Contact
         </button>
     </div>
 </div>

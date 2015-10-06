@@ -16,5 +16,5 @@ function formPortlet() {
 FormPortletController.$inject = ['$rootScope'];
 function FormPortletController($rootScope) {
     var vm = this;
-    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
 }

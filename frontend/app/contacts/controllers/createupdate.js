@@ -16,9 +16,8 @@ function contactConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Create',
-        }
+        },
     });
-
     $stateProvider.state('base.contacts.detail.edit', {
         url: '/edit',
         views: {
@@ -30,7 +29,7 @@ function contactConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             label: 'Edit',
-        }
+        },
     });
 
     $stateProvider.state('base.contacts.create.fromAccount', {
@@ -39,12 +38,12 @@ function contactConfig($stateProvider) {
             '@': {
                 templateUrl: 'contacts/controllers/form_outer.html',
                 controller: ContactCreateUpdateController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            skip: true
-        }
+            skip: true,
+        },
     });
 }
 
@@ -64,6 +63,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
     vm.accounts = [];
 
     vm.saveContact = saveContact;
+    vm.cancelContactCreation = cancelContactCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.refreshAccounts = refreshAccounts;
@@ -106,9 +106,25 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             $scope.conf.pageTitleBig = 'New contact';
             vm.contact = Contact.create();
 
-            if ($stateParams.accountId) {
-                var account = Account.get({id: $stateParams.accountId});
-                vm.contact.accounts.push(account);
+            if ($scope.emailSettings) {
+                if ($scope.emailSettings.firstName) {
+                    vm.contact.firstName = $scope.emailSettings.firstName;
+                }
+
+                if ($scope.emailSettings.emailAddress) {
+                    vm.contact.email_addresses.push({
+                        email_address: $scope.emailSettings.emailAddress,
+                        status: 2,
+                    });
+                }
+
+                if ($scope.emailSettings.account) {
+                    vm.contact.accounts.push($scope.emailSettings.account);
+                }
+
+                if ($scope.emailSettings.email) {
+                    vm.contact.emailAddresses.push($scope.emailSettings.email);
+                }
             }
         }
     }
@@ -121,11 +137,20 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         HLFields.removeRelatedField(vm.contact, field, index, remove);
     }
 
+    function cancelContactCreation() {
+        if ($scope.emailSettings.sidebar.form === 'createContact') {
+            $scope.emailSettings.sidebar.form = null;
+            $scope.emailSettings.sidebar.contact = false;
+        } else {
+            $state.go('base.contacts');
+        }
+    }
+
     function saveContact(form) {
         if (vm.contact.tags && vm.contact.tags.length) {
             var tags = [];
 
-            angular.forEach(vm.contact.tags, function (tag) {
+            angular.forEach(vm.contact.tags, function(tag) {
                 if (tag) {
                     tags.push({name: (tag.name) ? tag.name : tag});
                 }
@@ -137,7 +162,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         if (vm.contact.accounts && vm.contact.accounts.length) {
             var accounts = [];
 
-            angular.forEach(vm.contact.accounts, function (account) {
+            angular.forEach(vm.contact.accounts, function(account) {
                 if (account) {
                     accounts.push({id: account.id});
                 }
@@ -172,16 +197,23 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
 
         if (vm.contact.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it
-            vm.contact.$update(function () {
+            vm.contact.$update(function() {
                 toastr.success('I\'ve updated the contact for you!', 'Done');
                 $state.go('base.contacts.detail', {id: vm.contact.id}, {reload: true});
-            }, function (response) {
+            }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            vm.contact.$save(function () {
+            vm.contact.$save(function() {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
-                $state.go('base.contacts.detail', {id: vm.contact.id});
+
+                if ($scope.emailSettings.sidebar.form === 'createContact') {
+                    $scope.emailSettings.sidebar.form = null;
+                    $scope.emailSettings.sidebar.contact = true;
+                    $scope.emailSettings.contactId = vm.contact.id;
+                } else {
+                    $state.go('base.contacts.detail', {id: vm.contact.id});
+                }
             }, function(response) {
                 _handleBadResponse(response, form);
             });
@@ -193,7 +225,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             var exclude = '';
 
             // Exclude accounts already selected
-            angular.forEach(vm.contact.accounts, function (account) {
+            angular.forEach(vm.contact.accounts, function(account) {
                 exclude += ' AND NOT id:' + account.id;
             });
 

@@ -1,4 +1,3 @@
-{{ account }}
 <div class="portlet light">
     <div class="portlet-title">
         <div class="caption">
@@ -19,7 +18,7 @@
                 <i class="fa fa-plus"></i>
                 Add
             </a>
-            <a ui-sref="base.contacts.create.fromAccount({id: accountId})" class="btn btn-circle btn-default" ng-show="accountId">
+            <a ui-sref="base.contacts.create.fromAccount({accountId: accountId})" class="btn btn-circle btn-default" ng-show="accountId">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
@@ -30,10 +29,10 @@
             <div ng-show="list.length">
                 <div class="row">
                     <!-- Removing some right padding to make the gutters smaller -->
-                    <div class="header col-xs-4 no-pad-right">
+                    <div class="header col-xs-4 no-padding-right">
                         Name
                     </div>
-                    <div class="header col-xs-5 no-pad-right">
+                    <div class="header col-xs-5 no-padding-right">
                         Email
                     </div>
                     <div class="header col-xs-3">
@@ -41,10 +40,10 @@
                     </div>
                 </div>
                 <div class="row" ng-repeat="contact in list">
-                    <div class="col-xs-4 no-pad-right break">
+                    <div class="col-xs-4 no-padding-right break">
                         <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
                     </div>
-                    <div class="col-xs-5 no-pad-right break">
+                    <div class="col-xs-5 no-padding-right break">
                         <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
                             {{ contact.email_addresses[0].email_address }}
                         </a>

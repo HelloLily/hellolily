@@ -1,6 +1,6 @@
 <form-group label-title="{{ vm.labelTitle }}" label-id="{{ vm.labelId }}" required="{{ vm.required }}">
-    <div class="form-group" ng-class="{'has-error': field.$invalid}">
-        <div class="col-md-4">
+    <div ng-class="{'has-error': field.$invalid}">
+        <div ng-class="{'col-xs-12': vm.sidebar, 'col-md-4': !vm.sidebar}">
             <div class="btn-group radio-btns" data-toggle="buttons">
                 <label ng-repeat="option in vm.options"
                        class="btn btn-primary"

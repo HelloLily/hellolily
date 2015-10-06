@@ -7,22 +7,21 @@ function formWebsites() {
         scope: {
             websites: '=',
             addRelatedField: '&',
-            removeRelatedField: '&'
+            removeRelatedField: '&',
         },
         templateUrl: 'forms/directives/websites.html',
         controller: FormWebsitesController,
         controllerAs: 'vm',
         bindToController: true,
-        link: function (scope, element, attrs, form) {
+        link: function(scope, element, attrs, form) {
             // Set parent form on the scope
             scope.form = form;
-        }
-    }
+        },
+    };
 }
 
 FormWebsitesController.$inject = ['$rootScope'];
 function FormWebsitesController($rootScope) {
     var vm = this;
-
-    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
 }

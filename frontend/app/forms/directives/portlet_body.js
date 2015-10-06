@@ -7,12 +7,12 @@ function formPortletBody() {
         transclude: true,
         templateUrl: 'forms/directives/portlet_body.html',
         controller: FormBodyPortletController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
 FormBodyPortletController.$inject = ['$rootScope'];
 function FormBodyPortletController($rootScope) {
     var vm = this;
-    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
 }

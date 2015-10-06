@@ -9,17 +9,18 @@ function formRadioButtons() {
             labelTitle: '@',
             field: '=',
             required: '@',
-            inputName: '@'
+            inputName: '@',
+            sidebar: '=',
         },
         templateUrl: 'forms/directives/radio_buttons.html',
         controller: FormRadioButtonsController,
         controllerAs: 'vm',
         bindToController: true,
-        link: function (scope, element, attrs, form) {
+        link: function(scope, element, attrs, form) {
             // Set parent form on the scope
             scope.form = form;
-        }
-    }
+        },
+    };
 }
 
 function FormRadioButtonsController() {

@@ -1,8 +1,8 @@
 <div class="form-group" ng-repeat="website in vm.websites | filter: {is_primary:false}">
     <label for="id_website-{{ $index }}"
            ng-show="$first" c
-           ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Extra website</label>
-    <div ng-class="{'col-xs-10': vm.sideBar, 'col-md-4': !vm.sideBar, 'col-md-offset-2': !$first && !vm.sideBar, 'has-error': form['websites-website-' + $index].$invalid }">
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Extra website</label>
+    <div ng-class="{'col-xs-10': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['websites-website-' + $index].$invalid }">
         <input class="form-control"
                id="id_website-{{ $index }}"
                maxlength="255"
@@ -13,7 +13,7 @@
                ng-readonly="website.is_deleted">
         <field-error form="form" field="websites-website" index="$index"></field-error>
     </div>
-    <div ng-class="{'col-xs-2': vm.sideBar, 'col-md-2': !vm.sideBar}">
+    <div ng-class="{'col-xs-2': vm.sidebar, 'col-md-2': !vm.sidebar}">
         <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
             <i class="fa fa-undo"></i>
         </a>
@@ -25,8 +25,8 @@
 
 <div class="form-group">
     <label ng-hide="(vm.websites|filter:{is_primary:false}).length"
-           ng-class="{'col-xs-12': vm.sideBar, 'control-label col-md-2': !vm.sideBar}">Extra website</label>
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': (vm.websites|filter:{is_primary:false}).length && !vm.sideBar }">
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Extra website</label>
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': (vm.websites|filter:{is_primary:false}).length && !vm.sidebar }">
         <a ng-click="vm.addRelatedField({field:'website'})" class="form-control-static">Add a website</a>
     </div>
 </div>

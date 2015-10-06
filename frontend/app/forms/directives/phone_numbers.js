@@ -30,8 +30,8 @@ function FormPhoneNumbersController($rootScope) {
         {key: 'fax', value: 'Fax'},
         {key: 'other', value: 'Other'},
     ];
-    vm.sideBar = $rootScope.$$childHead.emailSettings.sideBar;
-    
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
+
     vm.formatPhoneNumber = formatPhoneNumber;
 
     function formatPhoneNumber(phoneNumber) {

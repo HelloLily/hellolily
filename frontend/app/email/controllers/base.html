@@ -1,7 +1,6 @@
 <div class="row">
     <div style="padding: 12px 20px 15px 20px;"
-         ng-class="{'col-md-9': emailSettings.sideBar == 'createAccount' || emailSettings.sideBar == 'showAccount',
-                    'col-md-12': !emailSettings.sideBar}">
+         ng-class="{'col-md-9': emailSettings.sidebar.isVisible, 'col-md-12': !emailSettings.sidebar.isVisible}">
         <div class="portlet light">
             <div class="portlet-body">
                 <div class="row inbox">
@@ -11,24 +10,35 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3" style="padding: 12px 20px 15px 0;" ng-if="emailSettings.sideBar == 'createAccount'">
-        <div class="portlet light">
+
+    <div class="col-md-3 email-sidebar" ng-show="emailSettings.sidebar.isVisible">
+        <div class="portlet light" ng-if="emailSettings.sidebar.form">
             <div class="portlet-body">
                 <div class="row inbox">
                     <div class="col-md-12">
-                        <div class="inbox-header inbox-view-header ng-scope">
-                            <h1 class="pull-left ng-binding">Add account</h1>
-                        </div>
-                        <div ui-view="createaccount"></div>
+                        <!-- Setting ui-view to emailSettings.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
+                        <div ng-if="emailSettings.sidebar.form == 'createAccount'" ui-view="createAccount"></div>
+                        <div ng-if="emailSettings.sidebar.form == 'createContact'" ui-view="createContact"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3" style="padding: 12px 20px 15px 0;" ng-if="emailSettings.sideBar == 'showAccount'">
-        <div ui-view="showaccount">
-            <account-detail-widget account="account" height="300"></account-detail-widget>
-            <contact-list-widget title="{{ account.name }}" list="contactList" height="300" account-id="{{ account.id }}"></contact-list-widget>
+
+        <div ng-if="emailSettings.sidebar.account && emailSettings.accountId">
+            <div ui-view="showAccount">
+                <account-detail-widget account="account" height="300"></account-detail-widget>
+                <contact-list-widget ng-if="!emailSettings.contactId" title="{{ account.name }}" list="contactList" height="300" account-id="{{ account.id }}"></contact-list-widget>
+            </div>
+        </div>
+
+        <div ng-if="emailSettings.sidebar.contact && emailSettings.contactId">
+            <div ui-view="showContact">
+                <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
+                <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
+                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
+                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+                </div>
+            </div>
         </div>
     </div>
 </div>

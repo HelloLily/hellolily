@@ -16,7 +16,8 @@
                placeholder="Phone number"
                type="text"
                ng-model="phoneNumber.raw_input"
-               ng-readonly="phoneNumber.is_deleted">
+               ng-readonly="phoneNumber.is_deleted"
+               ng-blur="vm.formatPhoneNumber(phoneNumber)">
         <field-error form="form" field="phone_numbers-raw_input" index="$index"></field-error>
     </div>
     <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone number type</label>

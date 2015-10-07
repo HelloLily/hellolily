@@ -1,36 +1,38 @@
-<div class="timeline-badge">
-    <i class="fa fa-briefcase"></i>
-</div>
-<div class="timeline-panel">
-    <div class='timeline-heading'>
-        <h4 class='timeline-title'>
-            <a class="link-no-decoration" ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
-            <div class="btn-group pull-right">
-                <a class="text-white" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-angle-down"></i>
-                </a>
-                <ul class="dropdown-menu pull-right">
-                    <li><a ui-sref="base.cases.detail({ id: vm.item.id })"><i class="fa fa-eye"></i>View</a></li>
-                    <li><a ui-sref="base.cases.detail.edit({ id: vm.item.id })"><i class="fa fa-edit"></i>Edit</a></li>
-                    <li class='divider'></li>
-                    <li>
-                        <a ng-href="/cases/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">
-                            <i class="fa fa-trash"></i>Delete
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </h4>
+<div class="case-history-item" ng-class="{'case': 'history-item-right'}[vm.item.historyType]">
+
+    <div class="history-item-badge">
+        <i class="fa fa-briefcase"></i>
     </div>
-    <div class='timeline-body first'>
-        <em style="white-space: pre-wrap;">{{ ::vm.item.body }}</em>
-        <div class="timeline-footer">
-            <br/>
-            Status: {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})<br/>
-            Priority: {{ ::vm.item.priority_name }}<br/>
-            Type: {{ ::vm.item.casetype_name }}<br/>
-            <br/>
+
+    <div class='history-item-heading'>
+        <a class="link-no-decoration" ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
+
+        <div class="btn-group pull-right">
+            <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-angle-down"></i>
+            </a>
+
+            <ul class="dropdown-menu pull-right">
+                <li><a ui-sref="base.cases.detail({ id: vm.item.id })"><i class="fa fa-eye"></i>View</a></li>
+                <li><a ui-sref="base.cases.detail.edit({ id: vm.item.id })"><i class="fa fa-edit"></i>Edit</a></li>
+                <li class='divider'></li>
+                <li>
+                    <a ng-href="/cases/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">
+                        <i class="fa fa-trash"></i>Delete
+                    </a>
+                </li>
+            </ul>
         </div>
+    </div>
+
+    <div class='history-item-body first'>
+        <div class="history-note-properties">
+            <div class="history-note-property">{{ ::vm.item.body }}</div>
+            <div class="history-note-property">Status: {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})</div>
+            <div class="history-note-property">Priority: {{ ::vm.item.priority_name }}</div>
+            <div class="history-note-property">Type: {{ ::vm.item.casetype_name }}</div>
+        </div>
+
         <ul class="list-inline list-justified">
             <li>
                 <small class="text-muted" tooltip="Expires on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
@@ -53,24 +55,23 @@
         </ul>
     </div>
     <history-add-note item="vm.item"></history-add-note>
-    <div class='timeline-body next' ng-repeat="note in vm.item.notes">
+
+    <div class='history-item-body next' ng-repeat="note in vm.item.notes">
         <p class='inline-header'><i class="fa fa-sticky-note"></i> Note</p>
-        <div class="inline-body">
-            <p>{{ ::note.content }}</p>
-            <ul class="list-inline list-justified">
-                <li>
-                    <small class="text-muted" tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
-                        <i class="fa fa-calendar"></i>
-                        {{ ::note.date | date:'dd MMMM yy HH:mm' }}
-                    </small>
-                </li>
-                <li>
-                    <small class="text-muted" tooltip="Created by: {{ ::note.author }}">
-                        <i class="fa fa-user"></i>
-                        {{ ::note.author }}
-                    </small>
-                </li>
-            </ul>
-        </div>
+        <p>{{ ::note.content }}</p>
+        <ul class="list-inline list-justified">
+            <li>
+                <small class="text-muted" tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
+                    <i class="fa fa-calendar"></i>
+                    {{ ::note.date | date:'dd MMMM yy HH:mm' }}
+                </small>
+            </li>
+            <li>
+                <small class="text-muted" tooltip="Created by: {{ ::note.author }}">
+                    <i class="fa fa-user"></i>
+                    {{ ::note.author }}
+                </small>
+            </li>
+        </ul>
     </div>
 </div>

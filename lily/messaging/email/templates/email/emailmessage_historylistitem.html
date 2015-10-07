@@ -9,7 +9,7 @@
     <div class="timeline-icon{% if right %} icon-right{% endif %}">
         <i class="icon-envelope"></i>
     </div>
-    <div class="timeline-body{% if right %} body-right{% else %} body-left{% endif %}">
+    <div class="history-item-body{% if right %} body-right{% else %} body-left{% endif %}">
         <h2>{{ object.subject|truncatechars:45|default:_('No subject') }}{% if object.get_email_operation_icon %}<i class="{{ object.get_email_operation_icon }} pull-right timeline-operation-icon"></i>{% endif %}</h2>
         <div class="timeline-content">{{ left }}
             {{ object.textify|truncatechars:265|linebreaks|default:_('No details available') }}

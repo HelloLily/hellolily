@@ -1,26 +1,26 @@
 angular.module('app.cases').config(caseConfig);
 
 caseConfig.$inject = ['$stateProvider'];
-function caseConfig ($stateProvider) {
+function caseConfig($stateProvider) {
     $stateProvider.state('base.cases', {
         url: '/cases',
         views: {
             '@': {
                 templateUrl: 'cases/controllers/list.html',
                 controller: CaseListController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Cases'
-        }
+            label: 'Cases',
+        },
     });
 }
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLDate', 'HLFilters'];
-function CaseListController ($location, $modal, $scope, $state, $timeout, Case, Cookie, HLDate, HLFilters) {
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters'];
+function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters) {
     var cookie = Cookie('caseList');
     var vm = this;
 
@@ -37,7 +37,7 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
         searchQuery: '',  // search query
         order: cookie.get('order', {
             ascending: true,
-            column: 'expires'  // string: current sorted column
+            column: 'expires',  // string: current sorted column
         }),
         visibility: cookie.get('visibility', {
             caseId: true,
@@ -52,7 +52,7 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
             createdBy: true,
             tags: true
         }),
-        expiresFilter: cookie.get('expiresFilter', '')
+        expiresFilter: cookie.get('expiresFilter', ''),
     };
     vm.displayFilterClear = false;
     vm.filterList = [];
@@ -75,7 +75,7 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
         }, 50);
     }
 
-    function _setSearchQuery () {
+    function _setSearchQuery() {
         // Setup search query
         var searchQuery = '';
 
@@ -95,7 +95,7 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
      *
      * @param queryString string: string that will be set as the new search query on the table
      */
-    function setSearchQuery (queryString) {
+    function setSearchQuery(queryString) {
         vm.table.searchQuery = queryString;
     }
 
@@ -115,41 +115,46 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
                 {
                     name: 'Assigned to me',
                     value: 'assigned_to_id:' + $scope.currentUser.id,
-                    selected: false
+                    selected: false,
                 },
                 {
                     name: 'Assigned to nobody',
                     value: 'NOT(assigned_to_id:*)',
-                    selected: false
+                    selected: false,
+                },
+                {
+                    name: 'Expired today',
+                    value: 'expires: ' + moment().subtract(1, 'd').format('YYYY-MM-DD'),
+                    selected: false,
                 },
                 {
                     name: 'Expired 7 days or more ago',
-                    value: 'expires:[* TO ' + HLDate.getSubtractedDate(7) + ']',
-                    selected: false
+                    value: 'expires:[* TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
+                    selected: false,
                 },
                 {
                     name: 'Expired 30 days or more ago',
-                    value: 'expires:[* TO ' + HLDate.getSubtractedDate(30) + ']',
-                    selected: false
+                    value: 'expires:[* TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
+                    selected: false,
                 },
                 {
                     name: 'Archived',
                     value: '',
                     selected: false,
-                    id: 'archived'
-                }
+                    id: 'archived',
+                },
             ];
 
             // Update filterList for now
             vm.filterList = filterList;
 
-            Case.getCaseTypes().then(function (cases) {
+            Case.getCaseTypes().then(function(cases) {
                 for (var key in cases) {
                     if (cases.hasOwnProperty(key)) {
                         filterList.push({
                             name: 'Case type ' + cases[key],
                             value: 'casetype_id:' + key,
-                            selected: false
+                            selected: false,
                         });
                     }
                 }
@@ -187,7 +192,8 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
             vm.table.order.ascending,
             vm.table.archived,
             vm.table.filterQuery
-        ).then(function (data) {
+        )
+            .then(function(data) {
                 vm.table.items = data.cases;
                 vm.table.totalItems = data.total;
             }
@@ -205,8 +211,8 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
             'vm.table.order.ascending',
             'vm.table.searchQuery',
             'vm.table.archived',
-            'vm.table.filterQuery'
-        ], function () {
+            'vm.table.filterQuery',
+        ], function() {
             _updateTableSettings();
             _updateCases();
         });
@@ -215,7 +221,7 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
          * Watches the model info from the table that, when changed,
          * needs to store the info to the cache
          */
-        $scope.$watchCollection('vm.table.visibility', function () {
+        $scope.$watchCollection('vm.table.visibility', function() {
             _updateTableSettings();
         });
 
@@ -223,24 +229,24 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
          * Watches the filters so when the cookie is loaded,
          * the filterQuery changes and a new set of deals is fetched
          */
-        $scope.$watchCollection('vm.filterList', function () {
+        $scope.$watchCollection('vm.filterList', function() {
             updateFilterQuery();
         });
 
-        $scope.$watch('vm.table.expiresFilter', function () {
+        $scope.$watch('vm.table.expiresFilter', function() {
             updateFilterQuery();
         });
     }
 
-    function updateFilterQuery () {
+    function updateFilterQuery() {
         HLFilters.updateFilterQuery(vm);
     }
 
-    function clearFilters () {
+    function clearFilters() {
         HLFilters.clearFilters(vm);
     }
 
-    function assignTo (myCase) {
+    function assignTo(myCase) {
         var modalInstance = $modal.open({
             templateUrl: 'cases/controllers/assignto.html',
             controller: 'CaseAssignModal',
@@ -249,8 +255,8 @@ function CaseListController ($location, $modal, $scope, $state, $timeout, Case, 
             resolve: {
                 myCase: function() {
                     return myCase;
-                }
-            }
+                },
+            },
         });
 
         modalInstance.result.then(function() {

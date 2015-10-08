@@ -1,14 +1,7 @@
 <div class="form-group" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Phone number</label>
-    <!-- <label for="id_phone_numbers-type-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i>
-            </div>
-            <div class="label-text">Phone Number</div>
-        </div>
-    </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['phone_numbers-raw_input-{{ $index }}'].$invalid }">
+    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first"
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Phone number</label>
+    <div ng-class="{'col-xs-12 padding-top-15': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['phone_numbers-raw_input-' + $index].$invalid }">
         <input class="form-control"
                id="id_phone_numbers-raw_input-{{ $index }}"
                maxlength="255"
@@ -21,7 +14,7 @@
         <field-error form="form" field="phone_numbers-raw_input" index="$index"></field-error>
     </div>
     <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">Phone number type</label>
-    <div class="col-md-4">
+    <div ng-class="{'col-xs-10 padding-top-15': vm.sidebar, 'col-md-4': !vm.sidebar}">
         <select class="form-control"
                 id="id_phone_numbers-type-{{ $index }}"
                 name="phone_numbers-type-{{ $index }}"
@@ -30,28 +23,19 @@
                 ng-readonly="phoneNumber.is_deleted">
         </select>
     </div>
-    <div class="col-md-2">
-        <div class="col-md-1">
-            <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="phoneNumber.is_deleted">
-                <i class="fa fa-undo"></i>
-            </a>
-            <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="phoneNumber.is_deleted">
-                <i class="fa fa-trash"></i>
-            </a>
-        </div>
+    <div ng-class="{'col-xs-2 padding-top-15': vm.sidebar, 'col-md-2': !vm.sidebar}">
+        <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="phoneNumber.is_deleted">
+            <i class="fa fa-undo"></i>
+        </a>
+        <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="phoneNumber.is_deleted">
+            <i class="fa fa-trash"></i>
+        </a>
     </div>
 </div>
 <div class="form-group">
-    <label ng-hide="vm.phoneNumbers.length" class="col-md-2 control-label">Phone number</label>
-    <!-- <label class="visible-xs-block col-md-2 control-label with-icon" ng-hide="vm.phoneNumbers.length">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-phone label-icon"></i>
-            </div>
-            <div class="label-text">Phone Number</div>
-        </div>
-    </label> -->
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.phoneNumbers.length }">
+    <label ng-hide="vm.phoneNumbers.length"
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Phone number</label>
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.phoneNumbers.length && !vm.sidebar }">
         <a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="form-control-static">Add a phone number</a>
     </div>
 </div>

@@ -11,22 +11,21 @@
 angular.module('app.email.directives').directive('contactIcon', contactIcon);
 
 contactIcon.$inject = ['$http'];
-function contactIcon ($http) {
+function contactIcon($http) {
     return {
         restrict: 'A',
         scope: {
-            message: '='
+            message: '=',
         },
         replace: true,
         templateUrl: 'email/directives/contact_icon.html',
-        link: function (scope, element, attrs) {
-
+        link: function(scope, element, attrs) {
             // Do we have an associated account or contact?
             if (scope.message.sender_email) {
                 $http.get('/search/emailaddress/' + scope.message.sender_email)
-                    .success(function (data) {
+                    .success(function(data) {
                         scope.emailAddressResults = data;
-                        if (data.type == 'contact') {
+                        if (data.type === 'contact') {
                             // Contact and has account
                             if (data.data.accounts) {
                                 scope.status = 'complete';
@@ -34,7 +33,7 @@ function contactIcon ($http) {
                             } else {
                                 scope.status = 'needsAccount';
                             }
-                        } else if (data.type == 'account') {
+                        } else if (data.type === 'account') {
                             // Is the emailadress from the account it self (eg. info@)
                             if (data.complete) {
                                 scope.status = 'complete';
@@ -48,6 +47,6 @@ function contactIcon ($http) {
             } else {
                 scope.status = 'complete';
             }
-        }
+        },
     };
 }

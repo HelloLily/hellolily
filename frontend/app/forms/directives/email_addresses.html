@@ -1,12 +1,8 @@
 <div class="form-group" ng-repeat="emailAddress in vm.emailAddresses">
-    <label for="id_email_addresses-email_address-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Company email</label>
-    <!-- <label for="id_email_addresses-email_addres-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
-        <div class="text-center">
-            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
-            <div class="label-text">Company Email</div>
-        </div>
-    </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['email_addresses-email_address-{{ $index }}'].$invalid }">
+    <label for="id_email_addresses-email_address-{{ $index }}"
+           ng-show="$first"
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Company email</label>
+    <div ng-class="{'col-xs-12': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['email_addresses-email_address-' + $index].$invalid }">
         <input class="form-control"
                id="id_email_addresses-email_address-{{ $index }}"
                maxlength="255"
@@ -17,7 +13,7 @@
         <field-error form="form" field="email_addresses-email_address" index="$index"></field-error>
     </div>
     <label class="hidden control-label" for="id_email_addresses-is_primary-{{ $index }}">Primary email</label>
-    <div class="col-md-4">
+    <div ng-class="{'col-xs-10 padding-top-15': vm.sidebar, 'col-md-4': !vm.sidebar}">
         <select class="form-control"
                 id="id_email_addresses-is_primary-{{ $index }}"
                 name="email_addresses-is_primary-{{ $index }}"
@@ -27,26 +23,21 @@
                 ng-change="vm.setPrimaryEmailAddress(emailAddress)">
         </select>
     </div>
-    <div class="col-md-2">
-        <div class="col-md-1">
-            <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="emailAddress.is_deleted">
-                <i class="fa fa-undo"></i>
-            </a>
-            <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="emailAddress.is_deleted">
-                <i class="fa fa-trash"></i>
-            </a>
-        </div>
+    <div ng-class="{'col-xs-2 padding-top-15': vm.sidebar, 'col-md-2': !vm.sidebar}">
+        <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: false})"
+           class="btn btn-sm default" title="Undo the deletion of this row" ng-show="emailAddress.is_deleted">
+            <i class="fa fa-undo"></i>
+        </a>
+        <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: true})"
+           class="btn btn-sm default" title="Delete this row" ng-hide="emailAddress.is_deleted">
+            <i class="fa fa-trash"></i>
+        </a>
     </div>
 </div>
 <div class="form-group">
-    <label ng-hide="vm.emailAddresses.length" class="col-md-2 control-label">Company email</label>
-    <!-- <label class="visible-xs-block col-md-2 control-label with-icon" ng-hide="vm.emailAddresses.length">
-        <div class="text-center">
-            <div class="pre"><i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-at label-icon"></i></div>
-            <div class="label-text">Company Email</div>
-        </div>
-    </label> -->
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length }">
+    <label ng-hide="vm.emailAddresses.length"
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Company email</label>
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length && !vm.sidebar }">
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>
 </div>

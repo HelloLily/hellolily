@@ -1,1 +1,2 @@
-<span class="help-block" ng-show="vm.form[vm.full_field].$error.message">{{ vm.form[vm.full_field].$error.message }}</span>
+<span class="help-block" ng-if="vm.index === undefined">{{ vm.form[vm.field].$error.message }}</span>
+<span class="help-block" ng-if="vm.index !== undefined">{{ vm.form[vm.field + '-' + vm.index].$error.message }}</span>

@@ -11,17 +11,12 @@ function accountConfig($stateProvider) {
             '@': {
                 templateUrl: 'accounts/controllers/form_outer.html',
                 controller: AccountCreateController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Create'
+            label: 'Create',
         },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
-        }
     });
 
     $stateProvider.state('base.accounts.detail.edit', {
@@ -30,17 +25,12 @@ function accountConfig($stateProvider) {
             '@': {
                 templateUrl: 'accounts/controllers/form_outer.html',
                 controller: AccountCreateController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Edit'
+            label: 'Edit',
         },
-        resolve: {
-            user: ['User', function (User) {
-                return User.me().$promise;
-            }]
-        }
     });
 }
 
@@ -49,33 +39,33 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms', 'user'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms, user) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms'];
+function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms) {
     var vm = this;
     vm.account = {};
     vm.people = [];
     vm.tags = [];
     vm.errors = {
-        name: []
+        name: [],
     };
 
     vm.loadDataproviderData = loadDataproviderData;
     vm.saveAccount = saveAccount;
+    vm.cancelAccountCreation = cancelAccountCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
-    vm.currentUser = user;
 
     activate();
 
     ////
 
     function activate() {
-        User.query().$promise.then(function (userList) {
-            angular.forEach(userList, function (user) {
+        User.query().$promise.then(function(userList) {
+            angular.forEach(userList, function(user) {
                 vm.people.push({
                     id: user.id,
                     // Convert to single string so searching with spaces becomes possible
-                    name: _getFullName(user)
+                    name: _getFullName(user),
                 });
             });
         });
@@ -89,24 +79,26 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         // Fetch the account or create empty account
         if ($stateParams.id) {
             $scope.conf.pageTitleBig = 'Edit account';
-            Account.get({id: $stateParams.id}).$promise.then(function (account) {
+            Account.get({id: $stateParams.id}).$promise.then(function(account) {
                 vm.account = account;
-                angular.forEach(account.websites, function (website) {
+                angular.forEach(account.websites, function(website) {
                     if (website.is_primary) {
                         vm.account.primaryWebsite = website.website;
                     }
                 });
-                if (!vm.account.primaryWebsite || vm.account.primaryWebsite == '') {
+                if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
                     vm.account.primaryWebsite = '';
                 }
 
-                if(vm.account.tags.length) {
+                if (vm.account.tags.length) {
                     var tags = [];
-                    angular.forEach(account.tags, function (tag){
+                    angular.forEach(account.tags, function(tag) {
                         tags.push(tag.name);
                     });
                     vm.account.tags = tags;
                 }
+
+                vm.account.assigned_to = vm.account.assigned_to.id;
 
                 $scope.conf.pageTitleBig = vm.account.name;
 
@@ -118,7 +110,22 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         } else {
             $scope.conf.pageTitleBig = 'New account';
             vm.account = Account.create();
-            vm.account.assigned_to = vm.currentUser.id;
+            User.me().$promise.then(function(user) {
+                vm.account.assigned_to = user.id;
+            });
+
+            if ($scope.emailSettings) {
+                if ($scope.emailSettings.website) {
+                    vm.account.primaryWebsite = $scope.emailSettings.website;
+
+                    vm.account.getDataproviderInfo($scope.emailSettings.website).then(function() {
+                        if (!vm.account.name) {
+                            var company = $scope.emailSettings.website.split('.').slice(0, -1).join(' ');
+                            vm.account.name = company.charAt(0).toUpperCase() + company.slice(1);
+                        }
+                    });
+                }
+            }
         }
     }
 
@@ -131,7 +138,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         toastr.info('Running around the world to fetch info', 'Here we go');
         vm.account.getDataproviderInfo(form.primaryWebsite.$modelValue).then(function () {
             toastr.success('Got it!', 'Whoohoo');
-        }, function () {
+        }, function() {
             toastr.error('I couldn\'t find any data', 'Sorry');
         });
     }
@@ -144,22 +151,31 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         HLFields.removeRelatedField(vm.account, field, index, remove);
     }
 
+    function cancelAccountCreation() {
+        if ($scope.emailSettings.sidebar.form === 'createAccount') {
+            $scope.emailSettings.sidebar.form = null;
+            $scope.emailSettings.sidebar.account = false;
+        } else {
+            $state.go('base.accounts');
+        }
+    }
+
     function saveAccount(form) {
         HLForms.blockUI();
 
         var primaryWebsite = vm.account.primaryWebsite;
         // Make sure it's not an empty website being added
-        if (primaryWebsite && primaryWebsite != 'http://' && primaryWebsite != 'https://') {
+        if (primaryWebsite && primaryWebsite !== 'http://' && primaryWebsite !== 'https://') {
             var exists = false;
             for (var i in vm.account.websites) {
-                if (vm.account.websites[i].website == primaryWebsite) {
+                if (vm.account.websites[i].website === primaryWebsite) {
                     exists = true;
                     vm.account.websites[i].is_primary = true;
                     break;
                 }
             }
             if (!exists) {
-                vm.account.websites.push({website: primaryWebsite, is_primary: true})
+                vm.account.websites.unshift({website: primaryWebsite, is_primary: true});
             }
         }
 
@@ -171,11 +187,10 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
         if (vm.account.tags && vm.account.tags.length) {
             var tags = [];
-            angular.forEach(vm.account.tags, function (tag) {
+            angular.forEach(vm.account.tags, function(tag) {
                 if (tag) {
                     tags.push({name: (tag.name) ? tag.name : tag});
                 }
-
                 vm.account.tags = tags;
             });
         }
@@ -192,18 +207,23 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it
-            vm.account.$update(function () {
+            vm.account.$update(function() {
                 toastr.success('I\'ve updated the account for you!', 'Done');
-                $state.go('base.accounts.detail', {id: vm.account.id}, {reload:true});
-            }, function (response) {
+                $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
+            }, function(response) {
                 _handleBadResponse(response, form);
-            })
-        }
-        else {
-            vm.account.$save(function () {
+            });
+        } else {
+            vm.account.$save(function() {
                 toastr.success('I\'ve saved the account for you!', 'Yay');
-                $state.go('base.accounts.detail', {id: vm.account.id});
-            }, function (response) {
+                if ($scope.emailSettings.sidebar.form === 'createAccount') {
+                    $scope.emailSettings.sidebar.form = null;
+                    $scope.emailSettings.sidebar.account = true;
+                    $scope.emailSettings.accountId = vm.account.id;
+                } else {
+                    $state.go('base.accounts.detail', {id: vm.account.id});
+                }
+            }, function(response) {
                 _handleBadResponse(response, form);
             });
         }

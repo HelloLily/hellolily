@@ -20,7 +20,8 @@ function formPhoneNumbers() {
     };
 }
 
-function FormPhoneNumbersController() {
+FormPhoneNumbersController.$inject = ['$rootScope'];
+function FormPhoneNumbersController($rootScope) {
     var vm = this;
     vm.telephoneTypes = [
         {key: 'work', value: 'Work'},
@@ -29,6 +30,7 @@ function FormPhoneNumbersController() {
         {key: 'fax', value: 'Fax'},
         {key: 'other', value: 'Other'},
     ];
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
 
     vm.formatPhoneNumber = formatPhoneNumber;
 

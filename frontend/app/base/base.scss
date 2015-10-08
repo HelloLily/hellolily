@@ -150,8 +150,16 @@ td .label-sm {
     font-weight: bold;
 }
 
-.no-pad-right {
+.no-padding-left {
+    padding-left: 0;
+}
+
+.no-padding-right {
     padding-right: 0;
+}
+
+.no-padding {
+    padding: 0;
 }
 
 .break {
@@ -182,4 +190,17 @@ td .label-sm {
 
 .form-control.select2-container {
     border: 1px solid #e5e5e5;
+}
+
+.padding-top-15 {
+    padding-top: 15px;
+}
+
+.no-bottom-margin {
+    margin-bottom: 0;
+}
+
+.no-padding-top-bottom {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }

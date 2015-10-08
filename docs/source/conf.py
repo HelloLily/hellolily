@@ -18,7 +18,7 @@ needs_sphinx = '1.3'
 # ones.
 
 srclink_project = 'https://github.com/hellolily/hellolily'
-srclink_src_path = 'docsphinx/source/'
+srclink_src_path = 'docs/source/'
 srclink_branch = 'documentation'
 
 extensions = [

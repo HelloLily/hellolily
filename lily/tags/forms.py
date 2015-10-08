@@ -48,7 +48,8 @@ class TagsFormMixin(HelloLilyModelForm):
         """
         # Get the tags and remove them from cleaned_data first, so the parent
         # modelform won't complain when saving.
-        tags = self.cleaned_data.get('tags')
+        cased_tags = self.cleaned_data.get('tags')
+        tags = map(lambda x: x.lower(), cased_tags)
         del self.cleaned_data['tags']
         instance = super(TagsFormMixin, self).save()
 

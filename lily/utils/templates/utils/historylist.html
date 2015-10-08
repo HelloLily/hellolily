@@ -4,7 +4,7 @@
 {% if not request.is_ajax %}
     <div class="row" id="history">
         <div class="col-md-12">
-            <ul class="timeline" id="history-list">
+            <ul id="history-list">
 {% endif %}
                 {% for object in object_list %}
                     {% include object.get_list_item_template %}
@@ -20,4 +20,3 @@
     <div id="emailaccount-configure" class="modal fade" tabindex="-1" role="dialog" data-focus-on=":input:visible:not(.close):first"></div>
 </div>
 {% endif %}
-

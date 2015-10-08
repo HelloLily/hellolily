@@ -1,3 +1,5 @@
+import netifaces as ni
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -7,8 +9,15 @@ from protractor.test import ProtractorTestCaseMixin
 from lily.users.factories import LilyUserFactory
 
 
+def get_ip():
+    """Returns the local IP."""
+    ni.ifaddresses('eth0')
+    return ni.ifaddresses('eth0')[2][0]['addr']
+
+
 class AuthorizationTestCase(ProtractorTestCaseMixin, StaticLiveServerTestCase):
     specs = ['tests/e2e/authorization-spec.js']
+    live_server_url = 'http://%s:8081/' % get_ip()
 
     def setUp(self):
         """

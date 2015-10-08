@@ -2,7 +2,7 @@ describe('Get a user to login and show dashboard:', function() {
     it('should let a user login', function() {
         driver = browser.driver;
 
-        driver.get('http://172.17.42.1:8083/login/');
+        driver.get(browser.params.live_server_url + 'login/');
 
         expect(driver.getTitle()).toEqual('HelloLily | Login');
 

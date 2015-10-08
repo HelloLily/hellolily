@@ -19,6 +19,7 @@ dist-packages/
 
 celerybeat-schedule
 celeryev.pid
+docker-compose.local.yml
 
 coverage.xml
 lily/files/

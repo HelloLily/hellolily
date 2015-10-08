@@ -2,7 +2,7 @@
 
 set -e
 
-export COMPOSE_FILE=docker-compose.yml
+COMPOSE_FILE=docker-compose.yml
 
 # Run CI tests, start by printing a warning.
 echo "Warning, this script removes the lily/static/ dir and docker containers/volumes, hit CTRL+C in 5 secs to abort."

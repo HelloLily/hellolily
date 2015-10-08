@@ -19,3 +19,4 @@ gnureadline==6.3.3
 werkzeug==0.10.4
 flake8==2.4.1
 coverage==3.7.1
+netifaces==0.10.4

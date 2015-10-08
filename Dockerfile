@@ -50,6 +50,9 @@ RUN sudo chown -R docker:docker $HOME/
 # Workaround for https://github.com/angular/protractor/issues/2588
 RUN sudo npm install -g protractor@2.2.0
 
+# Expose to Selenium.
+EXPOSE 8081
+
 ENV DEBUG 1
 ENV SECRET_KEY abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
 ENV DATABASE_URL postgres://hellolily:@db/hellolily

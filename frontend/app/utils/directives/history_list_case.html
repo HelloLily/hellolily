@@ -26,12 +26,12 @@
     </div>
 
     <div class='history-item-body first'>
-        <div class="history-note-properties">
-            <div class="history-note-property">{{ ::vm.item.body }}</div>
-            <div class="history-note-property">Status: {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})</div>
-            <div class="history-note-property">Priority: {{ ::vm.item.priority_name }}</div>
-            <div class="history-note-property">Type: {{ ::vm.item.casetype_name }}</div>
-        </div>
+
+        <div>{{ ::vm.item.body }}</div>
+        <div><strong>Status:</strong> {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})</div>
+        <div><strong>Priority:</strong> {{ ::vm.item.priority_name }}</div>
+        <div><strong>Type:</strong> {{ ::vm.item.casetype_name }}</div>
+
 
         <ul class="list-inline list-justified">
             <li>

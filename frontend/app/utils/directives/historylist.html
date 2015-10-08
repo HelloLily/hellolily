@@ -42,7 +42,7 @@
                         </div>
                     </form>
                 </li>
-                <li class="timeline-list-item" ng-class="{'timeline-inverted': item.historyType != 'email' || item.right}" ng-repeat="item in history.list" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
+                <li class="history-timeline-list-item" ng-class="{'timeline-inverted': item.historyType != 'email' || item.right}" ng-repeat="item in history.list" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
                     <history-list-item item="item" history="history" object="object"></history-list-item>
                 </li>
             </ul>

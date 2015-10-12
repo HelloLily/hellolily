@@ -9,7 +9,7 @@ from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyGroup, LilyUser
-from lily.utils.datetime import week_from_now
+from lily.utils.date_time import week_from_now
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 

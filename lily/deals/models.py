@@ -78,6 +78,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (2, _('Phone')),
         (3, _('Web chat')),
         (4, _('E-mail')),
+        (6, _('Instant connect')),
         (5, _('Other')),
     )
 

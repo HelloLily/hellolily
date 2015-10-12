@@ -27,5 +27,8 @@ lily/static/
 .npm/
 node_modules/
 Procfile.local
-docs/source/modules
 TESTS-*.xml
+
+# /docs/sphinx/
+docs/sphinx/build/
+docs/sphinx/source/modules/

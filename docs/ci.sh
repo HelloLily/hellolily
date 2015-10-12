@@ -33,6 +33,9 @@ sudo docker-compose -f $COMPOSE_FILE run --rm --service-ports web python manage.
 EC=$?
 if [ $EC -ne 0 ]; then RESULT+=1; fi
 
+# Sphinx docs.
+sudo docker-compose -f $COMPOSE_FILE run --rm web make -C docs/sphinx allhtml
+
 # Cleanup.
 sudo docker-compose -f $COMPOSE_FILE kill
 sudo docker-compose -f $COMPOSE_FILE rm -vf

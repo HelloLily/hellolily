@@ -13,6 +13,7 @@ from lily.parcels.models import Parcel
 from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyGroup, LilyUser
+from lily.utils.date_time import week_from_now
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
@@ -114,7 +115,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         # won't be found for a user. But since it's a required field, an exception is raised.
         user = get_current_user()
         self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=user.tenant)
-        self.fields['expires'].initial = datetime.today()
+        self.fields['expires'].initial = week_from_now()
 
         # Pre-select users team if possible
         groups = user.lily_groups.all()
@@ -197,7 +198,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
                 'fields': ('account', 'contact',),
             }),
             (_('What to do?'), {
-                'fields': ('subject', 'description', 'type',),
+                'fields': ('subject', 'description', 'type', 'tags',),
             }),
             (_('Who is going to do this?'), {
                 'fields': ('assigned_to_groups', 'assigned_to',),

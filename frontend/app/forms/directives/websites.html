@@ -1,14 +1,8 @@
 <div class="form-group" ng-repeat="website in vm.websites | filter: {is_primary:false}">
-    <label for="id_website-{{ $index }}" ng-show="$first" class="col-md-2 control-label">Extra website</label>
-    <!-- <label for="id_website-{{ $index }}" class="visible-xs-block col-md-2 control-label with-icon" ng-show="$first">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-globe label-icon"></i>
-            </div>
-            <div class="label-text">Extra Website</div>
-        </div>
-    </label> -->
-    <div class="col-md-4" ng-class="{ 'col-md-offset-2': !$first, 'has-error': form['websites-website-{{ $index }}'].$invalid }">
+    <label for="id_website-{{ $index }}"
+           ng-show="$first" c
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Extra website</label>
+    <div ng-class="{'col-xs-10': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['websites-website-' + $index].$invalid }">
         <input class="form-control"
                id="id_website-{{ $index }}"
                maxlength="255"
@@ -19,28 +13,20 @@
                ng-readonly="website.is_deleted">
         <field-error form="form" field="websites-website" index="$index"></field-error>
     </div>
-    <div class="col-md-2">
-        <div class="col-md-1">
-            <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
-                <i class="fa fa-undo"></i>
-            </a>
-            <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="website.is_deleted">
-                <i class="fa fa-trash"></i>
-            </a>
-        </div>
+    <div ng-class="{'col-xs-2': vm.sidebar, 'col-md-2': !vm.sidebar}">
+        <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
+            <i class="fa fa-undo"></i>
+        </a>
+        <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="website.is_deleted">
+            <i class="fa fa-trash"></i>
+        </a>
     </div>
 </div>
+
 <div class="form-group">
-    <label ng-hide="(vm.websites|filter:{is_primary:false}).length" class="col-md-2 control-label">Extra website</label>
-    <!-- <label class="visible-xs-block col-md-2 control-label with-icon" ng-hide="(vm.websites|filter:{is_primary:false}).length">
-        <div class="text-center">
-            <div class="pre">
-                <i class="fa fa-building-o label-icon"></i>&nbsp;<i class="fa fa-globe label-icon"></i>
-            </div>
-            <div class="label-text">Extra Website</div>
-        </div>
-    </label> -->
-    <div class="col-md-9" ng-class="{ 'col-md-offset-2': (vm.websites|filter:{is_primary:false}).length }">
+    <label ng-hide="(vm.websites|filter:{is_primary:false}).length"
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Extra website</label>
+    <div class="col-md-10" ng-class="{ 'col-md-offset-2': (vm.websites|filter:{is_primary:false}).length && !vm.sidebar }">
         <a ng-click="vm.addRelatedField({field:'website'})" class="form-control-static">Add a website</a>
     </div>
 </div>

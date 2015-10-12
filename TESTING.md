@@ -2,8 +2,7 @@
 
 ## Prerequisites
 
-
-- Install [Karma](https://karma-runner.github.io/0.12/intro/installation.html)
+- Install [Karma](https://karma-runner.github.io/0.12/intro/installation.html) or use the Karma Docker image (see below).
 
 ## Run frontend unit tests in Karma
 
@@ -11,11 +10,14 @@ When Karma is installed, it's as simple as running:
 
     karma start
 
+Or when using Docker, run
+    docker run -it -v $(pwd):/home/docker ferdynice/karmay karma start
+
 Karma will runn all the spec files under:
- 
+
     frontend/app/**/*Spec.js
-   
-Karma will run the tests in Chrome. Karma will stay alive and watches for file changes and runs the necessary tests again.
+
+Karma will run the tests in PhantomJS. Karma will stay alive and watches for file changes and runs the necessary tests again.
 
 Put all your unit tests in the same folder as where the code lives that you are testing. Give the file the same name and
 extend the name with `Spec`.
@@ -24,7 +26,7 @@ Example:
 
     frontend/app/accounts/controllers/list.js
     frontend/app/accounts/controllers/listSpec.js
-    
+
 ### How to create a frontend unit test
 
 Copy & paste ;-). For info on unit testing in Angular, see [here](https://docs.angularjs.org/guide/unit-testing).
@@ -33,10 +35,7 @@ Copy & paste ;-). For info on unit testing in Angular, see [here](https://docs.a
 
 Protractor will be installed within the web docker. There is also a selenium docker to run a selenium server that is
 needed to run the tests. There is a basic setup to run the e2e tests from within Django, check
-`lily.tests.test_e2e_authorization.AuthorizationTestCase`. 
-
-Protractor gets the url where the testserver is running from `TEST_SITE_URL`. By default it is set to 
-`http://192.168.59.103:8004/`. Set an env variable if that is not correct.
+`lily.tests.test_e2e_authorization.AuthorizationTestCase`.
 
 To start the e2e tests:
 

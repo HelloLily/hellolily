@@ -6,19 +6,30 @@ function appConfig ($stateProvider) {
         abstract: true,
         controller: BaseController,
         ncyBreadcrumb: {
-            label: 'Lily'
-        }
+            label: 'Lily',
+        },
     });
 }
 
 angular.module('app.base').controller('BaseController', BaseController);
 
 BaseController.$inject = ['$scope', '$state', 'Notifications'];
-function BaseController ($scope, $state, Notifications) {
+function BaseController($scope, $state, Notifications) {
     $scope.conf = {
         headTitle: 'Welcome!',
         pageTitleBig: 'HelloLily',
-        pageTitleSmall: 'welcome to my humble abode!'
+        pageTitleSmall: 'welcome to my humble abode!',
+    };
+
+    $scope.emailSettings = {
+        sidebar: {
+            account: null,
+            contact: null,
+            form: null,
+            isVisible: false,
+        },
+        accountId: false,
+        contactId: false,
     };
 
     $scope.loadNotifications = loadNotifications;
@@ -40,7 +51,7 @@ function BaseController ($scope, $state, Notifications) {
         }, function(error) {  // On error
             console.log('An error occurred!');
             console.log(error);
-        })
+        });
     }
 
     function _contentLoadedActions() {
@@ -56,5 +67,18 @@ function BaseController ($scope, $state, Notifications) {
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
         $scope.previousState = $state.href(fromState, fromParams);
+        if ($scope.emailSettings.sidebar && fromState && fromState.name === 'base.email.detail') {
+            $scope.emailSettings.sidebar = {
+                account: null,
+                contact: null,
+                form: null,
+                isVisible: false,
+            };
+
+            $scope.emailSettings.accountId = null;
+            $scope.emailSettings.contactId = null;
+
+            $scope.$$phase || $scope.apply();
+        }
     }
 }

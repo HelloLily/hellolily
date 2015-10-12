@@ -9,9 +9,17 @@ function formGroup() {
             labelIcon: '@',
             labelChar: '@',
             field: '=',
-            required: '@'
+            required: '@',
         },
         transclude: true,
-        templateUrl: 'forms/directives/group.html'
-    }
+        templateUrl: 'forms/directives/group.html',
+        controller: FormGroupController,
+        controllerAs: 'vm',
+    };
+}
+
+FormGroupController.$inject = ['$rootScope'];
+function FormGroupController($rootScope) {
+    var vm = this;
+    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
 }

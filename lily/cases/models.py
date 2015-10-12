@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -11,6 +9,7 @@ from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyGroup, LilyUser
+from lily.utils.date_time import week_from_now
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
@@ -72,7 +71,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
                             object_id_field='object_id',
                             verbose_name=_('list of notes'))
 
-    expires = models.DateField(verbose_name=_('expires'), default=datetime.today)
+    expires = models.DateField(verbose_name=_('expires'), default=week_from_now)
 
     parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
 

@@ -16,14 +16,4 @@ function fieldError() {
 }
 
 function FieldErrorController() {
-    var vm = this;
-
-    var field = vm.field;
-
-    // Related field names have an index at the end, so add the index if it's given
-    if (vm.hasOwnProperty('index')) {
-        field += '-' + vm.index;
-    }
-
-    vm.full_field = field;
 }

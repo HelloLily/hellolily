@@ -3,6 +3,8 @@
 *.pyc
 *.pyo
 
+.cache/
+.coverage
 .env
 .project
 .pydevproject
@@ -17,10 +19,16 @@ dist-packages/
 
 celerybeat-schedule
 celeryev.pid
+docker-compose.local.yml
 
+coverage.xml
 lily/files/
 lily/static/
 .npm/
 node_modules/
 Procfile.local
-docs/source/modules
+TESTS-*.xml
+
+# /docs/sphinx/
+docs/sphinx/build/
+docs/sphinx/source/modules/

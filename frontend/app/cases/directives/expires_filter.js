@@ -4,12 +4,12 @@ function caseExpiresFilter() {
     return {
         restrict: 'E',
         scope: {
-            filterStore: '='
+            filterStore: '=',
         },
         templateUrl: 'cases/directives/expires_filter.html',
         controller: CaseExpiresFilterWidgetController,
         controllerAs: 'vm',
-        bindToController: true
+        bindToController: true,
     }
 }
 
@@ -30,7 +30,7 @@ function CaseExpiresFilterWidgetController(Cookie, $scope) {
     }
 
     function _watchExpiresFilter() {
-        $scope.$watch('vm.expiresFilter', function () {
+        $scope.$watch('vm.expiresFilter', function() {
             var filter = '';
 
             switch (vm.expiresFilter) {
@@ -46,9 +46,9 @@ function CaseExpiresFilterWidgetController(Cookie, $scope) {
                     filter = 'expires: ' + tomorrow;
                     break;
                 case 3:
-                    var tomorrow = moment().add(1, 'd').format('YYYY-MM-DD');
-                    var week = moment().add(7, 'd').format('YYYY-MM-DD');
-                    filter = 'expires: [' + tomorrow + ' TO ' + week + ']';
+                    var today = moment().format('YYYY-MM-DD');
+                    var week = moment().add(6, 'd').format('YYYY-MM-DD');
+                    filter = 'expires: [' + today + ' TO ' + week + ']';
                     break;
             }
 

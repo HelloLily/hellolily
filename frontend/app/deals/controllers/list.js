@@ -1,25 +1,25 @@
 angular.module('app.deals').config(dealsConfig);
 
 dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
+function dealsConfig($stateProvider) {
     $stateProvider.state('base.deals', {
         url: '/deals',
         views: {
             '@': {
                 templateUrl: 'deals/controllers/list.html',
                 controller: DealListController
-            }
+            },
         },
         ncyBreadcrumb: {
-            label: 'Deals'
-        }
+            label: 'Deals',
+        },
     });
 }
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLDate', 'HLFilters'];
-function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFilters) {
+DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLFilters'];
+function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
     var cookie = Cookie('dealList');
 
     $scope.conf.pageTitleBig = 'Deals';
@@ -47,9 +47,9 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFi
         searchQuery: searchQuery,  // search query
         filterQuery: '',
         archived: cookie.get('archived', false),
-        order:  cookie.get('order', {
+        order: cookie.get('order', {
             ascending: true,
-            column:  'closing_date'  // string: current sorted column
+            column: 'closing_date',  // string: current sorted column
         }),
         visibility: cookie.get('visibility', {
             deal: true,
@@ -72,54 +72,54 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFi
         {
             name: 'Assigned to me',
             value: 'assigned_to_id:' + currentUser.id,
-            selected: false
+            selected: false,
         },
         {
             name: 'New business',
             value: 'new_business:true',
-            selected: false
+            selected: false,
         },
         {
             name: 'Proposal stage',
             value: 'stage:1',
-            selected: false
+            selected: false,
         },
         {
             name: 'Won stage',
             value: 'stage:2',
-            selected: false
+            selected: false,
         },
         {
             name: 'Called',
             value: 'stage:4',
-            selected: false
+            selected: false,
         },
         {
             name: 'Emailed',
             value: 'stage:5',
-            selected: false
+            selected: false,
         },
         {
             name: 'Feedback form not sent',
             value: 'feedback_form_sent:false',
-            selected: false
+            selected: false,
         },
         {
             name: 'Age between 7 and 30 days',
-            value: 'created:[' + HLDate.getSubtractedDate(30) + ' TO ' + HLDate.getSubtractedDate(7) + ']',
-            selected: false
+            value: 'created:[' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
+            selected: false,
         },
         {
             name: 'Age between 30 and 120 days',
-            value: 'created:[' + HLDate.getSubtractedDate(120) + ' TO ' + HLDate.getSubtractedDate(30) + ']',
-            selected: false
+            value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
+            selected: false,
         },
         {
             name: 'Archived',
             value: '',
             selected: false,
-            id: 'archived'
-        }
+            id: 'archived',
+        },
     ]);
 
     /**
@@ -148,7 +148,7 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFi
             $scope.table.filterQuery
         ).then(function(deals) {
             $scope.table.items = deals;
-            $scope.table.totalItems = deals.length ? deals[0].total_size: 0;
+            $scope.table.totalItems = deals.length ? deals[0].total_size : 0;
         });
     }
 
@@ -162,7 +162,7 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLDate, HLFi
         'table.order.ascending',
         'table.searchQuery',
         'table.archived',
-        'table.filterQuery'
+        'table.filterQuery',
     ], function() {
         updateTableSettings();
         updateDeals();

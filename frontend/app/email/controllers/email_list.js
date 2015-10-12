@@ -7,9 +7,9 @@ function emailConfig($stateProvider) {
             '@base.email': {
                 templateUrl: 'email/controllers/email_list.html',
                 controller: EmailListController,
-                controllerAs: 'vm'
-            }
-        }
+                controllerAs: 'vm',
+            },
+        },
     });
     $stateProvider.state('base.email.accountAllList', {
         url: '/account/{accountId}/all',
@@ -17,9 +17,9 @@ function emailConfig($stateProvider) {
             '@base.email': {
                 templateUrl: 'email/controllers/email_list.html',
                 controller: EmailListController,
-                controllerAs: 'vm'
-            }
-        }
+                controllerAs: 'vm',
+            },
+        },
     });
     $stateProvider.state('base.email.accountList', {
         url: '/account/{accountId}/{labelId}',
@@ -27,16 +27,16 @@ function emailConfig($stateProvider) {
             '@base.email': {
                 templateUrl: 'email/controllers/email_list.html',
                 controller: EmailListController,
-                controllerAs: 'vm'
-            }
-        }
+                controllerAs: 'vm',
+            },
+        },
     });
 }
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$location', '$scope', '$state', '$stateParams', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
-function EmailListController ($location, $scope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
+EmailListController.$inject = ['$location', '$scope', '$rootScope', '$state', '$stateParams', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
+function EmailListController($location, $scope, $rootScope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
     var vm = this;
     vm.emailMessages = [];
     // Check if filter is set as query parameter
@@ -44,7 +44,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         page: 0,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: ''  // search filter
+        filter: '',  // search filter
     };
     vm.opts = {
         checkboxesAll: false
@@ -78,16 +78,17 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
+        $scope.conf.sidebar = null;
     }
 
     function watchTable() {
         // Check for search input and pagination
         $scope.$watchGroup([
             'vm.table.filter',
-            'vm.table.page'
-        ], function (newValues, oldValues) {
+            'vm.table.page',
+        ], function(newValues, oldValues) {
             // Reset page if we start searching
-            if (oldValues[0] == "" && newValues[0] != "") {
+            if (oldValues[0] === '' && newValues[0] !== '') {
                 vm.setPage(0);
             }
             _reloadMessages();
@@ -101,7 +102,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
     }
 
 
-    function toggleCheckboxes () {
+    function toggleCheckboxes() {
         for (var i in vm.emailMessages) {
             vm.emailMessages[i].checked = vm.opts.checkboxesAll;
         }
@@ -119,7 +120,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
     /**
      * Only show the reply and forward buttons if there is one message checked.
      */
-    function showReplyOrForwardButtons () {
+    function showReplyOrForwardButtons() {
         var number = 0;
         for (var i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
@@ -129,7 +130,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
                 }
             }
         }
-        return number == 1;
+        return number === 1;
     }
 
     /**
@@ -158,7 +159,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
     /**
      * Reply-all on selected message.
      */
-    function replyAllOnMessage () {
+    function replyAllOnMessage() {
         var message = _selectedMessage();
         if (message) {
             $state.go('base.email.replyAll', {id: message.id});
@@ -168,14 +169,14 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
     /**
      * Forward on selected message.
      */
-    function forwardOnMessage () {
+    function forwardOnMessage() {
         var message = _selectedMessage();
         if (message) {
             $state.go('base.email.forward', {id: message.id});
         }
     }
 
-    function markAsRead () {
+    function markAsRead() {
         _toggleReadMessages(true);
     }
 
@@ -201,7 +202,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         _removeCheckedMessagesFromList();
     }
 
-    function trashMessages () {
+    function trashMessages() {
         for (var i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.trash({id: vm.emailMessages[i].id});
@@ -210,7 +211,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         _removeCheckedMessagesFromList();
     }
 
-    function deleteMessages () {
+    function deleteMessages() {
         for (var i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.delete({id: vm.emailMessages[i].id});
@@ -219,7 +220,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         _removeCheckedMessagesFromList();
     }
 
-    function moveMessages (labelId) {
+    function moveMessages(labelId) {
         var removedLabels = [];
         if (vm.label.label_id) {
             removedLabels = [vm.label.label_id];
@@ -228,7 +229,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         // Gmail API needs to know the new labels as well as the old ones, so send them too
         var data = {
             remove_labels: removedLabels,
-            add_labels: addedLabels
+            add_labels: addedLabels,
         };
         for (var i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
@@ -238,12 +239,12 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
         _removeCheckedMessagesFromList();
     }
 
-    function reloadMessages () {
+    function reloadMessages() {
         vm.emailMessages = [];
         _reloadMessages();
     }
 
-    function goToDraft (messageId) {
+    function goToDraft(messageId) {
         window.open('/messaging/email/draft/' + messageId + '/', '_self');
     }
 
@@ -263,7 +264,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
                 // Get the label for the given accountId
                 EmailLabel.query({
                     label_id: $stateParams.labelId,
-                    account__id: $stateParams.accountId
+                    account__id: $stateParams.accountId,
                 }, function (results) {
                     if (results.length) {
                         vm.label = results[0];
@@ -279,7 +280,7 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
             vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
         }
 
-        if ($stateParams.labelId && $stateParams.labelId != 'TRASH') {
+        if ($stateParams.labelId && $stateParams.labelId !== 'TRASH') {
             filterquery.push('is_removed:false');
         }
 
@@ -291,8 +292,8 @@ function EmailListController ($location, $scope, $state, $stateParams, EmailMess
             filterquery: filterquery,
             q: vm.table.filter,
             size: vm.table.pageSize,
-            page: vm.table.page
-        }, function (data) {
+            page: vm.table.page,
+        }, function(data) {
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
         });

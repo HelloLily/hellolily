@@ -1,27 +1,29 @@
-<div class="timeline-badge">
-    <i class="fa fa-envelope-o"></i>
-</div>
-<div class="timeline-panel">
-    <div class='timeline-heading'>
-        <h4 class='timeline-title'>
-            <span ng-if="vm.item.subject">
-                <a class="link-no-decoration" ui-sref="base.email.detail({ id: vm.item.id })">{{ ::vm.item.subject | limitTo:50 }}</a><span ng-if="::vm.item.subject.length >= 45">...</span>
-            </span>
-            <span ng-if="!vm.item.subject"><i>No Subject</i></span>
-            <div class="btn-group pull-right">
-                <a class="text-white" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-angle-down"></i>
-                </a>
-                <ul class="dropdown-menu pull-right">
-                    <li><a ui-sref="base.email.detail({id: vm.item.id})"><i class="fa fa-eye"></i> View</a></li>
-                    <li class='divider'></li>
-                    <li><a ng-click="vm.replyOnEmail()"><i class="fa fa-mail-reply"></i> Reply</a></li>
-                    <li><a ui-sref="base.email.forward({id: vm.item.id})"><i class="fa fa-mail-forward"></i> Forward</a></li>
-                </ul>
-            </div>
-        </h4>
+<div class="email-history-item" ng-class="{'true':'history-item-right', 'false':'history-item-left'}[vm.item.right]">
+
+    <div class="history-item-badge">
+        <i class="fa fa-envelope-o"></i>
     </div>
-    <div class="timeline-body">
+
+    <div class='history-item-heading'>
+        <a ng-if="vm.item.subject" class="link-no-decoration" ui-sref="base.email.detail({ id: vm.item.id })">
+            {{ ::vm.item.subject | limitTo:50 }}
+        </a>
+        <span ng-if="::vm.item.subject.length >= 45">...</span>
+        <span ng-if="!vm.item.subject"><i>No Subject</i></span>
+        <div class="btn-group pull-right">
+            <a class="text-white" data-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown-menu pull-right">
+                <li><a ui-sref="base.email.detail({id: vm.item.id})"><i class="fa fa-eye"></i> View</a></li>
+                <li class='divider'></li>
+                <li><a ng-click="vm.replyOnEmail()"><i class="fa fa-mail-reply"></i> Reply</a></li>
+                <li><a ui-sref="base.email.forward({id: vm.item.id})"><i class="fa fa-mail-forward"></i> Forward</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="history-item-body">
         <em style="white-space: pre-wrap;">
             {{ ::vm.item.body | limitTo:265 }}
             <span ng-if="::vm.item.body.length >= 265">...</span>

@@ -1,9 +1,18 @@
-//Colors
+//COLORS
 $lightGrey: #f5f6fa;
 
+//item type colors
 $caseColor: #9b59b6;
 $emailColor: #578ebe;
 $dealColor: #1bbc9b;
 $noteColor: #ffb848;
 
-$borderColor: darken($lightGrey, 10%);
+//priority colors
+$lowPrioColor: #45b6af;
+$mediumPrioColor: #89c4f4;
+$highPrioColor: #dfba49;
+$criticalPrioColor: #f3565d;
+
+
+//BORDERS
+$baseBorderRadius: 4px;

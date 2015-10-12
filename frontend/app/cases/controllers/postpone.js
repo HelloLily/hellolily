@@ -64,7 +64,11 @@ function CasePostponeModal ($filter, $modalInstance, $scope, Case, myCase) {
     }
 
     function getFutureDate(days) {
-        var futureDate = new Date(vm.expireDate);
+        var futureDate = new Date();
+        // If the expireDate already passed, set it in future.
+        if (futureDate < vm.expireDate) {
+            futureDate = new Date(vm.expireDate);
+        }
         return futureDate.setDate(futureDate.getDate() + days);
     }
 }

@@ -12,7 +12,7 @@ describe('app.accounts.list', function () {
         scope.conf = {};
 
         AccountMock = {
-            delete: function(){}
+            delete: function() {},
         };
 
         controller = $controller('AccountList', {

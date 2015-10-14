@@ -4,19 +4,22 @@
 angular.module('app.accounts').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
-function accountConfig ($stateProvider) {
+function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts', {
         url: '/accounts',
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/list.html',
                 controller: AccountList,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Accounts'
-        }
+            label: 'Accounts',
+        },
+        data: {
+            app_name: 'accounts',
+        },
     });
 }
 
@@ -27,7 +30,7 @@ function accountConfig ($stateProvider) {
 angular.module('app.accounts').controller('AccountList', AccountList);
 
 AccountList.$inject = ['$scope', '$window', 'Account', 'Cookie'];
-function AccountList ($scope, $window, Account, Cookie) {
+function AccountList($scope, $window, Account, Cookie) {
     var vm = this;
     var cookie = Cookie('accountList');
     /**
@@ -38,9 +41,9 @@ function AccountList ($scope, $window, Account, Cookie) {
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
         filter: cookie.get('filter', ''),  // search filter
-        order:  cookie.get('order', {
+        order: cookie.get('order', {
             ascending: true,
-            column:  'modified'  // string: current sorted column
+            column: 'modified',  // string: current sorted column
         }),
         visibility: cookie.get('visibility', {
             name: true,
@@ -49,8 +52,8 @@ function AccountList ($scope, $window, Account, Cookie) {
             created: true,
             modified: true,
             tags: true,
-            customerId: true
-        })
+            customerId: true,
+        }),
     };
     vm.deleteAccount = deleteAccount;
     vm.setFilter = setFilter;
@@ -68,16 +71,16 @@ function AccountList ($scope, $window, Account, Cookie) {
     $scope.conf.pageTitleSmall = 'An overview of accounts';
 
 
-    function deleteAccount (account) {
+    function deleteAccount(account) {
         if (confirm('Are you sure?')) {
             Account.delete({
-                id:account.id
+                id: account.id,
             }, function() {  // On success
                 var index = vm.table.items.indexOf(account);
                 vm.table.items.splice(index, 1);
-            }, function(error) {  // On error
-                alert('something went wrong.')
-            })
+            }, function() {  // On error
+                alert('something went wrong.');
+            });
         }
     }
 
@@ -103,10 +106,9 @@ function AccountList ($scope, $window, Account, Cookie) {
             vm.table.order.column,
             vm.table.order.ascending
         ).then(function(data) {
-                vm.table.items = data.accounts;
-                vm.table.totalItems = data.total;
-            }
-        );
+            vm.table.items = data.accounts;
+            vm.table.totalItems = data.total;
+        });
     }
 
     function _setupWatches() {
@@ -134,15 +136,17 @@ function AccountList ($scope, $window, Account, Cookie) {
      *
      * @param queryString string: string that will be set as the new filter on the table
      */
-    function setFilter (queryString) {
+    function setFilter(queryString) {
         vm.table.filter = queryString;
     }
 
     /**
      * exportToCsv() creates an export link and opens it
      */
-    function exportToCsv () {
+    function exportToCsv() {
         var getParams = '';
+        var url = '/accounts/export/';
+
         // If there is a filter, add it
         if (vm.table.filter) {
             getParams += '&export_filter=' + vm.table.filter;
@@ -151,12 +155,11 @@ function AccountList ($scope, $window, Account, Cookie) {
         // Add all visible columns
         angular.forEach(vm.table.visibility, function(value, key) {
             if (value) {
-                getParams += '&export_columns='+ key;
+                getParams += '&export_columns=' + key;
             }
         });
 
         // Setup url
-        var url = '/accounts/export/';
         if (getParams) {
             url += '?' + getParams.substr(1);
         }

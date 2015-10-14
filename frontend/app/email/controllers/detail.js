@@ -157,7 +157,8 @@ function EmailDetailController($scope, $state, $stateParams, $http, AccountDetai
                                 $scope.emailSettings.accountId = data.data.id;
 
                                 if (!data.complete) {
-                                    // Account found, but no contact belongs to account
+                                    // Account found, but no contact belongs to account, so setup auto fill data
+                                    _setupContactInfo();
                                     $scope.emailSettings.sidebar.form = 'createContact';
                                     $scope.emailSettings.account = data.data;
                                 }
@@ -166,8 +167,22 @@ function EmailDetailController($scope, $state, $stateParams, $http, AccountDetai
                             if (data.data.id) {
                                 $scope.emailSettings.contactId = data.data.id;
 
+                                var accountsQuery = '';
+
+                                if (data.data.accounts) {
+                                    var accountIds = [];
+
+                                    for (var i=0; i < data.data.accounts.length; i++) {
+                                        accountIds.push('id:' + data.data.accounts[i].id);
+                                    }
+
+                                    accountsQuery = ' AND ' + accountIds.join(' OR ');
+                                }
+
+                                var company = $scope.emailSettings.website.split('.').slice(0, -1).join(' ');
+
                                 // Check if the contact is linked to an account
-                                AccountDetail.get({filterquery: 'email_addresses.email_address:' + $scope.emailSettings.website}).$promise.then(function(account) {
+                                AccountDetail.get({filterquery: 'email_addresses.email_address:"@' + $scope.emailSettings.website + '"' + accountsQuery}).$promise.then(function(account) {
                                     if (account.id) {
                                         $scope.emailSettings.account = account;
                                         $scope.emailSettings.accountId = account.id;
@@ -180,9 +195,39 @@ function EmailDetailController($scope, $state, $stateParams, $http, AccountDetai
                     } else {
                         $scope.emailSettings.sidebar.form = 'createAccount';
                         $scope.emailSettings.sidebar.contact = false;
+
+                        // Setup auto fill contact data in case the user only wants to create a contact
+                        _setupContactInfo();
                     }
                 });
         }
+    }
+
+    function _setupContactInfo() {
+        // Setup contact name as follows:
+        // 1. Split sender name by space
+        // 2. First name is always the first element
+        // 3. Last name is always the last element
+        // 4. Preposition is all other elements
+        var senderParts = vm.message.sender.name.split(' ');
+        var preposition = '';
+
+        if (senderParts.length > 2) {
+            var prepositionParts = [];
+
+            for(var i=1; i < senderParts.length - 1; i++) {
+                prepositionParts.push(senderParts[i]);
+            }
+
+            preposition = prepositionParts.join(' ');
+        }
+
+        $scope.emailSettings.contact = {
+            firstName: senderParts[0],
+            preposition: preposition,
+            lastName: senderParts[senderParts.length - 1],
+            emailAddress: vm.message.sender.email_address,
+        };
     }
 
     function toggleAccountSidebar() {

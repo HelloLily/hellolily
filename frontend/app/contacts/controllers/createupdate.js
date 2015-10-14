@@ -106,24 +106,36 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             $scope.conf.pageTitleBig = 'New contact';
             vm.contact = Contact.create();
 
-            if ($scope.emailSettings) {
-                if ($scope.emailSettings.firstName) {
-                    vm.contact.firstName = $scope.emailSettings.firstName;
-                }
+            if ($stateParams.accountId) {
+                var account = Account.get({id: $stateParams.accountId});
+                vm.contact.accounts.push(account);
+            }
 
-                if ($scope.emailSettings.emailAddress) {
-                    vm.contact.email_addresses.push({
-                        email_address: $scope.emailSettings.emailAddress,
-                        status: 2,
-                    });
+            if ($scope.emailSettings) {
+                // Auto fill data if it's available
+                if ($scope.emailSettings.contact) {
+                    if ($scope.emailSettings.contact.firstName) {
+                        vm.contact.first_name = $scope.emailSettings.contact.firstName;
+                    }
+
+                    if ($scope.emailSettings.contact.preposition) {
+                        vm.contact.preposition = $scope.emailSettings.contact.preposition;
+                    }
+
+                    if ($scope.emailSettings.contact.lastName) {
+                        vm.contact.last_name = $scope.emailSettings.contact.lastName;
+                    }
+
+                    if ($scope.emailSettings.contact.emailAddress) {
+                        vm.contact.email_addresses.push({
+                            email_address: $scope.emailSettings.contact.emailAddress,
+                            status: 2,
+                        });
+                    }
                 }
 
                 if ($scope.emailSettings.account) {
                     vm.contact.accounts.push($scope.emailSettings.account);
-                }
-
-                if ($scope.emailSettings.email) {
-                    vm.contact.emailAddresses.push($scope.emailSettings.email);
                 }
             }
         }

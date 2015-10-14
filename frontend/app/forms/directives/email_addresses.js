@@ -27,7 +27,17 @@ function FormEmailAddressesController($rootScope) {
 
     vm.setPrimaryEmailAddress = setPrimaryEmailAddress;
 
+    activate();
+
     /////
+
+    function activate() {
+        if (vm.sidebar == 'createContact') {
+            vm.emailLabel = 'Email';
+        } else {
+            vm.emailLabel = 'Company email';
+        }
+    }
 
     function setPrimaryEmailAddress(emailAddress) {
         // Check if the status of an email address is 'Primary'

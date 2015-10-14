@@ -1,7 +1,7 @@
 <div class="form-group" ng-repeat="emailAddress in vm.emailAddresses">
     <label for="id_email_addresses-email_address-{{ $index }}"
            ng-show="$first"
-           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Company email</label>
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">{{ vm.emailLabel }}</label>
     <div ng-class="{'col-xs-12': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['email_addresses-email_address-' + $index].$invalid }">
         <input class="form-control"
                id="id_email_addresses-email_address-{{ $index }}"
@@ -36,7 +36,7 @@
 </div>
 <div class="form-group">
     <label ng-hide="vm.emailAddresses.length"
-           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">Company email</label>
+           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">{{ vm.emailLabel }}</label>
     <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length && !vm.sidebar }">
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>

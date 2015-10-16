@@ -25,8 +25,8 @@ function caseConfig ($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$modal', '$scope', '$state', '$stateParams', 'CaseStatuses', 'caseItem'];
-function CaseDetailController ($http, $modal, $scope, $state, $stateParams, CaseStatuses, caseItem) {
+CaseDetailController.$inject = ['$http', '$modal', '$scope', '$state', '$stateParams', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
+function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Account, CaseStatuses, caseItem, Contact) {
     var vm = this;
     $scope.conf.pageTitleBig = 'Case';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
@@ -41,7 +41,19 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Case
     vm.unarchive = unarchive;
     vm.openPostponeWidget = openPostponeWidget;
 
+    activate();
+
     //////
+
+    function activate () {
+        Account.get({id: vm.case.account}).$promise.then(function (account) {
+            vm.account = account;
+        });
+
+        Contact.get({id: vm.case.contact}).$promise.then(function (contact) {
+            vm.contact = contact;
+        });
+    }
 
     /**
      *

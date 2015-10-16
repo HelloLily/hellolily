@@ -56,8 +56,9 @@ td .label-sm {
 }
 
 .case-info-heading-priority {
-    padding: 3px;
-    text-align: center;
+    padding: 0px 10px;
+    line-height: 40px;
+    font-size: 16px;
 }
 
 .case-info-heading-title {
@@ -89,4 +90,27 @@ td .label-sm {
 
 .case-detail-block-content {
     padding: 10px;
+}
+
+.case-detail-block-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        line-height: 24px;
+        margin-bottom: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.case-detail-tag {
+    padding: 3px 5px;
+    background: $lilyGrey;
+    border-radius: 4px;
+    margin-right: 5px;
+    color: #999;
 }

@@ -4,7 +4,10 @@ function dashboardWidget() {
     return {
         restrict: 'E',
         scope: {
-            widgetName: '='
+            widgetName: '=',
+            widgetCloseable: '=',
+            widgetClass: '=',
+            widgetScrollable: '=',
         },
         templateUrl: 'dashboard/directives/widget.html',
         controller: DashboardWidgetController,
@@ -13,6 +16,8 @@ function dashboardWidget() {
         transclude: true
     }
 }
+
+
 
 DashboardWidgetController.$inject = ['Cookie', '$scope'];
 function DashboardWidgetController(Cookie, $scope) {

@@ -15,18 +15,19 @@
         </div>
 
         <div ng-if="vm.case.id">
-            <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                <label ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'btn default': true, 'btn default active': vm.case.status == status.status, 'btn default disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
-                    <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
-                    {{ status.status }}
-                </label>
-                <div class="btn-group">
-                    <a ng-class="{'btn default': true}" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
-                    <a ng-class="{'btn default': vm.case.archived, 'btn default': !vm.case.archived}" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
+            <div class="col-md-12 text-center">
+                <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                    <label ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'btn default': true, 'btn default active': vm.case.status == status.status, 'btn default disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
+                        <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
+                        {{ status.status }}
+                    </label>
+                    <div class="btn-group">
+                        <a ng-class="{'btn default': true}" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
+                        <a ng-class="{'btn default': vm.case.archived, 'btn default': !vm.case.archived}" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
+                    </div>
                 </div>
+                <div class="clearfix"></div>
             </div>
-
-            <div class="clearfix"></div>
         </div>
 
         <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>

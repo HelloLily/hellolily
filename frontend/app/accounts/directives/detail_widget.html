@@ -2,7 +2,10 @@
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-building-o"></i>
-            {{ account.name }}
+            <span ng-show="$parent.emailSettings.accountId">
+                <a ui-sref="base.accounts.detail({ id: $parent.emailSettings.accountId })">{{ account.name }}</a>
+            </span>
+            <span ng-show="!$parent.emailSettings.accountId">{{ account.name }}</span>
         </div>
         <div class="actions">
             <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">

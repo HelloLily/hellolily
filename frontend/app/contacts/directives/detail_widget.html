@@ -2,7 +2,11 @@
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-user"></i>
-            {{ contact.salutation }} / {{ contact.gender }} <b>{{ contact.name }}</b>
+            {{ contact.salutation }} / {{ contact.gender }}
+            <span ng-show="$parent.emailSettings.contactId">
+                <a ui-sref="base.contacts.detail({ id: $parent.emailSettings.contactId })"><b>{{ contact.name }}</b></a>
+            </span>
+            <span ng-show="!$parent.emailSettings.contactId"><b>{{ contact.name }}</b></span>
         </div>
     </div>
     <div class="portlet-body">

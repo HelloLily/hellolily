@@ -71,6 +71,9 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         self.fields['assigned_to'].queryset = LilyUser.objects.filter(tenant=get_current_user().tenant)
         self.fields['assigned_to'].initial = get_current_user()
 
+        self.fields['found_through'].required = True
+        self.fields['contacted_by'].required = True
+
     def save(self, commit=True):
         instance = super(CreateUpdateDealForm, self).save(commit=commit)
 

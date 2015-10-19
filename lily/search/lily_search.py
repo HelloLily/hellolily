@@ -19,7 +19,7 @@ class LilySearch(object):
     Search API for Elastic search backend.
     """
 
-    def __init__(self, tenant_id, model_type=None, sort=None, page=0, size=10):
+    def __init__(self, tenant_id, model_type=None, sort=None, page=0, size=10, facet=None):
         """
         Setup of search.
 
@@ -39,6 +39,10 @@ class LilySearch(object):
                 'tenant': tenant_id
             }
         }]
+
+        # Set the facet.
+        if facet:
+            self.facet = facet
 
         # Filter on model type.
         self.model_type = model_type
@@ -67,8 +71,22 @@ class LilySearch(object):
         if settings.ES_DISABLED:
             return [], 0, 0
         self.search = self.search.filter_raw({'and': self.raw_filters})
+
         if self.model_type:
             self.search = self.search.doctypes(self.model_type)
+
+        if self.facet:
+            self.search = self.search.facet_raw(tags={
+                "terms": {
+                    "field": self.facet.get('field'),
+                    "size": self.facet.get('size'),
+                },
+                "facet_filter": {
+                    "term": {
+                        "name": self.facet.get('filter', '*'),
+                    }
+                }
+            })
 
         # Fire off search.
         try:
@@ -89,7 +107,14 @@ class LilySearch(object):
                     else:
                         hit[field] = result[field]
                 hits.append(hit)
-            return hits, execute.count, execute.took
+
+            import ipdb
+            ipdb.set_trace()
+
+            if execute.facets:
+                return hits, execute.facets['tags']['terms'], execute.count, execute.took
+
+            return hits, None, execute.count, execute.took
         except RequestError as e:
             # This can happen when the query is malformed. For example:
             # A user entering special characters. This should normally be taken

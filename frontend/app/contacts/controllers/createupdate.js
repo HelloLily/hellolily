@@ -245,6 +245,10 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         }
     }
 
+    function refreshTags(query) {
+
+    }
+
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 

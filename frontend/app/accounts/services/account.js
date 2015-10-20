@@ -53,6 +53,9 @@ function Account($http, $q, $resource, HLUtils) {
                 url: 'api/accounts/account',
                 method: 'OPTIONS',
             },
+            searchByWebsite: {
+                url: '/search/website/:website',
+            },
         });
 
     _account.getAccounts = getAccounts;

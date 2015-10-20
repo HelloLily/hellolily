@@ -13,6 +13,7 @@
                            placeholder="www.example.com"
                            type="text"
                            ng-model="website.website"
+                           ng-blur="vm.doubleAccountCheck({index: $index})"
                            ng-readonly="website.is_deleted">
                     <field-error form="form" field="websites-website" index="$index"></field-error>
                 </td>

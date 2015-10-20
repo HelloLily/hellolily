@@ -8,6 +8,7 @@ function formWebsites() {
             websites: '=',
             addRelatedField: '&',
             removeRelatedField: '&',
+            doubleAccountCheck: '&',
         },
         templateUrl: 'forms/directives/websites.html',
         controller: FormWebsitesController,
@@ -23,5 +24,6 @@ function formWebsites() {
 FormWebsitesController.$inject = ['$rootScope'];
 function FormWebsitesController($rootScope) {
     var vm = this;
+
     vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

@@ -7,7 +7,7 @@
         <div class="case-info-heading" ng-class="vm.getPriorityDisplay()">
             <div class="case-info-heading-priority">{{ ::vm.case.priority_name }} Priority</div>
             <div class="case-info-heading-title">
-                #{{ ::vm.case.id }} - [ {{ ::vm.case.casetype_name }} ] - {{ ::vm.case.subject }}
+                #{{ vm.case.id }} - [ {{ vm.case.casetype_name }} ] - {{ vm.case.subject }}
             </div>
             <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="::vm.case.body">
                 <div ng-bind-html="vm.case.body | nl2br"></div>
@@ -22,8 +22,8 @@
                         {{ status.status }}
                     </label>
                     <div class="btn-group">
-                        <a ng-class="{'btn default': true}" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
-                        <a ng-class="{'btn default': vm.case.archived, 'btn default': !vm.case.archived}" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
+                        <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
+                        <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -38,7 +38,7 @@
             <div name="portlet-caption">
                 <a ui-sref="base.accounts.detail({ id: vm.case.account })">
                     <i class="fa fa-building-o"></i>
-                    {{ ::vm.case.account_name }}
+                    {{ vm.case.account_name }}
                 </a>
             </div>
 
@@ -72,7 +72,7 @@
             <div name="portlet-caption">
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
                     <i class="fa fa-user"></i>
-                    {{ ::vm.case.contact_name }}
+                    {{ vm.case.contact_name }}
                 </a>
             </div>
 
@@ -104,13 +104,12 @@
                 <ul class="case-detail-block-list">
                     <li>
                         <strong>Assigned to:</strong>
-                        <span ng-if="vm.case.assigned_to_id"> {{ vm.case.assigned_to_name }} </span>
-                        <span ng-if="!vm.case.assigned_to_id">nobody</span>
+                        <span>{{ vm.case.assigned_to_name || 'nobody' }}</span>
                         <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
                         <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
                     </li>
                     <li><strong>Created by:</strong> {{ vm.case.created_by || 'Unknown' }}</li>
-                    <li><strong>Created on:</strong> {{ ::vm.case.created | date:"dd MMMM y H:mm" }}</li>
+                    <li><strong>Created on:</strong> {{ vm.case.created | date:"dd MMMM y H:mm" }}</li>
                     <li>
                         <strong>Expires on:</strong>
                         <a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!">

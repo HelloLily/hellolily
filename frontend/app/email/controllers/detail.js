@@ -179,8 +179,6 @@ function EmailDetailController($scope, $state, $stateParams, $http, AccountDetai
                                     accountsQuery = ' AND ' + accountIds.join(' OR ');
                                 }
 
-                                var company = $scope.emailSettings.website.split('.').slice(0, -1).join(' ');
-
                                 // Check if the contact is linked to an account
                                 AccountDetail.get({filterquery: 'email_addresses.email_address:"@' + $scope.emailSettings.website + '"' + accountsQuery}).$promise.then(function(account) {
                                     if (account.id) {

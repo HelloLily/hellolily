@@ -77,6 +77,9 @@ function BaseController($scope, $state, Notifications) {
 
             $scope.emailSettings.accountId = null;
             $scope.emailSettings.contactId = null;
+            $scope.emailSettings.website = null;
+            $scope.emailSettings.account = null;
+            $scope.emailSettings.contact = null;
 
             $scope.$$phase || $scope.apply();
         }

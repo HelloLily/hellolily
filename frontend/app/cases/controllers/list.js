@@ -123,21 +123,6 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                     selected: false,
                 },
                 {
-                    name: 'Expired today',
-                    value: 'expires: ' + moment().subtract(1, 'd').format('YYYY-MM-DD'),
-                    selected: false,
-                },
-                {
-                    name: 'Expired 7 days or more ago',
-                    value: 'expires:[* TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
-                    selected: false,
-                },
-                {
-                    name: 'Expired 30 days or more ago',
-                    value: 'expires:[* TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
-                    selected: false,
-                },
-                {
                     name: 'Archived',
                     value: '',
                     selected: false,

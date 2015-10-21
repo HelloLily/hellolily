@@ -34,7 +34,7 @@
     </div>
 
     <div ng-if="vm.case.id" class="col-md-4">
-        <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'" widget-closeable="false" widget-scrollable="false">
+        <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
             <div name="portlet-caption">
                 <a ui-sref="base.accounts.detail({ id: vm.case.account })">
                     <i class="fa fa-building-o"></i>
@@ -68,7 +68,7 @@
         </dashboard-widget>
 
 
-        <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'" widget-closeable="false" widget-scrollable="false">
+        <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <div name="portlet-caption">
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
                     <i class="fa fa-user"></i>
@@ -94,7 +94,7 @@
             </div>
         </dashboard-widget>
 
-        <dashboard-widget widget-name="'More info'" widget-closeable="false" widget-scrollable="false">
+        <dashboard-widget widget-name="'More info'">
             <div name="portlet-caption">
                 <i class="fa fa-info"></i>
                 More info
@@ -122,7 +122,7 @@
 
 
 
-        <dashboard-widget widget-name="'Tags'" widget-closeable="false" widget-scrollable="false">
+        <dashboard-widget widget-name="'Tags'">
             <div name="portlet-caption">
                 <i class="fa fa-tag"></i>
                 Tags

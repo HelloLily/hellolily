@@ -50,6 +50,10 @@ function CaseExpiresFilterWidgetController(Cookie, $scope) {
                     var week = moment().add(6, 'd').format('YYYY-MM-DD');
                     filter = 'expires: [' + today + ' TO ' + week + ']';
                     break;
+                case 4:
+                    var today = moment().format('YYYY-MM-DD');
+                    filter = 'expires:[* TO ' + moment().subtract(1, 'd').format('YYYY-MM-DD') + ']';
+                    break;
             }
 
             cookie.put('expiresFilter', vm.expiresFilter);

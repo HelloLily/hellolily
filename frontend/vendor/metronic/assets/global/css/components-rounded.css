@@ -1,5 +1,5 @@
 /*********************************
- METRONIC ROUNDED STYLE COMPONENTS 
+ METRONIC ROUNDED STYLE COMPONENTS
 *********************************/
 /***
 General reset
@@ -15,8 +15,8 @@ body {
 }
 
 /*
- Internet Explorer 10 doesn't differentiate device width from viewport width, and thus doesn't 
- properly apply the media queries in Bootstrap's CSS. To address this, 
+ Internet Explorer 10 doesn't differentiate device width from viewport width, and thus doesn't
+ properly apply the media queries in Bootstrap's CSS. To address this,
  you can optionally include the following CSS and JavaScript to work around this problem until Microsoft issues a fix.
 */
 @-webkit-viewport {
@@ -35,8 +35,8 @@ body {
   width: device-width;
 }
 /*
- Internet Explorer 10 doesn't differentiate device width from viewport width, 
- and thus doesn't properly apply the media queries in Bootstrap's CSS. To address this, following CSS code applied 
+ Internet Explorer 10 doesn't differentiate device width from viewport width,
+ and thus doesn't properly apply the media queries in Bootstrap's CSS. To address this, following CSS code applied
 */
 @-ms-viewport {
   width: auto !important;
@@ -435,7 +435,7 @@ Users
 }
 
 /***
-Top News Blocks(new in v1.2.2) 
+Top News Blocks(new in v1.2.2)
 ***/
 .top-news {
   color: #fff;
@@ -883,7 +883,7 @@ Simple Line Icons Demo
     width: 33.333%;
   }
 }
-/*** 
+/***
 Glyphicons Demo
 ***/
 .glyphicons-demo ul {
@@ -1709,7 +1709,7 @@ Chats
 }
 
 /***
-Customized Bootstrap Close Icon 
+Customized Bootstrap Close Icon
 ***/
 .close {
   display: inline-block;
@@ -3154,7 +3154,7 @@ Metro icons
 }
 
 /***
-Customized Bootstrap Modal 
+Customized Bootstrap Modal
 ***/
 .modal {
   z-index: 10050;
@@ -3597,16 +3597,19 @@ Portlets
   padding: 0 10px;
 }
 .portlet > .portlet-title {
-  border-bottom: 1px solid #eee;
-  padding: 0;
-  margin-bottom: 10px;
-  min-height: 41px;
   -webkit-border-radius: 4px 4px 0 0;
   -moz-border-radius: 4px 4px 0 0;
   -ms-border-radius: 4px 4px 0 0;
   -o-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0;
 }
+
+.portlet-title.portlet-open {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+    padding-bottom: 15px;
+}
+
 .portlet > .portlet-title:before, .portlet > .portlet-title:after {
   content: " ";
   display: table;
@@ -3618,9 +3621,8 @@ Portlets
   float: left;
   display: inline-block;
   font-size: 18px;
-  line-height: 18px;
+  line-height: 28px;
   font-weight: 300;
-  padding: 10px 0;
 }
 .portlet > .portlet-title > .caption.bold {
   font-weight: 400;
@@ -3647,7 +3649,6 @@ Portlets
 .portlet > .portlet-title > .actions {
   float: right;
   display: inline-block;
-  padding: 6px 0;
 }
 .portlet > .portlet-title > .actions > .dropdown-menu i {
   color: #555555;
@@ -3700,7 +3701,7 @@ Portlets
 .portlet > .portlet-title > .tools {
   float: right;
   display: inline-block;
-  padding: 12px 0 8px 0;
+  line-height: 28px;
 }
 .portlet > .portlet-title > .tools > a {
   display: inline-block;
@@ -3880,7 +3881,7 @@ Portlets
 
 /* Light Portlet */
 .portlet.light {
-  padding: 12px 20px 15px 20px;
+  padding: 15px 20px;
   background-color: #fff;
 }
 .portlet.light.bordered {
@@ -3892,13 +3893,8 @@ Portlets
 .portlet.light.bg-inverse {
   background: #F7F7F7;
 }
-.portlet.light > .portlet-title {
-  padding: 0;
-  min-height: 48px;
-}
 .portlet.light > .portlet-title > .caption {
   color: #666;
-  padding: 10px 0;
 }
 .portlet.light > .portlet-title > .caption > .caption-subject {
   font-size: 16px;
@@ -3915,9 +3911,7 @@ Portlets
 .portlet.light > .portlet-title > .caption.caption-md > i {
   font-size: 14px;
 }
-.portlet.light > .portlet-title > .actions {
-  padding: 6px 0 14px 0;
-}
+
 .portlet.light > .portlet-title > .actions .btn-default {
   color: #666;
 }
@@ -3951,8 +3945,7 @@ Portlets
   padding: 2px 0 13px 0;
 }
 .portlet.light > .portlet-title > .tools {
-  padding: 10px 0 13px 0;
-  margin-top: 2px;
+  line-height: 28px;
 }
 .portlet.light > .portlet-title > .nav-tabs > li {
   margin: 0;
@@ -4986,7 +4979,7 @@ Light Table
 }
 
 /***
-Customized Bootstrap Tabs 
+Customized Bootstrap Tabs
 ***/
 /* Tabs and pills */
 .nav-tabs,

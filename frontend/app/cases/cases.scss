@@ -21,3 +21,96 @@ td .label-sm {
 .list-actions {
     padding: 3px 10px;
 }
+
+@mixin case-priority-color($color){
+    border: 1px $color solid;
+    background: white;
+
+    .case-info-heading-priority {
+        color: white;
+        background: $color;
+    }
+}
+
+.case-info-heading {
+    box-sizing: border-box;
+
+    border-radius: $baseBorderRadius;
+    margin-bottom: 25px;
+
+    &.label-success {
+        @include case-priority-color($lowPrioColor);
+    }
+
+    &.label-info {
+        @include case-priority-color($mediumPrioColor);
+    }
+
+    &.label-warning {
+        @include case-priority-color($highPrioColor);
+    }
+
+    &.label-danger {
+        @include case-priority-color($criticalPrioColor);
+    }
+}
+
+.case-info-heading-priority {
+    padding: 0px 10px;
+    line-height: 40px;
+    font-size: 16px;
+}
+
+.case-info-heading-title {
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.case-info-heading-description {
+    border-top: 1px $lightGrey solid;
+    padding: 10px;
+}
+
+.case-detail-block {
+    background: white;
+    border-radius: $baseBorderRadius;
+    margin-bottom: 25px;
+}
+
+.case-detail-block-heading {
+    padding: 10px;
+    font-size: 16px;
+    border-bottom: 1px $lightGrey solid;
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.case-detail-block-content {
+    padding: 10px;
+}
+
+.case-detail-block-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        line-height: 24px;
+        margin-bottom: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.case-detail-tag {
+    padding: 3px 5px;
+    background: $lilyGrey;
+    border-radius: 4px;
+    margin-right: 5px;
+    color: #999;
+}

@@ -12,8 +12,8 @@ function unassignedCasesDirective () {
     }
 }
 
-UnassignedCasesController.$inject = ['$http', '$scope', 'Case', 'Cookie'];
-function UnassignedCasesController ($http, $scope, Case, Cookie) {
+UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'Cookie'];
+function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
     var vm = this;
     var cookie = Cookie('unassignedCasesForTeam' + vm.team.id + 'Widget');
     vm.highPrioCases = 0;
@@ -62,7 +62,7 @@ function UnassignedCasesController ($http, $scope, Case, Cookie) {
 
             $http(req).success(function() {
                 vm.table.items.splice(vm.table.items.indexOf(caseObj), 1);
-                $scope.loadNotifications();
+                $state.go($state.current, {}, {reload: true});
             });
         }
     }

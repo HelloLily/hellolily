@@ -34,6 +34,7 @@ class LilySearch(object):
         self.search = search_request.all()
 
         # Always filter on Tenant.
+        self.tenant_id = tenant_id
         self.raw_filters = [{
             'term': {
                 'tenant': tenant_id
@@ -41,8 +42,7 @@ class LilySearch(object):
         }]
 
         # Set the facet.
-        if facet:
-            self.facet = facet
+        self.facet = facet
 
         # Filter on model type.
         self.model_type = model_type
@@ -76,17 +76,34 @@ class LilySearch(object):
             self.search = self.search.doctypes(self.model_type)
 
         if self.facet:
-            self.search = self.search.facet_raw(tags={
+            facet_raw = {
                 "terms": {
-                    "field": self.facet.get('field'),
-                    "size": self.facet.get('size'),
+                    "field": self.facet['field'],
+                    "size": self.facet['size'],
                 },
-                "facet_filter": {
-                    "term": {
-                        "name": self.facet.get('filter', '*'),
-                    }
+            }
+
+            if self.facet['filter']:
+                facet_filter_dict = {
+                    'and': [
+                        {
+                            'term': {
+                                'tenant': self.tenant_id
+                            }
+                        },
+                        {
+                            'query': {
+                                'query_string': {
+                                    'query': self.facet['filter']
+                                }
+                            }
+                        }
+                    ]
                 }
-            })
+
+                facet_raw['facet_filter'] = facet_filter_dict
+
+            self.search = self.search.facet_raw(items=facet_raw)
 
         # Fire off search.
         try:
@@ -108,11 +125,8 @@ class LilySearch(object):
                         hit[field] = result[field]
                 hits.append(hit)
 
-            import ipdb
-            ipdb.set_trace()
-
             if execute.facets:
-                return hits, execute.facets['tags']['terms'], execute.count, execute.took
+                return hits, execute.facets['items']['terms'], execute.count, execute.took
 
             return hits, None, execute.count, execute.took
         except RequestError as e:
@@ -123,7 +137,7 @@ class LilySearch(object):
             # This may be hard to get fool proof, therefore we also
             # catch the exception here to prevent server errors.
             logger.error('request error %s' % e)
-            return [], 0, 0
+            return [], None, 0, 0
 
     def query_common_fields(self, query):
         """

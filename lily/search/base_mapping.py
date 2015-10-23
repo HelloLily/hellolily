@@ -1,9 +1,17 @@
+from django.db.models import FieldDoesNotExist
 from elasticutils.contrib.django import MappingType, Indexable
 
 from lily.search.indexing import prepare_dict
 
 
 class BaseMapping(MappingType, Indexable):
+    has_deleted_mixin = None
+    model = None
+
+    @classmethod
+    def get_model(cls):
+        return cls.model
+
     @classmethod
     def get_mapping(cls):
         """
@@ -59,4 +67,31 @@ class BaseMapping(MappingType, Indexable):
 
     @classmethod
     def has_deleted(cls):
-        return True
+        """
+        Does the model inherit the DeletedMixin?
+        """
+        if cls.has_deleted_mixin:
+            return cls.has_deleted_mixin
+        else:
+            model = cls.get_model()
+
+            try:
+                model._meta.get_field('deleted')
+                model._meta.get_field('is_deleted')
+                return True
+            except FieldDoesNotExist:
+                return False
+
+    @classmethod
+    def get_related_models(cls):
+        """
+        Method stump for the listening to signals of related models.
+        """
+        return {}
+
+    @classmethod
+    def prepare_batch(cls, queryset):
+        """
+        Method stump for batch query opimalizations.
+        """
+        return queryset

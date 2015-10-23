@@ -35,9 +35,9 @@ class SearchView(LoginRequiredMixin, View):
         if size:
             kwargs['size'] = int(size)
 
-        facet_field = request.GET.get('facet_field')
-        facet_filter = request.GET.get('facet_filter')
-        facet_size = request.GET.get('facet_size', 20)
+        facet_field = request.GET.get('facet_field', '')
+        facet_filter = request.GET.get('facet_filter', '')
+        facet_size = request.GET.get('facet_size', 60)
         if facet_field:
             kwargs['facet'] = {
                 'field': facet_field,

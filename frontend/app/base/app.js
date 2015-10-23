@@ -21,6 +21,7 @@ angular.module('app', [
     'app.email',
     'app.preferences',
     'app.stats',
+    'app.tags',
     'app.templates',
     'app.utils',
 

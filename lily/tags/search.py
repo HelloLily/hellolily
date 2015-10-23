@@ -4,17 +4,8 @@ from .models import Tag
 
 
 class TagMapping(BaseMapping):
-    @classmethod
-    def get_model(cls):
-        return Tag
-
-    @classmethod
-    def has_deleted(cls):
-        return False
-
-    @classmethod
-    def prepare_batch(cls, queryset):
-        return queryset
+    model = Tag
+    has_deleted_mixin = False
 
     @classmethod
     def get_mapping(cls):

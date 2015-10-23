@@ -1,36 +1,38 @@
 angular.module('app.cases').config(caseConfig);
 
 caseConfig.$inject = ['$stateProvider'];
-function caseConfig ($stateProvider) {
+function caseConfig($stateProvider) {
     $stateProvider.state('base.cases.detail', {
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'cases/controllers/detail.html',
                 controller: CaseDetailController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: '{{ case.subject }}'
+            label: '{{ case.subject }}',
         },
         resolve: {
             caseItem: ['CaseDetail', '$stateParams', function(CaseDetail, $stateParams) {
                 var id = $stateParams.id;
                 return CaseDetail.get({id: id}).$promise;
-            }]
-        }
+            }],
+        },
     });
 }
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$modal', '$scope', '$state', '$stateParams', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
-function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Account, CaseStatuses, caseItem, Contact) {
+CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Case', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
+function CaseDetailController($http, $scope, $stateParams, Case, Account, CaseStatuses, caseItem, Contact) {
     var vm = this;
+    var id = $stateParams.id;
+
     $scope.conf.pageTitleBig = 'Case';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
-    var id = $stateParams.id;
+
     vm.case = caseItem;
     vm.caseStatuses = CaseStatuses.query();
 
@@ -39,27 +41,31 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
     vm.assignCase = assignCase;
     vm.archive = archive;
     vm.unarchive = unarchive;
-    vm.openPostponeWidget = openPostponeWidget;
+    vm.openPostponeWidget = Case.openPostponeWidget;
 
     activate();
 
     //////
 
-    function activate () {
-        Account.get({id: vm.case.account}).$promise.then(function (account) {
-            vm.account = account;
-        });
+    function activate() {
+        if (vm.case.account) {
+            Account.get({id: vm.case.account}).$promise.then(function(account) {
+                vm.account = account;
+            });
+        }
 
-        Contact.get({id: vm.case.contact}).$promise.then(function (contact) {
-            vm.contact = contact;
-        });
+        if (vm.case.contact) {
+            Contact.get({id: vm.case.contact}).$promise.then(function(contact) {
+                vm.contact = contact;
+            });
+        }
     }
 
     /**
      *
      * @returns {string}: A string which states what label should be displayed
      */
-    function getPriorityDisplay () {
+    function getPriorityDisplay() {
         if (vm.case.is_archived) {
             return 'label-default';
         } else {
@@ -78,7 +84,7 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
         }
     }
 
-    function changeCaseStatus (status) {
+    function changeCaseStatus(status) {
         // TODO: LILY-XXX: Temporary call to change status of a case, will be replaced with an new API call later
         var req = {
             method: 'POST',
@@ -96,10 +102,10 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
             });
     }
 
-    function assignCase () {
+    function assignCase() {
         var assignee = '';
 
-        if (vm.case.assigned_to_id != currentUser.id) {
+        if (vm.case.assigned_to_id !== currentUser.id) {
             assignee = currentUser.id;
         }
 
@@ -115,8 +121,7 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
                 if (data.assignee) {
                     vm.case.assigned_to_id = data.assignee.id;
                     vm.case.assigned_to_name = data.assignee.name;
-                }
-                else {
+                } else {
                     vm.case.assigned_to_id = null;
                     vm.case.assigned_to_name = null;
                 }
@@ -130,7 +135,7 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
      * Archive a deal.
      * TODO: LILY-XXX: Change to API based archiving
      */
-    function archive (id) {
+    function archive(id) {
         var req = {
             method: 'POST',
             url: '/cases/archive/',
@@ -152,7 +157,7 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
      * Unarchive a deal.
      * TODO: LILY-XXX: Change to API based unarchiving
      */
-    function unarchive (id) {
+    function unarchive(id) {
         var req = {
             method: 'POST',
             url: '/cases/unarchive/',
@@ -167,23 +172,5 @@ function CaseDetailController ($http, $modal, $scope, $state, $stateParams, Acco
             error(function(data, status, headers, config) {
                 // Request failed propper error?
             });
-    }
-
-    function openPostponeWidget (myCase) {
-        var modalInstance = $modal.open({
-            templateUrl: 'cases/controllers/postpone.html',
-            controller: 'CasePostponeModal',
-            controllerAs: 'vm',
-            size: 'sm',
-            resolve: {
-                myCase: function() {
-                    return myCase
-                }
-            }
-        });
-
-        modalInstance.result.then(function() {
-            $state.go($state.current, {}, {reload: true});
-        });
     }
 }

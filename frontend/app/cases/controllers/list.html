@@ -98,7 +98,7 @@
                     {{ ::case.created | relativeDate:'':true }}
                 </td>
                 <td ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
-                    {{ ::case.expires | relativeDate:'':true }}
+                    <a ng-click="vm.openPostponeWidget(case)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i>{{ ::case.expires | relativeDate:'':true }}</a>
                 </td>
                 <td ng-show="vm.table.visibility.assignedTo">
                     <span ng-if="case.assigned_to_id">{{ ::case.assigned_to_name }}</span>

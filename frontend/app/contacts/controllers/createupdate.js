@@ -82,12 +82,12 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         // Fetch the contact or create empty contact
         if ($stateParams.id) {
             $scope.conf.pageTitleBig = 'Edit contact';
-            Contact.get({id: $stateParams.id}).$promise.then(function (contact) {
+            Contact.get({id: $stateParams.id}).$promise.then(function(contact) {
                 vm.contact = contact;
 
                 if (vm.contact.hasOwnProperty('tags') && vm.contact.tags.length) {
                     var tags = [];
-                    angular.forEach(vm.contact.tags, function (tag) {
+                    angular.forEach(vm.contact.tags, function(tag) {
                         tags.push(tag.name);
                     });
 
@@ -95,7 +95,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
                 }
 
                 if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
-                    angular.forEach(vm.contact.social_media, function (profile) {
+                    angular.forEach(vm.contact.social_media, function(profile) {
                         vm.contact[profile.name] = profile.username;
                     });
                 }
@@ -159,6 +159,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
     }
 
     function saveContact(form) {
+        HLForms.blockUI();
+
         if (vm.contact.tags && vm.contact.tags.length) {
             var tags = [];
 

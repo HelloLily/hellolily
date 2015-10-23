@@ -18,21 +18,21 @@ function Account($http, $q, $resource) {
                         });
                     }
                     return objects;
-                }
+                },
             },
             update: {
                 method: 'PUT',
                 params: {
-                    id: '@id'
-                }
+                    id: '@id',
+                },
             },
             delete: {
-                method: 'DELETE'
+                method: 'DELETE',
             },
             addressOptions: {
                 url: '/api/utils/countries/',
-                method: 'OPTIONS'
-            }
+                method: 'OPTIONS',
+            },
         });
 
     Account.getAccounts = getAccounts;
@@ -73,13 +73,13 @@ function Account($http, $q, $resource) {
                 q: queryString,
                 page: page - 1,
                 size: pageSize,
-                sort: sort
-            }
+                sort: sort,
+            },
         })
-            .then(function (response) {
+            .then(function(response) {
                 return {
                     accounts: response.data.hits,
-                    total: response.data.total
+                    total: response.data.total,
                 };
             });
     }
@@ -104,7 +104,7 @@ function Account($http, $q, $resource) {
             phone_numbers: [],
             addresses: [],
             websites: [],
-            tags: []
+            tags: [],
         });
     }
 
@@ -124,15 +124,15 @@ function Account($http, $q, $resource) {
         url = _sanitizeDomain(url);
         if (url.length > 1) {
             $http({
-                url: '/provide/account/' + url
-            }).success(function (response) {
+                url: '/provide/account/' + url,
+            }).success(function(response) {
                 if (response.error) {
                     deferred.reject('Failed to load data');
                 } else {
                     account._storeDataproviderInfo(response);
                     deferred.resolve();
                 }
-            }).error(function (error) {
+            }).error(function(error) {
                 deferred.reject(error);
             });
         }
@@ -149,7 +149,7 @@ function Account($http, $q, $resource) {
                 var status = 1;
                 var isPrimary = false;
 
-                if (account.email_addresses.length == 0) {
+                if (account.email_addresses.length === 0) {
                     // No email addresses added yet, so first one is primary
                     status = 2;
                     isPrimary = true;
@@ -186,7 +186,7 @@ function Account($http, $q, $resource) {
                 break;
             case 'website':
                 index = account.websites.indexOf(index);
-                if (index != -1) {
+                if (index !== -1) {
                     account.websites[index].is_deleted = remove;
                 }
                 break;
@@ -195,10 +195,9 @@ function Account($http, $q, $resource) {
         }
     }
 
-    Account.prototype._storeDataproviderInfo = function (data) {
+    Account.prototype._storeDataproviderInfo = function(data) {
         var account = this;
-        angular.forEach(data, function (value, key) {
-
+        angular.forEach(data, function(value, key) {
             // Only if value is defined & is not an array (than it is an related field)
             if (value && !(value instanceof Array)) {
                 account[key] = value;
@@ -211,7 +210,7 @@ function Account($http, $q, $resource) {
         account._addAddresses(data);
     };
 
-    Account.prototype._addEmailAddresses = function (data) {
+    Account.prototype._addEmailAddresses = function(data) {
         var account = this;
         var newEmailAddresses = data.email_addresses;
         var primaryExists = false;
@@ -237,18 +236,18 @@ function Account($http, $q, $resource) {
         }
     };
 
-    Account.prototype._addPhoneNumbers = function (data) {
+    Account.prototype._addPhoneNumbers = function(data) {
         var account = this;
         var newPhoneNumbers = data.phone_numbers;
 
         if (data.phone_number) {
             newPhoneNumbers.unshift(data.phone_number);
         }
-        
+
         for (var i in newPhoneNumbers) {
             var add = true;
             for (var j in account.phone_numbers) {
-                if (account.phone_numbers[j].raw_input == newPhoneNumbers[i]) {
+                if (account.phone_numbers[j].raw_input === newPhoneNumbers[i]) {
                     add = false;
                     break;
                 }
@@ -259,7 +258,7 @@ function Account($http, $q, $resource) {
         }
     };
 
-    Account.prototype._addAddresses = function (data) {
+    Account.prototype._addAddresses = function(data) {
         var account = this;
         for (var i in data.addresses) {
             var add = true;
@@ -267,7 +266,7 @@ function Account($http, $q, $resource) {
                 add = false;
                 for (var k in data.addresses[i]) {
                     if (data.addresses[i].hasOwnProperty(k)) {
-                        if (account.addresses[j][k] != data.addresses[i][k]) {
+                        if (account.addresses[j][k] !== data.addresses[i][k]) {
                             add = true;
                         }
                     }

@@ -100,56 +100,66 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     }
 
     /**
-     * Gets the filter list. Is either the value in the cookie or a new list
+     * Gets the filter list. Uses a cookie to merge selections.
      *
      * @returns filterList (object): object containing the filter list
      */
     function _getFilterList() {
-        var filterListCookie = cookie.get('filterList', null);
+        var filterListCookie = cookie.get('filterListSelected', null);
+        var filterList;
 
+        // Use the value from cookie first.
+        // (Because it is faster; loading the case types list uses a AJAX request).
         if (filterListCookie) {
-            // Cookie is set, so use it as the filterList
             vm.filterList = filterListCookie;
-        } else {
-            var filterList = [
-                {
-                    name: 'Assigned to me',
-                    value: 'assigned_to_id:' + $scope.currentUser.id,
-                    selected: false,
-                },
-                {
-                    name: 'Assigned to nobody',
-                    value: 'NOT(assigned_to_id:*)',
-                    selected: false,
-                },
-                {
-                    name: 'Archived',
-                    value: '',
-                    selected: false,
-                    id: 'archived',
-                },
-            ];
-
-            // Update filterList for now
-            vm.filterList = filterList;
-
-            Case.getCaseTypes().then(function(cases) {
-                for (var key in cases) {
-                    if (cases.hasOwnProperty(key)) {
-                        filterList.push({
-                            name: 'Case type ' + cases[key],
-                            value: 'casetype_id:' + key,
-                            selected: false,
-                        });
-                    }
-                }
-
-                // Update filterList once AJAX call is done
-                vm.filterList = filterList;
-                // Watch doesn't get triggered here, so manually call _updateTableSettings
-                _updateTableSettings();
-            });
         }
+
+        // But we still update the list afterwards (in case a filter was changed)
+        filterList = [
+            {
+                name: 'Assigned to me',
+                value: 'assigned_to_id:' + $scope.currentUser.id,
+                selected: false,
+            },
+            {
+                name: 'Assigned to nobody',
+                value: 'NOT(assigned_to_id:*)',
+                selected: false,
+            },
+            {
+                name: 'Archived',
+                value: '',
+                selected: false,
+                id: 'archived',
+            },
+        ];
+
+        Case.getCaseTypes().then(function(cases) {
+            angular.forEach(cases, function(caseName, caseId) {
+                var filter = {
+                    name: 'Case type ' + caseName,
+                    value: 'casetype_id:' + caseId,
+                    selected: false,
+                };
+                filterList.push(filter);
+            });
+
+            if (filterListCookie) {
+                // Cookie is set, merge the selections from this cookie.
+                angular.forEach(filterListCookie, function(caseInCookie) {
+                    angular.forEach(filterList, function(caseInList) {
+                        if (caseInCookie.name === caseInList.name) {
+                            caseInList.selected = caseInCookie.selected;
+                        }
+                    });
+                });
+            }
+
+            // Update filterList once AJAX call is done
+            vm.filterList = filterList;
+            // Watch doesn't get triggered here, so manually call _updateTableSettings
+            _updateTableSettings();
+        });
     }
 
     /**
@@ -160,7 +170,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         cookie.put('archived', vm.table.archived);
         cookie.put('order', vm.table.order);
         cookie.put('visibility', vm.table.visibility);
-        cookie.put('filterList', vm.filterList);
+        cookie.put('filterListSelected', vm.filterList);
     }
 
     /**

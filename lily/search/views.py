@@ -121,7 +121,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
         )
         search.filter_query('email_addresses.email_address:%s' % email_address)
 
-        hits, total, took = search.do_search()
+        hits, facets, total, took = search.do_search()
         if hits:
             return {
                 'type': 'contact',
@@ -146,7 +146,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
         )
         search.filter_query('email_addresses.email_address:%s' % email_address)
 
-        hits, total, took = search.do_search()
+        hits, facets, total, took = search.do_search()
         if hits:
             return {
                 'type': 'account',
@@ -161,7 +161,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             )
             search.filter_query('email_addresses.email_address:%s' % email_address.split('@')[1])
 
-            hits, total, took = search.do_search()
+            hits, facets, total, took = search.do_search()
             if total > 1:
                 return {}
             if hits:

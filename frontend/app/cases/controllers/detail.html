@@ -24,6 +24,7 @@
                     <div class="btn-group">
                         <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
                         <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
+                        <a class="btn default" ng-click="vm.openPostponeWidget()">Test</a>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -77,7 +78,7 @@
             </div>
 
             <div name="portlet-body">
-            <ul class="case-detail-block-list">
+                <ul class="case-detail-block-list">
                     <li ng-if="vm.contact.email_addresses.length">
                         <strong>E-mail addresses: </strong>
                         <div ng-repeat="email in vm.contact.email_addresses">
@@ -112,15 +113,14 @@
                     <li><strong>Created on:</strong> {{ vm.case.created | date:"dd MMMM y H:mm" }}</li>
                     <li>
                         <strong>Expires on:</strong>
-                        <a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!">
-                             {{ vm.case.expires | date:"d MMM y" }} <i class="fa fa-history"></i>
-                        </a>
-                     </li>
+                        <!--<a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!">-->
+                             <!--{{ vm.case.expires | date:"d MMM y" }} <i class="fa fa-history"></i>-->
+                        <!--</a>-->
+                         {{ vm.case.expires | date:"d MMM y" }}
+                    </li>
                 </ul>
             </div>
         </dashboard-widget>
-
-
 
         <dashboard-widget widget-name="'Tags'">
             <div name="portlet-caption">

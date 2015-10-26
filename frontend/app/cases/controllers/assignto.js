@@ -1,7 +1,7 @@
 angular.module('app.cases').controller('CaseAssignModal', CaseAssignModal);
 
 CaseAssignModal.$inject = ['$modalInstance', 'myCase', 'Case', 'User'];
-function CaseAssignModal ($modalInstance, myCase, Case, User) {
+function CaseAssignModal($modalInstance, myCase, Case, User) {
     var vm = this;
     vm.myCase = myCase;
     vm.users = [];
@@ -27,18 +27,18 @@ function CaseAssignModal ($modalInstance, myCase, Case, User) {
     function assignToMe() {
         vm.assignee = {
             id: currentUser.id,
-            full_name: currentUser.fullName
+            full_name: currentUser.fullName,
         };
     }
 
-    function ok () {
+    function ok() {
         // Update the assigned_to of the case and close the modal
-        Case.update({id: vm.myCase.id, assigned_to: vm.assignee.id}).$promise.then(function () {
+        Case.update({id: vm.myCase.id, assigned_to: vm.assignee.id}).$promise.then(function() {
             $modalInstance.close();
         });
     }
 
-    function cancel () {
+    function cancel() {
         $modalInstance.dismiss('cancel');
     }
 }

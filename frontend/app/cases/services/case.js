@@ -1,8 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail'];
-function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
-
+Case.$inject = ['$http', '$modal', '$resource', '$q', '$state', 'AccountDetail', 'ContactDetail'];
+function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail) {
     var Case = $resource(
         '/api/cases/case/:id',
         {},
@@ -35,6 +34,7 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
     Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+    Case.openPostponeWidget = openPostponeWidget;
 
     return Case;
 
@@ -96,7 +96,7 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     /**
      * Service to return a resource for my cases widget
      */
-    function getMyCasesWidget (field, sorting, filter) {
+    function getMyCasesWidget(field, sorting, filter) {
         var deferred = $q.defer();
         var filterQuery = 'archived:false AND NOT casetype_name:Callback AND assigned_to_id:' + currentUser.id;
 
@@ -153,4 +153,26 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
             sort: _getSorting(field, sorting),
         }).$promise;
     }
+    }
+
+    function openPostponeWidget(myCase, returnInstance) {
+        var modalInstance = $modal.open({
+            templateUrl: 'cases/controllers/postpone.html',
+            controller: 'CasePostponeModal',
+            controllerAs: 'vm',
+            size: 'sm',
+            resolve: {
+                myCase: function() {
+                    return myCase;
+                },
+            },
+        });
+
+        if (!returnInstance) {
+            modalInstance.result.then(function() {
+                $state.go($state.current, {}, {reload: true});
+            });
+        } else {
+            return modalInstance;
+        }
 }

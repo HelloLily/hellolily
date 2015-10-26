@@ -24,6 +24,8 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     var cookie = Cookie('caseList');
     var vm = this;
 
+    vm.openPostponeWidget = Case.openPostponeWidget;
+
     $scope.conf.pageTitleBig = 'Cases';
     $scope.conf.pageTitleSmall = 'do all your lookin\' here';
 

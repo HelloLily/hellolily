@@ -37,7 +37,6 @@ class RelatedPrimaryKeyField(IntegerField):
                 # The id does not exist in the database
                 self.fail('does_not_exist')
 
-
             if not model_cls.objects.filter(pk=value).exists():
                 # The id does not exist in the database
                 self.fail('does_not_exist')

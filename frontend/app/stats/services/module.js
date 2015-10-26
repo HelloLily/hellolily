@@ -1,1 +1,1 @@
-angular.module('app.stats.services', []);
+angular.module('app.stats.services', ['ngResource']);

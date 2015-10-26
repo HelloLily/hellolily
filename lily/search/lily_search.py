@@ -19,7 +19,7 @@ class LilySearch(object):
     Search API for Elastic search backend.
     """
 
-    def __init__(self, tenant_id, model_type=None, sort=None, page=0, size=10):
+    def __init__(self, tenant_id, model_type=None, sort=None, page=0, size=10, facet=None):
         """
         Setup of search.
 
@@ -34,11 +34,15 @@ class LilySearch(object):
         self.search = search_request.all()
 
         # Always filter on Tenant.
+        self.tenant_id = tenant_id
         self.raw_filters = [{
             'term': {
                 'tenant': tenant_id
             }
         }]
+
+        # Set the facet.
+        self.facet = facet
 
         # Filter on model type.
         self.model_type = model_type
@@ -67,8 +71,39 @@ class LilySearch(object):
         if settings.ES_DISABLED:
             return [], 0, 0
         self.search = self.search.filter_raw({'and': self.raw_filters})
+
         if self.model_type:
             self.search = self.search.doctypes(self.model_type)
+
+        if self.facet:
+            facet_raw = {
+                "terms": {
+                    "field": self.facet['field'],
+                    "size": self.facet['size'],
+                },
+            }
+
+            if self.facet['filter']:
+                facet_filter_dict = {
+                    'and': [
+                        {
+                            'term': {
+                                'tenant': self.tenant_id
+                            }
+                        },
+                        {
+                            'query': {
+                                'query_string': {
+                                    'query': self.facet['filter']
+                                }
+                            }
+                        }
+                    ]
+                }
+
+                facet_raw['facet_filter'] = facet_filter_dict
+
+            self.search = self.search.facet_raw(items=facet_raw)
 
         # Fire off search.
         try:
@@ -89,7 +124,11 @@ class LilySearch(object):
                     else:
                         hit[field] = result[field]
                 hits.append(hit)
-            return hits, execute.count, execute.took
+
+            if execute.facets:
+                return hits, execute.facets['items']['terms'], execute.count, execute.took
+
+            return hits, None, execute.count, execute.took
         except RequestError as e:
             # This can happen when the query is malformed. For example:
             # A user entering special characters. This should normally be taken
@@ -98,7 +137,7 @@ class LilySearch(object):
             # This may be hard to get fool proof, therefore we also
             # catch the exception here to prevent server errors.
             logger.error('request error %s' % e)
-            return [], 0, 0
+            return [], None, 0, 0
 
     def query_common_fields(self, query):
         """

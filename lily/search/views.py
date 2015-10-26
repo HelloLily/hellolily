@@ -35,6 +35,16 @@ class SearchView(LoginRequiredMixin, View):
         if size:
             kwargs['size'] = int(size)
 
+        facet_field = request.GET.get('facet_field', '')
+        facet_filter = request.GET.get('facet_filter', '')
+        facet_size = request.GET.get('facet_size', 60)
+        if facet_field:
+            kwargs['facet'] = {
+                'field': facet_field,
+                'filter': facet_filter,
+                'size': facet_size,
+            }
+
         # Passing arguments as **kwargs means we can use the defaults.
         search = LilySearch(
             tenant_id=request.user.tenant_id,
@@ -68,9 +78,14 @@ class SearchView(LoginRequiredMixin, View):
         return_fields = filter(None, request.GET.get('fields', '').split(','))
         if '*' in return_fields:
             return_fields = None
-        hits, total, took = search.do_search(return_fields)
+
+        hits, facets, total, took = search.do_search(return_fields)
 
         results = {'hits': hits, 'total': total, 'took': took}
+
+        if facets:
+            results['facets'] = facets
+
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
 
 

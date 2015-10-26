@@ -101,11 +101,6 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                 vm.account.assigned_to = vm.account.assigned_to.id;
 
                 $scope.conf.pageTitleBig = vm.account.name;
-
-                if (vm.account.assigned_to) {
-                    // .name is used in the template, so set that property
-                    vm.account.assigned_to.name = _getFullName(vm.account.assigned_to);
-                }
             });
         } else {
             $scope.conf.pageTitleBig = 'New account';
@@ -136,7 +131,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
 
     function loadDataproviderData(form) {
         toastr.info('Running around the world to fetch info', 'Here we go');
-        vm.account.getDataproviderInfo(form.primaryWebsite.$modelValue).then(function () {
+        vm.account.getDataproviderInfo(form.primaryWebsite.$modelValue).then(function() {
             toastr.success('Got it!', 'Whoohoo');
         }, function() {
             toastr.error('I couldn\'t find any data', 'Sorry');

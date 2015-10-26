@@ -42,7 +42,7 @@ function FormPhoneNumbersController($rootScope) {
         }
 
         // Check if it's a mobile phone number
-        if (phoneNumber.raw_input.match(/^\+316|^06/)) {
+        if (phoneNumber.raw_input.match(/^\+31([\(0\)]+)?6|^06/)) {
             // Set phone number type to mobile
             phoneNumber.type = 'mobile';
         }

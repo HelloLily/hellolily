@@ -4,14 +4,17 @@ function dashboardWidget() {
     return {
         restrict: 'E',
         scope: {
-            widgetName: '='
+            widgetName: '=',
+            widgetCloseable: '=',
+            widgetClass: '=',
+            widgetScrollable: '=',
         },
         templateUrl: 'dashboard/directives/widget.html',
         controller: DashboardWidgetController,
         controllerAs: 'vm',
         bindToController: true,
-        transclude: true
-    }
+        transclude: true,
+    };
 }
 
 DashboardWidgetController.$inject = ['Cookie', '$scope'];
@@ -21,7 +24,7 @@ function DashboardWidgetController(Cookie, $scope) {
     var widgetStatus = {
         hidden: 0,
         visible: 1,
-        collapsed: 2
+        collapsed: 2,
     };
 
     vm.cookieName = _getWidgetCookieName();
@@ -56,7 +59,7 @@ function DashboardWidgetController(Cookie, $scope) {
         return vm.widgetName.replace(/\s+/g, '').toLowerCase();
     }
 
-    function _watchWidgetVisibility () {
+    function _watchWidgetVisibility() {
         // Check the status of a widget for changes and update the cookie
         $scope.$watch('vm.widgetInfo.status', function() {
             _updateWidgetCookie();
@@ -73,10 +76,9 @@ function DashboardWidgetController(Cookie, $scope) {
     }
 
     function toggleCollapse() {
-        if (vm.widgetInfo.status == 1) {
+        if (vm.widgetInfo.status === 1) {
             vm.widgetInfo.status = widgetStatus.collapsed;
-        }
-        else {
+        } else {
             vm.widgetInfo.status = widgetStatus.visible;
         }
     }

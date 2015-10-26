@@ -8,9 +8,10 @@ var concat = require('gulp-concat');  // merge file stream to one file
 var del = require('del');  // remove files/dirs
 var ifElse = require('gulp-if-else');  // conditional gulp steps
 var gulp = require('gulp');  // base module
+var gutil = require('gulp-util');  // various utils
 var imagemin = require('gulp-imagemin');  // Minify/optimize images
 var livereload = require('gulp-livereload');  // live reload server (needs plugin install in Chrome)
-var notify = require('gulp-notify');  // notify through system messages
+var plumber = require('gulp-plumber');  // for error handling
 var rebaseUrls = require('gulp-css-rebase-urls');  // Make relative paths absolute
 var remember = require('gulp-remember');  // Remember all files after a cached call
 var rename = require('gulp-rename');  // rename current file stream
@@ -125,6 +126,17 @@ var config = {
 var isProduction = (config.env === 'production');
 var isWatcher = false;
 
+var gulpSrc = gulp.src;
+gulp.src = function() {
+    return gulpSrc.apply(gulp, arguments)
+        .pipe(plumber(function(error) {
+            // Output an error message
+            gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
+            // Emit the end event, to properly end the task.
+            this.emit('end');
+        })
+    );
+};
 
 /**
  * Clean build dir.
@@ -160,7 +172,7 @@ gulp.task('app-css', [], function() {
         .pipe(ifElse(!isProduction, function() {
             return sourcemaps.init();
         }))
-        .pipe(sass().on('error', notify.onError('Error: <%= error.message %>')))
+        .pipe(sass())
         .pipe(ifElse(isProduction, function() {
             return rebaseUrls({root: config.cdn.root});
         }))

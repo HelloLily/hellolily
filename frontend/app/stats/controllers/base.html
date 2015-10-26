@@ -62,4 +62,120 @@
             </div>
         </div>
     </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Deals zonder feedback per gebruiker
+            <table class="table table-bordered table-striped no-margin" ng-show="vm.dealsUnsentFeedback.length">
+                <thead>
+                    <tr>
+                        <th>Last name</th>
+                        <th>Nr of deals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in vm.dealsUnsentFeedback">
+                        <td>{{ row.last_name }}</td>
+                        <td>{{ row.nrofdeals }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Deals met hoge prioriteit per gebruiker
+            <table class="table table-bordered table-striped no-margin" ng-show="vm.dealsUrgentFollowUp.length">
+                <thead>
+                    <tr>
+                        <th>Last name</th>
+                        <th>Nr of deals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in vm.dealsUrgentFollowUp">
+                        <td>{{ row.last_name }}</td>
+                        <td>{{ row.nrofdeals }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Deals gewonnen per gebruiker
+            <table class="table table-bordered table-striped no-margin" ng-show="vm.dealsWon.length">
+                <thead>
+                    <tr>
+                        <th>Last name</th>
+                        <th>Nr of deals won</th>
+                        <th>Total amount deals won</th>
+                        <th>Avg per deal won</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in vm.dealsWon">
+                        <td>{{ row.last_name }}</td>
+                        <td>{{ row.nrofdealswon }}</td>
+                        <td>{{ row.totalamountdealswon }}</td>
+                        <td>{{ row.avgperdealwon }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row margin-top-10">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Deals verloren per gebruiker
+            <table class="table table-bordered table-striped no-margin" ng-show="vm.dealsLost.length">
+                <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>Nr of deals lost</th>
+                    <th>Total amount deals lost</th>
+                    <th>Avg per deal lost</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in vm.dealsLost">
+                    <td>{{ row.last_name }}</td>
+                    <td>{{ row.nrofnotwondeals }}</td>
+                    <td>{{ row.totalamountnotwondeals }}</td>
+                    <td>{{ row.avgpernotwondeal }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="dashboard-stat2">
+            Deals gewonnen per gebruiker (terugkerend)
+            <table class="table table-bordered table-striped no-margin" ng-show="vm.dealsAmountRecurring.length">
+                <thead>
+                <tr>
+                    <th>Last name</th>
+                    <th>Nr of deals won</th>
+                    <th>Total amount deals won</th>
+                    <th>Avg per deal won</th>
+                    <th>New business</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in vm.dealsAmountRecurring">
+                    <td>{{ row.last_name }}</td>
+                    <td>{{ row.nrofwondeals }}</td>
+                    <td>{{ row.totalamountwondeals }}</td>
+                    <td>{{ row.avgperwondeal }}</td>
+                    <td>{{ row.new_business }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

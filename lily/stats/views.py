@@ -166,7 +166,7 @@ class CasesTopTags(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-              count(tags_tag.name), tags_tag.name
+                count(tags_tag.name), tags_tag.name
             FROM
                 cases_case,
                 cases_casestatus,
@@ -197,4 +197,133 @@ class CasesTopTags(RawDatabaseView):
           '''.format(
             tenant_id=request.user.tenant_id,
             lilygroup_id=int(kwargs['lilygroup_id']),
+        )
+
+
+class DealsUnsentFeedbackForms(RawDatabaseView):
+    def get_query(self, request, *args, **kwargs):
+        return '''
+            SELECT
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfDeals
+            FROM
+                deals_deal,
+                users_lilyuser
+            WHERE
+                deals_deal.assigned_to_id = users_lilyuser.id AND
+                deals_deal.stage = 2 AND
+                deals_deal.new_business = true AND
+                deals_deal.closed_date BETWEEN (now() - interval '120 day') and (now() - interval '30 day') AND
+                deals_deal.feedback_form_sent = false AND
+                /* deals_deal.card_sent = true AND */
+                deals_deal.tenant_id = {tenant_id} AND
+                deals_deal.is_deleted = false
+            GROUP BY
+                users_lilyuser.last_name;
+        '''.format(
+            tenant_id=request.user.tenant_id
+        )
+
+
+class DealsUrgentFollowUp(RawDatabaseView):
+    def get_query(self, request, *args, **kwargs):
+        return '''
+            SELECT
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfDeals
+            FROM
+                public.users_lilyuser,
+                public.deals_deal
+            WHERE
+                deals_deal.assigned_to_id = users_lilyuser.id AND
+                deals_deal.created < now() - interval '7 days'  AND
+                deals_deal.created > now() - interval '60 days'  AND
+                deals_deal.tenant_id = {tenant_id} AND
+                deals_deal.is_deleted = false AND
+                (deals_deal.stage = 0 or deals_deal.stage = 1)
+            GROUP BY
+               users_lilyuser.first_name, users_lilyuser.last_name
+            ORDER BY
+               users_lilyuser.last_name;
+        '''.format(
+            tenant_id=request.user.tenant_id
+        )
+
+
+class DealsWon(RawDatabaseView):
+    def get_query(self, request, *args, **kwargs):
+        return '''
+            SELECT
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfDealsWon,
+                sum(deals_deal.amount_recurring) as TotalAmountDealsWon,
+                ROUND(sum(deals_deal.amount_recurring)/count(deals_deal.id),2) as AvgPerDealWon
+            FROM
+                public.users_lilyuser,
+                public.deals_deal
+            WHERE
+                deals_deal.assigned_to_id = users_lilyuser.id AND
+                deals_deal.closed_date BETWEEN now() - interval '1 month' AND date_trunc('month', now()) - interval '1 second' AND
+                deals_deal.tenant_id = {tenant_id} AND
+                deals_deal.is_deleted = false AND
+                deals_deal.new_business = true
+            GROUP BY
+                users_lilyuser.last_name
+            ORDER BY
+                users_lilyuser.last_name;
+        '''.format(
+            tenant_id=request.user.tenant_id
+        )
+
+
+class DealsLost(RawDatabaseView):
+    def get_query(self, request, *args, **kwargs):
+        return '''
+            SELECT
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfNotWonDeals,
+                sum(deals_deal.amount_recurring) as TotalAmountNotWonDeals,
+                ROUND(sum(deals_deal.amount_recurring)/count(deals_deal.id),2) as AvgPerNotWonDeal
+            FROM
+                public.users_lilyuser,
+                public.deals_deal
+            WHERE
+                deals_deal.assigned_to_id = users_lilyuser.id AND
+                deals_deal.created BETWEEN now() - interval '1 month' AND  date_trunc('month', now())  - interval '1 second' AND
+                deals_deal.tenant_id = {tenant_id} AND
+                deals_deal.stage != 2 AND
+                deals_deal.is_deleted = false AND
+                deals_deal.new_business = true
+            GROUP BY
+                users_lilyuser.last_name,deals_deal.new_business
+            ORDER BY
+                users_lilyuser.last_name;
+        '''.format(
+            tenant_id=request.user.tenant_id
+        )
+
+
+class DealsAmountRecurring(RawDatabaseView):
+    def get_query(self, request, *args, **kwargs):
+        return '''
+            SELECT
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfWonDeals,
+                sum(deals_deal.amount_recurring) as TotalAmountWonDeals,
+                ROUND(sum(deals_deal.amount_recurring)/count(deals_deal.id),2) as AvgPerWonDeal,
+                deals_deal.new_business
+            FROM
+                public.users_lilyuser,
+                public.deals_deal
+            WHERE
+                deals_deal.assigned_to_id = users_lilyuser.id AND
+                deals_deal.closed_date BETWEEN now() - interval '1 month' AND  date_trunc('month', now())  - interval '1 second' AND
+                deals_deal.is_deleted = false AND
+                deals_deal.tenant_id = {tenant_id}
+            GROUP BY
+                users_lilyuser.last_name,deals_deal.new_business
+            ORDER BY
+                users_lilyuser.last_name,deals_deal.new_business;
+        '''.format(
+            tenant_id=request.user.tenant_id
         )

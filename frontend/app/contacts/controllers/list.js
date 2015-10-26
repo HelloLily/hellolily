@@ -7,12 +7,12 @@ function contactsConfig ($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'contacts/controllers/list.html',
-                controller: ContactListController
-            }
+                controller: ContactListController,
+            },
         },
         ncyBreadcrumb: {
-            label: 'Contacts'
-        }
+            label: 'Contacts',
+        },
     });
 }
 
@@ -33,9 +33,9 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
         filter: cookie.get('filter', ''),  // search filter
-        order:  cookie.get('order', {
+        order: cookie.get('order', {
             ascending: true,
-            column:  'modified'  // string: current sorted column
+            column: 'modified',  // string: current sorted column
         }),
         visibility: cookie.get('visibility', {
             name: true,
@@ -43,19 +43,19 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
             worksAt: true,
             created: true,
             modified: true,
-            tags: true
+            tags: true,
         })};
 
     $scope.deleteContact = function(contact) {
         if (confirm('Are you sure?')) {
             ContactTest.delete({
-                id:contact.id
+                id: contact.id,
             }, function() {  // On success
                 var index = $scope.table.items.indexOf(contact);
                 $scope.table.items.splice(index, 1);
-            }, function(error) {  // On error
-                alert('something went wrong.')
-            })
+            }, function() {  // On error
+                alert('something went wrong.');
+            });
         }
     };
 
@@ -74,13 +74,20 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
      * Updates table.items and table.totalItems
      */
     function updateContacts() {
-        Contact.query(
-            $scope.table
-        ).then(function(data) {
-                $scope.table.items = data.contacts;
-                $scope.table.totalItems = data.total;
-            }
-        );
+        var sort = $scope.table.order.column;
+        if ($scope.table.order.ascending) {
+            sort = '-'.concat(sort);
+        }
+
+        Contact.search({
+            q: $scope.table.filter,
+            page: $scope.table.page - 1,
+            size: $scope.table.pageSize,
+            sort: sort,
+        }, function(data) {  // On success
+            $scope.table.items = data.contacts;
+            $scope.table.totalItems = data.total;
+        });
     }
 
     /**
@@ -91,7 +98,7 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
         'table.page',
         'table.order.column',
         'table.order.ascending',
-        'table.filter'
+        'table.filter',
     ], function() {
         updateTableSettings();
         updateContacts();

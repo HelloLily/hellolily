@@ -1,16 +1,16 @@
 angular.module('app.dashboard.directives').directive('myCases', myCasesDirective);
 
-function myCasesDirective () {
+function myCasesDirective() {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/mycases.html',
         controller: MyCasesController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
-MyCasesController.$inject = ['$modal', '$scope', 'Case', 'Cookie'];
-function MyCasesController ($modal, $scope, Case, Cookie) {
+MyCasesController.$inject = ['$scope', 'Case', 'Cookie'];
+function MyCasesController($scope, Case, Cookie) {
     var cookie = Cookie('myCasesWidget');
 
     var vm = this;
@@ -18,10 +18,10 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
-            column: 'expires'  // string: current sorted column
+            column: 'expires', // string: current sorted column
         }),
         items: [],
-        expiresFilter: cookie.get('expiresFilter', '')
+        expiresFilter: cookie.get('expiresFilter', ''),
     };
 
     vm.openPostponeWidget = openPostponeWidget;
@@ -39,11 +39,11 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
             vm.table.order.column,
             vm.table.order.ascending,
             vm.table.expiresFilter
-        ).then(function (data) {
+        ).then(function(data) {
             vm.table.items = data;
             vm.highPrioCases = 0;
             for (var i in data) {
-                if (data[i].priority == 3) {
+                if (data[i].priority === 3) {
                     vm.highPrioCases++;
                 }
             }
@@ -51,17 +51,7 @@ function MyCasesController ($modal, $scope, Case, Cookie) {
     }
 
     function openPostponeWidget(myCase) {
-        var modalInstance = $modal.open({
-            templateUrl: 'cases/controllers/postpone.html',
-            controller: 'CasePostponeModal',
-            controllerAs: 'vm',
-            size: 'sm',
-            resolve: {
-                myCase: function() {
-                    return myCase
-                }
-            }
-        });
+        var modalInstance = Case.openPostponeWidget(myCase, true);
 
         modalInstance.result.then(function() {
             _getMyCases();

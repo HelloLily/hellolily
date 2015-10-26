@@ -19,10 +19,13 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters'];
-function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters) {
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters',
+    'UserTeams', '$q'];
+function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters, UserTeams, $q) {
     var cookie = Cookie('caseList');
     var vm = this;
+
+    vm.openPostponeWidget = Case.openPostponeWidget;
 
     $scope.conf.pageTitleBig = 'Cases';
     $scope.conf.pageTitleSmall = 'do all your lookin\' here';
@@ -100,71 +103,95 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     }
 
     /**
-     * Gets the filter list. Is either the value in the cookie or a new list
+     * Gets the filter list. Uses a cookie to merge selections.
      *
      * @returns filterList (object): object containing the filter list
      */
     function _getFilterList() {
-        var filterListCookie = cookie.get('filterList', null);
+        var filterListCookie = cookie.get('filterListSelected', null);
+        var filterList;
+        var teamsCall;
+        var casesCall;
 
+
+        // Use the value from cookie first.
+        // (Because it is faster; loading the list uses AJAX requests).
         if (filterListCookie) {
-            // Cookie is set, so use it as the filterList
             vm.filterList = filterListCookie;
-        } else {
-            var filterList = [
-                {
-                    name: 'Assigned to me',
-                    value: 'assigned_to_id:' + $scope.currentUser.id,
-                    selected: false,
-                },
-                {
-                    name: 'Assigned to nobody',
-                    value: 'NOT(assigned_to_id:*)',
-                    selected: false,
-                },
-                {
-                    name: 'Expired today',
-                    value: 'expires: ' + moment().subtract(1, 'd').format('YYYY-MM-DD'),
-                    selected: false,
-                },
-                {
-                    name: 'Expired 7 days or more ago',
-                    value: 'expires:[* TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
-                    selected: false,
-                },
-                {
-                    name: 'Expired 30 days or more ago',
-                    value: 'expires:[* TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
-                    selected: false,
-                },
-                {
-                    name: 'Archived',
-                    value: '',
-                    selected: false,
-                    id: 'archived',
-                },
-            ];
-
-            // Update filterList for now
-            vm.filterList = filterList;
-
-            Case.getCaseTypes().then(function(cases) {
-                for (var key in cases) {
-                    if (cases.hasOwnProperty(key)) {
-                        filterList.push({
-                            name: 'Case type ' + cases[key],
-                            value: 'casetype_id:' + key,
-                            selected: false,
-                        });
-                    }
-                }
-
-                // Update filterList once AJAX call is done
-                vm.filterList = filterList;
-                // Watch doesn't get triggered here, so manually call _updateTableSettings
-                _updateTableSettings();
-            });
         }
+
+        // But we still update the list afterwards (in case a filter was changed)
+        filterList = [
+            {
+                name: 'Assigned to me',
+                value: 'assigned_to_id:' + $scope.currentUser.id,
+                selected: false,
+            },
+            {
+                name: 'Assigned to nobody',
+                value: 'NOT(assigned_to_id:*)',
+                selected: false,
+            },
+            {
+                name: 'Archived',
+                value: '',
+                selected: false,
+                id: 'archived',
+            },
+        ];
+
+        teamsCall = UserTeams.mine().$promise.then(function(teams) {
+            var myTeamIds = [];
+            var filters = [];
+            teams.forEach(function(team) {
+                myTeamIds.push(team.id);
+            });
+
+            filters.push({
+                name: 'My teams cases',
+                value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
+                selected: false,
+            });
+
+            return filters;
+        });
+
+        casesCall = Case.getCaseTypes().then(function(cases) {
+            var filters = [];
+            angular.forEach(cases, function(caseName, caseId) {
+                filters.push({
+                    name: 'Case type ' + caseName,
+                    value: 'casetype_id:' + caseId,
+                    selected: false,
+                });
+            });
+            return filters;
+        });
+
+        // Wait for all promises.
+        $q.all([teamsCall, casesCall]).then(function(subFilterLists) {
+            subFilterLists.forEach(function(subFilterList) {
+                subFilterList.forEach(function(filter) {
+                    filterList.push(filter);
+                });
+            });
+
+            if (filterListCookie) {
+                // Cookie is set, merge the selections from this cookie.
+                angular.forEach(filterListCookie, function(caseInCookie) {
+                    angular.forEach(filterList, function(caseInList) {
+                        if (caseInCookie.name === caseInList.name) {
+                            caseInList.selected = caseInCookie.selected;
+                        }
+                    });
+                });
+            }
+
+            // Update filterList once AJAX calls are done.
+            vm.filterList = filterList;
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
+            _updateTableSettings();
+        });
     }
 
     /**
@@ -175,7 +202,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         cookie.put('archived', vm.table.archived);
         cookie.put('order', vm.table.order);
         cookie.put('visibility', vm.table.visibility);
-        cookie.put('filterList', vm.filterList);
+        cookie.put('filterListSelected', vm.filterList);
     }
 
     /**

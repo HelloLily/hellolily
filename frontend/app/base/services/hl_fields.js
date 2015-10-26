@@ -1,6 +1,6 @@
 angular.module('app.services').service('HLFields', HLFields);
 
-function HLFields () {
+function HLFields() {
     /**
      * cleanRelatedFields() cleans the related fields of the given objects
      * For now it only removes fields that have the is_deleted flag set to true
@@ -9,17 +9,18 @@ function HLFields () {
      *
      * @returns (object): returns the object with the related fields cleaned
      */
-    this.cleanRelatedFields = function (object) {
+    this.cleanRelatedFields = function(object) {
         var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
 
-        angular.forEach(object, function (fieldValues, field) {
+        angular.forEach(object, function(fieldValues, field) {
             var cleanedValues = [];
 
             // We only want to clean the related fields, so check if the field is a related field
             if (relatedFields.indexOf(field) > -1) {
                 // Loop through each array element
-                angular.forEach(fieldValues, function (fieldValue) {
-                    if (!fieldValue.hasOwnProperty('is_deleted')) {
+                angular.forEach(fieldValues, function(fieldValue) {
+                    if (object.content_type.model === 'account' ||
+                        (object.content_type.model === 'contact' && !fieldValue.hasOwnProperty('is_deleted'))) {
                         if (fieldValue.email_address) {
                             cleanedValues.push(fieldValue);
                         }
@@ -42,20 +43,19 @@ function HLFields () {
 
                 object[field] = cleanedValues;
             }
-
         });
 
         return object;
     };
 
-    this.addRelatedField = function (object, field) {
+    this.addRelatedField = function(object, field) {
         switch (field) {
             case 'emailAddress':
                 // Default status is 'Other'
                 var status = 1;
                 var isPrimary = false;
 
-                if (object.email_addresses.length == 0) {
+                if (object.email_addresses.length === 0) {
                     // No email addresses added yet, so first one is primary
                     status = 2;
                     isPrimary = true;
@@ -77,7 +77,7 @@ function HLFields () {
         }
     };
 
-    this.removeRelatedField = function (object, field, index, remove) {
+    this.removeRelatedField = function(object, field, index, remove) {
         switch (field) {
             case 'emailAddress':
                 object.email_addresses[index].is_deleted = remove;
@@ -90,7 +90,7 @@ function HLFields () {
                 break;
             case 'website':
                 index = object.websites.indexOf(index);
-                if (index != -1) {
+                if (index !== -1) {
                     object.websites[index].is_deleted = remove;
                 }
                 break;

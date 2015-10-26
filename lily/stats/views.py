@@ -204,8 +204,8 @@ class DealsUnsentFeedbackForms(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-                count(deals_deal.id),
-                users_lilyuser.last_name
+                users_lilyuser.last_name,
+                count(deals_deal.id) as NrOfDeals
             FROM
                 deals_deal,
                 users_lilyuser

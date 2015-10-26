@@ -1,26 +1,26 @@
 angular.module('app.stats').config(statsConfig);
 
 statsConfig.$inject = ['$stateProvider'];
-function statsConfig ($stateProvider) {
+function statsConfig($stateProvider) {
     $stateProvider.state('base.stats', {
         url: '/stats',
         views: {
             '@': {
                 templateUrl: 'stats/controllers/base.html',
                 controller: StatsBaseController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'test'
-        }
+            label: 'test',
+        },
     });
 }
 
 angular.module('app.stats').controller('StatsBaseController', StatsBaseController);
 
-StatsBaseController.$inject = ['$scope', 'Case'];
-function StatsBaseController ($scope, Case) {
+StatsBaseController.$inject = ['$scope', 'Stats'];
+function StatsBaseController($scope, Stats) {
     var vm = this;
     vm.totalCasesLastWeek = 0;
     vm.perTypeCountCases = {};
@@ -35,44 +35,114 @@ function StatsBaseController ($scope, Case) {
 
     ////
 
-    function activate () {
+    function activate() {
         _getTotalCountCases();
         _getPerTypeCountCases();
         _getCountWithTagsLastWeekCases();
-        _getCountperTypeCases();
+        _getCountPerTypeCases();
         _getTopTagsCases();
+
+        _getDealsUnsentFeedback();
+        _getDealsUrgentFollowUp();
+        _getDealsWon();
+        _getDealsLost();
+        _getDealsAmountRecurring();
     }
 
-    function _getTotalCountCases () {
-        Case.getTotalCountLastWeek(1).then(function(data) {
+    function _getTotalCountCases() {
+        Stats.query({
+            'appname': 'cases',
+            'endpoint': 'total',
+            'groupid': 1,
+        }, function(data) {
             vm.totalCasesLastWeek = data[0].count;
             vm.countWithoutTagsCases = vm.totalCasesLastWeek - vm.countWithTagsCases;
         });
     }
 
-    function _getPerTypeCountCases () {
-        Case.getPerTypeCountLastWeek(1).then(function(data) {
+    function _getPerTypeCountCases() {
+        Stats.query({
+            'appname': 'cases',
+            'endpoint': 'grouped',
+            'groupid': 1,
+        }, function(data) {
             vm.perTypeCountCases = data;
         });
     }
 
-    function _getCountWithTagsLastWeekCases () {
-        Case.getCountWithTagsLastWeek(1).then(function(data) {
+    function _getCountWithTagsLastWeekCases() {
+        Stats.query({
+            'appname': 'cases',
+            'endpoint': 'withtags',
+            'groupid': 1,
+        }, function(data) {
             vm.countWithTagsCases = data[0].count;
             vm.countWithoutTagsCases = vm.totalCasesLastWeek - vm.countWithTagsCases;
         });
     }
 
-    function _getCountperTypeCases () {
-        Case.getCountPerStatus(1).then(function(data) {
+    function _getCountPerTypeCases() {
+        Stats.query({
+            'appname': 'cases',
+            'endpoint': 'countperstatus',
+            groupid: 1,
+        }, function(data) {
             vm.countPerStatus = data;
         });
     }
 
-    function _getTopTagsCases () {
-        Case.getTopTags(1).then(function(data) {
-            vm.topTagsCases = data;
+    function _getTopTagsCases() {
+        Stats.query({
+            'appname': 'cases',
+            'endpoint': 'toptags',
+            'groupid': 1,
+        }, function(data) {
+            vm.topTagCases = data;
         });
     }
 
+    function _getDealsUnsentFeedback() {
+        Stats.query({
+            'appname': 'deals',
+            'endpoint': 'unsentfeedback',
+        }, function(data) {
+            vm.dealsUnsentFeedback = data;
+        });
+    }
+
+    function _getDealsUrgentFollowUp() {
+        Stats.query({
+            'appname': 'deals',
+            'endpoint': 'urgentfollowup',
+        }, function(data) {
+            vm.dealsUrgentFollowUp = data;
+        });
+    }
+
+    function _getDealsWon() {
+        Stats.query({
+            'appname': 'deals',
+            'endpoint': 'won',
+        }, function(data) {
+            vm.dealsWon = data;
+        });
+    }
+
+    function _getDealsLost() {
+        Stats.query({
+            'appname': 'deals',
+            'endpoint': 'lost',
+        }, function(data) {
+            vm.dealsLost = data;
+        });
+    }
+
+    function _getDealsAmountRecurring() {
+        Stats.query({
+            'appname': 'deals',
+            'endpoint': 'amountrecurring',
+        }, function(data) {
+            vm.dealsAmountRecurring = data;
+        });
+    }
 }

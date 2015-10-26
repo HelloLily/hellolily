@@ -11,7 +11,7 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
                 url: '/search/search/?type=cases_case&filterquery=:filterquery',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    var data = angular.fromJson(data);
                     var objects = [];
                     if (data && data.hits && data.hits.length > 0) {
                         data.hits.forEach(function(obj) {
@@ -19,14 +19,14 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
                         });
                     }
                     return objects;
-                }
+                },
             },
             update: {
                 method: 'PATCH',
                 params: {
-                    id: '@id'
-                }
-            }
+                    id: '@id',
+                },
+            },
         }
     );
 
@@ -35,11 +35,6 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
     Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
-    Case.getTotalCountLastWeek = getTotalCountLastWeek;
-    Case.getPerTypeCountLastWeek = getPerTypeCountLastWeek;
-    Case.getCountWithTagsLastWeek = getCountWithTagsLastWeek;
-    Case.getCountPerStatus = getCountPerStatus;
-    Case.getTopTags = getTopTags;
 
     return Case;
 
@@ -62,7 +57,7 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
      *          total int: total number of case objects
      *      }
      */
-    function getCases (queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
+    function getCases(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
         return $http({
             url: '/search/search/',
             method: 'GET',
@@ -72,28 +67,28 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
                 page: page - 1,
                 size: pageSize,
                 sort: _getSorting(orderColumn, orderedAsc),
-                filterquery: filterQuery
-            }
+                filterquery: filterQuery,
+            },
         }).then(function(response) {
             return {
                 cases: response.data.hits,
-                total: response.data.total
+                total: response.data.total,
             };
         });
     }
 
-    function getCaseTypes () {
+    function getCaseTypes() {
         return $http({
             url: '/cases/casetypes/',
-            method: 'GET'
-        }).then(function (response) {
+            method: 'GET',
+        }).then(function(response) {
             return response.data.casetypes;
         });
     }
 
-    function _getSorting (field, sorting) {
+    function _getSorting(field, sorting) {
         var sort = '';
-        sort += sorting ? '-': '';
+        sort += sorting ? '-' : '';
         sort += field;
         return sort;
     }
@@ -112,8 +107,8 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
         Case.query({
             filterquery: filterQuery,
             sort: _getSorting(field, sorting),
-            size: 25
-        }, function (cases) {
+            size: 25,
+        }, function(cases) {
             deferred.resolve(cases);
         });
 
@@ -125,14 +120,14 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
      *
      * @returns cases with the callback case type
      */
-    function getCallbackRequests (field, sorting) {
+    function getCallbackRequests(field, sorting) {
         var filterQuery = 'archived:false AND casetype_name:Callback AND assigned_to_id:' + currentUser.id;
         var deferred = $q.defer();
 
         Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
-        }, function (cases) {
+            sort: _getSorting(field, sorting),
+        }, function(cases) {
             angular.forEach(cases, function(callbackCase) {
                 if (callbackCase.account) {
                     AccountDetail.get({id: callbackCase.account}, function(account) {
@@ -150,62 +145,12 @@ function Case ($http, $resource, $q, AccountDetail, ContactDetail) {
         return deferred.promise;
     }
 
-    function getUnassignedCasesForTeam (teamId, field, sorting) {
+    function getUnassignedCasesForTeam(teamId, field, sorting) {
         var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
 
         return Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting)
+            sort: _getSorting(field, sorting),
         }).$promise;
-    }
-
-    function getTotalCountLastWeek (lilyGroupId) {
-
-        return $http({
-            url: '/stats/cases/total/'+ lilyGroupId + '/',
-            method: 'GET'
-        }).then(function(response) {
-            return response.data;
-        });
-    }
-
-    function getPerTypeCountLastWeek (lilyGroupId) {
-
-        return $http({
-            url: '/stats/cases/grouped/'+ lilyGroupId + '/',
-            method: 'GET'
-        }).then(function(response) {
-            return response.data;
-        });
-    }
-
-    function getCountWithTagsLastWeek (lilyGroupId) {
-
-        return $http({
-            url: '/stats/cases/withtags/'+ lilyGroupId + '/',
-            method: 'GET'
-        }).then(function(response) {
-            return response.data;
-        });
-    }
-
-    function getCountPerStatus (lilyGroupId) {
-
-        return $http({
-            url: '/stats/cases/countperstatus/'+ lilyGroupId + '/',
-            method: 'GET'
-        }).then(function(response) {
-            return response.data;
-        });
-    }
-
-    function getTopTags (lilyGroupId) {
-
-        return $http({
-            url: '/stats/cases/toptags/'+ lilyGroupId + '/',
-            method: 'GET'
-        }).then(function(response) {
-            return response.data;
-        });
     }
 }

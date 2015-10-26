@@ -19,8 +19,7 @@ function HLFields() {
             if (relatedFields.indexOf(field) > -1) {
                 // Loop through each array element
                 angular.forEach(fieldValues, function(fieldValue) {
-                    if (object.content_type.model === 'account' ||
-                        (object.content_type.model === 'contact' && !fieldValue.hasOwnProperty('is_deleted'))) {
+                    if (!fieldValue.hasOwnProperty('is_deleted')) {
                         if (fieldValue.email_address) {
                             cleanedValues.push(fieldValue);
                         }

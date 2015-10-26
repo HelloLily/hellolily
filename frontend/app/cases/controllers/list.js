@@ -19,8 +19,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters'];
-function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters) {
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters',
+    'UserTeams', '$q'];
+function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters, UserTeams, $q) {
     var cookie = Cookie('caseList');
     var vm = this;
 
@@ -109,9 +110,12 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     function _getFilterList() {
         var filterListCookie = cookie.get('filterListSelected', null);
         var filterList;
+        var teamsCall;
+        var casesCall;
+
 
         // Use the value from cookie first.
-        // (Because it is faster; loading the case types list uses a AJAX request).
+        // (Because it is faster; loading the list uses AJAX requests).
         if (filterListCookie) {
             vm.filterList = filterListCookie;
         }
@@ -136,14 +140,40 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
             },
         ];
 
-        Case.getCaseTypes().then(function(cases) {
+        teamsCall = UserTeams.mine().$promise.then(function(teams) {
+            var myTeamIds = [];
+            var filters = [];
+            teams.forEach(function(team) {
+                myTeamIds.push(team.id);
+            });
+
+            filters.push({
+                name: 'My teams cases',
+                value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
+                selected: false,
+            });
+
+            return filters;
+        });
+
+        casesCall = Case.getCaseTypes().then(function(cases) {
+            var filters = [];
             angular.forEach(cases, function(caseName, caseId) {
-                var filter = {
+                filters.push({
                     name: 'Case type ' + caseName,
                     value: 'casetype_id:' + caseId,
                     selected: false,
-                };
-                filterList.push(filter);
+                });
+            });
+            return filters;
+        });
+
+        // Wait for all promises.
+        $q.all([teamsCall, casesCall]).then(function(subFilterLists) {
+            subFilterLists.forEach(function(subFilterList) {
+                subFilterList.forEach(function(filter) {
+                    filterList.push(filter);
+                });
             });
 
             if (filterListCookie) {
@@ -157,9 +187,9 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                 });
             }
 
-            // Update filterList once AJAX call is done
+            // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
-            // Watch doesn't get triggered here, so manually call _updateTableSettings
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
             _updateTableSettings();
         });
     }

@@ -153,7 +153,6 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
             sort: _getSorting(field, sorting),
         }).$promise;
     }
-    }
 
     function openPostponeWidget(myCase, returnInstance) {
         var modalInstance = $modal.open({
@@ -175,4 +174,5 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
         } else {
             return modalInstance;
         }
+    }
 }

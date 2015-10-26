@@ -216,7 +216,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         )
 
         search.filter_query('thread_id:%s' % email.thread_id)
-        history, total, took = search.do_search([
+        history, facets, total, took = search.do_search([
             'message_id',
             'received_by_email',
             'received_by_cc_email',

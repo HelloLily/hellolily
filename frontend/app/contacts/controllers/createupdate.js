@@ -52,8 +52,8 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'HLFields', 'HLForms'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Account, Contact, HLFields, HLForms) {
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'Tag', 'HLFields', 'HLForms'];
+function ContactCreateUpdateController($scope, $state, $stateParams, Account, Contact, Tag, HLFields, HLForms) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
@@ -61,12 +61,15 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
         name: [],
     };
     vm.accounts = [];
+    vm.tag_choices = [];
 
     vm.saveContact = saveContact;
     vm.cancelContactCreation = cancelContactCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.refreshAccounts = refreshAccounts;
+    vm.refreshTags = refreshTags;
+    vm.addTagChoice = addTagChoice;
 
     activate();
 
@@ -84,15 +87,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             $scope.conf.pageTitleBig = 'Edit contact';
             Contact.get({id: $stateParams.id}).$promise.then(function(contact) {
                 vm.contact = contact;
-
-                if (vm.contact.hasOwnProperty('tags') && vm.contact.tags.length) {
-                    var tags = [];
-                    angular.forEach(vm.contact.tags, function(tag) {
-                        tags.push(tag.name);
-                    });
-
-                    vm.contact.tags = tags;
-                }
 
                 if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
                     angular.forEach(vm.contact.social_media, function(profile) {
@@ -160,18 +154,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
 
     function saveContact(form) {
         HLForms.blockUI();
-
-        if (vm.contact.tags && vm.contact.tags.length) {
-            var tags = [];
-
-            angular.forEach(vm.contact.tags, function(tag) {
-                if (tag) {
-                    tags.push({name: (tag.name) ? tag.name : tag});
-                }
-            });
-
-            vm.contact.tags = tags;
-        }
 
         if (vm.contact.accounts && vm.contact.accounts.length) {
             var accounts = [];
@@ -245,6 +227,27 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
 
             vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60, sort: '-modified'});
         }
+    }
+
+    function refreshTags(query) {
+        if (query.length >= 1) {
+            var exclude = '';
+
+            // Exclude accounts already selected
+            angular.forEach(vm.contact.tags, function(tag) {
+                exclude += ' AND NOT name_flat:' + tag.name;
+            });
+
+            Tag.search({query: query + exclude}, function(response) {
+                vm.tag_choices = response;
+            });
+        }
+    }
+
+    function addTagChoice(tag) {
+        return {
+            'name': tag,
+        };
     }
 
     function _handleBadResponse(response, form) {

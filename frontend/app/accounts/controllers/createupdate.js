@@ -198,7 +198,7 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             }
         });
 
-        vm.account = HLFields.cleanRelatedFields(vm.account);
+        vm.account = HLFields.cleanRelatedFields(vm.account, 'account');
 
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it

@@ -6,10 +6,11 @@ function HLFields() {
      * For now it only removes fields that have the is_deleted flag set to true
      *
      * @param object (object): the object to clean
+     * @param model (string): contains the type of model
      *
      * @returns (object): returns the object with the related fields cleaned
      */
-    this.cleanRelatedFields = function(object) {
+    this.cleanRelatedFields = function(object, model) {
         var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
 
         angular.forEach(object, function(fieldValues, field) {
@@ -19,7 +20,7 @@ function HLFields() {
             if (relatedFields.indexOf(field) > -1) {
                 // Loop through each array element
                 angular.forEach(fieldValues, function(fieldValue) {
-                    if (!fieldValue.hasOwnProperty('is_deleted')) {
+                    if (model === 'account' || (model === 'contact' && !fieldValue.hasOwnProperty('is_deleted'))) {
                         if (fieldValue.email_address) {
                             cleanedValues.push(fieldValue);
                         }
@@ -96,5 +97,5 @@ function HLFields() {
             default:
                 break;
         }
-    }
+    };
 }

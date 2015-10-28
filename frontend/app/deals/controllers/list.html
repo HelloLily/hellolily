@@ -121,7 +121,7 @@
         <div class="col-md-7">
             Showing {{ (table.page - 1) * table.pageSize }} to {{ table.page * table.pageSize }} of {{ table.totalItems | number }} records
         </div>
-        <div class="col-md-5">
+        <div class="col-md-5" ng-if="table.totalItems > table.pageSize">
             <pagination total-items="table.totalItems" ng-model="table.page" items-per-page="table.pageSize" max-size="5"></pagination>
         </div>
     </div>

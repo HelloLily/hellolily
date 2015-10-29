@@ -9,8 +9,8 @@ function AccountDetailWidget() {
         replace: true,
         scope: {
             account: '=',
-            height: '='
+            height: '=',
         },
-        templateUrl: 'accounts/directives/detail_widget.html'
-    }
+        templateUrl: 'accounts/directives/detail_widget.html',
+    };
 }

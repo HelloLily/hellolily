@@ -24,7 +24,6 @@
                     <div class="btn-group">
                         <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
                         <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
-                        <a class="btn default" ng-click="vm.openPostponeWidget()">Test</a>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -57,11 +56,25 @@
                             {{ phonenumber.raw_input }} ({{phonenumber.type}})
                         </div>
                     </li>
+                    <li ng-if="vm.account.addresses.length">
+                        <strong>Addresses: </strong>
+                        <div ng-repeat="address in vm.account.addresses">
+                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                            <br />
+                            {{ address.postal_code }}, {{ address.city }}
+                            <br />
+                            {{ address.country_display }}
+                        </div>
+                    </li>
                     <li ng-if="vm.account.websites.length">
                         <strong>Websites: </strong>
                         <div ng-repeat="website in vm.account.websites">
                             <a target="_blank" href="https://{{website.website}}">{{ website.website }}</a>
                         </div>
+                    </li>
+                    <li ng-if="vm.case.parcel_identifier">
+                        <strong>Shipment:</strong>
+                        <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
                     </li>
                 </ul>
 

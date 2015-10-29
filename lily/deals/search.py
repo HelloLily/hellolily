@@ -62,6 +62,9 @@ class DealMapping(BaseMapping):
             'closing_date': {
                 'type': 'date',
             },
+            'closed_date': {
+                'type': 'date',
+            },
             'is_checked': {
                 'type': 'boolean',
             },
@@ -138,6 +141,7 @@ class DealMapping(BaseMapping):
             'created': obj.created,
             'modified': obj.modified,
             'closing_date': obj.expected_closing_date,
+            'closed_date': obj.closed_date,
             'is_checked': obj.is_checked,
             'archived': obj.is_archived,
             'feedback_form_sent': obj.feedback_form_sent,

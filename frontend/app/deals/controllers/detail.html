@@ -6,12 +6,37 @@
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <label>Account:</label> <a ui-sref="base.accounts.detail({ id: vm.deal.account })"> {{ ::vm.deal.account_name }}</a><br/>
-                        <label>Deal name:</label> {{ ::vm.deal.name }}<br/>
-                        <span ng-if="vm.deal.found_through_name"><label>Found us through:</label> {{ ::vm.deal.found_through_name }}<br/></span>
-                        <span ng-if="vm.deal.contacted_by_name"><label>Contacted us by:</label> {{ ::vm.deal.contacted_by_name }}<br/></span>
-                        <label>Created:</label> {{ vm.deal.created | relativeDate }}<br/>
-                        <label>Closing date:</label> <span id="closed-date" ng-show="vm.deal.closing_date"> {{ vm.deal.closing_date | relativeDate }}</span>
+                        <div>
+                            <label>Account:</label>
+                            <a ui-sref="base.accounts.detail({ id: vm.deal.account })">
+                                {{ ::vm.deal.account_name }}
+                            </a>
+                        </div>
+                        <div>
+                            <label>Deal name:</label>
+                            {{ ::vm.deal.name }}
+                        </div>
+                        <div ng-if="vm.deal.found_through_name">
+                            <label>Found us through:</label>
+                            {{ ::vm.deal.found_through_name }}
+                        </div>
+                        <div ng-if="vm.deal.contacted_by_name">
+                            <label>Contacted us by:</label>
+                            {{ ::vm.deal.contacted_by_name }}
+                        </div>
+                        <div>
+                            <label>Created:</label>
+                            {{ ::vm.deal.created | relativeDate }}
+                        </div>
+                        <div>
+                            <label>Closing date:</label>
+                            <span id="closed-date" ng-if="!vm.deal.closed_date">
+                                {{ ::vm.deal.closing_date | relativeDate }}
+                            </span>
+                            <span id="closed-date" ng-if="vm.deal.closed_date">
+                                {{ vm.deal.closed_date | relativeDate }}
+                            </span>
+                        </div>
                    </div>
                 </div>
             </div>

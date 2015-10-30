@@ -212,8 +212,14 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             vm.account.$save(function() {
                 toastr.success('I\'ve saved the account for you!', 'Yay');
                 if ($scope.emailSettings.sidebar.form === 'createAccount') {
-                    $scope.emailSettings.sidebar.form = null;
-                    $scope.emailSettings.sidebar.account = true;
+                    if (!$scope.emailSettings.contactId) {
+                        $scope.emailSettings.sidebar.form = 'createContact';
+                        $scope.emailSettings.account = vm.account;
+                    } else {
+                        $scope.emailSettings.sidebar.account = true;
+                        $scope.emailSettings.sidebar.form = null;
+                    }
+
                     $scope.emailSettings.accountId = vm.account.id;
                 } else {
                     $state.go('base.accounts.detail', {id: vm.account.id});

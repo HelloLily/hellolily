@@ -63,7 +63,7 @@ function EmailBaseController($scope) {
             account: null,
             contact: null,
             form: null,
-            isVisible: true,
+            isVisible: false,
         };
     }
 }

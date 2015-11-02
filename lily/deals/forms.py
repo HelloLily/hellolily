@@ -79,7 +79,8 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
         # Set closed_date after changing stage to lost/won and reset it when it's new/pending
         if instance.stage in [Deal.WON_STAGE, Deal.LOST_STAGE]:
-            instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+            if not instance.closed_date:
+                instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
         else:
             instance.closed_date = None
 

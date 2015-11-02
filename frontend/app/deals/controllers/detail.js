@@ -1,36 +1,37 @@
 angular.module('app.deals').config(dealsConfig);
 
 dealsConfig.$inject = ['$stateProvider'];
-function dealsConfig ($stateProvider) {
+function dealsConfig($stateProvider) {
     $stateProvider.state('base.deals.detail', {
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'deals/controllers/detail.html',
                 controller: DealDetailController,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: '{{ deal.name }}'
+            label: '{{ deal.name }}',
         },
         resolve: {
             deal: ['DealDetail', '$stateParams', function(DealDetail, $stateParams) {
                 var id = $stateParams.id;
                 return DealDetail.get({id: id}).$promise;
-            }]
-        }
+            }],
+        },
     });
 }
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$http', '$scope', '$stateParams', 'DealStages', 'deal'];
-function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
+DealDetailController.$inject = ['$http', '$scope', 'DealStages', 'deal'];
+function DealDetailController($http, $scope, DealStages, deal) {
     var vm = this;
+
     $scope.conf.pageTitleBig = 'Deal detail';
     $scope.conf.pageTitleSmall = 'the devil is in the details';
-    var id = $stateParams.id;
+
     vm.deal = deal;
     vm.dealStages = DealStages.query();
 
@@ -45,28 +46,25 @@ function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
      * Change the state of a deal
      */
     function changeState(stage) {
-        var newStage = stage;
-
         var req = {
             method: 'POST',
             url: '/deals/update/stage/' + vm.deal.id + '/',
             data: 'stage=' + stage,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
         };
 
         $http(req).
-            success(function(data, status, headers, config) {
-                vm.deal.stage = newStage;
+            success(function(data) {
+                vm.deal.stage = stage;
                 vm.deal.stage_name = data.stage;
-                if(data.closed_date !== undefined){
-                    vm.deal.closing_date = data.closed_date;
-                }
+                vm.deal.closed_date = data.closed_date;
+
                 $scope.loadNotifications();
             }).
             error(function(data, status, headers, config) {
                 // Request failed propper error?
             });
-    };
+    }
 
     /**
      * Archive a deal
@@ -76,7 +74,7 @@ function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
             method: 'POST',
             url: '/deals/archive/',
             data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
         };
 
         $http(req).
@@ -86,7 +84,7 @@ function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
             error(function(data, status, headers, config) {
                 // Request failed propper error?
             });
-    };
+    }
 
     /**
      * Unarchive a deal
@@ -96,7 +94,7 @@ function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
             method: 'POST',
             url: '/deals/unarchive/',
             data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
         };
 
         $http(req).
@@ -104,7 +102,7 @@ function DealDetailController ($http, $scope, $stateParams, DealStages, deal) {
                 vm.deal.archived = false;
             }).
             error(function(data, status, headers, config) {
-                // Request failed propper error?
+                // Request failed proper error?
             });
-    };
+    }
 }

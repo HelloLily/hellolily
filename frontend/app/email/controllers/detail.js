@@ -169,8 +169,7 @@ function EmailDetailController($scope, $state, $stateParams, $http, Account, Ema
 
                                 // Check if the contact is linked to an account
                                 Account.searchByEmail({email_address: '@' + $scope.emailSettings.website}).$promise.then(function(account) {
-                                    console.log(account);
-                                    if (account.data.id) {
+                                    if (account.data && account.data.id) {
                                         $scope.emailSettings.account = account.data;
                                         $scope.emailSettings.accountId = account.data.id;
                                     } else {

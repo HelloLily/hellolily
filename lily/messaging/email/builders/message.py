@@ -108,15 +108,11 @@ class MessageBuilder(object):
         Handle the labels for current Message
 
         Args:
-            labels (list): of label_identifiers
+            message_info (dict): message info dict
             message_id (string): message_id of email
         """
         self.get_or_create_message({'id': message_id})
         self.message.thread_id = message_info['threadId']
-
-        # Temporary sync snippet
-        # TODO: remove snippet sync in label update
-        self.message.snippet = message_info['snippet']
 
         # clear current labels
         if self.message.pk and self.message.labels:

@@ -8,6 +8,7 @@ function dashboardWidget() {
             widgetCloseable: '=',
             widgetClass: '=',
             widgetScrollable: '=',
+            widgetDynamicHeight:'=',
         },
         templateUrl: 'dashboard/directives/widget.html',
         controller: DashboardWidgetController,

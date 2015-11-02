@@ -125,6 +125,8 @@ function CaseDetailController($http, $scope, $stateParams, Case, Account, CaseSt
                     vm.case.assigned_to_id = null;
                     vm.case.assigned_to_name = null;
                 }
+
+                $scope.loadNotifications();
             }).
             error(function(data, status, headers, config) {
                 // Request failed propper error?

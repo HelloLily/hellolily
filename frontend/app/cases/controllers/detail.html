@@ -68,7 +68,6 @@
             </div>
         </dashboard-widget>
 
-
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <div name="portlet-caption">
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
@@ -105,7 +104,7 @@
                 <ul class="case-detail-block-list">
                     <li>
                         <strong>Assigned to:</strong>
-                        <span>{{ vm.case.assigned_to_name || 'nobody' }}</span>
+                        <span>{{ vm.case.assigned_to_name || 'Nobody' }}</span>
                         <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
                         <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
                     </li>
@@ -116,7 +115,7 @@
                         <!--<a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!">-->
                              <!--{{ vm.case.expires | date:"d MMM y" }} <i class="fa fa-history"></i>-->
                         <!--</a>-->
-                         {{ vm.case.expires | date:"d MMM y" }}
+                        {{ vm.case.expires | date:"d MMM y" }}
                     </li>
                 </ul>
             </div>

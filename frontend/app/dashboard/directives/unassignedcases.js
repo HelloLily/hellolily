@@ -1,15 +1,15 @@
 angular.module('app.dashboard.directives').directive('unassignedCases', unassignedCasesDirective);
 
-function unassignedCasesDirective () {
+function unassignedCasesDirective() {
     return {
         templateUrl: 'dashboard/directives/unassignedcases.html',
         controller: UnassignedCasesController,
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            team: '='
-        }
-    }
+            team: '=',
+        },
+    };
 }
 
 UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'Cookie'];
@@ -20,9 +20,9 @@ function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
-            column: 'id'  // string: current sorted column
+            column: 'id',  // string: current sorted column
         }),
-        items: []
+        items: [],
     };
 
     vm.assignToMe = assignToMe;
@@ -51,13 +51,13 @@ function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
         });
     }
 
-    function assignToMe (caseObj){
-        if(confirm('Assign this case to yourself?')){
+    function assignToMe(caseObj) {
+        if (confirm('Assign this case to yourself?')) {
             var req = {
                 method: 'POST',
                 url: '/cases/update/assigned_to/' + caseObj.id + '/',
                 data: 'assignee=' + currentUser.id,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
             };
 
             $http(req).success(function() {
@@ -71,6 +71,6 @@ function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
              _getUnassignedCases();
             cookie.put('order', vm.table.order);
-        })
+        });
     }
 }

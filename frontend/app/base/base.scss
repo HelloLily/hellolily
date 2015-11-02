@@ -204,3 +204,15 @@ td .label-sm {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
+
+.page-header.navbar .page-actions {
+    margin-top: 22px;
+}
+
+.page-header.navbar .page-logo .logo-default {
+    margin-top: 25px;
+}
+
+.page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-menu:after {
+    right: 22px;
+}
